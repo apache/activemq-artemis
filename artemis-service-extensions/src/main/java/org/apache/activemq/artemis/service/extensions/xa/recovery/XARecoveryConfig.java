@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -44,36 +45,7 @@ public class XARecoveryConfig {
    private final String password;
    private final Map<String, String> properties;
    private final ClientProtocolManagerFactory clientProtocolManager;
-
-   // ServerLocator properties
-   private Long callFailoverTimeout;
-   private Long callTimeout;
-   private Long clientFailureCheckPeriod;
-   private Integer confirmationWindowSize;
-   private String connectionLoadBalancingPolicyClassName;
-   private Long connectionTTL;
-   private Integer consumerMaxRate;
-   private Integer consumerWindowSize;
-   private Integer initialConnectAttempts;
-   private Integer producerMaxRate;
-   private Integer producerWindowSize;
-   private Integer minLargeMessageSize;
-   private Long retryInterval;
-   private Double retryIntervalMultiplier;
-   private Long maxRetryInterval;
-   private Integer reconnectAttempts;
-   private Integer initialMessagePacketSize;
-   private Integer scheduledThreadPoolMaxSize;
-   private Integer threadPoolMaxSize;
-   private boolean autoGroup;
-   private boolean blockOnAcknowledge;
-   private boolean blockOnNonDurableSend;
-   private boolean blockOnDurableSend;
-   private boolean preAcknowledge;
-   private boolean useGlobalPools;
-   private boolean cacheLargeMessagesClient;
-   private boolean compressLargeMessage;
-   private boolean failoverOnInitialConnection;
+   private ServerLocatorConfig locatorConfig;
 
    public static XARecoveryConfig newConfig(ActiveMQConnectionFactory factory,
                                             String userName,
@@ -102,7 +74,7 @@ public class XARecoveryConfig {
       this.username = username;
       this.password = password;
       this.ha = ha;
-      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
+      this.properties = properties == null ? new HashMap<>() : properties;
       this.clientProtocolManager = clientProtocolManager;
    }
 
@@ -164,8 +136,7 @@ public class XARecoveryConfig {
       this.ha = serverLocator.isHA();
       this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
       this.clientProtocolManager = clientProtocolManager;
-
-      readLocatorProperties(serverLocator);
+      this.locatorConfig = serverLocator.getLocatorConfig();
    }
 
    public boolean isHA() {
@@ -209,80 +180,11 @@ public class XARecoveryConfig {
          serverLocator = ActiveMQClient.createServerLocator(isHA(), getTransportConfig()).setProtocolManagerFactory(clientProtocolManager);
       }
 
-      writeLocatorProperties(serverLocator);
+      if (this.locatorConfig != null) {
+         serverLocator.setLocatorConfig(new ServerLocatorConfig(this.locatorConfig));
+      }
 
       return serverLocator;
-   }
-
-   private void writeLocatorProperties(ServerLocator serverLocator) {
-      serverLocator.setAutoGroup(this.autoGroup);
-      serverLocator.setBlockOnAcknowledge(this.blockOnAcknowledge);
-      serverLocator.setBlockOnNonDurableSend(this.blockOnNonDurableSend);
-      serverLocator.setBlockOnDurableSend(this.blockOnDurableSend);
-      serverLocator.setPreAcknowledge(this.preAcknowledge);
-      serverLocator.setUseGlobalPools(this.useGlobalPools);
-      serverLocator.setCacheLargeMessagesClient(this.cacheLargeMessagesClient);
-      serverLocator.setCompressLargeMessage(this.compressLargeMessage);
-      serverLocator.setFailoverOnInitialConnection(this.failoverOnInitialConnection);
-
-      serverLocator.setConsumerMaxRate(this.consumerMaxRate);
-      serverLocator.setConsumerWindowSize(this.consumerWindowSize);
-      serverLocator.setMinLargeMessageSize(this.minLargeMessageSize);
-      serverLocator.setProducerMaxRate(this.producerMaxRate);
-      serverLocator.setProducerWindowSize(this.producerWindowSize);
-      serverLocator.setConfirmationWindowSize(this.confirmationWindowSize);
-      serverLocator.setReconnectAttempts(this.reconnectAttempts);
-      serverLocator.setThreadPoolMaxSize(this.threadPoolMaxSize);
-      serverLocator.setScheduledThreadPoolMaxSize(this.scheduledThreadPoolMaxSize);
-      serverLocator.setInitialConnectAttempts(this.initialConnectAttempts);
-      serverLocator.setInitialMessagePacketSize(this.initialMessagePacketSize);
-
-      serverLocator.setClientFailureCheckPeriod(this.clientFailureCheckPeriod);
-      serverLocator.setCallTimeout(this.callTimeout);
-      serverLocator.setCallFailoverTimeout(this.callFailoverTimeout);
-      serverLocator.setConnectionTTL(this.connectionTTL);
-      serverLocator.setRetryInterval(this.retryInterval);
-      serverLocator.setMaxRetryInterval(this.maxRetryInterval);
-
-      serverLocator.setRetryIntervalMultiplier(this.retryIntervalMultiplier);
-
-      serverLocator.setConnectionLoadBalancingPolicyClassName(this.connectionLoadBalancingPolicyClassName);
-}
-
-   private void readLocatorProperties(ServerLocator locator) {
-
-      this.autoGroup = locator.isAutoGroup();
-      this.blockOnAcknowledge = locator.isBlockOnAcknowledge();
-      this.blockOnNonDurableSend = locator.isBlockOnNonDurableSend();
-      this.blockOnDurableSend = locator.isBlockOnDurableSend();
-      this.preAcknowledge = locator.isPreAcknowledge();
-      this.useGlobalPools = locator.isUseGlobalPools();
-      this.cacheLargeMessagesClient = locator.isCacheLargeMessagesClient();
-      this.compressLargeMessage = locator.isCompressLargeMessage();
-      this.failoverOnInitialConnection = locator.isFailoverOnInitialConnection();
-
-      this.consumerMaxRate = locator.getConsumerMaxRate();
-      this.consumerWindowSize = locator.getConsumerWindowSize();
-      this.minLargeMessageSize = locator.getMinLargeMessageSize();
-      this.producerMaxRate = locator.getProducerMaxRate();
-      this.producerWindowSize = locator.getProducerWindowSize();
-      this.confirmationWindowSize = locator.getConfirmationWindowSize();
-      this.reconnectAttempts = locator.getReconnectAttempts();
-      this.threadPoolMaxSize = locator.getThreadPoolMaxSize();
-      this.scheduledThreadPoolMaxSize = locator.getScheduledThreadPoolMaxSize();
-      this.initialConnectAttempts = locator.getInitialConnectAttempts();
-      this.initialMessagePacketSize = locator.getInitialMessagePacketSize();
-
-      this.clientFailureCheckPeriod = locator.getClientFailureCheckPeriod();
-      this.callTimeout = locator.getCallTimeout();
-      this.callFailoverTimeout = locator.getCallFailoverTimeout();
-      this.connectionTTL = locator.getConnectionTTL();
-      this.retryInterval = locator.getRetryInterval();
-      this.maxRetryInterval = locator.getMaxRetryInterval();
-
-      this.retryIntervalMultiplier = locator.getRetryIntervalMultiplier();
-
-      this.connectionLoadBalancingPolicyClassName = locator.getConnectionLoadBalancingPolicyClassName();
    }
 
    @Override
