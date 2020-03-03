@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.api.core.client;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.Interceptor;
@@ -822,4 +823,8 @@ public interface ServerLocator extends AutoCloseable {
 
    /** This will only instantiate internal objects such as the topology */
    void initialize() throws ActiveMQException;
+
+   ServerLocatorConfig getLocatorConfig();
+
+   void setLocatorConfig(ServerLocatorConfig serverLocatorConfig);
 }
