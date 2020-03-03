@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
@@ -156,13 +157,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    public ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
                                    final TransportConfiguration connectorConfig,
-                                   final long callTimeout,
-                                   final long callFailoverTimeout,
-                                   final long clientFailureCheckPeriod,
-                                   final long connectionTTL,
-                                   final long retryInterval,
-                                   final double retryIntervalMultiplier,
-                                   final long maxRetryInterval,
+                                   final ServerLocatorConfig locatorConfig,
                                    final int reconnectAttempts,
                                    final Executor threadPool,
                                    final ScheduledExecutorService scheduledThreadPool,
@@ -182,27 +177,27 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       checkTransportKeys(connectorFactory, connectorConfig);
 
-      this.callTimeout = callTimeout;
+      this.callTimeout = locatorConfig.callTimeout;
 
-      this.callFailoverTimeout = callFailoverTimeout;
+      this.callFailoverTimeout = locatorConfig.callFailoverTimeout;
 
       // HORNETQ-1314 - if this in an in-vm connection then disable connection monitoring
       if (connectorFactory.isReliable() &&
-         clientFailureCheckPeriod == ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD &&
-         connectionTTL == ActiveMQClient.DEFAULT_CONNECTION_TTL) {
+         locatorConfig.clientFailureCheckPeriod == ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD &&
+         locatorConfig.connectionTTL == ActiveMQClient.DEFAULT_CONNECTION_TTL) {
          this.clientFailureCheckPeriod = ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD_INVM;
          this.connectionTTL = ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM;
       } else {
-         this.clientFailureCheckPeriod = clientFailureCheckPeriod;
+         this.clientFailureCheckPeriod = locatorConfig.clientFailureCheckPeriod;
 
-         this.connectionTTL = connectionTTL;
+         this.connectionTTL = locatorConfig.connectionTTL;
       }
 
-      this.retryInterval = retryInterval;
+      this.retryInterval = locatorConfig.retryInterval;
 
-      this.retryIntervalMultiplier = retryIntervalMultiplier;
+      this.retryIntervalMultiplier = locatorConfig.retryIntervalMultiplier;
 
-      this.maxRetryInterval = maxRetryInterval;
+      this.maxRetryInterval = locatorConfig.maxRetryInterval;
 
       this.reconnectAttempts = reconnectAttempts;
 
