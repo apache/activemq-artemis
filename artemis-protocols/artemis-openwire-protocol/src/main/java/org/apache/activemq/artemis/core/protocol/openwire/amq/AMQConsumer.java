@@ -27,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -68,7 +69,7 @@ public class AMQConsumer {
    private int prefetchSize;
    private final AtomicInteger currentWindow;
    private long messagePullSequence = 0;
-   private MessagePullHandler messagePullHandler;
+   private final AtomicReference<MessagePullHandler> messagePullHandler = new AtomicReference<>(null);
    //internal means we don't expose
    //it's address/queue to management service
    private boolean internalAddress = false;
@@ -87,7 +88,7 @@ public class AMQConsumer {
       this.prefetchSize = info.getPrefetchSize();
       this.currentWindow = new AtomicInteger(prefetchSize);
       if (prefetchSize == 0) {
-         messagePullHandler = new MessagePullHandler();
+         messagePullHandler.set(new MessagePullHandler());
       }
       this.internalAddress = internalAddress;
       this.rolledbackMessageRefs = null;
@@ -228,7 +229,7 @@ public class AMQConsumer {
    }
 
    public void acquireCredit(int n) throws Exception {
-      if (messagePullHandler != null) {
+      if (messagePullHandler.get() != null) {
          //don't acquire any credits when the pull handler controls it!!
          return;
       }
@@ -245,7 +246,8 @@ public class AMQConsumer {
    public int handleDeliver(MessageReference reference, ICoreMessage message, int deliveryCount) {
       MessageDispatch dispatch;
       try {
-         if (messagePullHandler != null && !messagePullHandler.checkForcedConsumer(message)) {
+         MessagePullHandler pullHandler = messagePullHandler.get();
+         if (pullHandler != null && !pullHandler.checkForcedConsumer(message)) {
             return 0;
          }
 
@@ -359,8 +361,9 @@ public class AMQConsumer {
 
    public void processMessagePull(MessagePull messagePull) throws Exception {
       currentWindow.incrementAndGet();
-      if (messagePullHandler != null) {
-         messagePullHandler.nextSequence(messagePullSequence++, messagePull.getTimeout());
+      MessagePullHandler pullHandler = messagePullHandler.get();
+      if (pullHandler != null) {
+         pullHandler.nextSequence(messagePullSequence++, messagePull.getTimeout());
       }
    }
 
@@ -380,6 +383,11 @@ public class AMQConsumer {
       this.prefetchSize = prefetchSize;
       this.currentWindow.set(prefetchSize);
       this.info.setPrefetchSize(prefetchSize);
+      if (this.prefetchSize == 0) {
+         messagePullHandler.compareAndSet(null, new MessagePullHandler());
+      } else {
+         messagePullHandler.set(null);
+      }
       if (this.prefetchSize > 0) {
          serverConsumer.promptDelivery();
       }
