@@ -1702,6 +1702,7 @@ public interface ActiveMQServerControl {
     */
    @Operation(desc = "remove a user (only applicable when using the JAAS PropertiesLoginModule)", impact = MBeanOperationInfo.ACTION)
    void removeUser(@Parameter(name = "username", desc = "Name of the user") String username) throws Exception;
+
    /**
     * Set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule).
     *
@@ -1714,5 +1715,20 @@ public interface ActiveMQServerControl {
    void resetUser(@Parameter(name = "username", desc = "Name of the user") String username,
                   @Parameter(name = "password", desc = "User's password") String password,
                   @Parameter(name = "roles", desc = "User's role (comma separated)") String roles) throws Exception;
+   /**
+    * Set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule).
+    *
+    * @param username
+    * @param password
+    * @param roles
+    * @param plaintext
+    * @throws Exception
+    */
+
+   @Operation(desc = "set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule)", impact = MBeanOperationInfo.ACTION)
+   void resetUser(@Parameter(name = "username", desc = "Name of the user") String username,
+                  @Parameter(name = "password", desc = "User's password") String password,
+                  @Parameter(name = "roles", desc = "User's role (comma separated)") String roles,
+                  @Parameter(name = "plaintext", desc = "whether or not to store the password in plaintext or hash it") boolean plaintext) throws Exception;
 }
 

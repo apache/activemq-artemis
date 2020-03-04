@@ -483,7 +483,16 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   public void testUserCommandViaManagement() throws Exception {
+   public void testUserCommandViaManagementPlaintext() throws Exception {
+      internalTestUserCommandViaManagement(true);
+   }
+
+   @Test
+   public void testUserCommandViaManagementHashed() throws Exception {
+      internalTestUserCommandViaManagement(false);
+   }
+
+   private void internalTestUserCommandViaManagement(boolean plaintext) throws Exception {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
       System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
@@ -502,16 +511,17 @@ public class ArtemisTest extends CliTestBase {
       checkRole("admin", roleFile, "amq");
 
       //add a simple user
-      activeMQServerControl.addUser("guest", "guest123", "admin", true);
+      activeMQServerControl.addUser("guest", "guest123", "admin", plaintext);
 
       //verify add
       jsonResult = activeMQServerControl.listUser("");
       contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin");
       checkRole("guest", roleFile, "admin");
       assertTrue(checkPassword("guest", "guest123", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("guest", userFile)));
 
       //add a user with 2 roles
-      activeMQServerControl.addUser("scott", "tiger", "admin,operator", true);
+      activeMQServerControl.addUser("scott", "tiger", "admin,operator", plaintext);
 
       //verify add
       jsonResult = activeMQServerControl.listUser("");
@@ -519,9 +529,10 @@ public class ArtemisTest extends CliTestBase {
       contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator");
       checkRole("scott", roleFile, "admin", "operator");
       assertTrue(checkPassword("scott", "tiger", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("scott", userFile)));
 
       try {
-         activeMQServerControl.addUser("scott", "password", "visitor", true);
+         activeMQServerControl.addUser("scott", "password", "visitor", plaintext);
          fail("should throw an exception if adding a existing user");
       } catch (IllegalArgumentException expected) {
       }
@@ -729,7 +740,16 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
-   public void testUserCommandResetViaManagement() throws Exception {
+   public void testUserCommandResetViaManagementPlaintext() throws Exception {
+      internalTestUserCommandResetViaManagement(true);
+   }
+
+   @Test
+   public void testUserCommandResetViaManagementHashed() throws Exception {
+      internalTestUserCommandResetViaManagement(false);
+   }
+
+   private void internalTestUserCommandResetViaManagement(boolean plaintext) throws Exception {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
       System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
@@ -753,11 +773,12 @@ public class ArtemisTest extends CliTestBase {
       contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq", false);
 
       //add some users
-      activeMQServerControl.addUser("guest", "guest123", "admin", true);
-      activeMQServerControl.addUser("user1", "password1", "admin,manager", true);
+      activeMQServerControl.addUser("guest", "guest123", "admin", plaintext);
+      activeMQServerControl.addUser("user1", "password1", "admin,manager", plaintext);
       assertTrue(checkPassword("user1", "password1", userFile));
-      activeMQServerControl.addUser("user2", "password2", "admin,manager,master", true);
-      activeMQServerControl.addUser("user3", "password3", "system,master", true);
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user1", userFile)));
+      activeMQServerControl.addUser("user2", "password2", "admin,manager,master", plaintext);
+      activeMQServerControl.addUser("user3", "password3", "system,master", plaintext);
 
 
       //verify use list cmd
@@ -774,23 +795,26 @@ public class ArtemisTest extends CliTestBase {
       checkRole("user1", roleFile, "admin", "manager");
 
       //reset password
-      activeMQServerControl.resetUser("user1", "newpassword1", null);
+      activeMQServerControl.resetUser("user1", "newpassword1", null, plaintext);
 
       checkRole("user1", roleFile, "admin", "manager");
       assertFalse(checkPassword("user1", "password1", userFile));
       assertTrue(checkPassword("user1", "newpassword1", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user1", userFile)));
 
       //reset role
-      activeMQServerControl.resetUser("user2", null, "manager,master,operator");
+      activeMQServerControl.resetUser("user2", null, "manager,master,operator", plaintext);
 
       checkRole("user2", roleFile, "manager", "master", "operator");
       assertTrue(checkPassword("user2", "password2", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user2", userFile)));
 
       //reset both
-      activeMQServerControl.resetUser("user3", "newpassword3", "admin,system");
+      activeMQServerControl.resetUser("user3", "newpassword3", "admin,system", plaintext);
 
       checkRole("user3", roleFile, "admin", "system");
       assertTrue(checkPassword("user3", "newpassword3", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user3", userFile)));
       stopServer();
    }
 
@@ -1394,11 +1418,15 @@ public class ArtemisTest extends CliTestBase {
       }
    }
 
-   private boolean checkPassword(String user, String password, File userFile) throws Exception {
+   private String getStoredPassword(String user, File userFile) throws Exception {
       Configurations configs = new Configurations();
       FileBasedConfigurationBuilder<PropertiesConfiguration> userBuilder = configs.propertiesBuilder(userFile);
       PropertiesConfiguration userConfig = userBuilder.getConfiguration();
-      String storedPassword = (String) userConfig.getProperty(user);
+      return (String) userConfig.getProperty(user);
+   }
+
+   private boolean checkPassword(String user, String password, File userFile) throws Exception {
+      String storedPassword = getStoredPassword(user, userFile);
       HashProcessor processor = PasswordMaskingUtil.getHashProcessor(storedPassword);
       return processor.compare(password.toCharArray(), storedPassword);
    }
