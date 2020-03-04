@@ -386,6 +386,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void resetUser(String username, String password, String roles, boolean plaintext) throws Exception {
+            proxy.invokeOperation("resetUser", username, password, roles, plaintext);
+         }
+
+         @Override
          public String getUptime() {
             return null;
          }

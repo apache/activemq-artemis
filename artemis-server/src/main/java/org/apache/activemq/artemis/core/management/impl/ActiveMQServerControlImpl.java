@@ -3891,6 +3891,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       return (String) tcclCall(ActiveMQServerControlImpl.class.getClassLoader(), () -> internaListUser(username));
    }
+
    private String internaListUser(String username) throws Exception {
       PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
       Map<String, Set<String>> info = config.listUser(username);
@@ -3915,6 +3916,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalRemoveUser(username));
    }
+
    private void internalRemoveUser(String username) throws Exception {
       PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
       config.removeUser(username);
@@ -3922,15 +3924,22 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void resetUser(String username, String password, String roles) throws Exception {
+   public void resetUser(String username, String password, String roles, boolean plaintext) throws Exception {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.resetUser(this.server, username, "****", roles);
+         AuditLogger.resetUser(this.server, username, "****", roles, plaintext);
       }
-      tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalresetUser(username, password, roles));
+      tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalresetUser(username, password, roles, plaintext));
    }
-   private void internalresetUser(String username, String password, String roles) throws Exception {
+
+   @Override
+   public void resetUser(String username, String password, String roles) throws Exception {
+      resetUser(username, password, roles, true);
+   }
+
+   private void internalresetUser(String username, String password, String roles, boolean plaintext) throws Exception {
       PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
-      config.updateUser(username, password, roles == null ? null : roles.split(","));
+      // don't hash a null password even if plaintext = false
+      config.updateUser(username, password == null ? password : plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password), roles == null ? null : roles.split(","));
       config.save();
    }
 
