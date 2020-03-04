@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.api.config;
-
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+package org.apache.activemq.artemis.api.core.client;
 
 public class ServerLocatorConfig {
    public long clientFailureCheckPeriod = ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
