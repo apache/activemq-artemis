@@ -18,6 +18,7 @@ package org.apache.activemq.cli.test;
 
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,10 +74,8 @@ public class CliProducerTest extends CliTestBase {
 
    private void checkSentMessages(Session session, String address, String messageBody) throws Exception {
       final boolean isCustomMessageBody = messageBody != null;
-      boolean fqqn = false;
-      if (address.contains("::")) fqqn = true;
 
-      List<Message> received = consumeMessages(session, address, TEST_MESSAGE_COUNT, fqqn);
+      List<Message> received = consumeMessages(session, address, TEST_MESSAGE_COUNT, CompositeAddress.isFullyQualified(address));
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
          if (!isCustomMessageBody) messageBody = "test message: " + String.valueOf(i);
          assertEquals(messageBody, ((TextMessage) received.get(i)).getText());
