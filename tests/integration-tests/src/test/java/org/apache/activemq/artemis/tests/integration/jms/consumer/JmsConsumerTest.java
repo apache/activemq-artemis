@@ -31,12 +31,10 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.jms.TopicSession;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -548,35 +546,6 @@ public class JmsConsumerTest extends JMSTestBase {
          Assert.fail("Should throw exception");
       } catch (JMSException e) {
          // Ok
-      }
-   }
-
-   @Test
-   public void testTopicConsumer() throws Exception {
-      String clientId = "TESTID";
-
-      conn = cf.createConnection();
-      conn.setClientID(clientId);
-      conn.start();
-
-      try {
-         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         topic = session.createTopic(T_NAME);
-         MessageProducer producer = session.createProducer(topic);
-         MessageConsumer consumer = ((TopicSession)session).createSubscriber(topic);
-
-         for (Object queueControlObject : server.getManagementService().getResources(QueueControl.class)) {
-            QueueControl queueControl = (QueueControl)queueControlObject;
-            if (queueControl.getAddress().compareTo(T_NAME) == 0) {
-               assertTrue(queueControl.getName().contains(clientId));
-               break;
-            }
-         }
-
-         producer.send(session.createTextMessage("test"));
-         Assert.assertNotNull(consumer.receive(5000));
-      } finally {
-         conn.close();
       }
    }
 
