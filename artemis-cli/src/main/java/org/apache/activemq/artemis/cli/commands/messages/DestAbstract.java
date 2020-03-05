@@ -18,33 +18,17 @@
 package org.apache.activemq.artemis.cli.commands.messages;
 
 import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.Session;
-import java.nio.ByteBuffer;
 
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.ClientRequestor;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 import org.apache.activemq.artemis.cli.factory.serialize.XMLMessageSerializer;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 public class DestAbstract extends ConnectionAbstract {
 
-   public static final String DEFAULT_MESSAGE_SERIALIZER = "org.apache.activemq.artemis.cli.factory.serialize.XMLMessageSerializer";
-
-   private static final String FQQN_PREFIX = "fqqn://";
-
-   private static final String FQQN_SEPERATOR = "::";
-
-   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// or fqqn:// (Default: queue://TEST)")
+   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. (Default: queue://TEST)")
    String destination = "queue://TEST";
 
    @Option(name = "--message-count", description = "Number of messages to act on (Default: 1000)")
@@ -62,86 +46,37 @@ public class DestAbstract extends ConnectionAbstract {
    @Option(name = "--serializer", description = "Override the default serializer with a custom implementation")
    String serializer;
 
-   protected boolean isFQQN() throws ActiveMQException {
-      boolean fqqn = destination.contains("::");
-      if (fqqn) {
-         if (!destination.startsWith("fqqn://")) {
-            throw new ActiveMQException("FQQN destinations must start with the fqqn:// prefix");
-         }
-
-         if (protocol.equalsIgnoreCase("AMQP")) {
-            throw new ActiveMQException("Sending to FQQN destinations is not support via AMQP protocol");
-         }
-         return true;
-      } else {
-         return false;
-      }
-   }
-
-   protected Destination lookupDestination(Session session) throws Exception {
-      if (protocol.equals("AMQP")) {
-         return session.createQueue(destination);
-      } else {
-         return ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.TYPE.QUEUE);
-      }
-   }
-
    protected MessageSerializer getMessageSerializer() {
-      if (serializer == null) return new XMLMessageSerializer();
-      try {
-         return (MessageSerializer) Class.forName(serializer).getConstructor().newInstance();
-      } catch (Exception e) {
-         System.out.println("Error: unable to instantiate serializer class: " + serializer);
-         System.out.println("Defaulting to: " + DEFAULT_MESSAGE_SERIALIZER);
+      if (serializer != null) {
+         try {
+            return (MessageSerializer) Class.forName(serializer).getConstructor().newInstance();
+         } catch (Exception e) {
+            System.err.println("Error: unable to instantiate serializer class: " + serializer);
+            System.err.println("Defaulting to: " + XMLMessageSerializer.class.getName());
+         }
       }
+
+      if (!protocol.equalsIgnoreCase("CORE")) {
+         System.err.println("Default Serializer does not support: " + protocol + " protocol");
+         return null;
+      }
+
       return new XMLMessageSerializer();
    }
 
-   public byte[] getQueueIdFromName(String queueName) throws Exception {
-      try {
-         ClientMessage message = getQueueAttribute(queueName, "ID");
-         Number idObject = (Number) ManagementHelper.getResult(message);
-         ByteBuffer byteBuffer = ByteBuffer.allocate(8);
-         byteBuffer.putLong(idObject.longValue());
-         return byteBuffer.array();
-      } catch (Exception e) {
-         throw new ActiveMQException("Error occured when looking up FQQN.  Please ensure the FQQN exists.", e, ActiveMQExceptionType.ILLEGAL_STATE);
+   protected Destination getDestination(Session session) throws JMSException {
+      if (destination.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
+         return session.createTopic(stripPrefix(destination));
       }
+      return session.createQueue(stripPrefix(destination));
    }
 
-   protected ClientMessage getQueueAttribute(String queueName, String attribute) throws Exception {
-      try (ServerLocator serverLocator = ActiveMQClient.createServerLocator(brokerURL)) {
-         try (ClientSessionFactory sf = serverLocator.createSessionFactory()) {
-            ClientSession managementSession;
-            if (user != null || password != null) {
-               managementSession = sf.createSession(user, password, false, true, true, false, 0);
-            } else {
-               managementSession = sf.createSession(false, true, true);
-            }
-            managementSession.start();
-
-            try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
-               ClientMessage managementMessage = managementSession.createMessage(false);
-               ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queueName, attribute);
-               managementSession.start();
-               ClientMessage reply = requestor.request(managementMessage);
-               return reply;
-            } finally {
-               managementSession.stop();
-            }
-         }
+   private String stripPrefix(String destination) {
+      int index = destination.indexOf("://");
+      if (index != -1) {
+         return destination.substring(index + 3);
+      } else {
+         return destination;
       }
-   }
-
-   protected String getQueueFromFQQN(String fqqn) {
-      return fqqn.substring(fqqn.indexOf(FQQN_SEPERATOR) + FQQN_SEPERATOR.length());
-   }
-
-   protected String getAddressFromFQQN(String fqqn) {
-      return fqqn.substring(fqqn.indexOf(FQQN_PREFIX) + FQQN_PREFIX.length(), fqqn.indexOf(FQQN_SEPERATOR));
-   }
-
-   protected String getFQQNFromDestination(String destination) {
-      return destination.substring(destination.indexOf(FQQN_PREFIX) + FQQN_PREFIX.length());
    }
 }
