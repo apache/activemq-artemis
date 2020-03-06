@@ -156,3 +156,19 @@ This contains a real example for configuring amqpIdleTimeout:
 ```xml
 <acceptor name="amqp">tcp://0.0.0.0:5672?amqpIdleTimeout=0;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;directDeliver=false;batchDelay=10</acceptor>
 ```
+
+## Web Sockets
+
+Apache ActiveMQ Artemis also supports AMQP over [Web
+Sockets](https://html.spec.whatwg.org/multipage/web-sockets.html).  Modern web
+browsers which support Web Sockets can send and receive AMQP messages.
+
+AMQP over Web Sockets is supported via a normal AMQP acceptor:
+
+```xml
+<acceptor name="amqp-ws-acceptor">tcp://localhost:5672?protocols=AMQP</acceptor>
+```
+
+With this configuration, Apache ActiveMQ Artemis will accept AMQP connections
+over Web Sockets on the port `5672`. Web browsers can then connect to
+`ws://<server>:5672` using a Web Socket to send and receive AMQP messages.
