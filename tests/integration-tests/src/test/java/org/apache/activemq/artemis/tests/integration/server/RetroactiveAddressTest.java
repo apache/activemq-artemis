@@ -100,13 +100,22 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testRetroactiveResourceCreation() throws Exception {
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+   public void testRetroactiveResourceCreationWithExactMatch() throws Exception {
+      internalTestRetroactiveResourceCreation("myAddress", "myAddress");
+   }
+
+   @Test
+   public void testRetroactiveResourceCreationWithWildcardMatch() throws Exception {
+      internalTestRetroactiveResourceCreation("myAddress", "#");
+   }
+
+   private void internalTestRetroactiveResourceCreation(String address, String match) throws Exception {
+      final SimpleString addressName = SimpleString.toSimpleString(address);
       final SimpleString divertAddress = ResourceNames.getRetroactiveResourceAddressName(internalNamingPrefix, delimiter, addressName);
       final SimpleString divertMulticastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       final SimpleString divertAnycastQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.ANYCAST);
       final SimpleString divert = ResourceNames.getRetroactiveResourceDivertName(internalNamingPrefix, delimiter, addressName);
-      server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(10));
+      server.getAddressSettingsRepository().addMatch(match, new AddressSettings().setRetroactiveMessageCount(10));
       server.addAddressInfo(new AddressInfo(addressName));
       assertNotNull(server.getAddressInfo(divertAddress));
       assertNotNull(server.locateQueue(divertMulticastQueue));
