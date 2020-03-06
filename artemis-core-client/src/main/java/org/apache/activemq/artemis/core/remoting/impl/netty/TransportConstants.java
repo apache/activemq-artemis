@@ -268,9 +268,15 @@ public class TransportConstants {
 
    public static final String HEART_BEAT_TO_CONNECTION_TTL_MODIFIER = "heartBeatToConnectionTtlModifier";
 
-   public static final String STOMP_ENABLE_MESSAGE_ID = "stomp-enable-message-id";
+   @Deprecated
+   public static final String STOMP_ENABLE_MESSAGE_ID_DEPRECATED = "stomp-enable-message-id";
 
-   public static final String STOMP_MIN_LARGE_MESSAGE_SIZE = "stomp-min-large-message-size";
+   public static final String STOMP_ENABLE_MESSAGE_ID = "stompEnableMessageId";
+
+   @Deprecated
+   public static final String STOMP_MIN_LARGE_MESSAGE_SIZE_DEPRECATED = "stomp-min-large-message-size";
+
+   public static final String STOMP_MIN_LARGE_MESSAGE_SIZE = "stompMinLargeMessageSize";
 
    public static final String NETTY_CONNECT_TIMEOUT = "connect-timeout-millis";
 
@@ -356,11 +362,13 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.DIRECT_DELIVER);
       allowableAcceptorKeys.add(TransportConstants.CLUSTER_CONNECTION);
       allowableAcceptorKeys.add(TransportConstants.STOMP_CONSUMERS_CREDIT);
+      allowableAcceptorKeys.add(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE_DEPRECATED);
       allowableAcceptorKeys.add(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE);
       allowableAcceptorKeys.add(TransportConstants.CONNECTION_TTL);
       allowableAcceptorKeys.add(TransportConstants.CONNECTION_TTL_MAX);
       allowableAcceptorKeys.add(TransportConstants.CONNECTION_TTL_MIN);
       allowableAcceptorKeys.add(TransportConstants.HEART_BEAT_TO_CONNECTION_TTL_MODIFIER);
+      allowableAcceptorKeys.add(TransportConstants.STOMP_ENABLE_MESSAGE_ID_DEPRECATED);
       allowableAcceptorKeys.add(TransportConstants.STOMP_ENABLE_MESSAGE_ID);
       allowableAcceptorKeys.add(TransportConstants.CONNECTIONS_ALLOWED);
       allowableAcceptorKeys.add(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH);
