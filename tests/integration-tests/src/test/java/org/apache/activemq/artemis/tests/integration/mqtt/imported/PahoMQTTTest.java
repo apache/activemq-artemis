@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,10 +32,24 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class PahoMQTTTest extends MQTTTestSupport {
 
    private static MQTTLogger LOG = MQTTLogger.LOGGER;
+
+   @Parameterized.Parameters(name = "protocol={0}")
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][] {{"tcp"}, {"ws"}});
+   }
+
+   public String protocol;
+
+   public PahoMQTTTest(String protocol) {
+      this.protocol = protocol;
+   }
 
    @Test(timeout = 300000)
    public void testLotsOfClients() throws Exception {
@@ -146,7 +162,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
    }
 
    private MqttClient createPahoClient(String clientId) throws MqttException {
-      return new MqttClient("tcp://localhost:" + getPort(), clientId, new MemoryPersistence());
+      return new MqttClient(protocol + "://localhost:" + getPort(), clientId, new MemoryPersistence());
    }
 
 }

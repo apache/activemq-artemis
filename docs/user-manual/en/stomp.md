@@ -285,7 +285,7 @@ the same as the default value of
 
 ## Web Sockets
 
-Apache ActiveMQ Artemis also support STOMP over [Web
+Apache ActiveMQ Artemis also supports STOMP over [Web
 Sockets](https://html.spec.whatwg.org/multipage/web-sockets.html).  Modern web
 browsers which support Web Sockets can send and receive STOMP messages.
 

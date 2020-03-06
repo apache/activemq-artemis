@@ -29,7 +29,7 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-      <paho.client.mqttv3.version>1.1.0</paho.client.mqttv3.version>
+      <paho.client.mqttv3.version>1.2.2</paho.client.mqttv3.version>
    </properties>
 
    <dependencies>
