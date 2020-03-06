@@ -56,30 +56,25 @@ public class Consumer extends DestAbstract {
       System.out.println("Consumer:: filter = " + filter);
 
       SerialiserMessageListener listener = null;
-      MessageSerializer messageSerializer = null;
+      MessageSerializer serializer = null;
       if (file != null) {
-         try {
-            String className = serializer == null ? DEFAULT_MESSAGE_SERIALIZER : serializer;
-            if (className.equals(DEFAULT_MESSAGE_SERIALIZER) && !protocol.equalsIgnoreCase("CORE")) {
-               System.err.println("Default Serializer does not support: " + protocol + " protocol");
-               return null;
-            }
-            messageSerializer = (MessageSerializer) Class.forName(className).getConstructor().newInstance();
-         } catch (Exception e) {
-            System.err.println("Error. Unable to instantiate serializer class: " + serializer);
+         serializer = getMessageSerializer();
+         if (serializer == null) {
+            System.err.println("Error. Unable to instantiate serializer class: " + this.serializer);
             return null;
          }
 
+         OutputStream out;
          try {
-            OutputStream out = new FileOutputStream(file);
-            listener = new SerialiserMessageListener(messageSerializer, out);
+            out = new FileOutputStream(file);
          } catch (Exception e) {
             System.err.println("Error: Unable to open file for writing\n" + e.getMessage());
             return null;
          }
-      }
 
-      if (messageSerializer != null) messageSerializer.start();
+         listener = new SerialiserMessageListener(serializer, out);
+         serializer.start();
+      }
 
       ConnectionFactory factory = createConnectionFactory();
 
@@ -94,12 +89,20 @@ public class Consumer extends DestAbstract {
                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
 
-            // Do validation on FQQN
-            Destination dest = isFQQN() ? session.createQueue(getFQQNFromDestination(destination)) : lookupDestination(session);
+            Destination dest = getDestination(session);
             threadsArray[i] = new ConsumerThread(session, dest, i);
 
-            threadsArray[i].setVerbose(verbose).setSleep(sleep).setDurable(durable).setBatchSize(txBatchSize).setBreakOnNull(breakOnNull)
-               .setMessageCount(messageCount).setReceiveTimeOut(receiveTimeout).setFilter(filter).setBrowse(false).setListener(listener);
+            threadsArray[i]
+               .setVerbose(verbose)
+               .setSleep(sleep)
+               .setDurable(durable)
+               .setBatchSize(txBatchSize)
+               .setBreakOnNull(breakOnNull)
+               .setMessageCount(messageCount)
+               .setReceiveTimeOut(receiveTimeout)
+               .setFilter(filter)
+               .setBrowse(false)
+               .setListener(listener);
          }
 
          for (ConsumerThread thread : threadsArray) {
@@ -115,13 +118,11 @@ public class Consumer extends DestAbstract {
             received += thread.getReceived();
          }
 
-         if (messageSerializer != null) messageSerializer.stop();
+         if (serializer != null) {
+            serializer.stop();
+         }
 
          return received;
-      } finally {
-         if (factory instanceof AutoCloseable) {
-            ((AutoCloseable) factory).close();
-         }
       }
    }
 

@@ -49,10 +49,15 @@ public class Browse extends DestAbstract {
             } else {
                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
-            Destination dest = lookupDestination(session);
+            Destination dest = getDestination(session);
             threadsArray[i] = new ConsumerThread(session, dest, i);
 
-            threadsArray[i].setVerbose(verbose).setSleep(sleep).setMessageCount(messageCount).setFilter(filter).setBrowse(true);
+            threadsArray[i]
+               .setVerbose(verbose)
+               .setSleep(sleep)
+               .setMessageCount(messageCount)
+               .setFilter(filter)
+               .setBrowse(true);
          }
 
          for (ConsumerThread thread : threadsArray) {
@@ -69,11 +74,6 @@ public class Browse extends DestAbstract {
          }
 
          return received;
-      } finally {
-         if (factory instanceof AutoCloseable) {
-            ((AutoCloseable) factory).close();
-         }
       }
    }
-
 }
