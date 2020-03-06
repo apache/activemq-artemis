@@ -2284,4 +2284,20 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601503, value = "User {0} is getting retroactiveResource property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void isRetroactiveResource(String user, Object source, Object... args);
+
+   static void getDiskStoreUsage(Object source) {
+      LOGGER.getDiskStoreUsage(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601504, value = "User {0} is getting disk store usage on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getDiskStoreUsage(String user, Object source, Object... args);
+
+   static void getDiskStoreUsagePercentage(Object source) {
+      LOGGER.getDiskStoreUsagePercentage(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601505, value = "User {0} is getting disk store usage percentage on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getDiskStoreUsagePercentage(String user, Object source, Object... args);
 }
