@@ -1119,10 +1119,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              boolean autoCreateAddress,
                              long ringSize) throws Exception {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.createQueue(this.server, address, routingType, name, filterStr, durable,
-                  maxConsumers, purgeOnNoConsumers, exclusive, groupBuckets, lastValue,
-                  lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete,
-                  autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
+         AuditLogger.createQueue(this.server, null, address, routingType, name, filterStr, durable,
+                  maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey,
+                  lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch,
+                  autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
       }
       checkStarted();
 
@@ -1361,7 +1361,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    @Override
    public void destroyQueue(final String name, final boolean removeConsumers, final boolean autoDeleteAddress) throws Exception {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.destroyQueue(this.server, name, removeConsumers, autoDeleteAddress);
+         AuditLogger.destroyQueue(this.server, null, name, removeConsumers, autoDeleteAddress);
       }
       checkStarted();
 
