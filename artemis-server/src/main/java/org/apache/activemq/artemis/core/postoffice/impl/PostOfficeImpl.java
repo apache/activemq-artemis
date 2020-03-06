@@ -466,7 +466,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                   server.callBrokerAddressPlugins(plugin -> plugin.afterAddAddress(addressInfo, reload));
                }
                long retroactiveMessageCount = addressSettingsRepository.getMatch(addressInfo.getName().toString()).getRetroactiveMessageCount();
-               if (retroactiveMessageCount > 0) {
+               if (retroactiveMessageCount > 0 && !addressInfo.isInternal() && !ResourceNames.isRetroactiveResource(server.getInternalNamingPrefix(), addressInfo.getName())) {
                   createRetroactiveResources(addressInfo.getName(), retroactiveMessageCount, reload);
                }
                if (ResourceNames.isRetroactiveResource(server.getInternalNamingPrefix(), addressInfo.getName())) {
