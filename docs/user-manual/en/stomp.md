@@ -208,14 +208,14 @@ message. If you want each STOMP message to have a unique ID, just set the
 
 When the server starts with the above setting, each stomp message sent through
 this acceptor will have an extra property added. The property key is
-`amq-message-id` and the value is a String representation of a long type
+`amqMessageId` and the value is a String representation of a long type
 internal message id prefixed with `STOMP`, like:
 
 ```
-amq-message-id : STOMP12345
+amqMessageId : STOMP12345
 ```
 
-The default `stomp-enable-message-id` value is `false`.
+The default `stompEnableMessageId` value is `false`.
 
 ## Durable Subscriptions
 
@@ -281,7 +281,7 @@ message to a normal message, before sending it to the client.
 If a large message is compressed, the server will uncompressed it before
 sending it to stomp clients. The default value of `stompMinLargeMessageSize` is
 the same as the default value of
-[min-large-message-size](large-messages.md#configuring-parameters).
+[minLargeMessageSize](large-messages.md#configuring-parameters).
 
 ## Web Sockets
 
