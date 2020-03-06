@@ -35,7 +35,7 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       //the queue may already have been deleted and this is a result of that
       if (queue == null) {
          if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("no queue to delete \"" + queueName + ".\"");
+            ActiveMQServerLogger.LOGGER.debug("no queue to delete \"" + queueName + "\".");
          }
          return;
       }
@@ -52,7 +52,7 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       long messageCount = queue.getMessageCount();
 
       if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("purging queue \"" + queue.getName() + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount);
+         ActiveMQServerLogger.LOGGER.debug("purging queue \"" + queue.getName() + "\": consumerCount = " + consumerCount + "; messageCount = " + messageCount);
       }
       try {
          queue.deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
@@ -65,7 +65,7 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       SimpleString queueName = queue.getName();
       AddressSettings settings = server.getAddressSettingsRepository().getMatch(queue.getAddress().toString());
       if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.info("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + queue.getConsumerCount() + "; messageCount = " + queue.getMessageCount() + "; isAutoDelete = " + queue.isAutoDelete());
+         ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + "\": consumerCount = " + queue.getConsumerCount() + "; messageCount = " + queue.getMessageCount() + "; isAutoDelete = " + queue.isAutoDelete());
       }
 
       try {
@@ -84,8 +84,7 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
    }
 
    public static boolean delayCheck(Queue queue) {
-      long consumerRemovedTimestamp =  queue.getConsumerRemovedTimestamp();
-      return consumerRemovedTimestamp != -1 && System.currentTimeMillis() - consumerRemovedTimestamp >= queue.getAutoDeleteDelay();
+      return System.currentTimeMillis() - queue.getConsumerRemovedTimestamp() >= queue.getAutoDeleteDelay();
    }
 
    public static boolean consumerCountCheck(Queue queue) {
