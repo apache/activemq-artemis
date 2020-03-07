@@ -23,6 +23,9 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -30,6 +33,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +45,7 @@ public class PagingReceiveTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
-   private int numMsgs = 500;
+   private int numMsgs = 100;
 
    protected boolean isNetty() {
       return false;
@@ -63,6 +67,36 @@ public class PagingReceiveTest extends ActiveMQTestBase {
       assertEquals(numMsgs, queue.getMessagesAdded());
    }
 
+   @Test
+   public void testReceiveTx() throws Exception {
+      receiveAllMessagesTxAndPageCheckPendingTx();
+   }
+
+   private void receiveAllMessagesTxAndPageCheckPendingTx() throws Exception {
+      final ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(null, null, false, true, false, false, 0);
+
+      session.start();
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+      for (int i = 0; i < numMsgs; i++) {
+         ClientMessage message = consumer.receive(2000);
+         assertNotNull(message);
+         message.acknowledge();
+      }
+
+      //before committing the pendingTx should be positive.
+      PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
+      long qid = server.locateQueue(ADDRESS).getID();
+      PageSubscription pageSub = store.getCursorProvider().getSubscription(qid);
+      long pageNr = store.getCurrentWritingPage();
+
+      Wait.assertTrue(() -> ((PageSubscriptionImpl)pageSub).getPageInfo(pageNr).getPendingTx() > 0);
+
+      PageSubscriptionImpl.PageCursorInfo info = ((PageSubscriptionImpl)pageSub).getPageInfo(pageNr);
+
+      session.commit();
+      session.close();
+   }
 
    @Override
    @Before
@@ -78,11 +112,12 @@ public class PagingReceiveTest extends ActiveMQTestBase {
          queue.getPageSubscription().getPagingStore().forceAnotherPage();
       }
 
+      locator.setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);
       final ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
       ClientProducer prod = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 500; i++) {
+      for (int i = 0; i < numMsgs; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("key", i);
          prod.send(msg);

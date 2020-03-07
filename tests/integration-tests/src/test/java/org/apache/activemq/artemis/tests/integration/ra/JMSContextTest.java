@@ -16,8 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
+import javax.jms.JMSProducer;
 import javax.jms.JMSRuntimeException;
+import javax.jms.MessageFormatRuntimeException;
+import javax.jms.Queue;
+import javax.jms.TextMessage;
 import javax.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;
@@ -143,4 +148,25 @@ public class JMSContextTest extends ActiveMQRATestBase {
       assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
    }
 
+   @Test
+   public void testJMSContextConsumerThrowsMessageFormatExceptionOnMalformedBody() throws Exception {
+      Queue queue = createQueue(true, "ContextMalformedBodyTestQueue");
+
+      JMSContext context = qraConnectionFactory.createContext();
+      JMSProducer producer = context.createProducer();
+
+      TextMessage message = context.createTextMessage("TestMessage");
+      producer.send(queue, message);
+
+      JMSConsumer consumer = context.createConsumer(queue);
+
+      try {
+         consumer.receiveBody(Boolean.class);
+         fail("Should thrown MessageFormatException");
+      } catch (MessageFormatRuntimeException mfre) {
+         // Do nothing test passed
+      } catch (Exception e) {
+         fail("Threw wrong exception, should be MessageFormatRuntimeException, instead got: " + e.getClass().getCanonicalName());
+      }
+   }
 }

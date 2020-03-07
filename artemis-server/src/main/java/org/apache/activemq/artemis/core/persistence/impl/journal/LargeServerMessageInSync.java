@@ -50,7 +50,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
    public synchronized void joinSyncedData(ByteBuffer buffer) throws Exception {
       if (deleted)
          return;
-      SequentialFile mainSeqFile = mainLM.getFile();
+      SequentialFile mainSeqFile = mainLM.getAppendFile();
       if (!mainSeqFile.isOpen()) {
          mainSeqFile.open();
       }
@@ -80,27 +80,27 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
    }
 
    public SequentialFile getSyncFile() throws ActiveMQException {
-      return mainLM.getFile();
+      return mainLM.getAppendFile();
    }
 
    @Override
    public Message setDurable(boolean durable) {
       mainLM.setDurable(durable);
-      return mainLM;
+      return mainLM.toMessage();
    }
 
    @Override
    public synchronized Message setMessageID(long id) {
       mainLM.setMessageID(id);
-      return mainLM;
+      return mainLM.toMessage();
    }
 
    @Override
-   public synchronized void releaseResources() {
+   public synchronized void releaseResources(boolean sync) {
       if (logger.isTraceEnabled()) {
          logger.trace("release resources called on " + mainLM, new Exception("trace"));
       }
-      mainLM.releaseResources();
+      mainLM.releaseResources(sync);
       if (appendFile != null && appendFile.isOpen()) {
          try {
             appendFile.close();
@@ -156,6 +156,16 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
          appendFile.open();
       }
       storageManager.addBytesToLargeMessage(appendFile, mainLM.getMessageID(), bytes);
+   }
+
+   @Override
+   public void clearPendingRecordID() {
+      mainLM.clearPendingRecordID();
+   }
+
+   @Override
+   public boolean hasPendingRecord() {
+      return mainLM.hasPendingRecord();
    }
 
    @Override

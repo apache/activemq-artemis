@@ -26,6 +26,9 @@ import org.apache.activemq.artemis.core.server.group.UnproposalListener;
 
 public interface Bindings extends UnproposalListener {
 
+   // this is to inform the parent there was an udpate on the bindings
+   void updated(QueueBinding binding);
+
    Collection<Binding> getBindings();
 
    void addBinding(Binding binding);
@@ -34,7 +37,11 @@ public interface Bindings extends UnproposalListener {
 
    void setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType);
 
+   MessageLoadBalancingType getMessageLoadBalancingType();
+
    boolean redistribute(Message message, Queue originatingQueue, RoutingContext context) throws Exception;
 
    void route(Message message, RoutingContext context) throws Exception;
+
+   boolean allowRedistribute();
 }

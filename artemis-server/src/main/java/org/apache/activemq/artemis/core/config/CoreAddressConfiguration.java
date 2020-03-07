@@ -18,9 +18,8 @@ package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 
@@ -28,7 +27,7 @@ public class CoreAddressConfiguration implements Serializable {
 
    private String name = null;
 
-   private Set<RoutingType> routingTypes = new HashSet<>();
+   private EnumSet<RoutingType> routingTypes = EnumSet.noneOf(RoutingType.class);
 
    private List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
 
@@ -44,7 +43,7 @@ public class CoreAddressConfiguration implements Serializable {
       return this;
    }
 
-   public Set<RoutingType> getRoutingTypes() {
+   public EnumSet<RoutingType> getRoutingTypes() {
       return routingTypes;
    }
 
@@ -66,4 +65,14 @@ public class CoreAddressConfiguration implements Serializable {
    public List<CoreQueueConfiguration> getQueueConfigurations() {
       return queueConfigurations;
    }
+
+   @Override
+   public String toString() {
+      return "CoreAddressConfiguration[" +
+         "name=" + name +
+         ", routingTypes=" + routingTypes +
+         ", queueConfigurations=" + queueConfigurations +
+         "]";
+   }
+
 }

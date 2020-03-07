@@ -140,6 +140,10 @@ public class OperationContextImpl implements OperationContext {
       boolean executeNow = false;
 
       synchronized (this) {
+         final int UNDEFINED = Integer.MIN_VALUE;
+         int storeLined = UNDEFINED;
+         int pageLined = UNDEFINED;
+         int replicationLined = UNDEFINED;
          if (storeOnly) {
             if (storeOnlyTasks == null) {
                storeOnlyTasks = new LinkedList<>();
@@ -147,16 +151,20 @@ public class OperationContextImpl implements OperationContext {
          } else {
             if (tasks == null) {
                tasks = new LinkedList<>();
-               minimalReplicated = replicationLineUp.intValue();
-               minimalStore = storeLineUp.intValue();
-               minimalPage = pageLineUp.intValue();
+               minimalReplicated = (replicationLined = replicationLineUp.intValue());
+               minimalStore = (storeLined = storeLineUp.intValue());
+               minimalPage = (pageLined = pageLineUp.intValue());
             }
          }
-
+         //On the next branches each of them is been used
+         if (replicationLined == UNDEFINED) {
+            replicationLined = replicationLineUp.intValue();
+            storeLined = storeLineUp.intValue();
+            pageLined = pageLineUp.intValue();
+         }
          // On this case, we can just execute the context directly
 
-         if (replicationLineUp.intValue() == replicated && storeLineUp.intValue() == stored &&
-            pageLineUp.intValue() == paged) {
+         if (replicationLined == replicated && storeLined == stored && pageLined == paged) {
             // We want to avoid the executor if everything is complete...
             // However, we can't execute the context if there are executions pending
             // We need to use the executor on this case
@@ -169,9 +177,9 @@ public class OperationContextImpl implements OperationContext {
             }
          } else {
             if (storeOnly) {
-               storeOnlyTasks.add(new TaskHolder(completion));
+               storeOnlyTasks.add(new TaskHolder(completion, storeLined, replicationLined, pageLined));
             } else {
-               tasks.add(new TaskHolder(completion));
+               tasks.add(new TaskHolder(completion, storeLined, replicationLined, pageLined));
             }
          }
       }
@@ -268,7 +276,7 @@ public class OperationContextImpl implements OperationContext {
       }
    }
 
-   final class TaskHolder {
+   static final class TaskHolder {
 
       @Override
       public String toString() {
@@ -288,10 +296,10 @@ public class OperationContextImpl implements OperationContext {
 
       final IOCallback task;
 
-      TaskHolder(final IOCallback task) {
-         storeLined = storeLineUp.intValue();
-         replicationLined = replicationLineUp.intValue();
-         pageLined = pageLineUp.intValue();
+      TaskHolder(final IOCallback task, int storeLined, int replicationLined, int pageLined) {
+         this.storeLined = storeLined;
+         this.replicationLined = replicationLined;
+         this.pageLined = pageLined;
          this.task = task;
       }
    }

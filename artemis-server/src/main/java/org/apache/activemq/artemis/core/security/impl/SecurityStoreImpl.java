@@ -30,10 +30,12 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
@@ -59,7 +61,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    private volatile long lastCheck;
 
-   private final boolean securityEnabled;
+   private boolean securityEnabled;
 
    private final String managementClusterUser;
 
@@ -94,6 +96,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    @Override
    public boolean isSecurityEnabled() {
       return securityEnabled;
+   }
+
+   @Override
+   public void setSecurityEnabled(boolean securityEnabled) {
+      this.securityEnabled = securityEnabled;
    }
 
    @Override
@@ -135,21 +142,28 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          }
 
          if (!userIsValid && validatedUser == null) {
-            if (notificationService != null) {
-               TypedProperties props = new TypedProperties();
-
-               Notification notification = new Notification(null, CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION, props);
-
-               notificationService.sendNotification(notification);
-            }
-
             String certSubjectDN = "unavailable";
             X509Certificate[] certs = CertificateUtil.getCertsFromConnection(connection);
             if (certs != null && certs.length > 0 && certs[0] != null) {
                certSubjectDN = certs[0].getSubjectDN().getName();
             }
 
-            throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection.getRemoteAddress(), user, certSubjectDN);
+            if (notificationService != null) {
+               TypedProperties props = new TypedProperties();
+               props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
+               props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
+               props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection.getRemoteAddress()));
+
+               Notification notification = new Notification(null, CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION, props);
+
+               notificationService.sendNotification(notification);
+            }
+
+            Exception e = ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection.getRemoteAddress(), user, certSubjectDN);
+
+            ActiveMQServerLogger.LOGGER.securityProblemWhileAuthenticating(e.getMessage());
+
+            throw e;
          }
 
          return validatedUser;
@@ -214,11 +228,14 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                notificationService.sendNotification(notification);
             }
 
+            Exception ex;
             if (queue == null) {
-               throw ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, saddress);
+               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, saddress);
             } else {
-               throw ActiveMQMessageBundle.BUNDLE.userNoPermissionsQueue(session.getUsername(), checkType, queue.toString(), saddress);
+               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissionsQueue(session.getUsername(), checkType, queue.toString(), saddress);
             }
+            AuditLogger.securityFailure(ex);
+            throw ex;
          }
          // if we get here we're granted, add to the cache
          ConcurrentHashSet<SimpleString> set = new ConcurrentHashSet<>();

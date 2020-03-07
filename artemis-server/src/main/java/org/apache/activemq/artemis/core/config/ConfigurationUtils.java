@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.config;
 import java.net.URI;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
@@ -72,11 +73,11 @@ public final class ConfigurationUtils {
          }
          case REPLICATED: {
             ReplicatedPolicyConfiguration pc = (ReplicatedPolicyConfiguration) conf;
-            return new ReplicatedPolicy(pc.isCheckForLiveServer(), pc.getGroupName(), pc.getClusterName(), pc.getInitialReplicationSyncTimeout(), server.getNetworkHealthCheck(), pc.getVoteOnReplicationFailure(), pc.getQuorumSize());
+            return new ReplicatedPolicy(pc.isCheckForLiveServer(), pc.getGroupName(), pc.getClusterName(), pc.getInitialReplicationSyncTimeout(), server.getNetworkHealthCheck(), pc.getVoteOnReplicationFailure(), pc.getQuorumSize(), pc.getVoteRetries(), pc.getVoteRetryWait(), pc.getQuorumVoteWait(), pc.getRetryReplicationWait());
          }
          case REPLICA: {
             ReplicaPolicyConfiguration pc = (ReplicaPolicyConfiguration) conf;
-            return new ReplicaPolicy(pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getGroupName(), pc.isRestartBackup(), pc.isAllowFailBack(), pc.getInitialReplicationSyncTimeout(), getScaleDownPolicy(pc.getScaleDownConfiguration()), server.getNetworkHealthCheck(), pc.getVoteOnReplicationFailure(), pc.getQuorumSize());
+            return new ReplicaPolicy(pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getGroupName(), pc.isRestartBackup(), pc.isAllowFailBack(), pc.getInitialReplicationSyncTimeout(), getScaleDownPolicy(pc.getScaleDownConfiguration()), server.getNetworkHealthCheck(), pc.getVoteOnReplicationFailure(), pc.getQuorumSize(), pc.getVoteRetries(), pc.getVoteRetryWait(), pc.getQuorumVoteWait(), pc.getRetryReplicationWait());
          }
          case SHARED_STORE_MASTER: {
             SharedStoreMasterPolicyConfiguration pc = (SharedStoreMasterPolicyConfiguration) conf;
@@ -93,7 +94,7 @@ public final class ConfigurationUtils {
             HAPolicy livePolicy;
             //if null default to colocated
             if (liveConf == null) {
-               livePolicy = new ReplicatedPolicy(server.getNetworkHealthCheck());
+               livePolicy = new ReplicatedPolicy(server.getNetworkHealthCheck(),ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait());
             } else {
                livePolicy = getHAPolicy(liveConf, server);
             }
@@ -101,7 +102,7 @@ public final class ConfigurationUtils {
             BackupPolicy backupPolicy;
             if (backupConf == null) {
                if (livePolicy instanceof ReplicatedPolicy) {
-                  backupPolicy = new ReplicaPolicy(server.getNetworkHealthCheck());
+                  backupPolicy = new ReplicaPolicy(server.getNetworkHealthCheck(),ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait());
                } else if (livePolicy instanceof SharedStoreMasterPolicy) {
                   backupPolicy = new SharedStoreSlavePolicy();
                } else {
@@ -140,6 +141,9 @@ public final class ConfigurationUtils {
 
    public static List<TransportConfiguration> parseAcceptorURI(String name, String uri) {
       try {
+         // remove all whitespace
+         uri = uri.replaceAll("\\s", "");
+
          AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
 
          List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
@@ -164,8 +168,10 @@ public final class ConfigurationUtils {
    }
 
    public static List<TransportConfiguration> parseConnectorURI(String name, String uri) {
-
       try {
+         // remove all whitespace
+         uri = uri.replaceAll("\\s", "");
+
          ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser();
 
          List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);

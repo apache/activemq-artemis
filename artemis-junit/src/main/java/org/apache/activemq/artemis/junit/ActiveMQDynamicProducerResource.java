@@ -44,16 +44,32 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
  */
 public class ActiveMQDynamicProducerResource extends ActiveMQProducerResource {
 
+   public ActiveMQDynamicProducerResource(String url, String username, String password) {
+      super(url, username, password);
+   }
+
    public ActiveMQDynamicProducerResource(String url) {
       super(url);
+   }
+
+   public ActiveMQDynamicProducerResource(ServerLocator serverLocator, String username, String password) {
+      super(serverLocator, username, password);
    }
 
    public ActiveMQDynamicProducerResource(ServerLocator serverLocator) {
       super(serverLocator);
    }
 
+   public ActiveMQDynamicProducerResource(String url, SimpleString address, String username, String password) {
+      super(url, address, username, password);
+   }
+
    public ActiveMQDynamicProducerResource(String url, SimpleString address) {
       super(url, address);
+   }
+
+   public ActiveMQDynamicProducerResource(ServerLocator serverLocator, SimpleString address, String username, String password) {
+      super(serverLocator, address, username, password);
    }
 
    public ActiveMQDynamicProducerResource(ServerLocator serverLocator, SimpleString address) {

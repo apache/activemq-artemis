@@ -16,15 +16,32 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
+import static org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.TemporaryQueue;
+import javax.jms.TemporaryTopic;
+import javax.jms.Topic;
+
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
@@ -36,19 +53,15 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.message.Message;
-
-import static org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
+import org.jboss.logging.Logger;
 
 /**
  * Support class containing constant values and static methods that are used to map to / from
  * AMQP Message types being sent or received.
  */
 public final class AMQPMessageSupport {
+
+   private static final Logger logger = Logger.getLogger(AMQPMessageSupport.class);
 
    public static final String JMS_REPLY_TO_TYPE_MSG_ANNOTATION_SYMBOL_NAME = "x-opt-jms-reply-to";
 
@@ -61,8 +74,21 @@ public final class AMQPMessageSupport {
 
    /**
     * Attribute used to mark the Application defined delivery time assigned to the message
+    *
+    * @deprecated Use the SCHEDULED_DELIVERY_TIME value as this is not JMS specific and will be removed.
     */
+   @Deprecated
    public static final Symbol JMS_DELIVERY_TIME = Symbol.getSymbol("x-opt-delivery-time");
+
+   /**
+    * Attribute used to mark the Application defined delivery time assigned to the message
+    */
+   public static final Symbol SCHEDULED_DELIVERY_TIME = Symbol.getSymbol("x-opt-delivery-time");
+
+   /**
+    * Attribute used to mark the Application defined delivery time assigned to the message
+    */
+   public static final Symbol SCHEDULED_DELIVERY_DELAY = Symbol.getSymbol("x-opt-delivery-delay");
 
    /**
     * Attribute used to mark the Application defined delivery time assigned to the message
@@ -114,6 +140,7 @@ public final class AMQPMessageSupport {
    public static final String JMS_AMQP_PREFIX = "JMS_AMQP_";
    public static final int JMS_AMQP_PREFIX_LENGTH = JMS_AMQP_PREFIX.length();
 
+   public static final String ORIGINAL_ENCODING = "ORIGINAL_ENCODING";
    public static final String NATIVE = "NATIVE";
    public static final String HEADER = "HEADER";
    public static final String PROPERTIES = "PROPERTIES";
@@ -128,6 +155,7 @@ public final class AMQPMessageSupport {
    public static final String DELIVERY_ANNOTATION_PREFIX = "DA_";
    public static final String MESSAGE_ANNOTATION_PREFIX = "MA_";
    public static final String FOOTER_PREFIX = "FT_";
+   public static final String ENCODED_PREFIX = "ENCODED_";
 
    public static final String JMS_AMQP_HEADER = JMS_AMQP_PREFIX + HEADER;
    public static final String JMS_AMQP_HEADER_DURABLE = JMS_AMQP_PREFIX + HEADER + DURABLE;
@@ -141,6 +169,10 @@ public final class AMQPMessageSupport {
    public static final String JMS_AMQP_DELIVERY_ANNOTATION_PREFIX = JMS_AMQP_PREFIX + DELIVERY_ANNOTATION_PREFIX;
    public static final String JMS_AMQP_MESSAGE_ANNOTATION_PREFIX = JMS_AMQP_PREFIX + MESSAGE_ANNOTATION_PREFIX;
    public static final String JMS_AMQP_FOOTER_PREFIX = JMS_AMQP_PREFIX + FOOTER_PREFIX;
+   public static final String JMS_AMQP_ENCODED_DELIVERY_ANNOTATION_PREFIX = JMS_AMQP_PREFIX + ENCODED_PREFIX + DELIVERY_ANNOTATION_PREFIX;
+   public static final String JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX = JMS_AMQP_PREFIX + ENCODED_PREFIX + MESSAGE_ANNOTATION_PREFIX;
+   public static final String JMS_AMQP_ENCODED_FOOTER_PREFIX = JMS_AMQP_PREFIX + ENCODED_PREFIX + FOOTER_PREFIX;
+   public static final String JMS_AMQP_ORIGINAL_ENCODING = JMS_AMQP_PREFIX + ORIGINAL_ENCODING;
 
    // Message body type definitions
    public static final Binary EMPTY_BINARY = new Binary(new byte[0]);
@@ -223,6 +255,24 @@ public final class AMQPMessageSupport {
    }
 
    /**
+    * Check whether the content-type given matches the expect value.
+    *
+    * @param expected
+    *        content type string to compare against or null if not expected to be set
+    * @param actual
+    *        the AMQP content type symbol from the Properties section
+    *
+    * @return true if content type matches
+    */
+   public static boolean isContentType(String expected, Symbol actual) {
+      if (expected == null) {
+         return actual == null;
+      } else {
+         return expected.equals(actual != null ? actual.toString() : actual);
+      }
+   }
+
+   /**
     * @param contentType
     *        the contentType of the received message
     * @return the character set to use, or null if not to treat the message as text
@@ -236,62 +286,77 @@ public final class AMQPMessageSupport {
    }
 
    public static String toAddress(Destination destination) {
-      if (destination instanceof ActiveMQDestination) {
-         return ((ActiveMQDestination) destination).getAddress();
+      try {
+         if (destination instanceof ActiveMQDestination) {
+            return ((ActiveMQDestination) destination).getAddress();
+         } else {
+            if (destination instanceof Queue) {
+               return ((Queue) destination).getQueueName();
+            } else if (destination instanceof Topic) {
+
+               return ((Topic) destination).getTopicName();
+            }
+         }
+      } catch (JMSException e) {
+         // ActiveMQDestination (and most JMS implementations I know) will never throw an Exception here
+         // this is here for compilation support (as JMS declares it), and I don't want to propagate exceptions into
+         // the converter...
+         // and for the possibility of who knows in the future!!!
+         logger.warn(e.getMessage(), e);
       }
       return null;
    }
 
-   public static ServerJMSBytesMessage createBytesMessage(long id) {
-      return new ServerJMSBytesMessage(newMessage(id, BYTES_TYPE));
+   public static ServerJMSBytesMessage createBytesMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSBytesMessage(newMessage(id, BYTES_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSBytesMessage createBytesMessage(long id, byte[] array, int arrayOffset, int length) throws JMSException {
-      ServerJMSBytesMessage message = createBytesMessage(id);
+   public static ServerJMSBytesMessage createBytesMessage(long id, byte[] array, int arrayOffset, int length, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSBytesMessage message = createBytesMessage(id, coreMessageObjectPools);
       message.writeBytes(array, arrayOffset, length);
       return message;
    }
 
-   public static ServerJMSStreamMessage createStreamMessage(long id) {
-      return new ServerJMSStreamMessage(newMessage(id, STREAM_TYPE));
+   public static ServerJMSStreamMessage createStreamMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSStreamMessage(newMessage(id, STREAM_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMessage createMessage(long id) {
-      return new ServerJMSMessage(newMessage(id, DEFAULT_TYPE));
+   public static ServerJMSMessage createMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSMessage(newMessage(id, DEFAULT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSTextMessage createTextMessage(long id) {
-      return new ServerJMSTextMessage(newMessage(id, TEXT_TYPE));
+   public static ServerJMSTextMessage createTextMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSTextMessage(newMessage(id, TEXT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSTextMessage createTextMessage(long id, String text) throws JMSException {
-      ServerJMSTextMessage message = createTextMessage(id);
+   public static ServerJMSTextMessage createTextMessage(long id, String text, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSTextMessage message = createTextMessage(id, coreMessageObjectPools);
       message.setText(text);
       return message;
    }
 
-   public static ServerJMSObjectMessage createObjectMessage(long id) {
-      return new ServerJMSObjectMessage(newMessage(id, OBJECT_TYPE));
+   public static ServerJMSObjectMessage createObjectMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSObjectMessage(newMessage(id, OBJECT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMessage createObjectMessage(long id, Binary serializedForm) throws JMSException {
-      ServerJMSObjectMessage message = createObjectMessage(id);
+   public static ServerJMSMessage createObjectMessage(long id, Binary serializedForm, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSObjectMessage message = createObjectMessage(id, coreMessageObjectPools);
       message.setSerializedForm(serializedForm);
       return message;
    }
 
-   public static ServerJMSMessage createObjectMessage(long id, byte[] array, int offset, int length) throws JMSException {
-      ServerJMSObjectMessage message = createObjectMessage(id);
+   public static ServerJMSMessage createObjectMessage(long id, byte[] array, int offset, int length, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSObjectMessage message = createObjectMessage(id, coreMessageObjectPools);
       message.setSerializedForm(new Binary(array, offset, length));
       return message;
    }
 
-   public static ServerJMSMapMessage createMapMessage(long id) {
-      return new ServerJMSMapMessage(newMessage(id, MAP_TYPE));
+   public static ServerJMSMapMessage createMapMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new ServerJMSMapMessage(newMessage(id, MAP_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMapMessage createMapMessage(long id, Map<String, Object> content) throws JMSException {
-      ServerJMSMapMessage message = createMapMessage(id);
+   public static ServerJMSMapMessage createMapMessage(long id, Map<String, Object> content, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+      ServerJMSMapMessage message = createMapMessage(id, coreMessageObjectPools);
       final Set<Map.Entry<String, Object>> set = content.entrySet();
       for (Map.Entry<String, Object> entry : set) {
          Object value = entry.getValue();
@@ -304,10 +369,45 @@ public final class AMQPMessageSupport {
       return message;
    }
 
-   private static CoreMessage newMessage(long id, byte messageType) {
-      CoreMessage message = new CoreMessage(id, 512);
+   private static CoreMessage newMessage(long id, byte messageType, CoreMessageObjectPools coreMessageObjectPools) {
+      CoreMessage message = new CoreMessage(id, 512, coreMessageObjectPools);
       message.setType(messageType);
 //      ((ResetLimitWrappedActiveMQBuffer) message.getBodyBuffer()).setMessage(null);
       return message;
    }
+
+
+   public static byte destinationType(Destination destination) {
+      if (destination instanceof Queue) {
+         if (destination instanceof TemporaryQueue) {
+            return TEMP_QUEUE_TYPE;
+         } else {
+            return QUEUE_TYPE;
+         }
+      } else if (destination instanceof Topic) {
+         if (destination instanceof TemporaryTopic) {
+            return TEMP_TOPIC_TYPE;
+         } else {
+            return TOPIC_TYPE;
+         }
+      }
+
+      return QUEUE_TYPE;
+   }
+
+   public static Destination destination(byte destinationType, String address) {
+      switch (destinationType) {
+         case TEMP_QUEUE_TYPE:
+            return new ActiveMQTemporaryQueue(address, null);
+         case TEMP_TOPIC_TYPE:
+            return new ActiveMQTemporaryTopic(address, null);
+         case TOPIC_TYPE:
+            return new ActiveMQTopic(address);
+         case QUEUE_TYPE:
+            return new ActiveMQQueue(address);
+         default:
+            return new ActiveMQQueue(address);
+      }
+   }
+
 }

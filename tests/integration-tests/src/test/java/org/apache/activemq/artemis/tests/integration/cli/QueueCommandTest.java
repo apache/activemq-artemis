@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
+import org.apache.activemq.artemis.cli.commands.queue.PurgeQueue;
 import org.apache.activemq.artemis.cli.commands.queue.UpdateQueue;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
@@ -58,7 +59,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setMulticast(true);
       command.setAnycast(false);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(command, "AMQ119203");
+      checkExecutionFailure(command, "AMQ229203");
       assertFalse(server.queueQuery(new SimpleString(queueName)).isExists());
    }
 
@@ -136,7 +137,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setAnycast(false);
       command.execute(new ActionContext());
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(command, "AMQ119019");
+      checkExecutionFailure(command, "AMQ229019");
    }
 
    @Test
@@ -166,7 +167,7 @@ public class QueueCommandTest extends JMSTestBase {
       DeleteQueue delete = new DeleteQueue();
       delete.setName(queueName.toString());
       delete.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(delete, "AMQ119017");
+      checkExecutionFailure(delete, "AMQ229017");
 
       assertFalse(server.queueQuery(queueName).isExists());
    }
@@ -188,7 +189,7 @@ public class QueueCommandTest extends JMSTestBase {
       DeleteQueue delete = new DeleteQueue();
       delete.setName(queueName.toString());
       delete.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(delete, "AMQ119025");
+      checkExecutionFailure(delete, "AMQ229025");
    }
 
    @Test
@@ -291,7 +292,7 @@ public class QueueCommandTest extends JMSTestBase {
       updateQueue.setMaxConsumers(-1);
       updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
-      checkExecutionFailure(updateQueue, "AMQ119211");
+      checkExecutionFailure(updateQueue, "AMQ229211");
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
       assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
@@ -321,7 +322,7 @@ public class QueueCommandTest extends JMSTestBase {
       updateQueue.setMaxConsumers(newMaxConsumers);
       updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
-      checkExecutionFailure(updateQueue, "AMQ119210");
+      checkExecutionFailure(updateQueue, "AMQ229210");
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
       assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
@@ -334,7 +335,35 @@ public class QueueCommandTest extends JMSTestBase {
       UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName.toString());
       updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(updateQueue, "AMQ119017: Queue " + queueName + " does not exist");
+      checkExecutionFailure(updateQueue, "AMQ229017: Queue " + queueName + " does not exist");
+
+      assertFalse(server.queueQuery(queueName).isExists());
+   }
+
+   @Test
+   public void testPurgeQueue() throws Exception {
+      SimpleString queueName = new SimpleString("purgeQueue");
+
+      CreateQueue command = new CreateQueue();
+      command.setName(queueName.toString());
+      command.setAutoCreateAddress(true);
+      command.setAnycast(true);
+      command.execute(new ActionContext());
+
+      PurgeQueue purge = new PurgeQueue();
+      purge.setName(queueName.toString());
+      purge.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionPassed(purge);
+   }
+
+   @Test
+   public void testPurgeQueueDoesNotExist() throws Exception {
+      SimpleString queueName = new SimpleString("purgeQueue");
+
+      PurgeQueue purge = new PurgeQueue();
+      purge.setName(queueName.toString());
+      purge.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionFailure(purge, "AMQ229067: Cannot find resource with name queue." + queueName);
 
       assertFalse(server.queueQuery(queueName).isExists());
    }

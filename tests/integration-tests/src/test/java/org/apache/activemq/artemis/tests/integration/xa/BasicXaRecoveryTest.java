@@ -123,7 +123,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       MBeanServerFactory.releaseMBeanServer(mbeanServer);
       super.tearDown();
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         destroyTables(Arrays.asList("BINDINGS", "LARGE_MESSAGE", "MESSAGE"));
+         destroyTables(Arrays.asList("BINDINGS", "LARGE_MESSAGE", "MESSAGE", "NODE_MANAGER_STORE"));
       }
    }
 

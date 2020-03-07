@@ -37,14 +37,17 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.ra.ActiveMQRAXAResource;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -214,6 +217,42 @@ public class BasicXaTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testRestartWithTXPrepareDeletedQueue() throws Exception {
+
+      ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
+      ClientProducer clientProducer = clientSession2.createProducer(atestq);
+      ClientMessage m1 = createTextMessage(clientSession2, "m1");
+      clientProducer.send(m1);
+
+      Xid xid = newXID();
+      clientSession.start(xid, XAResource.TMNOFLAGS);
+      clientSession.start();
+
+      ClientConsumer clientConsumer = clientSession.createConsumer(atestq);
+
+      ClientMessage message = clientConsumer.receive(5000);
+      message.acknowledge();
+      clientSession.end(xid, XAResource.TMSUCCESS);
+      clientSession.prepare(xid);
+
+      Queue queueAtestQ = messagingService.locateQueue(atestq);
+      Assert.assertNotNull(queueAtestQ);
+
+      clientSession.getSessionFactory().getConnection().destroy();
+
+      Wait.assertEquals(0, queueAtestQ::getConsumerCount);
+
+      messagingService.destroyQueue(atestq);
+
+      messagingService.stop();
+      messagingService.start();
+
+      messagingService.waitForActivation(10, TimeUnit.SECONDS);
+
+      assertTrue(messagingService.isStarted());
+   }
+
+   @Test
    public void testXAInterleaveResourceRollbackAfterPrepare() throws Exception {
       Xid xid = newXID();
       Xid xid2 = newXID();
@@ -331,6 +370,105 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       clientSession2.close();
 
+   }
+
+   @Test
+   public void testPrepareError() throws Exception {
+      Xid xid = newXID();
+
+      ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
+      ClientProducer clientProducer = clientSession2.createProducer(atestq);
+      ClientMessage m1 = createTextMessage(clientSession2, "m1");
+      ClientMessage m2 = createTextMessage(clientSession2, "m2");
+      ClientMessage m3 = createTextMessage(clientSession2, "m3");
+      ClientMessage m4 = createTextMessage(clientSession2, "m4");
+      clientProducer.send(m1);
+      clientProducer.send(m2);
+      clientProducer.send(m3);
+      clientProducer.send(m4);
+
+      clientSession.start(xid, XAResource.TMNOFLAGS);
+      clientSession.start();
+      ClientConsumer clientConsumer = clientSession.createConsumer(atestq);
+      ClientMessage m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      clientSession.end(xid, XAResource.TMSUCCESS);
+
+      StorageManager journalStorageManager = messagingService.getStorageManager();
+
+      clientSession.prepare(xid);
+
+      journalStorageManager.getMessageJournal().stop();
+      try {
+         clientSession.commit(xid, false);
+         Assert.fail("Exception exptected");
+      } catch (XAException e) {
+         Assert.assertTrue(e.errorCode == XAException.XA_RETRY);
+      }
+   }
+
+
+   @Test
+   public void testRollbackError() throws Exception {
+      Xid xid = newXID();
+
+      ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
+      ClientProducer clientProducer = clientSession2.createProducer(atestq);
+      ClientMessage m1 = createTextMessage(clientSession2, "m1");
+      ClientMessage m2 = createTextMessage(clientSession2, "m2");
+      ClientMessage m3 = createTextMessage(clientSession2, "m3");
+      ClientMessage m4 = createTextMessage(clientSession2, "m4");
+      clientProducer.send(m1);
+      clientProducer.send(m2);
+      clientProducer.send(m3);
+      clientProducer.send(m4);
+
+      clientSession.start(xid, XAResource.TMNOFLAGS);
+      clientSession.start();
+      ClientConsumer clientConsumer = clientSession.createConsumer(atestq);
+      ClientMessage m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      clientSession.end(xid, XAResource.TMSUCCESS);
+
+      StorageManager journalStorageManager = messagingService.getStorageManager();
+
+      clientSession.prepare(xid);
+
+      journalStorageManager.getMessageJournal().stop();
+      try {
+         clientSession.rollback(xid);
+         Assert.fail("Exception exptected");
+      } catch (XAException e) {
+         Assert.assertTrue(e.errorCode == XAException.XA_RETRY);
+      }
    }
 
    @Test

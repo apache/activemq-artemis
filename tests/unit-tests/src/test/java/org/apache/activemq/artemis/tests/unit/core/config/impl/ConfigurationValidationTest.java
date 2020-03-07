@@ -26,6 +26,13 @@ import org.w3c.dom.Element;
 
 public class ConfigurationValidationTest extends ActiveMQTestBase {
 
+   static {
+      System.setProperty("a2Prop", "a2");
+      System.setProperty("falseProp", "false");
+      System.setProperty("trueProp", "true");
+      System.setProperty("ninetyTwoProp", "92");
+   }
+
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -56,5 +63,21 @@ public class ConfigurationValidationTest extends ActiveMQTestBase {
       deploymentManager.readConfiguration();
 
       Assert.assertEquals(true, fc.isPersistDeliveryCountBeforeDelivery());
+   }
+
+   @Test
+   public void testChangeConfiguration() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-full-config.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+      deploymentManager = new FileDeploymentManager("ConfigurationTest-full-config-wrong-address.xml");
+      deploymentManager.addDeployable(fc);
+
+      try {
+         deploymentManager.readConfiguration();
+         fail("Exception expected");
+      } catch (Exception ignored) {
+      }
    }
 }

@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -28,7 +23,15 @@ import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * extends the simple manager to allow wildcard addresses to be used.
@@ -43,13 +46,17 @@ public class WildcardAddressManager extends SimpleAddressManager {
 
    private final Map<SimpleString, Address> wildCardAddresses = new ConcurrentHashMap<>();
 
-   public WildcardAddressManager(final BindingsFactory bindingsFactory, final WildcardConfiguration wildcardConfiguration, final
-                                 StorageManager storageManager) {
-      super(bindingsFactory, wildcardConfiguration, storageManager);
+   public WildcardAddressManager(final BindingsFactory bindingsFactory,
+                                 final WildcardConfiguration wildcardConfiguration,
+                                 final StorageManager storageManager,
+                                 final MetricsManager metricsManager) {
+      super(bindingsFactory, wildcardConfiguration, storageManager, metricsManager);
    }
 
-   public WildcardAddressManager(final BindingsFactory bindingsFactory, StorageManager storageManager) {
-      super(bindingsFactory, storageManager);
+   public WildcardAddressManager(final BindingsFactory bindingsFactory,
+                                 final StorageManager storageManager,
+                                 final MetricsManager metricsManager) {
+      super(bindingsFactory, storageManager, metricsManager);
    }
 
    @Override
@@ -67,6 +74,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
                   for (Binding theBinding : theBindings) {
                      super.addMappingInternal(address, theBinding);
                   }
+                  super.getBindingsForRoutingAddress(address).setMessageLoadBalancingType(b.getMessageLoadBalancingType());
                }
             }
          }
@@ -94,13 +102,33 @@ public class WildcardAddressManager extends SimpleAddressManager {
          } else {
             for (Address destAdd : add.getLinkedAddresses()) {
                Bindings bindings = super.getBindingsForRoutingAddress(destAdd.getAddress());
-               for (Binding b : bindings.getBindings()) {
-                  super.addMappingInternal(binding.getAddress(), b);
+               if (bindings != null) {
+                  for (Binding b : bindings.getBindings()) {
+                     super.addMappingInternal(binding.getAddress(), b);
+                  }
                }
             }
          }
       }
       return exists;
+   }
+
+   @Override
+   public void updateMessageLoadBalancingTypeForAddress(SimpleString address, MessageLoadBalancingType messageLoadBalancingType) throws Exception {
+      Address add = addAndUpdateAddressMap(address);
+      Bindings bindingsForRoutingAddress = super.getBindingsForRoutingAddress(address);
+      if (bindingsForRoutingAddress != null) {
+         bindingsForRoutingAddress.setMessageLoadBalancingType(messageLoadBalancingType);
+      }
+      if (add.containsWildCard()) {
+         for (Address destAdd : add.getLinkedAddresses()) {
+            getBindingsForRoutingAddress(destAdd.getAddress()).setMessageLoadBalancingType(messageLoadBalancingType);
+         }
+      } else {
+         for (Address destAdd : add.getLinkedAddresses()) {
+            super.getBindingsForRoutingAddress(destAdd.getAddress()).setMessageLoadBalancingType(messageLoadBalancingType);
+         }
+      }
    }
 
    /**
@@ -123,6 +151,18 @@ public class WildcardAddressManager extends SimpleAddressManager {
          removeAndUpdateAddressMap(add);
       }
       return binding;
+   }
+
+   @Override
+   public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
+      final AddressInfo removed = super.removeAddressInfo(address);
+      if (removed != null) {
+         //Remove from mappings so removeAndUpdateAddressMap processes and cleanup
+         mappings.remove(address);
+         removeAndUpdateAddressMap(new AddressImpl(removed.getName(), wildcardConfiguration));
+         removed.unregisterMeters(metricsManager);
+      }
+      return removed;
    }
 
    @Override

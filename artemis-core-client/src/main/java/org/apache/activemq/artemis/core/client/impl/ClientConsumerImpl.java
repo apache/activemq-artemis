@@ -70,6 +70,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private final SimpleString filterString;
 
+   private final int priority;
+
    private final SimpleString queueName;
 
    private final boolean browseOnly;
@@ -85,6 +87,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    // Number of pending calls on flow control
    private final ReusableLatch pendingFlowControl = new ReusableLatch(0);
+
+   private final int initialWindow;
 
    private final int clientWindowSize;
 
@@ -139,7 +143,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                              final ConsumerContext consumerContext,
                              final SimpleString queueName,
                              final SimpleString filterString,
+                             final int priority,
                              final boolean browseOnly,
+                             final int initialWindow,
                              final int clientWindowSize,
                              final int ackBatchSize,
                              final TokenBucketLimiter rateLimiter,
@@ -154,6 +160,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
       this.filterString = filterString;
 
+      this.priority = priority;
+
       this.browseOnly = browseOnly;
 
       this.sessionContext = sessionContext;
@@ -163,6 +171,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       this.rateLimiter = rateLimiter;
 
       sessionExecutor = executor;
+
+      this.initialWindow = initialWindow;
 
       this.clientWindowSize = clientWindowSize;
 
@@ -409,6 +419,15 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       return handler;
    }
 
+   @Override
+   public Thread getCurrentThread() {
+      if (onMessageThread != null) {
+         return onMessageThread;
+      }
+      return receiverThread;
+   }
+
+
    // Must be synchronized since messages may be arriving while handler is being set and might otherwise end
    // up not queueing enough executors - so messages get stranded
    @Override
@@ -482,8 +501,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    @Override
    public void stop(final boolean waitForOnMessage) throws ActiveMQException {
-      waitForOnMessageToComplete(waitForOnMessage);
-
       if (browseOnly) {
          // stop shouldn't affect browser delivery
          return;
@@ -496,6 +513,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
          stopped = true;
       }
+      waitForOnMessageToComplete(waitForOnMessage);
    }
 
    @Override
@@ -547,6 +565,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    @Override
    public SimpleString getFilterString() {
       return filterString;
+   }
+
+   @Override
+   public int getPriority() {
+      return priority;
    }
 
    @Override
@@ -733,6 +756,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          controller.cancel();
          currentLargeMessageController = null;
       }
+   }
+
+   @Override
+   public int getInitialWindowSize() {
+      return initialWindow;
    }
 
    @Override

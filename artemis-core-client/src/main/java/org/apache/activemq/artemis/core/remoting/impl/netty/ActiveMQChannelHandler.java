@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import java.util.concurrent.Executor;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
@@ -24,7 +26,6 @@ import io.netty.channel.group.ChannelGroup;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
-import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 
@@ -41,12 +42,16 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
 
    volatile boolean active;
 
+   private final Executor listenerExecutor;
+
    protected ActiveMQChannelHandler(final ChannelGroup group,
                                     final BufferHandler handler,
-                                    final BaseConnectionLifeCycleListener<?> listener) {
+                                    final BaseConnectionLifeCycleListener<?> listener,
+                                    final Executor listenerExecutor) {
       this.group = group;
       this.handler = handler;
       this.listener = listener;
+      this.listenerExecutor = listenerExecutor;
    }
 
    @Override
@@ -75,7 +80,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
       synchronized (this) {
          if (active) {
-            listener.connectionDestroyed(channelId(ctx.channel()));
+            listenerExecutor.execute(() -> listener.connectionDestroyed(channelId(ctx.channel())));
 
             active = false;
          }
@@ -93,12 +98,12 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
       // and we don't want to spew out stack traces in that event
       // The user has access to this exeception anyway via the ActiveMQException initial cause
 
-      ActiveMQException me = ActiveMQClientMessageBundle.BUNDLE.nettyError();
+      ActiveMQException me = new ActiveMQException(cause.getMessage());
       me.initCause(cause);
 
       synchronized (listener) {
          try {
-            listener.connectionException(channelId(ctx.channel()), me);
+            listenerExecutor.execute(() -> listener.connectionException(channelId(ctx.channel()), me));
             active = false;
          } catch (Exception ex) {
             ActiveMQClientLogger.LOGGER.errorCallingLifeCycleListener(ex);

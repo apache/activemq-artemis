@@ -44,13 +44,14 @@ public class ProducerThread extends Thread {
    boolean persistent = true;
    int messageSize = 0;
    int textMessageSize;
+   int objectSize;
    long msgTTL = 0L;
    String msgGroupID = null;
    int transactionBatchSize;
 
    int transactions = 0;
    final AtomicInteger sentCount = new AtomicInteger(0);
-   String message;
+   String message = null;
    String messageText = null;
    String payloadUrl = null;
    byte[] payload = null;
@@ -120,6 +121,7 @@ public class ProducerThread extends Thread {
 
    private void sendMessage(MessageProducer producer, String threadName) throws Exception {
       Message message = createMessage(sentCount.get(), threadName);
+
       producer.send(message);
       if (verbose) {
          System.out.println(threadName + " Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
@@ -150,9 +152,23 @@ public class ProducerThread extends Thread {
          answer = session.createBytesMessage();
          ((BytesMessage) answer).writeBytes(payload);
       } else {
-         if (textMessageSize > 0) {
+         if (textMessageSize > 0 || objectSize > 0) {
+
+            if (objectSize > 0) {
+               textMessageSize = objectSize;
+            }
             if (messageText == null) {
-               messageText = readInputStream(getClass().getResourceAsStream("demo.txt"), textMessageSize, i);
+               String read = readInputStream(getClass().getResourceAsStream(Producer.DEMO_TEXT), textMessageSize, i);
+               if (read.length() == textMessageSize) {
+                  messageText = read;
+               } else {
+                  StringBuffer buffer = new StringBuffer(read);
+                  while (buffer.length() < textMessageSize) {
+                     buffer.append(read);
+                  }
+                  messageText = buffer.toString();
+               }
+
             }
          } else if (payloadUrl != null) {
             messageText = readInputStream(new URL(payloadUrl).openStream(), -1, i);
@@ -161,7 +177,12 @@ public class ProducerThread extends Thread {
          } else {
             messageText = createDefaultMessage(i);
          }
-         answer = session.createTextMessage(messageText);
+
+         if (objectSize > 0) {
+            answer = session.createObjectMessage(messageText);
+         } else {
+            answer = session.createTextMessage(messageText);
+         }
       }
       if ((msgGroupID != null) && (!msgGroupID.isEmpty())) {
          answer.setStringProperty("JMSXGroupID", msgGroupID);
@@ -339,6 +360,15 @@ public class ProducerThread extends Thread {
 
    public ProducerThread setVerbose(boolean verbose) {
       this.verbose = verbose;
+      return this;
+   }
+
+   public int getObjectSize() {
+      return objectSize;
+   }
+
+   public ProducerThread setObjectSize(int objectSize) {
+      this.objectSize = objectSize;
       return this;
    }
 }

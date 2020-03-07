@@ -36,7 +36,9 @@ import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.jboss.logging.Logger;
@@ -55,7 +57,7 @@ public class SimpleAddressManager implements AddressManager {
    /**
     * HashMap<Address, Binding>
     */
-   private final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
+   protected final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
 
    /**
     * HashMap<QueueName, Binding>
@@ -64,18 +66,23 @@ public class SimpleAddressManager implements AddressManager {
 
    private final BindingsFactory bindingsFactory;
 
+   protected final MetricsManager metricsManager;
+
    protected final WildcardConfiguration wildcardConfiguration;
 
-   public SimpleAddressManager(final BindingsFactory bindingsFactory, final StorageManager storageManager) {
-      this(bindingsFactory, new WildcardConfiguration(), storageManager);
+   public SimpleAddressManager(final BindingsFactory bindingsFactory, final StorageManager storageManager,
+                               final MetricsManager metricsManager) {
+      this(bindingsFactory, new WildcardConfiguration(), storageManager, metricsManager);
    }
 
    public SimpleAddressManager(final BindingsFactory bindingsFactory,
                                final WildcardConfiguration wildcardConfiguration,
-                               final StorageManager storageManager) {
+                               final StorageManager storageManager,
+                               final MetricsManager metricsManager) {
       this.wildcardConfiguration = wildcardConfiguration;
       this.bindingsFactory = bindingsFactory;
       this.storageManager = storageManager;
+      this.metricsManager = metricsManager;
    }
 
    @Override
@@ -106,7 +113,7 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public Bindings getBindingsForRoutingAddress(final SimpleString address) throws Exception {
-      return mappings.get(address);
+      return mappings.get(CompositeAddress.extractAddressName(address));
    }
 
    @Override
@@ -121,9 +128,10 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public Bindings getMatchingBindings(final SimpleString address) throws Exception {
-      Address add = new AddressImpl(address, wildcardConfiguration);
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      Address add = new AddressImpl(realAddress, wildcardConfiguration);
 
-      Bindings bindings = bindingsFactory.createBindings(address);
+      Bindings bindings = bindingsFactory.createBindings(realAddress);
 
       for (Binding binding : nameMap.values()) {
          Address addCheck = new AddressImpl(binding.getAddress(), wildcardConfiguration);
@@ -137,12 +145,26 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
+   public Bindings getDirectBindings(final SimpleString address) throws Exception {
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      Bindings bindings = bindingsFactory.createBindings(realAddress);
+
+      for (Binding binding : nameMap.values()) {
+         if (binding.getAddress().equals(realAddress)) {
+            bindings.addBinding(binding);
+         }
+      }
+
+      return bindings;
+   }
+
+   @Override
    public SimpleString getMatchingQueue(final SimpleString address, RoutingType routingType) throws Exception {
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      Binding binding = getBinding(realAddress);
 
-      Binding binding = getBinding(address);
-
-      if (binding == null || !(binding instanceof LocalQueueBinding) || !binding.getAddress().equals(address)) {
-         Bindings bindings = mappings.get(address);
+      if (binding == null || !(binding instanceof LocalQueueBinding) || !binding.getAddress().equals(realAddress)) {
+         Bindings bindings = mappings.get(realAddress);
          if (bindings != null) {
             for (Binding theBinding : bindings.getBindings()) {
                if (theBinding instanceof LocalQueueBinding) {
@@ -160,9 +182,10 @@ public class SimpleAddressManager implements AddressManager {
    public SimpleString getMatchingQueue(final SimpleString address,
                                         final SimpleString queueName,
                                         RoutingType routingType) throws Exception {
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
       Binding binding = getBinding(queueName);
 
-      if (binding != null && !binding.getAddress().equals(address) && !address.toString().isEmpty()) {
+      if (binding != null && !binding.getAddress().equals(realAddress) && !realAddress.toString().isEmpty()) {
          throw new IllegalStateException("queue belongs to address" + binding.getAddress());
       }
       return binding != null ? binding.getUniqueName() : null;
@@ -182,13 +205,14 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    protected void removeBindingInternal(final SimpleString address, final SimpleString bindableName) {
-      Bindings bindings = mappings.get(address);
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      Bindings bindings = mappings.get(realAddress);
 
       if (bindings != null) {
          removeMapping(bindableName, bindings);
 
          if (bindings.getBindings().isEmpty()) {
-            mappings.remove(address);
+            mappings.remove(realAddress);
          }
       }
    }
@@ -213,14 +237,15 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    protected boolean addMappingInternal(final SimpleString address, final Binding binding) throws Exception {
-      Bindings bindings = mappings.get(address);
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      Bindings bindings = mappings.get(realAddress);
 
       Bindings prevBindings = null;
 
       if (bindings == null) {
-         bindings = bindingsFactory.createBindings(address);
+         bindings = bindingsFactory.createBindings(realAddress);
 
-         prevBindings = mappings.putIfAbsent(address, bindings);
+         prevBindings = mappings.putIfAbsent(realAddress, bindings);
 
          if (prevBindings != null) {
             bindings = prevBindings;
@@ -233,14 +258,18 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
-   public boolean reloadAddressInfo(AddressInfo addressInfo) throws Exception {
-      return addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo) == null;
+   public boolean reloadAddressInfo(AddressInfo addressInfo) {
+      boolean added = addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo) == null;
+      if (added) {
+         addressInfo.registerMeters(metricsManager);
+      }
+      return added;
    }
 
    @Override
    public boolean addAddressInfo(AddressInfo addressInfo) throws Exception {
       boolean added = reloadAddressInfo(addressInfo);
-      if (added && storageManager != null) {
+      if (!addressInfo.isTemporary() && added && storageManager != null) {
          long txID = storageManager.generateID();
          try {
             storageManager.addAddressBinding(txID, addressInfo);
@@ -258,12 +287,12 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
-                                        Collection<RoutingType> routingTypes) throws Exception {
-
-      AddressInfo info = addressInfoMap.get(addressName);
+                                        EnumSet<RoutingType> routingTypes) throws Exception {
+      SimpleString realAddressName = CompositeAddress.extractAddressName(addressName);
+      AddressInfo info = addressInfoMap.get(realAddressName);
 
       if (info == null) {
-         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
+         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(realAddressName);
       }
 
       if (routingTypes == null || isEquals(routingTypes, info.getRoutingTypes())) {
@@ -271,8 +300,8 @@ public class SimpleAddressManager implements AddressManager {
          return info;
       }
 
-      validateRoutingTypes(addressName, routingTypes);
-      final Set<RoutingType> updatedRoutingTypes = EnumSet.copyOf(routingTypes);
+      validateRoutingTypes(realAddressName, routingTypes);
+      final EnumSet<RoutingType> updatedRoutingTypes = EnumSet.copyOf(routingTypes);
       info.setRoutingTypes(updatedRoutingTypes);
 
 
@@ -294,7 +323,7 @@ public class SimpleAddressManager implements AddressManager {
       return info;
    }
 
-   private boolean isEquals(Collection<RoutingType> set1, Collection<RoutingType> set2) {
+   private boolean isEquals(Collection<RoutingType> set1, EnumSet<RoutingType> set2) {
       Set<RoutingType> eset1 = set1 == null || set1.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set1);
       Set<RoutingType> eset2 = set2 == null || set2.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set2);
 
@@ -309,7 +338,7 @@ public class SimpleAddressManager implements AddressManager {
       return eset2.containsAll(eset1);
    }
 
-   private void validateRoutingTypes(SimpleString addressName, Collection<RoutingType> routingTypes) {
+   private void validateRoutingTypes(SimpleString addressName, EnumSet<RoutingType> routingTypes) {
       final Bindings bindings = this.mappings.get(addressName);
       if (bindings != null) {
          for (Binding binding : bindings.getBindings()) {
@@ -325,12 +354,23 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
-   public AddressInfo removeAddressInfo(SimpleString address) {
-      return addressInfoMap.remove(address);
+   public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
+      final AddressInfo removed = addressInfoMap.remove(CompositeAddress.extractAddressName(address));
+
+      if (removed != null) {
+         removed.unregisterMeters(metricsManager);
+      }
+
+      return removed;
    }
 
    @Override
    public AddressInfo getAddressInfo(SimpleString addressName) {
-      return addressInfoMap.get(addressName);
+      return addressInfoMap.get(CompositeAddress.extractAddressName(addressName));
+   }
+
+   @Override
+   public void updateMessageLoadBalancingTypeForAddress(SimpleString  address, MessageLoadBalancingType messageLoadBalancingType) throws Exception {
+      getBindingsForRoutingAddress(CompositeAddress.extractAddressName(address)).setMessageLoadBalancingType(messageLoadBalancingType);
    }
 }

@@ -21,10 +21,8 @@ import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -41,7 +39,7 @@ import org.junit.Test;
 public class UpdateQueueTest extends ActiveMQTestBase {
 
    @Test
-   public void testUpdateQueue() throws Exception {
+   public void testUpdateQueueWithNullUser() throws Exception {
       ActiveMQServer server = createServer(true, true);
 
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
@@ -50,7 +48,13 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
 
-      long originalID = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, null, true, false).getID();
+      final SimpleString user = new SimpleString("newUser");
+
+      Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, user, null, true, false);
+
+      long originalID = queue.getID();
+
+      Assert.assertEquals(user, queue.getUser());
 
       Connection conn = factory.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -60,7 +64,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
          prod.send(session.createTextMessage("message " + i));
       }
 
-      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, 1, false);
+      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, 1, false, false, null);
 
       conn.close();
       factory.close();
@@ -70,9 +74,11 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);
 
-      Queue queue = server.locateQueue(ADDRESS);
+      queue = server.locateQueue(ADDRESS);
 
       Assert.assertNotNull("queue not found", queue);
+
+      Assert.assertEquals("newUser", user, queue.getUser());
 
       factory = new ActiveMQConnectionFactory();
 
@@ -89,6 +95,81 @@ public class UpdateQueueTest extends ActiveMQTestBase {
       Assert.assertNull(consumer.receiveNoWait());
 
       Assert.assertEquals(1, queue.getMaxConsumers());
+
+      conn.close();
+
+      Assert.assertEquals(originalID, server.locateQueue(ADDRESS).getID());
+
+      // stopping, restarting to make sure the system will not create an extra record without an udpate
+      server.stop();
+      server.start();
+      validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);
+      server.stop();
+
+   }
+
+   @Test
+   public void testUpdateQueue() throws Exception {
+      ActiveMQServer server = createServer(true, true);
+
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+
+      server.start();
+
+      SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
+
+      Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, null, true, false);
+
+      long originalID = queue.getID();
+
+      Assert.assertNull(queue.getUser());
+
+      Connection conn = factory.createConnection();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer prod = session.createProducer(session.createQueue(ADDRESS.toString()));
+
+      for (int i = 0; i < 100; i++) {
+         prod.send(session.createTextMessage("message " + i));
+      }
+
+      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, null, 1, false, true, true, 5, "gfk", true, 1, 10L, "newUser", 180L);
+
+      conn.close();
+      factory.close();
+
+      server.stop();
+      server.start();
+
+      validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);
+
+      queue = server.locateQueue(ADDRESS);
+
+      Assert.assertNotNull("queue not found", queue);
+      Assert.assertEquals(1, queue.getMaxConsumers());
+      Assert.assertEquals(false, queue.isPurgeOnNoConsumers());
+      Assert.assertEquals(true, queue.isExclusive());
+      Assert.assertEquals(true, queue.isGroupRebalance());
+      Assert.assertEquals(5, queue.getGroupBuckets());
+      Assert.assertEquals("gfk", queue.getGroupFirstKey().toString());
+      Assert.assertEquals(true, queue.isNonDestructive());
+      Assert.assertEquals(1, queue.getConsumersBeforeDispatch());
+      Assert.assertEquals(10L, queue.getDelayBeforeDispatch());
+      Assert.assertEquals("newUser", queue.getUser().toString());
+      Assert.assertEquals(180L, queue.getRingSize());
+
+      factory = new ActiveMQConnectionFactory();
+
+      conn = factory.createConnection();
+      session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      MessageConsumer consumer = session.createConsumer(session.createQueue(ADDRESS.toString()));
+
+      conn.start();
+      for (int i = 0; i < 100; i++) {
+         Assert.assertNotNull(consumer.receive(5000));
+      }
+
+      Assert.assertNull(consumer.receiveNoWait());
 
       conn.close();
 
@@ -133,9 +214,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       Assert.assertEquals(infoAdded.getId(), infoAfterRestart.getId());
 
-      Set<RoutingType> completeSet = new HashSet<>();
-      completeSet.add(RoutingType.ANYCAST);
-      completeSet.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> completeSet = EnumSet.allOf(RoutingType.class);
 
       server.updateAddressInfo(ADDRESS, completeSet);
 

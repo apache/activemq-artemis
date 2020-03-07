@@ -42,15 +42,15 @@ public class JMSConnectionTest extends JMSClientTestSupport {
 
          Queue queueView = getProxyToQueue(getQueueName());
 
-         assertTrue("Connection not counted", Wait.waitFor(() -> server.getConnectionCount() == 1));
-         assertTrue("Consumer not counted", Wait.waitFor(() -> queueView.getConsumerCount() == 1));
+         Wait.assertEquals(1, server::getConnectionCount);
+         Wait.assertEquals(1, server::getTotalConsumerCount);
 
          assertEquals(1, queueView.getConsumerCount());
 
          connection.close();
 
-         assertTrue("Consumer not closed", Wait.waitFor(() -> queueView.getConsumerCount() == 0));
-         assertTrue("Connection not released", Wait.waitFor(() -> server.getConnectionCount() == 0));
+         Wait.assertEquals(0, server::getConnectionCount);
+         Wait.assertEquals(0, server::getTotalConsumerCount);
       } finally {
          connection.close();
       }

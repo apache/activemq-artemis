@@ -23,7 +23,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
+import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -34,6 +38,7 @@ import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientProtocolMana
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASLFactory;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.engine.Connection;
@@ -45,16 +50,21 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testOutboundConnection() throws Throwable {
-      runOutboundConnectionTest(false);
+      runOutboundConnectionTest(false, true);
+   }
+
+   @Test(timeout = 60000)
+   public void testOutboundConnectionServerClose() throws Throwable {
+      runOutboundConnectionTest(false, false);
    }
 
    @Test(timeout = 60000)
    public void testOutboundConnectionWithSecurity() throws Throwable {
-      runOutboundConnectionTest(true);
+      runOutboundConnectionTest(true, true);
    }
 
 
-   private void runOutboundConnectionTest(boolean withSecurity) throws Exception {
+   private void runOutboundConnectionTest(boolean withSecurity, boolean closeFromClient) throws Exception {
       final ActiveMQServer remote;
       try {
          securityEnabled = withSecurity;
@@ -62,12 +72,8 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
       } finally {
          securityEnabled = false;
       }
-      try {
-         Wait.waitFor(remote::isActive);
-      } catch (Exception e) {
-         remote.stop();
-         throw e;
-      }
+
+      Wait.assertTrue(remote::isActive);
 
       final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
       config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(AMQP_PORT + 1));
@@ -96,20 +102,48 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
       ProtonClientProtocolManager protocolManager = new ProtonClientProtocolManager(new ProtonProtocolManagerFactory(), server);
       NettyConnector connector = new NettyConnector(config, lifeCycleListener, lifeCycleListener, server.getExecutorFactory().getExecutor(), server.getExecutorFactory().getExecutor(), server.getScheduledPool(), protocolManager);
       connector.start();
-      connector.createConnection();
+
+      Object connectionId = connector.createConnection().getID();
+      assertNotNull(connectionId);
+      RemotingConnection remotingConnection = lifeCycleListener.getConnection(connectionId);
+
+      AtomicReference<ActiveMQException> ex = new AtomicReference<>();
+      AtomicBoolean closed = new AtomicBoolean(false);
+      remotingConnection.addCloseListener(() -> closed.set(true));
+      remotingConnection.addFailureListener(new FailureListener() {
+         @Override
+         public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+            ex.set(exception);
+         }
+
+         @Override
+         public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
+            ex.set(exception);
+         }
+      });
 
       try {
-         Wait.waitFor(() -> remote.getConnectionCount() > 0);
-         assertEquals(1, remote.getConnectionCount());
-         Wait.waitFor(connectionOpened::get);
-         assertTrue("Remote connection was not opened - authentication error?", connectionOpened.get());
-         lifeCycleListener.stop();
+         Wait.assertEquals(1, remote::getConnectionCount);
+         Wait.assertTrue(connectionOpened::get);
+         if (closeFromClient) {
+            lifeCycleListener.stop();
+         } else {
+            remote.stop();
+         }
 
-         Wait.waitFor(() -> remote.getConnectionCount() == 0);
-         assertEquals(0, remote.getConnectionCount());
+         Wait.assertEquals(0, remote::getConnectionCount);
+         assertTrue(remotingConnection.isDestroyed());
+         if (!closeFromClient) {
+            assertTrue(ex.get() instanceof ActiveMQRemoteDisconnectException);
+         } else {
+            assertNull(ex.get());
+         }
       } finally {
-         lifeCycleListener.stop();
-         remote.stop();
+         if (closeFromClient) {
+            remote.stop();
+         } else {
+            lifeCycleListener.stop();
+         }
       }
    }
 

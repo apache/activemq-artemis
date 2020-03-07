@@ -63,8 +63,8 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
 
       Queue queueView = getProxyToQueue(destinationName);
 
-      assertTrue("Messages did not get queued", Wait.waitFor(() -> queueView.getMessageCount() == MSG_COUNT));
-      assertEquals(0, queueView.getDeliveringCount());
+      Wait.assertEquals(MSG_COUNT, queueView::getMessageCount);
+      Wait.assertEquals(0, queueView::getDeliveringCount);
 
       receiver.drain(MSG_COUNT);
       for (int i = 0; i < MSG_COUNT; ++i) {

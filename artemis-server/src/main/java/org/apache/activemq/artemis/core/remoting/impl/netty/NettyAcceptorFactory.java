@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
 
 public class NettyAcceptorFactory implements AcceptorFactory {
 
@@ -38,6 +39,7 @@ public class NettyAcceptorFactory implements AcceptorFactory {
                                   final Executor threadPool,
                                   final ScheduledExecutorService scheduledThreadPool,
                                   final Map<String, ProtocolManager> protocolMap) {
-      return new NettyAcceptor(name, connection, configuration, handler, listener, scheduledThreadPool, protocolMap);
+      Executor failureExecutor = new OrderedExecutor(threadPool);
+      return new NettyAcceptor(name, connection, configuration, handler, listener, scheduledThreadPool, failureExecutor, protocolMap);
    }
 }

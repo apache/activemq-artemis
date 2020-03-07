@@ -35,7 +35,6 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
 
 @ApplicationScoped
@@ -56,8 +55,7 @@ public class ConnectionFactoryProvider {
       if (configuration.startEmbeddedBroker()) {
          try {
             ActiveMQServer activeMQServer = ActiveMQServers.newActiveMQServer(embeddedConfiguration, false);
-            JMSServerManagerImpl jmsServerManager = new JMSServerManagerImpl(activeMQServer);
-            jmsServerManager.start();
+            activeMQServer.start();
          } catch (Exception e) {
             throw new RuntimeException("Unable to start embedded JMS", e);
          }

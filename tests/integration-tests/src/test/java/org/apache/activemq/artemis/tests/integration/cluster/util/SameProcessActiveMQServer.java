@@ -83,7 +83,17 @@ public class SameProcessActiveMQServer implements TestableServer {
    public CountDownLatch crash(boolean failover, boolean waitFailure, ClientSession... sessions) throws Exception {
       CountDownLatch latch = new CountDownLatch(sessions.length);
       CountDownSessionFailureListener[] listeners = new CountDownSessionFailureListener[sessions.length];
+      long callTimeout = 0;
+      long failoverCallTimeout = 0;
       for (int i = 0; i < sessions.length; i++) {
+         long timeout = sessions[i].getSessionFactory().getServerLocator().getCallTimeout();
+         long failoverTimeout = sessions[i].getSessionFactory().getServerLocator().getCallFailoverTimeout();
+         if (callTimeout < timeout) {
+            callTimeout = timeout;
+         }
+         if (failoverCallTimeout < failoverTimeout) {
+            failoverCallTimeout = failoverTimeout;
+         }
          listeners[i] = new CountDownSessionFailureListener(latch, sessions[i]);
          sessions[i].addFailureListener(listeners[i]);
       }
@@ -96,7 +106,10 @@ public class SameProcessActiveMQServer implements TestableServer {
 
       if (waitFailure) {
          // Wait to be informed of failure
-         boolean ok = latch.await(10000, TimeUnit.MILLISECONDS);
+         // In case of a failover, remote call will block and it may also wait for failover
+         // so in order to give enough time we double the wait time.
+         boolean ok = latch.await(callTimeout * 2 + failoverCallTimeout * 2, TimeUnit.MILLISECONDS);
+
          Assert.assertTrue("Failed to stop the server! Latch count is " + latch.getCount() + " out of " +
                               sessions.length, ok);
       }

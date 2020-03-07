@@ -16,16 +16,19 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanOperationInfo;
 import java.util.List;
 import java.util.Map;
+
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanOperationInfo;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
+import org.apache.activemq.artemis.logs.AuditLogger;
 
 public class ClusterConnectionControlImpl extends AbstractControl implements ClusterConnectionControl {
 
@@ -53,6 +56,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddress(this.clusterConnection);
+      }
       clearIO();
       try {
          return configuration.getAddress();
@@ -64,6 +70,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getDiscoveryGroupName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDiscoveryGroupName(this.clusterConnection);
+      }
       clearIO();
       try {
          return configuration.getDiscoveryGroupName();
@@ -75,6 +84,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public int getMaxHops() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMaxHops(this.clusterConnection);
+      }
       clearIO();
       try {
          return configuration.getMaxHops();
@@ -86,6 +98,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getName(this.clusterConnection);
+      }
       clearIO();
       try {
          return configuration.getName();
@@ -97,6 +112,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public long getRetryInterval() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRetryInterval(this.clusterConnection);
+      }
       clearIO();
       try {
          return configuration.getRetryInterval();
@@ -108,6 +126,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getNodeID() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNodeID(this.clusterConnection);
+      }
       clearIO();
       try {
          return clusterConnection.getNodeID();
@@ -118,6 +139,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String[] getStaticConnectors() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getStaticConnectors(this.clusterConnection);
+      }
       clearIO();
       try {
          List<String> staticConnectors = configuration.getStaticConnectors();
@@ -133,6 +157,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getStaticConnectorsAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getStaticConnectorsAsJSON(this.clusterConnection);
+      }
       clearIO();
       try {
          return JsonUtil.toJsonArray(configuration.getStaticConnectors()).toString();
@@ -143,6 +170,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public boolean isDuplicateDetection() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isDuplicateDetection(this.clusterConnection);
+      }
       clearIO();
       try {
          return configuration.isDuplicateDetection();
@@ -153,6 +183,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getMessageLoadBalancingType() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessageLoadBalancingType(this.clusterConnection);
+      }
       clearIO();
       try {
          return configuration.getMessageLoadBalancingType().getType();
@@ -163,6 +196,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getTopology() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getTopology(this.clusterConnection);
+      }
       clearIO();
       try {
          return clusterConnection.getTopology().describe();
@@ -173,6 +209,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public Map<String, String> getNodes() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNodes(this.clusterConnection);
+      }
       clearIO();
       try {
          return clusterConnection.getNodes();
@@ -183,6 +222,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public boolean isStarted() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isStarted(this.clusterConnection);
+      }
       clearIO();
       try {
          return clusterConnection.isStarted();
@@ -193,6 +235,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public void start() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.startClusterConnection(this.clusterConnection);
+      }
       clearIO();
       try {
          clusterConnection.start();
@@ -204,6 +249,9 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public void stop() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.stopClusterConnection(this.clusterConnection);
+      }
       clearIO();
       try {
          clusterConnection.stop();
@@ -221,6 +269,60 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
    @Override
    protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
       return MBeanInfoHelper.getMBeanAttributesInfo(ClusterConnectionControl.class);
+   }
+
+   @Override
+   public long getMessagesPendingAcknowledgement() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesPendingAcknowledgement(this.clusterConnection);
+      }
+      clearIO();
+      try {
+         return clusterConnection.getMetrics().getMessagesPendingAcknowledgement();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getMessagesAcknowledged() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesAcknowledged(this.clusterConnection);
+      }
+      clearIO();
+      try {
+         return clusterConnection.getMetrics().getMessagesAcknowledged();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public Map<String, Object> getMetrics()  {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMetrics(this.clusterConnection);
+      }
+      clearIO();
+      try {
+         return clusterConnection.getMetrics().convertToMap();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public Map<String, Object> getBridgeMetrics(String nodeId) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getBridgeMetrics(this.clusterConnection, nodeId);
+      }
+      clearIO();
+      try {
+         final BridgeMetrics bridgeMetrics = clusterConnection.getBridgeMetrics(nodeId);
+         return bridgeMetrics != null ? bridgeMetrics.convertToMap() : null;
+      } finally {
+         blockOnIO();
+      }
+
    }
 
    // Public --------------------------------------------------------

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClusteredRequestResponseTest extends ClusterTestBase {
@@ -83,7 +84,9 @@ public class ClusteredRequestResponseTest extends ClusterTestBase {
     *
     * TODO: I believe this test is invalid. I'm just ignoring it for now. It will probably go away
     */
-   public void invalidTest_testRequestResponseNoWaitForBindings() throws Exception {
+   @Test
+   @Ignore
+   public void testRequestResponseNoWaitForBindings() throws Exception {
       setupCluster();
 
       startServers(0, 1, 2, 3, 4);

@@ -21,34 +21,29 @@ import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
-import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class AddressControlImpl extends AbstractControl implements AddressControl {
@@ -59,7 +54,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    private AddressInfo addressInfo;
 
-   private final PostOffice postOffice;
+   private final ActiveMQServer server;
 
    private final PagingManager pagingManager;
 
@@ -74,15 +69,15 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    // Constructors --------------------------------------------------
 
    public AddressControlImpl(AddressInfo addressInfo,
-                             final PostOffice postOffice,
+                             final ActiveMQServer server,
                              final PagingManager pagingManager,
                              final StorageManager storageManager,
                              final HierarchicalRepository<Set<Role>> securityRepository,
                              final SecurityStore securityStore,
                              final ManagementService managementService)throws Exception {
       super(AddressControl.class, storageManager);
+      this.server = server;
       this.addressInfo = addressInfo;
-      this.postOffice = postOffice;
       this.pagingManager = pagingManager;
       this.securityRepository = securityRepository;
       this.securityStore = securityStore;
@@ -100,7 +95,10 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getRoutingTypes() {
-      Set<RoutingType> routingTypes = addressInfo.getRoutingTypes();
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutingTypes(this.addressInfo);
+      }
+      EnumSet<RoutingType> routingTypes = addressInfo.getRoutingTypes();
       String[] result = new String[routingTypes.size()];
       int i = 0;
       for (RoutingType routingType : routingTypes) {
@@ -111,6 +109,10 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String getRoutingTypesAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutingTypesAsJSON(this.addressInfo);
+      }
+
       clearIO();
       try {
          JsonArrayBuilder json = JsonLoader.createArrayBuilder();
@@ -127,16 +129,23 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getQueueNames() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getQueueNames(this.addressInfo);
+      }
       clearIO();
       try {
-         Bindings bindings = postOffice.getBindingsForAddress(addressInfo.getName());
-         List<String> queueNames = new ArrayList<>();
-         for (Binding binding : bindings.getBindings()) {
-            if (binding instanceof QueueBinding) {
-               queueNames.add(binding.getUniqueName().toString());
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
+         if (bindings != null) {
+            List<String> queueNames = new ArrayList<>();
+            for (Binding binding : bindings.getBindings()) {
+               if (binding instanceof QueueBinding) {
+                  queueNames.add(binding.getUniqueName().toString());
+               }
             }
+            return queueNames.toArray(new String[queueNames.size()]);
+         } else {
+            return new String[0];
          }
-         return queueNames.toArray(new String[queueNames.size()]);
       } catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
       } finally {
@@ -146,15 +155,23 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getBindingNames() throws Exception {
-      clearIO();
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getBindingNames(this.addressInfo);
+      }
       try {
-         Bindings bindings = postOffice.getBindingsForAddress(addressInfo.getName());
-         String[] bindingNames = new String[bindings.getBindings().size()];
-         int i = 0;
-         for (Binding binding : bindings.getBindings()) {
-            bindingNames[i++] = binding.getUniqueName().toString();
+         clearIO();
+
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
+         if (bindings != null) {
+            String[] bindingNames = new String[bindings.getBindings().size()];
+            int i = 0;
+            for (Binding binding : bindings.getBindings()) {
+               bindingNames[i++] = binding.getUniqueName().toString();
+            }
+            return bindingNames;
+         } else {
+            return new String[0];
          }
-         return bindingNames;
       } catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
       } finally {
@@ -164,6 +181,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public Object[] getRoles() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoles(this.addressInfo);
+      }
       clearIO();
       try {
          Set<Role> roles = securityRepository.getMatch(addressInfo.getName().toString());
@@ -182,6 +202,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String getRolesAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRolesAsJSON(this.addressInfo);
+      }
       clearIO();
       try {
          JsonArrayBuilder json = JsonLoader.createArrayBuilder();
@@ -198,19 +221,37 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getNumberOfBytesPerPage() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNumberOfBytesPerPage(this.addressInfo);
+      }
       clearIO();
       try {
-         return pagingManager.getPageStore(addressInfo.getName()).getPageSizeBytes();
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getPageSizeBytes();
       } finally {
          blockOnIO();
       }
    }
 
+   private PagingStore getPagingStore() throws Exception {
+      return pagingManager.getPageStore(addressInfo.getName());
+   }
+
    @Override
    public long getAddressSize() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddressSize(this.addressInfo);
+      }
       clearIO();
       try {
-         return pagingManager.getPageStore(addressInfo.getName()).getAddressSize();
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getAddressSize();
       } finally {
          blockOnIO();
       }
@@ -218,13 +259,18 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getNumberOfMessages() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNumberOfMessages(this.addressInfo);
+      }
       clearIO();
       long totalMsgs = 0;
       try {
-         Bindings bindings = postOffice.getBindingsForAddress(addressInfo.getName());
-         for (Binding binding : bindings.getBindings()) {
-            if (binding instanceof QueueBinding) {
-               totalMsgs += ((QueueBinding) binding).getQueue().getMessageCount();
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
+         if (bindings != null) {
+            for (Binding binding : bindings.getBindings()) {
+               if (binding instanceof QueueBinding) {
+                  totalMsgs += ((QueueBinding) binding).getQueue().getMessageCount();
+               }
             }
          }
          return totalMsgs;
@@ -237,9 +283,16 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean isPaging() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPaging(this.addressInfo);
+      }
       clearIO();
       try {
-         return pagingManager.getPageStore(addressInfo.getName()).isPaging();
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return false;
+         }
+         return pagingStore.isPaging();
       } finally {
          blockOnIO();
       }
@@ -247,14 +300,17 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public int getNumberOfPages() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getNumberOfPages(this.addressInfo);
+      }
       clearIO();
       try {
-         PagingStore pageStore = pagingManager.getPageStore(addressInfo.getName());
+         final PagingStore pageStore = getPagingStore();
 
-         if (!pageStore.isPaging()) {
+         if (pageStore == null || !pageStore.isPaging()) {
             return 0;
          } else {
-            return pagingManager.getPageStore(addressInfo.getName()).getNumberOfPages();
+            return pageStore.getNumberOfPages();
          }
       } finally {
          blockOnIO();
@@ -263,7 +319,26 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessageCount(this.addressInfo);
+      }
       return getMessageCount(DurabilityType.ALL);
+   }
+
+   @Override
+   public long getRoutedMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutedMessageCount(this.addressInfo);
+      }
+      return addressInfo.getRoutedMessageCount();
+   }
+
+   @Override
+   public long getUnRoutedMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getUnRoutedMessageCount(this.addressInfo);
+      }
+      return addressInfo.getUnRoutedMessageCount();
    }
 
 
@@ -274,46 +349,17 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.sendMessage(this, null, headers, type, body, durable, user, "****");
+      }
       try {
-         securityStore.check(addressInfo.getName(), CheckType.SEND, new SecurityAuth() {
-            @Override
-            public String getUsername() {
-               return user;
-            }
-
-            @Override
-            public String getPassword() {
-               return password;
-            }
-
-            @Override
-            public RemotingConnection getRemotingConnection() {
-               return null;
-            }
-         });
-         CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
-         if (headers != null) {
-            for (String header : headers.keySet()) {
-               message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
-            }
-         }
-         message.setType((byte) type);
-         message.setDurable(durable);
-         message.setTimestamp(System.currentTimeMillis());
-         if (body != null) {
-            if (type == Message.TEXT_TYPE) {
-               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
-            } else {
-               message.getBodyBuffer().writeBytes(Base64.decode(body));
-            }
-         }
-         message.setAddress(addressInfo.getName());
-         postOffice.route(message, true);
-         return "" + message.getMessageID();
-      } catch (ActiveMQException e) {
+         return sendMessage(addressInfo.getName(), server, headers, type, body, durable, user, password);
+      } catch (Exception e) {
+         e.printStackTrace();
          throw new IllegalStateException(e.getMessage());
       }
    }
+
 
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
@@ -323,6 +369,62 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    @Override
    protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
       return MBeanInfoHelper.getMBeanAttributesInfo(AddressControl.class);
+   }
+
+   @Override
+   public void pause() {
+      pause(false);
+   }
+
+   @Override
+   public void pause(boolean persist) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.pause(addressInfo);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         addressInfo.setPostOffice(server.getPostOffice());
+         addressInfo.setStorageManager(server.getStorageManager());
+         addressInfo.pause(persist);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
+   @Override
+   public void resume() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resume(addressInfo);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         addressInfo.setPostOffice(server.getPostOffice());
+         addressInfo.setStorageManager(server.getStorageManager());
+         addressInfo.resume();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isPaused() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPaused(this.addressInfo);
+      }
+      return addressInfo.isPaused();
+   }
+
+   @Override
+   public boolean isRetroactiveResource() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isRetroactiveResource(this.addressInfo);
+      }
+      return ResourceNames.isRetroactiveResource(server.getInternalNamingPrefix(), addressInfo.getName());
    }
 
    // Package protected ---------------------------------------------
@@ -358,6 +460,12 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          return matchingQueues;
       } catch (Exception e) {
          return Collections.emptyList();
+      }
+   }
+
+   private void checkStarted() {
+      if (!server.getPostOffice().isStarted()) {
+         throw new IllegalStateException("Broker is not started. Queues can not be managed yet");
       }
    }
 

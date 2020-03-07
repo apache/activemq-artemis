@@ -16,21 +16,28 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.WildcardAddressManager;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
@@ -42,7 +49,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    @Test
    public void testUnitOnWildCardFailingScenario() throws Exception {
       int errors = 0;
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null);
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
       ad.addBinding(new BindingFake("Topic1", "Topic1"));
       ad.addBinding(new BindingFake("Topic1", "one"));
       ad.addBinding(new BindingFake("*", "two"));
@@ -72,7 +79,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    @Test
    public void testUnitOnWildCardFailingScenarioFQQN() throws Exception {
       int errors = 0;
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null);
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
       ad.addBinding(new BindingFake("Topic1", "Topic1"));
       ad.addBinding(new BindingFake("Topic1", "one"));
       ad.addBinding(new BindingFake("*", "two"));
@@ -99,11 +106,101 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       assertEquals("Exception happened during the process", 0, errors);
    }
 
+   /**
+    * Test for ARTEMIS-1610
+    * @throws Exception
+    */
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testWildCardAddressRemoval() throws Exception {
+
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Queue1.#"), RoutingType.ANYCAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.#"), RoutingType.MULTICAST));
+      ad.addBinding(new BindingFake("Topic1.topic", "two"));
+      ad.addBinding(new BindingFake("Queue1.#", "one"));
+
+      Field wildcardAddressField = WildcardAddressManager.class.getDeclaredField("wildCardAddresses");
+      wildcardAddressField.setAccessible(true);
+      Map<SimpleString, Address> wildcardAddresses = (Map<SimpleString, Address>)wildcardAddressField.get(ad);
+
+      //Calling this method will trigger the wildcard to be added to the wildcard map internal
+      //to WildcardAddressManager
+      ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.#"));
+
+      //Remove the address
+      ad.removeAddressInfo(SimpleString.toSimpleString("Topic1.#"));
+
+      //Verify the address was cleaned up properly
+      assertEquals(1, wildcardAddresses.size());
+      assertNull(ad.getAddressInfo(SimpleString.toSimpleString("Topic1.#")));
+      assertNull(wildcardAddresses.get(SimpleString.toSimpleString("Topic1.#")));
+   }
+
+   @Test
+   public void testWildCardAddressRemovalDifferentWildcard() throws Exception {
+
+      final WildcardConfiguration configuration = new WildcardConfiguration();
+      configuration.setAnyWords('>');
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), configuration, null, null);
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.>"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test"), RoutingType.MULTICAST));
+      ad.addBinding(new BindingFake("Topic1.>", "one"));
+
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.>")).getBindings().size());
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.test")).getBindings().size());
+      assertEquals(0, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.test")).getBindings().size());
+      assertEquals(1, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.>")).getBindings().size());
+
+      //Remove the address
+      ad.removeAddressInfo(SimpleString.toSimpleString("Topic1.test"));
+
+      //should still have 1 address and binding
+      assertEquals(1, ad.getAddresses().size());
+      assertEquals(1, ad.getBindings().size());
+
+      ad.removeBinding(SimpleString.toSimpleString("one"), null);
+      ad.removeAddressInfo(SimpleString.toSimpleString("Topic1.>"));
+
+      assertEquals(0, ad.getAddresses().size());
+      assertEquals(0, ad.getBindings().size());
+   }
+
+   @Test
+   public void testWildCardAddressDirectBindings() throws Exception {
+
+      final WildcardConfiguration configuration = new WildcardConfiguration();
+      configuration.setAnyWords('>');
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), configuration, null, null);
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.>"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test.test1"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic1.test.test2"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic2.>"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Topic2.test"), RoutingType.MULTICAST));
+      ad.addBinding(new BindingFake("Topic1.>", "one"));
+      ad.addBinding(new BindingFake("Topic1.test", "two"));
+      ad.addBinding(new BindingFake("Topic2.test", "three"));
+
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.>")).getBindings().size());
+      assertEquals(2, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.test")).getBindings().size());
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.test.test1")).getBindings().size());
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("Topic1.test.test2")).getBindings().size());
+
+      assertEquals(1, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.>")).getBindings().size());
+      assertEquals(1, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.test")).getBindings().size());
+      assertEquals(0, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.test1")).getBindings().size());
+      assertEquals(0, ad.getDirectBindings(SimpleString.toSimpleString("Topic1.test2")).getBindings().size());
+      assertEquals(0, ad.getDirectBindings(SimpleString.toSimpleString("Topic2.>")).getBindings().size());
+      assertEquals(1, ad.getDirectBindings(SimpleString.toSimpleString("Topic2.test")).getBindings().size());
+
+   }
+
    class BindingFactoryFake implements BindingsFactory {
 
       @Override
       public Bindings createBindings(SimpleString address) throws Exception {
-         return new BindignsFake();
+         return new BindingsFake();
       }
    }
 
@@ -205,7 +302,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
    }
 
-   class BindignsFake implements Bindings {
+   class BindingsFake implements Bindings {
 
       ArrayList<Binding> bindings = new ArrayList<>();
 
@@ -230,7 +327,16 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
 
       @Override
+      public MessageLoadBalancingType getMessageLoadBalancingType() {
+         return null;
+      }
+
+      @Override
       public void unproposed(SimpleString groupID) {
+      }
+
+      @Override
+      public void updated(QueueBinding binding) {
       }
 
       @Override
@@ -243,6 +349,11 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       @Override
       public void route(Message message, RoutingContext context) throws Exception {
          System.out.println("routing message: " + message);
+      }
+
+      @Override
+      public boolean allowRedistribute() {
+         return false;
       }
    }
 

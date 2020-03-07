@@ -83,7 +83,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
    public void tearDown() throws Exception {
       super.tearDown();
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         destroyTables(Arrays.asList("BINDINGS", "LARGE_MESSAGE", "MESSAGE"));
+         destroyTables(Arrays.asList("BINDINGS", "LARGE_MESSAGE", "MESSAGE", "NODE_MANAGER_STORE"));
       }
    }
 
@@ -346,13 +346,9 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                session.start();
 
                for (int i = 0; i < numberOfMessages; i++) {
-                  System.currentTimeMillis();
-
                   ClientMessage message = consumer.receive(waitOnConsumer + delayDelivery);
 
                   Assert.assertNotNull(message);
-
-                  System.currentTimeMillis();
 
                   if (delayDelivery > 0) {
                      long originalTime = (Long) message.getObjectProperty(new SimpleString("original-time"));

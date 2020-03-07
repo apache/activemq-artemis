@@ -17,7 +17,7 @@
 # under the License.
 #
 -->
-# ActiveMQ Artemis CDI Integration Example
+# CDI Example
 
 This is a simple example that demonstrates how to use CDI to integrate with ActiveMQ Artemis on the client side.  It is designed mainly for connecting to a remote broker rather than embedding within your application.
 

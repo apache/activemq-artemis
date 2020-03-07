@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.api.core.client;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -95,11 +97,29 @@ public interface ServerLocator extends AutoCloseable {
     *
     * @param transportConfiguration
     * @param reconnectAttempts           number of attempts of reconnection to perform
+    * @return a {@link ClientSessionFactory} instance
+    * @throws Exception if a failure happened in creating the ClientSessionFactory or the
+    *                   ServerLocator does not know about the passed in transportConfiguration
+    */
+   ClientSessionFactory createSessionFactory(TransportConfiguration transportConfiguration,
+                                             int reconnectAttempts) throws Exception;
+
+   /**
+    * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known
+    * about by this ServerLocator. This method allows the user to make a connection to a specific
+    * server bypassing any load balancing policy in force
+    *
+    * @deprecated This method is no longer acceptable to create a client session factory.
+    * Replaced by {@link ServerLocator#createSessionFactory(TransportConfiguration, int)}.
+    *
+    * @param transportConfiguration
+    * @param reconnectAttempts           number of attempts of reconnection to perform
     * @param failoverOnInitialConnection
     * @return a {@link ClientSessionFactory} instance
     * @throws Exception if a failure happened in creating the ClientSessionFactory or the
     *                   ServerLocator does not know about the passed in transportConfiguration
     */
+   @Deprecated
    ClientSessionFactory createSessionFactory(TransportConfiguration transportConfiguration,
                                              int reconnectAttempts,
                                              boolean failoverOnInitialConnection) throws Exception;
@@ -642,6 +662,7 @@ public interface ServerLocator extends AutoCloseable {
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_FAILOVER_ON_INITIAL_CONNECTION}.
     */
+   @Deprecated
    boolean isFailoverOnInitialConnection();
 
    /**
@@ -650,6 +671,7 @@ public interface ServerLocator extends AutoCloseable {
     * @param failover
     * @return this ServerLocator
     */
+   @Deprecated
    ServerLocator setFailoverOnInitialConnection(boolean failover);
 
    /**
@@ -797,5 +819,12 @@ public interface ServerLocator extends AutoCloseable {
 
    String getOutgoingInterceptorList();
 
-   boolean setThreadPools(ExecutorService threadPool, ScheduledExecutorService scheduledThreadPoolExecutor);
+   boolean setThreadPools(Executor threadPool, ScheduledExecutorService scheduledThreadPoolExecutor);
+
+   /** This will only instantiate internal objects such as the topology */
+   void initialize() throws ActiveMQException;
+
+   ServerLocatorConfig getLocatorConfig();
+
+   void setLocatorConfig(ServerLocatorConfig serverLocatorConfig);
 }

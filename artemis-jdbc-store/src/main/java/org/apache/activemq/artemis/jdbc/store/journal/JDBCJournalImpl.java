@@ -31,7 +31,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncoderPersister;
@@ -49,6 +51,7 @@ import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.jboss.logging.Logger;
 
 public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
@@ -56,7 +59,9 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    private static final Logger logger = Logger.getLogger(JDBCJournalImpl.class);
 
    // Sync Delay in ms
-   private static final int SYNC_DELAY = 5;
+   //private static final int SYNC_DELAY = 5;
+
+   private long syncDelay;
 
    private static int USER_VERSION = 1;
 
@@ -92,34 +97,39 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    public JDBCJournalImpl(DataSource dataSource,
                           SQLProvider provider,
-                          String tableName,
                           ScheduledExecutorService scheduledExecutorService,
                           Executor completeExecutor,
-                          IOCriticalErrorListener criticalIOErrorListener) {
+                          IOCriticalErrorListener criticalIOErrorListener,
+                          long syncDelay) {
       super(dataSource, provider);
       records = new ArrayList<>();
       this.scheduledExecutorService = scheduledExecutorService;
       this.completeExecutor = completeExecutor;
       this.criticalIOErrorListener = criticalIOErrorListener;
+      this.syncDelay = syncDelay;
    }
 
    public JDBCJournalImpl(String jdbcUrl,
+                          String user,
+                          String password,
                           String jdbcDriverClass,
                           SQLProvider sqlProvider,
                           ScheduledExecutorService scheduledExecutorService,
                           Executor completeExecutor,
-                          IOCriticalErrorListener criticalIOErrorListener) {
-      super(sqlProvider, jdbcUrl, jdbcDriverClass);
+                          IOCriticalErrorListener criticalIOErrorListener,
+                          long syncDelay) {
+      super(sqlProvider, jdbcUrl, user, password, jdbcDriverClass);
       records = new ArrayList<>();
       this.scheduledExecutorService = scheduledExecutorService;
       this.completeExecutor = completeExecutor;
       this.criticalIOErrorListener = criticalIOErrorListener;
+      this.syncDelay = syncDelay;
    }
 
    @Override
    public void start() throws SQLException {
       super.start();
-      syncTimer = new JDBCJournalSync(scheduledExecutorService, completeExecutor, SYNC_DELAY, TimeUnit.MILLISECONDS, this);
+      syncTimer = new JDBCJournalSync(scheduledExecutorService, completeExecutor, syncDelay, TimeUnit.MILLISECONDS, this);
       started = true;
    }
 
@@ -244,7 +254,11 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
             logger.trace("JDBC commit worked");
          }
 
-         cleanupTxRecords(deletedRecords, committedTransactions);
+         if (cleanupTxRecords(deletedRecords, committedTransactions)) {
+            deleteJournalTxRecords.executeBatch();
+            connection.commit();
+            logger.trace("JDBC commit worked on cleanupTxRecords");
+         }
          executeCallbacks(recordRef, true);
 
          return recordRef.size();
@@ -284,7 +298,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
       we remove the Tx Records (i.e. PREPARE, COMMIT). */
-   private synchronized void cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx) throws SQLException {
+   private synchronized boolean cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx) throws SQLException {
       List<RecordInfo> iterableCopy;
       List<TransactionHolder> iterableCopyTx = new ArrayList<>();
       iterableCopyTx.addAll(transactions.values());
@@ -292,7 +306,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       for (Long txId : committedTx) {
          transactions.get(txId).committed = true;
       }
-
+      boolean hasDeletedJournalTxRecords = false;
       // TODO (mtaylor) perhaps we could store a reverse mapping of IDs to prevent this O(n) loop
       for (TransactionHolder h : iterableCopyTx) {
 
@@ -308,9 +322,11 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          if (h.recordInfos.isEmpty() && h.committed) {
             deleteJournalTxRecords.setLong(1, h.transactionID);
             deleteJournalTxRecords.addBatch();
+            hasDeletedJournalTxRecords = true;
             transactions.remove(h.transactionID);
          }
       }
+      return hasDeletedJournalTxRecords;
    }
 
    private void executeCallbacks(final List<JDBCJournalRecord> records, final boolean success) {
@@ -329,19 +345,19 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
 
-   private void checkStatus() {
+   private void checkStatus() throws Exception {
       checkStatus(null);
    }
 
-   private void checkStatus(IOCompletion callback) {
+   private void checkStatus(IOCompletion callback) throws Exception {
       if (!started) {
          if (callback != null) callback.onError(-1, "JDBC Journal is not loaded");
-         throw new IllegalStateException("JDBCJournal is not loaded");
+         throw new ActiveMQShutdownException("JDBCJournal is not loaded");
       }
 
       if (failed.get()) {
          if (callback != null) callback.onError(-1, "JDBC Journal failed");
-         throw new IllegalStateException("JDBCJournal Failed");
+         throw new ActiveMQException("JDBCJournal Failed");
       }
    }
 
@@ -383,7 +399,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       if (callback != null) callback.waitCompletion();
    }
 
-   private synchronized void addTxRecord(JDBCJournalRecord record) {
+   private synchronized void addTxRecord(JDBCJournalRecord record) throws Exception {
 
       if (logger.isTraceEnabled()) {
          logger.trace("addTxRecord " + record + ", started=" + started + ", failed=" + failed);
@@ -881,12 +897,17 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public JournalLoadInformation load(List<RecordInfo> committedRecords,
-                                      List<PreparedTransactionInfo> preparedTransactions,
-                                      TransactionFailureCallback transactionFailure) throws Exception {
-      return load(committedRecords, preparedTransactions, transactionFailure, true);
+   public synchronized JournalLoadInformation load(final SparseArrayLinkedList<RecordInfo> committedRecords,
+                                                   final List<PreparedTransactionInfo> preparedTransactions,
+                                                   final TransactionFailureCallback failureCallback,
+                                                   final boolean fixBadTX) throws Exception {
+      final List<RecordInfo> records = new ArrayList<>();
+      final JournalLoadInformation journalLoadInformation = load(records, preparedTransactions, failureCallback, fixBadTX);
+      records.forEach(committedRecords::add);
+      return journalLoadInformation;
    }
 
+   @Override
    public synchronized JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                                    final List<PreparedTransactionInfo> preparedTransactions,
                                                    final TransactionFailureCallback failureCallback,

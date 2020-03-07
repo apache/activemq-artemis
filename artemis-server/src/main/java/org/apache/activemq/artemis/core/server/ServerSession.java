@@ -18,9 +18,11 @@ package org.apache.activemq.artemis.core.server;
 
 import javax.json.JsonArrayBuilder;
 import javax.transaction.xa.Xid;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.core.Message;
@@ -41,6 +43,8 @@ public interface ServerSession extends SecurityAuth {
    int getMinLargeMessageSize();
 
    Object getConnectionID();
+
+   Executor getSessionExecutor();
 
    /**
     * Certain protocols may create an internal session that shouldn't go through security checks.
@@ -103,7 +107,15 @@ public interface ServerSession extends SecurityAuth {
 
    void addCloseable(Closeable closeable);
 
-   /**
+   ServerConsumer createConsumer(long consumerID,
+                                 SimpleString queueName,
+                                 SimpleString filterString,
+                                 int priority,
+                                 boolean browseOnly,
+                                 boolean supportLargeMessage,
+                                 Integer credits) throws Exception;
+
+    /**
     * To be used by protocol heads that needs to control the transaction outside the session context.
     */
    void resetTX(Transaction transaction);
@@ -111,6 +123,12 @@ public interface ServerSession extends SecurityAuth {
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      RoutingType routingType,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable) throws Exception;
+
+   Queue createQueue(AddressInfo address,
+                     SimpleString name,
                      SimpleString filterString,
                      boolean temporary,
                      boolean durable) throws Exception;
@@ -148,14 +166,111 @@ public interface ServerSession extends SecurityAuth {
                      SimpleString filterString,
                      boolean temporary,
                      boolean durable,
+                     int maxConsumers,
+                     boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     Boolean lastValue,
+                     boolean autoCreated) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     int maxConsumers,
+                     boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     Boolean groupRebalance,
+                     Integer groupBuckets,
+                     Boolean lastValue,
+                     SimpleString lastValueKey,
+                     Boolean nonDestructive,
+                     Integer consumersBeforeDispatch,
+                     Long delayBeforeDispatch,
+                     Boolean autoDelete,
+                     Long autoDeleteDelay,
+                     Long autoDeleteMessageCount,
+                     boolean autoCreated) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     int maxConsumers,
+                     boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     Boolean groupRebalance,
+                     Integer groupBuckets,
+                     SimpleString groupFirstKey,
+                     Boolean lastValue,
+                     SimpleString lastValueKey,
+                     Boolean nonDestructive,
+                     Integer consumersBeforeDispatch,
+                     Long delayBeforeDispatch,
+                     Boolean autoDelete,
+                     Long autoDeleteDelay,
+                     Long autoDeleteMessageCount,
+                     boolean autoCreated) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     int maxConsumers,
+                     boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     Boolean groupRebalance,
+                     Integer groupBuckets,
+                     SimpleString groupFirstKey,
+                     Boolean lastValue,
+                     SimpleString lastValueKey,
+                     Boolean nonDestructive,
+                     Integer consumersBeforeDispatch,
+                     Long delayBeforeDispatch,
+                     Boolean autoDelete,
+                     Long autoDeleteDelay,
+                     Long autoDeleteMessageCount,
+                     boolean autoCreated,
+                     Long ringSize) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     boolean autoCreated) throws Exception;
+
+   Queue createQueue(AddressInfo addressInfo,
+                     SimpleString name,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     boolean autoCreated) throws Exception;
+
+   Queue createQueue(AddressInfo addressInfo,
+                     SimpleString name,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     Boolean exclusive,
+                     Boolean lastValue,
                      boolean autoCreated) throws Exception;
 
    AddressInfo createAddress(SimpleString address,
-                             Set<RoutingType> routingTypes,
+                             EnumSet<RoutingType> routingTypes,
                              boolean autoCreated) throws Exception;
 
    AddressInfo createAddress(SimpleString address,
                              RoutingType routingType,
+                             boolean autoCreated) throws Exception;
+
+   AddressInfo createAddress(AddressInfo addressInfo,
                              boolean autoCreated) throws Exception;
 
    void deleteQueue(SimpleString name) throws Exception;
@@ -187,11 +302,25 @@ public interface ServerSession extends SecurityAuth {
                       boolean direct,
                       boolean noAutoCreateQueue) throws Exception;
 
+   RoutingStatus send(Transaction tx,
+                      Message message,
+                      boolean direct,
+                      boolean noAutoCreateQueue,
+                      RoutingContext routingContext) throws Exception;
+
+
    RoutingStatus doSend(Transaction tx,
                         Message msg,
                         SimpleString originalAddress,
                         boolean direct,
                         boolean noAutoCreateQueue) throws Exception;
+
+   RoutingStatus doSend(Transaction tx,
+                        Message msg,
+                        SimpleString originalAddress,
+                        boolean direct,
+                        boolean noAutoCreateQueue,
+                        RoutingContext routingContext) throws Exception;
 
    RoutingStatus send(Message message, boolean direct, boolean noAutoCreateQueue) throws Exception;
 
@@ -203,8 +332,6 @@ public interface ServerSession extends SecurityAuth {
 
    void close(boolean failed) throws Exception;
 
-   void waitContextCompletion() throws Exception;
-
    void setTransferring(boolean transferring);
 
    Set<ServerConsumer> getServerConsumers();
@@ -214,6 +341,8 @@ public interface ServerSession extends SecurityAuth {
    boolean addUniqueMetaData(String key, String data) throws Exception;
 
    String getMetaData(String key);
+
+   Map<String, String> getMetaData();
 
    String[] getTargetAddresses();
 
@@ -239,6 +368,55 @@ public interface ServerSession extends SecurityAuth {
    boolean isClosed();
 
    void createSharedQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean durable,
+                     Integer maxConsumers,
+                     Boolean purgeOnNoConsumers,
+                     Boolean exclusive,
+                     Boolean lastValue) throws Exception;
+
+   void createSharedQueue(SimpleString address,
+                          SimpleString name,
+                          RoutingType routingType,
+                          SimpleString filterString,
+                          boolean durable,
+                          Integer maxConsumers,
+                          Boolean purgeOnNoConsumers,
+                          Boolean exclusive,
+                          Boolean groupRebalance,
+                          Integer groupBuckets,
+                          Boolean lastValue,
+                          SimpleString lastValueKey,
+                          Boolean nonDestructive,
+                          Integer consumersBeforeDispatch,
+                          Long delayBeforeDispatch,
+                          Boolean autoDelete,
+                          Long autoDeleteDelay,
+                          Long autoDeleteMessageCount) throws Exception;
+
+   void createSharedQueue(SimpleString address,
+                          SimpleString name,
+                          RoutingType routingType,
+                          SimpleString filterString,
+                          boolean durable,
+                          Integer maxConsumers,
+                          Boolean purgeOnNoConsumers,
+                          Boolean exclusive,
+                          Boolean groupRebalance,
+                          Integer groupBuckets,
+                          SimpleString groupFirstKey,
+                          Boolean lastValue,
+                          SimpleString lastValueKey,
+                          Boolean nonDestructive,
+                          Integer consumersBeforeDispatch,
+                          Long delayBeforeDispatch,
+                          Boolean autoDelete,
+                          Long autoDeleteDelay,
+                          Long autoDeleteMessageCount) throws Exception;
+
+   void createSharedQueue(SimpleString address,
                           SimpleString name,
                           RoutingType routingType,
                           boolean durable,
@@ -250,6 +428,10 @@ public interface ServerSession extends SecurityAuth {
                           SimpleString filterString) throws Exception;
 
    List<MessageReference> getInTXMessagesForConsumer(long consumerId);
+
+   List<MessageReference> getInTxLingerMessages();
+
+   void addLingerConsumer(ServerConsumer consumer);
 
    String getValidatedUser();
 
@@ -270,15 +452,21 @@ public interface ServerSession extends SecurityAuth {
    SimpleString removePrefix(SimpleString address);
 
    /**
-    * Get the canonical (i.e. non-prefixed) address and the corresponding routing-type.
+    * Get the prefix (if it exists) from the address based on the prefixes provided to the ServerSession constructor.
     *
     * @param address the address to inspect
-    * @param defaultRoutingType the {@code org.apache.activemq.artemis.api.core.RoutingType} to return if no prefix
-    *                           match is found.
+    * @return the canonical (i.e. non-prefixed) address name
+    */
+   SimpleString getPrefix(SimpleString address);
+
+   /**
+    * Get the canonical (i.e. non-prefixed) address and the corresponding routing-type.
+    *
+    * @param addressInfo the address to inspect
     * @return a {@code org.apache.activemq.artemis.api.core.Pair} representing the canonical (i.e. non-prefixed) address
     *         name and the {@code org.apache.activemq.artemis.api.core.RoutingType} corresponding to the that prefix.
     */
-   Pair<SimpleString, RoutingType> getAddressAndRoutingType(SimpleString address, RoutingType defaultRoutingType);
+   AddressInfo getAddressAndRoutingType(AddressInfo addressInfo);
 
    /**
     * Get the canonical (i.e. non-prefixed) address and the corresponding routing-type.
@@ -290,8 +478,8 @@ public interface ServerSession extends SecurityAuth {
     *         name and the {@code java.util.Set} of {@code org.apache.activemq.artemis.api.core.RoutingType} objects
     *         corresponding to the that prefix.
     */
-   Pair<SimpleString, Set<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
-                                                                  Set<RoutingType> defaultRoutingTypes);
+   Pair<SimpleString, EnumSet<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
+                                                                      EnumSet<RoutingType> defaultRoutingTypes);
 
    void addProducer(ServerProducer serverProducer);
 
@@ -300,4 +488,12 @@ public interface ServerSession extends SecurityAuth {
    Map<String, ServerProducer> getServerProducers();
 
    String getDefaultAddress();
+
+   int getConsumerCount();
+
+   int getProducerCount();
+
+   int getDefaultConsumerWindowSize(SimpleString address);
+
+   String toManagementString();
 }

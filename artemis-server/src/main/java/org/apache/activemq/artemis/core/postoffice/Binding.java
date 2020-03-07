@@ -26,6 +26,10 @@ import org.apache.activemq.artemis.core.server.group.UnproposalListener;
 
 public interface Binding extends UnproposalListener {
 
+   default boolean isLocal() {
+      return false;
+   }
+
    SimpleString getAddress();
 
    Bindable getBindable();

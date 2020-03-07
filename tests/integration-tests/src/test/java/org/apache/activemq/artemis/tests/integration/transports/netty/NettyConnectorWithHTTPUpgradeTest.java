@@ -91,7 +91,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
 
    private static final SimpleString QUEUE = new SimpleString("NettyConnectorWithHTTPUpgradeTest");
 
-   private static final int HTTP_PORT = 8080;
+   private static final int HTTP_PORT = 8789;
 
    private Configuration conf;
    private ActiveMQServer server;
@@ -210,7 +210,10 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       ServerBootstrap b = new ServerBootstrap();
       final SSLContext context;
       if (useSSL) {
-         context = SSLSupport.createContext("JKS", SERVER_SIDE_KEYSTORE, PASSWORD, null, null, null);
+         context = new SSLSupport()
+            .setKeystorePath(SERVER_SIDE_KEYSTORE)
+            .setKeystorePassword(PASSWORD)
+            .createContext();
       } else {
          context = null;
       }

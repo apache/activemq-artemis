@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.management.impl;
 
+import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
+
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
@@ -79,6 +81,7 @@ import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
@@ -215,7 +218,7 @@ public class ManagementServiceImpl implements ManagementService {
    @Override
    public void registerAddress(AddressInfo addressInfo) throws Exception {
       ObjectName objectName = objectNameBuilder.getAddressObjectName(addressInfo.getName());
-      AddressControlImpl addressControl = new AddressControlImpl(addressInfo, postOffice, pagingManager, storageManager, securityRepository, securityStore, this);
+      AddressControlImpl addressControl = new AddressControlImpl(addressInfo, messagingServer, pagingManager, storageManager, securityRepository, securityStore, this);
 
       registerInJMX(objectName, addressControl);
 
@@ -233,17 +236,25 @@ public class ManagementServiceImpl implements ManagementService {
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.ADDRESS + address);
    }
-   @Override
+
    public synchronized void registerQueue(final Queue queue,
-                                          final SimpleString address,
+                                          final AddressInfo addressInfo,
                                           final StorageManager storageManager) throws Exception {
-      QueueControlImpl queueControl = new QueueControlImpl(queue, address.toString(), postOffice, storageManager, securityStore, addressSettingsRepository);
+
+      if (addressInfo.isInternal()) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("won't register internal queue: " + queue);
+         }
+         return;
+      }
+
+      QueueControlImpl queueControl = new QueueControlImpl(queue, addressInfo.getName().toString(), messagingServer, storageManager, securityStore, addressSettingsRepository);
       if (messageCounterManager != null) {
          MessageCounter counter = new MessageCounter(queue.getName().toString(), null, queue, false, queue.isDurable(), messageCounterManager.getMaxDayCount());
          queueControl.setMessageCounter(counter);
          messageCounterManager.registerMessageCounter(queue.getName().toString(), counter);
       }
-      ObjectName objectName = objectNameBuilder.getQueueObjectName(address, queue.getName(), queue.getRoutingType());
+      ObjectName objectName = objectNameBuilder.getQueueObjectName(addressInfo.getName(), queue.getName(), queue.getRoutingType());
       registerInJMX(objectName, queueControl);
       registerInRegistry(ResourceNames.QUEUE + queue.getName(), queueControl);
 
@@ -251,19 +262,27 @@ public class ManagementServiceImpl implements ManagementService {
          logger.debug("registered queue " + objectName);
       }
    }
+   @Override
+   public synchronized void registerQueue(final Queue queue,
+                                          final SimpleString address,
+                                          final StorageManager storageManager) throws Exception {
+      registerQueue(queue, new AddressInfo(address), storageManager);
+   }
 
    @Override
    public synchronized void unregisterQueue(final SimpleString name, final SimpleString address, RoutingType routingType) throws Exception {
       ObjectName objectName = objectNameBuilder.getQueueObjectName(address, name, routingType);
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.QUEUE + name);
-      messageCounterManager.unregisterMessageCounter(name.toString());
+      if (messageCounterManager != null) {
+         messageCounterManager.unregisterMessageCounter(name.toString());
+      }
    }
 
    @Override
    public synchronized void registerDivert(final Divert divert, final DivertConfiguration config) throws Exception {
       ObjectName objectName = objectNameBuilder.getDivertObjectName(divert.getUniqueName().toString(), config.getAddress());
-      DivertControl divertControl = new DivertControlImpl(divert, storageManager, config);
+      DivertControl divertControl = new DivertControlImpl(divert, storageManager, config, messagingServer.getInternalNamingPrefix());
       registerInJMX(objectName, divertControl);
       registerInRegistry(ResourceNames.DIVERT + config.getName(), divertControl);
 
@@ -372,6 +391,11 @@ public class ManagementServiceImpl implements ManagementService {
       CoreMessage reply = new CoreMessage(storageManager.generateID(), 512);
       reply.setType(Message.TEXT_TYPE);
       reply.setReplyTo(message.getReplyTo());
+
+      Object correlationID = getCorrelationIdentity(message);
+      if (correlationID != null) {
+         reply.setCorrelationID(correlationID);
+      }
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
       if (logger.isDebugEnabled()) {
@@ -524,6 +548,24 @@ public class ManagementServiceImpl implements ManagementService {
       }
 
       started = true;
+
+      /**
+       * Ensure the management notification address is created otherwise if auto-create-address = false then cluster
+       * bridges won't be able to connect.
+       */
+      messagingServer.registerActivateCallback(new CleaningActivateCallback() {
+         @Override
+         public void activated() {
+            try {
+               ActiveMQServer usedServer = messagingServer;
+               if (usedServer != null) {
+                  usedServer.addAddressInfo(new AddressInfo(managementNotificationAddress, RoutingType.MULTICAST));
+               }
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.unableToCreateManagementNotificationAddress(managementNotificationAddress, e);
+            }
+         }
+      });
    }
 
    @Override
@@ -644,9 +686,7 @@ public class ManagementServiceImpl implements ManagementService {
 
                if (notification.getProperties() != null) {
                   TypedProperties props = notification.getProperties();
-                  for (SimpleString name : notification.getProperties().getPropertyNames()) {
-                     notificationMessage.putObjectProperty(name, props.getProperty(name));
-                  }
+                  props.forEach(notificationMessage::putObjectProperty);
                }
 
                notificationMessage.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, new SimpleString(notification.getType().toString()));
@@ -746,6 +786,26 @@ public class ManagementServiceImpl implements ManagementService {
 
       Object result = method.invoke(resource, params);
       return result;
+   }
+
+   /**
+    * Correlate management responses using the Correlation ID Pattern, if the request supplied a correlation id,
+    * or fallback to the Message ID Pattern providing the request had a message id.
+
+    * @param request
+    * @return correlation identify
+    */
+   private Object getCorrelationIdentity(final Message request) {
+      Object correlationId = request.getCorrelationID();
+      if (correlationId == null) {
+         // CoreMessage#getUserId returns UUID, so to implement this part a alternative API that returned object. This part of the
+         // change is a nice to have for my point of view. I suggested it for completeness.  The application could
+         // always supply unique correl ids on the request and achieve the same effect.  I'd be happy to drop this part.
+         Object underlying = request.getStringProperty(NATIVE_MESSAGE_ID) != null ? request.getStringProperty(NATIVE_MESSAGE_ID) : request.getUserID();
+         correlationId = underlying == null ? null : String.valueOf(underlying);
+      }
+
+      return correlationId;
    }
 
    // Inner classes -------------------------------------------------

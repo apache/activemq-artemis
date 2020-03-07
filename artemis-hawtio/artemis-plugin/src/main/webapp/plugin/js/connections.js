@@ -29,7 +29,7 @@ var ARTEMIS = (function(ARTEMIS) {
 
         var objectType = "connection"
         var method = 'listConnections(java.lang.String, int, int)';
-        var attributes = [
+        var defaultAttributes = [
             {
                 field: 'connectionID',
                 displayName: 'ID',
@@ -55,6 +55,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 displayName: 'Session Count',
                 width: '*',
                 cellTemplate: '<div class="ngCellText"><a ng-click="selectSessions(row)">{{row.entity.sessionCount}}</a></div>',
+                sortable: false
             },
             {
                 field: 'remoteAddress',
@@ -72,6 +73,23 @@ var ARTEMIS = (function(ARTEMIS) {
                 width: '*'
             }
         ];
+        ARTEMIS.log.debug('sessionStorage: connectionsColumnDefs =', sessionStorage.getItem('connectionsColumnDefs'));
+        var attributes = defaultAttributes;
+        if (sessionStorage.getItem('connectionsColumnDefs')) {
+            attributes = JSON.parse(sessionStorage.getItem('connectionsColumnDefs'));
+        }
+        $scope.$on('ngGridEventColumns', function (newColumns) {
+            ARTEMIS.log.debug('ngGridEventColumns:', newColumns);
+            var visibles = newColumns.targetScope.columns.reduce(function (visibles, column) {
+                visibles[column.field] = column.visible;
+                return visibles;
+            }, {});
+            ARTEMIS.log.debug('ngGridEventColumns: visibles =', visibles);
+            attributes.forEach(function (attribute) {
+                attribute.visible = visibles[attribute.field];
+            });
+            sessionStorage.setItem('connectionsColumnDefs', JSON.stringify(attributes));
+        });
         $scope.filter = {
             fieldOptions: [
                 {id: 'CONNECTION_ID', name: 'Connection ID'},
@@ -94,7 +112,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "CONNECTION_ID"
+                sortBy: "connectionID"
             }
         };
 
@@ -140,8 +158,9 @@ var ARTEMIS = (function(ARTEMIS) {
             pageSize: 100,
             currentPage: 1
         };
-        $scope.sort = {
-            fields: ["ID"],
+        $scope.sortOptions = {
+            fields: ["connectionID"],
+            columns: ["connectionID"],
             directions: ["asc"]
         };
         var refreshed = false;
@@ -181,10 +200,13 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.loadTable();
         };
         $scope.loadTable = function () {
-            $scope.filter.values.sortColumn = $scope.sort.fields[0];
-            $scope.filter.values.sortBy = $scope.sort.directions[0];
+        	$scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
+            $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
+	        $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
             var mbean = getBrokerMBean(jolokia);
-            if (mbean) {
+            if (mbean.includes("undefined")) {
+                onBadMBean();
+            } else if (mbean) {
                 var filter = JSON.stringify($scope.filter.values);
                 console.log("Filter string: " + filter);
                 jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [filter, $scope.pagingOptions.currentPage, $scope.pagingOptions.pageSize] }, onSuccess(populateTable, { error: onError }));
@@ -195,6 +217,9 @@ var ARTEMIS = (function(ARTEMIS) {
         };
         function onError() {
             Core.notification("error", "Could not retrieve " + objectType + " list from Artemis.");
+        }
+        function onBadMBean() {
+            Core.notification("error", "Could not retrieve " + objectType + " list. Wrong MBean selected.");
         }
         function populateTable(response) {
             $scope.gridOptions.selectedItems.length = 0;
@@ -218,6 +243,10 @@ var ARTEMIS = (function(ARTEMIS) {
         }, true);
         $scope.$watch('pagingOptions', function (newVal, oldVal) {
             if (parseInt(newVal.currentPage) && newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
+                $scope.loadTable();
+            }
+            if (parseInt(newVal.pageSize) && newVal !== oldVal && newVal.pageSize !== oldVal.pageSize) {
+                $scope.pagingOptions.currentPage = 1;
                 $scope.loadTable();
             }
         }, true);

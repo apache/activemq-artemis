@@ -28,6 +28,16 @@ import org.apache.qpid.proton.amqp.UnsignedLong;
  */
 public class AmqpSupport {
 
+   // Default thresholds/values used for granting credit to producers
+   public static final int AMQP_CREDITS_DEFAULT = 1000;
+   public static final int AMQP_LOW_CREDITS_DEFAULT = 300;
+
+   // Defaults for controlling the interpretation of AMQP dispositions
+   public static final boolean AMQP_TREAT_REJECT_AS_UNMODIFIED_DELIVERY_FAILURE = false;
+
+   // Defaults for controlling the behaviour of AMQP dispositions
+   public static final boolean AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS = false;
+
    // Identification values used to locating JMS selector types.
    public static final UnsignedLong JMS_SELECTOR_CODE = UnsignedLong.valueOf(0x0000468C00000004L);
    public static final Symbol JMS_SELECTOR_NAME = Symbol.valueOf("apache.org:selector-filter:string");
@@ -65,6 +75,7 @@ public class AmqpSupport {
 
    static final Symbol FAILOVER_SERVER_LIST = Symbol.valueOf("failover-server-list");
 
+   public static final int MAX_FRAME_SIZE_DEFAULT = 128 * 1024;
 
    // Symbols used in configuration of newly opened links.
    public static final Symbol COPY = Symbol.getSymbol("copy");
@@ -134,5 +145,4 @@ public class AmqpSupport {
 
       return null;
    }
-
 }

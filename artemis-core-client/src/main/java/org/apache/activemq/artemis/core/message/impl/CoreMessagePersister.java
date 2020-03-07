@@ -20,13 +20,24 @@ package org.apache.activemq.artemis.core.message.impl;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.utils.DataConstants;
 
+import static org.apache.activemq.artemis.core.persistence.PersisterIDs.CoreMessagePersister_ID;
 public class CoreMessagePersister implements Persister<Message> {
-   public static final byte ID = 1;
+   public static final byte ID = CoreMessagePersister_ID;
 
-   public static CoreMessagePersister theInstance;
+   private static CoreMessagePersister theInstance;
+
+   /** This is a hook for testing */
+   public static void registerPersister(CoreMessagePersister newPersister) {
+      theInstance = newPersister;
+   }
+
+   public static void resetPersister() {
+      theInstance = null;
+   }
 
    public static CoreMessagePersister getInstance() {
       if (theInstance == null) {
@@ -61,12 +72,17 @@ public class CoreMessagePersister implements Persister<Message> {
 
 
    @Override
-   public Message decode(ActiveMQBuffer buffer, Message record) {
+   public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pool) {
       // the caller must consume the first byte already, as that will be used to decide what persister (protocol) to use
       long id = buffer.readLong();
-      SimpleString address = buffer.readNullableSimpleString();
+      final SimpleString address;
+      if (pool == null) {
+         address = buffer.readNullableSimpleString();
+      } else {
+         address = SimpleString.readNullableSimpleString(buffer.byteBuf(), pool.getAddressDecoderPool());
+      }
       record = new CoreMessage();
-      record.reloadPersistence(buffer);
+      record.reloadPersistence(buffer, pool);
       record.setMessageID(id);
       record.setAddress(address);
       return record;

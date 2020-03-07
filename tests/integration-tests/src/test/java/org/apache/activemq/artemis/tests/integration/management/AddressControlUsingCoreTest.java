@@ -104,6 +104,41 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public long getRoutedMessageCount() {
+            return (long) proxy.retrieveAttributeValue("routedMessageCount");
+         }
+
+         @Override
+         public long getUnRoutedMessageCount() {
+            return (long) proxy.retrieveAttributeValue("unRoutedMessageCount");
+         }
+
+         @Override
+         public void pause() throws Exception {
+            proxy.invokeOperation("pause");
+         }
+
+         @Override
+         public void pause(boolean persist) throws Exception {
+            proxy.invokeOperation("pause", persist);
+         }
+
+         @Override
+         public void resume() throws Exception {
+            proxy.invokeOperation("resume");
+         }
+
+         @Override
+         public boolean isPaused() {
+            return (boolean) proxy.retrieveAttributeValue("paused");
+         }
+
+         @Override
+         public boolean isRetroactiveResource() {
+            return (boolean) proxy.retrieveAttributeValue("retroactiveResource");
+         }
+
+         @Override
          public String sendMessage(Map<String, String> headers,
                                    int type,
                                    String body,

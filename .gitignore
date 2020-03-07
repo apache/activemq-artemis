@@ -1,6 +1,8 @@
 **/*.iml
 **/nb-configuration.xml
 **/target
+**/bin
+**/obj
 .idea/
 ratReport.txt
 **/server.lock
@@ -12,6 +14,7 @@ ratReport.txt
 .factorypath
 **/.editorconfig
 **/derby.log
+examples/**/readme.html
 
 # for native build
 CMakeCache.txt

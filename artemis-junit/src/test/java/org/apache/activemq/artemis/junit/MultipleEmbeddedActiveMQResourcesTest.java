@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.junit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.junit.After;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,28 +39,20 @@ public class MultipleEmbeddedActiveMQResourcesTest {
    static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
 
-   static {
-      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
-      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
-   }
-
    public EmbeddedActiveMQResource serverOne = new EmbeddedActiveMQResource(0);
 
    public EmbeddedActiveMQResource serverTwo = new EmbeddedActiveMQResource(1);
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(serverOne).around(serverTwo);
+   public RuleChain rulechain = RuleChain.outerRule(serverOne).around(serverTwo);
 
    @Before
    public void setUp() throws Exception {
+      serverOne.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+      serverTwo.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+
       serverOne.createQueue(TEST_ADDRESS_ONE, TEST_QUEUE_ONE);
       serverTwo.createQueue(TEST_ADDRESS_TWO, TEST_QUEUE_TWO);
-   }
-
-   @After
-   public void tearDown() {
-      serverOne.stop();
-      serverTwo.stop();
    }
 
    @Test

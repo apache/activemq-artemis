@@ -20,7 +20,7 @@
    <groupId>org.apache.activemq</groupId>
    <artifactId>artemis-pom</artifactId>
    <packaging>pom</packaging>
-   <version>2.4.0-SNAPSHOT</version>
+   <version>2.12.0-SNAPSHOT</version>
 
    <parent>
       <groupId>org.apache</groupId>
@@ -41,12 +41,13 @@
       <module>artemis-selector</module>
       <module>artemis-core-client</module>
       <module>artemis-core-client-all</module>
+      <module>artemis-core-client-osgi</module>
       <module>artemis-server</module>
       <module>artemis-junit</module>
       <module>artemis-jms-client</module>
       <module>artemis-jms-client-all</module>
+      <module>artemis-jms-client-osgi</module>
       <module>artemis-jms-server</module>
-      <module>artemis-native</module>
       <module>artemis-journal</module>
       <module>artemis-ra</module>
       <module>artemis-rest</module>
@@ -73,32 +74,39 @@
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
-      <commons.config.version>2.1</commons.config.version>
+      <activemq-artemis-native-version>1.0.1</activemq-artemis-native-version>
+      <karaf.version>4.0.6</karaf.version>
+      <pax.exam.version>4.9.1</pax.exam.version>
+      <commons.config.version>2.4</commons.config.version>
       <commons.lang.version>3.0</commons.lang.version>
       <activemq5-version>5.14.5</activemq5-version>
       <apache.derby.version>10.11.1.1</apache.derby.version>
-      <commons.beanutils.version>1.9.2</commons.beanutils.version>
+      <commons.beanutils.version>1.9.4</commons.beanutils.version>
       <commons.collections.version>3.2.2</commons.collections.version>
-      <fuse.mqtt.client.version>1.14</fuse.mqtt.client.version>
-      <guava.version>19.0</guava.version>
-      <jboss.logging.version>3.3.0.Final</jboss.logging.version>
-      <jetty.version>9.4.3.v20170317</jetty.version>
+      <fuse.mqtt.client.version>1.16</fuse.mqtt.client.version>
+      <guava.version>24.1.1-jre</guava.version>
+      <jboss.logging.version>3.4.0.Final</jboss.logging.version>
+      <jetty.version>9.4.26.v20200117</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
-      <mockito.version>2.8.47</mockito.version>
-      <netty.version>4.1.16.Final</netty.version>
-      <proton.version>0.22.0</proton.version>
+      <mockito.version>2.25.0</mockito.version>
+      <jctools.version>2.1.2</jctools.version>
+      <netty.version>4.1.45.Final</netty.version>
+
+      <!-- this is basically for tests -->
+      <netty-tcnative-version>2.0.28.Final</netty-tcnative-version>
+      <proton.version>0.33.2</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>0.26.0</qpid.jms.version>
+      <qpid.jms.version>0.45.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
       <javax.inject.version>1</javax.inject.version>
-      <jolokia.version>1.3.7</jolokia.version>
       <hawtbuff.version>1.11</hawtbuff.version>
-      <jb.logmanager.version>2.0.3.Final</jb.logmanager.version>
-      <jb.slf4j-jboss-logmanager.version>1.0.3.GA</jb.slf4j-jboss-logmanager.version>
-      <airlift.version>0.7</airlift.version>
+      <jb.logmanager.version>2.1.10.Final</jb.logmanager.version>
+      <jb.slf4j-jboss-logmanager.version>1.0.4.GA</jb.slf4j-jboss-logmanager.version>
+      <version.org.wildfly.common.wildfly-common>1.5.2.Final</version.org.wildfly.common.wildfly-common>
+      <airlift.version>0.8</airlift.version>
       <geronimo.annotation.1.1.spec.version>1.0.1</geronimo.annotation.1.1.spec.version>
       <geronimo.ejb.3.0.spec.version>1.0.1</geronimo.ejb.3.0.spec.version>
       <geronimo.jta.1.1.spec.version>1.1.1</geronimo.jta.1.1.spec.version>
@@ -110,14 +118,21 @@
       <servicemix.json-1.1.spec.version>2.9.0</servicemix.json-1.1.spec.version>
       <version.org.jacoco>0.7.9</version.org.jacoco>
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
+      <version.maven.jar.plugin>2.4</version.maven.jar.plugin>
+      <version.micrometer>1.1.4</version.micrometer>
+      <hamcrest.version>2.1</hamcrest.version>
+
+      <!-- used on tests -->
+      <groovy.version>2.4.3</groovy.version>
 
       <owasp.version>1.4.3</owasp.version>
+      <spring.version>5.1.7.RELEASE</spring.version>
 
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>1</activemq.version.majorVersion>
       <activemq.version.minorVersion>0</activemq.version.minorVersion>
       <activemq.version.microVersion>0</activemq.version.microVersion>
-      <activemq.version.incrementingVersion>129,128,127,126,125,124,123,122</activemq.version.incrementingVersion>
+      <activemq.version.incrementingVersion>130,129,128,127,126,125,124,123,122</activemq.version.incrementingVersion>
       <activemq.version.versionTag>${project.version}</activemq.version.versionTag>
       <ActiveMQ-Version>${project.version}(${activemq.version.incrementingVersion})</ActiveMQ-Version>
 
@@ -125,6 +140,7 @@
       <skipJmsTests>true</skipJmsTests>
       <skipExtraTests>true</skipExtraTests>
       <skipIntegrationTests>true</skipIntegrationTests>
+      <skipCompatibilityTests>true</skipCompatibilityTests>
       <skipSmokeTests>true</skipSmokeTests>
       <skipJoramTests>true</skipJoramTests>
       <skipTimingTests>true</skipTimingTests>
@@ -134,7 +150,6 @@
       <skipConcurrentTests>true</skipConcurrentTests>
       <skipRestTests>true</skipRestTests>
       <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
-      <skipExtraTests>true</skipExtraTests>
 
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -157,9 +172,9 @@
 
       -->
 
-      <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
+      <activemq-surefire-argline>-Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
-         -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
+         -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
@@ -174,11 +189,18 @@
 
       <cdi-api.version>1.2</cdi-api.version>
       <geronimo-annotation_1.2_spec.version>1.0</geronimo-annotation_1.2_spec.version>
+
+      <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
+      <netty-transport-native-kqueue-classifier>osx-x86_64</netty-transport-native-kqueue-classifier>
+
+      <!-- Ignore failed tests by default because there are "known" failures in the full test-suite.
+           This will be set to false for the "fast-tests" profile as none of those tests should fail. -->
+      <testFailureIgnore>true</testFailureIgnore>
    </properties>
 
    <scm>
-      <connection>scm:git:http://git-wip-us.apache.org/repos/asf/activemq-artemis.git</connection>
-      <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/activemq-artemis.git</developerConnection>
+      <connection>scm:git:https://gitbox.apache.org/repos/asf/activemq-artemis.git</connection>
+      <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/activemq-artemis.git</developerConnection>
       <url>https://fisheye6.atlassian.com/browse/~br=master/activemq-artemis-git</url>
       <tag>1.0.0-SNAPSHOT</tag>
    </scm>
@@ -238,6 +260,12 @@
             <!-- License: CPL 1.0 -->
             <!-- There are newer versions of the JUnit but they break our tests -->
          </dependency>
+         <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
+         </dependency>
 
          <!-- ### For MQTT Tests && Examples -->
          <dependency>
@@ -291,14 +319,14 @@
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-processor</artifactId>
-            <version>2.0.0.Alpha2</version>
+            <version>2.2.0.Final</version>
             <optional>true</optional>
             <!-- License: LGPL-->
          </dependency>
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-annotations</artifactId>
-            <version>2.0.0.Alpha1</version>
+            <version>2.2.0.Final</version>
             <scope>provided</scope>
             <optional>true</optional>
             <!-- License: Apache 2.0-->
@@ -314,28 +342,28 @@
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
@@ -367,12 +395,6 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
             <version>${jboss.logging.version}</version>
@@ -389,6 +411,12 @@
             <artifactId>slf4j-jboss-logmanager</artifactId>
             <version>${jb.slf4j-jboss-logmanager.version}</version>
             <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+             <groupId>org.wildfly.common</groupId>
+             <artifactId>wildfly-common</artifactId>
+             <version>${version.org.wildfly.common.wildfly-common}</version>
+             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>net.java.dev.javacc</groupId>
@@ -469,8 +497,64 @@
          </dependency>
          <!--needed to compile transport jar-->
          <dependency>
+            <groupId>org.jctools</groupId>
+            <artifactId>jctools-core</artifactId>
+            <version>${jctools.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <version>${netty.version}</version>
+            <classifier>${netty-transport-native-epoll-classifier}</classifier>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-kqueue</artifactId>
+            <version>${netty.version}</version>
+            <classifier>${netty-transport-native-kqueue-classifier}</classifier>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
             <version>${netty.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
@@ -483,6 +567,12 @@
          <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-client</artifactId>
+            <version>${activemq5-version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-openwire-legacy</artifactId>
             <version>${activemq5-version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
@@ -593,13 +683,6 @@
             <artifactId>tomcat-servlet-api</artifactId>
             <version>8.5.5</version>
          </dependency>
-        <dependency>
-           <groupId>org.jolokia</groupId>
-           <artifactId>jolokia-war</artifactId>
-           <type>war</type>
-           <version>${jolokia.version}</version>
-           <!-- License: Apache 2.0 -->
-        </dependency>
          <!-- ## End Jetty Wed Dependencies ## -->
 
          <dependency>
@@ -623,6 +706,27 @@
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
             <!-- License: Apache 2.0 -->
+         </dependency>
+
+         <!-- needed by artemis-selector -->
+         <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>2.0.2</version>
+         </dependency>
+         <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.2</version>
+         </dependency>
+
+         <!-- Needed for Micrometer -->
+         <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${version.micrometer}</version>
+            <optional>true</optional> <!-- keep optional as "true" at least until micrometer supports OSGi -->
+            <!-- license Apache 2 -->
          </dependency>
 
          <dependency>
@@ -674,6 +778,12 @@
             <scope>test</scope>
          </dependency>
          <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-core</artifactId>
+            <version>${arquillian.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
              <groupId>org.jacoco</groupId>
              <artifactId>org.jacoco.ant</artifactId>
              <version>${version.org.jacoco}</version>
@@ -691,27 +801,35 @@
             <version>${cdi-api.version}</version>
             <scope>provided</scope>
          </dependency>
-      </dependencies>
-   </dependencyManagement>
-
-   <dependencies>
-        <!--  OSGi support -->
-        <dependency>
+         <!--  OSGi support -->
+         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>6.0.0</version>
             <scope>provided</scope>
             <!-- License: Apache 2.0 -->
-        </dependency>
-        <dependency>
+         </dependency>
+         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.cmpn</artifactId>
             <version>6.0.0</version>
             <scope>provided</scope>
             <!-- License: Apache 2.0 -->
-        </dependency>
+         </dependency>
+         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaspic_1.0_spec</artifactId>
+            <version>1.0</version>
+         </dependency>
+      </dependencies>
 
-   </dependencies>
+   </dependencyManagement>
 
    <profiles>
        <profile>
@@ -753,6 +871,15 @@
                   <version>3.1</version>
                   <configuration combine.self="override" />
                </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <configuration>
+                     <systemPropertyVariables>
+                        <com.ibm.jsse2.overrideDefaultTLS>true</com.ibm.jsse2.overrideDefaultTLS>
+                     </systemPropertyVariables>
+                  </configuration>
+               </plugin>
             </plugins>
          </build>
       </profile>
@@ -792,7 +919,6 @@
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-protocols</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
@@ -827,8 +953,8 @@
             <module>artemis-core-client</module>
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
+            <module>artemis-jms-client-all</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
@@ -885,7 +1011,6 @@
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
@@ -900,6 +1025,7 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipIntegrationTests>false</skipIntegrationTests>
+            <skipCompatibilityTests>false</skipCompatibilityTests>
             <skipSmokeTests>false</skipSmokeTests>
             <skipTimingTests>true</skipTimingTests>
             <skipConcurrentTests>false</skipConcurrentTests>
@@ -910,16 +1036,14 @@
             <skipExtraTests>false</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
-            <skipExtraTests>false</skipExtraTests>
          </properties>
       </profile>
       <profile>
          <!-- This will represent a subset of the tests
-              This is used on PR checks on the Jenkins instance at build.apache.org -->
+              This is used on PR checks -->
          <id>fast-tests</id>
          <modules>
             <module>artemis-dto</module>
-            <module>artemis-web</module>
             <module>artemis-cli</module>
             <module>artemis-commons</module>
             <module>artemis-selector</module>
@@ -927,11 +1051,9 @@
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
-            <module>artemis-rest</module>
             <module>artemis-service-extensions</module>
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
@@ -942,10 +1064,10 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipConcurrentTests>false</skipConcurrentTests>
-            <skipRestTests>false</skipRestTests>
-            <skipExtraTests>true</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
+            <skipCompatibilityTests>false</skipCompatibilityTests>
+            <testFailureIgnore>false</testFailureIgnore>
          </properties>
       </profile>
       <profile>
@@ -960,7 +1082,6 @@
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
             <module>artemis-jms-server</module>
-            <module>artemis-native</module>
             <module>artemis-journal</module>
             <module>artemis-jdbc-store</module>
             <module>artemis-ra</module>
@@ -991,7 +1112,7 @@
 
             <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
                -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
-               -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
+               -Djava.library.path="${activemq.basedir}/activemq-artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
                -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
                @{jacoco.agent} -Djacoco.agent=@{jacoco.agent}
             </activemq-surefire-argline>
@@ -1100,7 +1221,7 @@
                                        <fileset dir="${activemq.basedir}/artemis-jms-client/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-jms-server/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-journal/target/classes" />
-                                       <fileset dir="${activemq.basedir}/artemis-native/target/classes" />
+                                       <fileset dir="${activemq.basedir}/activemq-artemis-native/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-ra/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-rest/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-selector/target/classes" />
@@ -1121,7 +1242,7 @@
                                        <fileset dir="${activemq.basedir}/artemis-jms-client/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-jms-server/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-journal/src/main/java" />
-                                       <fileset dir="${activemq.basedir}/artemis-native/src/main/java" />
+                                       <fileset dir="${activemq.basedir}/activemq-artemis-native/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-ra/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-rest/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-selector/src/main/java" />
@@ -1286,7 +1407,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-jar-plugin</artifactId>
-               <version>2.4</version>
+               <version>${version.maven.jar.plugin}</version>
             </plugin>
             <plugin>
                <groupId>net.sf.maven-sar</groupId>
@@ -1301,7 +1422,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-shade-plugin</artifactId>
-               <version>2.1</version>
+               <version>3.2.0</version>
             </plugin>
             <plugin>
                <groupId>org.eclipse.jetty</groupId>
@@ -1322,8 +1443,9 @@
                <executions>
                   <execution>
                      <id>attach-sources</id>
+                     <phase>verify</phase>
                      <goals>
-                        <goal>jar</goal>
+                        <goal>jar-no-fork</goal>
                      </goals>
                   </execution>
                </executions>
@@ -1334,7 +1456,7 @@
                <version>2.18.1</version>
                <configuration>
                   <forkMode>once</forkMode>
-                  <testFailureIgnore>true</testFailureIgnore>
+                  <testFailureIgnore>${testFailureIgnore}</testFailureIgnore>
                   <runOrder>alphabetical</runOrder>
                   <redirectTestOutputToFile>false</redirectTestOutputToFile>
                   <argLine>${activemq-surefire-argline}</argLine>
@@ -1437,14 +1559,6 @@
          </plugin>
          <plugin>
             <artifactId>maven-source-plugin</artifactId>
-            <executions>
-               <execution>
-                  <phase>verify</phase>
-                  <goals>
-                     <goal>jar</goal>
-                  </goals>
-               </execution>
-            </executions>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -1454,17 +1568,17 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>2.17</version>
+            <version>3.0.0</version>
             <dependencies>
                <dependency>
                   <groupId>com.github.sevntu-checkstyle</groupId>
                   <artifactId>sevntu-checkstyle-maven-plugin</artifactId>
-                  <version>1.24.0</version>
+                  <version>1.29.0</version>
                </dependency>
                <dependency>
                   <groupId>com.puppycrawl.tools</groupId>
                   <artifactId>checkstyle</artifactId>
-                  <version>7.7</version>
+                  <version>8.18</version>
                </dependency>
             </dependencies>
             <configuration>
@@ -1506,6 +1620,8 @@
                <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
                <skip>${skipLicenseCheck}</skip>
                <excludes>
+                  <exclude>.travis.yml</exclude>
+                  <exclude>**/footer.html</exclude>
                   <exclude>**/*.txt</exclude>
                   <exclude>**/*.md</exclude>
                   <exclude>etc/ide-settings/**</exclude>
@@ -1517,6 +1633,7 @@
                   <exclude>**/*.iml</exclude>
                   <exclude>**/*.jceks</exclude>
                   <exclude>**/*.jks</exclude>
+                  <exclude>**/xml.xsd</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
                   <exclude>**/.settings/**</exclude>
@@ -1527,6 +1644,7 @@
                   <exclude>**/.factorypath</exclude>
                   <exclude>**/org.apache.activemq.artemis.cfg</exclude>
                   <exclude>**/nb-configuration.xml</exclude>
+                  <exclude>**/nbactions-tests.xml</exclude>
                   <!-- activemq5 unit tests exclude -->
                   <exclude>**/*.data</exclude>
                   <exclude>**/*.bin</exclude>
@@ -1547,9 +1665,17 @@
                   <exclude>**/CMakeFiles/</exclude>
                   <exclude>**/Makefile</exclude>
                   <exclude>**/cmake_install.cmake</exclude>
-                  <exclude>artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
+                  <exclude>activemq-artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
                   <exclude>**/dependency-reduced-pom.xml</exclude>
 
+                  <!-- Mockito -->
+                  <exclude>**/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker</exclude>
+
+                  <!-- .NET Examples-->
+                  <exclude>examples/protocols/amqp/dotnet/**/obj/**/*</exclude>
+                  <exclude>examples/protocols/amqp/dotnet/**/bin/**/*</exclude>
+                  <exclude>examples/protocols/amqp/dotnet/**/readme.md</exclude>
+                  <exclude>examples/protocols/amqp/**/readme.md</exclude>
                </excludes>
             </configuration>
             <executions>
@@ -1584,6 +1710,38 @@
                </execution>
             </executions>
          </plugin>
+
+         <!-- This is placing the .so somewhere other than the distribution so testsuite can take it
+              This is to avoid a dependency on having to build a distribution in order to run tests.
+         -->
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.1.1</version>
+            <executions>
+               <execution>
+                  <id>copy</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>unpack</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <configuration>
+               <artifactItems>
+                  <artifactItem>
+                     <groupId>org.apache.activemq</groupId>
+                     <artifactId>activemq-artemis-native</artifactId>
+                     <version>${activemq-artemis-native-version}</version>
+                     <type>jar</type>
+                     <overWrite>false</overWrite>
+                     <outputDirectory>${project.build.directory}/bin</outputDirectory>
+                     <includes>**/*.so</includes>
+                  </artifactItem>
+               </artifactItems>
+            </configuration>
+         </plugin>
+
 
       </plugins>
    </build>
@@ -1661,5 +1819,19 @@
 
       </plugins>
    </reporting>
+
+   <!--
+     un comment this session here to validate repository releases.
+     <repositories>
+      <repository>
+         <id>release validation</id>
+         <name>Maven 1.0.0 release</name>
+         <layout>default</layout>
+         <url>https://repository.apache.org/content/repositories/orgapacheactivemq-XXXX</url>
+         <snapshots>
+            <enabled>false</enabled>
+         </snapshots>
+      </repository>
+   </repositories> -->
 
 </project>

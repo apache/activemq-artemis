@@ -40,27 +40,29 @@ public class JaasAuthenticator implements JMXAuthenticator {
    }
 
    @Override
-   public Subject authenticate(Object credentials) throws SecurityException {
-      if (!(credentials instanceof String[])) {
-         throw new IllegalArgumentException("Expected String[2], got "
-               + (credentials != null ? credentials.getClass().getName() : null));
-      }
-
-      final String[] params = (String[]) credentials;
-      if (params.length != 2) {
-         throw new IllegalArgumentException("Expected String[2] but length was " + params.length);
-      }
+   public Subject authenticate(final Object credentials) throws SecurityException {
       try {
          Subject subject = new Subject();
-         LoginContext loginContext = new LoginContext(realm, subject, new CallbackHandler() {
 
+         LoginContext loginContext = new LoginContext(realm, subject, new CallbackHandler() {
             @Override
             public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+               /*
+               * pull out the jmx credentials if they exist if not, guest login module will handle it
+               * */
+               String[] params = null;
+               if (credentials instanceof String[] && ((String[]) credentials).length == 2) {
+                  params = (String[]) credentials;
+               }
                for (int i = 0; i < callbacks.length; i++) {
                   if (callbacks[i] instanceof NameCallback) {
-                     ((NameCallback) callbacks[i]).setName(params[0]);
+                     if (params != null) {
+                        ((NameCallback) callbacks[i]).setName(params[0]);
+                     }
                   } else if (callbacks[i] instanceof PasswordCallback) {
-                     ((PasswordCallback) callbacks[i]).setPassword((params[1].toCharArray()));
+                     if (params != null) {
+                        ((PasswordCallback) callbacks[i]).setPassword((params[1].toCharArray()));
+                     }
                   } else {
                      throw new UnsupportedCallbackException(callbacks[i]);
                   }
@@ -68,12 +70,6 @@ public class JaasAuthenticator implements JMXAuthenticator {
             }
          });
          loginContext.login();
-
-          /*  if (subject.getPrincipals().size() == 0) {
-                // there must be some Principals, but which ones required are tested later
-                throw new FailedLoginException("User does not have the required role");
-            }*/
-
          return subject;
       } catch (LoginException e) {
          throw new SecurityException("Authentication failed", e);

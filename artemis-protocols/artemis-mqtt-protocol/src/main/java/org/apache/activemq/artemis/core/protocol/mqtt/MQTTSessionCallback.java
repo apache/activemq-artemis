@@ -37,6 +37,11 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
+   public boolean supportsDirectDelivery() {
+      return false;
+   }
+
+   @Override
    public boolean isWritable(ReadyListener callback, Object protocolContext) {
       return connection.isWritable(callback);
    }
@@ -64,7 +69,6 @@ public class MQTTSessionCallback implements SessionCallback {
                                            byte[] body,
                                            boolean continues,
                                            boolean requiresResponse) {
-      log.warn("Sending LARGE MESSAGE");
       return 1;
    }
 
@@ -78,7 +82,7 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public void disconnect(ServerConsumer consumer, String queueName) {
+   public void disconnect(ServerConsumer consumer, SimpleString queueName) {
       try {
          consumer.removeItself();
       } catch (Exception e) {

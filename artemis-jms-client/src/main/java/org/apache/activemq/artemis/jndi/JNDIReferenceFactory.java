@@ -19,14 +19,13 @@ package org.apache.activemq.artemis.jndi;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 import javax.naming.spi.ObjectFactory;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
+import java.util.Properties;
+
 
 /**
  * Converts objects implementing JNDIStorable into a property fields so they can be
@@ -63,18 +62,22 @@ public class JNDIReferenceFactory implements ObjectFactory {
          Class<?> theClass = loadClass(this, reference.getClassName());
          if (JNDIStorable.class.isAssignableFrom(theClass)) {
             JNDIStorable store = (JNDIStorable) theClass.newInstance();
-            Map<String, String> properties = new HashMap<>();
-            for (Enumeration<RefAddr> iter = reference.getAll(); iter.hasMoreElements();) {
-               StringRefAddr addr = (StringRefAddr) iter.nextElement();
-               properties.put(addr.getType(), (addr.getContent() == null) ? "" : addr.getContent().toString());
-            }
-            store.setProperties(properties);
+            store.setProperties(getProperties(reference));
             result = store;
          }
       } else {
          throw new RuntimeException("Object " + object + " is not a reference");
       }
       return result;
+   }
+
+   public static Properties getProperties(Reference reference) {
+      Properties properties = new Properties();
+      for (Enumeration iter = reference.getAll(); iter.hasMoreElements();) {
+         StringRefAddr addr = (StringRefAddr)iter.nextElement();
+         properties.put(addr.getType(), (addr.getContent() == null) ? "" : addr.getContent());
+      }
+      return properties;
    }
 
    /**
@@ -92,10 +95,10 @@ public class JNDIReferenceFactory implements ObjectFactory {
    public static Reference createReference(String instanceClassName, JNDIStorable po) throws NamingException {
       Reference result = new Reference(instanceClassName, JNDIReferenceFactory.class.getName(), null);
       try {
-         Map<String, String> props = po.getProperties();
-         for (Map.Entry<String, String> entry : props.entrySet()) {
-            StringRefAddr addr = new StringRefAddr(entry.getKey(), entry.getValue());
-            result.add(addr);
+         Properties props = po.getProperties();
+         for (Enumeration iter = props.propertyNames(); iter.hasMoreElements();) {
+            String key = (String)iter.nextElement();
+            result.add(new StringRefAddr(key, props.getProperty(key)));
          }
       } catch (Exception e) {
          throw new NamingException(e.getMessage());

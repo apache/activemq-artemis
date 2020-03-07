@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.ServerSessionPacketHandler;
@@ -27,6 +28,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionPro
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage_1X;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -46,6 +48,8 @@ public final class CoreSessionCallback implements SessionCallback {
    private String name;
 
    private ServerSessionPacketHandler handler;
+
+   private CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    public CoreSessionCallback(String name,
                               ProtocolManager protocolManager,
@@ -67,7 +71,7 @@ public final class CoreSessionCallback implements SessionCallback {
       ServerSessionPacketHandler localHandler = handler;
       if (localHandler != null) {
          // We wait any pending tasks before we make this as closed
-         localHandler.flushExecutor();
+         localHandler.closeExecutors();
       }
       this.handler = null;
    }
@@ -112,7 +116,12 @@ public final class CoreSessionCallback implements SessionCallback {
    @Override
    public int sendMessage(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount)  {
 
-      Packet packet = new SessionReceiveMessage(consumer.getID(), message.toCore(), deliveryCount);
+      Packet packet;
+      if (channel.getConnection().isVersionBeforeAddressChange()) {
+         packet = new SessionReceiveMessage_1X(consumer.getID(), message.toCore(coreMessageObjectPools), deliveryCount);
+      } else {
+         packet = new SessionReceiveMessage(consumer.getID(), message.toCore(coreMessageObjectPools), deliveryCount);
+      }
 
       int size = 0;
 
@@ -153,11 +162,11 @@ public final class CoreSessionCallback implements SessionCallback {
    }
 
    @Override
-   public void disconnect(ServerConsumer consumerId, String queueName) {
+   public void disconnect(ServerConsumer consumerId, SimpleString queueName) {
       if (channel.supports(PacketImpl.DISCONNECT_CONSUMER)) {
          channel.send(new DisconnectConsumerMessage(consumerId.getID()));
       } else {
-         ActiveMQServerLogger.LOGGER.warnDisconnectOldClient(queueName);
+         ActiveMQServerLogger.LOGGER.warnDisconnectOldClient(queueName.toString());
       }
    }
 

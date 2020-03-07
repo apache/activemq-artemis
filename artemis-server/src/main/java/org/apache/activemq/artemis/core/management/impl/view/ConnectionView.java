@@ -18,10 +18,11 @@ package org.apache.activemq.artemis.core.management.impl.view;
 
 import javax.json.JsonObjectBuilder;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConnectionFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -31,7 +32,7 @@ import org.apache.activemq.artemis.utils.StringUtil;
 
 public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
-   private static final String defaultSortColumn = "creationTime";
+   private static final String defaultSortColumn = "connectionID";
 
    private final ActiveMQServer server;
 
@@ -50,14 +51,58 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
    public JsonObjectBuilder toJson(RemotingConnection connection) {
 
       List<ServerSession> sessions = server.getSessions(connection.getID().toString());
-      Set<String> users = new HashSet<>();
-
+      Set<String> users = new TreeSet<>();
+      String jmsSessionClientID = null;
       for (ServerSession session : sessions) {
          String username = session.getUsername() == null ? "" : session.getUsername();
          users.add(username);
+         //for the special case for JMS
+         if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
+            jmsSessionClientID = session.getMetaData("jms-client-id");
+         }
       }
 
-      return JsonLoader.createObjectBuilder().add("connectionID", toString(connection.getID())).add("remoteAddress", toString(connection.getRemoteAddress())).add("users", StringUtil.joinStringList(users, ",")).add("creationTime", new Date(connection.getCreationTime()).toString()).add("implementation", toString(toString(connection.getClass().getSimpleName()))).add("protocol", toString(connection.getProtocolName())).add("clientID", toString(connection.getClientID())).add("localAddress", toString(connection.getTransportConnection().getLocalAddress())).add("sessionCount", server.getSessions(connection.getID().toString()).size());
+      return JsonLoader.createObjectBuilder().add("connectionID", toString(connection.getID()))
+         .add("remoteAddress", toString(connection.getRemoteAddress()))
+         .add("users", StringUtil.joinStringList(users, ","))
+         .add("creationTime", new Date(connection.getCreationTime()).toString())
+         .add("implementation", toString(connection.getClass().getSimpleName()))
+         .add("protocol", toString(connection.getProtocolName()))
+         .add("clientID", toString(connection.getClientID() != null ? connection.getClientID() : jmsSessionClientID))
+         .add("localAddress", toString(connection.getTransportLocalAddress()))
+         .add("sessionCount", sessions.size());
+   }
+
+   @Override
+   public Object getField(RemotingConnection connection, String fieldName) {
+      switch (fieldName) {
+         case "connectionID":
+            return connection.getID();
+         case "remoteAddress":
+            return connection.getRemoteAddress();
+         case "users":
+            Set<String> users = new TreeSet<>();
+            List<ServerSession> sessions = server.getSessions(connection.getID().toString());
+            for (ServerSession session : sessions) {
+               String username = session.getUsername() == null ? "" : session.getUsername();
+               users.add(username);
+            }
+            return StringUtil.joinStringList(users, ",");
+         case "creationTime":
+            return new Date(connection.getCreationTime());
+         case "implementation":
+            return connection.getClass().getSimpleName();
+         case "protocol":
+            return connection.getProtocolName();
+         case "clientID":
+            return connection.getClientID();
+         case "localAddress":
+            return connection.getTransportLocalAddress();
+         case "sessionCount":
+            return server.getSessions(connection.getID().toString()).size();
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override

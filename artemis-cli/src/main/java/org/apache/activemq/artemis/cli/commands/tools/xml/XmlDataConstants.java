@@ -26,9 +26,17 @@ public final class XmlDataConstants {
       // Utility
    }
 
-   static final String XML_VERSION = "1.0";
+   public static final String XML_VERSION = "1.0";
    static final String DOCUMENT_PARENT = "activemq-journal";
    static final String BINDINGS_PARENT = "bindings";
+
+   // used on importing data from 1.x
+   static final String OLD_BINDING = "binding";
+   static final String OLD_ADDRESS = "address";
+   static final String OLD_FILTER = "filter-string";
+   static final String OLD_QUEUE = "queue-name";
+
+
 
    static final String QUEUE_BINDINGS_CHILD = "queue-binding";
    static final String QUEUE_BINDING_ADDRESS = "address";
@@ -42,7 +50,7 @@ public final class XmlDataConstants {
    static final String ADDRESS_BINDING_ID = "id";
    static final String ADDRESS_BINDING_ROUTING_TYPE = "routing-types";
 
-   static final String MESSAGES_PARENT = "messages";
+   public static final String MESSAGES_PARENT = "messages";
    static final String MESSAGES_CHILD = "message";
    static final String MESSAGE_ID = "id";
    static final String MESSAGE_PRIORITY = "priority";

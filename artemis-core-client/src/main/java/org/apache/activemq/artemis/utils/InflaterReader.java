@@ -56,9 +56,7 @@ public class InflaterReader extends InputStream {
             }
             pointer = 0;
          } catch (DataFormatException e) {
-            IOException e2 = new IOException(e.getMessage());
-            e2.initCause(e);
-            throw e2;
+            throw new IOException(e.getMessage(), e);
          }
       }
 
@@ -78,7 +76,7 @@ public class InflaterReader extends InputStream {
     */
    private int doRead(byte[] buf, int offset, int len) throws DataFormatException, IOException {
       int read = 0;
-      int n = 0;
+      int n;
       byte[] inputBuffer = new byte[len];
 
       while (len > 0) {

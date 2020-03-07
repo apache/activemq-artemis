@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -79,6 +80,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    private static final Logger logger = Logger.getLogger(RemotingServiceImpl.class);
 
+   private static final int ACCEPTOR_STOP_TIMEOUT = 3000;
+
    // Attributes ----------------------------------------------------
 
    private volatile boolean started = false;
@@ -91,7 +94,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    private final Map<String, Acceptor> acceptors = new HashMap<>();
 
-   private final Map<Object, ConnectionEntry> connections = new ConcurrentHashMap<>();
+   private final ConcurrentMap<Object, ConnectionEntry> connections = new ConcurrentHashMap<>();
 
    private final ReusableLatch connectionCountLatch = new ReusableLatch(0);
 
@@ -263,7 +266,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
          Map<String, ProtocolManager> selectedProtocols = new ConcurrentHashMap<>();
          for (Entry<String, ProtocolManagerFactory> entry : selectedProtocolFactories.entrySet()) {
-            selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getExtraParams(), incomingInterceptors, outgoingInterceptors));
+            selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getCombinedParams(), incomingInterceptors, outgoingInterceptors));
          }
 
          acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols);
@@ -284,6 +287,12 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       }
 
       return acceptor;
+   }
+
+
+   /** No interface method, for tests only */
+   public Map<String, Acceptor> getAcceptors() {
+      return acceptors;
    }
 
    @Override
@@ -401,13 +410,16 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          conn.disconnect(criticalError);
       }
 
+      CountDownLatch acceptorCountDownLatch = new CountDownLatch(acceptors.size());
       for (Acceptor acceptor : acceptors.values()) {
          try {
-            acceptor.stop();
+            acceptor.asyncStop(acceptorCountDownLatch::countDown);
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
          }
       }
+      //In some cases an acceptor stopping could be locked ie NettyAcceptor stopping could be locked by a network failure.
+      acceptorCountDownLatch.await(ACCEPTOR_STOP_TIMEOUT, TimeUnit.MILLISECONDS);
 
       acceptors.clear();
 
@@ -490,6 +502,11 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    }
 
    @Override
+   public int getConnectionCount() {
+      return connections.size();
+   }
+
+   @Override
    public long getTotalConnectionCount() {
       return totalConnectionCount.get();
    }
@@ -515,7 +532,9 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       ConnectionEntry entry = protocol.createConnectionEntry((Acceptor) component, connection);
       try {
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterCreateConnection(entry.connection) : null);
+         if (server.hasBrokerConnectionPlugins()) {
+            server.callBrokerConnectionPlugins(plugin -> plugin.afterCreateConnection(entry.connection));
+         }
       } catch (ActiveMQException t) {
          logger.warn("Error executing afterCreateConnection plugin method: {}", t.getMessage(), t);
          throw new IllegalStateException(t.getMessage(), t.getCause());
@@ -537,33 +556,32 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          logger.trace("Connection removed " + connectionID + " from server " + this.server, new Exception("trace"));
       }
 
+      issueFailure(connectionID, new ActiveMQRemoteDisconnectException());
+   }
+
+   private void issueFailure(Object connectionID, ActiveMQException e) {
       ConnectionEntry conn = connections.get(connectionID);
 
       if (conn != null && !conn.connection.isSupportReconnect()) {
          RemotingConnection removedConnection = removeConnection(connectionID);
          if (removedConnection != null) {
             try {
-               server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterDestroyConnection(removedConnection) : null);
+               if (server.hasBrokerConnectionPlugins()) {
+                  server.callBrokerConnectionPlugins(plugin -> plugin.afterDestroyConnection(removedConnection));
+               }
             } catch (ActiveMQException t) {
                logger.warn("Error executing afterDestroyConnection plugin method: {}", t.getMessage(), t);
                conn.connection.fail(t);
                return;
             }
          }
-         conn.connection.fail(new ActiveMQRemoteDisconnectException());
+         conn.connection.fail(e);
       }
    }
 
    @Override
    public void connectionException(final Object connectionID, final ActiveMQException me) {
-      // We DO NOT call fail on connection exception, otherwise in event of real connection failure, the
-      // connection will be failed, the session will be closed and won't be able to reconnect
-
-      // E.g. if live server fails, then this handler wil be called on backup server for the server
-      // side replicating connection.
-      // If the connection fail() is called then the sessions on the backup will get closed.
-
-      // Connections should only fail when TTL is exceeded
+      issueFailure(connectionID, me);
    }
 
    @Override
@@ -712,7 +730,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                               // this is using a different thread
                               // as if anything wrong happens on flush
                               // failure detection could be affected
-                              conn.flush();
+                              conn.scheduledFlush();
                            } catch (Throwable e) {
                               ActiveMQServerLogger.LOGGER.failedToFlushOutstandingDataFromTheConnection(e);
                            }

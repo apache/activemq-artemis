@@ -33,15 +33,15 @@ buffered on each consumer is determined by the `consumerWindowSize`
 parameter.
 
 By default, the `consumerWindowSize` is set to 1 MiB (1024 \* 1024
-bytes).
+bytes) unless overridden via ([Address Settings](address-model.md#configuring-addresses-and-queues-via-address-settings))
 
 The value can be:
 
--   `-1` for an *unbounded* buffer
+- `-1` for an *unbounded* buffer
 
--   `0` to not buffer any messages.
+- `0` to not buffer any messages.
 
--   `>0` for a buffer with the given maximum size in bytes.
+- `>0` for a buffer with the given maximum size in bytes.
 
 Setting the consumer window size can considerably improve performance
 depending on the messaging use case. As an example, let's consider the
@@ -106,7 +106,7 @@ control. The default value is `-1`.
 Please see [the examples chapter](examples.md) for a working example of
 limiting consumer rate.
 
-> **Note**
+> **Note:**
 >
 > Rate limited flow control can be used in conjunction with window based
 > flow control. Rate limited flow control only effects how many messages
@@ -137,7 +137,7 @@ The window size therefore determines the amount of bytes that can be
 in-flight at any one time before more need to be requested - this
 prevents the remoting connection from getting overloaded.
 
-#### Blocking producer window based flow control using CORE protocol
+#### Blocking CORE Producers
 
 When using the CORE protocol (used by both the Artemis Core Client and Artemis JMS Client)
 the server will always aim give the same number of credits as have been requested.
@@ -149,7 +149,9 @@ producer be associated with the same address and so it is theoretically possible
 that more credits are allocated across total producers than what is available.
 It is therefore possible to go over the address limit by approximately:
 
- '''total number of producers on address * producer window size'''
+```
+total number of producers on address * producer window size
+```
 
 For example, if I have a queue called "myqueue", I could set the
 maximum memory size to 10MiB, and the the server will control the number
@@ -170,7 +172,7 @@ but instead pages messages to storage.
 
 To configure an address with a maximum size and tell the server that you
 want to block producers for this address if it becomes full, you need to
-define an AddressSettings ([Configuring Queues Via Address Settings](queue-attributes.md)) block for the address and specify
+define an AddressSettings ([Configuring Queues Via Address Settings](address-model.md#configuring-addresses-and-queues-via-address-settings)) block for the address and specify
 `max-size-bytes` and `address-full-policy`
 
 The address block applies to all queues registered to that address. I.e.
@@ -180,12 +182,14 @@ memory of all subscriptions in the topic won't exceed max-size-bytes.
 
 Here's an example:
 
-    <address-settings>
-       <address-setting match="exampleQueue">
-          <max-size-bytes>100000</max-size-bytes>
-          <address-full-policy>BLOCK</address-full-policy>
-       </address-setting>
-    </address-settings>
+```xml
+<address-settings>
+   <address-setting match="exampleQueue">
+      <max-size-bytes>100000</max-size-bytes>
+      <address-full-policy>BLOCK</address-full-policy>
+   </address-setting>
+</address-settings>
+```
 
 The above example would set the max size of the queue "exampleQueue"
 to be 100000 bytes and would block any producers sending to that address
@@ -194,7 +198,7 @@ to prevent that max size being exceeded.
 Note the policy must be set to `BLOCK` to enable blocking producer flow
 control.
 
-> **Note**
+> **Note:**
 >
 > Note that in the default configuration all addresses are set to block
 > producers after 10 MiB of message data is in the address. This means
@@ -203,7 +207,7 @@ control.
 > want this behaviour increase the `max-size-bytes` parameter or change
 > the address full message policy.
 
-> **Note**
+> **Note:**
 >
 > Producer credits are allocated from the broker to the client.  Flow control
 > credit checking (i.e. checking a producer has enough credit) is done on the
@@ -212,7 +216,7 @@ control.
 > a misbehaving client to ignore the flow control credits issued by the broker
 > and continue sending with out sufficient credit.
 
-#### Blocking producer window based flow control using AMQP
+#### Blocking AMQP Producers
 
 Apache ActiveMQ Artemis ships with out of the box with 2 protocols that support flow control. Artemis CORE protocol and
 AMQP. Both protocols implement flow control slightly differently and therefore address full BLOCK policy behaves slightly

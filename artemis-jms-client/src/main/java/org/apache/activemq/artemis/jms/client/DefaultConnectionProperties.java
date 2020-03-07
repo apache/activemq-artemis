@@ -34,12 +34,19 @@ import java.security.PrivilegedAction;
  */
 public class DefaultConnectionProperties {
 
-   public static final String DEFAULT_BROKER_HOST;
-   public static final int DEFAULT_BROKER_PORT;
-   public static final String DEFAULT_BROKER_BIND_URL;
-   public static final String DEFAULT_BROKER_URL;
-   public static final String DEFAULT_USER;
-   public static final String DEFAULT_PASSWORD;
+   public static final String AMQ_HOST = "AMQ_HOST";
+   public static final String AMQ_PORT = "AMQ_PORT";
+   public static final String AMQ_USER = "AMQ_USER";
+   public static final String AMQ_PASSWORD = "AMQ_PASSWORD";
+   public static final String BROKER_BIND_URL = "BROKER_BIND_URL";
+   public static final String PREFIX = "org.apache.activemq.";
+
+   public static String DEFAULT_BROKER_HOST;
+   public static int DEFAULT_BROKER_PORT;
+   public static String DEFAULT_BROKER_BIND_URL;
+   public static String DEFAULT_BROKER_URL;
+   public static String DEFAULT_USER;
+   public static String DEFAULT_PASSWORD;
 
    static String getProperty(final String defaultValue, final String... propertyNames) {
       return AccessController.doPrivileged(new PrivilegedAction<String>() {
@@ -57,21 +64,20 @@ public class DefaultConnectionProperties {
    }
 
    static {
-      String host = getProperty("localhost", "AMQ_HOST", "org.apache.activemq.AMQ_HOST");
-      String port = getProperty("61616", "AMQ_PORT", "org.apache.activemq.AMQ_PORT");
+      initialize();
+   }
+
+   public static void initialize() {
+      String host = getProperty("localhost", AMQ_HOST, PREFIX + AMQ_HOST);
+      String port = getProperty("61616", AMQ_PORT, PREFIX + AMQ_PORT);
       DEFAULT_BROKER_HOST = host;
       DEFAULT_BROKER_PORT = Integer.parseInt(port);
-      String url = getProperty("tcp://" + host + ":" + port, "org.apache.activemq.BROKER_BIND_URL", "BROKER_BIND_URL");
-      DEFAULT_USER = getProperty(null, "AMQ_USER", "org.apache.activemq.AMQ_USER");
-      DEFAULT_PASSWORD = getProperty(null, "AMQ_PASSWORD", "org.apache.activemq.AMQ_PASSWORD");
-
-      if (DEFAULT_USER != null && DEFAULT_PASSWORD != null) {
-         url += "?user=" + DEFAULT_USER + "&password=" + DEFAULT_PASSWORD;
-      }
+      String url = getProperty("tcp://" + host + ":" + port, PREFIX + BROKER_BIND_URL, BROKER_BIND_URL);
+      DEFAULT_USER = getProperty(null, AMQ_USER, PREFIX + AMQ_USER);
+      DEFAULT_PASSWORD = getProperty(null, AMQ_PASSWORD, PREFIX + AMQ_PASSWORD);
 
       DEFAULT_BROKER_BIND_URL = url;
       // TODO: improve this once we implement failover:// as ActiveMQ5 does
       DEFAULT_BROKER_URL = DEFAULT_BROKER_BIND_URL;
    }
-
 }

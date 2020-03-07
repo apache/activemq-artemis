@@ -31,68 +31,42 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.TreeMap;
 
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.tools.OptionalLocking;
-import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.cli.commands.tools.DBOption;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
-import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
-import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
-import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
-import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AckDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal.MessageDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal.ReferenceDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageUpdateTXEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentAddressBindingEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentQueueBindingEncoding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
-public final class XmlDataExporter extends OptionalLocking {
-
-   private static final Long LARGE_MESSAGE_CHUNK_SIZE = 1000L;
-
-   private JournalStorageManager storageManager;
-
-   private Configuration config;
+public final class XmlDataExporter extends DBOption {
 
    private XMLStreamWriter xmlWriter;
 
@@ -100,7 +74,7 @@ public final class XmlDataExporter extends OptionalLocking {
    private final Map<Long, HashMap<Long, ReferenceDescribe>> messageRefs = new HashMap<>();
 
    // map of all message records hashed by their record ID (which will match the record ID of the message refs)
-   private final HashMap<Long, Message> messages = new HashMap<>();
+   private final Map<Long, Message> messages = new TreeMap<>();
 
    private final Map<Long, Set<PagePosition>> cursorRecords = new HashMap<>();
 
@@ -114,37 +88,59 @@ public final class XmlDataExporter extends OptionalLocking {
 
    long bindingsPrinted = 0L;
 
+   XMLMessageExporter exporter;
+
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
       try {
-         process(context.out, getBinding(), getJournal(), getPaging(), getLargeMessages());
+         config = getParameterConfiguration();
+         process(context.out);
       } catch (Exception e) {
          treatError(e, "data", "exp");
       }
       return null;
    }
 
+   /**
+    * Use setConfiguration and process(out) instead.
+    *
+    * @param out
+    * @param bindingsDir
+    * @param journalDir
+    * @param pagingDir
+    * @param largeMessagesDir
+    * @throws Exception
+    */
+   @Deprecated
    public void process(OutputStream out,
                        String bindingsDir,
                        String journalDir,
                        String pagingDir,
                        String largeMessagesDir) throws Exception {
       config = new ConfigurationImpl().setBindingsDirectory(bindingsDir).setJournalDirectory(journalDir).setPagingDirectory(pagingDir).setLargeMessagesDirectory(largeMessagesDir).setJournalType(JournalType.NIO);
-      final ExecutorService executor = Executors.newFixedThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory());
-      ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
+      initializeJournal(config);
+      writeOutput(out);
+      cleanup();
+   }
 
-      storageManager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), executorFactory, executorFactory);
+   public void process(OutputStream out) throws Exception {
 
+      initializeJournal(config);
+
+      writeOutput(out);
+
+      cleanup();
+   }
+
+   protected void writeOutput(OutputStream out) throws Exception {
       XMLOutputFactory factory = XMLOutputFactory.newInstance();
       XMLStreamWriter rawXmlWriter = factory.createXMLStreamWriter(out, "UTF-8");
       PrettyPrintHandler handler = new PrettyPrintHandler(rawXmlWriter);
       xmlWriter = (XMLStreamWriter) Proxy.newProxyInstance(XMLStreamWriter.class.getClassLoader(), new Class[]{XMLStreamWriter.class}, handler);
-
+      exporter = new XMLMessageExporter(xmlWriter);
       writeXMLData();
-
-      executor.shutdown();
    }
 
    private void writeXMLData() throws Exception {
@@ -208,7 +204,7 @@ public final class XmlDataExporter extends OptionalLocking {
          }
       };
 
-      ((JournalImpl) messageJournal).load(records, preparedTransactions, transactionFailureCallback, false);
+      messageJournal.load(records, preparedTransactions, transactionFailureCallback, false);
 
       // Since we don't use these nullify the reference so that the garbage collector can clean them up
       preparedTransactions = null;
@@ -302,7 +298,7 @@ public final class XmlDataExporter extends OptionalLocking {
 
       ActiveMQServerLogger.LOGGER.debug("Reading bindings journal from " + config.getBindingsDirectory());
 
-      ((JournalImpl) bindingsJournal).load(records, null, null, false);
+      bindingsJournal.load(records, null, null);
 
       for (RecordInfo info : records) {
          if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD) {
@@ -319,7 +315,7 @@ public final class XmlDataExporter extends OptionalLocking {
 
    private void printDataAsXML() {
       try {
-         xmlWriter.writeStartDocument(XmlDataConstants.XML_VERSION);
+
          xmlWriter.writeStartElement(XmlDataConstants.DOCUMENT_PARENT);
          printBindingsAsXML();
          printAllMessagesAsXML();
@@ -377,31 +373,23 @@ public final class XmlDataExporter extends OptionalLocking {
       xmlWriter.writeEndElement(); // end "messages"
    }
 
+   private void printSingleMessageAsXML(ICoreMessage message, List<String> queues) throws Exception {
+      exporter.printSingleMessageAsXML(message, queues, false);
+      messagesPrinted++;
+   }
    /**
     * Reads from the page files and prints messages as it finds them (making sure to check acks and transactions
     * from the journal).
     */
    private void printPagedMessagesAsXML() {
       try {
-         ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
-         final ExecutorService executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory());
-         ExecutorFactory executorFactory = new ExecutorFactory() {
-            @Override
-            public ArtemisExecutor getExecutor() {
-               return ArtemisExecutor.delegate(executor);
-            }
-         };
-         PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(), 1000L, scheduled, executorFactory, true, null);
-         HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>(config.getWildcardConfiguration());
-         addressSettingsRepository.setDefault(new AddressSettings());
-         PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
 
-         manager.start();
+         pagingmanager.start();
 
-         SimpleString[] stores = manager.getStoreNames();
+         SimpleString[] stores = pagingmanager.getStoreNames();
 
          for (SimpleString store : stores) {
-            PagingStore pageStore = manager.getPageStore(store);
+            PagingStore pageStore = pagingmanager.getPageStore(store);
 
             if (pageStore != null) {
                File folder = pageStore.getFolder();
@@ -413,7 +401,7 @@ public final class XmlDataExporter extends OptionalLocking {
                   Page page = pageStore.createPage(pageId);
                   page.open();
                   List<PagedMessage> messages = page.read(storageManager);
-                  page.close();
+                  page.close(false, false);
 
                   int messageId = 0;
 
@@ -458,104 +446,9 @@ public final class XmlDataExporter extends OptionalLocking {
       }
    }
 
-   private void printSingleMessageAsXML(ICoreMessage message, List<String> queues) throws Exception {
-      xmlWriter.writeStartElement(XmlDataConstants.MESSAGES_CHILD);
-      printMessageAttributes(message);
-      printMessageProperties(message);
-      printMessageQueues(queues);
-      printMessageBody(message.toCore());
-      xmlWriter.writeEndElement(); // end MESSAGES_CHILD
-      messagesPrinted++;
-   }
-
-   private void printMessageBody(Message message) throws Exception {
-      xmlWriter.writeStartElement(XmlDataConstants.MESSAGE_BODY);
-
-      if (message.toCore().isLargeMessage()) {
-         printLargeMessageBody((LargeServerMessage) message);
-      } else {
-         xmlWriter.writeCData(XmlDataExporterUtil.encodeMessageBody(message));
-      }
-      xmlWriter.writeEndElement(); // end MESSAGE_BODY
-   }
-
-   private void printLargeMessageBody(LargeServerMessage message) throws XMLStreamException {
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_IS_LARGE, Boolean.TRUE.toString());
-      LargeBodyEncoder encoder = null;
-
-      try {
-         encoder = message.toCore().getBodyEncoder();
-         encoder.open();
-         long totalBytesWritten = 0;
-         Long bufferSize;
-         long bodySize = encoder.getLargeBodySize();
-         for (long i = 0; i < bodySize; i += LARGE_MESSAGE_CHUNK_SIZE) {
-            Long remainder = bodySize - totalBytesWritten;
-            if (remainder >= LARGE_MESSAGE_CHUNK_SIZE) {
-               bufferSize = LARGE_MESSAGE_CHUNK_SIZE;
-            } else {
-               bufferSize = remainder;
-            }
-            ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bufferSize.intValue());
-            encoder.encode(buffer, bufferSize.intValue());
-            xmlWriter.writeCData(XmlDataExporterUtil.encode(buffer.toByteBuffer().array()));
-            totalBytesWritten += bufferSize;
-         }
-         encoder.close();
-      } catch (ActiveMQException e) {
-         e.printStackTrace();
-      } finally {
-         if (encoder != null) {
-            try {
-               encoder.close();
-            } catch (ActiveMQException e) {
-               e.printStackTrace();
-            }
-         }
-      }
-   }
-
-   private void printMessageQueues(List<String> queues) throws XMLStreamException {
-      xmlWriter.writeStartElement(XmlDataConstants.QUEUES_PARENT);
-      for (String queueName : queues) {
-         xmlWriter.writeEmptyElement(XmlDataConstants.QUEUES_CHILD);
-         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_NAME, queueName);
-      }
-      xmlWriter.writeEndElement(); // end QUEUES_PARENT
-   }
-
-   private void printMessageProperties(Message message) throws XMLStreamException {
-      xmlWriter.writeStartElement(XmlDataConstants.PROPERTIES_PARENT);
-      for (SimpleString key : message.getPropertyNames()) {
-         Object value = message.getObjectProperty(key);
-         xmlWriter.writeEmptyElement(XmlDataConstants.PROPERTIES_CHILD);
-         xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_NAME, key.toString());
-         xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, XmlDataExporterUtil.convertProperty(value));
-
-         // Write the property type as an attribute
-         String propertyType = XmlDataExporterUtil.getPropertyType(value);
-         if (propertyType != null) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, propertyType);
-         }
-      }
-      xmlWriter.writeEndElement(); // end PROPERTIES_PARENT
-   }
-
-   private void printMessageAttributes(ICoreMessage message) throws XMLStreamException {
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_ID, Long.toString(message.getMessageID()));
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_PRIORITY, Byte.toString(message.getPriority()));
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_EXPIRATION, Long.toString(message.getExpiration()));
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_TIMESTAMP, Long.toString(message.getTimestamp()));
-      String prettyType = XmlDataExporterUtil.getMessagePrettyType(message.getType());
-      xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_TYPE, prettyType);
-      if (message.getUserID() != null) {
-         xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_USER_ID, message.getUserID().toString());
-      }
-   }
-
-   private List<String> extractQueueNames(HashMap<Long, ReferenceDescribe> refMap) {
+   private List<String> extractQueueNames(HashMap<Long, DescribeJournal.ReferenceDescribe> refMap) {
       List<String> queues = new ArrayList<>();
-      for (ReferenceDescribe ref : refMap.values()) {
+      for (DescribeJournal.ReferenceDescribe ref : refMap.values()) {
          queues.add(queueBindings.get(ref.refEncoding.queueID).getQueueName().toString());
       }
       return queues;
@@ -566,7 +459,7 @@ public final class XmlDataExporter extends OptionalLocking {
    /**
     * Proxy to handle indenting the XML since <code>javax.xml.stream.XMLStreamWriter</code> doesn't support that.
     */
-   static class PrettyPrintHandler implements InvocationHandler {
+   public static class PrettyPrintHandler implements InvocationHandler {
 
       private final XMLStreamWriter target;
 
@@ -578,7 +471,7 @@ public final class XmlDataExporter extends OptionalLocking {
 
       boolean wrap = true;
 
-      PrettyPrintHandler(XMLStreamWriter target) {
+      public PrettyPrintHandler(XMLStreamWriter target) {
          this.target = target;
       }
 

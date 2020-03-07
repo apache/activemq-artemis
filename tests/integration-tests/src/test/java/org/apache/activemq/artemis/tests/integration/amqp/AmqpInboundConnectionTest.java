@@ -65,9 +65,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
             connection.disconnect(true);
          }
 
-         Wait.waitFor(amqpConnection::isClosed);
-
-         assertTrue(amqpConnection.isClosed());
+         Wait.assertTrue(amqpConnection::isClosed);
          assertEquals(AmqpSupport.CONNECTION_FORCED, amqpConnection.getConnection().getRemoteCondition().getCondition());
       } finally {
          amqpConnection.close();
@@ -85,6 +83,31 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
          public void inspectOpenedResource(Connection connection) {
             if (!BROKER_NAME.equals(connection.getRemoteContainer())) {
                markAsInvalid("Broker did not send the expected container ID");
+            }
+         }
+      });
+
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         assertNotNull(connection);
+         connection.getStateInspector().assertValid();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testDefaultMaxFrameSize() throws Exception {
+      AmqpClient client = createAmqpClient();
+      assertNotNull(client);
+
+      client.setValidator(new AmqpValidator() {
+
+         @Override
+         public void inspectOpenedResource(Connection connection) {
+            int brokerMaxFrameSize = connection.getTransport().getRemoteMaxFrameSize();
+            if (brokerMaxFrameSize != AmqpSupport.MAX_FRAME_SIZE_DEFAULT) {
+               markAsInvalid("Broker did not send the expected max Frame Size");
             }
          }
       });
@@ -267,10 +290,8 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
 
       connection2.getStateInspector().assertValid();
       connection2.close();
-
-      assertTrue(Wait.waitFor(() -> server.getConnectionCount() == 1));
-
+      Wait.assertEquals(1, server::getConnectionCount);
       connection1.close();
-      assertEquals(0, server.getConnectionCount());
+      Wait.assertEquals(0, server::getConnectionCount);
    }
 }

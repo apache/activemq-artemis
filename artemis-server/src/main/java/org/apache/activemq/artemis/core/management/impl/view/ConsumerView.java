@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.management.impl.view;
 import javax.json.JsonObjectBuilder;
 import java.util.Date;
 
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConsumerFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -27,7 +28,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
 
-   private static final String defaultSortColumn = "creationTime";
+   private static final String defaultSortColumn = "id";
 
    private final ActiveMQServer server;
 
@@ -45,8 +46,68 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
    @Override
    public JsonObjectBuilder toJson(ServerConsumer consumer) {
       ServerSession session = server.getSessionByID(consumer.getSessionID());
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(consumer.sequentialID())).add("session", toString(session.getName())).add("clientID", toString(session.getRemotingConnection().getClientID())).add("user", toString(session.getUsername())).add("protocol", toString(session.getRemotingConnection().getProtocolName())).add("queue", toString(consumer.getQueue().getName())).add("queueType", toString(consumer.getQueue().getRoutingType()).toLowerCase()).add("address", toString(consumer.getQueue().getAddress().toString())).add("localAddress", toString(session.getRemotingConnection().getTransportConnection().getLocalAddress())).add("remoteAddress", toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress())).add("creationTime", new Date(consumer.getCreationTime()).toString());
+
+      //if session is not available then consumer is not in valid state - ignore
+      if (session == null) {
+         return null;
+      }
+
+      String jmsSessionClientID = null;
+      //for the special case for JMS
+      if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
+         jmsSessionClientID = session.getMetaData("jms-client-id");
+      }
+
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(consumer.getSequentialID()))
+         .add("session", toString(consumer.getSessionName()))
+         .add("clientID", toString(consumer.getConnectionClientID() != null ? consumer.getConnectionClientID() : jmsSessionClientID))
+         .add("user", toString(session.getUsername()))
+         .add("protocol", toString(consumer.getConnectionProtocolName()))
+         .add("queue", toString(consumer.getQueueName()))
+         .add("queueType", toString(consumer.getQueueType()).toLowerCase())
+         .add("filter", toString(consumer.getFilterString()))
+         .add("address", toString(consumer.getQueueAddress()))
+         .add("localAddress", toString(consumer.getConnectionLocalAddress()))
+         .add("remoteAddress", toString(consumer.getConnectionRemoteAddress()))
+         .add("creationTime", new Date(consumer.getCreationTime()).toString());
       return obj;
+   }
+
+   @Override
+   public Object getField(ServerConsumer consumer, String fieldName) {
+      ServerSession session = server.getSessionByID(consumer.getSessionID());
+
+      //if session is not available then consumer is not in valid state - ignore
+      if (session == null) {
+         return null;
+      }
+
+      switch (fieldName) {
+         case "id":
+            return consumer.getSequentialID();
+         case "session":
+            return consumer.getSessionName();
+         case "user":
+            return session.getUsername();
+         case "clientID":
+            return consumer.getConnectionClientID();
+         case "protocol":
+            return consumer.getConnectionProtocolName();
+         case "queue":
+            return consumer.getQueueName();
+         case "queueType":
+            return consumer.getQueueType();
+         case "filter":
+            return consumer.getFilterString();
+         case "localAddress":
+            return consumer.getConnectionLocalAddress();
+         case "remoteAddress":
+            return consumer.getConnectionRemoteAddress();
+         case "creationTime":
+            return new Date(consumer.getCreationTime());
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override

@@ -23,49 +23,38 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.Arrays;
+import javax.naming.InitialContext;
 import java.util.Date;
 
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
-import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
 
 /**
- * This example demonstrates how to run an ActiveMQ Artemis embedded with JMS
+ * This example demonstrates how to run an embedded ActiveMQ Artemis broker with programmatic configuration
  */
 public final class EmbeddedExample {
 
    public static void main(final String[] args) throws Exception {
-      // Step 1. Create ActiveMQ Artemis core configuration, and set the properties accordingly
-      Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setJournalDirectory("target/data/journal").setSecurityEnabled(false).addAcceptorConfiguration("tcp", "tcp://localhost:61616").
-         addConnectorConfiguration("connector", "tcp://localhost:61616");
+      // Step 1. Configure and start the embedded broker.
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(new ConfigurationImpl()
+                                                                   .setPersistenceEnabled(false)
+                                                                   .setJournalDirectory("target/data/journal")
+                                                                   .setSecurityEnabled(false)
+                                                                   .addAcceptorConfiguration("invm", "vm://0"));
+      server.start();
 
-      // Step 2. Create the JMS configuration
-      JMSConfiguration jmsConfig = new JMSConfigurationImpl();
+      InitialContext initialContext = null;
+      // Step 2. Create an initial context to perform the JNDI lookup.
+      initialContext = new InitialContext();
 
-      // Step 3. Configure the JMS ConnectionFactory
-      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl().setName("cf").setConnectorNames(Arrays.asList("connector")).setBindings("cf");
-      jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
+      // Step 3. Look-up the JMS queue
+      Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
-      // Step 4. Configure the JMS Queue
-      JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl().setName("queue1").setDurable(false).setBindings("queue/queue1");
-      jmsConfig.getQueueConfigurations().add(queueConfig);
+      // Step 4. Look-up the JMS connection factory
+      ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
-      // Step 5. Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration
-      EmbeddedJMS jmsServer = new EmbeddedJMS().setConfiguration(configuration).setJmsConfiguration(jmsConfig).start();
-      System.out.println("Started Embedded JMS Server");
-
-      // Step 6. Lookup JMS resources defined in the configuration
-      ConnectionFactory cf = (ConnectionFactory) jmsServer.lookup("cf");
-      Queue queue = (Queue) jmsServer.lookup("queue/queue1");
-
-      // Step 7. Send and receive a message using JMS API
+      // Step 5. Send and receive a message using JMS API
       Connection connection = null;
       try {
          connection = cf.createConnection();
@@ -83,8 +72,8 @@ public final class EmbeddedExample {
             connection.close();
          }
 
-         // Step 11. Stop the JMS server
-         jmsServer.stop();
+         // Step 6. Stop the broker
+         server.stop();
          System.out.println("Stopped the JMS Server");
       }
    }

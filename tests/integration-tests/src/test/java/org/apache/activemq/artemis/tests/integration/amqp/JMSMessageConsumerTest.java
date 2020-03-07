@@ -21,7 +21,10 @@ import java.util.Enumeration;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -35,8 +38,10 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.policy.JmsDefaultPrefetchPolicy;
@@ -444,6 +449,9 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          message1.setText("filtered");
          producer.send(message1, DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
 
+         // short delay to prevent the timestamps from being the same
+         Thread.sleep(2);
+
          TextMessage message2 = session.createTextMessage();
          message2.setText("expected");
          producer.send(message2, DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
@@ -637,7 +645,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          connection.close();
 
          Queue queueView = getProxyToQueue(getQueueName());
-         assertTrue("Not all messages were enqueud", Wait.waitFor(() -> queueView.getMessageCount() == NUM_MESSAGES));
+         Wait.assertEquals(NUM_MESSAGES, queueView::getMessageCount);
 
          // Create a consumer and prefetch the messages
          connection = createConnection();
@@ -649,7 +657,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          consumer.close();
          connection.close();
 
-         assertTrue("Not all messages were enqueud", Wait.waitFor(() -> queueView.getMessageCount() == NUM_MESSAGES));
+         Wait.assertEquals(NUM_MESSAGES, queueView::getMessageCount);
       } finally {
          connection.close();
       }
@@ -727,7 +735,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       Queue queueView = getProxyToQueue(getQueueName());
 
       connection.close();
-      assertTrue("Not all messages consumed", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+      Wait.assertEquals(0, queueView::getMessageCount);
 
       long taken = (System.currentTimeMillis() - time);
       System.out.println("Microbenchamrk ran in " + taken + " milliseconds, sending/receiving " + numMessages);
@@ -759,7 +767,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          connection.close();
          Queue queueView = getProxyToQueue(getQueueName());
 
-         assertTrue("Not all messages enqueued", Wait.waitFor(() -> queueView.getMessageCount() == numMessages));
+         Wait.assertEquals(numMessages, queueView::getMessageCount);
 
          // Now create a new connection and receive and acknowledge
          connection = createConnection();
@@ -785,7 +793,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          // Wait for Acks to be processed and message removed from queue.
          Thread.sleep(500);
 
-         assertTrue("Not all messages consumed", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+         Wait.assertEquals(0, queueView::getMessageCount);
          long taken = (System.currentTimeMillis() - time) / 1000;
          System.out.println("taken = " + taken);
       } finally {
@@ -793,9 +801,11 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 240000)
+   @Test(timeout = 30000)
    public void testTimedOutWaitingForWriteLogOnConsumer() throws Throwable {
       String name = "exampleQueue1";
+      // disable auto-delete as it causes thrashing during the test
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteQueues(false));
 
       final int numMessages = 40;
 
@@ -816,8 +826,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             queue = session.createQueue(name);
             MessageConsumer c = session.createConsumer(queue);
-            c.receive(1000);
-            producer.close();
+            Assert.assertNotNull(c.receive(1000));
             session.close();
          }
 
@@ -825,12 +834,93 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          queue = session.createQueue(name);
          MessageConsumer c = session.createConsumer(queue);
          for (int i = 0; i < numMessages; i++) {
-            c.receive(1000);
+            Assert.assertNull(c.receive(1));
          }
          producer.close();
          session.close();
       } finally {
          connection.close();
+      }
+   }
+
+   @Test
+   public void testConcurrentSharedConsumerConnections() throws Exception {
+      final int concurrentConnections = 20;
+      final ExecutorService executorService = Executors.newFixedThreadPool(concurrentConnections);
+
+      final AtomicBoolean failedToSubscribe = new AtomicBoolean(false);
+      for (int i = 1; i < concurrentConnections; i++) {
+         executorService.submit(() -> {
+            try (Connection connection = createConnection()) {
+               connection.start();
+               @SuppressWarnings("resource")
+               final Session session = connection.createSession();
+               final Topic topic = session.createTopic("topics.foo");
+               session.createSharedConsumer(topic, "MY_SUB");
+               Thread.sleep(100);
+            } catch (final Exception ex) {
+               ex.printStackTrace();
+               failedToSubscribe.set(true);
+            }
+         });
+      }
+      executorService.shutdown();
+      executorService.awaitTermination(30, TimeUnit.SECONDS);
+
+      assertFalse(failedToSubscribe.get());
+   }
+
+   @Test(timeout = 30000)
+   public void testBrokerRestartAMQPProducerAMQPConsumer() throws Exception {
+      Connection connection = createFailoverConnection(); //AMQP
+      Connection connection2 = createFailoverConnection(); //AMQP
+      testBrokerRestart(connection, connection2);
+   }
+
+   private void testBrokerRestart(Connection connection1, Connection connection2) throws Exception {
+      try {
+         Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         javax.jms.Queue queue1 = session1.createQueue(getQueueName());
+         javax.jms.Queue queue2 = session2.createQueue(getQueueName());
+
+         final MessageConsumer consumer2 = session2.createConsumer(queue2);
+
+         MessageProducer producer = session1.createProducer(queue1);
+         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+         connection1.start();
+
+         TextMessage message = session1.createTextMessage();
+         message.setText("hello");
+         producer.send(message);
+
+         Message received = consumer2.receive(100);
+
+         assertNotNull("Should have received a message by now.", received);
+         assertTrue("Should be an instance of TextMessage", received instanceof TextMessage);
+         assertEquals(DeliveryMode.PERSISTENT, received.getJMSDeliveryMode());
+
+
+         server.stop();
+         Wait.waitFor(() -> !server.isStarted(), 1000);
+
+         server.start();
+
+         TextMessage message2 = session1.createTextMessage();
+         message2.setText("hello");
+         producer.send(message2);
+
+         Message received2 = consumer2.receive(100);
+
+         assertNotNull("Should have received a message by now.", received2);
+         assertTrue("Should be an instance of TextMessage", received2 instanceof TextMessage);
+         assertEquals(DeliveryMode.PERSISTENT, received2.getJMSDeliveryMode());
+
+
+      } finally {
+         connection1.close();
+         connection2.close();
       }
    }
 }

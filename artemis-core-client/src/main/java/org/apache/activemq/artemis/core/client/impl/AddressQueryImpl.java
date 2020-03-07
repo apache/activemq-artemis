@@ -36,18 +36,42 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
 
    private final int defaultMaxConsumers;
 
+   private final Boolean defaultExclusive;
+
+   private final Boolean defaultLastValue;
+
+   private final SimpleString defaultLastValueKey;
+
+   private final Boolean defaultNonDestructive;
+
+   private final Integer defaultConsumersBeforeDispatch;
+
+   private final Long defaultDelayBeforeDispatch;
+
    public AddressQueryImpl(final boolean exists,
                            final List<SimpleString> queueNames,
                            final boolean autoCreateQueues,
                            final boolean autoCreateAddresses,
                            final boolean defaultPurgeOnNoConsumers,
-                           final int defaultMaxConsumers) {
+                           final int defaultMaxConsumers,
+                           final Boolean defaultExclusive,
+                           final Boolean defaultLastValue,
+                           final SimpleString defaultLastValueKey,
+                           final Boolean defaultNonDestructive,
+                           final Integer defaultConsumersBeforeDispatch,
+                           final Long defaultDelayBeforeDispatch) {
       this.exists = exists;
       this.queueNames = new ArrayList<>(queueNames);
       this.autoCreateQueues = autoCreateQueues;
       this.autoCreateAddresses = autoCreateAddresses;
       this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
       this.defaultMaxConsumers = defaultMaxConsumers;
+      this.defaultExclusive = defaultExclusive;
+      this.defaultLastValue = defaultLastValue;
+      this.defaultLastValueKey = defaultLastValueKey;
+      this.defaultNonDestructive = defaultNonDestructive;
+      this.defaultConsumersBeforeDispatch = defaultConsumersBeforeDispatch;
+      this.defaultDelayBeforeDispatch = defaultDelayBeforeDispatch;
    }
 
    @Override
@@ -78,5 +102,35 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
    @Override
    public int getDefaultMaxConsumers() {
       return defaultMaxConsumers;
+   }
+
+   @Override
+   public Boolean isDefaultLastValueQueue() {
+      return defaultLastValue;
+   }
+
+   @Override
+   public Boolean isDefaultExclusive() {
+      return defaultExclusive;
+   }
+
+   @Override
+   public SimpleString getDefaultLastValueKey() {
+      return defaultLastValueKey;
+   }
+
+   @Override
+   public Boolean isDefaultNonDestructive() {
+      return defaultNonDestructive;
+   }
+
+   @Override
+   public Integer getDefaultConsumersBeforeDispatch() {
+      return defaultConsumersBeforeDispatch;
+   }
+
+   @Override
+   public Long getDefaultDelayBeforeDispatch() {
+      return defaultDelayBeforeDispatch;
    }
 }

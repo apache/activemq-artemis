@@ -36,7 +36,6 @@ import javax.jms.TopicPublisher;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -45,11 +44,14 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 /**
  * ActiveMQ Artemis implementation of a JMS MessageProducer.
  */
 public class ActiveMQMessageProducer implements MessageProducer, QueueSender, TopicPublisher {
+
+   private static final Logger logger = Logger.getLogger(ActiveMQMessageProducer.class);
 
    private final ConnectionFactoryOptions options;
 
@@ -58,7 +60,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    private final SimpleString connID;
 
    private final ClientProducer clientProducer;
-   private final ClientSession clientSession;
+   private final ActiveMQSession session;
 
    private boolean disableMessageID = false;
 
@@ -75,7 +77,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    protected ActiveMQMessageProducer(final ActiveMQConnection connection,
                                      final ClientProducer producer,
                                      final ActiveMQDestination defaultDestination,
-                                     final ClientSession clientSession,
+                                     final ActiveMQSession session,
                                      final ConnectionFactoryOptions options) throws JMSException {
       this.options = options;
       this.connection = connection;
@@ -86,7 +88,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
       this.defaultDestination = defaultDestination;
 
-      this.clientSession = clientSession;
+      this.session = session;
    }
 
    // MessageProducer implementation --------------------------------
@@ -385,6 +387,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       }
 
       SimpleString address = null;
+      ClientSession clientSession = session.getCoreSession();
 
       if (destination == null) {
          if (defaultDestination == null) {
@@ -392,42 +395,16 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
          }
 
          destination = defaultDestination;
+         // address is meant to be null on this case, as it will use the coreProducer's default address
       } else {
-         if (defaultDestination != null) {
-            if (!destination.equals(defaultDestination)) {
-               throw new UnsupportedOperationException("Where a default destination is specified " + "for the sender and a destination is " + "specified in the arguments to the send, " + "these destinations must be equal");
-            }
+         if (defaultDestination != null && !destination.equals(defaultDestination)) {
+            // This is a JMS TCK & Rule Definition.
+            // if you specified a destination on the Producer, you cannot use it for a different destinations.
+            throw new UnsupportedOperationException("Where a default destination is specified " + "for the sender and a destination is " + "specified in the arguments to the send, " + "these destinations must be equal");
          }
 
+         session.checkDestination(destination);
          address = destination.getSimpleAddress();
-
-         if (!connection.containsKnownDestination(address)) {
-            try {
-               ClientSession.AddressQuery query = clientSession.addressQuery(address);
-
-               if (!query.isExists()) {
-                  if (destination.isQueue() && query.isAutoCreateQueues()) {
-                     clientSession.createAddress(address, RoutingType.ANYCAST, true);
-                     if (destination.isTemporary()) {
-                        // TODO is it right to use the address for the queue name here?
-                        clientSession.createTemporaryQueue(address, RoutingType.ANYCAST, address);
-                     } else {
-                        clientSession.createQueue(address, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultPurgeOnNoConsumers());
-                     }
-                  } else if (!destination.isQueue() && query.isAutoCreateAddresses()) {
-                     clientSession.createAddress(address, RoutingType.MULTICAST, true);
-                  } else if ((destination.isQueue() && !query.isAutoCreateQueues()) || (!destination.isQueue() && !query.isAutoCreateAddresses())) {
-                     throw new InvalidDestinationException("Destination " + address + " does not exist");
-                  }
-               } else {
-                  connection.addKnownDestination(address);
-               }
-            } catch (ActiveMQQueueExistsException e) {
-               // The queue was created by another client/admin between the query check and send create queue packet
-            } catch (ActiveMQException e) {
-               throw JMSExceptionHelper.convertFromActiveMQException(e);
-            }
-         }
       }
 
       ActiveMQMessage activeMQJmsMessage;
@@ -438,7 +415,6 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       if (!(jmsMessage instanceof ActiveMQMessage)) {
          // JMS 1.1 Sect. 3.11.4: A provider must be prepared to accept, from a client,
          // a message whose implementation is not one of its own.
-
          if (jmsMessage instanceof BytesMessage) {
             activeMQJmsMessage = new ActiveMQBytesMessage((BytesMessage) jmsMessage, clientSession);
          } else if (jmsMessage instanceof MapMessage) {
@@ -521,10 +497,12 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    }
 
    private void checkClosed() throws JMSException {
-      if (clientProducer.isClosed() || clientSession.isClosed()) {
+      if (clientProducer.isClosed()) {
          throw new IllegalStateException("Producer is closed");
       }
+      session.checkClosed();
    }
+
 
    private static final class CompletionListenerWrapper implements SendAcknowledgementHandler {
 
@@ -550,6 +528,31 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
             try {
                ((StreamMessage) jmsMessage).reset();
             } catch (JMSException e) {
+               logger.debug("ignoring exception", e);
+            }
+         }
+         if (jmsMessage instanceof BytesMessage) {
+            try {
+               ((BytesMessage) jmsMessage).reset();
+            } catch (JMSException e) {
+               logger.debug("ignoring exception", e);
+            }
+         }
+
+         try {
+            producer.connection.getThreadAwareContext().setCurrentThread(true);
+            completionListener.onCompletion(jmsMessage);
+         } finally {
+            producer.connection.getThreadAwareContext().clearCurrentThread(true);
+         }
+      }
+
+      @Override
+      public void sendFailed(org.apache.activemq.artemis.api.core.Message clientMessage, Exception exception) {
+         if (jmsMessage instanceof StreamMessage) {
+            try {
+               ((StreamMessage) jmsMessage).reset();
+            } catch (JMSException e) {
                // HORNETQ-1209 XXX ignore?
             }
          }
@@ -563,7 +566,12 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
          try {
             producer.connection.getThreadAwareContext().setCurrentThread(true);
-            completionListener.onCompletion(jmsMessage);
+            if (exception instanceof ActiveMQException) {
+               exception = JMSExceptionHelper.convertFromActiveMQException((ActiveMQException) exception);
+            } else if (exception instanceof ActiveMQInterruptedException) {
+               exception = JMSExceptionHelper.convertFromActiveMQException((ActiveMQInterruptedException) exception);
+            }
+            completionListener.onException(jmsMessage, exception);
          } finally {
             producer.connection.getThreadAwareContext().clearCurrentThread(true);
          }

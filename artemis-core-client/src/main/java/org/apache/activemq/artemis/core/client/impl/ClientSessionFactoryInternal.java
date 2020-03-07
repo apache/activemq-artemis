@@ -47,6 +47,13 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
 
    void removeSession(ClientSessionInternal session, boolean failingOver);
 
+   void connect(int reconnectAttempts) throws ActiveMQException;
+
+   /**
+    * @deprecated This method is no longer acceptable to connect.
+    * Replaced by {@link ClientSessionFactoryInternal#connect(int)}.
+    */
+   @Deprecated
    void connect(int reconnectAttempts, boolean failoverOnInitialConnection) throws ActiveMQException;
 
    void setBackupConnector(TransportConfiguration live, TransportConfiguration backUp);
@@ -60,4 +67,6 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
    ConfirmationWindowWarning getConfirmationWindowWarning();
 
    Lock lockFailover();
+
+   boolean waitForRetry(long interval);
 }

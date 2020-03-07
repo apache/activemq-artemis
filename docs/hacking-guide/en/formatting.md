@@ -10,7 +10,7 @@ copy them _after importing all your projects_:
     done
 
 Do not use the [maven-eclipse-plugin](https://maven.apache.org/plugins/maven-eclipse-plugin/) to copy the files as it 
-conflicts with [m2e](http://eclipse.org/m2e/).
+conflicts with [m2e](https://eclipse.org/m2e/).
 
 ## IDEA
 

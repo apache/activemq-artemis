@@ -16,15 +16,23 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import javax.management.openmbean.CompositeData;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.management.openmbean.CompositeData;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(value = Parameterized.class)
 public class QueueControlUsingCoreTest extends QueueControlTest {
+
+   public QueueControlUsingCoreTest(boolean durable) {
+      super(durable);
+   }
 
    @Override
    protected QueueControl createManagementControl(final SimpleString address,
@@ -36,6 +44,47 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          public void flushExecutor() {
             try {
                proxy.invokeOperation("flushExecutor");
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
+         public void resetAllGroups() {
+            try {
+               proxy.invokeOperation("resetAllGroups");
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
+         public void resetGroup(String groupID) {
+            try {
+               proxy.invokeOperation("resetGroup", groupID);
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
+         public int getGroupCount() {
+            try {
+               return (Integer) proxy.invokeOperation(Integer.TYPE, "getGroupCount");
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
+         public String listGroupsAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listGroupsAsJSON");
+         }
+
+         @Override
+         public long getRingSize() {
+            try {
+               return (Long) proxy.invokeOperation(Integer.TYPE, "getRingSize");
             } catch (Exception e) {
                throw new RuntimeException(e.getMessage(), e);
             }
@@ -57,6 +106,26 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public long countMessages() throws Exception {
+            return (Long) proxy.invokeOperation(Long.class, "countMessages");
+         }
+
+         @Override
+         public String countMessages(final String filter, final String groupByFilter) throws Exception {
+            return (String) proxy.invokeOperation(String.class, "countMessages", filter, groupByFilter);
+         }
+
+         @Override
+         public long countDeliveringMessages(final String filter) throws Exception {
+            return (Long) proxy.invokeOperation(Long.class, "countDeliveringMessages", filter);
+         }
+
+         @Override
+         public String countDeliveringMessages(final String filter, final String groupByFilter) throws Exception {
+            return (String) proxy.invokeOperation(String.class, "countDeliveringMessages", filter, groupByFilter);
+         }
+
+         @Override
          public boolean expireMessage(final long messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("expireMessage", messageID);
          }
@@ -69,6 +138,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
+         }
+
+         @Override
+         public String getUser() {
+            return (String) proxy.retrieveAttributeValue("user");
          }
 
          @Override
@@ -92,8 +166,38 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isConfigurationManaged() {
+            return (Boolean) proxy.retrieveAttributeValue("configurationManaged");
+         }
+
+         @Override
+         public boolean isExclusive() {
+            return (Boolean) proxy.retrieveAttributeValue("exclusive");
+         }
+
+         @Override
+         public boolean isLastValue() {
+            return (Boolean) proxy.retrieveAttributeValue("lastValue");
+         }
+
+         @Override
          public int getDeliveringCount() {
             return (Integer) proxy.retrieveAttributeValue("deliveringCount", Integer.class);
+         }
+
+         @Override
+         public long getDeliveringSize() {
+            return (Long) proxy.retrieveAttributeValue("deliveringSize", Long.class);
+         }
+
+         @Override
+         public int getDurableDeliveringCount() {
+            return (Integer) proxy.retrieveAttributeValue("durableDeliveringCount", Integer.class);
+         }
+
+         @Override
+         public long getDurableDeliveringSize() {
+            return (Long) proxy.retrieveAttributeValue("durableDeliveringSize", Long.class);
          }
 
          @Override
@@ -112,6 +216,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public float getProducedRate() {
+            return (Long) proxy.retrieveAttributeValue("producedRate", Long.class);
+         }
+
+         @Override
          public long getMessagesAdded() {
             return (Integer) proxy.retrieveAttributeValue("messagesAdded", Integer.class);
          }
@@ -119,6 +228,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public long getMessagesAcknowledged() {
             return (Integer) proxy.retrieveAttributeValue("messagesAcknowledged", Integer.class);
+         }
+
+         @Override
+         public long getAcknowledgeAttempts() {
+            return (Integer) proxy.retrieveAttributeValue("acknowledgeAttempts", Integer.class);
          }
 
          @Override
@@ -167,6 +281,21 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public long getScheduledSize() {
+            return (Long) proxy.retrieveAttributeValue("scheduledSize", Long.class);
+         }
+
+         @Override
+         public long getDurableScheduledCount() {
+            return (Long) proxy.retrieveAttributeValue("durableScheduledCount", Long.class);
+         }
+
+         @Override
+         public long getDurableScheduledSize() {
+            return (Long) proxy.retrieveAttributeValue("durableScheduledSize", Long.class);
+         }
+
+         @Override
          public boolean isDurable() {
             return (Boolean) proxy.retrieveAttributeValue("durable");
          }
@@ -179,6 +308,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public boolean isTemporary() {
             return (Boolean) proxy.retrieveAttributeValue("temporary");
+         }
+
+         @Override
+         public boolean isRetroactiveResource() {
+            return (Boolean) proxy.retrieveAttributeValue("retroactiveResource");
          }
 
          @Override
@@ -380,6 +514,16 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return compositeDatas;
          }
 
+         @Override
+         public CompositeData[] browse(int page, int pageSize) throws Exception {
+            Map map = (Map) proxy.invokeOperation("browse", page, pageSize);
+            CompositeData[] compositeDatas = (CompositeData[]) map.get(CompositeData.class.getName());
+            if (compositeDatas == null) {
+               compositeDatas = new CompositeData[0];
+            }
+            return compositeDatas;
+         }
+
 
          @Override
          public CompositeData[] browse(String filter) throws Exception {
@@ -424,6 +568,21 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public String listDeliveringMessagesAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listDeliveringMessagesAsJSON");
+         }
+
+         @Override
+         public long getPersistentSize() {
+            return (Long) proxy.retrieveAttributeValue("persistentSize", Long.class);
+         }
+
+         @Override
+         public long getDurableMessageCount() {
+            return (Long) proxy.retrieveAttributeValue("durableMessageCount", Long.class);
+         }
+
+         @Override
+         public long getDurablePersistentSize() {
+            return (Long) proxy.retrieveAttributeValue("durablePersistentSize", Long.class);
          }
       };
    }

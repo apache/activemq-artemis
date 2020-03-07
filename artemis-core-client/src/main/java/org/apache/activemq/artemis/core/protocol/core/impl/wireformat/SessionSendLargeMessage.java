@@ -26,7 +26,7 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
    /**
     * Used only if largeMessage
     */
-   private final Message largeMessage;
+   private Message largeMessage;
 
    // Static --------------------------------------------------------
 
@@ -42,6 +42,12 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
 
    public Message getLargeMessage() {
       return largeMessage;
+   }
+
+   @Override
+   public MessagePacketI replaceMessage(Message message) {
+      this.largeMessage = message;
+      return this;
    }
 
    @Override

@@ -27,6 +27,12 @@ public interface ScheduledDeliveryHandler {
 
    int getScheduledCount();
 
+   long getScheduledSize();
+
+   int getDurableScheduledCount();
+
+   long getDurableScheduledSize();
+
    List<MessageReference> getScheduledReferences();
 
    List<MessageReference> cancel(Filter filter) throws ActiveMQException;

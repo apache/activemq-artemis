@@ -24,4 +24,24 @@ public interface PagedReference extends MessageReference {
    PagePosition getPosition();
 
    PagedMessage getPagedMessage();
+
+   boolean isLargeMessage();
+
+   long getTransactionID();
+
+   /** this method affects paging clean up
+       It adds to the flag that prevents its page from cleanup.
+       It's a helper method to call the proper {@link PageSubscription#addPendingDelivery(PagePosition)}
+
+    @see PageSubscription#addPendingDelivery(PagePosition)
+    */
+   void addPendingFlag();
+
+   /** this method affects paging clean up
+    It adds to the flag that prevents its page from cleanup.
+    It's a helper method to call the proper {@link PageSubscription#addPendingDelivery(PagePosition)}
+
+    @see PageSubscription#addPendingDelivery(PagePosition)
+    */
+   void removePendingFlag();
 }

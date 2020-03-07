@@ -17,7 +17,9 @@
 package org.apache.activemq.artemis.utils.collections;
 
 import java.lang.reflect.Array;
+import java.util.Comparator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see any
@@ -29,7 +31,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    private static final int INITIAL_ITERATOR_ARRAY_SIZE = 10;
 
-   private final Node<E> head = new Node<>(null);
+   private final Node<E> head = new NodeHolder<>(null);
 
    private Node<E> tail = null;
 
@@ -42,13 +44,20 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    private int nextIndex;
 
+   private final Comparator<E> comparator;
+
    public LinkedListImpl() {
+      this(null);
+   }
+
+   public LinkedListImpl(Comparator<E> comparator) {
       iters = createIteratorArray(INITIAL_ITERATOR_ARRAY_SIZE);
+      this.comparator = comparator;
    }
 
    @Override
    public void addHead(E e) {
-      Node<E> node = new Node<>(e);
+      Node<E> node = Node.with(e);
 
       node.next = head.next;
 
@@ -71,7 +80,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       if (size == 0) {
          addHead(e);
       } else {
-         Node<E> node = new Node<>(e);
+         Node<E> node = Node.with(e);
 
          node.prev = tail;
 
@@ -83,6 +92,60 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       }
    }
 
+   public void addSorted(E e) {
+      if (comparator == null) {
+         throw new NullPointerException("comparator=null");
+      }
+      if (size == 0) {
+         addHead(e);
+      } else {
+         if (comparator.compare(head.next.val(), e) < 0) {
+            addHead(e);
+            return;
+         }
+
+         // in our usage, most of the times we will just add to the end
+         // as the QueueImpl cancellations in AMQP will return the buffer back to the queue, in the order they were consumed.
+         // There is an exception to that case, when there are more messages on the queue.
+         // This would be an optimization for our usage.
+         // avoiding scanning the entire List just to add at the end, so we compare the end first.
+         if (comparator.compare(tail.val(), e) >= 0) {
+            addTail(e);
+            return;
+         }
+
+         Node<E> fetching = head.next;
+         while (fetching.next != null) {
+            int compareNext = comparator.compare(fetching.next.val(), e);
+            if (compareNext <= 0) {
+               addAfter(fetching, e);
+               return;
+            }
+            fetching = fetching.next;
+         }
+
+         // this shouldn't happen as the tail was compared before iterating
+         // the only possibilities for this to happen are:
+         // - there is a bug on the comparator
+         // - This method is buggy
+         // - The list wasn't properly synchronized as this list does't support concurrent access
+         //
+         // Also I'm not bothering about creating a Logger ID for this, because the only reason for this code to exist
+         //      is because my OCD level is not letting this out.
+         throw new IllegalStateException("Cannot find a suitable place for your element, There's a mismatch in the comparator or there was concurrent adccess on the queue");
+      }
+   }
+
+   private void addAfter(Node<E> node, E e) {
+      Node<E> newNode = Node.with(e);
+      Node<E> nextNode = node.next;
+      node.next = newNode;
+      newNode.prev = node;
+      newNode.next = nextNode;
+      nextNode.prev = newNode;
+      size++;
+   }
+
    @Override
    public E poll() {
       Node<E> ret = head.next;
@@ -90,7 +153,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       if (ret != null) {
          removeAfter(head);
 
-         return ret.val;
+         return ret.val();
       } else {
          return null;
       }
@@ -98,9 +161,13 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    @Override
    public void clear() {
-      tail = head.next = null;
+      // Clearing all of the links between nodes is "unnecessary", but:
+      // - helps a generational GC if the discarded nodes inhabit
+      //   more than one generation
+      // - is sure to free memory even if there is a reachable Iterator
+      while (poll() != null) {
 
-      size = 0;
+      }
    }
 
    @Override
@@ -217,23 +284,59 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       throw new IllegalStateException("Cannot find iter to remove");
    }
 
-   private static final class Node<E> {
+   private static final class NodeHolder<T> extends Node<T> {
 
-      Node<E> next;
+      private final T val;
 
-      Node<E> prev;
-
-      final E val;
-
-      int iterCount;
-
-      Node(E e) {
+      //only the head is allowed to hold a null
+      private NodeHolder(T e) {
          val = e;
       }
 
       @Override
+      protected T val() {
+         return val;
+      }
+   }
+
+   public static class Node<T> {
+
+      private Node<T> next;
+
+      private Node<T> prev;
+
+      private int iterCount;
+
+      @SuppressWarnings("unchecked")
+      protected T val() {
+         return (T) this;
+      }
+
+      protected final LinkedListImpl.Node<T> next() {
+         return next;
+      }
+
+      protected final LinkedListImpl.Node<T> prev() {
+         return prev;
+      }
+
+      @Override
       public String toString() {
-         return "Node, value = " + val;
+         return val() == this ? "Intrusive Node" : "Node, value = " + val();
+      }
+
+      private static <T> Node<T> with(final T o) {
+         Objects.requireNonNull(o, "Only HEAD nodes are allowed to hold null values");
+         if (o instanceof Node) {
+            final Node node = (Node) o;
+            //only a node that not belong already to a list is allowed to be reused
+            if (node.prev == null && node.next == null) {
+               //reset the iterCount
+               node.iterCount = 0;
+               return node;
+            }
+         }
+         return new NodeHolder<>(o);
       }
    }
 
@@ -277,14 +380,14 @@ public class LinkedListImpl<E> implements LinkedList<E> {
             repeat = false;
 
             if (e != null) {
-               return e.val;
+               return e.val();
             } else {
                if (canAdvance()) {
                   advance();
 
                   e = getNode();
 
-                  return e.val;
+                  return e.val();
                } else {
                   throw new NoSuchElementException();
                }
@@ -305,7 +408,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
          repeat = false;
 
-         return e.val;
+         return e.val();
       }
 
       @Override

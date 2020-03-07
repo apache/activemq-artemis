@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+   
+
+   <core xmlns="urn:activemq:core">
+
+      <bindings-directory>./data/messaging/bindings</bindings-directory>
+
+      <journal-directory>./data/messaging/journal</journal-directory>
+
+      <large-messages-directory>./data/messaging/largemessages</large-messages-directory>
+
+      <paging-directory>./data/messaging/paging</paging-directory>
+
+      <!-- Connectors -->
+      <connectors>
+         <!-- Connector to the other node -->
+         <connector name="remote-connector">tcp://localhost:61617</connector>
+      </connectors>
+
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
+      </acceptors>
+
+      <!-- We need to create a core queue for the JMS queue explicitly because the bridge will be deployed
+      before the JMS queue is deployed, so the first time, it otherwise won't find the queue -->
+      
+
+      <!-- We set-up a bridge that forwards from a queue on this node to an address on another node.
+      We specify a filter with the bridge, and a transformer too. The filter and transformer are optional -->
+      <bridges>
+         <bridge name="my-bridge">
+            <queue-name>sausage-factory</queue-name>
+            <forwarding-address>mincing-machine</forwarding-address>
+            <filter string="name='aardvark'"/>
+            <transformer-class-name>org.apache.activemq.artemis.jms.example.HatColourChangeTransformer</transformer-class-name>
+            <reconnect-attempts>-1</reconnect-attempts>
+            <static-connectors>
+               <connector-ref>remote-connector</connector-ref>
+            </static-connectors>
+         </bridge>
+      </bridges>
+
+      <!-- Other config -->
+
+      <security-settings>
+         <!--security for example queue-->
+         <security-setting match="#">
+            <permission roles="guest" type="createDurableQueue"/>
+            <permission roles="guest" type="deleteDurableQueue"/>
+            <permission roles="guest" type="createNonDurableQueue"/>
+            <permission roles="guest" type="deleteNonDurableQueue"/>
+            <permission roles="guest" type="consume"/>
+            <permission roles="guest" type="send"/>
+         </security-setting>
+      </security-settings>
+      <addresses>
+         <address name="sausage-factory">
+            <anycast>
+               <queue name="sausage-factory"/>
+            </anycast>
+         </address>
+      </addresses>
+   </core>
+
+</configuration>

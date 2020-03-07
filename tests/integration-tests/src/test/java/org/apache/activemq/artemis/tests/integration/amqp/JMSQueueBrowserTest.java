@@ -58,7 +58,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       sendMessages(name.getMethodName(), MSG_COUNT, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages did not arrive", Wait.waitFor(() -> queueView.getMessageCount() == MSG_COUNT));
+      Wait.assertEquals(MSG_COUNT, queueView::getMessageCount);
 
       QueueBrowser browser = session.createBrowser(queue);
       assertNotNull(browser);
@@ -151,7 +151,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       sendMessages(name.getMethodName(), 5, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages did not arrive", Wait.waitFor(() -> queueView.getMessageCount() == 5));
+      Wait.assertEquals(5, queueView::getMessageCount);
 
       QueueBrowser browser = session.createBrowser(queue);
       assertNotNull(browser);
@@ -179,7 +179,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       sendMessages(name.getMethodName(), 5, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages did not arrive", Wait.waitFor(() -> queueView.getMessageCount() == 5));
+      Wait.assertEquals(5, queueView::getMessageCount);
 
       QueueBrowser browser = session.createBrowser(queue);
       assertNotNull(browser);
@@ -206,7 +206,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       sendMessages(name.getMethodName(), 5, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages did not arrive", Wait.waitFor(() -> queueView.getMessageCount() == 5));
+      Wait.assertEquals(5, queueView::getMessageCount);
 
       QueueBrowser browser = session.createBrowser(queue);
       assertNotNull(browser);
@@ -233,7 +233,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       sendMessages(name.getMethodName(), 5, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages did not arrive", Wait.waitFor(() -> queueView.getMessageCount() == 5));
+      Wait.assertEquals(5, queueView::getMessageCount);
 
       // Send some TX work but don't commit.
       MessageProducer txProducer = session.createProducer(queue);
@@ -260,9 +260,9 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       browser.close();
 
       // Now check that all browser work did not affect the session transaction.
-      assertEquals(5, queueView.getMessageCount());
+      Wait.assertEquals(5, queueView::getMessageCount);
       session.commit();
-      assertEquals(10, queueView.getMessageCount());
+      Wait.assertEquals(10, queueView::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -278,7 +278,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       sendMessages(name.getMethodName(), MSG_COUNT, false);
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages did not arrive", Wait.waitFor(() -> queueView.getMessageCount() == MSG_COUNT));
+      Wait.assertEquals(MSG_COUNT, queueView::getMessageCount);
 
       QueueBrowser browser = session.createBrowser(queue);
       assertNotNull(browser);

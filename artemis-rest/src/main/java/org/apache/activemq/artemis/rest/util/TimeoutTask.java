@@ -96,7 +96,7 @@ public class TimeoutTask implements Runnable {
    public void run() {
       while (running) {
          try {
-            Thread.sleep(interval * 1000);
+            Thread.sleep((long) interval * 1000);
          } catch (InterruptedException e) {
             running = false;
             break;

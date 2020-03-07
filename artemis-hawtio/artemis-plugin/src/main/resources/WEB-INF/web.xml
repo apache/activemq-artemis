@@ -48,6 +48,12 @@
     <param-value>${plugin-scripts}</param-value>
   </context-param>
 
+  <context-param>
+    <description>Disable listing of directories and files</description>
+    <param-name>org.eclipse.jetty.servlet.Default.dirAllowed</param-name>
+    <param-value>false</param-value>
+  </context-param>
+
   <listener>
     <listener-class>org.apache.activemq.hawtio.plugin.PluginContextListener</listener-class>
   </listener>

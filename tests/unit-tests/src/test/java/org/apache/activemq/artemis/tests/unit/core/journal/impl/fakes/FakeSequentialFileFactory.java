@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 
 public class FakeSequentialFileFactory implements SequentialFileFactory {
 
@@ -305,6 +306,11 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       }
 
       @Override
+      public ByteBuffer map(int position, long size) throws IOException {
+         return null;
+      }
+
+      @Override
       public void delete() {
          if (open) {
             close();
@@ -358,7 +364,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
             throw new IllegalStateException("Is closed");
          }
 
-         byte[] bytesRead = new byte[bytes.limit()];
+         byte[] bytesRead = new byte[Math.min(bytes.remaining(), data.remaining())];
 
          data.get(bytesRead);
 
@@ -415,6 +421,18 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
             action.run();
          }
 
+      }
+
+      @Override
+      public synchronized void blockingWriteDirect(ByteBuffer bytes,
+                                                   boolean sync,
+                                                   boolean releaseBuffer) throws Exception {
+         SimpleWaitIOCallback callback = new SimpleWaitIOCallback();
+         try {
+            writeDirect(bytes, sync, callback);
+         } finally {
+            callback.waitCompletion();
+         }
       }
 
       @Override

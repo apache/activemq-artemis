@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -121,12 +122,8 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
             //subscriber1.close(); // << you can't call this on this test
             //session.close(); // << can't call this on this test
 
-            long timeout = System.currentTimeMillis() + 5000;
-            while (timeout > System.currentTimeMillis() && pagingStore.isPaging()) {
-               Thread.sleep(100);
-            }
+            Wait.assertFalse(pagingStore::isPaging);
             printPageStoreInfo(pagingStore);
-            assertFalse(pagingStore.isPaging());
          }
 
       } finally {

@@ -27,11 +27,6 @@ import java.util.Enumeration;
 public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessage {
 
    /**
-    * Whether trace is enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * Create a new wrapper
     *
     * @param message the message
@@ -40,7 +35,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    public ActiveMQRAMapMessage(final MapMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
       }
    }
@@ -54,7 +49,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public boolean getBoolean(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getBoolean(" + name + ")");
       }
 
@@ -70,7 +65,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public byte getByte(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getByte(" + name + ")");
       }
 
@@ -86,7 +81,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public byte[] getBytes(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getBytes(" + name + ")");
       }
 
@@ -102,7 +97,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public char getChar(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getChar(" + name + ")");
       }
 
@@ -118,7 +113,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public double getDouble(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getDouble(" + name + ")");
       }
 
@@ -134,7 +129,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public float getFloat(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getFloat(" + name + ")");
       }
 
@@ -150,7 +145,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public int getInt(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getInt(" + name + ")");
       }
 
@@ -166,7 +161,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public long getLong(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getLong(" + name + ")");
       }
 
@@ -181,7 +176,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public Enumeration getMapNames() throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getMapNames()");
       }
 
@@ -197,7 +192,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public Object getObject(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getObject(" + name + ")");
       }
 
@@ -213,7 +208,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public short getShort(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getShort(" + name + ")");
       }
 
@@ -229,7 +224,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public String getString(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getString(" + name + ")");
       }
 
@@ -245,7 +240,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public boolean itemExists(final String name) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("itemExists(" + name + ")");
       }
 
@@ -261,7 +256,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setBoolean(final String name, final boolean value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setBoolean(" + name + ", " + value + ")");
       }
 
@@ -277,7 +272,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setByte(final String name, final byte value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setByte(" + name + ", " + value + ")");
       }
 
@@ -295,7 +290,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setBytes(final String name, final byte[] value, final int offset, final int length) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setBytes(" + name + ", " + Arrays.toString(value) + ", " + offset + ", " +
                                           length + ")");
       }
@@ -312,7 +307,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setBytes(final String name, final byte[] value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setBytes(" + name + ", " + Arrays.toString(value) + ")");
       }
 
@@ -328,7 +323,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setChar(final String name, final char value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setChar(" + name + ", " + value + ")");
       }
 
@@ -344,7 +339,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setDouble(final String name, final double value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setDouble(" + name + ", " + value + ")");
       }
 
@@ -360,7 +355,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setFloat(final String name, final float value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setFloat(" + name + ", " + value + ")");
       }
 
@@ -376,7 +371,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setInt(final String name, final int value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setInt(" + name + ", " + value + ")");
       }
 
@@ -392,7 +387,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setLong(final String name, final long value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setLong(" + name + ", " + value + ")");
       }
 
@@ -408,7 +403,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setObject(final String name, final Object value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setObject(" + name + ", " + value + ")");
       }
 
@@ -424,7 +419,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setShort(final String name, final short value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setShort(" + name + ", " + value + ")");
       }
 
@@ -440,7 +435,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     */
    @Override
    public void setString(final String name, final String value) throws JMSException {
-      if (ActiveMQRAMapMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setString(" + name + ", " + value + ")");
       }
 

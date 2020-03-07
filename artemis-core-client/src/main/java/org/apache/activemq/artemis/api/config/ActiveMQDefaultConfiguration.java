@@ -19,16 +19,20 @@ package org.apache.activemq.artemis.api.config;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.ArtemisConstants;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.jboss.logging.Logger;
 
 /**
  * Default values of ActiveMQ Artemis configuration parameters.
  */
 public final class ActiveMQDefaultConfiguration {
-      /*
+
+   private static final Logger logger = Logger.getLogger(ActiveMQDefaultConfiguration.class);
+
+   /*
     * <p> In order to avoid compile time in-lining of constants, all access is done through methods
     * and all fields are PRIVATE STATIC but not FINAL. This is done following the recommendation at
     * <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-13.html#jls-13.4.9">13.4.9.
@@ -178,8 +182,14 @@ public final class ActiveMQDefaultConfiguration {
    // Cluster password. It applies to all cluster configurations.
    private static String DEFAULT_CLUSTER_PASSWORD = "CHANGE ME!!";
 
+   // Cluster username. It applies to all cluster configurations.
+   private static String DEFAULT_FEDERATION_USER = "ACTIVEMQ.CLUSTER.ADMIN.USER";
+
+   // Cluster password. It applies to all cluster configurations.
+   private static String DEFAULT_FEDERATION_PASSWORD = "CHANGE ME!!";
+
    // This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked.
-   private static boolean DEFAULT_MASK_PASSWORD = false;
+   private static Boolean DEFAULT_MASK_PASSWORD = null;
 
    // true means that the management API is available via JMX
    private static boolean DEFAULT_JMX_MANAGEMENT_ENABLED = true;
@@ -214,6 +224,9 @@ public final class ActiveMQDefaultConfiguration {
    // how often (in ms) to scan for expired messages
    private static long DEFAULT_MESSAGE_EXPIRY_SCAN_PERIOD = 30000;
 
+   // how often (in ms) to scan for addresses and queues which should be deleted
+   private static long DEFAULT_ADDRESS_QUEUE_SCAN_PERIOD = 30000;
+
    // the priority of the thread expiring messages
    private static int DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY = 3;
 
@@ -237,6 +250,9 @@ public final class ActiveMQDefaultConfiguration {
 
    // The max number of concurrent reads allowed on paging
    private static int DEFAULT_MAX_CONCURRENT_PAGE_IO = 5;
+
+   // If true the whole page would be read, otherwise just seek and read while getting message
+   private static boolean DEFAULT_READ_WHOLE_PAGE = false;
 
    // the directory to store the journal files in
    private static String DEFAULT_JOURNAL_DIR = "data/journal";
@@ -364,7 +380,10 @@ public final class ActiveMQDefaultConfiguration {
    private static boolean DEFAULT_DIVERT_EXCLUSIVE = false;
 
    // how the divert should handle the message's routing type
-   private static String DEFAULT_DIVERT_ROUTING_TYPE = DivertConfigurationRoutingType.STRIP.toString();
+   private static String DEFAULT_DIVERT_ROUTING_TYPE = ComponentConfigurationRoutingType.STRIP.toString();
+
+   // how the bridge should handle the message's routing type
+   private static String DEFAULT_BRIDGE_ROUTING_TYPE = ComponentConfigurationRoutingType.PASS.toString();
 
    // If true then the server will request a backup on another node
    private static boolean DEFAULT_HAPOLICY_REQUEST_BACKUP = false;
@@ -405,6 +424,9 @@ public final class ActiveMQDefaultConfiguration {
    // Will the broker populate the message with the name of the validated user
    private static boolean DEFAULT_POPULATE_VALIDATED_USER = false;
 
+   // Will the broker allow messages with no validated user
+   private static boolean DEFAULT_REJECT_EMPTY_VALIDATED_USER = false;
+
    // its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set scale-down to false
    private static boolean DEFAULT_SCALE_DOWN_ENABLED = true;
 
@@ -423,8 +445,8 @@ public final class ActiveMQDefaultConfiguration {
    // Default database url.  Derby database is used by default.
    private static String DEFAULT_DATABASE_URL = null;
 
-   // Default JDBC Driver class name
-   private static String DEFAULT_JDBC_DRIVER_CLASS_NAME = null;
+   // Default JDBC Driver class name, derby by default just for demo purposes
+   private static String DEFAULT_JDBC_DRIVER_CLASS_NAME = "org.apache.derby.jdbc.EmbeddedDriver";
 
    // Default message table name, used with Database storage type
    private static String DEFAULT_MESSAGE_TABLE_NAME = "MESSAGES";
@@ -438,7 +460,18 @@ public final class ActiveMQDefaultConfiguration {
    // Default large messages table name, used with Database storage type
    private static final String DEFAULT_PAGE_STORE_TABLE_NAME = "PAGE_STORE";
 
+   // Default node manager store table name, used with Database storage type
+   private static final String DEFAULT_NODE_MANAGER_STORE_TABLE_NAME = "NODE_MANAGER_STORE";
+
    private static final int DEFAULT_JDBC_NETWORK_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(20);
+
+   private static final long DEFAULT_JDBC_LOCK_RENEW_PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(4);
+
+   private static final long DEFAULT_JDBC_LOCK_EXPIRATION_MILLIS = TimeUnit.SECONDS.toMillis(20);
+
+   private static final long DEFAULT_JDBC_JOURNAL_SYNC_PERIOD_MILLIS = 5;
+
+   private static final long DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS = -1;
 
    // Default period to wait between connection TTL checks
    public static final long DEFAULT_CONNECTION_TTL_CHECK_INTERVAL = 2000;
@@ -450,13 +483,55 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final long DEFAULT_GLOBAL_MAX_SIZE = Runtime.getRuntime().maxMemory() / 2;
 
-   public static final int DEFAULT_MAX_DISK_USAGE = 100;
+   public static final int DEFAULT_MAX_DISK_USAGE;
+
+   static {
+      int maxDisk;
+      try {
+         maxDisk = Integer.parseInt(System.getProperty(ActiveMQDefaultConfiguration.getDefaultSystemPropertyPrefix() + "maxDiskUsage", "90"));
+      } catch (Throwable e) {
+         // This is not really supposed to happen, so just logging it, just in case
+         logger.warn(e);
+         maxDisk = 90;
+      }
+      DEFAULT_MAX_DISK_USAGE = maxDisk;
+   }
 
    public static final int DEFAULT_DISK_SCAN = 5000;
 
    public static final int DEFAULT_MAX_QUEUE_CONSUMERS = -1;
 
+   public static final int DEFAULT_CONSUMER_PRIORITY = 0;
+
+   public static final boolean DEFAULT_EXCLUSIVE = false;
+
+   public static final boolean DEFAULT_LAST_VALUE = false;
+
+   public static final SimpleString DEFAULT_LAST_VALUE_KEY = null;
+
+   public static final boolean DEFAULT_NON_DESTRUCTIVE = false;
+
    public static final boolean DEFAULT_PURGE_ON_NO_CONSUMERS = false;
+
+   public static final boolean DEFAULT_QUEUE_AUTO_DELETE = true;
+
+   public static final boolean DEFAULT_CREATED_QUEUE_AUTO_DELETE = false;
+
+   public static final long DEFAULT_QUEUE_AUTO_DELETE_DELAY = 0;
+
+   public static final long DEFAULT_QUEUE_AUTO_DELETE_MESSAGE_COUNT = 0;
+
+   public static final long DEFAULT_RING_SIZE = -1;
+
+   public static final int DEFAULT_CONSUMERS_BEFORE_DISPATCH = 0;
+
+   public static final long DEFAULT_DELAY_BEFORE_DISPATCH = -1;
+
+   public static final int DEFAULT_GROUP_BUCKETS = -1;
+
+   public static final boolean DEFAULT_GROUP_REBALANCE = false;
+
+   public static final SimpleString DEFAULT_GROUP_FIRST_KEY = null;
 
    public static final RoutingType DEFAULT_ROUTING_TYPE = RoutingType.MULTICAST;
 
@@ -476,13 +551,53 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean DEFAULT_VOTE_ON_REPLICATION_FAILURE = false;
 
+   //how many times we retry a vote before restarting as a backup
+   private static int DEFAULT_VOTE_RETRIES = 12;
+
+   //how long we wait between votes, 5 secs
+   private static long DEFAULT_VOTE_RETRY_WAIT = 5000;
+
+   //how long we wait for vote result, 30 secs
+   private static int DEFAULT_QUORUM_VOTE_WAIT = 30;
+
+   private static long DEFAULT_RETRY_REPLICATION_WAIT = 2000;
+
    public static int DEFAULT_QUORUM_SIZE = -1;
 
    public static final boolean DEFAULT_ANALYZE_CRITICAL = true;
 
    public static final long DEFAULT_ANALYZE_CRITICAL_TIMEOUT = 120000;
 
+   public static final long DEFAULT_RETROACTIVE_MESSAGE_COUNT = 0;
+
    public static final CriticalAnalyzerPolicy DEFAULT_ANALYZE_CRITICAL_POLICY = CriticalAnalyzerPolicy.LOG;
+
+   // The period (in milliseconds) used to check if the federation connection has failed to receive pings from another server
+   private static long DEFAULT_FEDERATION_FAILURE_CHECK_PERIOD = 30000;
+
+   // how long to keep a connection alive in the absence of any data arriving from the client
+   private static long DEFAULT_FEDERATION_CONNECTION_TTL = getDefaultConnectionTtl();
+
+   // How long to wait for a reply
+   private static long DEFAULT_FEDERATION_CALL_TIMEOUT = 30000;
+
+   // period (in ms) between successive retries
+   private static long DEFAULT_FEDERATION_RETRY_INTERVAL = 500;
+
+   // multiplier to apply to the retry-interval
+   private static double DEFAULT_FEDERATION_RETRY_INTERVAL_MULTIPLIER = getDefaultRetryIntervalMultiplier();
+
+   // Maximum value for retry-interval
+   private static long DEFAULT_FEDERATION_MAX_RETRY_INTERVAL = getDefaultMaxRetryInterval();
+
+   // How many attempts should be made to connect initially
+   private static int DEFAULT_FEDERATION_INITIAL_CONNECT_ATTEMPTS = -1;
+
+   // How many attempts should be made to reconnect after failure
+   private static int DEFAULT_FEDERATION_RECONNECT_ATTEMPTS = -1;
+
+   // How long to wait for a reply if in the middle of a fail-over. -1 means wait forever.
+   private static long DEFAULT_FEDERATION_CALL_FAILOVER_TIMEOUT = -1;
 
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
@@ -605,9 +720,23 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
+    * Federation username. It applies to all federation configurations.
+    */
+   public static String getDefaultFederationUser() {
+      return DEFAULT_CLUSTER_USER;
+   }
+
+   /**
+    * Federation password. It applies to all federation configurations.
+    */
+   public static String getDefaultFederationPassword() {
+      return DEFAULT_CLUSTER_PASSWORD;
+   }
+
+   /**
     * This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked.
     */
-   public static boolean isDefaultMaskPassword() {
+   public static Boolean isDefaultMaskPassword() {
       return DEFAULT_MASK_PASSWORD;
    }
 
@@ -693,6 +822,13 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
+    * how often (in ms) to scan for addresses and queues which should be deleted
+    */
+   public static long getDefaultAddressQueueScanPeriod() {
+      return DEFAULT_ADDRESS_QUEUE_SCAN_PERIOD;
+   }
+
+   /**
     * the size of the cache for pre-creating message ID's
     */
    public static int getDefaultIdCacheSize() {
@@ -739,6 +875,11 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static int getDefaultMaxConcurrentPageIo() {
       return DEFAULT_MAX_CONCURRENT_PAGE_IO;
+   }
+
+
+   public static boolean isDefaultReadWholePage() {
+      return DEFAULT_READ_WHOLE_PAGE;
    }
 
    /**
@@ -1046,6 +1187,13 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
+    * how the bridge should handle the message's routing type
+    */
+   public static String getDefaultBridgeRoutingType() {
+      return DEFAULT_BRIDGE_ROUTING_TYPE;
+   }
+
+   /**
     * If true then the server will request a backup on another node
     */
    public static boolean isDefaultHapolicyRequestBackup() {
@@ -1146,6 +1294,10 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_POPULATE_VALIDATED_USER;
    }
 
+   public static boolean isDefaultRejectEmptyValidatedUser() {
+      return DEFAULT_REJECT_EMPTY_VALIDATED_USER;
+   }
+
    /**
     * its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set scale-down to false
     */
@@ -1211,8 +1363,28 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_PAGE_STORE_TABLE_NAME;
    }
 
+   public static String getDefaultNodeManagerStoreTableName() {
+      return DEFAULT_NODE_MANAGER_STORE_TABLE_NAME;
+   }
+
    public static int getDefaultJdbcNetworkTimeout() {
       return DEFAULT_JDBC_NETWORK_TIMEOUT;
+   }
+
+   public static long getDefaultJdbcLockRenewPeriodMillis() {
+      return DEFAULT_JDBC_LOCK_RENEW_PERIOD_MILLIS;
+   }
+
+   public static long getDefaultJdbcJournalSyncPeriodMillis() {
+      return DEFAULT_JDBC_JOURNAL_SYNC_PERIOD_MILLIS;
+   }
+
+   public static long getDefaultJdbcLockExpirationMillis() {
+      return DEFAULT_JDBC_LOCK_EXPIRATION_MILLIS;
+   }
+
+   public static long getDefaultJdbcLockAcquisitionTimeoutMillis() {
+      return DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS;
    }
 
    public static long getDefaultConnectionTtlCheckInterval() {
@@ -1246,8 +1418,76 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_MAX_QUEUE_CONSUMERS;
    }
 
+   public static int getDefaultConsumerPriority() {
+      return DEFAULT_CONSUMER_PRIORITY;
+   }
+
+   public static boolean getDefaultExclusive() {
+      return DEFAULT_EXCLUSIVE;
+   }
+
+   public static boolean getDefaultLastValue() {
+      return DEFAULT_LAST_VALUE;
+   }
+
+   public static SimpleString getDefaultLastValueKey() {
+      return DEFAULT_LAST_VALUE_KEY;
+   }
+
+   public static boolean getDefaultNonDestructive() {
+      return DEFAULT_NON_DESTRUCTIVE;
+   }
+
    public static boolean getDefaultPurgeOnNoConsumers() {
       return DEFAULT_PURGE_ON_NO_CONSUMERS;
+   }
+
+   public static boolean getDefaultQueueAutoDelete(boolean autoCreated) {
+      return autoCreated ? getDefaultQueueAutoDelete() : getDefaultCreatedQueueAutoDelete();
+   }
+
+   public static boolean getDefaultQueueAutoDelete() {
+      return DEFAULT_QUEUE_AUTO_DELETE;
+   }
+
+   public static boolean getDefaultCreatedQueueAutoDelete() {
+      return DEFAULT_CREATED_QUEUE_AUTO_DELETE;
+   }
+
+   public static long getDefaultQueueAutoDeleteDelay() {
+      return DEFAULT_QUEUE_AUTO_DELETE_DELAY;
+   }
+
+   public static long getDefaultQueueAutoDeleteMessageCount() {
+      return DEFAULT_QUEUE_AUTO_DELETE_MESSAGE_COUNT;
+   }
+
+   public static long getDefaultRingSize() {
+      return DEFAULT_RING_SIZE;
+   }
+
+   public static long getDefaultRetroactiveMessageCount() {
+      return DEFAULT_RETROACTIVE_MESSAGE_COUNT;
+   }
+
+   public static int getDefaultConsumersBeforeDispatch() {
+      return DEFAULT_CONSUMERS_BEFORE_DISPATCH;
+   }
+
+   public static long getDefaultDelayBeforeDispatch() {
+      return DEFAULT_DELAY_BEFORE_DISPATCH;
+   }
+
+   public static int getDefaultGroupBuckets() {
+      return DEFAULT_GROUP_BUCKETS;
+   }
+
+   public static boolean getDefaultGroupRebalance() {
+      return DEFAULT_GROUP_REBALANCE;
+   }
+
+   public static SimpleString getDefaultGroupFirstKey() {
+      return DEFAULT_GROUP_FIRST_KEY;
    }
 
    public static String getInternalNamingPrefix() {
@@ -1308,5 +1548,84 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_ANALYZE_CRITICAL_POLICY;
    }
 
+
+   public static int getDefaultVoteRetries() {
+      return DEFAULT_VOTE_RETRIES;
+   }
+
+   public static long getDefaultVoteRetryWait() {
+      return DEFAULT_VOTE_RETRY_WAIT;
+   }
+
+   public static int getDefaultQuorumVoteWait() {
+      return DEFAULT_QUORUM_VOTE_WAIT;
+   }
+
+   public static long getDefaultRetryReplicationWait() {
+      return DEFAULT_RETRY_REPLICATION_WAIT;
+   }
+
+   /**
+    * The period (in milliseconds) used to check if the federation connection has failed to receive pings from another server
+    */
+   public static long getDefaultFederationFailureCheckPeriod() {
+      return DEFAULT_FEDERATION_FAILURE_CHECK_PERIOD;
+   }
+
+   /**
+    * how long to keep a connection alive in the absence of any data arriving from the client
+    */
+   public static long getDefaultFederationConnectionTtl() {
+      return DEFAULT_FEDERATION_CONNECTION_TTL;
+   }
+
+   /**
+    * How long to wait for a reply
+    */
+   public static long getDefaultFederationCallTimeout() {
+      return DEFAULT_FEDERATION_CALL_TIMEOUT;
+   }
+
+   /**
+    * period (in ms) between successive retries
+    */
+   public static long getDefaultFederationRetryInterval() {
+      return DEFAULT_FEDERATION_RETRY_INTERVAL;
+   }
+
+   /**
+    * multiplier to apply to the retry-interval
+    */
+   public static double getDefaultFederationRetryIntervalMultiplier() {
+      return DEFAULT_FEDERATION_RETRY_INTERVAL_MULTIPLIER;
+   }
+
+   /**
+    * Maximum value for retry-interval
+    */
+   public static long getDefaultFederationMaxRetryInterval() {
+      return DEFAULT_FEDERATION_MAX_RETRY_INTERVAL;
+   }
+
+   /**
+    * How many attempts should be made to connect initially
+    */
+   public static int getDefaultFederationInitialConnectAttempts() {
+      return DEFAULT_FEDERATION_INITIAL_CONNECT_ATTEMPTS;
+   }
+
+   /**
+    * How many attempts should be made to reconnect after failure
+    */
+   public static int getDefaultFederationReconnectAttempts() {
+      return DEFAULT_FEDERATION_RECONNECT_ATTEMPTS;
+   }
+
+   /**
+    * How long to wait for a reply if in the middle of a fail-over. -1 means wait forever.
+    */
+   public static long getDefaultFederationCallFailoverTimeout() {
+      return DEFAULT_FEDERATION_CALL_FAILOVER_TIMEOUT;
+   }
 
 }

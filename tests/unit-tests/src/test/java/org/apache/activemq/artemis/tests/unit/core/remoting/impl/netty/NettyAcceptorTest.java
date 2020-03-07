@@ -18,9 +18,9 @@ package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,25 +43,24 @@ import org.junit.Test;
 public class NettyAcceptorTest extends ActiveMQTestBase {
 
    private ScheduledExecutorService pool2;
+   private ExecutorService pool3;
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-
-      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
    }
 
    @Override
    @After
    public void tearDown() throws Exception {
-      try {
-         ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
-      } finally {
-         if (pool2 != null)
-            pool2.shutdownNow();
-         super.tearDown();
-      }
+      if (pool3 != null)
+         pool3.shutdown();
+
+      if (pool2 != null)
+         pool2.shutdownNow();
+
+      super.tearDown();
    }
 
    @Test
@@ -94,24 +94,21 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
          }
       };
       pool2 = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory());
-      NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, handler, listener, pool2, new HashMap<String, ProtocolManager>());
+      pool3 = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, handler, listener, pool2, pool3, new HashMap<String, ProtocolManager>());
 
       addActiveMQComponent(acceptor);
       acceptor.start();
       Assert.assertTrue(acceptor.isStarted());
       acceptor.stop();
       Assert.assertFalse(acceptor.isStarted());
-      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
+      Assert.assertTrue(PortCheckRule.checkAvailable(TransportConstants.DEFAULT_PORT));
 
       acceptor.start();
       Assert.assertTrue(acceptor.isStarted());
       acceptor.stop();
       Assert.assertFalse(acceptor.isStarted());
-      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
-
-      pool2.shutdown();
-
-      pool2.awaitTermination(1, TimeUnit.SECONDS);
+      Assert.assertTrue(PortCheckRule.checkAvailable(TransportConstants.DEFAULT_PORT));
    }
 
 }

@@ -29,6 +29,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -55,7 +57,7 @@ import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
@@ -78,15 +80,15 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
+import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SendAckFailTest extends ActiveMQTestBase {
+public class SendAckFailTest extends SpawnedTestBase {
 
    @Before
    @After
@@ -128,7 +130,7 @@ public class SendAckFailTest extends ActiveMQTestBase {
             ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
             ServerLocator locator = factory.getServerLocator();
 
-            locator.setConfirmationWindowSize(0).setInitialConnectAttempts(100).setRetryInterval(100).setBlockOnDurableSend(false).setReconnectAttempts(0);
+            locator.setConfirmationWindowSize(0).setInitialConnectAttempts(10000).setRetryInterval(10).setBlockOnDurableSend(false).setReconnectAttempts(0);
 
             ClientSessionFactory sf = locator.createSessionFactory();
 
@@ -213,13 +215,30 @@ public class SendAckFailTest extends ActiveMQTestBase {
 
    public ActiveMQServer startServer(boolean fail) {
       try {
-         //ActiveMQServerImpl server = (ActiveMQServerImpl) createServer(true, true);
-
          AtomicInteger count = new AtomicInteger(0);
 
          ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
 
          Configuration configuration = createDefaultConfig(true);
+
+
+         if (fail) {
+            new Thread() {
+               @Override
+               public void run() {
+                  try {
+
+                     // this is a protection, if the process is left forgoten for any amount of time,
+                     // this will kill it
+                     // This is to avoid rogue processes on the CI
+                     Thread.sleep(10000);
+                     System.err.println("Halting process, protecting the CI from rogue processes");
+                     Runtime.getRuntime().halt(-1);
+                  } catch (Throwable e) {
+                  }
+               }
+            }.start();
+         }
 
          ActiveMQServer server = new ActiveMQServerImpl(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager) {
             @Override
@@ -249,6 +268,7 @@ public class SendAckFailTest extends ActiveMQTestBase {
 
 
          System.out.println("Location::" + server.getConfiguration().getJournalLocation().getAbsolutePath());
+         addServer(server);
          server.start();
          return server;
       } catch (Exception e) {
@@ -363,6 +383,11 @@ public class SendAckFailTest extends ActiveMQTestBase {
       @Override
       public void beforePageRead() throws Exception {
          manager.beforePageRead();
+      }
+
+      @Override
+      public boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException {
+         return manager.beforePageRead(timeout, unit);
       }
 
       @Override
@@ -601,13 +626,24 @@ public class SendAckFailTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storeQueueStatus(long queueID, QueueStatus status) throws Exception {
+      public long storeQueueStatus(long queueID, AddressQueueStatus status) throws Exception {
          return manager.storeQueueStatus(queueID, status);
       }
 
       @Override
       public void deleteQueueStatus(long recordID) throws Exception {
          manager.deleteQueueStatus(recordID);
+      }
+
+      @Override
+      public long storeAddressStatus(long addressID, AddressQueueStatus status) throws Exception {
+         return manager.storeAddressStatus(addressID, status);
+      }
+
+
+      @Override
+      public void deleteAddressStatus(long recordID) throws Exception {
+         manager.deleteAddressStatus(recordID);
       }
 
       @Override
@@ -668,13 +704,13 @@ public class SendAckFailTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storePageCounter(long txID, long queueID, long value) throws Exception {
-         return manager.storePageCounter(txID, queueID, value);
+      public long storePageCounter(long txID, long queueID, long value, long size) throws Exception {
+         return manager.storePageCounter(txID, queueID, value, size);
       }
 
       @Override
-      public long storePendingCounter(long queueID, long pageID, int inc) throws Exception {
-         return manager.storePendingCounter(queueID, pageID, inc);
+      public long storePendingCounter(long queueID, long pageID) throws Exception {
+         return manager.storePendingCounter(queueID, pageID);
       }
 
       @Override
@@ -693,13 +729,13 @@ public class SendAckFailTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storePageCounterInc(long txID, long queueID, int add) throws Exception {
-         return manager.storePageCounterInc(txID, queueID, add);
+      public long storePageCounterInc(long txID, long queueID, int add, long size) throws Exception {
+         return manager.storePageCounterInc(txID, queueID, add, size);
       }
 
       @Override
-      public long storePageCounterInc(long queueID, int add) throws Exception {
-         return manager.storePageCounterInc(queueID, add);
+      public long storePageCounterInc(long queueID, int add, long size) throws Exception {
+         return manager.storePageCounterInc(queueID, add, size);
       }
 
       @Override
@@ -767,6 +803,16 @@ public class SendAckFailTest extends ActiveMQTestBase {
       @Override
       public void injectMonitor(FileStoreMonitor monitor) throws Exception {
          manager.injectMonitor(monitor);
+      }
+
+      @Override
+      public void deleteLargeMessageBody(LargeServerMessage largeServerMessage) throws ActiveMQException {
+         manager.deleteLargeMessageBody(largeServerMessage);
+      }
+
+      @Override
+      public void addBytesToLargeMessage(SequentialFile file, long messageId, ActiveMQBuffer bytes) throws Exception {
+         manager.addBytesToLargeMessage(file, messageId, bytes);
       }
 
       private final StorageManager manager;

@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.EnumSet;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -227,9 +226,7 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testAnycastMessageRoutingExclusivity() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      Set<RoutingType> routingTypes = new HashSet<>();
-      routingTypes.add(RoutingType.ANYCAST);
-      routingTypes.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       sendSession.createAddress(addressA, routingTypes, false);
       sendSession.createQueue(addressA, RoutingType.ANYCAST, queueA);
       sendSession.createQueue(addressA, RoutingType.ANYCAST, queueB);
@@ -246,9 +243,7 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testMulticastMessageRoutingExclusivity() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      Set<RoutingType> routingTypes = new HashSet<>();
-      routingTypes.add(RoutingType.ANYCAST);
-      routingTypes.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       sendSession.createAddress(addressA, routingTypes, false);
       sendSession.createQueue(addressA, RoutingType.ANYCAST, queueA);
       sendSession.createQueue(addressA, RoutingType.MULTICAST, queueB);
@@ -265,9 +260,7 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testAmbiguousMessageRouting() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      Set<RoutingType> routingTypes = new HashSet<>();
-      routingTypes.add(RoutingType.ANYCAST);
-      routingTypes.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       sendSession.createAddress(addressA, routingTypes, false);
       sendSession.createQueue(addressA, RoutingType.ANYCAST, queueA);
       sendSession.createQueue(addressA, RoutingType.ANYCAST, queueB);

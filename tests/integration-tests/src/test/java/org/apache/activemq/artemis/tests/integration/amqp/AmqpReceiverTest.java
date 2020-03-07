@@ -274,7 +274,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
 
          server.destroyQueue(new SimpleString(getQueueName()), null, false, true);
 
-         assertTrue("Receiver should have closed", Wait.waitFor(receiver::isClosed));
+         Wait.assertTrue("Receiver should have closed", receiver::isClosed);
       } finally {
          connection.close();
       }

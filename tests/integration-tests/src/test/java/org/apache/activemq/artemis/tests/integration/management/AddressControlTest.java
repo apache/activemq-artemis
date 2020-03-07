@@ -19,10 +19,12 @@ package org.apache.activemq.artemis.tests.integration.management;
 import javax.json.JsonArray;
 import javax.json.JsonString;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -34,6 +36,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -79,6 +82,18 @@ public class AddressControlTest extends ManagementTestBase {
       Assert.assertEquals(address.toString(), addressControl.getAddress());
 
       session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testIsRetroactiveResource() throws Exception {
+      SimpleString baseAddress = RandomUtil.randomSimpleString();
+      SimpleString address = ResourceNames.getRetroactiveResourceAddressName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), baseAddress);
+
+      session.createAddress(address, RoutingType.MULTICAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+
+      Assert.assertTrue(addressControl.isRetroactiveResource());
    }
 
    @Test
@@ -266,7 +281,7 @@ public class AddressControlTest extends ManagementTestBase {
       session.createQueue(address, address, true);
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), addressControl.getNumberOfBytesPerPage());
+      Assert.assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressControl.getNumberOfBytesPerPage());
 
       session.close();
       server.stop();
@@ -295,9 +310,7 @@ public class AddressControlTest extends ManagementTestBase {
       Assert.assertEquals(RoutingType.ANYCAST.toString(), routingTypes[0]);
 
       address = RandomUtil.randomSimpleString();
-      Set<RoutingType> types = new HashSet<>();
-      types.add(RoutingType.ANYCAST);
-      types.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> types = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       session.createAddress(address, types, false);
 
       addressControl = createManagementControl(address);
@@ -342,6 +355,36 @@ public class AddressControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testGetRoutedMessageCounts() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      assertEquals(0, addressControl.getMessageCount());
+
+      ClientProducer producer = session.createProducer(address.toString());
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 0, 2000, 100));
+      assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
+
+      session.createQueue(address, RoutingType.ANYCAST, address);
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 1, 2000, 100));
+      assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
+
+      session.createQueue(address, RoutingType.ANYCAST, address.concat('2'));
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 2, 2000, 100));
+      assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
+
+      session.deleteQueue(address);
+      session.deleteQueue(address.concat('2'));
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 2, 2000, 100));
+      assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 2, 2000, 100));
+   }
+
+   @Test
    public void testSendMessage() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
@@ -361,6 +404,33 @@ public class AddressControlTest extends ManagementTestBase {
       byte[] buffer = new byte[message.getBodyBuffer().readableBytes()];
       message.getBodyBuffer().readBytes(buffer);
       assertEquals("test", new String(buffer));
+   }
+
+   @Test
+   public void testSendMessageWithProperties() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      Assert.assertEquals(0, addressControl.getQueueNames().length);
+      session.createQueue(address, RoutingType.ANYCAST, address);
+      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      Map<String, String> headers = new HashMap<>();
+      headers.put("myProp1", "myValue1");
+      headers.put("myProp2", "myValue2");
+      addressControl.sendMessage(headers, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
+
+      Wait.waitFor(() -> addressControl.getMessageCount() == 1);
+      Assert.assertEquals(1, addressControl.getMessageCount());
+
+      ClientConsumer consumer = session.createConsumer(address);
+      ClientMessage message = consumer.receive(500);
+      assertNotNull(message);
+      byte[] buffer = new byte[message.getBodyBuffer().readableBytes()];
+      message.getBodyBuffer().readBytes(buffer);
+      assertEquals("test", new String(buffer));
+      assertEquals("myValue1", message.getStringProperty("myProp1"));
+      assertEquals("myValue2", message.getStringProperty("myProp2"));
    }
 
    // Package protected ---------------------------------------------

@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class EmbeddedJMSResourceQueueTest {
@@ -47,29 +46,18 @@ public class EmbeddedJMSResourceQueueTest {
       TEST_PROPERTIES = new HashMap<String, Object>(2);
       TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
       TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
-
-      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
-      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
-      ThreadLeakCheckRule.addKownThread("SeedGenerator Thread");
    }
 
    public EmbeddedJMSResource jmsServer = new EmbeddedJMSResource();
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(jmsServer);
+   public RuleChain rulechain = RuleChain.outerRule(jmsServer);
 
    Message pushed = null;
 
    @After
    public void tearDown() throws Exception {
       assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_DESTINATION_NAME), pushed);
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return jmsServer.getMessageCount(TEST_DESTINATION_NAME) == 1;
-         }
-      }, 5000, 100);
-      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_DESTINATION_NAME), 1, jmsServer.getMessageCount(TEST_DESTINATION_NAME));
    }
 
    @Test

@@ -21,14 +21,42 @@ import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.jboss.logging.Logger;
 
 /**
  * A utility class for creating ActiveMQ Artemis client-side JMS managed resources.
  */
 public class ActiveMQJMSClient {
+   private static final Logger logger = Logger.getLogger(ActiveMQJMSClient.class);
+
+   public static final boolean DEFAULT_ENABLE_1X_PREFIXES;
+
+
+   static {
+
+      String value1X = System.getProperty(ActiveMQJMSClient.class.getName() + ".enable1xPrefixes");
+
+      if (value1X == null) {
+         value1X = ClassloadingUtil.loadProperty(ActiveMQJMSClient.class.getClassLoader(), ActiveMQJMSClient.class.getName() + ".properties", "enable1xPrefixes");
+      }
+
+      boolean prefixes = false;
+
+
+      if (value1X != null) {
+         try {
+            prefixes = Boolean.parseBoolean(value1X);
+         } catch (Throwable e) {
+            logger.warn(e);
+         }
+      }
+      DEFAULT_ENABLE_1X_PREFIXES = prefixes;
+   }
 
    /**
     * Creates an ActiveMQConnectionFactory;
@@ -115,21 +143,37 @@ public class ActiveMQJMSClient {
    /**
     * Creates a client-side representation of a JMS Topic.
     *
+    * This method is deprecated. Use {@link org.apache.activemq.artemis.jms.client.ActiveMQSession#createTopic(String)} as that method will know the proper
+    * prefix used at the target server.
+    *
     * @param name the name of the topic
     * @return The Topic
     */
+   @Deprecated
    public static Topic createTopic(final String name) {
-      return ActiveMQDestination.createTopic(name);
+      if (DEFAULT_ENABLE_1X_PREFIXES) {
+         return ActiveMQDestination.createTopic(PacketImpl.OLD_TOPIC_PREFIX + name, name);
+      } else {
+         return ActiveMQDestination.createTopic(name);
+      }
    }
 
    /**
     * Creates a client-side representation of a JMS Queue.
     *
+    * This method is deprecated. Use {@link org.apache.activemq.artemis.jms.client.ActiveMQSession#createQueue(String)} (String)} as that method will know the proper
+    * prefix used at the target server.
+    * *
     * @param name the name of the queue
     * @return The Queue
     */
+   @Deprecated
    public static Queue createQueue(final String name) {
-      return ActiveMQDestination.createQueue(name);
+      if (DEFAULT_ENABLE_1X_PREFIXES) {
+         return ActiveMQDestination.createQueue(PacketImpl.OLD_QUEUE_PREFIX + name, name);
+      } else {
+         return ActiveMQDestination.createQueue(name);
+      }
    }
 
    private ActiveMQJMSClient() {

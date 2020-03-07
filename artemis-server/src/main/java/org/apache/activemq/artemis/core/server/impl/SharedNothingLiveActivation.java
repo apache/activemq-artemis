@@ -169,7 +169,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
          ReplicationFailureListener listener = new ReplicationFailureListener();
          rc.addCloseListener(listener);
          rc.addFailureListener(listener);
-         replicationManager = new ReplicationManager(rc, clusterConnection.getCallTimeout(), replicatedPolicy.getInitialReplicationSyncTimeout(), activeMQServer.getExecutorFactory());
+         replicationManager = new ReplicationManager(activeMQServer, rc, clusterConnection.getCallTimeout(), replicatedPolicy.getInitialReplicationSyncTimeout(), activeMQServer.getIOExecutorFactory());
          replicationManager.start();
          Thread t = new Thread(new Runnable() {
             @Override
@@ -254,8 +254,15 @@ public class SharedNothingLiveActivation extends LiveActivation {
                         if (failed && replicatedPolicy.isVoteOnReplicationFailure()) {
                            QuorumManager quorumManager = activeMQServer.getClusterManager().getQuorumManager();
                            int size = replicatedPolicy.getQuorumSize() == -1 ? quorumManager.getMaxClusterSize() : replicatedPolicy.getQuorumSize();
-
-                           QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, activeMQServer.getNodeID().toString());
+                           String liveConnector = null;
+                           List<ClusterConnectionConfiguration> clusterConfigurations = activeMQServer.getConfiguration().getClusterConfigurations();
+                           if (clusterConfigurations != null && clusterConfigurations.size() > 0) {
+                              ClusterConnectionConfiguration clusterConnectionConfiguration = clusterConfigurations.get(0);
+                              String connectorName = clusterConnectionConfiguration.getConnectorName();
+                              TransportConfiguration transportConfiguration = activeMQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
+                              liveConnector = transportConfiguration != null ? transportConfiguration.toString() : null;
+                           }
+                           QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, activeMQServer.getNodeID().toString(), true, liveConnector);
 
                            quorumManager.vote(quorumVote);
 

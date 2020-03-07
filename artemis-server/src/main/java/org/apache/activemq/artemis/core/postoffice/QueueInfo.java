@@ -18,9 +18,11 @@ package org.apache.activemq.artemis.core.postoffice;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
 public class QueueInfo implements Serializable {
 
@@ -38,7 +40,9 @@ public class QueueInfo implements Serializable {
 
    private List<SimpleString> filterStrings;
 
-   private int numberOfConsumers;
+   private volatile int consumersCount = 0;
+
+   private static final AtomicIntegerFieldUpdater<QueueInfo> consumerUpdater = AtomicIntegerFieldUpdater.newUpdater(QueueInfo.class, "consumersCount");
 
    private final int distance;
 
@@ -99,15 +103,23 @@ public class QueueInfo implements Serializable {
    }
 
    public int getNumberOfConsumers() {
-      return numberOfConsumers;
+      return consumerUpdater.get(this);
    }
 
    public void incrementConsumers() {
-      numberOfConsumers++;
+      consumerUpdater.incrementAndGet(this);
    }
 
    public void decrementConsumers() {
-      numberOfConsumers--;
+
+      consumerUpdater.getAndUpdate(this, value -> {
+         if (value > 0) {
+            return --value;
+         } else {
+            ActiveMQServerLogger.LOGGER.consumerCountError("Tried to decrement consumer count below 0: " + this);
+            return value;
+         }
+      });
    }
 
    public boolean matchesAddress(SimpleString address) {
@@ -144,7 +156,7 @@ public class QueueInfo implements Serializable {
          ", filterStrings=" +
          filterStrings +
          ", numberOfConsumers=" +
-         numberOfConsumers +
+         consumersCount +
          ", distance=" +
          distance +
          "]";

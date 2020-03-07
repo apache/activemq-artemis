@@ -123,7 +123,7 @@ public class MappedSequentialFileFactoryTest extends SequentialFileFactoryTestBa
                SequentialFile file = factory.createSequentialFile("file.txt");
                file.open();
                Thread.currentThread().interrupt();
-               file.fill(1024);
+               file.fill(fakeEncoding.getEncodeSize());
                file.close();
 
             } catch (Exception e) {

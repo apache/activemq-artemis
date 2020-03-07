@@ -26,11 +26,6 @@ import java.io.Serializable;
 public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements ObjectMessage {
 
    /**
-    * Whether trace is enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * Create a new wrapper
     *
     * @param message the message
@@ -39,7 +34,7 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
    public ActiveMQRAObjectMessage(final ObjectMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (ActiveMQRAObjectMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
       }
    }
@@ -52,7 +47,7 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
     */
    @Override
    public Serializable getObject() throws JMSException {
-      if (ActiveMQRAObjectMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getObject()");
       }
 
@@ -67,7 +62,7 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
     */
    @Override
    public void setObject(final Serializable object) throws JMSException {
-      if (ActiveMQRAObjectMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setObject(" + object + ")");
       }
 

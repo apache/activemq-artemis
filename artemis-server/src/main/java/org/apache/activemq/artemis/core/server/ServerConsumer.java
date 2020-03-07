@@ -23,13 +23,17 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 /**
  * A ServerConsumer
  */
-public interface ServerConsumer extends Consumer {
+public interface ServerConsumer extends Consumer, ConsumerInfo {
 
    void setlowConsumerDetection(SlowConsumerDetectionListener listener);
 
    SlowConsumerDetectionListener getSlowConsumerDetecion();
 
    void fireSlowConsumer();
+
+   /** the current queue settings will allow use of the Reference Execution and callback.
+    *  This is because  */
+   boolean allowReferenceCallback();
 
    /**
     * this is to be used with anything specific on a protocol head.
@@ -58,6 +62,8 @@ public interface ServerConsumer extends Consumer {
    Object getConnectionID();
 
    void close(boolean failed) throws Exception;
+
+   void close(boolean failed, boolean sorted) throws Exception;
 
    /**
     * This method is just to remove itself from Queues.
@@ -94,7 +100,7 @@ public interface ServerConsumer extends Consumer {
 
    void reject(long messageID) throws Exception;
 
-   void individualCancel(long messageID, boolean failed) throws Exception;
+   void individualCancel(long messageID, boolean failed, boolean sorted) throws Exception;
 
    void forceDelivery(long sequence);
 
@@ -105,8 +111,4 @@ public interface ServerConsumer extends Consumer {
    long getCreationTime();
 
    String getSessionID();
-
-   void promptDelivery();
 }
-
-

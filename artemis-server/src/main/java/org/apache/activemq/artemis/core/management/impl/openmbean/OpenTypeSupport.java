@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -105,6 +106,8 @@ public final class OpenTypeSupport {
          addItem(CompositeDataConstants.PRIORITY, CompositeDataConstants.PRIORITY_DESCRIPTION, SimpleType.BYTE);
          addItem(CompositeDataConstants.REDELIVERED, CompositeDataConstants.REDELIVERED_DESCRIPTION, SimpleType.BOOLEAN);
          addItem(CompositeDataConstants.TIMESTAMP, CompositeDataConstants.TIMESTAMP_DESCRIPTION, SimpleType.LONG);
+         addItem(CompositeDataConstants.LARGE_MESSAGE, CompositeDataConstants.LARGE_MESSAGE_DESCRIPTION, SimpleType.BOOLEAN);
+         addItem(CompositeDataConstants.PERSISTENT_SIZE, CompositeDataConstants.PERSISTENT_SIZE_DESCRIPTION, SimpleType.LONG);
 
          addItem(CompositeDataConstants.PROPERTIES, CompositeDataConstants.PROPERTIES_DESCRIPTION, SimpleType.STRING);
 
@@ -144,6 +147,12 @@ public final class OpenTypeSupport {
          rc.put(CompositeDataConstants.TIMESTAMP, m.getTimestamp());
          rc.put(CompositeDataConstants.PRIORITY, m.getPriority());
          rc.put(CompositeDataConstants.REDELIVERED, ref.getDeliveryCount() > 1);
+         rc.put(CompositeDataConstants.LARGE_MESSAGE, m.isLargeMessage());
+         try {
+            rc.put(CompositeDataConstants.PERSISTENT_SIZE, m.getPersistentSize());
+         } catch (final ActiveMQException e1) {
+            rc.put(CompositeDataConstants.PERSISTENT_SIZE, -1);
+         }
 
          Map<String, Object> propertyMap = m.toPropertyMap();
 
@@ -267,10 +276,14 @@ public final class OpenTypeSupport {
       public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
          Map<String, Object> rc = super.getFields(ref);
          ICoreMessage m = ref.getMessage().toCore();
-         ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
-         byte[] bytes = new byte[bodyCopy.readableBytes()];
-         bodyCopy.readBytes(bytes);
-         rc.put(CompositeDataConstants.BODY, bytes);
+         if (!m.isLargeMessage()) {
+            ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
+            byte[] bytes = new byte[bodyCopy.readableBytes()];
+            bodyCopy.readBytes(bytes);
+            rc.put(CompositeDataConstants.BODY, bytes);
+         } else {
+            rc.put(CompositeDataConstants.BODY, new byte[0]);
+         }
          return rc;
       }
    }
@@ -288,8 +301,16 @@ public final class OpenTypeSupport {
       public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
          Map<String, Object> rc = super.getFields(ref);
          ICoreMessage m = ref.getMessage().toCore();
-         SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
-         rc.put(CompositeDataConstants.TEXT_BODY, text != null ? text.toString() : "");
+         if (!m.isLargeMessage()) {
+            if (m.containsProperty(Message.HDR_LARGE_COMPRESSED)) {
+               rc.put(CompositeDataConstants.TEXT_BODY, "[compressed]");
+            } else {
+               SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
+               rc.put(CompositeDataConstants.TEXT_BODY, text != null ? text.toString() : "");
+            }
+         } else {
+            rc.put(CompositeDataConstants.TEXT_BODY, "[large message]");
+         }
          return rc;
       }
    }

@@ -232,7 +232,14 @@ public class ConnectorServerFactory {
 
    //todo fix
    private void setupSsl() throws Exception {
-      SSLContext context = SSLSupport.createContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword);
+      SSLContext context = new SSLSupport()
+         .setKeystoreProvider(keyStoreProvider)
+         .setKeystorePath(keyStorePath)
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(trustStoreProvider)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .createContext();
       SSLServerSocketFactory sssf = context.getServerSocketFactory();
       RMIServerSocketFactory rssf = new ArtemisSslRMIServerSocketFactory(sssf, this.isClientAuth(), rmiServerHost);
       RMIClientSocketFactory rcsf = new SslRMIClientSocketFactory();

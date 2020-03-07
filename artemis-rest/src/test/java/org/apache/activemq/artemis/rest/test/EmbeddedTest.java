@@ -23,14 +23,11 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.rest.HttpHeaderProperty;
-import org.apache.activemq.artemis.rest.integration.EmbeddedRestActiveMQJMS;
-import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.rest.integration.EmbeddedRestActiveMQ;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.jboss.resteasy.client.ClientRequest;
@@ -44,22 +41,19 @@ import org.junit.Test;
 
 public class EmbeddedTest {
 
-   public static EmbeddedRestActiveMQJMS server;
+   public static EmbeddedRestActiveMQ server;
 
    @BeforeClass
    public static void startEmbedded() throws Exception {
-      server = new EmbeddedRestActiveMQJMS(null);
+      server = new EmbeddedRestActiveMQ(null);
       server.getManager().setConfigResourcePath("activemq-rest.xml");
       SecurityConfiguration securityConfiguration = new SecurityConfiguration();
       securityConfiguration.addUser("guest", "guest");
       securityConfiguration.addRole("guest", "guest");
       securityConfiguration.setDefaultUser("guest");
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
-      server.getEmbeddedJMS().setSecurityManager(securityManager);
+      server.getEmbeddedActiveMQ().setSecurityManager(securityManager);
       server.start();
-      List<String> connectors = new ArrayList<>();
-      connectors.add("in-vm");
-      server.getEmbeddedJMS().getJMSServerManager().createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
    }
 
    @AfterClass
@@ -69,8 +63,7 @@ public class EmbeddedTest {
    }
 
    public static void publish(String destination, Serializable object, String contentType) throws Exception {
-      BindingRegistry reg = server.getRegistry();
-      ConnectionFactory factory = (ConnectionFactory) reg.lookup("ConnectionFactory");
+      ConnectionFactory factory = ActiveMQJMSClient.createConnectionFactory("vm://0","cf");
       Connection conn = factory.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Destination dest = session.createQueue(destination);

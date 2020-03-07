@@ -4,7 +4,7 @@ In this section we will discuss connection time-to-live (TTL) and
 explain how Apache ActiveMQ Artemis deals with crashed clients and clients which have
 exited without cleanly closing their resources.
 
-## Cleaning up Dead Connection Resources on the Server
+## Cleaning up Resources on the Server
 
 Before an Apache ActiveMQ Artemis client application exits it is considered good
 practice that it should close its resources in a controlled manner,
@@ -13,13 +13,12 @@ using a `finally` block.
 Here's an example of a well behaved core client application closing its
 session and session factory in a finally block:
 
-``` java
+```java
 ServerLocator locator = null;
 ClientSessionFactory sf = null;
 ClientSession session = null;
 
-try
-{
+try {
    locator = ActiveMQClient.createServerLocatorWithoutHA(..);
 
    sf = locator.createClientSessionFactory();;
@@ -27,21 +26,16 @@ try
    session = sf.createSession(...);
 
    ... do some stuff with the session...
-}
-finally
-{
-   if (session != null)
-   {
+} finally {
+   if (session != null) {
       session.close();
    }
 
-   if (sf != null)
-   {
+   if (sf != null) {
       sf.close();
    }
 
-   if(locator != null)
-   {
+   if(locator != null) {
       locator.close();
    }
 }
@@ -49,21 +43,17 @@ finally
 
 And here's an example of a well behaved JMS client application:
 
-``` java
+```java
 Connection jmsConnection = null;
 
-try
-{
+try {
    ConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
    jmsConnection = jmsConnectionFactory.createConnection();
 
    ... do some stuff with the connection...
-}
-finally
-{
-   if (connection != null)
-   {
+} finally {
+   if (connection != null) {
       connection.close();
    }
 }
@@ -72,17 +62,13 @@ finally
 
 Or with using auto-closeable feature from Java, which can save a few lines of code:
 
-``` java
-
-
+```java
 try (
      ActiveMQConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-     Connection jmsConnection = jmsConnectionFactory.createConnection())
-{
+     Connection jmsConnection = jmsConnectionFactory.createConnection()) {
    ... do some stuff with the connection...
 }
 ```
-
 
 Unfortunately users don't always write well behaved applications, and
 sometimes clients just crash so they don't have a chance to clean up
@@ -131,7 +117,7 @@ the broker. By default, the checks are done every 2,000 milliseconds.
 However, this can be changed if necessary by using the 
 `connection-ttl-check-interval` attribute.
 
-## Closing core sessions or JMS connections that you have failed to close
+## Closing Forgotten Resources
 
 As previously discussed, it's important that all core client sessions
 and JMS connections are always closed explicitly in a `finally` block
@@ -147,7 +133,7 @@ where you created the JMS connection / client session that you later did
 not close. This will enable you to pinpoint the error in your code and
 correct it appropriately.
 
-## Detecting failure from the client side.
+## Detecting Failure from the Client
 
 In the previous section we discussed how the client sends pings to the
 server and how "dead" connection resources are cleaned up by the server.
@@ -186,17 +172,17 @@ from a thread pool so that the remoting thread is not tied up for too
 long. Please note that processing operations asynchronously on another
 thread adds a little more latency. These packets are:
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCloseMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCloseMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAPrepareMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAPrepareMessage`
 
--   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage`
+- `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage`
 
 To disable asynchronous connection execution, set the parameter
 `async-connection-execution-enabled` in `broker.xml` to

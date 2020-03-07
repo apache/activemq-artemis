@@ -17,8 +17,6 @@
 package org.apache.activemq.artemis.core.config;
 
 import javax.management.MBeanServer;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -68,12 +66,8 @@ public class FileDeploymentManager {
          // The URL is outside of the classloader. Trying a pure url now
          url = new URL(configurationUrl);
       }
-      // create a reader
-      Reader reader = new InputStreamReader(url.openStream());
-      String xml = XMLUtil.readerToString(reader);
-      //replace any system props
-      xml = XMLUtil.replaceSystemProps(xml);
-      Element e = XMLUtil.stringToElement(xml);
+
+      Element e = XMLUtil.urlToElement(url);
 
       //iterate around all the deployables
       for (Deployable deployable : deployables.values()) {

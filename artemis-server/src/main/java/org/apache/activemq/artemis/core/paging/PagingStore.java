@@ -61,7 +61,7 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    long getFirstPage();
 
-   long getPageSizeBytes();
+   int getPageSizeBytes();
 
    long getAddressSize();
 
@@ -69,6 +69,11 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    void applySetting(AddressSettings addressSettings);
 
+   /** This method will look if the current state of paging is not paging,
+    * without using a lock.
+    * For cases where you need absolutely atomic results, check it directly on the internal variables while requiring a readLock.
+    *
+    * It's ok to look for this with an estimate on starting a task or not, but you will need to recheck on actual paging operations. */
    boolean isPaging();
 
    /**
@@ -127,6 +132,8 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    boolean checkMemory(Runnable runnable);
 
+   boolean checkMemory(boolean runOnFailure, Runnable runnable);
+
    boolean isFull();
 
    boolean isRejectingMessages();
@@ -184,4 +191,6 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     * This method will re-enable cleanup of pages. Notice that it will also start cleanup threads.
     */
    void enableCleanup();
+
+   void destroy() throws Exception;
 }

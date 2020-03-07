@@ -22,4 +22,7 @@ import org.apache.activemq.artemis.api.core.Message;
 public interface MessagePacketI {
 
    Message getMessage();
+
+   // This is to be used by interceptors to replace the message during processing
+   MessagePacketI replaceMessage(Message message);
 }

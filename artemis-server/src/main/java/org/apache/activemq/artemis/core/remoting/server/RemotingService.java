@@ -43,6 +43,17 @@ public interface RemotingService {
 
    Set<RemotingConnection> getConnections();
 
+   /**
+    * @return the number of clients connected to this server.
+    */
+   default int getConnectionCount() {
+      final Set<RemotingConnection> connections = getConnections();
+      return connections == null ? 0 : getConnections().size();
+   }
+
+   /**
+    * @return the number of clients which have connected to this server since it was started.
+    */
    long getTotalConnectionCount();
 
    ReusableLatch getConnectionCountLatch();

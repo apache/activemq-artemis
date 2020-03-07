@@ -26,9 +26,12 @@ import javax.naming.InitialContext;
 import javax.resource.ResourceException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.resource.spi.work.Work;
+import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkManager;
 import javax.transaction.xa.XAResource;
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,6 +52,7 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.ra.ActiveMQRABundle;
@@ -56,8 +60,9 @@ import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.ra.ActiveMQRaUtils;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
-import org.apache.activemq.artemis.utils.SensitiveDataCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.jboss.logging.Logger;
 
 /**
@@ -119,6 +124,8 @@ public class ActiveMQActivation {
 
    private boolean lastReceived = false;
 
+   private final Object teardownLock = new Object();
+
    // Whether we are in the failure recovery loop
    private final AtomicBoolean inReconnect = new AtomicBoolean(false);
    private XARecoveryConfig resourceRecovery;
@@ -148,16 +155,12 @@ public class ActiveMQActivation {
          logger.trace("constructor(" + ra + ", " + endpointFactory + ", " + spec + ")");
       }
 
-      if (ra.isUseMaskedPassword()) {
-         String pass = spec.getOwnPassword();
-         if (pass != null) {
-            SensitiveDataCodec<String> codec = ra.getCodecInstance();
-
-            try {
-               spec.setPassword(codec.decode(pass));
-            } catch (Exception e) {
-               throw new ResourceException(e);
-            }
+      String pass = spec.getOwnPassword();
+      if (pass != null) {
+         try {
+            spec.setPassword(PasswordMaskingUtil.resolveMask(ra.isUseMaskedPassword(), pass, ra.getCodec()));
+         } catch (Exception e) {
+            throw new ResourceException(e);
          }
       }
 
@@ -246,7 +249,7 @@ public class ActiveMQActivation {
          logger.trace("start()");
       }
       deliveryActive.set(true);
-      ra.getWorkManager().scheduleWork(new SetupActivation());
+      scheduleWork(new SetupActivation());
    }
 
    /**
@@ -286,7 +289,7 @@ public class ActiveMQActivation {
       }
 
       deliveryActive.set(false);
-      teardown();
+      teardown(true);
    }
 
    /**
@@ -352,97 +355,102 @@ public class ActiveMQActivation {
    /**
     * Teardown the activation
     */
-   protected synchronized void teardown() {
-      logger.debug("Tearing down " + spec);
+   protected void teardown(boolean useInterrupt) {
 
-      long timeout = factory == null ? ActiveMQClient.DEFAULT_CALL_TIMEOUT : factory.getCallTimeout();
+      synchronized (teardownLock) {
 
-      if (resourceRecovery != null) {
-         ra.getRecoveryManager().unRegister(resourceRecovery);
-      }
+         logger.debug("Tearing down " + spec);
 
-      final ActiveMQMessageHandler[] handlersCopy = new ActiveMQMessageHandler[handlers.size()];
+         long timeout = factory == null ? ActiveMQClient.DEFAULT_CALL_TIMEOUT : factory.getCallTimeout();
 
-      // We need to do from last to first as any temporary queue will have been created on the first handler
-      // So we invert the handlers here
-      for (int i = 0; i < handlers.size(); i++) {
-         // The index here is the complimentary so it's inverting the array
-         handlersCopy[i] = handlers.get(handlers.size() - i - 1);
-      }
-
-      handlers.clear();
-
-      FutureLatch future = new FutureLatch(handlersCopy.length);
-      List<Thread> interruptThreads = new ArrayList<>();
-      for (ActiveMQMessageHandler handler : handlersCopy) {
-         Thread thread = handler.interruptConsumer(future);
-         if (thread != null) {
-            interruptThreads.add(thread);
+         if (resourceRecovery != null) {
+            ra.getRecoveryManager().unRegister(resourceRecovery);
          }
-      }
 
-      //wait for all the consumers to complete any onmessage calls
-      boolean stuckThreads = !future.await(timeout);
-      //if any are stuck then we need to interrupt them
-      if (stuckThreads) {
-         for (Thread interruptThread : interruptThreads) {
-            try {
-               interruptThread.interrupt();
-            } catch (Exception e) {
-               //ok
-            }
+         final ActiveMQMessageHandler[] handlersCopy = new ActiveMQMessageHandler[handlers.size()];
+
+         // We need to do from last to first as any temporary queue will have been created on the first handler
+         // So we invert the handlers here
+         for (int i = 0; i < handlers.size(); i++) {
+            // The index here is the complimentary so it's inverting the array
+            handlersCopy[i] = handlers.get(handlers.size() - i - 1);
          }
-      }
 
-      Thread threadTearDown = new Thread("TearDown/ActiveMQActivation") {
-         @Override
-         public void run() {
+         handlers.clear();
+
+         FutureLatch future = new FutureLatch(handlersCopy.length);
+         for (ActiveMQMessageHandler handler : handlersCopy) {
+            handler.interruptConsumer(future);
+         }
+
+         //wait for all the consumers to complete any onmessage calls
+         boolean stuckThreads = !future.await(timeout);
+         //if any are stuck then we need to interrupt them
+         if (stuckThreads && useInterrupt) {
             for (ActiveMQMessageHandler handler : handlersCopy) {
-               handler.teardown();
+               Thread interruptThread = handler.getCurrentThread();
+               if (interruptThread != null) {
+                  try {
+                     logger.tracef("Interrupting thread %s", interruptThread.getName());
+                  } catch (Throwable justLog) {
+                     logger.warn(justLog);
+                  }
+                  try {
+                     interruptThread.interrupt();
+                  } catch (Throwable e) {
+                     //ok
+                  }
+               }
             }
          }
-      };
 
-      // We will first start a new thread that will call tearDown on all the instances, trying to graciously shutdown everything.
-      // We will then use the call-timeout to determine a timeout.
-      // if that failed we will then close the connection factory, and interrupt the thread
-      threadTearDown.start();
+         Runnable runTearDown = new Runnable() {
+            @Override
+            public void run() {
+               for (ActiveMQMessageHandler handler : handlersCopy) {
+                  handler.teardown();
+               }
+            }
+         };
 
-      try {
-         threadTearDown.join(timeout);
-      } catch (InterruptedException e) {
-         // nothing to be done on this context.. we will just keep going as we need to send an interrupt to threadTearDown and give up
-      }
+         Thread threadTearDown = startThread("TearDown/HornetQActivation", runTearDown);
 
-      if (factory != null) {
          try {
-            // closing the factory will help making sure pending threads are closed
-            factory.close();
-         } catch (Throwable e) {
-            ActiveMQRALogger.LOGGER.unableToCloseFactory(e);
+            threadTearDown.join(timeout);
+         } catch (InterruptedException e) {
+            // nothing to be done on this context.. we will just keep going as we need to send an interrupt to threadTearDown and give up
          }
 
-         factory = null;
-      }
+         if (factory != null) {
+            try {
+               // closing the factory will help making sure pending threads are closed
+               factory.close();
+            } catch (Throwable e) {
+               ActiveMQRALogger.LOGGER.unableToCloseFactory(e);
+            }
 
-      if (threadTearDown.isAlive()) {
-         threadTearDown.interrupt();
-
-         try {
-            threadTearDown.join(5000);
-         } catch (InterruptedException e) {
-            // nothing to be done here.. we are going down anyways
+            factory = null;
          }
 
          if (threadTearDown.isAlive()) {
-            ActiveMQRALogger.LOGGER.threadCouldNotFinish(threadTearDown.toString());
+            threadTearDown.interrupt();
+
+            try {
+               threadTearDown.join(5000);
+            } catch (InterruptedException e) {
+               // nothing to be done here.. we are going down anyways
+            }
+
+            if (threadTearDown.isAlive()) {
+               ActiveMQRALogger.LOGGER.threadCouldNotFinish(threadTearDown.toString());
+            }
          }
+
+         nodes.clear();
+         lastReceived = false;
+
+         logger.debug("Tearing down complete " + this);
       }
-
-      nodes.clear();
-      lastReceived = false;
-
-      logger.debug("Tearing down complete " + this);
    }
 
    protected void setupCF() throws Exception {
@@ -458,6 +466,8 @@ public class ActiveMQActivation {
             // This will clone the connection factory
             // to make sure we won't close anyone's connection factory when we stop the MDB
             factory = ActiveMQJMSClient.createConnectionFactory(((ActiveMQConnectionFactory) fac).toURI().toString(), "internalConnection");
+            factory.setEnableSharedClientID(true);
+            factory.setEnable1xPrefixes(((ActiveMQConnectionFactory) fac).isEnable1xPrefixes());
          } else {
             factory = ra.newConnectionFactory(spec);
          }
@@ -483,7 +493,7 @@ public class ActiveMQActivation {
          result.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
          String clientID = ra.getClientID() == null ? spec.getClientID() : ra.getClientID();
          if (clientID != null) {
-            result.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
+            result.addMetaData(ActiveMQConnection.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
          }
 
          logger.debug("Using queue connection " + result);
@@ -546,10 +556,13 @@ public class ActiveMQActivation {
                }
 
                String calculatedDestinationName = destinationName.substring(destinationName.lastIndexOf('/') + 1);
+               if (isTopic && spec.getTopicPrefix() != null) {
+                  calculatedDestinationName = spec.getTopicPrefix() + calculatedDestinationName;
+               } else if (!isTopic && spec.getQueuePrefix() != null) {
+                  calculatedDestinationName = spec.getQueuePrefix() + calculatedDestinationName;
+               }
 
-               logger.debug("Unable to retrieve " + destinationName +
-                                                " from JNDI. Creating a new " + destinationType.getName() +
-                                                " named " + calculatedDestinationName + " to be used by the MDB.");
+               ActiveMQRALogger.LOGGER.unableToRetrieveDestinationName(destinationName, destinationType.getName(), calculatedDestinationName);
 
                // If there is no binding on naming, we will just create a new instance
                if (isTopic) {
@@ -571,10 +584,10 @@ public class ActiveMQActivation {
          ActiveMQRALogger.LOGGER.instantiatingDestination(spec.getDestinationType(), spec.getDestination());
 
          if (Topic.class.getName().equals(spec.getDestinationType())) {
-            destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic(spec.getDestination());
+            destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic((spec.getTopicPrefix() == null ? "" : spec.getTopicPrefix()) + spec.getDestination());
             isTopic = true;
          } else {
-            destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue(spec.getDestination());
+            destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue((spec.getQueuePrefix() == null ? "" : spec.getQueuePrefix()) + spec.getDestination());
          }
       }
    }
@@ -599,18 +612,41 @@ public class ActiveMQActivation {
       return buffer.toString();
    }
 
-   public void startReconnectThread(final String threadName) {
+   public void startReconnectThread(final String cause) {
       if (logger.isTraceEnabled()) {
-         logger.trace("Starting reconnect Thread " + threadName + " on MDB activation " + this);
+         logger.trace("Starting reconnect Thread " + cause + " on MDB activation " + this);
       }
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-            reconnect(null);
-         }
-      };
-      Thread t = new Thread(runnable, threadName);
+      try {
+         // We have to use the worker otherwise we may get the wrong classLoader
+         scheduleWork(new ReconnectWork(cause));
+      } catch (Exception e) {
+         logger.warn("Could not reconnect because worker is down", e);
+      }
+   }
+
+   private static Thread startThread(String name, Runnable run) {
+      ClassLoader tccl;
+
+      try {
+         tccl = AccessController.doPrivileged(new PrivilegedExceptionAction<ClassLoader>() {
+            @Override
+            public ClassLoader run() {
+               return ActiveMQActivation.class.getClassLoader();
+            }
+         });
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+         tccl = null;
+      }
+
+      ActiveMQThreadFactory factory = new ActiveMQThreadFactory(name, true, tccl);
+      Thread t = factory.newThread(run);
       t.start();
+      return t;
+   }
+
+   private void scheduleWork(Work run) throws WorkException {
+      ra.getWorkManager().scheduleWork(run);
    }
 
    /**
@@ -618,7 +654,7 @@ public class ActiveMQActivation {
     *
     * @param failure if reconnecting in the event of a failure
     */
-   public void reconnect(Throwable failure) {
+   public void reconnect(Throwable failure, boolean useInterrupt) {
       if (logger.isTraceEnabled()) {
          logger.trace("reconnecting activation " + this);
       }
@@ -641,7 +677,7 @@ public class ActiveMQActivation {
       try {
          Throwable lastException = failure;
          while (deliveryActive.get() && (setupAttempts == -1 || reconnectCount < setupAttempts)) {
-            teardown();
+            teardown(useInterrupt);
 
             try {
                Thread.sleep(setupInterval);
@@ -694,13 +730,37 @@ public class ActiveMQActivation {
          try {
             setup();
          } catch (Throwable t) {
-            reconnect(t);
+            reconnect(t, false);
          }
       }
 
       @Override
       public void release() {
       }
+   }
+
+   /**
+    * Handles reconnecting
+    */
+   private class ReconnectWork implements Work {
+
+      final String cause;
+
+      ReconnectWork(String cause) {
+         this.cause = cause;
+      }
+
+      @Override
+      public void release() {
+
+      }
+
+      @Override
+      public void run() {
+         logger.tracef("Starting reconnect for %s", cause);
+         reconnect(null, false);
+      }
+
    }
 
    private class RebalancingListener implements ClusterTopologyListener {

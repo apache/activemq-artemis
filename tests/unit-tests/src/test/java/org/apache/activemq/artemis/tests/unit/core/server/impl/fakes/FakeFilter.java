@@ -17,9 +17,11 @@
 package org.apache.activemq.artemis.tests.unit.core.server.impl.fakes;
 
 
+import java.util.Map;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.selector.filter.Filterable;
 
 public class FakeFilter implements Filter {
 
@@ -53,6 +55,16 @@ public class FakeFilter implements Filter {
       }
 
       return true;
+   }
+
+   @Override
+   public boolean match(Map<String, String> map) {
+      return false;
+   }
+
+   @Override
+   public boolean match(Filterable filterable) {
+      return false;
    }
 
    @Override

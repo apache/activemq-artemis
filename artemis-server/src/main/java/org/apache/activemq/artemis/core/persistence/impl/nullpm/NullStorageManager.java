@@ -23,8 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -42,7 +45,7 @@ import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
@@ -87,7 +90,7 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public long storeQueueStatus(long queueID, QueueStatus status) throws Exception {
+   public long storeQueueStatus(long queueID, AddressQueueStatus status) throws Exception {
       return 0;
    }
 
@@ -97,6 +100,16 @@ public class NullStorageManager implements StorageManager {
 
    @Override
    public void deleteQueueStatus(long recordID) throws Exception {
+
+   }
+
+   @Override
+   public long storeAddressStatus(long addressID, AddressQueueStatus status) throws Exception {
+      return 0;
+   }
+
+   @Override
+   public void deleteAddressStatus(long recordID) throws Exception {
 
    }
 
@@ -280,7 +293,7 @@ public class NullStorageManager implements StorageManager {
    public LargeServerMessage createLargeMessage(final long id, final Message message) {
       NullStorageLargeServerMessage largeMessage = new NullStorageLargeServerMessage();
 
-      largeMessage.copyHeadersAndProperties(message);
+      largeMessage.moveHeadersAndProperties(message);
 
       largeMessage.setMessageID(id);
 
@@ -467,12 +480,12 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public long storePageCounter(final long txID, final long queueID, final long value) throws Exception {
+   public long storePageCounter(final long txID, final long queueID, final long value, final long size) throws Exception {
       return 0;
    }
 
    @Override
-   public long storePendingCounter(long queueID, long pageID, int inc) throws Exception {
+   public long storePendingCounter(long queueID, long pageID) throws Exception {
       return -1;
    }
 
@@ -489,12 +502,12 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public long storePageCounterInc(final long txID, final long queueID, final int add) throws Exception {
+   public long storePageCounterInc(final long txID, final long queueID, final int add, final long size) throws Exception {
       return 0;
    }
 
    @Override
-   public long storePageCounterInc(final long queueID, final int add) throws Exception {
+   public long storePageCounterInc(final long queueID, final int add, final long size) throws Exception {
       return 0;
    }
 
@@ -539,6 +552,10 @@ public class NullStorageManager implements StorageManager {
       // no-op
    }
 
+   @Override
+   public void deleteLargeMessageBody(LargeServerMessage largeServerMessage) throws ActiveMQException {
+
+   }
 
    @Override
    public boolean addToPage(PagingStore store,
@@ -574,7 +591,17 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
+   public void addBytesToLargeMessage(SequentialFile file, long messageId, ActiveMQBuffer bytes) throws Exception {
+
+   }
+
+   @Override
    public void beforePageRead() throws Exception {
+   }
+
+   @Override
+   public boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException {
+      return true;
    }
 
    @Override

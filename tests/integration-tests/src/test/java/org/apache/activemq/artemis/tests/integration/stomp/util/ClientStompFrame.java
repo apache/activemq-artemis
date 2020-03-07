@@ -18,12 +18,16 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.nio.ByteBuffer;
 
+import io.netty.buffer.ByteBuf;
+
 /**
  * pls use factory to create frames.
  */
 public interface ClientStompFrame {
 
    ByteBuffer toByteBuffer();
+
+   ByteBuf toNettyByteBuf();
 
    boolean needsReply();
 
@@ -40,6 +44,8 @@ public interface ClientStompFrame {
    String getBody();
 
    ByteBuffer toByteBufferWithExtra(String str);
+
+   ByteBuf toNettyByteBufWithExtras(String str);
 
    boolean isPing();
 

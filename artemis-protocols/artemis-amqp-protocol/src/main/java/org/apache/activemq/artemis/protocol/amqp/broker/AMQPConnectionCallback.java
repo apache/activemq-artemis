@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +29,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -42,6 +44,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
+import org.apache.activemq.artemis.protocol.amqp.sasl.ExternalServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.GSSAPIServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
@@ -70,7 +73,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
    protected AMQPConnectionContext amqpConnection;
 
-   private final Executor closeExecutor;
+   private final Executor sessionExecutor;
 
    private String remoteContainerId;
 
@@ -82,13 +85,17 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
    public AMQPConnectionCallback(ProtonProtocolManager manager,
                                  Connection connection,
-                                 Executor closeExecutor,
+                                 Executor sessionExecutor,
                                  ActiveMQServer server) {
       this.manager = manager;
       this.connection = connection;
-      this.closeExecutor = closeExecutor;
+      this.sessionExecutor = sessionExecutor;
       this.server = server;
       saslMechanisms = manager.getSaslMechanisms();
+   }
+
+   public Connection getTransportConnection() {
+      return connection;
    }
 
    public String[] getSaslMechanisms() {
@@ -113,7 +120,20 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
                result = gssapiServerSASL;
                break;
 
+            case ExternalServerSASL.NAME:
+               // validate ssl cert present
+               Principal principal = CertificateUtil.getPeerPrincipalFromConnection(protonConnectionDelegate);
+               if (principal != null) {
+                  ExternalServerSASL externalServerSASL = new ExternalServerSASL();
+                  externalServerSASL.setPrincipal(principal);
+                  result = externalServerSASL;
+               } else {
+                  logger.debug("SASL EXTERNAL mechanism requires a TLS peer principal");
+               }
+               break;
+
             default:
+               logger.debug("Mo matching mechanism found for: " + mechanism);
                break;
          }
       }
@@ -162,14 +182,6 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       }
    }
 
-   public Executor getExeuctor() {
-      if (protonConnectionDelegate != null) {
-         return protonConnectionDelegate.getExecutor();
-      } else {
-         return null;
-      }
-   }
-
    public void setConnection(AMQPConnectionContext connection) {
       this.amqpConnection = connection;
    }
@@ -197,7 +209,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
 
    public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
-      return new AMQPSessionCallback(this, manager, connection, this.connection, closeExecutor, server.newOperationContext());
+      return new AMQPSessionCallback(this, manager, connection, this.connection, sessionExecutor, server.newOperationContext());
    }
 
    public void sendSASLSupported() {
@@ -240,7 +252,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    public Binary newTransaction() {
       XidImpl xid = newXID();
       Binary binary = new Binary(xid.getGlobalTransactionId());
-      Transaction transaction = new ProtonTransactionImpl(xid, server.getStorageManager(), -1);
+      Transaction transaction = new ProtonTransactionImpl(xid, server.getStorageManager(), -1, amqpConnection);
       transactions.put(binary, transaction);
       return binary;
    }
@@ -275,16 +287,18 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       ClusterConnection clusterConnection = clusterManager.getDefaultConnection(null);
       if (clusterConnection != null) {
          TopologyMemberImpl member = clusterConnection.getTopology().getMember(server.getNodeID().toString());
-         return member.toBackupURI();
+         if (member != null) {
+            return member.toBackupURI();
+         }
       }
       return null;
    }
 
-   public void invokeIncomingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      manager.invokeIncoming(message, connection);
+   public String invokeIncomingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      return manager.invokeIncoming(message, connection);
    }
 
-   public void invokeOutgoingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      manager.invokeOutgoing(message, connection);
+   public String invokeOutgoingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      return manager.invokeOutgoing(message, connection);
    }
 }

@@ -20,8 +20,10 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 
 /**
@@ -76,6 +78,11 @@ public interface Message {
    // The value is somewhat higher on 64 bit architectures, probably due to different alignment
    int memoryOffset = 352;
 
+   // We use properties to establish routing context on clustering.
+   // However if the client resends the message after receiving, it needs to be removed, so we mark these internal
+   Predicate<SimpleString> INTERNAL_PROPERTY_NAMES_PREDICATE =
+      name -> (name.startsWith(Message.HDR_ROUTE_TO_IDS) && !name.equals(Message.HDR_ROUTE_TO_IDS)) ||
+      (name.startsWith(Message.HDR_ROUTE_TO_ACK_IDS) && !name.equals(Message.HDR_ROUTE_TO_ACK_IDS));
 
    SimpleString HDR_ROUTE_TO_IDS = new SimpleString("_AMQ_ROUTE_TO");
 
@@ -93,7 +100,7 @@ public interface Message {
    SimpleString HDR_ACTUAL_EXPIRY_TIME = new SimpleString("_AMQ_ACTUAL_EXPIRY");
 
    /**
-    * The original address of a message when a message is transferred through DLQ or expiry
+    * The original address of a message when a message is diverted or transferred through DLQ or expiry
     */
    SimpleString HDR_ORIGINAL_ADDRESS = new SimpleString("_AMQ_ORIG_ADDRESS");
 
@@ -103,7 +110,7 @@ public interface Message {
    SimpleString HDR_ORIGINAL_QUEUE = new SimpleString("_AMQ_ORIG_QUEUE");
 
    /**
-    * The original message ID before th emessage was transferred.
+    * The original message ID before the message was transferred.
     */
    SimpleString HDR_ORIG_MESSAGE_ID = new SimpleString("_AMQ_ORIG_MESSAGE_ID");
 
@@ -111,6 +118,8 @@ public interface Message {
     * For the Message Grouping feature.
     */
    SimpleString HDR_GROUP_ID = new SimpleString("_AMQ_GROUP_ID");
+
+   SimpleString HDR_GROUP_SEQUENCE = new SimpleString("_AMQ_GROUP_SEQUENCE");
 
    /**
     * to determine if the Large Message was compressed.
@@ -152,6 +161,12 @@ public interface Message {
     */
    SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_ROUTING_TYPE");
 
+   /**
+    * The prefix used (if any) when sending this message.  For protocols (e.g. STOMP) that need to track this and restore
+    * the prefix when the message is consumed.
+    */
+   SimpleString HDR_PREFIX = new SimpleString("_AMQ_PREFIX");
+
    byte DEFAULT_TYPE = 0;
 
    byte OBJECT_TYPE = 2;
@@ -167,8 +182,19 @@ public interface Message {
    /** The message will contain another message persisted through {@link org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil}*/
    byte EMBEDDED_TYPE = 7;
 
-   default void cleanupInternalProperties() {
+   /** This is to embedd Large Messages from other protocol */
+   byte LARGE_EMBEDDED_TYPE = 8;
+
+   default void clearInternalProperties() {
       // only on core
+   }
+
+   /**
+    * Search for the existence of the property: an implementor can save
+    * the message to be decoded, if possible.
+    */
+   default boolean hasScheduledDeliveryTime() {
+      return getScheduledDeliveryTime() != null;
    }
 
    default RoutingType getRoutingType() {
@@ -181,6 +207,10 @@ public interface Message {
 
    default SimpleString getLastValueProperty() {
       return null;
+   }
+
+   default Message setLastValueProperty(SimpleString lastValueName) {
+      return this;
    }
 
    /**
@@ -215,7 +245,9 @@ public interface Message {
       return this;
    }
 
-
+   /**
+    * WARNING: Calling this method on a AMQPMessage will allow the non mutable part of the message to be modified.
+    */
    void messageChanged();
 
    /** Used to calculate what is the delivery time.
@@ -226,22 +258,38 @@ public interface Message {
       return this;
    }
 
-   /** Context can be used by the application server to inject extra control, like a protocol specific on the server.
-    * There is only one per Object, use it wisely!
-    *
-    * Note: the intent of this was to replace PageStore reference on Message, but it will be later increased by adidn a ServerPojo
-    * */
-   RefCountMessageListener getContext();
-
    default SimpleString getGroupID() {
       return null;
+   }
+
+   default Message setGroupID(SimpleString groupID) {
+      return this;
+   }
+
+   default Message setGroupID(String groupID) {
+      return this;
+   }
+
+   default int getGroupSequence() {
+      return 0;
+   }
+
+   default Message setGroupSequence(int sequence) {
+      return this;
+   }
+
+   default Object getCorrelationID() {
+      return null;
+   }
+
+   default Message setCorrelationID(Object correlationID) {
+
+      return this;
    }
 
    SimpleString getReplyTo();
 
    Message setReplyTo(SimpleString address);
-
-   Message setContext(RefCountMessageListener context);
 
    /** The buffer will belong to this message, until release is called. */
    Message setBuffer(ByteBuf buffer);
@@ -344,10 +392,28 @@ public interface Message {
 
    String getAddress();
 
+   /**
+    * Look at {@link #setAddress(SimpleString)} for the doc.
+    * @param address
+    * @return
+    */
    Message setAddress(String address);
 
    SimpleString getAddressSimpleString();
 
+   /**
+    * This will set the address on CoreMessage.
+    *
+    * Note for AMQPMessages:
+    * in AMQPMessages this will not really change the address on the message. Instead it will add a property
+    * on extraProperties which only transverse internally at the broker.
+    * Whatever you change here it won't affect anything towards the received message.
+    *
+    * If you wish to change AMQPMessages address you will have to do it directly at the AMQP Message, however beware
+    * that AMQPMessages are not supposed to be changed at the broker, so only do it if you know what you are doing.
+    * @param address
+    * @return
+    */
    Message setAddress(SimpleString address);
 
    long getTimestamp();
@@ -382,7 +448,7 @@ public interface Message {
 
    void persist(ActiveMQBuffer targetRecord);
 
-   void reloadPersistence(ActiveMQBuffer record);
+   void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools);
 
    default void releaseBuffer() {
       ByteBuf buffer = getBuffer();
@@ -583,6 +649,8 @@ public interface Message {
 
    Message putStringProperty(SimpleString key, SimpleString value);
 
+   Message putStringProperty(SimpleString key, String value);
+
    /**
     * Returns the size of the <em>encoded</em> message.
     */
@@ -597,13 +665,29 @@ public interface Message {
 
    int getRefCount();
 
-   int incrementRefCount() throws Exception;
+   int getUsage();
 
-   int decrementRefCount() throws Exception;
+   int getDurableCount();
 
-   int incrementDurableRefCount();
+   /** this method indicates usage by components such as large message or page cache.
+    *  This method will cause large messages to be held longer after the ack happened for instance.
+    */
+   int usageUp();
 
-   int decrementDurableRefCount();
+   /**
+    * @see #usageUp()
+    * @return
+    * @throws Exception
+    */
+   int usageDown();
+
+   int refUp();
+
+   int refDown();
+
+   int durableUp();
+
+   int durableDown();
 
    /**
     * @return Returns the message in Map form, useful when encoding to JSON
@@ -631,7 +715,12 @@ public interface Message {
    default Map<String, Object> toPropertyMap() {
       Map map = new HashMap<>();
       for (SimpleString name : getPropertyNames()) {
-         map.put(name.toString(), getObjectProperty(name.toString()));
+         Object value = getObjectProperty(name.toString());
+         //some property is SimpleString, which is not available for management console
+         if (value instanceof SimpleString) {
+            value = value.toString();
+         }
+         map.put(name.toString(), value);
       }
       return map;
    }
@@ -640,8 +729,20 @@ public interface Message {
    /** This should make you convert your message into Core format. */
    ICoreMessage toCore();
 
+   /** This should make you convert your message into Core format. */
+   ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools);
+
    int getMemoryEstimate();
 
-
+   /**
+    * This is the size of the message when persisted on disk which is used for metrics tracking
+    * Note that even if the message itself is not persisted on disk (ie non-durable) this value is
+    * still used for metrics tracking
+    * If a normal message it will be the encoded message size
+    * If a large message it will be encoded message size + large message body size
+    * @return
+    * @throws ActiveMQException
+    */
+   long getPersistentSize() throws ActiveMQException;
 
 }

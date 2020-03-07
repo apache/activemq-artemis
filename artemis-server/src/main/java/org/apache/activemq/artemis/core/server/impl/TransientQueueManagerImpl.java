@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -24,7 +25,7 @@ import org.apache.activemq.artemis.core.server.TransientQueueManager;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 import org.jboss.logging.Logger;
 
-public class TransientQueueManagerImpl implements TransientQueueManager {
+public class TransientQueueManagerImpl extends ReferenceCounterUtil implements TransientQueueManager {
 
    private static final Logger logger = Logger.getLogger(TransientQueueManagerImpl.class);
 
@@ -32,41 +33,30 @@ public class TransientQueueManagerImpl implements TransientQueueManager {
 
    private final ActiveMQServer server;
 
-   private final Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-         try {
-            if (logger.isDebugEnabled()) {
-               logger.debug("deleting temporary queue " + queueName);
-            }
-
-            try {
-               server.destroyQueue(queueName, null, false);
-            } catch (ActiveMQException e) {
-               ActiveMQServerLogger.LOGGER.errorOnDeletingQueue(queueName.toString(), e);
-            }
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, queueName);
+   private void doIt() {
+      try {
+         if (logger.isDebugEnabled()) {
+            logger.debug("deleting temporary queue " + queueName);
          }
-      }
-   };
 
-   private final ReferenceCounterUtil referenceCounterUtil = new ReferenceCounterUtil(runnable);
+         try {
+            server.destroyQueue(queueName, null, false);
+         } catch (ActiveMQNonExistentQueueException e) {
+            // ignore
+         } catch (ActiveMQException e) {
+            ActiveMQServerLogger.LOGGER.errorOnDeletingQueue(queueName.toString(), e);
+         }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, queueName);
+      }
+   }
 
    public TransientQueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
       this.server = server;
 
       this.queueName = queueName;
-   }
 
-   @Override
-   public int increment() {
-      return referenceCounterUtil.increment();
-   }
-
-   @Override
-   public int decrement() {
-      return referenceCounterUtil.decrement();
+      this.setTask(this::doIt);
    }
 
    @Override

@@ -20,7 +20,11 @@
         xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/artemis-server.xsd">
    <core xmlns="urn:activemq:core">
       <broker-plugins>
-         <broker-plugin class-name="org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$EmptyPlugin1" />
+         <broker-plugin class-name="org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$EmptyPlugin1">
+            <property key="key1" value="value1"/>
+            <property key="key2" value="value2"/>
+            <property key="key3" value="value3"/>
+         </broker-plugin>
          <broker-plugin class-name="org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$EmptyPlugin2" />
       </broker-plugins>
    </core>

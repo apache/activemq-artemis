@@ -29,6 +29,7 @@ import java.util.concurrent.Executor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
 import org.jboss.logging.Logger;
 
@@ -38,7 +39,7 @@ public final class Topology {
 
    private final Set<ClusterTopologyListener> topologyListeners;
 
-   private final Executor executor;
+   private Executor executor;
 
    /**
     * Used to debug operations.
@@ -82,6 +83,11 @@ public final class Topology {
       if (logger.isTraceEnabled()) {
          logger.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE", new Exception("trace"));
       }
+   }
+
+   public Topology setExecutor(Executor executor) {
+      this.executor = executor;
+      return this;
    }
 
    /**
@@ -202,7 +208,7 @@ public final class Topology {
             sendMemberUp(nodeId, memberInput);
             return true;
          }
-         if (uniqueEventID > currentMember.getUniqueEventID()) {
+         if (uniqueEventID > currentMember.getUniqueEventID() || (currentMember.getLive() == null && memberInput.getLive() != null)) {
             TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, memberInput.getBackupGroupName(), memberInput.getScaleDownGroupName(), memberInput.getLive(), memberInput.getBackup());
 
             if (newMember.getLive() == null && currentMember.getLive() != null) {
@@ -219,7 +225,12 @@ public final class Topology {
                                newMember, new Exception("trace"));
             }
 
-            newMember.setUniqueEventID(uniqueEventID);
+            if (uniqueEventID > currentMember.getUniqueEventID()) {
+               newMember.setUniqueEventID(uniqueEventID);
+            } else {
+               newMember.setUniqueEventID(currentMember.getUniqueEventID());
+            }
+
             topology.remove(nodeId);
             topology.put(nodeId, newMember);
             sendMemberUp(nodeId, newMember);
@@ -367,9 +378,9 @@ public final class Topology {
       return topology.get(nodeID);
    }
 
-   public synchronized TopologyMemberImpl getMember(final TransportConfiguration configuration) {
+   public synchronized TopologyMemberImpl getMember(final RemotingConnection rc) {
       for (TopologyMemberImpl member : topology.values()) {
-         if (member.isMember(configuration)) {
+         if (member.isMember(rc)) {
             return member;
          }
       }

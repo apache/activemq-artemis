@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_ADDRESS;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_BINDING;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_CONSUMER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_SESSION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CREATE_CONNECTION;
@@ -26,8 +28,12 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_DEPLOY_BRIDGE;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_DESTROY_CONNECTION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_MESSAGE_ROUTE;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_REMOVE_ADDRESS;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_REMOVE_BINDING;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_SEND;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_SESSION_METADATA_ADDED;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_ADD_ADDRESS;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_ADD_BINDING;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_CLOSE_CONSUMER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_CLOSE_SESSION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_CREATE_CONSUMER;
@@ -36,6 +42,8 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_DELIVER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_DEPLOY_BRIDGE;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_MESSAGE_ROUTE;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_REMOVE_ADDRESS;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_REMOVE_BINDING;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_SEND;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_SESSION_METADATA_ADDED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
@@ -52,9 +60,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.Test;
 
@@ -64,14 +75,31 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
    private final MethodCalledVerifier verifier = new MethodCalledVerifier(methodCalls);
 
    @Override
-   protected ActiveMQServer createServer(boolean realFiles, Configuration configuration, long pageSize,
+   protected ActiveMQServer createServer(boolean realFiles, Configuration configuration, int pageSize,
                                          long maxAddressSize, Map<String, AddressSettings> settings) {
       ActiveMQServer server = super.createServer(realFiles, configuration, pageSize, maxAddressSize, settings);
       server.registerBrokerPlugin(verifier);
+      server.registerBrokerPlugin(new ActiveMQServerPlugin() {
+
+         @Override
+         public void afterCreateConnection(RemotingConnection connection) throws ActiveMQException {
+            try {
+               //Verify that calling getClientID() before initialized doesn't cause an error
+               //Test for ARTEMIS-1713
+               connection.getClientID();
+            } catch (Exception e) {
+               throw new ActiveMQException(e.getMessage());
+            }
+         }
+      });
+
+      configuration.getAddressesSettings().put("autoCreated", new AddressSettings().setAutoDeleteAddresses(true)
+            .setAutoDeleteQueues(true).setAutoCreateQueues(true).setAutoCreateAddresses(true));
+
       return server;
    }
 
-   @Test
+   @Test(timeout = 10000)
    public void testAckedMessageAreConsumed() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -102,7 +130,27 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
             AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION, AFTER_CLOSE_SESSION, BEFORE_CREATE_CONSUMER,
             AFTER_CREATE_CONSUMER, BEFORE_CLOSE_CONSUMER, AFTER_CLOSE_CONSUMER, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE,
             MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
-            AFTER_DELIVER);
+            AFTER_DELIVER, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS, BEFORE_ADD_BINDING, AFTER_ADD_BINDING,
+            BEFORE_REMOVE_BINDING, AFTER_REMOVE_BINDING);
+
+   }
+
+   @Test(timeout = 10000)
+   public void testAutoCreatedQueue() throws JMSException {
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue("autoCreated");
+
+      // Reset the session.
+      session.close();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session.createConsumer(queue);
+      session.close();
+      connection.close();
+
+      //Happens more than once because of advisories
+      verifier.validatePluginMethodsAtLeast(2, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS,
+            BEFORE_REMOVE_ADDRESS, AFTER_REMOVE_ADDRESS);
 
    }
 

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,12 +29,13 @@ public class ReferenceCounterTest extends Assert {
 
    class LatchRunner implements Runnable {
 
-      final CountDownLatch latch = new CountDownLatch(1);
+      final ReusableLatch latch = new ReusableLatch(1);
       final AtomicInteger counts = new AtomicInteger(0);
-      volatile Thread lastThreadUsed;
+      volatile Thread lastThreadUsed = Thread.currentThread();
 
       @Override
       public void run() {
+         lastThreadUsed = Thread.currentThread();
          counts.incrementAndGet();
          latch.countDown();
       }
@@ -63,6 +63,15 @@ public class ReferenceCounterTest extends Assert {
 
       runner.latch.await(5, TimeUnit.SECONDS);
 
+      assertNotSame(runner.lastThreadUsed, Thread.currentThread());
+
+      runner.latch.setCount(1);
+      runner.lastThreadUsed = Thread.currentThread();
+
+      // force a recheck
+      counter.check();
+
+      runner.latch.await(5, TimeUnit.SECONDS);
       assertNotSame(runner.lastThreadUsed, Thread.currentThread());
 
       executor.shutdown();

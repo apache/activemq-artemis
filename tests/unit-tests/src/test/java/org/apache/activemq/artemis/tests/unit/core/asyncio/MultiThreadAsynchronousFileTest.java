@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFile;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
@@ -94,7 +94,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
 
    private void executeTest(final boolean sync) throws Throwable {
       MultiThreadAsynchronousFileTest.debug(sync ? "Sync test:" : "Async test");
-      AIOSequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 21000);
+      AIOSequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 100);
       factory.start();
       factory.disableBufferReuse();
 
@@ -142,10 +142,6 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
          factory.stop();
       }
 
-   }
-
-   private int getNewPosition() {
-      return position.addAndGet(1);
    }
 
    class ThreadProducer extends Thread {
@@ -210,8 +206,8 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
                addData(libaio, buffer, callback);
                if (sync) {
                   waitForLatch(latchFinishThread);
+                  assertEquals(0, callback.errorCalled);
                   assertTrue(callback.doneCalled);
-                  assertFalse(callback.errorCalled != 0);
                }
             }
             if (!sync) {

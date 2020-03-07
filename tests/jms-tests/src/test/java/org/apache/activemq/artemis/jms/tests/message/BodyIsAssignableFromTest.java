@@ -94,7 +94,7 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
          } else {
             try {
                Object foo = msg.getBody(c);
-               Assert.fail("expected a " + MessageFormatException.class);
+               Assert.assertNull("body should be null", foo);
             } catch (MessageFormatException e) {
                // expected
             }

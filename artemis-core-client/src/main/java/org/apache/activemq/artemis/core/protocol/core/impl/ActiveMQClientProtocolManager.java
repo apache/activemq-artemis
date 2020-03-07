@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
@@ -81,6 +82,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    private final int versionID = VersionLoader.getVersion().getIncrementingVersion();
 
    private ClientSessionFactoryInternal factoryInternal;
+
+   private Executor executor;
 
    /**
     * Guards assignments to {@link #inCreateSession} and {@link #inCreateSessionLatch}
@@ -158,6 +161,12 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    }
 
    @Override
+   public ActiveMQClientProtocolManager setExecutor(Executor executor) {
+      this.executor = executor;
+      return this;
+   }
+
+   @Override
    public Lock lockSessionCreation() {
       try {
          Lock localFailoverLock = factoryInternal.lockFailover();
@@ -169,10 +178,13 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             Lock lock = getChannel1().getLock();
 
             // Lock it - this must be done while the failoverLock is held
-            while (isAlive() && !lock.tryLock(100, TimeUnit.MILLISECONDS)) {
+            while (isAlive()) {
+               if (lock.tryLock(100, TimeUnit.MILLISECONDS)) {
+                  return lock;
+               }
             }
 
-            return lock;
+            return null;
          } finally {
             localFailoverLock.unlock();
          }
@@ -326,6 +338,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
          }
       }
       while (retry);
+      sessionChannel.getConnection().setChannelVersion(response.getServerVersion());
       return newSessionContext(name, confirmationWindowSize, sessionChannel, response);
 
    }
@@ -408,7 +421,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                                      List<Interceptor> incomingInterceptors,
                                      List<Interceptor> outgoingInterceptors,
                                      TopologyResponseHandler topologyResponseHandler) {
-      this.connection = new RemotingConnectionImpl(getPacketDecoder(), transportConnection, callTimeout, callFailoverTimeout, incomingInterceptors, outgoingInterceptors);
+      this.connection = new RemotingConnectionImpl(createPacketDecoder(), transportConnection, callTimeout, callFailoverTimeout, incomingInterceptors, outgoingInterceptors, executor);
 
       this.topologyResponseHandler = topologyResponseHandler;
 
@@ -427,6 +440,12 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
          transportConnection.write(amqbuffer);
       }
    }
+
+
+   protected ClusterTopologyChangeMessage updateTransportConfiguration(final ClusterTopologyChangeMessage topMessage) {
+      return topMessage;
+   }
+
 
    private class Channel0Handler implements ChannelHandler {
 
@@ -455,13 +474,13 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), scaleDownTargetNodeID);
          } else if (type == PacketImpl.CLUSTER_TOPOLOGY) {
             ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
-            notifyTopologyChange(topMessage);
+            notifyTopologyChange(updateTransportConfiguration(topMessage));
          } else if (type == PacketImpl.CLUSTER_TOPOLOGY_V2) {
             ClusterTopologyChangeMessage_V2 topMessage = (ClusterTopologyChangeMessage_V2) packet;
-            notifyTopologyChange(topMessage);
-         } else if (type == PacketImpl.CLUSTER_TOPOLOGY || type == PacketImpl.CLUSTER_TOPOLOGY_V2 || type == PacketImpl.CLUSTER_TOPOLOGY_V3) {
-            ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
-            notifyTopologyChange(topMessage);
+            notifyTopologyChange(updateTransportConfiguration(topMessage));
+         } else if (type == PacketImpl.CLUSTER_TOPOLOGY_V3) {
+            ClusterTopologyChangeMessage_V3 topMessage = (ClusterTopologyChangeMessage_V3) packet;
+            notifyTopologyChange(updateTransportConfiguration(topMessage));
          } else if (type == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
             System.out.println("Channel0Handler.handlePacket");
          }
@@ -470,7 +489,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       /**
        * @param topMessage
        */
-      private void notifyTopologyChange(final ClusterTopologyChangeMessage topMessage) {
+      protected void notifyTopologyChange(final ClusterTopologyChangeMessage topMessage) {
          final long eventUID;
          final String backupGroupName;
          final String scaleDownGroupName;
@@ -509,8 +528,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       }
    }
 
-   protected PacketDecoder getPacketDecoder() {
-      return ClientPacketDecoder.INSTANCE;
+   protected PacketDecoder createPacketDecoder() {
+      return new ClientPacketDecoder();
    }
 
    private void forceReturnChannel1(ActiveMQException cause) {

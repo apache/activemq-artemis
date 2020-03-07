@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
 /**
  * An example that shows how to manage ActiveMQ Artemis using JMX.
@@ -79,6 +78,7 @@ public class JMXExample {
          ObjectName on = ObjectNameBuilder.DEFAULT.getQueueObjectName(SimpleString.toSimpleString(queue.getQueueName()), SimpleString.toSimpleString(queue.getQueueName()), RoutingType.ANYCAST);
 
          // Step 10. Create JMX Connector to connect to the server's MBeanServer
+         //we dont actually need credentials as the guest login i sused but this is how its done
          HashMap env = new HashMap();
          String[] creds = {"guest", "guest"};
          env.put(JMXConnector.CREDENTIALS, creds);
@@ -94,7 +94,7 @@ public class JMXExample {
          System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");
 
          // Step 14. Remove the message sent at step #8
-         System.out.println("message has been removed: " + queueControl.removeMessage(((ActiveMQTextMessage) message).getCoreMessage().getMessageID()));
+         System.out.println("message has been removed: " + queueControl.removeMessages(null));
 
          // Step 15. Display the number of messages in the queue
          System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");
@@ -112,6 +112,11 @@ public class JMXExample {
          // operation, there is none to consume.
          // The call will timeout after 5000ms and messageReceived will be null
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+
+         if (messageReceived != null) {
+            throw new IllegalStateException("message should be null!");
+         }
+
          System.out.println("Received message: " + messageReceived);
       } finally {
          // Step 20. Be sure to close the resources!

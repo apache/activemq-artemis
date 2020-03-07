@@ -46,4 +46,6 @@ public interface ResourceManager extends ActiveMQComponent {
 
    List<Xid> getInDoubtTransactions();
 
+   int size();
+
 }

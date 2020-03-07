@@ -17,10 +17,12 @@
 package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
@@ -56,6 +58,8 @@ public interface RemotingConnection extends BufferHandler {
     * @return the remote address
     */
    String getRemoteAddress();
+
+   void scheduledFlush();
 
    /**
     * add a failure listener.
@@ -128,6 +132,12 @@ public interface RemotingConnection extends BufferHandler {
     * @param me the exception that caused the failure
     */
    void fail(ActiveMQException me);
+
+   /** Same thing as fail, but using an executor.
+    *  semantic of send here, is asynchrounous.
+    * @param me
+    */
+   Future asyncFail(ActiveMQException me);
 
    /**
     * called when the underlying connection fails.
@@ -232,4 +242,17 @@ public interface RemotingConnection extends BufferHandler {
     * @return
     */
    String getClientID();
+
+   /**
+    * Returns a string representation of the local address this connection is connected to.
+    * This is useful when the server is configured at 0.0.0.0 (or multiple IPs).
+    * This will give you the actual IP that's being used.
+    *
+    * @return the local address of transport connection
+    */
+   String getTransportLocalAddress();
+
+   default boolean isSameTarget(TransportConfiguration... configs) {
+      return getTransportConnection().isSameTarget(configs);
+   }
 }

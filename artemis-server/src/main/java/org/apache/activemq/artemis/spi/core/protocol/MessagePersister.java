@@ -21,18 +21,25 @@ import java.util.ServiceLoader;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.core.persistence.PersisterIDs.MAX_PERSISTERS;
+
 public class MessagePersister implements Persister<Message> {
+
+   @Override
+   public byte getID() {
+      return 0;
+   }
 
    private static final Logger logger = Logger.getLogger(MessagePersister.class);
 
    private static final MessagePersister theInstance = new MessagePersister();
 
    /** This will be used for reading messages */
-   private static final int MAX_PERSISTERS = 3;
    private static final Persister<Message>[] persisters = new Persister[MAX_PERSISTERS];
 
    static {
@@ -97,12 +104,12 @@ public class MessagePersister implements Persister<Message> {
    }
 
    @Override
-   public Message decode(ActiveMQBuffer buffer, Message record) {
+   public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pools) {
       byte protocol = buffer.readByte();
       Persister<Message> persister = getPersister(protocol);
       if (persister == null) {
          throw new NullPointerException("couldn't find factory for type=" + protocol);
       }
-      return persister.decode(buffer, record);
+      return persister.decode(buffer, record, pools);
    }
 }

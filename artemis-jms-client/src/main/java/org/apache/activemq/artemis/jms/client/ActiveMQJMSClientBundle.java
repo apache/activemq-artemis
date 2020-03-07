@@ -34,63 +34,63 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
 
 /**
- * Logger Code 12
+ * Logger Code 13
  *
- * each message id must be 6 digits long starting with 10, the 3rd digit should be 9
+ * each message id must be 6 digits long starting with 13, the 3rd digit should be 9
  *
- * so 129000 to 129999
+ * so 139000 to 139999
  */
 @MessageBundle(projectCode = "AMQ")
 public interface ActiveMQJMSClientBundle {
 
    ActiveMQJMSClientBundle BUNDLE = Messages.getBundle(ActiveMQJMSClientBundle.class);
 
-   @Message(id = 129000, value = "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 139000, value = "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQInvalidFilterExpressionException invalidFilter(@Cause Throwable e, SimpleString filter);
 
-   @Message(id = 129001, value = "Invalid Subscription Name. It is required to set the subscription name")
+   @Message(id = 139001, value = "Invalid Subscription Name. It is required to set the subscription name")
    ActiveMQIllegalStateException invalidSubscriptionName();
 
-   @Message(id = 129002, value = "Destination {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 139002, value = "Destination {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQNonExistentQueueException destinationDoesNotExist(SimpleString destination);
 
-   @Message(id = 129003, value = "name cannot be null")
+   @Message(id = 139003, value = "name cannot be null")
    IllegalArgumentException nameCannotBeNull();
 
-   @Message(id = 129004, value = "name cannot be empty")
+   @Message(id = 139004, value = "name cannot be empty")
    IllegalArgumentException nameCannotBeEmpty();
 
-   @Message(id = 129005, value = "It is illegal to call this method from within a Message Listener")
+   @Message(id = 139005, value = "It is illegal to call this method from within a Message Listener")
    IllegalStateRuntimeException callingMethodFromListenerRuntime();
 
-   @Message(id = 129006, value = "It is illegal to call this method from within a Message Listener")
+   @Message(id = 139006, value = "It is illegal to call this method from within a Message Listener")
    IllegalStateException callingMethodFromListener();
 
-   @Message(id = 129007, value = "It is illegal to call this method from within a Completion Listener")
+   @Message(id = 139007, value = "It is illegal to call this method from within a Completion Listener")
    IllegalStateRuntimeException callingMethodFromCompletionListenerRuntime();
 
-   @Message(id = 129008, value = "It is illegal to call this method from within a Completion Listener")
+   @Message(id = 139008, value = "It is illegal to call this method from within a Completion Listener")
    IllegalStateException callingMethodFromCompletionListener();
 
-   @Message(id = 129009, value = "Null {0} is not allowed", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 139009, value = "Null {0} is not allowed", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException nullArgumentNotAllowed(String type);
 
-   @Message(id = 129010, value = "Topic (Destination) cannot be null")
+   @Message(id = 139010, value = "Topic (Destination) cannot be null")
    InvalidDestinationException nullTopic();
 
-   @Message(id = 129011, value = "LargeMessage streaming is only possible on ByteMessage or StreamMessage")
+   @Message(id = 139011, value = "LargeMessage streaming is only possible on ByteMessage or StreamMessage")
    IllegalStateException onlyValidForByteOrStreamMessages();
 
-   @Message(id = 129012, value = "The property name ''{0}'' is not a valid java identifier.",
+   @Message(id = 139012, value = "The property name ''{0}'' is not a valid java identifier.",
       format = Message.Format.MESSAGE_FORMAT)
    JMSRuntimeException invalidJavaIdentifier(String propertyName);
 
-   @Message(id = 129013, value = "Message is read-only")
+   @Message(id = 139013, value = "Message is read-only")
    MessageNotWriteableException messageNotWritable();
 
-   @Message(id = 129014, value = "Message is write-only")
+   @Message(id = 139014, value = "Message is write-only")
    MessageNotReadableException messageNotReadable();
 
-   @Message(id = 129015, value = "Illegal deliveryMode value: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 139015, value = "Illegal deliveryMode value: {0}", format = Message.Format.MESSAGE_FORMAT)
    JMSException illegalDeliveryMode(int deliveryMode);
 }

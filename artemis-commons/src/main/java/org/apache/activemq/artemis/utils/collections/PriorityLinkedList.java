@@ -18,7 +18,8 @@ package org.apache.activemq.artemis.utils.collections;
 
 /**
  * A type of linked list which maintains items according to a priority
- * and allows adding and removing of elements at both ends, and peeking
+ * and allows adding and removing of elements at both ends, and peeking.<br>
+ * Only {@link #size()} and {@link #isEmpty()} are safe to be called concurrently.
  */
 public interface PriorityLinkedList<T> {
 
@@ -26,13 +27,23 @@ public interface PriorityLinkedList<T> {
 
    void addTail(T t, int priority);
 
+   void addSorted(T t, int priority);
+
    T poll();
 
    void clear();
 
+   /**
+    * Returns the size of this list.<br>
+    * It is safe to be called concurrently.
+    */
    int size();
 
    LinkedListIterator<T> iterator();
 
+   /**
+    * Returns {@code true} if empty, {@code false} otherwise.<br>
+    * It is safe to be called concurrently.
+    */
    boolean isEmpty();
 }

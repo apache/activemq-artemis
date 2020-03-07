@@ -28,6 +28,7 @@ import java.security.ProtectionDomain;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -42,15 +43,22 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionState;
+import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.fusesource.hawtdispatch.DispatchPriority;
+import org.fusesource.hawtdispatch.internal.DispatcherConfig;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Tracer;
 import org.fusesource.mqtt.codec.MQTTFrame;
@@ -68,6 +76,10 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    protected ActiveMQServer server;
 
    private static final Logger LOG = LoggerFactory.getLogger(MQTTTestSupport.class);
+
+   static {
+      DispatcherConfig.getDefaultDispatcher().getThreadQueues(DispatchPriority.DEFAULT);
+   }
 
    protected int port = 1883;
    protected ConnectionFactory cf;
@@ -181,10 +193,10 @@ public class MQTTTestSupport extends ActiveMQTestBase {
          // Configure roles
          HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
          HashSet<Role> value = new HashSet<>();
-         value.add(new Role("nothing", false, false, false, false, false, false, false, false));
-         value.add(new Role("browser", false, false, false, false, false, false, false, true));
-         value.add(new Role("guest", false, true, false, false, false, false, false, true));
-         value.add(new Role("full", true, true, true, true, true, true, true, true));
+         value.add(new Role("nothing", false, false, false, false, false, false, false, false, false, false));
+         value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false));
+         value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false));
+         value.add(new Role("full", true, true, true, true, true, true, true, true, true, true));
          securityRepository.addMatch(getQueueName(), value);
 
          server.getConfiguration().setSecurityEnabled(true);
@@ -230,10 +242,6 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       // Overrides of this method can add additional configuration options or add multiple
       // MQTT transport connectors as needed, the port variable is always supposed to be
       // assigned the primary MQTT connector's port.
-
-      Map<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PORT_PROP_NAME, "" + port);
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "MQTT");
 
       server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:");
 
@@ -364,6 +372,18 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       mqtt.setCleanSession(clean);
       mqtt.setHost("localhost", port);
       return mqtt;
+   }
+
+   public Map<String, MQTTSessionState> getSessions() {
+      Acceptor acceptor = server.getRemotingService().getAcceptor("MQTT");
+      if (acceptor instanceof AbstractAcceptor) {
+         ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get("MQTT");
+         if (protocolManager instanceof MQTTProtocolManager) {
+            return ((MQTTProtocolManager) protocolManager).getSessionStates();
+         }
+
+      }
+      return Collections.emptyMap();
    }
 
    private MQTT createMQTTSslConnection(String clientId, boolean clean) throws Exception {

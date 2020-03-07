@@ -16,18 +16,14 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.util;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
-
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.XATransactionId;
-import org.apache.activemq.util.ByteSequence;
 
 public class OpenWireUtil {
 
@@ -41,13 +37,6 @@ public class OpenWireUtil {
 
    public static final WildcardConfiguration OPENWIRE_WILDCARD = new OpenWireWildcardConfiguration();
 
-   public static ActiveMQBuffer toActiveMQBuffer(ByteSequence bytes) {
-      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bytes.length);
-
-      buffer.writeBytes(bytes.data, bytes.offset, bytes.length);
-      return buffer;
-   }
-
    /**
     * We convert the core address to an ActiveMQ Destination. We use the actual address on the message rather than the
     * destination set on the consumer because it maybe different and the JMS spec says that it should be what ever was
@@ -56,16 +45,15 @@ public class OpenWireUtil {
     */
    public static ActiveMQDestination toAMQAddress(Message message, ActiveMQDestination actualDestination) {
       String address = message.getAddress();
-      String strippedAddress = address;//.replace(JMS_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TEMP_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TOPIC_ADDRESS_PREFIX, "").replace(JMS_TEMP_TOPIC_ADDRESS_PREFIX, "");
 
-      if (address == null) {
+      if (address == null || address.equals(actualDestination.getPhysicalName())) {
          return actualDestination;
       }
 
       if (actualDestination.isQueue()) {
-         return new ActiveMQQueue(strippedAddress);
+         return new ActiveMQQueue(address);
       } else {
-         return new ActiveMQTopic(strippedAddress);
+         return new ActiveMQTopic(address);
       }
    }
 

@@ -18,8 +18,10 @@
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -47,9 +49,9 @@ public class MQTTConnection implements RemotingConnection {
 
    private String clientID;
 
-   private final List<FailureListener> failureListeners = Collections.synchronizedList(new ArrayList<FailureListener>());
+   private final List<FailureListener> failureListeners = new CopyOnWriteArrayList<>();
 
-   private final List<CloseListener> closeListeners = Collections.synchronizedList(new ArrayList<CloseListener>());
+   private final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();
 
    public MQTTConnection(Connection transportConnection) throws Exception {
       this.transportConnection = transportConnection;
@@ -58,9 +60,15 @@ public class MQTTConnection implements RemotingConnection {
       this.destroyed = false;
    }
 
+
+   @Override
+   public void scheduledFlush() {
+      flush();
+   }
+
    @Override
    public boolean isWritable(ReadyListener callback) {
-      return transportConnection.isWritable(callback);
+      return transportConnection.isWritable(callback) && transportConnection.isOpen();
    }
 
    @Override
@@ -100,15 +108,14 @@ public class MQTTConnection implements RemotingConnection {
 
    @Override
    public List<CloseListener> removeCloseListeners() {
-      synchronized (closeListeners) {
-         List<CloseListener> deletedCloseListeners = new ArrayList<>(closeListeners);
-         closeListeners.clear();
-         return deletedCloseListeners;
-      }
+      List<CloseListener> deletedCloseListeners = copyCloseListeners();
+      closeListeners.clear();
+      return deletedCloseListeners;
    }
 
    @Override
    public void setCloseListeners(List<CloseListener> listeners) {
+      closeListeners.clear();
       closeListeners.addAll(listeners);
    }
 
@@ -119,19 +126,15 @@ public class MQTTConnection implements RemotingConnection {
 
    @Override
    public List<FailureListener> removeFailureListeners() {
-      synchronized (failureListeners) {
-         List<FailureListener> deletedFailureListeners = new ArrayList<>(failureListeners);
-         failureListeners.clear();
-         return deletedFailureListeners;
-      }
+      List<FailureListener> deletedFailureListeners = copyFailureListeners();
+      failureListeners.clear();
+      return deletedFailureListeners;
    }
 
    @Override
    public void setFailureListeners(List<FailureListener> listeners) {
-      synchronized (failureListeners) {
-         failureListeners.clear();
-         failureListeners.addAll(listeners);
-      }
+      failureListeners.clear();
+      failureListeners.addAll(listeners);
    }
 
    @Override
@@ -141,11 +144,19 @@ public class MQTTConnection implements RemotingConnection {
 
    @Override
    public void fail(ActiveMQException me) {
-      synchronized (failureListeners) {
-         for (FailureListener listener : failureListeners) {
-            listener.connectionFailed(me, false);
-         }
+      List<FailureListener> copy = copyFailureListeners();
+      for (FailureListener listener : copy) {
+         listener.connectionFailed(me, false);
       }
+      transportConnection.close();
+   }
+
+   private List<FailureListener> copyFailureListeners() {
+      return new ArrayList<>(failureListeners);
+   }
+
+   private List<CloseListener> copyCloseListeners() {
+      return new ArrayList<>(closeListeners);
    }
 
    @Override
@@ -156,6 +167,22 @@ public class MQTTConnection implements RemotingConnection {
             listener.connectionFailed(me, false);
          }
       }
+   }
+
+   @Override
+   public Future asyncFail(ActiveMQException me) {
+      FutureTask<Void> task = new FutureTask(() -> {
+         fail(me);
+         return null;
+      });
+
+
+      // I don't expect asyncFail happening on MQTT, in case of happens this is semantically correct
+      Thread t = new Thread(task);
+
+      t.start();
+
+      return task;
    }
 
    @Override
@@ -266,4 +293,10 @@ public class MQTTConnection implements RemotingConnection {
    public String getClientID() {
       return clientID;
    }
+
+   @Override
+   public String getTransportLocalAddress() {
+      return getTransportConnection().getLocalAddress();
+   }
+
 }

@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionDetail;
 
 public class CoreTransactionDetail extends TransactionDetail {
 
-   public CoreTransactionDetail(Xid xid, Transaction tx, Long creation) throws Exception {
+   public CoreTransactionDetail(Xid xid, Transaction tx, Long creation) {
       super(xid, tx, creation);
    }
 

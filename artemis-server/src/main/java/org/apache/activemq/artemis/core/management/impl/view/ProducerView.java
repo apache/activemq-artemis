@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.management.impl.view;
 
 import javax.json.JsonObjectBuilder;
 
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ProducerFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
@@ -44,8 +45,61 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
    @Override
    public JsonObjectBuilder toJson(ServerProducer producer) {
       ServerSession session = server.getSessionByID(producer.getSessionID());
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(producer.getID())).add("session", toString(session.getName())).add("clientID", toString(session.getRemotingConnection().getClientID())).add("user", toString(session.getUsername())).add("protocol", toString(session.getRemotingConnection().getProtocolName())).add("address", toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress())).add("localAddress", toString(session.getRemotingConnection().getTransportConnection().getLocalAddress())).add("remoteAddress", toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress())).add("creationTime", toString(producer.getCreationTime()));
+
+      //if session is not available then consumer is not in valid state - ignore
+      if (session == null) {
+         return null;
+      }
+
+      String jmsSessionClientID = null;
+      //for the special case for JMS
+      if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
+         jmsSessionClientID = session.getMetaData("jms-client-id");
+      }
+
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(producer.getID()))
+         .add("session", toString(session.getName()))
+         .add("clientID", toString(session.getRemotingConnection().getClientID() != null ? session.getRemotingConnection().getClientID() : jmsSessionClientID))
+         .add("user", toString(session.getUsername()))
+         .add("protocol", toString(session.getRemotingConnection().getProtocolName()))
+         .add("address", toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress()))
+         .add("localAddress", toString(session.getRemotingConnection().getTransportConnection().getLocalAddress()))
+         .add("remoteAddress", toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress()))
+         .add("creationTime", toString(producer.getCreationTime()));
       return obj;
+   }
+
+   @Override
+   public Object getField(ServerProducer producer, String fieldName) {
+      ServerSession session = server.getSessionByID(producer.getSessionID());
+
+      //if session is not available then consumer is not in valid state - ignore
+      if (session == null) {
+         return null;
+      }
+
+      switch (fieldName) {
+         case "id":
+            return producer.getID();
+         case "session":
+            return session.getName();
+         case "user":
+            return session.getUsername();
+         case "clientID":
+            return session.getRemotingConnection().getClientID();
+         case "protocol":
+            return session.getRemotingConnection().getProtocolName();
+         case "address":
+            return producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress();
+         case "localAddress":
+            return session.getRemotingConnection().getTransportConnection().getLocalAddress();
+         case "remoteAddress":
+            return session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+         case "creationTime":
+            return producer.getCreationTime();
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override

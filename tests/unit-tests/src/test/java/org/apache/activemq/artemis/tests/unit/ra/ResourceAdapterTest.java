@@ -383,7 +383,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
    public void testValidateProperties() throws Exception {
       validateGettersAndSetters(new ActiveMQResourceAdapter(), "backupTransportConfiguration", "connectionParameters", "jndiParams");
       validateGettersAndSetters(new ActiveMQRAManagedConnectionFactory(), "connectionParameters", "sessionDefaultType", "backupConnectionParameters", "jndiParams");
-      validateGettersAndSetters(new ActiveMQActivationSpec(), "connectionParameters", "acknowledgeMode", "subscriptionDurability", "jndiParams");
+      validateGettersAndSetters(new ActiveMQActivationSpec(), "connectionParameters", "acknowledgeMode", "subscriptionDurability", "jndiParams", "maxSession");
 
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
 
@@ -395,6 +395,13 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
 
       spec.setSubscriptionDurability("NonDurable");
       Assert.assertEquals("NonDurable", spec.getSubscriptionDurability());
+
+      final int validMaxSessionValue = 110;
+      spec.setMaxSession(validMaxSessionValue);
+      Assert.assertTrue(validMaxSessionValue == spec.getMaxSession());
+
+      spec.setMaxSession(-3);
+      Assert.assertTrue(spec.getMaxSession() == 1);
 
       spec = new ActiveMQActivationSpec();
       ActiveMQResourceAdapter adapter = new ActiveMQResourceAdapter();

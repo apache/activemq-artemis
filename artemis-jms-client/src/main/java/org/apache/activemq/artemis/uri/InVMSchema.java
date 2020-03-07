@@ -39,7 +39,9 @@ public class InVMSchema extends AbstractCFSchema {
                                                          String name) throws Exception {
       JMSConnectionOptions options = newConectionOptions(uri, query);
       ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), InVMTransportConfigurationSchema.createTransportConfiguration(uri, query, name, "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
-      return BeanSupport.setData(uri, factory, query);
+      BeanSupport.setData(uri, factory, query);
+      BeanSupport.setData(uri, factory.getServerLocator(), query);
+      return factory;
    }
 
    @Override

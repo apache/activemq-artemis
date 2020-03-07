@@ -125,7 +125,6 @@ public class TemporaryDestinationTest extends JMSTestCase {
          }
       }
    }
-
    /**
     * http://jira.jboss.com/jira/browse/JBMESSAGING-93
     */

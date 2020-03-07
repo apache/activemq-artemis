@@ -105,7 +105,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
    @Test
    public void testRetryConnectionOnStartup() throws Exception {
-      jmsServer1.stop();
+      server1.stop();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false).setBridgeName("test-bridge");
       bridge.setTransactionManager(newTransactionManager());
@@ -115,7 +115,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
       Assert.assertTrue(bridge.isFailed());
 
       // Restart the server
-      jmsServer1.start();
+      server1.start();
 
       createQueue("targetQueue", 1);
       setUpAdministeredObjects();
@@ -131,7 +131,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
     */
    @Test
    public void testStopBridgeWithFailureWhenStarted() throws Exception {
-      jmsServer1.stop();
+      server1.stop();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 500, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false).setBridgeName("test-bridge");
       bridge.setTransactionManager(newTransactionManager());
@@ -144,7 +144,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
       Assert.assertFalse(bridge.isStarted());
 
       // we restart and setup the server for the test's tearDown checks
-      jmsServer1.start();
+      server1.start();
       createQueue("targetQueue", 1);
       setUpAdministeredObjects();
    }
@@ -187,7 +187,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       JMSBridgeReconnectionTest.log.info("About to crash server");
 
-      jmsServer1.stop();
+      server1.stop();
 
       // Wait a while before starting up to simulate the dest being down for a while
       JMSBridgeReconnectionTest.log.info("Waiting 5 secs before bringing server back up");
@@ -196,7 +196,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       // Restart the server
       JMSBridgeReconnectionTest.log.info("Restarting server");
-      jmsServer1.start();
+      server1.start();
 
       // jmsServer1.createQueue(false, "targetQueue", null, true, "queue/targetQueue");
 
@@ -212,7 +212,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       JMSBridgeReconnectionTest.log.info("Sent messages");
 
-      jmsServer1.stop();
+      server1.stop();
 
       bridge.stop();
 
@@ -248,7 +248,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       JMSBridgeReconnectionTest.log.info("About to crash server");
 
-      jmsServer1.stop();
+      server1.stop();
 
       // Wait a while before starting up to simulate the dest being down for a while
       JMSBridgeReconnectionTest.log.info("Waiting 5 secs before bringing server back up");
@@ -303,10 +303,10 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       JMSBridgeReconnectionTest.log.info("About to crash server");
 
-      jmsServer1.stop();
+      server1.stop();
 
       if (restart) {
-         jmsServer1.start();
+         server1.start();
       }
       // Wait a while before starting up to simulate the dest being down for a while
       JMSBridgeReconnectionTest.log.info("Waiting 5 secs before bringing server back up");
@@ -396,7 +396,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       JMSBridgeReconnectionTest.log.info("About to crash server");
 
-      jmsServer1.stop();
+      server1.stop();
 
       // Wait a while before starting up to simulate the dest being down for a while
       JMSBridgeReconnectionTest.log.info("Waiting 5 secs before bringing server back up");
@@ -404,7 +404,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
       JMSBridgeReconnectionTest.log.info("Done wait");
 
       // Restart the server
-      jmsServer1.start();
+      server1.start();
 
       createQueue("targetQueue", 1);
 

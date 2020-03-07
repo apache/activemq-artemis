@@ -35,10 +35,20 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
    private int windowSize;
 
+   private ClientProducerFlowCallback callback;
+
    public ClientProducerCreditManagerImpl(final ClientSessionInternal session, final int windowSize) {
       this.session = session;
 
       this.windowSize = windowSize;
+   }
+
+
+   /** This will determine the flow control as asynchronous,
+    *  no actual block should happen instead a callback will be sent whenever blockages change  */
+   @Override
+   public void setCallback(ClientProducerFlowCallback callback) {
+      this.callback = callback;
    }
 
    @Override
@@ -56,7 +66,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
             if (credits == null) {
                // Doesn't need to be fair since session is single threaded
-               credits = new ClientProducerCreditsImpl(session, address, windowSize);
+               credits = build(address);
                needInit = true;
 
                producerCredits.put(address, credits);
@@ -80,6 +90,14 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
          }
 
          return credits;
+      }
+   }
+
+   private ClientProducerCredits build(SimpleString address) {
+      if (callback != null) {
+         return new AsynchronousProducerCreditsImpl(session, address, windowSize, callback);
+      } else {
+         return new ClientProducerCreditsImpl(session, address, windowSize);
       }
    }
 
@@ -210,6 +228,10 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       public void releaseOutstanding() {
       }
 
+      @Override
+      public SimpleString getAddress() {
+         return SimpleString.toSimpleString("");
+      }
    }
 
 }

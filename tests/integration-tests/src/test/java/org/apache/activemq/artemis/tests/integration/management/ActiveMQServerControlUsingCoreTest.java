@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
 
@@ -58,7 +57,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return (String) proxy.invokeOperation("updateAddress", name, routingTypes);
          }
 
-         @Override
          public void updateDuplicateIdCache(String address, Object[] ids) {
 
          }
@@ -136,8 +134,60 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
+                                   @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                                   @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
+                                   @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers,
+                                   @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") Boolean exclusive)
+            throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", name, routingType, maxConsumers, purgeOnNoConsumers, exclusive);
+         }
+
+         @Override
+         public String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
+                                   @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                                   @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
+                                   @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers,
+                                   @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") Boolean exclusive,
+                                   @Parameter(name = "user", desc = "The user associated with this queue") String user)
+            throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", name, routingType, maxConsumers, purgeOnNoConsumers, exclusive, user);
+         }
+
+         @Override
+         public String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
+                                   @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                                   @Parameter(name = "filter", desc = "The filter to use on the queue") String filter,
+                                   @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
+                                   @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers,
+                                   @Parameter(name = "exclusive", desc = "If the queue should route exclusively to one consumer") Boolean exclusive,
+                                   @Parameter(name = "groupRebalance", desc = "If the queue should rebalance groups when a consumer is added") Boolean groupRebalance,
+                                   @Parameter(name = "groupBuckets", desc = "Number of buckets that should be used for message groups, -1 (default) is unlimited, and groups by raw key instead") Integer groupBuckets,
+                                   @Parameter(name = "nonDestructive", desc = "If the queue should be nonDestructive") Boolean nonDestructive,
+                                   @Parameter(name = "consumersBeforeDispatch", desc = "Number of consumers needed before dispatch can start") Integer consumersBeforeDispatch,
+                                   @Parameter(name = "delayBeforeDispatch", desc = "Delay to wait before dispatching if number of consumers before dispatch is not met") Long delayBeforeDispatch,
+                                   @Parameter(name = "user", desc = "The user associated with this queue") String user) throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user);
+         }
+
+         @Override
+         public String updateQueue(String name, String routingType, String filter, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean groupRebalance, Integer groupBuckets, String groupFirstKey, Boolean nonDestructive, Integer consumersBeforeDispatch, Long delayBeforeDispatch, String user) throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user);
+         }
+
+         @Override
+         public String updateQueue(String name, String routingType, String filter, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean groupRebalance, Integer groupBuckets, String groupFirstKey, Boolean nonDestructive, Integer consumersBeforeDispatch, Long delayBeforeDispatch, String user, Long ringSize) throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user, ringSize);
+         }
+
+         @Override
          public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception {
             proxy.invokeOperation("deleteAddress", name);
+         }
+
+         @Override
+         public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name, @Parameter(name = "force", desc = "Force everything out!") boolean force) throws Exception {
+            proxy.invokeOperation("deleteAddress", name, force);
          }
 
          @Override
@@ -161,6 +211,26 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public void createQueue(String address,String name, String filter, boolean durable, String routingType) throws Exception {
             proxy.invokeOperation("createQueue", address, name, filter, durable, routingType);
+         }
+
+         @Override
+         public String createQueue(String address, String routingType, String name, String filter, boolean durable, int maxConsumers, boolean purgeOnNoConsumers, boolean exclusive, boolean groupRebalance, int groupBuckets, boolean lastValue, String lastValueKey, boolean nonDestructive, int consumersBeforeDispatch, long delayBeforeDispatch, boolean autoCreateAddress) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", address, routingType, name, filter, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoCreateAddress);
+         }
+
+         @Override
+         public String createQueue(String address, String routingType, String name, String filter, boolean durable, int maxConsumers, boolean purgeOnNoConsumers, boolean exclusive, boolean groupRebalance, int groupBuckets, boolean lastValue, String lastValueKey, boolean nonDestructive, int consumersBeforeDispatch, long delayBeforeDispatch, boolean autoDelete, long autoDeleteDelay, long autoDeleteMessageCount, boolean autoCreateAddress) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", address, routingType, name, filter, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress);
+         }
+
+         @Override
+         public String createQueue(String address, String routingType, String name, String filter, boolean durable, int maxConsumers, boolean purgeOnNoConsumers, boolean exclusive, boolean groupRebalance, int groupBuckets, String groupFirstKey, boolean lastValue, String lastValueKey, boolean nonDestructive, int consumersBeforeDispatch, long delayBeforeDispatch, boolean autoDelete, long autoDeleteDelay, long autoDeleteMessageCount, boolean autoCreateAddress) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", address, routingType, name, filter, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress);
+         }
+
+         @Override
+         public String createQueue(String address, String routingType, String name, String filter, boolean durable, int maxConsumers, boolean purgeOnNoConsumers, boolean exclusive, boolean groupRebalance, int groupBuckets, String groupFirstKey, boolean lastValue, String lastValueKey, boolean nonDestructive, int consumersBeforeDispatch, long delayBeforeDispatch, boolean autoDelete, long autoDeleteDelay, long autoDeleteMessageCount, boolean autoCreateAddress, long ringSize) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", address, routingType, name, filter, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
          }
 
          @Override
@@ -278,6 +348,46 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             }
 
             return null;
+         }
+
+         @Override
+         public String[] getClusterConnectionNames() {
+            try {
+               return (String[]) proxy.invokeOperation(String.class, "getClusterConnectionNames");
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+
+            return null;
+         }
+
+         @Override
+         public void addUser(String username,
+                             String password,
+                             String role,
+                             boolean plaintext) throws Exception {
+            proxy.invokeOperation("addUser", username, password, role, plaintext);
+
+         }
+
+         @Override
+         public String listUser(String username) throws Exception {
+            return (String) proxy.invokeOperation("listUser", username, String.class);
+         }
+
+         @Override
+         public void removeUser(String username) throws Exception {
+            proxy.invokeOperation("removeUser", username);
+         }
+
+         @Override
+         public void resetUser(String username, String password, String roles) throws Exception {
+            proxy.invokeOperation("resetUser", username, password, roles);
+         }
+
+         @Override
+         public void resetUser(String username, String password, String roles, boolean plaintext) throws Exception {
+            proxy.invokeOperation("resetUser", username, password, roles, plaintext);
          }
 
          @Override
@@ -557,7 +667,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return (Boolean) proxy.invokeOperation("rollbackPreparedTransaction", transactionAsBase64);
          }
 
-         @Override
          public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
             proxy.invokeOperation("sendQueueInfoToQueue", queueName, address);
          }
@@ -721,7 +830,29 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                         @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues,
                                         @Parameter(desc = "allow topics to be created automatically", name = "autoCreateJmsTopics") boolean autoCreateJmsTopics,
                                         @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics) throws Exception {
-            addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, AddressSettings.DEFAULT_AUTO_CREATE_QUEUES, AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES);
+            proxy.invokeOperation("addAddressSettings",
+                                  addressMatch,
+                                  DLA,
+                                  expiryAddress,
+                                  expiryDelay,
+                                  lastValueQueue,
+                                  deliveryAttempts,
+                                  maxSizeBytes,
+                                  pageSizeBytes,
+                                  pageMaxCacheSize,
+                                  redeliveryDelay,
+                                  redeliveryMultiplier,
+                                  maxRedeliveryDelay,
+                                  redistributionDelay,
+                                  sendToDLAOnNoRoute,
+                                  addressFullMessagePolicy,
+                                  slowConsumerThreshold,
+                                  slowConsumerCheckPeriod,
+                                  slowConsumerPolicy,
+                                  autoCreateJmsQueues,
+                                  autoDeleteJmsQueues,
+                                  autoCreateJmsTopics,
+                                  autoDeleteJmsTopics);
          }
 
          @Override
@@ -751,7 +882,249 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                         @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteQueues") boolean autoDeleteQueues,
                                         @Parameter(desc = "allow topics to be created automatically", name = "autoCreateAddresses") boolean autoCreateAddresses,
                                         @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteAddresses") boolean autoDeleteAddresses) throws Exception {
-            proxy.invokeOperation("addAddressSettings", addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, autoCreateQueues, autoDeleteQueues, autoCreateAddresses, autoDeleteAddresses);
+            proxy.invokeOperation("addAddressSettings",
+                                  addressMatch,
+                                  DLA,
+                                  expiryAddress,
+                                  expiryDelay,
+                                  lastValueQueue,
+                                  deliveryAttempts,
+                                  maxSizeBytes,
+                                  pageSizeBytes,
+                                  pageMaxCacheSize,
+                                  redeliveryDelay,
+                                  redeliveryMultiplier,
+                                  maxRedeliveryDelay,
+                                  redistributionDelay,
+                                  sendToDLAOnNoRoute,
+                                  addressFullMessagePolicy,
+                                  slowConsumerThreshold,
+                                  slowConsumerCheckPeriod,
+                                  slowConsumerPolicy,
+                                  autoCreateJmsQueues,
+                                  autoDeleteJmsQueues,
+                                  autoCreateJmsTopics,
+                                  autoDeleteJmsTopics,
+                                  autoCreateQueues,
+                                  autoDeleteQueues,
+                                  autoCreateAddresses,
+                                  autoDeleteAddresses);
+         }
+
+         @Override
+         public void addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
+                                        @Parameter(desc = "the dead letter address setting", name = "DLA") String DLA,
+                                        @Parameter(desc = "the expiry address setting", name = "expiryAddress") String expiryAddress,
+                                        @Parameter(desc = "the expiry delay setting", name = "expiryDelay") long expiryDelay,
+                                        @Parameter(desc = "are any queues created for this address a last value queue", name = "lastValueQueue") boolean lastValueQueue,
+                                        @Parameter(desc = "the delivery attempts", name = "deliveryAttempts") int deliveryAttempts,
+                                        @Parameter(desc = "the max size in bytes", name = "maxSizeBytes") long maxSizeBytes,
+                                        @Parameter(desc = "the page size in bytes", name = "pageSizeBytes") int pageSizeBytes,
+                                        @Parameter(desc = "the max number of pages in the soft memory cache", name = "pageMaxCacheSize") int pageMaxCacheSize,
+                                        @Parameter(desc = "the redelivery delay", name = "redeliveryDelay") long redeliveryDelay,
+                                        @Parameter(desc = "the redelivery delay multiplier", name = "redeliveryMultiplier") double redeliveryMultiplier,
+                                        @Parameter(desc = "the maximum redelivery delay", name = "maxRedeliveryDelay") long maxRedeliveryDelay,
+                                        @Parameter(desc = "the redistribution delay", name = "redistributionDelay") long redistributionDelay,
+                                        @Parameter(desc = "do we send to the DLA when there is no where to route the message", name = "sendToDLAOnNoRoute") boolean sendToDLAOnNoRoute,
+                                        @Parameter(desc = "the policy to use when the address is full", name = "addressFullMessagePolicy") String addressFullMessagePolicy,
+                                        @Parameter(desc = "when a consumer falls below this threshold in terms of messages consumed per second it will be considered 'slow'", name = "slowConsumerThreshold") long slowConsumerThreshold,
+                                        @Parameter(desc = "how often (in seconds) to check for slow consumers", name = "slowConsumerCheckPeriod") long slowConsumerCheckPeriod,
+                                        @Parameter(desc = "the policy to use when a slow consumer is detected", name = "slowConsumerPolicy") String slowConsumerPolicy,
+                                        @Parameter(desc = "allow jms queues to be created automatically", name = "autoCreateJmsQueues") boolean autoCreateJmsQueues,
+                                        @Parameter(desc = "allow auto-created jms queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues,
+                                        @Parameter(desc = "allow jms topics to be created automatically", name = "autoCreateJmsTopics") boolean autoCreateJmsTopics,
+                                        @Parameter(desc = "allow auto-created jms topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics,
+                                        @Parameter(desc = "allow queues to be created automatically", name = "autoCreateQueues") boolean autoCreateQueues,
+                                        @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteQueues") boolean autoDeleteQueues,
+                                        @Parameter(desc = "allow topics to be created automatically", name = "autoCreateAddresses") boolean autoCreateAddresses,
+                                        @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteAddresses") boolean autoDeleteAddresses,
+                                        @Parameter(desc = "how to deal with queues deleted from XML at runtime", name = "configDeleteQueues") String configDeleteQueues,
+                                        @Parameter(desc = "how to deal with addresses deleted from XML at runtime", name = "configDeleteAddresses") String configDeleteAddresses,
+                                        @Parameter(desc = "used with `BLOCK`, the max size an address can reach before messages are rejected; works in combination with `max-size-bytes` for AMQP clients only", name = "maxSizeBytesRejectThreshold") long maxSizeBytesRejectThreshold,
+                                        @Parameter(desc = "last-value-key value if none is set on the queue", name = "defaultLastValueKey") String defaultLastValueKey,
+                                        @Parameter(desc = "non-destructive value if none is set on the queue", name = "defaultNonDestructive") boolean defaultNonDestructive,
+                                        @Parameter(desc = "exclusive value if none is set on the queue", name = "defaultExclusiveQueue") boolean defaultExclusiveQueue,
+                                        @Parameter(desc = "group-rebalance value if none is set on the queue", name = "defaultGroupRebalance") boolean defaultGroupRebalance,
+                                        @Parameter(desc = "group-buckets value if none is set on the queue", name = "defaultGroupBuckets") int defaultGroupBuckets,
+                                        @Parameter(desc = "group-first-key value if none is set on the queue", name = "defaultGroupFirstKey") String defaultGroupFirstKey,
+                                        @Parameter(desc = "max-consumers value if none is set on the queue", name = "defaultMaxConsumers") int defaultMaxConsumers,
+                                        @Parameter(desc = "purge-on-no-consumers value if none is set on the queue", name = "defaultPurgeOnNoConsumers") boolean defaultPurgeOnNoConsumers,
+                                        @Parameter(desc = "consumers-before-dispatch value if none is set on the queue", name = "defaultConsumersBeforeDispatch") int defaultConsumersBeforeDispatch,
+                                        @Parameter(desc = "delay-before-dispatch value if none is set on the queue", name = "defaultDelayBeforeDispatch") long defaultDelayBeforeDispatch,
+                                        @Parameter(desc = "routing-type value if none is set on the queue", name = "defaultQueueRoutingType") String defaultQueueRoutingType,
+                                        @Parameter(desc = "routing-type value if none is set on the address", name = "defaultAddressRoutingType") String defaultAddressRoutingType,
+                                        @Parameter(desc = "consumer-window-size value if none is set on the queue", name = "defaultConsumerWindowSize") int defaultConsumerWindowSize,
+                                        @Parameter(desc = "ring-size value if none is set on the queue", name = "defaultRingSize") long defaultRingSize,
+                                        @Parameter(desc = "allow created queues to be deleted automatically", name = "autoDeleteCreatedQueues") boolean autoDeleteCreatedQueues,
+                                        @Parameter(desc = "delay for deleting auto-created queues", name = "autoDeleteQueuesDelay") long autoDeleteQueuesDelay,
+                                        @Parameter(desc = "the message count the queue must be at or below before it can be auto deleted", name = "autoDeleteQueuesMessageCount") long autoDeleteQueuesMessageCount,
+                                        @Parameter(desc = "delay for deleting auto-created addresses", name = "autoDeleteAddressesDelay") long autoDeleteAddressesDelay,
+                                        @Parameter(desc = "factor by which to modify the redelivery delay slightly to avoid collisions", name = "redeliveryCollisionAvoidanceFactor") double redeliveryCollisionAvoidanceFactor,
+                                        @Parameter(desc = "the number of messages to preserve for future queues created on the matching address", name = "retroactiveMessageCount") long retroactiveMessageCount) throws Exception {
+            proxy.invokeOperation("addAddressSettings",
+                                  addressMatch,
+                                  DLA,
+                                  expiryAddress,
+                                  expiryDelay,
+                                  lastValueQueue,
+                                  deliveryAttempts,
+                                  maxSizeBytes,
+                                  pageSizeBytes,
+                                  pageMaxCacheSize,
+                                  redeliveryDelay,
+                                  redeliveryMultiplier,
+                                  maxRedeliveryDelay,
+                                  redistributionDelay,
+                                  sendToDLAOnNoRoute,
+                                  addressFullMessagePolicy,
+                                  slowConsumerThreshold,
+                                  slowConsumerCheckPeriod,
+                                  slowConsumerPolicy,
+                                  autoCreateJmsQueues,
+                                  autoDeleteJmsQueues,
+                                  autoCreateJmsTopics,
+                                  autoDeleteJmsTopics,
+                                  autoCreateQueues,
+                                  autoDeleteQueues,
+                                  autoCreateAddresses,
+                                  autoDeleteAddresses,
+                                  configDeleteQueues,
+                                  configDeleteAddresses,
+                                  maxSizeBytesRejectThreshold,
+                                  defaultLastValueKey,
+                                  defaultNonDestructive,
+                                  defaultExclusiveQueue,
+                                  defaultGroupRebalance,
+                                  defaultGroupBuckets,
+                                  defaultGroupFirstKey,
+                                  defaultMaxConsumers,
+                                  defaultPurgeOnNoConsumers,
+                                  defaultConsumersBeforeDispatch,
+                                  defaultDelayBeforeDispatch,
+                                  defaultQueueRoutingType,
+                                  defaultAddressRoutingType,
+                                  defaultConsumerWindowSize,
+                                  defaultRingSize,
+                                  autoDeleteCreatedQueues,
+                                  autoDeleteQueuesDelay,
+                                  autoDeleteQueuesMessageCount,
+                                  autoDeleteAddressesDelay,
+                                  redeliveryCollisionAvoidanceFactor,
+                                  retroactiveMessageCount);
+         }
+
+         @Override
+         public void addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
+                                        @Parameter(desc = "the dead letter address setting", name = "DLA") String DLA,
+                                        @Parameter(desc = "the expiry address setting", name = "expiryAddress") String expiryAddress,
+                                        @Parameter(desc = "the expiry delay setting", name = "expiryDelay") long expiryDelay,
+                                        @Parameter(desc = "are any queues created for this address a last value queue", name = "lastValueQueue") boolean lastValueQueue,
+                                        @Parameter(desc = "the delivery attempts", name = "deliveryAttempts") int deliveryAttempts,
+                                        @Parameter(desc = "the max size in bytes", name = "maxSizeBytes") long maxSizeBytes,
+                                        @Parameter(desc = "the page size in bytes", name = "pageSizeBytes") int pageSizeBytes,
+                                        @Parameter(desc = "the max number of pages in the soft memory cache", name = "pageMaxCacheSize") int pageMaxCacheSize,
+                                        @Parameter(desc = "the redelivery delay", name = "redeliveryDelay") long redeliveryDelay,
+                                        @Parameter(desc = "the redelivery delay multiplier", name = "redeliveryMultiplier") double redeliveryMultiplier,
+                                        @Parameter(desc = "the maximum redelivery delay", name = "maxRedeliveryDelay") long maxRedeliveryDelay,
+                                        @Parameter(desc = "the redistribution delay", name = "redistributionDelay") long redistributionDelay,
+                                        @Parameter(desc = "do we send to the DLA when there is no where to route the message", name = "sendToDLAOnNoRoute") boolean sendToDLAOnNoRoute,
+                                        @Parameter(desc = "the policy to use when the address is full", name = "addressFullMessagePolicy") String addressFullMessagePolicy,
+                                        @Parameter(desc = "when a consumer falls below this threshold in terms of messages consumed per second it will be considered 'slow'", name = "slowConsumerThreshold") long slowConsumerThreshold,
+                                        @Parameter(desc = "how often (in seconds) to check for slow consumers", name = "slowConsumerCheckPeriod") long slowConsumerCheckPeriod,
+                                        @Parameter(desc = "the policy to use when a slow consumer is detected", name = "slowConsumerPolicy") String slowConsumerPolicy,
+                                        @Parameter(desc = "allow jms queues to be created automatically", name = "autoCreateJmsQueues") boolean autoCreateJmsQueues,
+                                        @Parameter(desc = "allow auto-created jms queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues,
+                                        @Parameter(desc = "allow jms topics to be created automatically", name = "autoCreateJmsTopics") boolean autoCreateJmsTopics,
+                                        @Parameter(desc = "allow auto-created jms topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics,
+                                        @Parameter(desc = "allow queues to be created automatically", name = "autoCreateQueues") boolean autoCreateQueues,
+                                        @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteQueues") boolean autoDeleteQueues,
+                                        @Parameter(desc = "allow topics to be created automatically", name = "autoCreateAddresses") boolean autoCreateAddresses,
+                                        @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteAddresses") boolean autoDeleteAddresses,
+                                        @Parameter(desc = "how to deal with queues deleted from XML at runtime", name = "configDeleteQueues") String configDeleteQueues,
+                                        @Parameter(desc = "how to deal with addresses deleted from XML at runtime", name = "configDeleteAddresses") String configDeleteAddresses,
+                                        @Parameter(desc = "used with `BLOCK`, the max size an address can reach before messages are rejected; works in combination with `max-size-bytes` for AMQP clients only", name = "maxSizeBytesRejectThreshold") long maxSizeBytesRejectThreshold,
+                                        @Parameter(desc = "last-value-key value if none is set on the queue", name = "defaultLastValueKey") String defaultLastValueKey,
+                                        @Parameter(desc = "non-destructive value if none is set on the queue", name = "defaultNonDestructive") boolean defaultNonDestructive,
+                                        @Parameter(desc = "exclusive value if none is set on the queue", name = "defaultExclusiveQueue") boolean defaultExclusiveQueue,
+                                        @Parameter(desc = "group-rebalance value if none is set on the queue", name = "defaultGroupRebalance") boolean defaultGroupRebalance,
+                                        @Parameter(desc = "group-buckets value if none is set on the queue", name = "defaultGroupBuckets") int defaultGroupBuckets,
+                                        @Parameter(desc = "group-first-key value if none is set on the queue", name = "defaultGroupFirstKey") String defaultGroupFirstKey,
+                                        @Parameter(desc = "max-consumers value if none is set on the queue", name = "defaultMaxConsumers") int defaultMaxConsumers,
+                                        @Parameter(desc = "purge-on-no-consumers value if none is set on the queue", name = "defaultPurgeOnNoConsumers") boolean defaultPurgeOnNoConsumers,
+                                        @Parameter(desc = "consumers-before-dispatch value if none is set on the queue", name = "defaultConsumersBeforeDispatch") int defaultConsumersBeforeDispatch,
+                                        @Parameter(desc = "delay-before-dispatch value if none is set on the queue", name = "defaultDelayBeforeDispatch") long defaultDelayBeforeDispatch,
+                                        @Parameter(desc = "routing-type value if none is set on the queue", name = "defaultQueueRoutingType") String defaultQueueRoutingType,
+                                        @Parameter(desc = "routing-type value if none is set on the address", name = "defaultAddressRoutingType") String defaultAddressRoutingType,
+                                        @Parameter(desc = "consumer-window-size value if none is set on the queue", name = "defaultConsumerWindowSize") int defaultConsumerWindowSize,
+                                        @Parameter(desc = "ring-size value if none is set on the queue", name = "defaultRingSize") long defaultRingSize,
+                                        @Parameter(desc = "allow created queues to be deleted automatically", name = "autoDeleteCreatedQueues") boolean autoDeleteCreatedQueues,
+                                        @Parameter(desc = "delay for deleting auto-created queues", name = "autoDeleteQueuesDelay") long autoDeleteQueuesDelay,
+                                        @Parameter(desc = "the message count the queue must be at or below before it can be auto deleted", name = "autoDeleteQueuesMessageCount") long autoDeleteQueuesMessageCount,
+                                        @Parameter(desc = "delay for deleting auto-created addresses", name = "autoDeleteAddressesDelay") long autoDeleteAddressesDelay,
+                                        @Parameter(desc = "factor by which to modify the redelivery delay slightly to avoid collisions", name = "redeliveryCollisionAvoidanceFactor") double redeliveryCollisionAvoidanceFactor,
+                                        @Parameter(desc = "the number of messages to preserve for future queues created on the matching address", name = "retroactiveMessageCount") long retroactiveMessageCount,
+                                        @Parameter(desc = "allow dead-letter address & queue to be created automatically", name = "autoCreateDeadLetterResources") boolean autoCreateDeadLetterResources,
+                                        @Parameter(desc = "prefix to use on auto-create dead-letter queue", name = "deadLetterQueuePrefix") String deadLetterQueuePrefix,
+                                        @Parameter(desc = "suffix to use on auto-create dead-letter queue", name = "deadLetterQueueSuffix") String deadLetterQueueSuffix,
+                                        @Parameter(desc = "allow expiry address & queue to be created automatically", name = "autoCreateExpiryResources") boolean autoCreateExpiryResources,
+                                        @Parameter(desc = "prefix to use on auto-create expiry queue", name = "expiryQueuePrefix") String expiryQueuePrefix,
+                                        @Parameter(desc = "suffix to use on auto-create expiry queue", name = "expiryQueueSuffix") String expiryQueueSuffix) throws Exception {
+            proxy.invokeOperation("addAddressSettings",
+                                  addressMatch,
+                                  DLA,
+                                  expiryAddress,
+                                  expiryDelay,
+                                  lastValueQueue,
+                                  deliveryAttempts,
+                                  maxSizeBytes,
+                                  pageSizeBytes,
+                                  pageMaxCacheSize,
+                                  redeliveryDelay,
+                                  redeliveryMultiplier,
+                                  maxRedeliveryDelay,
+                                  redistributionDelay,
+                                  sendToDLAOnNoRoute,
+                                  addressFullMessagePolicy,
+                                  slowConsumerThreshold,
+                                  slowConsumerCheckPeriod,
+                                  slowConsumerPolicy,
+                                  autoCreateJmsQueues,
+                                  autoDeleteJmsQueues,
+                                  autoCreateJmsTopics,
+                                  autoDeleteJmsTopics,
+                                  autoCreateQueues,
+                                  autoDeleteQueues,
+                                  autoCreateAddresses,
+                                  autoDeleteAddresses,
+                                  configDeleteQueues,
+                                  configDeleteAddresses,
+                                  maxSizeBytesRejectThreshold,
+                                  defaultLastValueKey,
+                                  defaultNonDestructive,
+                                  defaultExclusiveQueue,
+                                  defaultGroupRebalance,
+                                  defaultGroupBuckets,
+                                  defaultGroupFirstKey,
+                                  defaultMaxConsumers,
+                                  defaultPurgeOnNoConsumers,
+                                  defaultConsumersBeforeDispatch,
+                                  defaultDelayBeforeDispatch,
+                                  defaultQueueRoutingType,
+                                  defaultAddressRoutingType,
+                                  defaultConsumerWindowSize,
+                                  defaultRingSize,
+                                  autoDeleteCreatedQueues,
+                                  autoDeleteQueuesDelay,
+                                  autoDeleteQueuesMessageCount,
+                                  autoDeleteAddressesDelay,
+                                  redeliveryCollisionAvoidanceFactor,
+                                  retroactiveMessageCount,
+                                  autoCreateDeadLetterResources,
+                                  deadLetterQueuePrefix,
+                                  deadLetterQueueSuffix,
+                                  autoCreateExpiryResources,
+                                  expiryQueuePrefix,
+                                  expiryQueueSuffix);
          }
 
          @Override
@@ -988,13 +1361,18 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String listAllSessionsAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listAllSessionsAsJSON");
+         }
+
+         @Override
          public String listAddresses(@Parameter(name = "separator", desc = "Separator used on the string listing") String separator) throws Exception {
             return (String) proxy.invokeOperation("listAddresses", separator);
          }
 
          @Override
          public String listConnections(String filter, int page, int pageSize) throws Exception {
-            return (String) proxy.invokeOperation("listAddresses", filter, page, pageSize);
+            return (String) proxy.invokeOperation("listConnections", filter, page, pageSize);
          }
 
          @Override

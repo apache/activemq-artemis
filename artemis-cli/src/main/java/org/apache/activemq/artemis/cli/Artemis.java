@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 import io.airlift.airline.Cli;
@@ -45,6 +46,7 @@ import org.apache.activemq.artemis.cli.commands.migration1x.Migrate1X;
 import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
 import org.apache.activemq.artemis.cli.commands.queue.HelpQueue;
+import org.apache.activemq.artemis.cli.commands.queue.PurgeQueue;
 import org.apache.activemq.artemis.cli.commands.queue.UpdateQueue;
 import org.apache.activemq.artemis.cli.commands.tools.HelpData;
 import org.apache.activemq.artemis.cli.commands.tools.PrintData;
@@ -132,7 +134,6 @@ public class Artemis {
    }
 
    public static Object internalExecute(File artemisHome, File artemisInstance, String[] args, ActionContext context) throws Exception {
-
       Action action = builder(artemisInstance).build().parse(args);
       action.setHomeValues(artemisHome, artemisInstance);
 
@@ -153,8 +154,8 @@ public class Artemis {
       String instance = artemisInstance != null ? artemisInstance.getAbsolutePath() : System.getProperty("artemis.instance");
       Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line").withCommand(HelpAction.class).withCommand(Producer.class).withCommand(Consumer.class).withCommand(Browse.class).withCommand(Mask.class).withDefaultCommand(HelpAction.class);
 
-      builder.withGroup("queue").withDescription("Queue tools group (create|delete|update|stat) (example ./artemis queue create)").
-         withDefaultCommand(HelpQueue.class).withCommands(CreateQueue.class, DeleteQueue.class, UpdateQueue.class, StatQueue.class);
+      builder.withGroup("queue").withDescription("Queue tools group (create|delete|update|stat|purge) (example ./artemis queue create)").
+         withDefaultCommand(HelpQueue.class).withCommands(CreateQueue.class, DeleteQueue.class, UpdateQueue.class, StatQueue.class, PurgeQueue.class);
 
       builder.withGroup("address").withDescription("Address tools group (create|delete|update|show) (example ./artemis address create)").
          withDefaultCommand(HelpAddress.class).withCommands(CreateAddress.class, DeleteAddress.class, UpdateAddress.class, ShowAddress.class);
@@ -176,7 +177,11 @@ public class Artemis {
    }
 
    public static void printBanner() throws Exception {
-      copy(Artemis.class.getResourceAsStream("banner.txt"), System.out);
+      printBanner(System.out);
+   }
+
+   public static void printBanner(PrintStream out) throws Exception {
+      copy(Artemis.class.getResourceAsStream("banner.txt"), out);
    }
 
    private static long copy(InputStream in, OutputStream out) throws Exception {

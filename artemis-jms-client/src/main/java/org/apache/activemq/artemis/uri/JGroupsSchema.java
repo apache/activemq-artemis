@@ -52,7 +52,7 @@ public class JGroupsSchema extends AbstractCFSchema {
       } else {
          factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(dcConfig, options.getFactoryTypeEnum());
       }
-      return BeanSupport.setData(uri, factory, query);
+      return setData(uri, query, factory);
    }
 
    @Override

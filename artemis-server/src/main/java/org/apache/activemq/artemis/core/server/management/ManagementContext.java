@@ -17,11 +17,13 @@
 package org.apache.activemq.artemis.core.server.management;
 
 
-import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
-import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ManagementContext implements ActiveMQComponent {
-   private boolean isStarted = false;
+import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
+import org.apache.activemq.artemis.core.server.ServiceComponent;
+
+public class ManagementContext implements ServiceComponent {
+   private AtomicBoolean isStarted = new AtomicBoolean(false);
    private JMXAccessControlList accessControlList;
    private JMXConnectorConfiguration jmxConnectorConfiguration;
    private ManagementConnector mBeanServer;
@@ -40,20 +42,28 @@ public class ManagementContext implements ActiveMQComponent {
          mBeanServer = new ManagementConnector(jmxConnectorConfiguration);
          mBeanServer.start();
       }
-      isStarted = true;
+      isStarted.set(true);
    }
 
    @Override
    public void stop() throws Exception {
-      isStarted = false;
-      if (mBeanServer != null) {
-         mBeanServer.stop();
+      if (isStarted.getAndSet(false)) {
+         if (mBeanServer != null) {
+            mBeanServer.stop();
+         }
+      }
+   }
+
+   @Override
+   public void stop(boolean shutdown) throws Exception {
+      if (shutdown) {
+         stop();
       }
    }
 
    @Override
    public boolean isStarted() {
-      return isStarted;
+      return isStarted.get();
    }
 
    public void setAccessControlList(JMXAccessControlList accessControlList) {

@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class SessionView extends ActiveMQAbstractView<ServerSession> {
 
-   private static final String defaultSortColumn = "creationTime";
+   private static final String defaultSortColumn = "id";
 
    public SessionView() {
       super();
@@ -39,8 +39,33 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
 
    @Override
    public JsonObjectBuilder toJson(ServerSession session) {
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(session.getName())).add("user", toString(session.getUsername())).add("creationTime", new Date(session.getCreationTime()).toString()).add("consumerCount", session.getServerConsumers().size()).add("producerCount", session.getServerProducers().size()).add("connectionID", session.getConnectionID().toString());
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(session.getName()))
+         .add("user", toString(session.getUsername()))
+         .add("creationTime", new Date(session.getCreationTime()).toString())
+         .add("consumerCount", session.getConsumerCount())
+         .add("producerCount", session.getProducerCount())
+         .add("connectionID", session.getConnectionID().toString());
       return obj;
+   }
+
+   @Override
+   public Object getField(ServerSession session, String fieldName) {
+      switch (fieldName) {
+         case "id":
+            return session.getName();
+         case "user":
+            return session.getUsername();
+         case "creationTime":
+            return new Date(session.getCreationTime());
+         case "consumerCount":
+            return session.getConsumerCount();
+         case "producerCount":
+            return session.getProducerCount();
+         case "connectionID":
+            return session.getConnectionID();
+         default:
+            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      }
    }
 
    @Override

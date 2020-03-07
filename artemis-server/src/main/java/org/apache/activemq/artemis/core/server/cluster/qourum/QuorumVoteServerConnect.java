@@ -31,12 +31,16 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
    public static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LiveFailoverQuorumVote");
    private final CountDownLatch latch;
    private final String targetNodeId;
+   private final String liveConnector;
 
    private int votesNeeded;
 
    private int total = 0;
 
    private boolean decision = false;
+
+   // Is this the live requesting to stay live, or a backup requesting to become live.
+   private boolean requestToStayLive = false;
 
    /**
     * live nodes | remaining nodes |  majority   | votes needed
@@ -48,9 +52,10 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
     * 5      |       4         |     3.5     |      3
     * 6      |       5         |      4      |      4
     */
-   public QuorumVoteServerConnect(int size, String targetNodeId) {
+   public QuorumVoteServerConnect(int size, String targetNodeId, boolean requestToStayLive, String liveConnector) {
       super(LIVE_FAILOVER_VOTE);
       this.targetNodeId = targetNodeId;
+      this.liveConnector = liveConnector;
       double majority;
       if (size <= 2) {
          majority = ((double) size) / 2;
@@ -64,8 +69,12 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
       if (votesNeeded == 0) {
          decision = true;
       }
+      this.requestToStayLive = requestToStayLive;
    }
 
+   public QuorumVoteServerConnect(int size, String targetNodeId) {
+      this(size, targetNodeId, false, null);
+   }
    /**
     * if we can connect to a node
     *
@@ -73,9 +82,8 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
     */
    @Override
    public Vote connected() {
-      return new ServerConnectVote(targetNodeId);
+      return new ServerConnectVote(targetNodeId, requestToStayLive, null);
    }
-
    /**
     * if we cant connect to the node
     *
@@ -102,9 +110,19 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
    public synchronized void vote(ServerConnectVote vote) {
       if (decision)
          return;
-      if (vote.getVote()) {
+      if (!requestToStayLive && vote.getVote()) {
          total++;
          latch.countDown();
+         if (total >= votesNeeded) {
+            decision = true;
+         }//do the opposite, if it says there is a node connected it means the backup has come live
+      } else if (requestToStayLive && vote.getVote()) {
+         total++;
+         latch.countDown();
+         if (liveConnector != null && !liveConnector.equals(vote.getTransportConfiguration())) {
+            ActiveMQServerLogger.LOGGER.qourumBackupIsLive(liveConnector);
+            return;
+         }
          if (total >= votesNeeded) {
             decision = true;
          }
@@ -129,5 +147,9 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
          ActiveMQServerLogger.LOGGER.receivedAllQuorumVotes();
       else
          ActiveMQServerLogger.LOGGER.timeoutWaitingForQuorumVoteResponses();
+   }
+
+   public boolean isRequestToStayLive() {
+      return requestToStayLive;
    }
 }

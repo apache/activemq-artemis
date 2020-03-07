@@ -25,11 +25,6 @@ import javax.jms.TextMessage;
 public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMessage {
 
    /**
-    * Whether trace is enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * Create a new wrapper
     *
     * @param message the message
@@ -38,7 +33,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
    public ActiveMQRATextMessage(final TextMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (ActiveMQRATextMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
       }
    }
@@ -51,7 +46,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
     */
    @Override
    public String getText() throws JMSException {
-      if (ActiveMQRATextMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getText()");
       }
 
@@ -66,7 +61,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
     */
    @Override
    public void setText(final String string) throws JMSException {
-      if (ActiveMQRATextMessage.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setText(" + string + ")");
       }
 

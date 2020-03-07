@@ -48,6 +48,22 @@ public class SelectorTranslator {
       filterString = SelectorTranslator.parse(filterString, "JMSTimestamp", "AMQTimestamp");
       filterString = SelectorTranslator.parse(filterString, "JMSMessageID", "AMQUserID");
       filterString = SelectorTranslator.parse(filterString, "JMSExpiration", "AMQExpiration");
+      filterString = SelectorTranslator.parse(filterString, "JMSXGroupID", "AMQGroupID");
+
+      return filterString;
+
+   }
+
+   public static String convertHQToActiveMQFilterString(final String hqFilterString) {
+      if (hqFilterString == null) {
+         return null;
+      }
+
+      String filterString = SelectorTranslator.parse(hqFilterString, "HQDurable", "AMQDurable");
+      filterString = SelectorTranslator.parse(filterString, "HQPriority", "AMQPriority");
+      filterString = SelectorTranslator.parse(filterString, "HQTimestamp", "AMQTimestamp");
+      filterString = SelectorTranslator.parse(filterString, "HQUserID", "AMQUserID");
+      filterString = SelectorTranslator.parse(filterString, "HQExpiration", "AMQExpiration");
 
       return filterString;
 

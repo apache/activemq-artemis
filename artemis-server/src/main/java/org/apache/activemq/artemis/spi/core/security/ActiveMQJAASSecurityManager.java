@@ -84,6 +84,11 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
    }
 
    @Override
+   public String getDomain() {
+      return configurationName;
+   }
+
+   @Override
    public boolean validateUser(String user, String password) {
       throw new UnsupportedOperationException("Invoke validateUser(String, String, X509Certificate[]) instead");
    }

@@ -20,6 +20,7 @@ import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -73,10 +74,10 @@ public class PagedMessageImpl implements PagedMessage {
          LargeServerMessage lgMessage = storage.createLargeMessage();
 
          ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(largeMessageLazyData);
-         lgMessage = LargeMessagePersister.getInstance().decode(buffer, lgMessage);
-         lgMessage.incrementDelayDeletionCount();
+         lgMessage = LargeMessagePersister.getInstance().decode(buffer, lgMessage, null);
+         lgMessage.toMessage().usageUp();
          lgMessage.setPaged();
-         this.message = lgMessage;
+         this.message = lgMessage.toMessage();
          largeMessageLazyData = null;
       }
    }
@@ -106,12 +107,12 @@ public class PagedMessageImpl implements PagedMessage {
             largeMessageLazyData = new byte[largeMessageHeaderSize];
             buffer.readBytes(largeMessageLazyData);
          } else {
-            this.message = storageManager.createLargeMessage();
-            LargeMessagePersister.getInstance().decode(buffer, (LargeServerMessage) message);
-            ((LargeServerMessage) message).incrementDelayDeletionCount();
+            this.message = storageManager.createLargeMessage().toMessage();
+            LargeMessagePersister.getInstance().decode(buffer, (LargeServerMessage) message, null);
+            ((LargeServerMessage) message).toMessage().usageUp();
          }
       } else {
-         this.message = MessagePersister.getInstance().decode(buffer, null);
+         this.message = MessagePersister.getInstance().decode(buffer, null, null);
       }
 
       int queueIDsSize = buffer.readInt();
@@ -168,5 +169,10 @@ public class PagedMessageImpl implements PagedMessage {
          ", message=" +
          message +
          "]";
+   }
+
+   @Override
+   public long getPersistentSize() throws ActiveMQException {
+      return message.getPersistentSize();
    }
 }

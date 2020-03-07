@@ -23,9 +23,15 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -34,19 +40,26 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.Mask;
-import org.apache.activemq.artemis.cli.commands.queue.StatQueue;
 import org.apache.activemq.artemis.cli.commands.Run;
+import org.apache.activemq.artemis.cli.commands.queue.StatQueue;
 import org.apache.activemq.artemis.cli.commands.user.AddUser;
 import org.apache.activemq.artemis.cli.commands.user.ListUser;
 import org.apache.activemq.artemis.cli.commands.user.RemoveUser;
@@ -55,14 +68,18 @@ import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.HashProcessor;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.StringUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
@@ -71,6 +88,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import static org.junit.Assert.assertEquals;
@@ -88,14 +107,6 @@ public class ArtemisTest extends CliTestBase {
    public void setup() throws Exception {
       setupAuth();
       super.setup();
-   }
-
-   public void setupAuth() throws Exception {
-      setupAuth(temporaryFolder.getRoot());
-   }
-
-   public void setupAuth(File folder) throws Exception {
-      System.setProperty("java.security.auth.login.config", folder.getAbsolutePath() + "/etc/login.config");
    }
 
    @Test
@@ -137,6 +148,13 @@ public class ArtemisTest extends CliTestBase {
       //instance1: default using http
       File instance1 = new File(temporaryFolder.getRoot(), "instance1");
       Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune");
+   }
+
+
+   @Test
+   public void testCreateDB() throws Exception {
+      File instance1 = new File(temporaryFolder.getRoot(), "instance1");
+      Artemis.internalExecute("create", instance1.getAbsolutePath(), "--silent", "--jdbc");
    }
 
 
@@ -224,6 +242,99 @@ public class ArtemisTest extends CliTestBase {
       assertEquals("etc/truststore", trustPathAttr);
       String trustPass = webElem.getAttribute("trustStorePassword");
       assertEquals("password2", trustPass);
+   }
+
+   @Test
+   public void testSecurityManagerConfiguration() throws Exception {
+      setupAuth();
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance1");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--no-stomp-acceptor", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-hornetq-acceptor");
+      File originalBootstrapFile = new File(new File(instance1, "etc"), "bootstrap.xml");
+      assertTrue(originalBootstrapFile.exists());
+
+      // modify the XML programmatically since we don't support setting this stuff via the CLI
+      Document config = parseXml(originalBootstrapFile);
+      Node broker = config.getChildNodes().item(1);
+      NodeList list = broker.getChildNodes();
+      Node server = null;
+
+      for (int i = 0; i < list.getLength(); i++) {
+         Node node = list.item(i);
+         if ("jaas-security".equals(node.getNodeName())) {
+            // get rid of the default jaas-security config
+            broker.removeChild(node);
+         }
+         if ("server".equals(node.getNodeName())) {
+            server = node;
+         }
+      }
+
+      // add the new security-plugin config
+      Element securityPluginElement = config.createElement("security-manager");
+      securityPluginElement.setAttribute("class-name", TestSecurityManager.class.getName());
+      Element property1 = config.createElement("property");
+      property1.setAttribute("key", "myKey1");
+      property1.setAttribute("value", "myValue1");
+      securityPluginElement.appendChild(property1);
+      Element property2 = config.createElement("property");
+      property2.setAttribute("key", "myKey2");
+      property2.setAttribute("value", "myValue2");
+      securityPluginElement.appendChild(property2);
+      broker.insertBefore(securityPluginElement, server);
+
+      originalBootstrapFile.delete();
+
+      // write the modified config into the bootstrap.xml file
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      DOMSource source = new DOMSource(config);
+      StreamResult streamResult = new StreamResult(originalBootstrapFile);
+      transformer.transform(source, streamResult);
+
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+
+      // trigger security
+      ServerLocator locator = ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616");
+      ClientSessionFactory sessionFactory = locator.createSessionFactory();
+      ClientSession session = sessionFactory.createSession("myUser", "myPass", false, true, true, false, 0);
+      ClientProducer producer = session.createProducer("foo");
+      producer.send(session.createMessage(true));
+
+      // verify results
+      assertTrue(activeMQServer.getSecurityManager() instanceof TestSecurityManager);
+      TestSecurityManager securityPlugin = (TestSecurityManager) activeMQServer.getSecurityManager();
+      assertTrue(securityPlugin.properties.containsKey("myKey1"));
+      assertEquals("myValue1", securityPlugin.properties.get("myKey1"));
+      assertTrue(securityPlugin.properties.containsKey("myKey2"));
+      assertEquals("myValue2", securityPlugin.properties.get("myKey2"));
+      assertTrue(securityPlugin.validateUser);
+      assertEquals("myUser", securityPlugin.validateUserName);
+      assertEquals("myPass", securityPlugin.validateUserPass);
+      assertTrue(securityPlugin.validateUserAndRole);
+      assertEquals("myUser", securityPlugin.validateUserAndRoleName);
+      assertEquals("myPass", securityPlugin.validateUserAndRolePass);
+      assertEquals(CheckType.SEND, securityPlugin.checkType);
+
+      activeMQServer.stop();
+      stopServer();
+   }
+
+   @Test
+   public void testStopManagementContext() throws Exception {
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor");
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ManagementContext managementContext = ((Pair<ManagementContext, ActiveMQServer>)result).getA();
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+      activeMQServer.stop();
+      assertTrue(Wait.waitFor(() -> managementContext.isStarted() == false, 5000, 200));
+      stopServer();
    }
 
    @Test
@@ -372,6 +483,164 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
+   public void testUserCommandViaManagementPlaintext() throws Exception {
+      internalTestUserCommandViaManagement(true);
+   }
+
+   @Test
+   public void testUserCommandViaManagementHashed() throws Exception {
+      internalTestUserCommandViaManagement(false);
+   }
+
+   private void internalTestUserCommandViaManagement(boolean plaintext) throws Exception {
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor");
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+      ActiveMQServerControl activeMQServerControl = activeMQServer.getActiveMQServerControl();
+
+      File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
+      File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
+
+      //default only one user admin with role amq
+      String jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
+      checkRole("admin", roleFile, "amq");
+
+      //add a simple user
+      activeMQServerControl.addUser("guest", "guest123", "admin", plaintext);
+
+      //verify add
+      jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin");
+      checkRole("guest", roleFile, "admin");
+      assertTrue(checkPassword("guest", "guest123", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("guest", userFile)));
+
+      //add a user with 2 roles
+      activeMQServerControl.addUser("scott", "tiger", "admin,operator", plaintext);
+
+      //verify add
+      jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin");
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator");
+      checkRole("scott", roleFile, "admin", "operator");
+      assertTrue(checkPassword("scott", "tiger", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("scott", userFile)));
+
+      try {
+         activeMQServerControl.addUser("scott", "password", "visitor", plaintext);
+         fail("should throw an exception if adding a existing user");
+      } catch (IllegalArgumentException expected) {
+      }
+
+      //check existing users are intact
+      jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
+      contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin");
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin");
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator");
+
+      //check listing with just one user
+      jsonResult = activeMQServerControl.listUser("admin");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
+      contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin", false);
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin", false);
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator", false);
+
+      //check listing with another single user
+      jsonResult = activeMQServerControl.listUser("guest");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq", false);
+      contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin");
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin", false);
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator", false);
+
+      //remove a user
+      activeMQServerControl.removeUser("guest");
+      jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
+      contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin", false);
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin");
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator");
+
+      //remove another
+      activeMQServerControl.removeUser("scott");
+      jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
+      contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin", false);
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "admin", false);
+      contains(JsonUtil.readJsonArray(jsonResult), "scott", "operator", false);
+
+      //remove non-exist
+      try {
+         activeMQServerControl.removeUser("alien");
+         fail("should throw exception when removing a non-existing user");
+      } catch (IllegalArgumentException expected) {
+      }
+
+      //check
+      jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
+
+      //now remove last
+      activeMQServerControl.removeUser("admin");
+      jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq", false);
+
+      stopServer();
+   }
+
+   @Test
+   public void testMissingUserFileViaManagement() throws Exception {
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor");
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+      ActiveMQServerControl activeMQServerControl = activeMQServer.getActiveMQServerControl();
+
+      File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
+      userFile.delete();
+      //      File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
+
+      try {
+         activeMQServerControl.listUser("");
+         fail();
+      } catch (ActiveMQIllegalStateException expected) {
+      }
+
+      stopServer();
+   }
+
+   @Test
+   public void testMissingRoleFileViaManagement() throws Exception {
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor");
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+      ActiveMQServerControl activeMQServerControl = activeMQServer.getActiveMQServerControl();
+
+      File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
+      roleFile.delete();
+
+      try {
+         activeMQServerControl.listUser("");
+         fail();
+      } catch (ActiveMQIllegalStateException expected) {
+      }
+
+      stopServer();
+   }
+
+   @Test
    public void testUserCommandReset() throws Exception {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
@@ -436,9 +705,9 @@ public class ArtemisTest extends CliTestBase {
 
       assertTrue(result.contains("Total: 4"));
       assertTrue(result.contains("\"guest\"(admin)"));
-      assertTrue(result.contains("\"user1\"(admin,manager)"));
-      assertTrue(result.contains("\"user2\"(admin,manager,master)"));
-      assertTrue(result.contains("\"user3\"(master,system)"));
+      assertTrue(Pattern.compile("\"user1\"\\((admin|manager),(admin|manager)\\)").matcher(result).find());
+      assertTrue(Pattern.compile("\"user2\"\\((admin|manager|master),(admin|manager|master),(admin|manager|master)\\)").matcher(result).find());
+      assertTrue(Pattern.compile("\"user3\"\\((master|system),(master|system)\\)").matcher(result).find());
 
       checkRole("user1", roleFile, "admin", "manager");
 
@@ -468,6 +737,85 @@ public class ArtemisTest extends CliTestBase {
 
       checkRole("user3", roleFile, "admin", "system");
       assertTrue(checkPassword("user3", "newpassword3", userFile));
+   }
+
+   @Test
+   public void testUserCommandResetViaManagementPlaintext() throws Exception {
+      internalTestUserCommandResetViaManagement(true);
+   }
+
+   @Test
+   public void testUserCommandResetViaManagementHashed() throws Exception {
+      internalTestUserCommandResetViaManagement(false);
+   }
+
+   private void internalTestUserCommandResetViaManagement(boolean plaintext) throws Exception {
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor");
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+      ActiveMQServerControl activeMQServerControl = activeMQServer.getActiveMQServerControl();
+
+      File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
+      File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
+
+      //default only one user admin with role amq
+      String jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq");
+      checkRole("admin", roleFile, "amq");
+
+      //remove a user
+      activeMQServerControl.removeUser("admin");
+      jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "admin", "amq", false);
+
+      //add some users
+      activeMQServerControl.addUser("guest", "guest123", "admin", plaintext);
+      activeMQServerControl.addUser("user1", "password1", "admin,manager", plaintext);
+      assertTrue(checkPassword("user1", "password1", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user1", userFile)));
+      activeMQServerControl.addUser("user2", "password2", "admin,manager,master", plaintext);
+      activeMQServerControl.addUser("user3", "password3", "system,master", plaintext);
+
+
+      //verify use list cmd
+      jsonResult = activeMQServerControl.listUser("");
+      contains(JsonUtil.readJsonArray(jsonResult), "guest", "admin");
+      contains(JsonUtil.readJsonArray(jsonResult), "user1", "admin");
+      contains(JsonUtil.readJsonArray(jsonResult), "user1", "manager");
+      contains(JsonUtil.readJsonArray(jsonResult), "user2", "admin");
+      contains(JsonUtil.readJsonArray(jsonResult), "user2", "manager");
+      contains(JsonUtil.readJsonArray(jsonResult), "user2", "master");
+      contains(JsonUtil.readJsonArray(jsonResult), "user3", "master");
+      contains(JsonUtil.readJsonArray(jsonResult), "user3", "system");
+
+      checkRole("user1", roleFile, "admin", "manager");
+
+      //reset password
+      activeMQServerControl.resetUser("user1", "newpassword1", null, plaintext);
+
+      checkRole("user1", roleFile, "admin", "manager");
+      assertFalse(checkPassword("user1", "password1", userFile));
+      assertTrue(checkPassword("user1", "newpassword1", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user1", userFile)));
+
+      //reset role
+      activeMQServerControl.resetUser("user2", null, "manager,master,operator", plaintext);
+
+      checkRole("user2", roleFile, "manager", "master", "operator");
+      assertTrue(checkPassword("user2", "password2", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user2", userFile)));
+
+      //reset both
+      activeMQServerControl.resetUser("user3", "newpassword3", "admin,system", plaintext);
+
+      checkRole("user3", roleFile, "admin", "system");
+      assertTrue(checkPassword("user3", "newpassword3", userFile));
+      assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user3", userFile)));
+      stopServer();
    }
 
    @Test
@@ -531,7 +879,7 @@ public class ArtemisTest extends CliTestBase {
       Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--no-autotune", "--require-login");
       System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
 
-      Artemis.main("perf-journal", "--journal-type", "NIO", "--writes", "5", "--tries", "1", "--verbose");
+      Artemis.main("perf-journal", "--journal-type", "NIO", "--writes", "5", "--tries", "1");
 
    }
 
@@ -540,7 +888,7 @@ public class ArtemisTest extends CliTestBase {
       File instanceFolder = temporaryFolder.newFolder(folderName);
 
       setupAuth(instanceFolder);
-      String queues = "q1,q2";
+      String queues = "q1,q2:multicast";
       String addresses = "a1,a2";
 
 
@@ -558,8 +906,11 @@ public class ArtemisTest extends CliTestBase {
               ClientSessionFactory factory = locator.createSessionFactory();
               ClientSession coreSession = factory.createSession("admin", "admin", false, true, true, false, 0)) {
             for (String str : queues.split(",")) {
-               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString(str));
-               assertTrue("Couldn't find queue " + str, queryResult.isExists());
+               String[] seg = str.split(":");
+               RoutingType routingType = RoutingType.valueOf((seg.length == 2 ? seg[1] : "anycast").toUpperCase());
+               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString(seg[0]));
+               assertTrue("Couldn't find queue " + seg[0], queryResult.isExists());
+               assertEquals(routingType, queryResult.getRoutingType());
             }
             for (String str : addresses.split(",")) {
                ClientSession.AddressQuery queryResult = coreSession.addressQuery(SimpleString.toSimpleString(str));
@@ -574,13 +925,19 @@ public class ArtemisTest extends CliTestBase {
          }
          Artemis.internalExecute("data", "print", "--f");
 
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute("producer", "--message-count", "100", "--verbose", "--user", "admin", "--password", "admin"));
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute("producer", "--destination", "queue://q1", "--message-count", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--destination", "queue://q1", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("producer", "--destination", "queue://q1", "--text-size", "500", "--message-count", "10", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("consumer", "--destination", "queue://q1", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("producer", "--destination", "queue://q1", "--message-size", "500", "--message-count", "10", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("consumer", "--destination", "queue://q1", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("producer", "--destination", "queue://q1", "--message", "message", "--message-count", "10", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("consumer", "--destination", "queue://q1", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
 
          ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
          Connection connection = cf.createConnection("admin", "admin");
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         MessageProducer producer = session.createProducer(ActiveMQDestination.createDestination("queue://TEST", ActiveMQDestination.TYPE.QUEUE));
+         MessageProducer producer = session.createProducer(ActiveMQDestination.createDestination("queue://q1", ActiveMQDestination.TYPE.QUEUE));
 
          TextMessage message = session.createTextMessage("Banana");
          message.setStringProperty("fruit", "banana");
@@ -596,20 +953,20 @@ public class ArtemisTest extends CliTestBase {
          connection.close();
          cf.close();
 
-         assertEquals(Integer.valueOf(1), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--filter", "fruit='banana'", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(1), Artemis.internalExecute("browser", "--destination", "queue://q1", "--txt-size", "50", "--filter", "fruit='banana'", "--user", "admin", "--password", "admin"));
 
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--filter", "fruit='orange'", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute("browser", "--destination", "queue://q1", "--txt-size", "50", "--filter", "fruit='orange'", "--user", "admin", "--password", "admin"));
 
-         assertEquals(Integer.valueOf(101), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(101), Artemis.internalExecute("browser", "--destination", "queue://q1", "--txt-size", "50", "--user", "admin", "--password", "admin"));
 
          // should only receive 10 messages on browse as I'm setting messageCount=10
-         assertEquals(Integer.valueOf(10), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--message-count", "10", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(10), Artemis.internalExecute("browser", "--destination", "queue://q1", "--txt-size", "50", "--message-count", "10", "--user", "admin", "--password", "admin"));
 
          // Nothing was consumed until here as it was only browsing, check it's receiving again
-         assertEquals(Integer.valueOf(1), Artemis.internalExecute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--filter", "fruit='banana'", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(1), Artemis.internalExecute("consumer", "--destination", "queue://q1", "--txt-size", "50", "--break-on-null", "--receive-timeout", "100", "--filter", "fruit='banana'", "--user", "admin", "--password", "admin"));
 
          // Checking it was acked before
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--destination", "queue://q1", "--txt-size", "50", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
       } finally {
          stopServer();
       }
@@ -636,6 +993,27 @@ public class ArtemisTest extends CliTestBase {
 
       Assert.assertEquals("127.0.0.1", fc.getNetworkCheckList());
 
+   }
+
+   @Test
+   public void testAutoTune() throws Exception {
+      File instanceFolder = temporaryFolder.newFolder("autoTuneTest");
+
+      setupAuth(instanceFolder);
+
+      // This is usually set when run from the command line via artemis.profile
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
+
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(new File(instanceFolder, "./etc/broker.xml").toURI().toString());
+      deploymentManager.addDeployable(fc);
+
+      fc.setPageSyncTimeout(-1);
+      deploymentManager.readConfiguration();
+
+      Assert.assertNotEquals(-1, fc.getPageSyncTimeout());
    }
 
    @Test
@@ -720,6 +1098,8 @@ public class ArtemisTest extends CliTestBase {
          Assert.assertEquals("Added count", "15", parts[5].trim());
          Assert.assertEquals("Delivering count", "10", parts[6].trim());
          Assert.assertEquals("Acked count", "5", parts[7].trim());
+         Assert.assertEquals("Scheduled count", "0", parts[8].trim());
+         Assert.assertEquals("Routing type", "ANYCAST", parts[9].trim());
 
          //check all queues containing address "Test1" are displayed using Filter field ADDRESS
          context = new TestActionContext();
@@ -1018,12 +1398,6 @@ public class ArtemisTest extends CliTestBase {
       return System.getProperty("os.name", "null").toLowerCase().indexOf("win") >= 0;
    }
 
-   private void stopServer() throws Exception {
-      Artemis.internalExecute("stop");
-      assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
-      assertEquals(0, LibaioContext.getTotalMaxIO());
-   }
-
    private static Document parseXml(File xmlFile) throws ParserConfigurationException, IOException, SAXException {
       DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
       DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
@@ -1044,13 +1418,46 @@ public class ArtemisTest extends CliTestBase {
       }
    }
 
-   private boolean checkPassword(String user, String password, File userFile) throws Exception {
+   private String getStoredPassword(String user, File userFile) throws Exception {
       Configurations configs = new Configurations();
       FileBasedConfigurationBuilder<PropertiesConfiguration> userBuilder = configs.propertiesBuilder(userFile);
       PropertiesConfiguration userConfig = userBuilder.getConfiguration();
-      String storedPassword = (String) userConfig.getProperty(user);
+      return (String) userConfig.getProperty(user);
+   }
+
+   private boolean checkPassword(String user, String password, File userFile) throws Exception {
+      String storedPassword = getStoredPassword(user, userFile);
       HashProcessor processor = PasswordMaskingUtil.getHashProcessor(storedPassword);
       return processor.compare(password.toCharArray(), storedPassword);
+   }
+
+   private void contains(JsonArray users, String username, String role) {
+      contains(users, username, role, true);
+   }
+
+   private void contains(JsonArray users, String username, String role, boolean contains) {
+      boolean userFound = false;
+      boolean roleFound = false;
+      for (int i = 0; i < users.size(); i++) {
+         JsonObject user = users.getJsonObject(i);
+         if (user.getString("username").equals(username)) {
+            userFound = true;
+            JsonArray roles = user.getJsonArray("roles");
+            for (int j = 0; j < roles.size(); j++) {
+               if (roles.getString(j).equals(role)) {
+                  roleFound = true;
+                  break;
+               }
+            }
+         }
+      }
+      if (contains) {
+         assertTrue("user " + username + " not found", userFound);
+         assertTrue("role " + role + " not found", roleFound);
+      } else {
+         assertFalse("user " + username + " found", userFound);
+         assertFalse("role " + role + " found", roleFound);
+      }
    }
 
 }

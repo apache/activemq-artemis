@@ -189,7 +189,6 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
 
       private void storeMessage(long txID, long id) throws Exception {
          Message message = new CoreMessage(id, 10 * 1024);
-         message.setContext(fakePagingStore);
 
          message.getBodyBuffer().writeBytes(new byte[104]);
          message.putStringProperty("hello", "" + id);
@@ -197,7 +196,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
          storage.storeMessageTransactional(txID, message);
          storage.storeReferenceTransactional(txID, 1, id);
 
-         message.decrementRefCount();
+         message.refDown();
       }
 
    }
@@ -258,12 +257,12 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void nonDurableUp(Message message, int nonDurableCoun) {
+      public void refUp(Message message, int nonDurableCoun) {
 
       }
 
       @Override
-      public void nonDurableDown(Message message, int nonDurableCoun) {
+      public void refDown(Message message, int nonDurableCoun) {
 
       }
 
@@ -303,7 +302,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long getPageSizeBytes() {
+      public int getPageSizeBytes() {
          return 0;
       }
 
@@ -411,6 +410,11 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public boolean checkMemory(boolean runOnFailure, Runnable runnable) {
+         return false;
+      }
+
+      @Override
       public boolean checkMemory(Runnable runnable) {
          return false;
       }
@@ -468,6 +472,10 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       @Override
       public boolean checkReleasedMemory() {
          return true;
+      }
+
+      @Override
+      public void destroy() throws Exception {
       }
    }
 }

@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 
@@ -163,26 +162,16 @@ public class ConfigurationHelper {
       }
 
       String value = prop.toString();
-      Boolean useMask = (Boolean) props.get(defaultMaskPassword);
-      if (useMask == null || (!useMask)) {
-         return value;
+      Object useMaskObject = props.get(defaultMaskPassword);
+      Boolean useMask;
+      if (useMaskObject instanceof String) {
+         useMask = Boolean.parseBoolean((String)useMaskObject);
+      } else {
+         useMask = (Boolean) useMaskObject;
       }
-
       final String classImpl = (String) props.get(defaultPasswordCodec);
-
-      if (classImpl == null) {
-         throw ActiveMQClientMessageBundle.BUNDLE.noCodec();
-      }
-
-      SensitiveDataCodec<String> codec = null;
       try {
-         codec = PasswordMaskingUtil.getCodec(classImpl);
-      } catch (ActiveMQException e1) {
-         throw ActiveMQClientMessageBundle.BUNDLE.failedToGetDecoder(e1);
-      }
-
-      try {
-         return codec.decode(value);
+         return PasswordMaskingUtil.resolveMask(useMask, value, classImpl);
       } catch (Exception e) {
          throw ActiveMQClientMessageBundle.BUNDLE.errordecodingPassword(e);
       }

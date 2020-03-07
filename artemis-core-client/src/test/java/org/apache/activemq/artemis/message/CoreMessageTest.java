@@ -82,6 +82,14 @@ public class CoreMessageTest {
       Assert.assertEquals(TEXT, TextMessageUtil.readBodyText(decodedMessage.getReadOnlyBodyBuffer()).toString());
    }
 
+   @Test
+   public void testBodyBufferSize() {
+      final CoreMessage decodedMessage = decodeMessage();
+      final int bodyBufferSize = decodedMessage.getBodyBufferSize();
+      final int readonlyBodyBufferReadableBytes = decodedMessage.getReadOnlyBodyBuffer().readableBytes();
+      Assert.assertEquals(bodyBufferSize, readonlyBodyBufferReadableBytes);
+   }
+
    /** The message is received, then sent to the other side untouched */
    @Test
    public void sendThroughPackets() {
@@ -337,7 +345,7 @@ public class CoreMessageTest {
 
    public String generate(String body) throws Exception {
 
-      ClientMessageImpl message = new ClientMessageImpl(MESSAGE_TYPE, DURABLE, EXPIRATION, TIMESTAMP, PRIORITY, 10 * 1024);
+      ClientMessageImpl message = new ClientMessageImpl(MESSAGE_TYPE, DURABLE, EXPIRATION, TIMESTAMP, PRIORITY, 10 * 1024, null);
       TextMessageUtil.writeBodyText(message.getBodyBuffer(), SimpleString.toSimpleString(body));
 
       message.setAddress(ADDRESS);

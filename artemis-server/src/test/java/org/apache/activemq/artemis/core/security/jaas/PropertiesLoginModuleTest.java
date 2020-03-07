@@ -77,6 +77,13 @@ public class PropertiesLoginModuleTest extends Assert {
    }
 
    @Test
+   public void testLoginMasked() throws LoginException {
+      LoginContext context = new LoginContext("PropertiesLogin", new UserPassHandler("third", "helloworld"));
+      context.login();
+      context.logout();
+   }
+
+   @Test
    public void testLoginReload() throws Exception {
       File targetPropDir = new File("target/loginReloadTest");
       File usersFile = new File(targetPropDir, "users.properties");

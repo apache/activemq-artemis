@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
@@ -271,17 +272,21 @@ public class FileMoveManagerTest {
             File folderF = new File(dataLocation, "folder" + f);
             folderF.mkdirs();
 
+            File replicaFolder = new File(dataLocation, FileMoveManager.PREFIX + f);
+            replicaFolder.mkdir();
+
             // FILES_PER_FOLDER + f, I'm just creating more files as f grows.
             // this is just to make each folder unique somehow
             for (int i = 0; i < FILES_PER_FOLDER + f; i++) {
                createFile(folderF, i);
+               createFile(replicaFolder, i);
             }
          }
 
          manager.doMove();
 
-         // We will always have maximum of 3 folders
          Assert.assertEquals(0, manager.getNumberOfFolders());
+         Assert.assertEquals(0, manager.getFiles().length);
       }
 
       Assert.assertEquals(0, manager.getMaxID());
@@ -304,7 +309,7 @@ public class FileMoveManagerTest {
 
             PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, dataLocation, 100, null, new OrderedExecutorFactory(threadPool), true, null);
 
-            PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings, -1);
+            PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings, -1, ActiveMQDefaultConfiguration.getDefaultManagementAddress());
 
             managerImpl.start();
 
@@ -351,11 +356,12 @@ public class FileMoveManagerTest {
 
    private void checkFile(File bkpFolder, String file) throws IOException {
       File fileRead = new File(bkpFolder, file);
-      InputStreamReader stream = new InputStreamReader(new FileInputStream(fileRead));
-      BufferedReader reader = new BufferedReader(stream);
-      String valueRead = reader.readLine();
-      int id = Integer.parseInt(file.substring(0, file.indexOf('.')));
-      Assert.assertEquals("content of the file wasn't the expected", id, Integer.parseInt(valueRead));
+      try (InputStreamReader stream = new InputStreamReader(new FileInputStream(fileRead))) {
+         BufferedReader reader = new BufferedReader(stream);
+         String valueRead = reader.readLine();
+         int id = Integer.parseInt(file.substring(0, file.indexOf('.')));
+         Assert.assertEquals("content of the file wasn't the expected", id, Integer.parseInt(valueRead));
+      }
    }
 
 }

@@ -6,7 +6,7 @@
        That translates as a sync write every ${nanoseconds} nanoseconds.
 
        Note: If you specify 0 the system will perform writes directly to the disk.
-             We recommend this to be 0 if you are using journalType=MAPPED and ournal-datasync=false.
+             We recommend this to be 0 if you are using journalType=MAPPED and journal-datasync=false.
       -->
       <journal-buffer-timeout>${nanoseconds}</journal-buffer-timeout>
 

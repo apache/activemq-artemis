@@ -26,7 +26,7 @@ public class PropertiesLoader {
 
    private static final Logger logger = Logger.getLogger(PropertiesLoader.class);
 
-   static Map<FileNameKey, ReloadableProperties> staticCache = new HashMap<>();
+   static final Map<FileNameKey, ReloadableProperties> staticCache = new HashMap<>();
    protected boolean debug;
 
    public void init(Map options) {
@@ -56,7 +56,7 @@ public class PropertiesLoader {
       return Boolean.parseBoolean((String) options.get(name));
    }
 
-   public class FileNameKey {
+   public static final class FileNameKey {
 
       final File file;
       final String absPath;

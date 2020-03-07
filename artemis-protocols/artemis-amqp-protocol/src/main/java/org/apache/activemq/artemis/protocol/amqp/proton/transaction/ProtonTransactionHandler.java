@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.proton.transaction;
 import java.nio.ByteBuffer;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
@@ -47,6 +48,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
    private final int amqpCredit;
    private final int amqpLowMark;
+   private Transaction currentTx;
 
    final AMQPSessionCallback sessionSPI;
    final AMQPConnectionContext connection;
@@ -58,6 +60,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
       this.connection = connection;
       this.amqpCredit = connection.getAmqpCredits();
       this.amqpLowMark = connection.getAmqpLowCredits();
+      this.sessionSPI.setTransactionHandler(this);
    }
 
    @Override
@@ -73,45 +76,50 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          ByteBuffer buffer;
          MessageImpl msg;
 
-         connection.lock();
-         try {
-            // Replenish coordinator receiver credit on exhaustion so sender can continue
-            // transaction declare and discahrge operations.
-            if (receiver.getCredit() < amqpLowMark) {
-               receiver.flow(amqpCredit);
-            }
-
-            // Declare is generally 7 bytes and discharge is around 48 depending on the
-            // encoded size of the TXN ID.  Decode buffer has a bit of extra space but if
-            // the incoming request is to big just use a scratch buffer.
-            if (delivery.available() > DECODE_BUFFER.capacity()) {
-               buffer = ByteBuffer.allocate(delivery.available());
-            } else {
-               buffer = (ByteBuffer) DECODE_BUFFER.clear();
-            }
-
-            // Update Buffer for the next incoming command.
-            buffer.limit(receiver.recv(buffer.array(), buffer.arrayOffset(), buffer.capacity()));
-
-            receiver.advance();
-
-            msg = decodeMessage(buffer);
-         } finally {
-            connection.unlock();
+         // Replenish coordinator receiver credit on exhaustion so sender can continue
+         // transaction declare and discahrge operations.
+         if (receiver.getCredit() < amqpLowMark) {
+            receiver.flow(amqpCredit);
          }
 
-         Object action = ((AmqpValue) msg.getBody()).getValue();
+         // Declare is generally 7 bytes and discharge is around 48 depending on the
+         // encoded size of the TXN ID.  Decode buffer has a bit of extra space but if
+         // the incoming request is to big just use a scratch buffer.
+         if (delivery.available() > DECODE_BUFFER.capacity()) {
+            buffer = ByteBuffer.allocate(delivery.available());
+         } else {
+            buffer = (ByteBuffer) DECODE_BUFFER.clear();
+         }
 
+         // Update Buffer for the next incoming command.
+         buffer.limit(receiver.recv(buffer.array(), buffer.arrayOffset(), buffer.capacity()));
+
+         receiver.advance();
+
+         msg = decodeMessage(buffer);
+
+         Object action = ((AmqpValue) msg.getBody()).getValue();
          if (action instanceof Declare) {
             Binary txID = sessionSPI.newTransaction();
             Declared declared = new Declared();
             declared.setTxnId(txID);
-            connection.lock();
-            try {
-               delivery.disposition(declared);
-            } finally {
-               connection.unlock();
-            }
+            currentTx = sessionSPI.getTransaction(txID, false);
+            IOCallback ioAction = new IOCallback() {
+               @Override
+               public void done() {
+                  connection.runLater(() -> {
+                     delivery.settle();
+                     delivery.disposition(declared);
+                     connection.flush();
+                  });
+               }
+
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+                  currentTx = null;
+               }
+            };
+            sessionSPI.afterIO(ioAction);
          } else if (action instanceof Discharge) {
             Discharge discharge = (Discharge) action;
 
@@ -122,12 +130,12 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             IOCallback ioAction = new IOCallback() {
                @Override
                public void done() {
-                  connection.lock();
-                  try {
+                  connection.runLater(() -> {
+                     delivery.settle();
                      delivery.disposition(new Accepted());
-                  } finally {
-                     connection.unlock();
-                  }
+                     currentTx = null;
+                     connection.flush();
+                  });
                }
 
                @Override
@@ -146,40 +154,14 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          }
       } catch (ActiveMQAMQPException amqpE) {
          log.warn(amqpE.getMessage(), amqpE);
-         connection.lock();
-         try {
-            delivery.disposition(createRejected(amqpE.getAmqpError(), amqpE.getMessage()));
-         } finally {
-            connection.unlock();
-         }
+         delivery.settle();
+         delivery.disposition(createRejected(amqpE.getAmqpError(), amqpE.getMessage()));
          connection.flush();
       } catch (Throwable e) {
          log.warn(e.getMessage(), e);
-         connection.lock();
-         try {
-            delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
-         } finally {
-            connection.unlock();
-         }
+         delivery.settle();
+         delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
          connection.flush();
-      } finally {
-         sessionSPI.afterIO(new IOCallback() {
-            @Override
-            public void done() {
-               connection.lock();
-               try {
-                  delivery.settle();
-               } finally {
-                  connection.unlock();
-               }
-               connection.flush();
-            }
-
-            @Override
-            public void onError(int errorCode, String errorMessage) {
-
-            }
-         });
       }
    }
 
@@ -208,5 +190,9 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
       MessageImpl message = (MessageImpl) Message.Factory.create();
       message.decode(encoded);
       return message;
+   }
+
+   public Transaction getCurrentTransaction() {
+      return currentTx;
    }
 }

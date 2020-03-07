@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.spi.core.security;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -26,6 +27,10 @@ import org.apache.activemq.artemis.core.security.Role;
  * functions
  */
 public interface ActiveMQSecurityManager {
+
+   default String getDomain() {
+      return "activemq";
+   }
 
    /**
     * is this a valid user.
@@ -46,4 +51,16 @@ public interface ActiveMQSecurityManager {
     * @return true if the user is valid and they have the correct roles
     */
    boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType);
+
+   /**
+    * Initialize the manager with the given configuration properties. This method is called by the broker when the
+    * file-based configuration is read. If you're creating/configuring the plugin programmatically then the
+    * recommended approach is to simply use the manager's getters/setters rather than this method.
+    *
+    * @param properties name/value pairs used to configure the ActiveMQSecurityManager instance
+    * @return {@code this} instance
+    */
+   default ActiveMQSecurityManager init(Map<String, String> properties) {
+      return this;
+   }
 }

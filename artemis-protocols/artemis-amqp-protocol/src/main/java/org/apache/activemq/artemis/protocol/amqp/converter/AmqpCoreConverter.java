@@ -18,14 +18,25 @@
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
 import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_DATA;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_NULL;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_SEQUENCE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_BINARY;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_LIST;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_MAP;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_NULL;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_STRING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_FOOTER_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_FIRST_ACQUIRER;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_FOOTER_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_HEADER;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_HEADER_DURABLE;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_HEADER_PRIORITY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_MESSAGE_ANNOTATION_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE;
@@ -46,18 +57,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 
+import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Decimal128;
@@ -77,6 +91,7 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
+import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
 import io.netty.buffer.ByteBuf;
@@ -88,84 +103,98 @@ import io.netty.buffer.PooledByteBufAllocator;
  * */
 public class AmqpCoreConverter {
 
-   @SuppressWarnings("unchecked")
-   public static ICoreMessage toCore(AMQPMessage message) throws Exception {
+   public static ICoreMessage toCore(AMQPMessage message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
+      return message.toCore(coreMessageObjectPools);
+   }
 
-      Section body = message.getProtonMessage().getBody();
+   @SuppressWarnings("unchecked")
+   public static ICoreMessage toCore(AMQPMessage message, CoreMessageObjectPools coreMessageObjectPools, Header header, MessageAnnotations annotations, Properties properties, ApplicationProperties applicationProperties, Section body, Footer footer) throws Exception {
+      final long messageId = message.getMessageID();
+      final Symbol contentType = properties != null ? properties.getContentType() : null;
+      final String contentTypeString = contentType != null ? contentType.toString() : null;
+
       ServerJMSMessage result;
 
       if (body == null) {
-         if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), message.getProtonMessage())) {
-            result = createObjectMessage(message.getMessageID());
-         } else if (isContentType(OCTET_STREAM_CONTENT_TYPE, message.getProtonMessage()) || isContentType(null, message.getProtonMessage())) {
-            result = createBytesMessage(message.getMessageID());
+         if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), contentType)) {
+            result = createObjectMessage(messageId, coreMessageObjectPools);
+         } else if (isContentType(OCTET_STREAM_CONTENT_TYPE, contentType) || isContentType(null, contentType)) {
+            result = createBytesMessage(messageId, coreMessageObjectPools);
          } else {
-            Charset charset = getCharsetForTextualContent(message.getProtonMessage().getContentType());
+            Charset charset = getCharsetForTextualContent(contentTypeString);
             if (charset != null) {
-               result = createTextMessage(message.getMessageID());
+               result = createTextMessage(messageId, coreMessageObjectPools);
             } else {
-               result = createMessage(message.getMessageID());
+               result = createMessage(messageId, coreMessageObjectPools);
             }
          }
+
+         result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_NULL);
       } else if (body instanceof Data) {
          Binary payload = ((Data) body).getValue();
 
-         if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), message.getProtonMessage())) {
-            result = createObjectMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
-         } else if (isContentType(OCTET_STREAM_CONTENT_TYPE, message.getProtonMessage())) {
-            result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
+         if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), contentType)) {
+            result = createObjectMessage(messageId, payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
+         } else if (isContentType(OCTET_STREAM_CONTENT_TYPE, contentType)) {
+            result = createBytesMessage(messageId, payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
          } else {
-            Charset charset = getCharsetForTextualContent(message.getProtonMessage().getContentType());
+            Charset charset = getCharsetForTextualContent(contentTypeString);
             if (StandardCharsets.UTF_8.equals(charset)) {
                ByteBuffer buf = ByteBuffer.wrap(payload.getArray(), payload.getArrayOffset(), payload.getLength());
 
                try {
                   CharBuffer chars = charset.newDecoder().decode(buf);
-                  result = createTextMessage(message.getMessageID(), String.valueOf(chars));
+                  result = createTextMessage(messageId, String.valueOf(chars), coreMessageObjectPools);
                } catch (CharacterCodingException e) {
-                  result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
+                  result = createBytesMessage(messageId, payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
                }
             } else {
-               result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
+               result = createBytesMessage(messageId, payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
             }
          }
 
+         result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
       } else if (body instanceof AmqpSequence) {
          AmqpSequence sequence = (AmqpSequence) body;
-         ServerJMSStreamMessage m = createStreamMessage(message.getMessageID());
+         ServerJMSStreamMessage m = createStreamMessage(messageId, coreMessageObjectPools);
          for (Object item : sequence.getValue()) {
             m.writeObject(item);
          }
 
          result = m;
+         result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_SEQUENCE);
       } else if (body instanceof AmqpValue) {
          Object value = ((AmqpValue) body).getValue();
          if (value == null || value instanceof String) {
-            result = createTextMessage(message.getMessageID(), (String) value);
+            result = createTextMessage(messageId, (String) value, coreMessageObjectPools);
 
+            result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, value == null ? AMQP_VALUE_NULL : AMQP_VALUE_STRING);
          } else if (value instanceof Binary) {
             Binary payload = (Binary) value;
 
-            if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), message.getProtonMessage())) {
-               result = createObjectMessage(message.getMessageID(), payload);
+            if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), contentType)) {
+               result = createObjectMessage(messageId, payload, coreMessageObjectPools);
             } else {
-               result = createBytesMessage(message.getMessageID(), payload.getArray(), payload.getArrayOffset(), payload.getLength());
+               result = createBytesMessage(messageId, payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
             }
 
+            result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
          } else if (value instanceof List) {
-            ServerJMSStreamMessage m = createStreamMessage(message.getMessageID());
+            ServerJMSStreamMessage m = createStreamMessage(messageId, coreMessageObjectPools);
             for (Object item : (List<Object>) value) {
                m.writeObject(item);
             }
             result = m;
+            result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_LIST);
          } else if (value instanceof Map) {
-            result = createMapMessage(message.getMessageID(), (Map<String, Object>) value);
+            result = createMapMessage(messageId, (Map<String, Object>) value, coreMessageObjectPools);
+            result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_MAP);
          } else {
             ByteBuf buf = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
             try {
                TLSEncode.getEncoder().setByteBuffer(new NettyWritable(buf));
                TLSEncode.getEncoder().writeObject(body);
-               result = createBytesMessage(message.getMessageID(), buf.array(), 0, buf.writerIndex());
+               result = createBytesMessage(messageId, buf.array(), 0, buf.writerIndex(), coreMessageObjectPools);
             } finally {
                buf.release();
                TLSEncode.getEncoder().setByteBuffer((WritableBuffer)null);
@@ -175,26 +204,38 @@ public class AmqpCoreConverter {
          throw new RuntimeException("Unexpected body type: " + body.getClass());
       }
 
-      TypedProperties properties = message.getExtraProperties();
-      if (properties != null) {
-         for (SimpleString str : properties.getPropertyNames()) {
-            result.getInnerMessage().putBytesProperty(str, properties.getBytesProperty(str));
+      processHeader(result, header);
+      processMessageAnnotations(result, annotations);
+      processApplicationProperties(result, applicationProperties);
+      processProperties(result, properties, annotations);
+      processFooter(result, footer);
+      processExtraProperties(result, message.getExtraProperties());
+
+      // If the JMS expiration has not yet been set...
+      if (header != null && result.getJMSExpiration() == 0) {
+         // Then lets try to set it based on the message TTL.
+         long ttl = javax.jms.Message.DEFAULT_TIME_TO_LIVE;
+         if (header.getTtl() != null) {
+            ttl = header.getTtl().longValue();
+         }
+
+         if (ttl == 0) {
+            result.setJMSExpiration(0);
+         } else {
+            result.setJMSExpiration(System.currentTimeMillis() + ttl);
          }
       }
 
-      populateMessage(result, message.getProtonMessage());
-      result.getInnerMessage().setReplyTo(message.getReplyTo());
       result.getInnerMessage().setDurable(message.isDurable());
       result.getInnerMessage().setPriority(message.getPriority());
-
+      result.getInnerMessage().setAddress(message.getAddressSimpleString());
+      result.getInnerMessage().setRoutingType(message.getRoutingType());
       result.encode();
 
-      return result != null ? result.getInnerMessage() : null;
+      return result.getInnerMessage();
    }
 
-   @SuppressWarnings("unchecked")
-   protected static ServerJMSMessage populateMessage(ServerJMSMessage jms, org.apache.qpid.proton.message.Message amqp) throws Exception {
-      Header header = amqp.getHeader();
+   protected static ServerJMSMessage processHeader(ServerJMSMessage jms, Header header) throws Exception {
       if (header != null) {
          jms.setBooleanProperty(JMS_AMQP_HEADER, true);
 
@@ -226,9 +267,12 @@ public class AmqpCoreConverter {
          jms.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
       }
 
-      final MessageAnnotations ma = amqp.getMessageAnnotations();
-      if (ma != null) {
-         for (Map.Entry<?, ?> entry : ma.getValue().entrySet()) {
+      return jms;
+   }
+
+   protected static ServerJMSMessage processMessageAnnotations(ServerJMSMessage jms, MessageAnnotations annotations) throws Exception {
+      if (annotations != null && annotations.getValue() != null) {
+         for (Map.Entry<?, ?> entry : annotations.getValue().entrySet()) {
             String key = entry.getKey().toString();
             if ("x-opt-delivery-time".equals(key) && entry.getValue() != null) {
                long deliveryTime = ((Number) entry.getValue()).longValue();
@@ -240,37 +284,92 @@ public class AmqpCoreConverter {
                }
             }
 
-            setProperty(jms, JMS_AMQP_MESSAGE_ANNOTATION_PREFIX + key, entry.getValue());
+            try {
+               setProperty(jms, JMS_AMQP_MESSAGE_ANNOTATION_PREFIX + key, entry.getValue());
+            } catch (ActiveMQPropertyConversionException e) {
+               encodeUnsupportedMessagePropertyType(jms, JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX + key, entry.getValue());
+            }
          }
       }
 
-      final ApplicationProperties ap = amqp.getApplicationProperties();
-      if (ap != null) {
-         for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>) ap.getValue().entrySet()) {
-            setProperty(jms, entry.getKey().toString(), entry.getValue());
+      return jms;
+   }
+
+   private static ServerJMSMessage processApplicationProperties(ServerJMSMessage jms, ApplicationProperties properties) throws Exception {
+      if (properties != null && properties.getValue() != null) {
+         for (Map.Entry<String, Object> entry : (Set<Map.Entry<String, Object>>) properties.getValue().entrySet()) {
+            setProperty(jms, entry.getKey(), entry.getValue());
          }
       }
 
-      final Properties properties = amqp.getProperties();
+      return jms;
+   }
+
+   private static ServerJMSMessage processExtraProperties(ServerJMSMessage jms, TypedProperties properties) {
+      if (properties != null) {
+         properties.forEach((k, v) -> {
+            if (!k.equals(AMQPMessage.ADDRESS_PROPERTY)) {
+               jms.getInnerMessage().putObjectProperty(k, v);
+            }
+         });
+      }
+
+      return jms;
+   }
+
+   private static ServerJMSMessage processProperties(ServerJMSMessage jms, Properties properties, MessageAnnotations annotations) throws Exception {
       if (properties != null) {
          if (properties.getMessageId() != null) {
             jms.setJMSMessageID(AMQPMessageIdHelper.INSTANCE.toMessageIdString(properties.getMessageId()));
+            //core jms clients get JMSMessageID from UserID which is a UUID object
+            if (properties.getMessageId() instanceof UUID) {
+               //AMQP's message ID can be a UUID, keep it
+               jms.getInnerMessage().setUserID(UUIDGenerator.getInstance().fromJavaUUID((UUID) properties.getMessageId()));
+            } else {
+               jms.getInnerMessage().setUserID(UUIDGenerator.getInstance().generateUUID());
+            }
          }
+
          Binary userId = properties.getUserId();
          if (userId != null) {
             jms.setStringProperty("JMSXUserID", new String(userId.getArray(), userId.getArrayOffset(), userId.getLength(), StandardCharsets.UTF_8));
          }
          if (properties.getTo() != null) {
-            jms.setJMSDestination(new ServerDestination(properties.getTo()));
+            byte queueType = parseQueueAnnotation(annotations, AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION);
+            jms.setJMSDestination(AMQPMessageSupport.destination(queueType, properties.getTo()));
          }
          if (properties.getSubject() != null) {
             jms.setJMSType(properties.getSubject());
          }
          if (properties.getReplyTo() != null) {
-            jms.setJMSReplyTo(new ServerDestination(properties.getReplyTo()));
+            byte value = parseQueueAnnotation(annotations, AMQPMessageSupport.JMS_REPLY_TO_TYPE_MSG_ANNOTATION);
+
+            switch (value) {
+               case AMQPMessageSupport.QUEUE_TYPE:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + properties.getReplyTo());
+                  break;
+               case AMQPMessageSupport.TEMP_QUEUE_TYPE:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX + properties.getReplyTo());
+                  break;
+               case AMQPMessageSupport.TOPIC_TYPE:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + properties.getReplyTo());
+                  break;
+               case AMQPMessageSupport.TEMP_TOPIC_TYPE:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX + properties.getReplyTo());
+                  break;
+               default:
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + properties.getReplyTo());
+                  break;
+            }
          }
-         if (properties.getCorrelationId() != null) {
-            jms.setJMSCorrelationID(AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(properties.getCorrelationId()));
+         Object correlationID = properties.getCorrelationId();
+
+         if (correlationID != null) {
+            try {
+               jms.getInnerMessage().setCorrelationID(AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(correlationID));
+            } catch (IllegalArgumentException e) {
+               jms.getInnerMessage().setCorrelationID(String.valueOf(correlationID));
+            }
          }
          if (properties.getContentType() != null) {
             jms.setStringProperty(JMS_AMQP_CONTENT_TYPE, properties.getContentType().toString());
@@ -294,31 +393,54 @@ public class AmqpCoreConverter {
             jms.setJMSExpiration(properties.getAbsoluteExpiryTime().getTime());
          }
       }
+      return jms;
+   }
 
-      // If the jms expiration has not yet been set...
-      if (header != null && jms.getJMSExpiration() == 0) {
-         // Then lets try to set it based on the message ttl.
-         long ttl = javax.jms.Message.DEFAULT_TIME_TO_LIVE;
-         if (header.getTtl() != null) {
-            ttl = header.getTtl().longValue();
-         }
+   private static byte parseQueueAnnotation(MessageAnnotations annotations, Symbol symbol) {
+      Object value = (annotations != null && annotations.getValue() != null ? annotations.getValue().get(symbol) : AMQPMessageSupport.QUEUE_TYPE);
 
-         if (ttl == 0) {
-            jms.setJMSExpiration(0);
-         } else {
-            jms.setJMSExpiration(System.currentTimeMillis() + ttl);
-         }
+      byte queueType;
+      if (value == null || !(value instanceof Number)) {
+         queueType = AMQPMessageSupport.QUEUE_TYPE;
+      } else {
+         queueType = ((Number)value).byteValue();
       }
+      return queueType;
+   }
 
-      final Footer fp = amqp.getFooter();
-      if (fp != null) {
-         for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>) fp.getValue().entrySet()) {
+   @SuppressWarnings("unchecked")
+   private static ServerJMSMessage processFooter(ServerJMSMessage jms, Footer footer) throws Exception {
+      if (footer != null && footer.getValue() != null) {
+         for (Map.Entry<Symbol, Object> entry : (Set<Map.Entry<Symbol, Object>>) footer.getValue().entrySet()) {
             String key = entry.getKey().toString();
-            setProperty(jms, JMS_AMQP_FOOTER_PREFIX + key, entry.getValue());
+            try {
+               setProperty(jms, JMS_AMQP_FOOTER_PREFIX + key, entry.getValue());
+            } catch (ActiveMQPropertyConversionException e) {
+               encodeUnsupportedMessagePropertyType(jms, JMS_AMQP_ENCODED_FOOTER_PREFIX + key, entry.getValue());
+            }
          }
       }
 
       return jms;
+   }
+
+   private static void encodeUnsupportedMessagePropertyType(ServerJMSMessage jms, String key, Object value) throws JMSException {
+      final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer();
+      final EncoderImpl encoder = TLSEncode.getEncoder();
+
+      try {
+         encoder.setByteBuffer(new NettyWritable(buffer));
+         encoder.writeObject(value);
+
+         final byte[] encodedBytes = new byte[buffer.writerIndex()];
+
+         buffer.readBytes(encodedBytes);
+
+         setProperty(jms, key, encodedBytes);
+      } finally {
+         encoder.setByteBuffer((WritableBuffer) null);
+         buffer.release();
+      }
    }
 
    private static void setProperty(javax.jms.Message msg, String key, Object value) throws JMSException {

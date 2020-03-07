@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class EmbeddedActiveMQResourceTest {
@@ -45,15 +44,12 @@ public class EmbeddedActiveMQResourceTest {
       TEST_PROPERTIES = new HashMap<String, Object>(2);
       TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
       TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
-
-      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
-      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
    }
 
    public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+   public RuleChain rulechain = RuleChain.outerRule(server);
 
    ClientMessage sent = null;
 
@@ -65,13 +61,6 @@ public class EmbeddedActiveMQResourceTest {
    @After
    public void tearDown() throws Exception {
       assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return server.getMessageCount(TEST_QUEUE) == 1;
-         }
-      }, 5000, 100);
-      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE), 1, server.getMessageCount(TEST_QUEUE));
 
       ClientMessage received = server.receiveMessage(TEST_QUEUE);
       assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);

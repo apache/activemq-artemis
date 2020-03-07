@@ -65,7 +65,7 @@ public class TransportConfigurationUtil {
          @Override
          public Object run() {
             try {
-               return ClassloadingUtil.newInstanceFromClassLoader(className);
+               return ClassloadingUtil.newInstanceFromClassLoader(TransportConfigurationUtil.class, className);
             } catch (IllegalStateException e) {
                return null;
             }

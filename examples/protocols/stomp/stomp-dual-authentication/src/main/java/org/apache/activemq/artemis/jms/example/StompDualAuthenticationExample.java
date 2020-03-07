@@ -42,17 +42,18 @@ public class StompDualAuthenticationExample {
    private static final String END_OF_FRAME = "\u0000";
 
    public static void main(final String[] args) throws Exception {
-      // set up SSL keystores for Stomp connection
-      System.setProperty("javax.net.ssl.keyStore", args[0]);
-      System.setProperty("javax.net.ssl.keyStorePassword", args[1]);
-      System.setProperty("javax.net.ssl.trustStore", args[2]);
-      System.setProperty("javax.net.ssl.trustStorePassword", args[3]);
 
       Connection connection = null;
       InitialContext initialContext = null;
       Security.addProvider(new Provider());
 
       try {
+         // set up SSL keystores for Stomp connection
+         System.setProperty("javax.net.ssl.trustStore", args[0] + "client-side-truststore.jks");
+         System.setProperty("javax.net.ssl.trustStorePassword", "secureexample");
+         System.setProperty("javax.net.ssl.keyStore", args[0] + "client-side-keystore.jks");
+         System.setProperty("javax.net.ssl.keyStorePassword", "secureexample");
+
          // Step 1. Create an SSL socket to connect to the broker
          SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
          SSLSocket socket = (SSLSocket) sslsocketfactory.createSocket("localhost", 5500);
@@ -114,6 +115,11 @@ public class StompDualAuthenticationExample {
          if (connection != null) {
             connection.close();
          }
+
+         System.clearProperty("javax.net.ssl.trustStore");
+         System.clearProperty("javax.net.ssl.trustStorePassword");
+         System.clearProperty("javax.net.ssl.keyStore");
+         System.clearProperty("javax.net.ssl.keyStorePassword");
       }
    }
 

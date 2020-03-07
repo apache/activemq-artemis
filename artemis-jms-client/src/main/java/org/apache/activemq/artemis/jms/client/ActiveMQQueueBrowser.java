@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 /**
@@ -49,18 +50,22 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
 
    private SimpleString filterString;
 
+   private final boolean enable1xPrefixes;
+
    // Constructors ---------------------------------------------------------------------------------
 
    protected ActiveMQQueueBrowser(final ConnectionFactoryOptions options,
                                   final ActiveMQQueue queue,
                                   final String messageSelector,
-                                  final ClientSession session) throws JMSException {
+                                  final ClientSession session,
+                                  final boolean enable1xPrefixes) throws JMSException {
       this.options = options;
       this.session = session;
       this.queue = queue;
       if (messageSelector != null) {
          filterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(messageSelector));
       }
+      this.enable1xPrefixes = enable1xPrefixes;
    }
 
    // QueueBrowser implementation -------------------------------------------------------------------
@@ -137,7 +142,12 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
          if (hasMoreElements()) {
             ClientMessage next = current;
             current = null;
-            msg = ActiveMQMessage.createMessage(next, session, options);
+            if (enable1xPrefixes) {
+               msg = ActiveMQCompatibleMessage.createMessage(next, session, options);
+            } else {
+               msg = ActiveMQMessage.createMessage(next, session, options);
+            }
+
             try {
                msg.doBeforeReceive();
             } catch (Exception e) {

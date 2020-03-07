@@ -14,7 +14,8 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-import httplib, urlparse
+import httplib
+import urlparse
 
 conn = httplib.HTTPConnection("localhost:8080")
 conn.request("HEAD", "/queues/orders")
@@ -25,7 +26,7 @@ conn.close()
 
 createParsed = urlparse.urlparse(createLink)
 conn = httplib.HTTPConnection(createParsed.netloc)
-headers = {'Content-Type' : 'application/xml'}
+headers = {'Content-Type': 'application/xml'}
 xml = """<?xml version="1.0"?>
 <order>
    <name>Bill</name>

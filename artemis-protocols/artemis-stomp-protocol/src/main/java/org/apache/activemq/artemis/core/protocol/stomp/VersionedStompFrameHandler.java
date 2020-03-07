@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
+import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
+
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -29,9 +31,8 @@ import org.apache.activemq.artemis.core.protocol.stomp.Stomp.Headers;
 import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-
-import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public abstract class VersionedStompFrameHandler {
 
@@ -96,7 +97,7 @@ public abstract class VersionedStompFrameHandler {
       } else if (Stomp.Commands.ABORT.equals(request.getCommand())) {
          response = onAbort(request);
       } else if (Stomp.Commands.SUBSCRIBE.equals(request.getCommand())) {
-         response = onSubscribe(request);
+         return handleSubscribe(request);
       } else if (Stomp.Commands.UNSUBSCRIBE.equals(request.getCommand())) {
          response = onUnsubscribe(request);
       } else if (Stomp.Commands.CONNECT.equals(request.getCommand())) {
@@ -120,6 +121,20 @@ public abstract class VersionedStompFrameHandler {
       return response;
    }
 
+   private StompFrame handleSubscribe(StompFrame request) {
+      StompFrame response = null;
+      try {
+         StompPostReceiptFunction postProcessFunction = onSubscribe(request);
+         response = postprocess(request);
+         connection.sendFrame(response, postProcessFunction);
+         return null;
+      } catch (ActiveMQStompException e) {
+         return e.getFrame();
+      } catch (Exception e) {
+         return new ActiveMQStompException(e.getMessage(), e).setHandler(this).getFrame();
+      }
+
+   }
    public abstract StompFrame onConnect(StompFrame frame);
 
    public abstract StompFrame onDisconnect(StompFrame frame);
@@ -184,7 +199,7 @@ public abstract class VersionedStompFrameHandler {
          }
          message.setTimestamp(timestamp);
          message.setAddress(SimpleString.toSimpleString(destination));
-         StompUtils.copyStandardHeadersFromFrameToMessage(frame, message);
+         StompUtils.copyStandardHeadersFromFrameToMessage(frame, message, getPrefix(frame));
          if (frame.hasHeader(Stomp.Headers.CONTENT_LENGTH)) {
             message.setType(Message.BYTES_TYPE);
             message.getBodyBuffer().writeBytes(frame.getBodyAsBytes());
@@ -240,35 +255,48 @@ public abstract class VersionedStompFrameHandler {
       return response;
    }
 
-   public StompFrame onSubscribe(StompFrame frame) {
-      StompFrame response = null;
-      try {
-         String destination = getDestination(frame);
+   public StompPostReceiptFunction onSubscribe(StompFrame frame) throws Exception {
+      String destination = getDestination(frame);
 
-         String selector = frame.getHeader(Stomp.Headers.Subscribe.SELECTOR);
-         String ack = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
-         String id = frame.getHeader(Stomp.Headers.Subscribe.ID);
-         String durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIBER_NAME);
-         if (durableSubscriptionName == null) {
-            durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
-         }
-         RoutingType routingType = getRoutingType(frame.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), frame.getHeader(Headers.Subscribe.DESTINATION));
-         boolean noLocal = false;
-
-         if (frame.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
-            noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
-         }
-
-         connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
-      } catch (ActiveMQStompException e) {
-         response = e.getFrame();
+      String selector = frame.getHeader(Stomp.Headers.Subscribe.SELECTOR);
+      String ack = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
+      String id = frame.getHeader(Stomp.Headers.Subscribe.ID);
+      String durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIBER_NAME);
+      if (durableSubscriptionName == null) {
+         durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
       }
-
-      return response;
+      if (durableSubscriptionName == null) {
+         durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME);
+      }
+      RoutingType routingType = getRoutingType(frame.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), frame.getHeader(Headers.Subscribe.DESTINATION));
+      boolean noLocal = false;
+      if (frame.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
+         noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
+      } else if (frame.hasHeader(Stomp.Headers.Subscribe.ACTIVEMQ_NO_LOCAL)) {
+         noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
+      }
+      return connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
    }
 
-   public String getDestination(StompFrame request) {
-      return request.getHeader(Headers.Subscribe.DESTINATION);
+   public String getDestination(StompFrame request) throws Exception {
+      return getDestination(request, Headers.Subscribe.DESTINATION);
+   }
+
+   public String getDestination(StompFrame request, String header) throws Exception {
+      String destination = request.getHeader(header);
+      if (destination == null) {
+         return null;
+      }
+      return connection.getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)).toString();
+   }
+
+   public String getPrefix(StompFrame request) throws Exception {
+      String destination = request.getHeader(Headers.Send.DESTINATION);
+      if (destination == null) {
+         return null;
+      }
+      SimpleString prefix = connection.getSession().getCoreSession().getPrefix(SimpleString.toSimpleString(destination));
+      return prefix == null ? null : prefix.toString();
    }
 
    public StompFrame postprocess(StompFrame request) {
@@ -334,19 +362,29 @@ public abstract class VersionedStompFrameHandler {
 
    //sends an ERROR frame back to client if possible then close the connection
    public void onError(ActiveMQStompException e) {
-      this.connection.sendFrame(e.getFrame());
+      this.connection.sendFrame(e.getFrame(), null);
       connection.destroy();
    }
 
-   private RoutingType getRoutingType(String typeHeader, String destination) throws ActiveMQStompException {
+   private RoutingType getRoutingType(String typeHeader, String destination) throws Exception {
       // null is valid to return here so we know when the user didn't provide any routing info
       RoutingType routingType;
       if (typeHeader != null) {
          routingType = RoutingType.valueOf(typeHeader);
       } else {
-         routingType = connection.getSession().getCoreSession().getAddressAndRoutingType(SimpleString.toSimpleString(destination), null).getB();
+         routingType = connection.getSession().getCoreSession().getAddressAndRoutingType(new AddressInfo(new SimpleString(destination))).getRoutingType();
       }
       return routingType;
+   }
+
+   protected StompFrame getFailedAuthenticationResponse(String login) {
+      StompFrame response;
+      response = createStompFrame(Stomp.Responses.ERROR);
+      response.setNeedsDisconnect(true);
+      String responseText = "Security Error occurred: User name [" + login + "] or password is invalid";
+      response.setBody(responseText);
+      response.addHeader(Stomp.Headers.Error.MESSAGE, responseText);
+      return response;
    }
 
 }

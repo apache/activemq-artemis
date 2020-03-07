@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -90,7 +90,7 @@ public class MQTTPublishManager {
 
    private void createManagementConsumer() throws Exception {
       long consumerId = session.getServer().getStorageManager().generateID();
-      managementConsumer = session.getServerSession().createConsumer(consumerId, managementAddress, null, false, false, -1);
+      managementConsumer = session.getInternalServerSession().createConsumer(consumerId, managementAddress, null, false, false, -1);
       managementConsumer.setStarted(true);
    }
 
@@ -131,7 +131,7 @@ public class MQTTPublishManager {
             sendServerMessage(mqttid, message, deliveryCount, qos);
          } else {
             // Client must have disconnected and it's Subscription QoS cleared
-            consumer.individualCancel(message.getMessageID(), false);
+            consumer.individualCancel(message.getMessageID(), false, true);
          }
       }
    }
@@ -206,7 +206,8 @@ public class MQTTPublishManager {
          Pair<Long, Long> ref = outboundStore.publishReceived(messageId);
          if (ref != null) {
             Message m = MQTTUtil.createPubRelMessage(session, getManagementAddress(), messageId);
-            session.getServerSession().send(m, true);
+            //send the management message via the internal server session to bypass security.
+            session.getInternalServerSession().send(m, true);
             session.getServerSession().individualAcknowledge(ref.getB(), ref.getA());
          } else {
             session.getProtocolHandler().sendPubRel(messageId);
@@ -219,7 +220,8 @@ public class MQTTPublishManager {
    void handlePubComp(int messageId) throws Exception {
       Pair<Long, Long> ref = session.getState().getOutboundStore().publishComplete(messageId);
       if (ref != null) {
-         session.getServerSession().individualAcknowledge(managementConsumer.getID(), ref.getA());
+         //ack the message via the internal server session to bypass security.
+         session.getInternalServerSession().individualAcknowledge(managementConsumer.getID(), ref.getA());
       }
    }
 
@@ -268,18 +270,15 @@ public class MQTTPublishManager {
       ByteBuf payload;
       switch (message.getType()) {
          case Message.TEXT_TYPE:
-            try {
-               SimpleString text = message.getReadOnlyBodyBuffer().readNullableSimpleString();
-               byte[] stringPayload = text.toString().getBytes("UTF-8");
-               payload = ByteBufAllocator.DEFAULT.buffer(stringPayload.length);
-               payload.writeBytes(stringPayload);
-               break;
-            } catch (UnsupportedEncodingException e) {
-               log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage(), e);
-            }
+            SimpleString text = message.getDataBuffer().readNullableSimpleString();
+            byte[] stringPayload = text.toString().getBytes(StandardCharsets.UTF_8);
+            payload = ByteBufAllocator.DEFAULT.buffer(stringPayload.length);
+            payload.writeBytes(stringPayload);
+            break;
          default:
-            ActiveMQBuffer bufferDup = message.getReadOnlyBodyBuffer();
-            payload = bufferDup.readBytes(bufferDup.writerIndex()).byteBuf();
+            ActiveMQBuffer bodyBuffer = message.getDataBuffer();
+            payload = ByteBufAllocator.DEFAULT.buffer(bodyBuffer.writerIndex());
+            payload.writeBytes(bodyBuffer.byteBuf());
             break;
       }
       session.getProtocolHandler().send(messageId, address, qos, isRetain, payload, deliveryCount);

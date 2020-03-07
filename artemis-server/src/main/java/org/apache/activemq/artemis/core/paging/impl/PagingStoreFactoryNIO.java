@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
@@ -55,7 +56,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    // Constants -----------------------------------------------------
 
-   private static final String ADDRESS_FILE = "address.txt";
+   public static final String ADDRESS_FILE = "address.txt";
 
    // Attributes ----------------------------------------------------
 
@@ -63,7 +64,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    private final ExecutorFactory executorFactory;
 
-   protected final boolean syncNonTransactional;
+   private final boolean syncNonTransactional;
 
    private PagingManager pagingManager;
 
@@ -71,9 +72,39 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    private final long syncTimeout;
 
-   protected final StorageManager storageManager;
+   private final StorageManager storageManager;
 
    private final IOCriticalErrorListener critialErrorListener;
+
+   private final boolean readWholePage;
+
+   public File getDirectory() {
+      return directory;
+   }
+
+   public ExecutorFactory getExecutorFactory() {
+      return executorFactory;
+   }
+
+   public boolean isSyncNonTransactional() {
+      return syncNonTransactional;
+   }
+
+   public PagingManager getPagingManager() {
+      return pagingManager;
+   }
+
+   public long getSyncTimeout() {
+      return syncTimeout;
+   }
+
+   public StorageManager getStorageManager() {
+      return storageManager;
+   }
+
+   public IOCriticalErrorListener getCritialErrorListener() {
+      return critialErrorListener;
+   }
 
    public PagingStoreFactoryNIO(final StorageManager storageManager,
                                 final File directory,
@@ -82,6 +113,17 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                                 final ExecutorFactory executorFactory,
                                 final boolean syncNonTransactional,
                                 final IOCriticalErrorListener critialErrorListener) {
+      this(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener, false);
+   }
+
+   public PagingStoreFactoryNIO(final StorageManager storageManager,
+                                final File directory,
+                                final long syncTimeout,
+                                final ScheduledExecutorService scheduledExecutor,
+                                final ExecutorFactory executorFactory,
+                                final boolean syncNonTransactional,
+                                final IOCriticalErrorListener critialErrorListener,
+                                final boolean readWholePage) {
       this.storageManager = storageManager;
       this.directory = directory;
       this.executorFactory = executorFactory;
@@ -89,6 +131,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
       this.scheduledExecutor = scheduledExecutor;
       this.syncTimeout = syncTimeout;
       this.critialErrorListener = critialErrorListener;
+      this.readWholePage = readWholePage;
    }
 
    // Public --------------------------------------------------------
@@ -117,13 +160,13 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                                                StorageManager storageManager,
                                                AddressSettings addressSettings,
                                                ArtemisExecutor executor) {
-      return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
+      return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize(), readWholePage);
    }
 
    @Override
    public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
 
-      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
+      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), executorFactory.getExecutor(), syncNonTransactional);
    }
 
    @Override
@@ -135,9 +178,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
       factory.createDirs();
 
-      File fileWithID = new File(directory, guid +
-         File.separatorChar +
-         PagingStoreFactoryNIO.ADDRESS_FILE);
+      File fileWithID = new File(directory, guid + File.separatorChar + PagingStoreFactoryNIO.ADDRESS_FILE);
 
       try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileWithID)))) {
          writer.write(address.toString());
@@ -145,6 +186,14 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
       }
 
       return factory;
+   }
+
+   @Override
+   public synchronized void removeFileFactory(SequentialFileFactory fileFactory) throws Exception {
+      File directory = fileFactory.getDirectory();
+      if (directory.exists()) {
+         FileUtil.deleteDirectory(directory);
+      }
    }
 
    @Override
@@ -182,13 +231,19 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                addressString = reader.readLine();
             }
 
+            // there's no address listed in the file so we just skip it
+            if (addressString == null) {
+               ActiveMQServerLogger.LOGGER.emptyAddressFile(PagingStoreFactoryNIO.ADDRESS_FILE, file.toString());
+               continue;
+            }
+
             SimpleString address = new SimpleString(addressString);
 
             SequentialFileFactory factory = newFileFactory(guid);
 
             AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
-            PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
+            PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), executorFactory.getExecutor(), syncNonTransactional);
 
             storesReturn.add(store);
          }
@@ -197,7 +252,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
       }
    }
 
-   private SequentialFileFactory newFileFactory(final String directoryName) {
+   protected SequentialFileFactory newFileFactory(final String directoryName) {
 
       return new NIOSequentialFileFactory(new File(directory, directoryName), false, critialErrorListener, 1);
    }

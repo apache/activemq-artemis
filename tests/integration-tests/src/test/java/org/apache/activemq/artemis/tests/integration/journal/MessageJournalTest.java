@@ -27,12 +27,17 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.proton.message.Message;
+import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
 import org.junit.Test;
+
+import io.netty.buffer.Unpooled;
 
 public class MessageJournalTest extends ActiveMQTestBase {
 
@@ -78,9 +83,7 @@ public class MessageJournalTest extends ActiveMQTestBase {
       } finally {
          journalStorageManager.getMessageJournal().stop();
       }
-
    }
-
 
    @Test
    public void testStoreAMQP() throws Throwable {
@@ -90,9 +93,9 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       ProtonProtocolManagerFactory factory = (ProtonProtocolManagerFactory) server.getRemotingService().getProtocolFactoryMap().get("AMQP");
 
-      Message protonJMessage = Message.Factory.create();
+      MessageImpl protonJMessage = (MessageImpl) Message.Factory.create();
 
-      AMQPMessage message = new AMQPMessage(protonJMessage);
+      AMQPStandardMessage message = encodeAndCreateAMQPMessage(protonJMessage);
 
       message.setMessageID(333);
 
@@ -117,14 +120,19 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       try {
          journalStorageManager.getMessageJournal().start();
-
          journalStorageManager.getMessageJournal().load(committedRecords, preparedTransactions, transactionFailure);
-
          Assert.assertEquals(1, committedRecords.size());
       } finally {
          journalStorageManager.getMessageJournal().stop();
       }
-
    }
 
+   private AMQPStandardMessage encodeAndCreateAMQPMessage(MessageImpl message) {
+      NettyWritable encoded = new NettyWritable(Unpooled.buffer(1024));
+      message.encode(encoded);
+
+      NettyReadable readable = new NettyReadable(encoded.getByteBuf());
+
+      return new AMQPStandardMessage(AMQPStandardMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
+   }
 }

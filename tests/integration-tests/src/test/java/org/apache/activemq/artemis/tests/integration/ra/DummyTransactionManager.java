@@ -27,7 +27,7 @@ import javax.transaction.TransactionManager;
 
 public class DummyTransactionManager implements TransactionManager {
 
-   protected static DummyTransactionManager tm = new DummyTransactionManager();
+   public static DummyTransactionManager tm = new DummyTransactionManager();
 
    public Transaction tx;
 
@@ -49,7 +49,7 @@ public class DummyTransactionManager implements TransactionManager {
 
    @Override
    public int getStatus() throws SystemException {
-      return 0;
+      return tx.getStatus();
    }
 
    @Override

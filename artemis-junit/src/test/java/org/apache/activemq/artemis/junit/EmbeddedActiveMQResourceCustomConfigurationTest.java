@@ -37,19 +37,13 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
    static final String TEST_QUEUE = "test.queue";
    static final String TEST_ADDRESS = "test.address";
 
-   static {
-      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
-      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
-      ThreadLeakCheckRule.addKownThread("SeedGenerator Thread");
-   }
-
    CoreQueueConfiguration queueConfiguration = new CoreQueueConfiguration().setAddress(TEST_ADDRESS).setName(TEST_QUEUE);
    Configuration customConfiguration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(true).addQueueConfiguration(queueConfiguration);
 
    private EmbeddedActiveMQResource server = new EmbeddedActiveMQResource(customConfiguration);
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+   public RuleChain rulechain = RuleChain.outerRule(server);
 
    @After
    public void tear() {

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.selector;
 
 import java.util.HashMap;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.selector.filter.BooleanExpression;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.filter.Filterable;
@@ -100,14 +101,15 @@ public class SelectorTest {
       }
 
       @Override
-      public Object getProperty(String name) {
-         if ("JMSType".equals(name)) {
+      public Object getProperty(SimpleString name) {
+         String stringName = name.toString();
+         if ("JMSType".equals(stringName)) {
             return type;
          }
-         if ("JMSMessageID".equals(name)) {
+         if ("JMSMessageID".equals(stringName)) {
             return messageId;
          }
-         return properties.get(name);
+         return properties.get(stringName);
       }
 
       public Object getDestination() {

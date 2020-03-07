@@ -57,6 +57,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    private Map<String, Transformer> bridgeTransformers;
 
+   private Map<String, Transformer> federationTransformers;
+
    private Map<String, AcceptorFactory> acceptorFactories;
 
    private Map<String, Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServices;
@@ -67,6 +69,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       this.connectorServices = new ConcurrentHashMap<>();
       this.divertTransformers = new ConcurrentHashMap<>();
       this.bridgeTransformers = new ConcurrentHashMap<>();
+      this.federationTransformers = new ConcurrentHashMap<>();
       this.acceptorFactories = new ConcurrentHashMap<>();
    }
 
@@ -187,6 +190,23 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       if (transformer == null && transformerConfiguration != null && transformerConfiguration.getClassName() != null) {
          transformer = instantiateTransformer(transformerConfiguration);
          addBridgeTransformer(name, transformer);
+      }
+
+      return transformer;
+   }
+
+   @Override
+   public void addFederationTransformer(String name, Transformer transformer) {
+      federationTransformers.put(name, transformer);
+   }
+
+   @Override
+   public Transformer getFederationTransformer(String name, TransformerConfiguration transformerConfiguration) {
+      Transformer transformer = federationTransformers.get(name);
+
+      if (transformer == null && transformerConfiguration != null && transformerConfiguration.getClassName() != null) {
+         transformer = instantiateTransformer(transformerConfiguration);
+         addFederationTransformer(name, transformer);
       }
 
       return transformer;

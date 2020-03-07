@@ -20,7 +20,8 @@ package org.apache.activemq.artemis.api.core;
 import java.io.InputStream;
 import java.util.Map;
 
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
 /**
@@ -28,32 +29,52 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
  */
 public interface ICoreMessage extends Message {
 
-   LargeBodyEncoder getBodyEncoder() throws ActiveMQException;
+   LargeBodyReader getLargeBodyReader() throws ActiveMQException;
 
    int getHeadersAndPropertiesEncodeSize();
 
    @Override
    InputStream getBodyInputStream();
 
-   /** Returns a new Buffer slicing the current Body. */
+   /**
+    * Returns a new Buffer slicing the current Body.
+    */
    ActiveMQBuffer getReadOnlyBodyBuffer();
 
-   /** Return the type of the message */
+   /**
+    * Returns the length in bytes of the body buffer.
+    */
+   int getBodyBufferSize();
+
+   /**
+    * Returns a readOnlyBodyBuffer or a decompressed one if the message is compressed.
+    * or the large message buffer.
+    * @return
+    */
+   ActiveMQBuffer getDataBuffer();
+
+   /**
+    * Return the type of the message
+    */
    @Override
    byte getType();
 
-   /** the type of the message */
+   /**
+    * the type of the message
+    */
    @Override
    CoreMessage setType(byte type);
 
    /**
     * We are really interested if this is a LargeServerMessage.
+    *
     * @return
     */
    boolean isServerMessage();
 
    /**
     * The body used for this message.
+    *
     * @return
     */
    @Override
@@ -61,9 +82,23 @@ public interface ICoreMessage extends Message {
 
    int getEndOfBodyPosition();
 
+   /**
+    * Used on large messages treatment.
+    * this method is used to transfer properties from a temporary CoreMessage to a definitive one.
+    * This is used when before a Message was defined as a LargeMessages, its properties are then moved from the
+    * Temporary message to its final LargeMessage object.
+    *
+    * Be careful as this will not perform a copy of the Properties.
+    * For real copy, use the copy methods or copy constructors.
+    */
+   void moveHeadersAndProperties(Message msg);
 
-   /** Used on large messages treatment */
-   void copyHeadersAndProperties(Message msg);
+   void sendBuffer_1X(ByteBuf sendBuffer);
+
+   /**
+    * it will fix the body of incoming messages from 1.x and before versions
+    */
+   void receiveBuffer_1X(ByteBuf buffer);
 
    /**
     * @return Returns the message in Map form, useful when encoding to JSON

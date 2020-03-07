@@ -31,4 +31,6 @@ public interface Divert extends Bindable {
    SimpleString getRoutingName();
 
    Transformer getTransformer();
+
+   SimpleString getForwardAddress();
 }

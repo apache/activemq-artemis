@@ -46,8 +46,6 @@ public class StompExample {
 
          // Step 2. Send a CONNECT frame to connect to the server
          String connectFrame = "CONNECT\n" +
-            "login: guest\n" +
-            "passcode: guest\n" +
             "request-id: 1\n" +
             "\n" +
             END_OF_FRAME;

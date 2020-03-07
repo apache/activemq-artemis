@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -43,6 +45,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeFilter;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
@@ -159,6 +162,16 @@ public class QueueImplTest extends ActiveMQTestBase {
       Filter filter = new Filter() {
          @Override
          public boolean match(final Message message) {
+            return false;
+         }
+
+         @Override
+         public boolean match(Map<String, String> map) {
+            return false;
+         }
+
+         @Override
+         public boolean match(Filterable filterable) {
             return false;
          }
 
@@ -447,6 +460,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       cons1.getReferences().clear();
 
       for (MessageReference ref : refs) {
+         ref.getMessage().refUp();
          queue.acknowledge(ref);
       }
 
@@ -571,14 +585,6 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       // Test first with queueing
 
-      for (int i = 0; i < numMessages; i++) {
-         MessageReference ref = generateReference(queue, i);
-
-         refs.add(ref);
-
-         queue.addTail(ref);
-      }
-
       FakeConsumer cons1 = new FakeConsumer();
 
       FakeConsumer cons2 = new FakeConsumer();
@@ -586,6 +592,14 @@ public class QueueImplTest extends ActiveMQTestBase {
       queue.addConsumer(cons1);
 
       queue.addConsumer(cons2);
+
+      for (int i = 0; i < numMessages; i++) {
+         MessageReference ref = generateReference(queue, i);
+
+         refs.add(ref);
+
+         queue.addTail(ref);
+      }
 
       queue.resume();
 
@@ -1287,6 +1301,65 @@ public class QueueImplTest extends ActiveMQTestBase {
          totalIterator.close();
          server.stop();
       }
+   }
+
+   @Test
+   public void testGroupMessageWithManyConsumers() throws Exception {
+      final CountDownLatch firstMessageHandled = new CountDownLatch(1);
+      final CountDownLatch finished = new CountDownLatch(2);
+      final Consumer groupConsumer = new FakeConsumer() {
+
+         int count = 0;
+
+         @Override
+         public synchronized HandleStatus handle(MessageReference reference) {
+            if (count == 0) {
+               //the first message is handled and will be used to determine this consumer
+               //to be the group consumer
+               count++;
+               firstMessageHandled.countDown();
+               return HandleStatus.HANDLED;
+            } else if (count <= 2) {
+               //the next two attempts to send the second message will be done
+               //attempting a direct delivery and an async one after that
+               count++;
+               finished.countDown();
+               return HandleStatus.BUSY;
+            } else {
+               //this shouldn't happen, because the last attempt to deliver
+               //the second message should have stop the delivery loop:
+               //it will succeed just to let the message being handled and
+               //reduce the message count to 0
+               return HandleStatus.HANDLED;
+            }
+         }
+      };
+      final Consumer noConsumer = new FakeConsumer() {
+         @Override
+         public synchronized HandleStatus handle(MessageReference reference) {
+            Assert.fail("this consumer isn't allowed to consume any message");
+            throw new AssertionError();
+         }
+      };
+      final QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), QueueImplTest.queue1,
+                                            null, null, false, true, false,
+                                            scheduledExecutor, null, null, null,
+                                            ArtemisExecutor.delegate(executor), null, null);
+      queue.addConsumer(groupConsumer);
+      queue.addConsumer(noConsumer);
+      final MessageReference firstMessageReference = generateReference(queue, 1);
+      final SimpleString groupName = SimpleString.toSimpleString("group");
+      firstMessageReference.getMessage().putStringProperty(Message.HDR_GROUP_ID, groupName);
+      final MessageReference secondMessageReference = generateReference(queue, 2);
+      secondMessageReference.getMessage().putStringProperty(Message.HDR_GROUP_ID, groupName);
+      queue.addTail(firstMessageReference, true);
+      Assert.assertTrue("first message isn't handled", firstMessageHandled.await(3000, TimeUnit.MILLISECONDS));
+      Assert.assertEquals("group consumer isn't correctly set", groupConsumer, queue.getGroups().get(groupName));
+      queue.addTail(secondMessageReference, true);
+      final boolean atLeastTwoDeliverAttempts = finished.await(3000, TimeUnit.MILLISECONDS);
+      Assert.assertTrue(atLeastTwoDeliverAttempts);
+      Thread.sleep(1000);
+      Assert.assertEquals("The second message should be in the queue", 1, queue.getMessageCount());
    }
 
    private QueueImpl getNonDurableQueue() {

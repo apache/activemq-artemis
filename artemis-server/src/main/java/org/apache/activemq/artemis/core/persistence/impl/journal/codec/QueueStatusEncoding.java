@@ -18,16 +18,16 @@
 package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class QueueStatusEncoding extends QueueEncoding {
 
-   private QueueStatus status;
+   private AddressQueueStatus status;
 
    private long id;
 
-   public QueueStatusEncoding(long queueID, QueueStatus status) {
+   public QueueStatusEncoding(long queueID, AddressQueueStatus status) {
       super(queueID);
       this.status = status;
    }
@@ -40,7 +40,7 @@ public class QueueStatusEncoding extends QueueEncoding {
    public void decode(final ActiveMQBuffer buffer) {
       super.decode(buffer);
       short shortStatus = buffer.readShort();
-      this.status = QueueStatus.fromID(shortStatus);
+      this.status = AddressQueueStatus.fromID(shortStatus);
    }
 
    @Override
@@ -49,7 +49,7 @@ public class QueueStatusEncoding extends QueueEncoding {
       buffer.writeShort(status.id);
    }
 
-   public QueueStatus getStatus() {
+   public AddressQueueStatus getStatus() {
       return status;
    }
 

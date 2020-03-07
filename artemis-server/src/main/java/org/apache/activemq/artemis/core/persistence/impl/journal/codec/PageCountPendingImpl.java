@@ -23,16 +23,17 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PageCountPendingImpl implements EncodingSupport, PageCountPending {
 
+
    @Override
    public String toString() {
-      return "PageCountPending [queueID=" + queueID + ", pageID=" + pageID + "]";
+      return "PageCountPendingImpl [queueID=" + queueID + ", pageID=" + pageID + "]";
    }
 
    public PageCountPendingImpl() {
 
    }
 
-   public PageCountPendingImpl(long queueID, long pageID, int inc) {
+   public PageCountPendingImpl(long queueID, long pageID) {
       this.queueID = queueID;
       this.pageID = pageID;
    }

@@ -25,6 +25,10 @@ public interface CriticalAnalyzer extends ActiveMQComponent {
    default void clear() {
    }
 
+   default int getNumberOfComponents() {
+      return 0;
+   }
+
    boolean isMeasuring();
 
    void add(CriticalComponent component);
@@ -38,6 +42,8 @@ public interface CriticalAnalyzer extends ActiveMQComponent {
    CriticalAnalyzer setTimeout(long timeout, TimeUnit unit);
 
    long getTimeout(TimeUnit unit);
+
+   long getTimeoutNanoSeconds();
 
    CriticalAnalyzer addAction(CriticalAction action);
 

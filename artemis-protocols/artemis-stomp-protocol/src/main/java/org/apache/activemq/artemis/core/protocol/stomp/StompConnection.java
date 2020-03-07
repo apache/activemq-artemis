@@ -16,19 +16,25 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
+import javax.security.auth.Subject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -50,12 +56,13 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.VersionLoader;
-
-import javax.security.auth.Subject;
+import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public final class StompConnection implements RemotingConnection {
+
+   private static final Logger logger = Logger.getLogger(StompConnection.class);
 
    protected static final String CONNECTION_ID_PROP = "__AMQ_CID";
    private static final String SERVER_NAME = "ActiveMQ-Artemis/" + VersionLoader.getVersion().getFullVersion() +
@@ -105,7 +112,7 @@ public final class StompConnection implements RemotingConnection {
 
    private final ScheduledExecutorService scheduledExecutorService;
 
-   private final ExecutorFactory factory;
+   private final ExecutorFactory executorFactory;
 
    @Override
    public boolean isSupportReconnect() {
@@ -114,6 +121,12 @@ public final class StompConnection implements RemotingConnection {
 
    public VersionedStompFrameHandler getStompVersionHandler() {
       return frameHandler;
+   }
+
+
+   @Override
+   public void scheduledFlush() {
+      flush();
    }
 
    public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException {
@@ -125,7 +138,7 @@ public final class StompConnection implements RemotingConnection {
             case ActiveMQStompException.INVALID_EOL_V10:
                if (version != null)
                   throw e;
-               frameHandler = new StompFrameHandlerV12(this, scheduledExecutorService, factory);
+               frameHandler = new StompFrameHandlerV12(this, scheduledExecutorService, executorFactory);
                buffer.resetReaderIndex();
                frame = decode(buffer);
                break;
@@ -142,7 +155,7 @@ public final class StompConnection implements RemotingConnection {
 
    @Override
    public boolean isWritable(ReadyListener callback) {
-      return transportConnection.isWritable(callback);
+      return transportConnection.isWritable(callback) && transportConnection.isOpen();
    }
 
    public boolean hasBytes() {
@@ -153,23 +166,23 @@ public final class StompConnection implements RemotingConnection {
                    final Connection transportConnection,
                    final StompProtocolManager manager,
                    final ScheduledExecutorService scheduledExecutorService,
-                   final ExecutorFactory factory) {
+                   final ExecutorFactory executorFactory) {
       this.scheduledExecutorService = scheduledExecutorService;
 
-      this.factory = factory;
+      this.executorFactory = executorFactory;
 
       this.transportConnection = transportConnection;
 
       this.manager = manager;
 
-      this.frameHandler = new StompFrameHandlerV10(this, scheduledExecutorService, factory);
+      this.frameHandler = new StompFrameHandlerV10(this, scheduledExecutorService, executorFactory);
 
       this.creationTime = System.currentTimeMillis();
 
       this.acceptorUsed = acceptorUsed;
 
-      this.enableMessageID = ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID, false, acceptorUsed.getConfiguration());
-      this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, acceptorUsed.getConfiguration());
+      this.enableMessageID = ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID_DEPRECATED, false, acceptorUsed.getConfiguration()) || ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID, false, acceptorUsed.getConfiguration());
+      this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE_DEPRECATED, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, acceptorUsed.getConfiguration()), acceptorUsed.getConfiguration());
    }
 
    @Override
@@ -255,43 +268,51 @@ public final class StompConnection implements RemotingConnection {
 
    // TODO this should take a type - send or receive so it knows whether to check the address or the queue
    public void checkDestination(String destination) throws ActiveMQStompException {
-      if (!manager.destinationExists(getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)).toString())) {
+      if (!manager.destinationExists(destination)) {
          throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
       }
    }
 
-   public boolean autoCreateDestinationIfPossible(String queue, RoutingType routingType) throws ActiveMQStompException {
-      boolean result = false;
-      ServerSession session = getSession().getCoreSession();
-
+   public void autoCreateDestinationIfPossible(String queue, RoutingType routingType) throws ActiveMQStompException {
       try {
-         if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
-            AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
-            if (routingType != null && routingType == RoutingType.MULTICAST && addressSettings.isAutoCreateAddresses()) {
-               session.createAddress(SimpleString.toSimpleString(queue), RoutingType.MULTICAST, true);
-               result = true;
-            } else {
-               if (addressSettings.isAutoCreateAddresses()) {
-                  session.createAddress(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, true);
-                  result = true;
-               }
-               if (addressSettings.isAutoCreateQueues()) {
-                  session.createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), RoutingType.ANYCAST, null, false, true, true);
-                  result = true;
-               }
+         ServerSession session = getSession().getCoreSession();
+         SimpleString simpleQueue = SimpleString.toSimpleString(queue);
+         AddressInfo addressInfo = manager.getServer().getAddressInfo(simpleQueue);
+         AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
+         RoutingType effectiveAddressRoutingType = routingType == null ? addressSettings.getDefaultAddressRoutingType() : routingType;
+         /**
+          * If the address doesn't exist then it is created if possible.
+          * If the address does exist but doesn't support the routing-type then the address is updated if possible.
+          */
+         if (addressInfo == null) {
+            if (addressSettings.isAutoCreateAddresses()) {
+               session.createAddress(simpleQueue, effectiveAddressRoutingType, true);
             }
+         } else if (!addressInfo.getRoutingTypes().contains(effectiveAddressRoutingType)) {
+            if (addressSettings.isAutoCreateAddresses()) {
+               EnumSet<RoutingType> routingTypes = EnumSet.noneOf(RoutingType.class);
+               for (RoutingType existingRoutingType : addressInfo.getRoutingTypes()) {
+                  routingTypes.add(existingRoutingType);
+               }
+               routingTypes.add(effectiveAddressRoutingType);
+               manager.getServer().updateAddressInfo(simpleQueue, routingTypes);
+            }
+         }
+
+         // only auto create the queue if the address is ANYCAST
+         if (effectiveAddressRoutingType == RoutingType.ANYCAST && addressSettings.isAutoCreateQueues() && manager.getServer().locateQueue(simpleQueue) == null) {
+            session.createQueue(simpleQueue, simpleQueue, routingType == null ? addressSettings.getDefaultQueueRoutingType() : routingType, null, false, true, true);
          }
       } catch (ActiveMQQueueExistsException e) {
          // ignore
       } catch (Exception e) {
+         ActiveMQStompProtocolLogger.LOGGER.debug("Exception while auto-creating destination", e);
          throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
       }
-
-      return result;
    }
 
    public void checkRoutingSemantics(String destination, RoutingType routingType) throws ActiveMQStompException {
-      AddressInfo addressInfo = manager.getServer().getAddressInfo(getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)));
+      AddressInfo addressInfo = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination));
 
       // may be null here if, for example, the management address is being checked
       if (addressInfo != null) {
@@ -313,15 +334,11 @@ public final class StompConnection implements RemotingConnection {
          if (destroyed) {
             return;
          }
-      }
 
-      destroyed = true;
+         destroyed = true;
+      }
 
       internalClose();
-
-      synchronized (sendLock) {
-         callClosingListeners();
-      }
    }
 
    public Acceptor getAcceptorUsed() {
@@ -329,9 +346,17 @@ public final class StompConnection implements RemotingConnection {
    }
 
    private void internalClose() {
+      if (frameHandler != null) {
+         frameHandler.disconnect();
+      }
+
       transportConnection.close();
 
       manager.cleanup(this);
+
+      synchronized (sendLock) {
+         callClosingListeners();
+      }
    }
 
    @Override
@@ -343,23 +368,35 @@ public final class StompConnection implements RemotingConnection {
 
          StompFrame frame = frameHandler.createStompFrame(Stomp.Responses.ERROR);
          frame.addHeader(Stomp.Headers.Error.MESSAGE, me.getMessage());
-         sendFrame(frame);
+         sendFrame(frame, null);
 
          destroyed = true;
       }
 
       ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
 
-      if (frameHandler != null) {
-         frameHandler.disconnect();
-      }
-
       // Then call the listeners
       callFailureListeners(me);
 
-      callClosingListeners();
-
       internalClose();
+   }
+
+   @Override
+   public Future asyncFail(ActiveMQException me) {
+
+      FutureTask<Void> task = new FutureTask(() -> {
+         fail(me);
+         return null;
+      });
+
+      if (this.executorFactory == null) {
+         // only tests cases can do this
+         task.run();
+      } else {
+         executorFactory.getExecutor().execute(task);
+      }
+
+      return task;
    }
 
    @Override
@@ -417,8 +454,16 @@ public final class StompConnection implements RemotingConnection {
       return login;
    }
 
+   public void setLogin(String login) {
+      this.login = login;
+   }
+
    public String getPasscode() {
       return passcode;
+   }
+
+   public void setPasscode(String passcode) {
+      this.passcode = passcode;
    }
 
    @Override
@@ -503,7 +548,7 @@ public final class StompConnection implements RemotingConnection {
       }
 
       if (this.version != (StompVersions.V1_0)) {
-         VersionedStompFrameHandler newHandler = VersionedStompFrameHandler.getHandler(this, this.version, scheduledExecutorService, factory);
+         VersionedStompFrameHandler newHandler = VersionedStompFrameHandler.getHandler(this, this.version, scheduledExecutorService, executorFactory);
          newHandler.initDecoder(this.frameHandler);
          this.frameHandler = newHandler;
       }
@@ -552,7 +597,7 @@ public final class StompConnection implements RemotingConnection {
       }
 
       if (reply != null) {
-         sendFrame(reply);
+         sendFrame(reply, null);
       }
 
       if (Stomp.Commands.DISCONNECT.equals(cmd)) {
@@ -560,28 +605,40 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   public void sendFrame(StompFrame frame) {
-      manager.sendReply(this, frame);
+   public void logFrame(StompFrame request, boolean in) {
+      if (logger.isDebugEnabled()) {
+         StringBuilder message = new StringBuilder()
+            .append("STOMP(")
+            .append(getRemoteAddress())
+            .append(", ")
+            .append(this.getID())
+            .append("):");
+
+         if (in) {
+            message.append(" IN << ");
+         } else {
+            message.append("OUT >> ");
+         }
+
+         message.append(request);
+
+         logger.debug(message.toString());
+      }
    }
 
-   public boolean validateUser(final String login, final String pass, final RemotingConnection connection) {
-      this.valid = manager.validateUser(login, pass, connection);
-      if (valid) {
-         this.login = login;
-         this.passcode = pass;
-      }
-      return valid;
+   public void sendFrame(StompFrame frame, StompPostReceiptFunction function) {
+      manager.sendReply(this, frame, function);
    }
 
    public CoreMessage createServerMessage() {
       return manager.createServerMessage();
    }
 
-   public StompSession getSession() throws ActiveMQStompException {
+   public StompSession getSession() throws ActiveMQStompException, ActiveMQSecurityException {
       return getSession(null);
    }
 
-   public StompSession getSession(String txID) throws ActiveMQStompException {
+   public StompSession getSession(String txID) throws ActiveMQStompException, ActiveMQSecurityException {
       StompSession session = null;
       try {
          if (txID == null) {
@@ -589,6 +646,8 @@ public final class StompConnection implements RemotingConnection {
          } else {
             session = manager.getTransactedSession(this, txID);
          }
+      } catch (ActiveMQSecurityException e) {
+         throw e;
       } catch (Exception e) {
          throw BUNDLE.errorGetSession(e).setHandler(frameHandler);
       }
@@ -603,15 +662,15 @@ public final class StompConnection implements RemotingConnection {
    }
 
    protected void sendServerMessage(ICoreMessage message, String txID) throws ActiveMQStompException {
-      StompSession stompSession = getSession(txID);
-
-      if (stompSession.isNoLocal()) {
-         message.putStringProperty(CONNECTION_ID_PROP, getID().toString());
-      }
-      if (isEnableMessageID()) {
-         message.putStringProperty("amqMessageId", "STOMP" + message.getMessageID());
-      }
       try {
+         StompSession stompSession = getSession(txID);
+
+         if (stompSession.isNoLocal()) {
+            message.putStringProperty(CONNECTION_ID_PROP, getID().toString());
+         }
+         if (isEnableMessageID()) {
+            message.putStringProperty("amqMessageId", "STOMP" + message.getMessageID());
+         }
          if (minLargeMessageSize == -1 || (message.getBodyBuffer().writerIndex() < minLargeMessageSize)) {
             stompSession.sendInternal(message, false);
          } else {
@@ -660,7 +719,7 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   void subscribe(String destination,
+   StompPostReceiptFunction subscribe(String destination,
                   String selector,
                   String ack,
                   String id,
@@ -694,7 +753,7 @@ public final class StompConnection implements RemotingConnection {
       }
 
       try {
-         manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
+         return manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
@@ -705,6 +764,8 @@ public final class StompConnection implements RemotingConnection {
    public void unsubscribe(String subscriptionID, String durableSubscriptionName) throws ActiveMQStompException {
       try {
          manager.unsubscribe(this, subscriptionID, durableSubscriptionName);
+      } catch (ActiveMQAddressDoesNotExistException e) {
+         // this could happen if multiple clients unsubscribe simultaneously and auto-delete-addresses = true
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
@@ -743,7 +804,7 @@ public final class StompConnection implements RemotingConnection {
 
    //send a ping stomp frame
    public void ping(StompFrame pingFrame) {
-      manager.sendReply(this, pingFrame);
+      manager.sendReply(this, pingFrame, null);
    }
 
    public void physicalSend(StompFrame frame) throws Exception {
@@ -754,6 +815,14 @@ public final class StompConnection implements RemotingConnection {
 
       if (stompListener != null) {
          stompListener.replySent(frame);
+      }
+
+      if (frame.getCommand().equals(Stomp.Responses.ERROR)) {
+         String message = "no message header";
+         if (frame.hasHeader(Stomp.Headers.Error.MESSAGE)) {
+            message = frame.getHeader(Stomp.Headers.Error.MESSAGE);
+         }
+         ActiveMQStompProtocolLogger.LOGGER.sentErrorToClient(getTransportConnection().getRemoteAddress(), message);
       }
 
    }
@@ -798,4 +867,11 @@ public final class StompConnection implements RemotingConnection {
    public String getProtocolName() {
       return StompProtocolManagerFactory.STOMP_PROTOCOL_NAME;
    }
+
+   @Override
+   public String getTransportLocalAddress() {
+      // TODO Auto-generated method stub
+      return getTransportConnection().getLocalAddress();
+   }
+
 }

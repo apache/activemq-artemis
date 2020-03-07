@@ -28,6 +28,12 @@ public interface PagePosition extends Comparable<PagePosition> {
 
    int getMessageNr();
 
+   int getFileOffset();
+
+   long getPersistentSize();
+
+   void setPersistentSize(long persistentSize);
+
    PagePosition nextMessage();
 
    PagePosition nextPage();

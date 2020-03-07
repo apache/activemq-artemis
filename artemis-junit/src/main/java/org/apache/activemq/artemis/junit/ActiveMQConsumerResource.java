@@ -50,21 +50,37 @@ public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
    ClientConsumer consumer;
 
    public ActiveMQConsumerResource(String url, String queueName) {
-      this(url, SimpleString.toSimpleString(queueName));
+      this(url, SimpleString.toSimpleString(queueName), null, null);
+   }
+
+   public ActiveMQConsumerResource(String url, String queueName, String username, String password) {
+      this(url, SimpleString.toSimpleString(queueName), username, password);
+   }
+
+   public ActiveMQConsumerResource(String url, SimpleString queueName, String username, String password) {
+      super(url, username, password);
+      this.queueName = queueName;
    }
 
    public ActiveMQConsumerResource(String url, SimpleString queueName) {
-      super(url);
-      this.queueName = queueName;
+      this(url, queueName, null, null);
+   }
+
+   public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName, String username, String password) {
+      this(serverLocator, SimpleString.toSimpleString(queueName), username, password);
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName) {
-      this(serverLocator, SimpleString.toSimpleString(queueName));
+      this(serverLocator, SimpleString.toSimpleString(queueName), null, null);
+   }
+
+   public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName, String username, String password) {
+      super(serverLocator, username, password);
+      this.queueName = queueName;
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName) {
-      super(serverLocator);
-      this.queueName = queueName;
+      this(serverLocator, queueName, null, null);
    }
 
    public long getDefaultReceiveTimeout() {

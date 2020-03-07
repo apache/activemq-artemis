@@ -20,7 +20,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,31 +27,42 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQNullRefException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.PriorityAware;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -71,31 +81,39 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.Redistributor;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
+import org.apache.activemq.artemis.core.server.metrics.QueueMetricNames;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.BindingsTransactionImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.BooleanUtil;
 import org.apache.activemq.artemis.utils.Env;
-import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
+import org.apache.activemq.artemis.utils.collections.SingletonIterator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.jboss.logging.Logger;
+import org.jctools.queues.MpscUnboundedArrayQueue;
 
 /**
  * Implementation of a Queue
@@ -104,13 +122,18 @@ import org.jboss.logging.Logger;
  */
 public class QueueImpl extends CriticalComponentImpl implements Queue {
 
-   protected static final int CRITICAL_PATHS = 4;
+   protected static final int CRITICAL_PATHS = 5;
    protected static final int CRITICAL_PATH_ADD_TAIL = 0;
    protected static final int CRITICAL_PATH_ADD_HEAD = 1;
    protected static final int CRITICAL_DELIVER = 2;
    protected static final int CRITICAL_CONSUMER = 3;
+   protected static final int CRITICAL_CHECK_DEPAGE = 4;
 
    private static final Logger logger = Logger.getLogger(QueueImpl.class);
+   private static final AtomicIntegerFieldUpdater<QueueImpl> dispatchingUpdater = AtomicIntegerFieldUpdater.newUpdater(QueueImpl.class, "dispatching");
+   private static final AtomicLongFieldUpdater<QueueImpl> dispatchStartTimeUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "dispatchStartTime");
+   private static final AtomicLongFieldUpdater<QueueImpl> consumerRemovedTimestampUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "consumerRemovedTimestamp");
+   private static final AtomicReferenceFieldUpdater<QueueImpl, Filter> filterUpdater = AtomicReferenceFieldUpdater.newUpdater(QueueImpl.class, Filter.class, "filter");
 
    public static final int REDISTRIBUTOR_BATCH_SIZE = 100;
 
@@ -126,19 +149,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     */
    public static final int DELIVERY_TIMEOUT = 1000;
 
-   private static final int FLUSH_TIMEOUT = 10000;
-
    public static final int DEFAULT_FLUSH_LIMIT = 500;
 
    private final long id;
 
    private final SimpleString name;
 
-   private final SimpleString user;
+   private SimpleString user;
 
    private volatile Filter filter;
 
-   private final boolean durable;
+   private final boolean propertyDurable;
 
    private final boolean temporary;
 
@@ -148,21 +169,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean queueDestroyed = false;
 
+   private final PagingStore pagingStore;
+
    private final PageSubscription pageSubscription;
 
    private ReferenceCounter refCountForConsumers;
 
-   private final LinkedListIterator<PagedReference> pageIterator;
+   private final PageIterator pageIterator;
 
    private volatile boolean printErrorExpiring = false;
 
    // Messages will first enter intermediateMessageReferences
    // Before they are added to messageReferences
    // This is to avoid locking the queue on the producer
-   private final ConcurrentLinkedQueue<MessageReference> intermediateMessageReferences = new ConcurrentLinkedQueue<>();
+   private final MpscUnboundedArrayQueue<MessageReference> intermediateMessageReferences = new MpscUnboundedArrayQueue<>(8192);
 
    // This is where messages are stored
-   private final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES);
+   private final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES, MessageReferenceImpl.getIDComparator());
 
    // The quantity of pagedReferences on messageReferences priority list
    private final AtomicInteger pagedReferences = new AtomicInteger(0);
@@ -170,28 +193,30 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // The estimate of memory being consumed by this queue. Used to calculate instances of messages to depage
    private final AtomicInteger queueMemorySize = new AtomicInteger(0);
 
-   // used to control if we should recalculate certain positions inside deliverAsync
-   private volatile boolean consumersChanged = true;
+   private final QueueMessageMetrics pendingMetrics = new QueueMessageMetrics(this, "pending");
 
-   private final List<ConsumerHolder> consumerList = new CopyOnWriteArrayList<>();
+   private final QueueMessageMetrics deliveringMetrics = new QueueMessageMetrics(this, "delivering");
 
-   private final ScheduledDeliveryHandler scheduledDeliveryHandler;
+   protected final ScheduledDeliveryHandler scheduledDeliveryHandler;
 
    private AtomicLong messagesAdded = new AtomicLong(0);
 
    private AtomicLong messagesAcknowledged = new AtomicLong(0);
 
+   private AtomicLong ackAttempts = new AtomicLong(0);
+
    private AtomicLong messagesExpired = new AtomicLong(0);
 
    private AtomicLong messagesKilled = new AtomicLong(0);
 
-   protected final AtomicInteger deliveringCount = new AtomicInteger(0);
+   private AtomicLong messagesReplaced = new AtomicLong(0);
 
    private boolean paused;
 
    private long pauseStatusRecord = -1;
 
-   private static final int MAX_SCHEDULED_RUNNERS = 2;
+   private static final int MAX_SCHEDULED_RUNNERS = 1;
+   private static final int MAX_DEPAGE_NUM = MAX_DELIVERIES_IN_LOOP * MAX_SCHEDULED_RUNNERS;
 
    // We don't ever need more than two DeliverRunner on the executor's list
    // that is getting the worse scenario possible when one runner is almost finishing before the second started
@@ -199,6 +224,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private final AtomicInteger scheduledRunners = new AtomicInteger(0);
 
    private final Runnable deliverRunner = new DeliverRunner();
+
+   //This lock is used to prevent deadlocks between direct and async deliveries
+   private final ReentrantLock deliverLock = new ReentrantLock();
+
+   private final ReentrantLock depageLock = new ReentrantLock();
 
    private volatile boolean depagePending = false;
 
@@ -212,21 +242,26 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final SimpleString address;
 
-   private Redistributor redistributor;
+   private ConsumerHolder<Redistributor> redistributor;
 
    private ScheduledFuture<?> redistributorFuture;
 
-   // We cache the consumers here since we don't want to include the redistributor
+   // This is used by an AtomicFieldUpdater
+   private volatile long consumerRemovedTimestamp = -1;
 
-   private final AtomicInteger consumersCount = new AtomicInteger();
+   private final QueueConsumers<ConsumerHolder<? extends Consumer>> consumers = new QueueConsumersImpl<>();
 
-   private final Set<Consumer> consumerSet = new HashSet<>();
+   private volatile boolean groupRebalance;
 
-   private final Map<SimpleString, Consumer> groups = new HashMap<>();
+   private volatile int groupBuckets;
+
+   private volatile SimpleString groupFirstKey;
+
+   private MessageGroups<Consumer> groups;
+
+   private volatile Consumer exclusiveConsumer;
 
    private volatile SimpleString expiryAddress;
-
-   private int pos;
 
    private final ArtemisExecutor executor;
 
@@ -236,7 +271,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean directDeliver = true;
 
-   private volatile boolean supportsDirectDeliver = true;
+   private volatile boolean supportsDirectDeliver = false;
 
    private AddressSettingsRepositoryListener addressSettingsRepositoryListener;
 
@@ -254,15 +289,35 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile int maxConsumers;
 
+   private volatile boolean exclusive;
+
    private volatile boolean purgeOnNoConsumers;
 
    private final AddressInfo addressInfo;
 
-   private final AtomicInteger noConsumers = new AtomicInteger(0);
-
    private volatile RoutingType routingType;
 
    private final QueueFactory factory;
+
+   public volatile int dispatching = 0;
+
+   public volatile long dispatchStartTime = -1;
+
+   private volatile int consumersBeforeDispatch = 0;
+
+   private volatile long delayBeforeDispatch = 0;
+
+   private final boolean autoDelete;
+
+   private final long autoDeleteDelay;
+
+   private final long autoDeleteMessageCount;
+
+   private volatile boolean configurationManaged;
+
+   private volatile boolean nonDestructive;
+
+   private volatile long ringSize;
 
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
@@ -270,28 +325,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     */
    private final Object directDeliveryGuard = new Object();
 
-   /**
-    * For testing only
-    */
-   public List<SimpleString> getGroupsUsed() {
-      final CountDownLatch flush = new CountDownLatch(1);
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            flush.countDown();
-         }
-      });
-      try {
-         flush.await(10, TimeUnit.SECONDS);
-      } catch (Exception ignored) {
-      }
-
-      synchronized (this) {
-         ArrayList<SimpleString> groupsUsed = new ArrayList<>();
-         groupsUsed.addAll(groups.keySet());
-         return groupsUsed;
-      }
-   }
+   private final ConcurrentHashSet<String> lingerSessionIds = new ConcurrentHashSet<>();
 
    public String debug() {
       StringWriter str = new StringWriter();
@@ -299,17 +333,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       out.println("queueMemorySize=" + queueMemorySize);
 
-      for (ConsumerHolder holder : consumerList) {
+      for (ConsumerHolder holder : consumers) {
          out.println("consumer: " + holder.consumer.debug());
       }
 
-      for (MessageReference reference : intermediateMessageReferences) {
-         out.print("Intermediate reference:" + reference);
-      }
-
-      if (intermediateMessageReferences.isEmpty()) {
-         out.println("No intermediate references");
-      }
+      out.println("Intermediate reference size is " + intermediateMessageReferences.size());
 
       boolean foundRef = false;
 
@@ -331,27 +359,28 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    public QueueImpl(final long id,
-                    final SimpleString address,
-                    final SimpleString name,
-                    final Filter filter,
-                    final SimpleString user,
-                    final boolean durable,
-                    final boolean temporary,
-                    final boolean autoCreated,
-                    final ScheduledExecutorService scheduledExecutor,
-                    final PostOffice postOffice,
-                    final StorageManager storageManager,
-                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                    final ArtemisExecutor executor,
-                    final ActiveMQServer server,
-                    final QueueFactory factory) {
-      this(id, address, name, filter, null, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+                     final SimpleString address,
+                     final SimpleString name,
+                     final Filter filter,
+                     final SimpleString user,
+                     final boolean durable,
+                     final boolean temporary,
+                     final boolean autoCreated,
+                     final ScheduledExecutorService scheduledExecutor,
+                     final PostOffice postOffice,
+                     final StorageManager storageManager,
+                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                     final ArtemisExecutor executor,
+                     final ActiveMQServer server,
+                     final QueueFactory factory) {
+      this(id, address, name, filter, null, null, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
                     final SimpleString address,
                     final SimpleString name,
                     final Filter filter,
+                    final PagingStore pagingStore,
                     final PageSubscription pageSubscription,
                     final SimpleString user,
                     final boolean durable,
@@ -364,13 +393,61 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, RoutingType.MULTICAST, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, RoutingType.MULTICAST, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
+                     final SimpleString address,
+                     final SimpleString name,
+                     final Filter filter,
+                     final PagingStore pagingStore,
+                     final PageSubscription pageSubscription,
+                     final SimpleString user,
+                     final boolean durable,
+                     final boolean temporary,
+                     final boolean autoCreated,
+                     final RoutingType routingType,
+                     final Integer maxConsumers,
+                     final Boolean purgeOnNoConsumers,
+                     final ScheduledExecutorService scheduledExecutor,
+                     final PostOffice postOffice,
+                     final StorageManager storageManager,
+                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                     final ArtemisExecutor executor,
+                     final ActiveMQServer server,
+                     final QueueFactory factory) {
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, null, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
+                     final SimpleString address,
+                     final SimpleString name,
+                     final Filter filter,
+                     final PagingStore pagingStore,
+                     final PageSubscription pageSubscription,
+                     final SimpleString user,
+                     final boolean durable,
+                     final boolean temporary,
+                     final boolean autoCreated,
+                     final RoutingType routingType,
+                     final Integer maxConsumers,
+                     final Boolean exclusive,
+                     final Boolean purgeOnNoConsumers,
+                     final ScheduledExecutorService scheduledExecutor,
+                     final PostOffice postOffice,
+                     final StorageManager storageManager,
+                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                     final ArtemisExecutor executor,
+                     final ActiveMQServer server,
+                     final QueueFactory factory) {
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, false, null, null, purgeOnNoConsumers, null, null, null, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    public QueueImpl(final long id,
                     final SimpleString address,
                     final SimpleString name,
                     final Filter filter,
+                    final PagingStore pagingStore,
                     final PageSubscription pageSubscription,
                     final SimpleString user,
                     final boolean durable,
@@ -378,7 +455,86 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final boolean autoCreated,
                     final RoutingType routingType,
                     final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Boolean groupRebalance,
+                    final Integer groupBuckets,
+                    final Boolean nonDestructive,
+                    final Integer consumersBeforeDispatch,
+                    final Long delayBeforeDispatch,
                     final Boolean purgeOnNoConsumers,
+                    final Boolean autoDelete,
+                    final Long autoDeleteDelay,
+                    final Long autoDeleteMessageCount,
+                    final boolean configurationManaged,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, null, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PagingStore pagingStore,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final RoutingType routingType,
+                    final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Boolean groupRebalance,
+                    final Integer groupBuckets,
+                    final SimpleString groupFirstKey,
+                    final Boolean nonDestructive,
+                    final Integer consumersBeforeDispatch,
+                    final Long delayBeforeDispatch,
+                    final Boolean purgeOnNoConsumers,
+                    final Boolean autoDelete,
+                    final Long autoDeleteDelay,
+                    final Long autoDeleteMessageCount,
+                    final boolean configurationManaged,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
+      this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+   }
+
+   public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PagingStore pagingStore,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final RoutingType routingType,
+                    final Integer maxConsumers,
+                    final Boolean exclusive,
+                    final Boolean groupRebalance,
+                    final Integer groupBuckets,
+                    final SimpleString groupFirstKey,
+                    final Boolean nonDestructive,
+                    final Integer consumersBeforeDispatch,
+                    final Long delayBeforeDispatch,
+                    final Boolean purgeOnNoConsumers,
+                    final Boolean autoDelete,
+                    final Long autoDeleteDelay,
+                    final Long autoDeleteMessageCount,
+                    final boolean configurationManaged,
+                    final Long ringSize,
                     final ScheduledExecutorService scheduledExecutor,
                     final PostOffice postOffice,
                     final StorageManager storageManager,
@@ -400,9 +556,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.filter = filter;
 
+      this.pagingStore = pagingStore;
+
       this.pageSubscription = pageSubscription;
 
-      this.durable = durable;
+      this.propertyDurable = durable;
 
       this.temporary = temporary;
 
@@ -410,7 +568,31 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.maxConsumers = maxConsumers == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : maxConsumers;
 
+      this.exclusive = exclusive == null ? ActiveMQDefaultConfiguration.getDefaultExclusive() : exclusive;
+
+      this.nonDestructive = nonDestructive == null ? ActiveMQDefaultConfiguration.getDefaultNonDestructive() : nonDestructive;
+
       this.purgeOnNoConsumers = purgeOnNoConsumers == null ? ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers() : purgeOnNoConsumers;
+
+      this.consumersBeforeDispatch = consumersBeforeDispatch == null ? ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch() : consumersBeforeDispatch;
+
+      this.delayBeforeDispatch = delayBeforeDispatch == null ? ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch() : delayBeforeDispatch;
+
+      this.groupRebalance = groupRebalance == null ? ActiveMQDefaultConfiguration.getDefaultGroupRebalance() : groupRebalance;
+
+      this.groupBuckets = groupBuckets == null ? ActiveMQDefaultConfiguration.getDefaultGroupBuckets() : groupBuckets;
+
+      this.groups = groupMap(this.groupBuckets);
+
+      this.groupFirstKey = groupFirstKey == null ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() : groupFirstKey;
+
+      this.autoDelete = autoDelete == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated) : autoDelete;
+
+      this.autoDeleteDelay = autoDeleteDelay == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay() : autoDeleteDelay;
+
+      this.autoDeleteMessageCount = autoDeleteMessageCount == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount() : autoDeleteMessageCount;
+
+      this.configurationManaged = configurationManaged;
 
       this.postOffice = postOffice;
 
@@ -422,7 +604,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.server = server;
 
-      scheduledDeliveryHandler = new ScheduledDeliveryHandlerImpl(scheduledExecutor);
+      scheduledDeliveryHandler = new ScheduledDeliveryHandlerImpl(scheduledExecutor, this);
 
       if (addressSettingsRepository != null) {
          addressSettingsRepositoryListener = new AddressSettingsRepositoryListener();
@@ -443,9 +625,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.user = user;
 
       this.factory = factory;
+
+      registerMeters();
+      if (this.addressInfo != null && this.addressInfo.isPaused()) {
+         this.pause(false);
+      }
+
+      this.ringSize = ringSize == null ? ActiveMQDefaultConfiguration.getDefaultRingSize() : ringSize;
    }
 
    // Bindable implementation -------------------------------------------------------------------------------------
+
+   @Override
+   public boolean allowsReferenceCallback() {
+      // non destructive queues will reuse the same reference between multiple consumers
+      // so you cannot really use the callback from the MessageReference
+      return !nonDestructive;
+   }
 
    public SimpleString getRoutingName() {
       return name;
@@ -460,14 +656,93 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return user;
    }
 
+   @Override
+   public void setUser(SimpleString user) {
+      this.user = user;
+   }
+
+   @Override
    public boolean isExclusive() {
+      return exclusive;
+   }
+
+   @Override
+   public synchronized void setExclusive(boolean exclusive) {
+      this.exclusive = exclusive;
+      if (!exclusive) {
+         exclusiveConsumer = null;
+      }
+   }
+
+   @Override
+   public int getConsumersBeforeDispatch() {
+      return consumersBeforeDispatch;
+   }
+
+   @Override
+   public synchronized void setConsumersBeforeDispatch(int consumersBeforeDispatch) {
+      this.consumersBeforeDispatch = consumersBeforeDispatch;
+   }
+
+   @Override
+   public long getDelayBeforeDispatch() {
+      return delayBeforeDispatch;
+   }
+
+   @Override
+   public synchronized void setDelayBeforeDispatch(long delayBeforeDispatch) {
+      this.delayBeforeDispatch = delayBeforeDispatch;
+   }
+
+   @Override
+   public long getDispatchStartTime() {
+      return dispatchStartTimeUpdater.get(this);
+   }
+
+   @Override
+   public boolean isDispatching() {
+      return BooleanUtil.toBoolean(dispatchingUpdater.get(this));
+   }
+
+   @Override
+   public synchronized void setDispatching(boolean dispatching) {
+      if (dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(!dispatching), BooleanUtil.toInt(dispatching))) {
+         if (dispatching) {
+            dispatchStartTimeUpdater.set(this, System.currentTimeMillis());
+         } else {
+            dispatchStartTimeUpdater.set(this, -1);
+         }
+      }
+   }
+
+
+   @Override
+   public boolean isLastValue() {
       return false;
    }
 
    @Override
+   public SimpleString getLastValueKey() {
+      return null;
+   }
+
+   @Override
+   public boolean isNonDestructive() {
+      return nonDestructive;
+   }
+
+   @Override
+   public synchronized void setNonDestructive(boolean nonDestructive) {
+      this.nonDestructive = nonDestructive;
+   }
+
+   @Override
    public void route(final Message message, final RoutingContext context) throws Exception {
-      if (purgeOnNoConsumers && getConsumerCount() == 0) {
-         return;
+      if (purgeOnNoConsumers) {
+         context.setReusable(false);
+         if (getConsumerCount() == 0) {
+            return;
+         }
       }
       context.addQueue(address, this);
    }
@@ -492,7 +767,27 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public boolean isDurable() {
-      return durable;
+      return propertyDurable;
+   }
+
+   @Override
+   public boolean isDurableMessage() {
+      return propertyDurable && !purgeOnNoConsumers;
+   }
+
+   @Override
+   public boolean isAutoDelete() {
+      return autoDelete;
+   }
+
+   @Override
+   public long getAutoDeleteDelay() {
+      return autoDeleteDelay;
+   }
+
+   @Override
+   public long getAutoDeleteMessageCount() {
+      return autoDeleteMessageCount;
    }
 
    @Override
@@ -526,6 +821,50 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public int getGroupBuckets() {
+      return groupBuckets;
+   }
+
+   @Override
+   public synchronized void setGroupBuckets(int groupBuckets) {
+      if (this.groupBuckets != groupBuckets) {
+         this.groups = groupMap(groupBuckets);
+         this.groupBuckets = groupBuckets;
+      }
+   }
+
+   @Override
+   public boolean isGroupRebalance() {
+      return groupRebalance;
+   }
+
+   @Override
+   public synchronized void setGroupRebalance(boolean groupRebalance) {
+      this.groupRebalance = groupRebalance;
+   }
+
+   @Override
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
+   @Override
+   public synchronized void setGroupFirstKey(SimpleString groupFirstKey) {
+      this.groupFirstKey = groupFirstKey;
+   }
+
+
+   @Override
+   public boolean isConfigurationManaged() {
+      return configurationManaged;
+   }
+
+   @Override
+   public synchronized void setConfigurationManaged(boolean configurationManaged) {
+      this.configurationManaged = configurationManaged;
+   }
+
+   @Override
    public SimpleString getName() {
       return name;
    }
@@ -538,6 +877,47 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public long getID() {
       return id;
+   }
+
+
+   @Override
+   public int durableUp(Message message) {
+      int count = message.durableUp();
+      if (pagingStore != null) {
+         pagingStore.durableUp(message, count);
+      }
+      return count;
+   }
+
+   @Override
+   public int durableDown(Message message) {
+      int count = message.durableDown();
+      if (pagingStore != null) {
+         pagingStore.durableDown(message, count);
+      }
+      return count;
+   }
+
+   @Override
+   public void refUp(Message message) {
+      int count = message.refUp();
+      if (pagingStore != null) {
+         pagingStore.refUp(message, count);
+      }
+
+   }
+
+   @Override
+   public void refDown(Message message) {
+      int count = message.refDown();
+      if (pagingStore != null) {
+         pagingStore.refDown(message, count);
+      }
+   }
+
+   @Override
+   public PagingStore getPagingStore() {
+      return pagingStore;
    }
 
    @Override
@@ -559,7 +939,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public Filter getFilter() {
-      return filter;
+      return filterUpdater.get(this);
+   }
+
+   @Override
+   public void setFilter(Filter filter) {
+      filterUpdater.set(this, filter);
    }
 
    @Override
@@ -593,12 +978,36 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_PATH_ADD_HEAD);
       synchronized (this) {
          try {
-            flushDeliveriesInTransit();
+            if (ringSize != -1) {
+               enforceRing(ref, scheduling, true);
+            }
+
+            if (!ref.isAlreadyAcked()) {
+               if (!scheduling && scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
+                  return;
+               }
+
+               internalAddHead(ref);
+
+               directDeliver = false;
+            }
+         } finally {
+            leaveCritical(CRITICAL_PATH_ADD_HEAD);
+         }
+      }
+   }
+
+   /* Called when a message is cancelled back into the queue */
+   @Override
+   public void addSorted(final MessageReference ref, boolean scheduling) {
+      enterCritical(CRITICAL_PATH_ADD_HEAD);
+      synchronized (this) {
+         try {
             if (!scheduling && scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
                return;
             }
 
-            internalAddHead(ref);
+            internalAddSorted(ref);
 
             directDeliver = false;
          } finally {
@@ -613,9 +1022,27 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_PATH_ADD_HEAD);
       synchronized (this) {
          try {
-            flushDeliveriesInTransit();
             for (MessageReference ref : refs) {
                addHead(ref, scheduling);
+            }
+
+            resetAllIterators();
+
+            deliverAsync();
+         } finally {
+            leaveCritical(CRITICAL_PATH_ADD_HEAD);
+         }
+      }
+   }
+
+   /* Called when a message is cancelled back into the queue */
+   @Override
+   public void addSorted(final List<MessageReference> refs, boolean scheduling) {
+      enterCritical(CRITICAL_PATH_ADD_HEAD);
+      synchronized (this) {
+         try {
+            for (MessageReference ref : refs) {
+               addSorted(ref, scheduling);
             }
 
             resetAllIterators();
@@ -637,7 +1064,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       directDeliver = false;
 
       if (!ref.isPaged()) {
-         messagesAdded.incrementAndGet();
+         incrementMesssagesAdded();
       }
    }
 
@@ -654,7 +1081,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return;
          }
 
-         if (supportsDirectDeliver && !directDeliver && direct && System.currentTimeMillis() - lastDirectDeliveryCheck > CHECK_QUEUE_SIZE_PERIOD) {
+         if (direct && supportsDirectDeliver && !directDeliver && System.currentTimeMillis() - lastDirectDeliveryCheck > CHECK_QUEUE_SIZE_PERIOD) {
             if (logger.isTraceEnabled()) {
                logger.trace("Checking to re-enable direct deliver on queue " + this.getName());
             }
@@ -664,17 +1091,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                // directDeliver flag to be re-computed resulting in direct delivery if the queue is empty
                // We don't recompute it on every delivery since executing isEmpty is expensive for a ConcurrentQueue
 
-               if (deliveriesInTransit.getCount() == 0 && getExecutor().isFlushed() && intermediateMessageReferences.isEmpty() && messageReferences.isEmpty() && !pageIterator.hasNext() && !pageSubscription.isPaging()) {
+               if (deliveriesInTransit.getCount() == 0 && getExecutor().isFlushed() &&
+                  intermediateMessageReferences.isEmpty() && messageReferences.isEmpty() &&
+                  pageIterator != null && !pageIterator.hasNext() &&
+                  pageSubscription != null && !pageSubscription.isPaging()) {
                   // We must block on the executor to ensure any async deliveries have completed or we might get out of order
                   // deliveries
                   // Go into direct delivery mode
                   directDeliver = supportsDirectDeliver;
                   if (logger.isTraceEnabled()) {
-                     logger.trace("Setting direct deliverer to " + supportsDirectDeliver);
+                     logger.trace("Setting direct deliverer to " + supportsDirectDeliver + " on queue " + this.getName());
                   }
                } else {
                   if (logger.isTraceEnabled()) {
-                     logger.trace("Couldn't set direct deliver back");
+                     logger.trace("Couldn't set direct deliver back on queue " + this.getName());
                   }
                }
             }
@@ -702,7 +1132,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (scheduledDeliveryHandler.checkAndSchedule(ref, true)) {
          synchronized (this) {
             if (!ref.isPaged()) {
-               messagesAdded.incrementAndGet();
+               incrementMesssagesAdded();
             }
          }
 
@@ -716,7 +1146,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     */
    private boolean flushDeliveriesInTransit() {
       try {
-
          if (deliveriesInTransit.await(DELIVERY_TIMEOUT)) {
             return true;
          } else {
@@ -747,18 +1176,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void deliverAsync() {
+      deliverAsync(false);
+   }
+
+   private void deliverAsync(boolean noWait) {
       if (scheduledRunners.get() < MAX_SCHEDULED_RUNNERS) {
          scheduledRunners.incrementAndGet();
+         checkDepage(noWait);
          try {
             getExecutor().execute(deliverRunner);
          } catch (RejectedExecutionException ignored) {
             // no-op
             scheduledRunners.decrementAndGet();
          }
-
-         checkDepage();
       }
-
    }
 
    @Override
@@ -809,16 +1240,30 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private boolean internalFlushExecutor(long timeout, boolean log) {
-      FutureLatch future = new FutureLatch();
 
-      getExecutor().execute(future);
-
-      boolean result = future.await(timeout);
-
-      if (log && !result) {
-         ActiveMQServerLogger.LOGGER.queueBusy(this.name.toString(), timeout);
+      if (!getExecutor().flush(timeout, TimeUnit.MILLISECONDS)) {
+         if (log) {
+            ActiveMQServerLogger.LOGGER.queueBusy(this.name.toString(), timeout);
+         }
+         return false;
+      } else {
+         return true;
       }
-      return result;
+   }
+
+   private boolean canDispatch() {
+      boolean canDispatch = BooleanUtil.toBoolean(dispatchingUpdater.get(this));
+      if (canDispatch) {
+         return true;
+      } else {
+         long currentDispatchStartTime = dispatchStartTimeUpdater.get(this);
+         if (currentDispatchStartTime != -1 && currentDispatchStartTime < System.currentTimeMillis()) {
+            dispatchingUpdater.set(this, BooleanUtil.toInt(true));
+            return true;
+         } else {
+            return false;
+         }
+      }
    }
 
    @Override
@@ -830,38 +1275,55 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_CONSUMER);
       try {
          synchronized (this) {
-
-            if (maxConsumers != MAX_CONSUMERS_UNLIMITED && noConsumers.get() >= maxConsumers) {
+            if (maxConsumers != MAX_CONSUMERS_UNLIMITED && consumers.size() >= maxConsumers) {
                throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
             }
 
-            flushDeliveriesInTransit();
-
-            consumersChanged = true;
-
-            if (!consumer.supportsDirectDelivery()) {
-               this.supportsDirectDeliver = false;
+            if (consumers.isEmpty()) {
+               this.supportsDirectDeliver = consumer.supportsDirectDelivery();
+            } else {
+               if (!consumer.supportsDirectDelivery()) {
+                  this.supportsDirectDeliver = false;
+               }
             }
 
             cancelRedistributor();
+            ConsumerHolder<Consumer> newConsumerHolder = new ConsumerHolder<>(consumer);
+            if (consumers.add(newConsumerHolder)) {
+               int currentConsumerCount = consumers.size();
+               if (delayBeforeDispatch >= 0) {
+                  dispatchStartTimeUpdater.compareAndSet(this,-1, delayBeforeDispatch + System.currentTimeMillis());
+               }
+               if (currentConsumerCount >= consumersBeforeDispatch) {
+                  if (dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(false), BooleanUtil.toInt(true))) {
+                     dispatchStartTimeUpdater.set(this, System.currentTimeMillis());
+                  }
+               }
+            }
 
-            consumerList.add(new ConsumerHolder(consumer));
-
-            if (consumerSet.add(consumer)) {
-               consumersCount.incrementAndGet();
+            if (groupRebalance) {
+               groups.removeAll();
             }
 
             if (refCountForConsumers != null) {
                refCountForConsumers.increment();
             }
 
-            noConsumers.incrementAndGet();
          }
       } finally {
          leaveCritical(CRITICAL_CONSUMER);
       }
 
+   }
 
+   @Override
+   public void addLingerSession(String sessionId) {
+      lingerSessionIds.add(sessionId);
+   }
+
+   @Override
+   public void removeLingerSession(String sessionId) {
+      lingerSessionIds.remove(sessionId);
    }
 
    @Override
@@ -870,53 +1332,40 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_CONSUMER);
       try {
          synchronized (this) {
-            consumersChanged = true;
 
-            for (ConsumerHolder holder : consumerList) {
+            boolean consumerRemoved = false;
+            for (ConsumerHolder holder : consumers) {
                if (holder.consumer == consumer) {
                   if (holder.iter != null) {
                      holder.iter.close();
                   }
-                  consumerList.remove(holder);
+                  consumers.remove(holder);
+                  consumerRemoved = true;
                   break;
                }
             }
 
             this.supportsDirectDeliver = checkConsumerDirectDeliver();
 
-            if (pos > 0 && pos >= consumerList.size()) {
-               pos = consumerList.size() - 1;
-            }
-
-            if (consumerSet.remove(consumer)) {
-               consumersCount.decrementAndGet();
-            }
-
-            LinkedList<SimpleString> groupsToRemove = null;
-
-            for (SimpleString groupID : groups.keySet()) {
-               if (consumer == groups.get(groupID)) {
-                  if (groupsToRemove == null) {
-                     groupsToRemove = new LinkedList<>();
-                  }
-                  groupsToRemove.add(groupID);
+            if (consumerRemoved) {
+               consumerRemovedTimestampUpdater.set(this, System.currentTimeMillis());
+               boolean stopped = dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(true), BooleanUtil.toInt(consumers.size() != 0));
+               if (stopped) {
+                  dispatchStartTimeUpdater.set(this, -1);
                }
             }
 
-            // We use an auxiliary List here to avoid concurrent modification exceptions on the keySet
-            // while the iteration is being done.
-            // Since that's a simple HashMap there's no Iterator's support with a remove operation
-            if (groupsToRemove != null) {
-               for (SimpleString groupID : groupsToRemove) {
-                  groups.remove(groupID);
-               }
+            if (consumer == exclusiveConsumer) {
+               exclusiveConsumer = null;
             }
+
+            groups.removeIf(consumer::equals);
+
 
             if (refCountForConsumers != null) {
                refCountForConsumers.decrement();
             }
 
-            noConsumers.decrementAndGet();
          }
       } finally {
          leaveCritical(CRITICAL_CONSUMER);
@@ -924,9 +1373,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private boolean checkConsumerDirectDeliver() {
+      if (consumers.isEmpty()) {
+         return false;
+      }
       boolean supports = true;
-      for (ConsumerHolder consumerCheck : consumerList) {
+      for (ConsumerHolder consumerCheck : consumers) {
          if (!consumerCheck.consumer.supportsDirectDelivery()) {
+            supports = false;
+         }
+      }
+      if (redistributor != null) {
+         if (!redistributor.consumer.supportsDirectDelivery()) {
             supports = false;
          }
       }
@@ -943,7 +1400,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (delay > 0) {
-         if (consumerSet.isEmpty()) {
+         if (consumers.isEmpty()) {
             DelayedAddRedistributor dar = new DelayedAddRedistributor(executor);
 
             redistributorFuture = scheduledExecutor.schedule(dar, delay, TimeUnit.MILLISECONDS);
@@ -964,11 +1421,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void cancelRedistributor() throws Exception {
       if (redistributor != null) {
-         redistributor.stop();
-         Redistributor redistributorToRemove = redistributor;
+         redistributor.consumer.stop();
          redistributor = null;
-
-         removeConsumer(redistributorToRemove);
       }
 
       clearRedistributorFuture();
@@ -983,17 +1437,60 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public int getConsumerCount() {
-      return consumersCount.get();
+      return consumers.size();
    }
 
    @Override
-   public synchronized Set<Consumer> getConsumers() {
-      return new HashSet<>(consumerSet);
+   public long getConsumerRemovedTimestamp() {
+      return consumerRemovedTimestampUpdater.get(this);
+   }
+
+   @Override
+   public long getRingSize() {
+      return ringSize;
+   }
+
+   @Override
+   public synchronized void setRingSize(long ringSize) {
+      this.ringSize = ringSize;
+   }
+
+   public long getMessageCountForRing() {
+      return (long) pendingMetrics.getMessageCount();
+   }
+
+   @Override
+   public Set<Consumer> getConsumers() {
+      Set<Consumer> consumersSet = new HashSet<>(this.consumers.size());
+      for (ConsumerHolder<? extends Consumer> consumerHolder : consumers) {
+         consumersSet.add(consumerHolder.consumer);
+      }
+      return consumersSet;
+   }
+
+   @Override
+   public synchronized Map<SimpleString, Consumer> getGroups() {
+      return groups.toMap();
+   }
+
+   @Override
+   public synchronized void resetGroup(SimpleString groupId) {
+      groups.remove(groupId);
+   }
+
+   @Override
+   public synchronized void resetAllGroups() {
+      groups.removeAll();
+   }
+
+   @Override
+   public synchronized int getGroupCount() {
+      return groups.size();
    }
 
    @Override
    public boolean hasMatchingConsumer(final Message message) {
-      for (ConsumerHolder holder : consumerList) {
+      for (ConsumerHolder holder : consumers) {
          Consumer consumer = holder.consumer;
 
          if (consumer instanceof Redistributor) {
@@ -1072,15 +1569,65 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (pageSubscription != null) {
          // messageReferences will have depaged messages which we need to discount from the counter as they are
          // counted on the pageSubscription as well
-         return messageReferences.size() + getScheduledCount() + deliveringCount.get() + pageSubscription.getMessageCount();
+         return (long) pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount() + pageSubscription.getMessageCount();
       } else {
-         return messageReferences.size() + getScheduledCount() + deliveringCount.get();
+         return (long) pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount();
       }
    }
 
    @Override
-   public synchronized int getScheduledCount() {
+   public long getPersistentSize() {
+      if (pageSubscription != null) {
+         // messageReferences will have depaged messages which we need to discount from the counter as they are
+         // counted on the pageSubscription as well
+         return pendingMetrics.getPersistentSize() + getScheduledSize() + getDeliveringSize() + pageSubscription.getPersistentSize();
+      } else {
+         return pendingMetrics.getPersistentSize() + getScheduledSize() + getDeliveringSize();
+      }
+   }
+
+   @Override
+   public long getDurableMessageCount() {
+      if (isDurable()) {
+         if (pageSubscription != null) {
+            return (long) pendingMetrics.getDurableMessageCount() + getDurableScheduledCount() + getDurableDeliveringCount() + pageSubscription.getMessageCount();
+         } else {
+            return (long) pendingMetrics.getDurableMessageCount() + getDurableScheduledCount() + getDurableDeliveringCount();
+         }
+      }
+      return 0;
+   }
+
+   @Override
+   public long getDurablePersistentSize() {
+      if (isDurable()) {
+         if (pageSubscription != null) {
+            return pendingMetrics.getDurablePersistentSize() + getDurableScheduledSize() + getDurableDeliveringSize() + pageSubscription.getPersistentSize();
+         } else {
+            return pendingMetrics.getDurablePersistentSize() + getDurableScheduledSize() + getDurableDeliveringSize();
+         }
+      }
+      return 0;
+   }
+
+   @Override
+   public int getScheduledCount() {
       return scheduledDeliveryHandler.getScheduledCount();
+   }
+
+   @Override
+   public long getScheduledSize() {
+      return scheduledDeliveryHandler.getScheduledSize();
+   }
+
+   @Override
+   public int getDurableScheduledCount() {
+      return scheduledDeliveryHandler.getDurableScheduledCount();
+   }
+
+   @Override
+   public long getDurableScheduledSize() {
+      return scheduledDeliveryHandler.getDurableScheduledSize();
    }
 
    @Override
@@ -1090,15 +1637,26 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public Map<String, List<MessageReference>> getDeliveringMessages() {
-
-      List<ConsumerHolder> consumerListClone = cloneConsumersList();
+      final Iterator<ConsumerHolder<? extends Consumer>> consumerHolderIterator;
+      synchronized (this) {
+         consumerHolderIterator = redistributor == null ? consumers.iterator() : SingletonIterator.newInstance(redistributor);
+      }
 
       Map<String, List<MessageReference>> mapReturn = new HashMap<>();
 
-      for (ConsumerHolder holder : consumerListClone) {
+      while (consumerHolderIterator.hasNext()) {
+         ConsumerHolder holder = consumerHolderIterator.next();
          List<MessageReference> msgs = holder.consumer.getDeliveringMessages();
          if (msgs != null && msgs.size() > 0) {
             mapReturn.put(holder.consumer.toManagementString(), msgs);
+         }
+      }
+
+      for (String lingerSessionId : lingerSessionIds) {
+         ServerSession serverSession = server.getSessionByID(lingerSessionId);
+         List<MessageReference> refs = serverSession == null ? null : serverSession.getInTxLingerMessages();
+         if (refs != null && !refs.isEmpty()) {
+            mapReturn.put(serverSession.toManagementString(), refs);
          }
       }
 
@@ -1107,78 +1665,102 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public int getDeliveringCount() {
-      return deliveringCount.get();
+      return deliveringMetrics.getMessageCount();
+   }
+
+   @Override
+   public long getDeliveringSize() {
+      return deliveringMetrics.getPersistentSize();
+   }
+
+   @Override
+   public int getDurableDeliveringCount() {
+      return deliveringMetrics.getDurableMessageCount();
+   }
+
+   @Override
+   public long getDurableDeliveringSize() {
+      return deliveringMetrics.getDurablePersistentSize();
    }
 
    @Override
    public void acknowledge(final MessageReference ref) throws Exception {
-      acknowledge(ref, AckReason.NORMAL);
+      acknowledge(ref, null);
    }
 
    @Override
-   public void acknowledge(final MessageReference ref, AckReason reason) throws Exception {
-      if (ref.isPaged()) {
-         pageSubscription.ack((PagedReference) ref);
-         postAcknowledge(ref);
-      } else {
-         Message message = ref.getMessage();
+   public void acknowledge(final MessageReference ref, final ServerConsumer consumer) throws Exception {
+      acknowledge(ref, AckReason.NORMAL, consumer);
+   }
 
-         boolean durableRef = message.isDurable() && durable;
-
-         if (durableRef) {
-            storageManager.storeAcknowledge(id, message.getMessageID());
+   @Override
+   public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
+      if (nonDestructive && reason == AckReason.NORMAL) {
+         decDelivering(ref);
+         if (logger.isDebugEnabled()) {
+            logger.debug("acknowledge ignored nonDestructive=true and reason=NORMAL");
          }
-         postAcknowledge(ref);
-      }
-
-      if (reason == AckReason.EXPIRED) {
-         messagesExpired.incrementAndGet();
-      } else if (reason == AckReason.KILLED) {
-         messagesKilled.incrementAndGet();
       } else {
-         messagesAcknowledged.incrementAndGet();
-      }
+         if (ref.isPaged()) {
+            pageSubscription.ack((PagedReference) ref);
+            postAcknowledge(ref, reason);
+         } else {
+            Message message = ref.getMessage();
 
-      if (server != null) {
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.messageAcknowledged(ref, reason) : null);
+            boolean durableRef = message.isDurable() && isDurable();
+
+            if (durableRef) {
+               storageManager.storeAcknowledge(id, message.getMessageID());
+            }
+            postAcknowledge(ref, reason);
+         }
+
+         ackAttempts.incrementAndGet();
+
+         if (server != null && server.hasBrokerMessagePlugins()) {
+            server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
+         }
       }
    }
 
    @Override
    public void acknowledge(final Transaction tx, final MessageReference ref) throws Exception {
-      acknowledge(tx, ref, AckReason.NORMAL);
+      acknowledge(tx, ref, AckReason.NORMAL, null);
    }
 
    @Override
-   public void acknowledge(final Transaction tx, final MessageReference ref, AckReason reason) throws Exception {
-      if (ref.isPaged()) {
-         pageSubscription.ackTx(tx, (PagedReference) ref);
+   public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
+      RefsOperation refsOperation = getRefsOperation(tx, reason);
 
-         getRefsOperation(tx).addAck(ref);
+      if (nonDestructive && reason == AckReason.NORMAL) {
+         refsOperation.addOnlyRefAck(ref);
+         if (logger.isDebugEnabled()) {
+            logger.debug("acknowledge tx ignored nonDestructive=true and reason=NORMAL");
+         }
       } else {
-         Message message = ref.getMessage();
+         if (ref.isPaged()) {
+            pageSubscription.ackTx(tx, (PagedReference) ref);
 
-         boolean durableRef = message.isDurable() && durable;
+            refsOperation.addAck(ref);
+         } else {
+            Message message = ref.getMessage();
 
-         if (durableRef) {
-            storageManager.storeAcknowledgeTransactional(tx.getID(), id, message.getMessageID());
+            boolean durableRef = message.isDurable() && isDurable();
 
-            tx.setContainsPersistent();
+            if (durableRef) {
+               storageManager.storeAcknowledgeTransactional(tx.getID(), id, message.getMessageID());
+
+               tx.setContainsPersistent();
+            }
+
+            ackAttempts.incrementAndGet();
+
+            refsOperation.addAck(ref);
          }
 
-         getRefsOperation(tx).addAck(ref);
-      }
-
-      if (reason == AckReason.EXPIRED) {
-         messagesExpired.incrementAndGet();
-      } else if (reason == AckReason.KILLED) {
-         messagesKilled.incrementAndGet();
-      } else {
-         messagesAcknowledged.incrementAndGet();
-      }
-
-      if (server != null) {
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.messageAcknowledged(ref, reason) : null);
+         if (server != null && server.hasBrokerMessagePlugins()) {
+            server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
+         }
       }
    }
 
@@ -1186,28 +1768,28 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void reacknowledge(final Transaction tx, final MessageReference ref) throws Exception {
       Message message = ref.getMessage();
 
-      if (message.isDurable() && durable) {
+      if (message.isDurable() && isDurable()) {
          tx.setContainsPersistent();
       }
 
-      getRefsOperation(tx).addAck(ref);
+      getRefsOperation(tx, AckReason.NORMAL).addAck(ref);
 
       // https://issues.jboss.org/browse/HORNETQ-609
-      incDelivering();
+      incDelivering(ref);
 
       messagesAcknowledged.incrementAndGet();
    }
 
-   private RefsOperation getRefsOperation(final Transaction tx) {
-      return getRefsOperation(tx, false);
+   private RefsOperation getRefsOperation(final Transaction tx, AckReason ackReason) {
+      return getRefsOperation(tx, ackReason, false);
    }
 
-   private RefsOperation getRefsOperation(final Transaction tx, boolean ignoreRedlieveryCheck) {
+   private RefsOperation getRefsOperation(final Transaction tx, AckReason ackReason, boolean ignoreRedlieveryCheck) {
       synchronized (tx) {
          RefsOperation oper = (RefsOperation) tx.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
 
          if (oper == null) {
-            oper = tx.createRefsOperation(this);
+            oper = tx.createRefsOperation(this, ackReason);
 
             tx.putProperty(TransactionPropertyIndexes.REFS_OPERATION, oper);
 
@@ -1229,44 +1811,60 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void cancel(final Transaction tx, final MessageReference reference, boolean ignoreRedeliveryCheck) {
-      getRefsOperation(tx, ignoreRedeliveryCheck).addAck(reference);
+      getRefsOperation(tx, AckReason.NORMAL, ignoreRedeliveryCheck).addAck(reference);
    }
 
    @Override
-   public synchronized void cancel(final MessageReference reference, final long timeBase) throws Exception {
-      if (checkRedelivery(reference, timeBase, false)) {
+   public synchronized void cancel(final MessageReference reference, final long timeBase, boolean sorted) throws Exception {
+      Pair<Boolean, Boolean> redeliveryResult = checkRedelivery(reference, timeBase, false);
+      if (redeliveryResult.getA()) {
          if (!scheduledDeliveryHandler.checkAndSchedule(reference, false)) {
-            internalAddHead(reference);
+            if (sorted) {
+               internalAddSorted(reference);
+            } else {
+               internalAddHead(reference);
+            }
          }
 
          resetAllIterators();
-      } else {
-         decDelivering();
+      } else if (!redeliveryResult.getB()) {
+         decDelivering(reference);
       }
    }
 
    @Override
    public void expire(final MessageReference ref) throws Exception {
+      expire(ref, null);
+   }
+
+   @Override
+   public void expire(final MessageReference ref, final ServerConsumer consumer) throws Exception {
       SimpleString messageExpiryAddress = expiryAddressFromMessageAddress(ref);
       if (messageExpiryAddress == null) {
          messageExpiryAddress = expiryAddressFromAddressSettings(ref);
       }
 
       if (messageExpiryAddress != null) {
+
+         createExpiryResources();
+
          if (logger.isTraceEnabled()) {
             logger.trace("moving expired reference " + ref + " to address = " + messageExpiryAddress + " from queue=" + this.getName());
          }
-         move(null, messageExpiryAddress, ref, false, AckReason.EXPIRED);
+         move(null, messageExpiryAddress, null, ref, false, AckReason.EXPIRED, consumer);
       } else {
          if (logger.isTraceEnabled()) {
             logger.trace("expiry is null, just acking expired message for reference " + ref + " from queue=" + this.getName());
          }
-         acknowledge(ref, AckReason.EXPIRED);
+         acknowledge(ref, AckReason.EXPIRED, consumer);
       }
 
-      if (server != null) {
+      // potentially auto-delete this queue if this expired the last message
+      refCountForConsumers.check();
+
+      if (server != null && server.hasBrokerMessagePlugins()) {
          final SimpleString expiryAddress = messageExpiryAddress;
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.messageExpired(ref, expiryAddress) : null);
+         server.callBrokerMessagePlugins(plugin -> plugin.messageExpired(ref, expiryAddress, consumer));
       }
    }
 
@@ -1308,8 +1906,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void referenceHandled() {
-      incDelivering();
+   public void referenceHandled(MessageReference ref) {
+      incDelivering(ref);
    }
 
    @Override
@@ -1344,6 +1942,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public long getAcknowledgeAttempts() {
+      return ackAttempts.get();
+   }
+
+   @Override
    public long getMessagesExpired() {
       return messagesExpired.get();
    }
@@ -1351,6 +1954,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public long getMessagesKilled() {
       return messagesKilled.get();
+   }
+
+   @Override
+   public long getMessagesReplaced() {
+      return messagesReplaced.get();
    }
 
    @Override
@@ -1369,15 +1977,19 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public synchronized int deleteMatchingReferences(final int flushLimit, final Filter filter1) throws Exception {
-      return iterQueue(flushLimit, filter1, new QueueIterateAction() {
+   public int deleteMatchingReferences(final int flushLimit, final Filter filter1, AckReason ackReason) throws Exception {
+      return iterQueue(flushLimit, filter1, createDeleteMatchingAction(ackReason));
+   }
+
+   QueueIterateAction createDeleteMatchingAction(AckReason ackReason) {
+      return new QueueIterateAction() {
          @Override
-         public void actMessage(Transaction tx, MessageReference ref) throws Exception {
-            incDelivering();
-            acknowledge(tx, ref);
-            refRemoved(ref);
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
+            incDelivering(ref);
+            acknowledge(tx, ref, ackReason, null);
+            return true;
          }
-      });
+      };
    }
 
    /**
@@ -1390,53 +2002,65 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @return
     * @throws Exception
     */
-   private synchronized int iterQueue(final int flushLimit,
+   private int iterQueue(final int flushLimit,
                                       final Filter filter1,
                                       QueueIterateAction messageAction) throws Exception {
       int count = 0;
       int txCount = 0;
+      // This is to avoid scheduling depaging while iterQueue is happening
+      // this should minimize the use of the paged executor.
+      depagePending = true;
 
-      Transaction tx = new TransactionImpl(storageManager);
+      depageLock.lock();
 
-      try (LinkedListIterator<MessageReference> iter = iterator()) {
+      try {
+         Transaction tx = new TransactionImpl(storageManager);
 
-         while (iter.hasNext()) {
-            MessageReference ref = iter.next();
+         synchronized (this) {
 
-            if (ref.isPaged() && queueDestroyed) {
-               // this means the queue is being removed
-               // hence paged references are just going away through
-               // page cleanup
-               continue;
+            try (LinkedListIterator<MessageReference> iter = iterator()) {
+
+               while (iter.hasNext()) {
+                  MessageReference ref = iter.next();
+
+                  if (ref.isPaged() && queueDestroyed) {
+                     // this means the queue is being removed
+                     // hence paged references are just going away through
+                     // page cleanup
+                     continue;
+                  }
+
+                  if (filter1 == null || filter1.match(ref.getMessage())) {
+                     if (messageAction.actMessage(tx, ref)) {
+                        iter.remove();
+                        refRemoved(ref);
+                     }
+                     txCount++;
+                     count++;
+                  }
+               }
+
+               if (txCount > 0) {
+                  tx.commit();
+
+                  tx = new TransactionImpl(storageManager);
+
+                  txCount = 0;
+               }
+
+               List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1);
+               for (MessageReference messageReference : cancelled) {
+                  messageAction.actMessage(tx, messageReference);
+                  count++;
+                  txCount++;
+               }
+
+               if (txCount > 0) {
+                  tx.commit();
+                  tx = new TransactionImpl(storageManager);
+                  txCount = 0;
+               }
             }
-
-            if (filter1 == null || filter1.match(ref.getMessage())) {
-               messageAction.actMessage(tx, ref);
-               iter.remove();
-               txCount++;
-               count++;
-            }
-         }
-
-         if (txCount > 0) {
-            tx.commit();
-
-            tx = new TransactionImpl(storageManager);
-
-            txCount = 0;
-         }
-
-         List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1);
-         for (MessageReference messageReference : cancelled) {
-            messageAction.actMessage(tx, messageReference);
-            count++;
-            txCount++;
-         }
-
-         if (txCount > 0) {
-            tx.commit();
-            tx = new TransactionImpl(storageManager);
-            txCount = 0;
          }
 
          if (pageIterator != null && !queueDestroyed) {
@@ -1447,7 +2071,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                if (filter1 == null || filter1.match(reference.getMessage())) {
                   count++;
                   txCount++;
-                  messageAction.actMessage(tx, reference);
+                  if (!messageAction.actMessage(tx, reference)) {
+                     addTail(reference, false);
+                  }
                } else {
                   addTail(reference, false);
                }
@@ -1470,6 +2096,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          return count;
+      } finally {
+         depageLock.unlock();
+         // to resume flow of depages, just in case
+         // as we disabled depaging during the execution of this method
+         depagePending = false;
+         forceDelivery();
       }
    }
 
@@ -1493,7 +2125,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (ref.getMessage().getMessageID() == messageID) {
-               incDelivering();
+               incDelivering(ref);
                acknowledge(tx, ref);
                iter.remove();
                refRemoved(ref);
@@ -1519,6 +2151,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void removeAddress() throws Exception {
+      server.removeAddressInfo(getAddress(), null);
+   }
+
+   @Override
    public void deleteQueue(boolean removeConsumers) throws Exception {
       synchronized (this) {
          if (this.queueDestroyed)
@@ -1536,7 +2173,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          postOffice.removeBinding(name, tx, true);
 
          if (removeConsumers) {
-            for (ConsumerHolder consumerHolder : consumerList) {
+            for (ConsumerHolder consumerHolder : consumers) {
                consumerHolder.consumer.disconnect();
             }
          }
@@ -1549,6 +2186,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (slowConsumerReaperFuture != null) {
             slowConsumerReaperFuture.cancel(false);
          }
+
+         unregisterMeters();
 
          tx.commit();
       } catch (Exception e) {
@@ -1572,7 +2211,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (ref.getMessage().getMessageID() == messageID) {
-               incDelivering();
+               incDelivering(ref);
                expire(ref);
                iter.remove();
                refRemoved(ref);
@@ -1598,7 +2237,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (filter == null || filter.match(ref.getMessage())) {
-               incDelivering();
+               incDelivering(ref);
                expire(tx, ref);
                iter.remove();
                refRemoved(ref);
@@ -1642,61 +2281,40 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       @Override
       public void run() {
+
+         boolean expired = false;
+         boolean hasElements = false;
+         int elementsExpired = 0;
+
+         LinkedList<MessageReference> expiredMessages = new LinkedList<>();
          synchronized (QueueImpl.this) {
             if (queueDestroyed) {
                return;
             }
-            logger.debug("Scanning for expires on " + QueueImpl.this.getName());
+
+            if (logger.isDebugEnabled()) {
+               logger.debug("Scanning for expires on " + QueueImpl.this.getName());
+            }
 
             LinkedListIterator<MessageReference> iter = iterator();
 
-            boolean expired = false;
-            boolean hasElements = false;
-
-            int elementsExpired = 0;
             try {
-               Transaction tx = null;
-
                while (postOffice.isStarted() && iter.hasNext()) {
                   hasElements = true;
                   MessageReference ref = iter.next();
-                  try {
-                     if (ref.getMessage().isExpired()) {
-                        if (tx == null) {
-                           tx = new TransactionImpl(storageManager);
-                        }
-                        incDelivering();
-                        expired = true;
-                        expire(tx, ref);
-                        iter.remove();
-                        refRemoved(ref);
+                  if (ref.getMessage().isExpired()) {
+                     incDelivering(ref);
+                     expired = true;
+                     expiredMessages.add(ref);
+                     iter.remove();
 
-                        if (++elementsExpired >= MAX_DELIVERIES_IN_LOOP) {
-                           logger.debug("Breaking loop of expiring");
-                           scannerRunning.incrementAndGet();
-                           getExecutor().execute(this);
-                           break;
-                        }
+                     if (++elementsExpired >= MAX_DELIVERIES_IN_LOOP) {
+                        logger.debug("Breaking loop of expiring");
+                        scannerRunning.incrementAndGet();
+                        getExecutor().execute(this);
+                        break;
                      }
-
-                  } catch (Exception e) {
-                     ActiveMQServerLogger.LOGGER.errorExpiringReferencesOnQueue(e, ref);
                   }
-               }
-
-               logger.debug("Expired " + elementsExpired + " references");
-
-               try {
-                  if (tx != null) {
-                     tx.commit();
-                  }
-               } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.unableToCommitTransaction(e);
-               }
-
-               // If empty we need to schedule depaging to make sure we would depage expired messages as well
-               if ((!hasElements || expired) && pageIterator != null && pageIterator.hasNext()) {
-                  scheduleDepage(true);
                }
             } finally {
                try {
@@ -1708,6 +2326,32 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             }
          }
+
+         if (!expiredMessages.isEmpty()) {
+            final Transaction tx = new TransactionImpl(storageManager);
+            for (MessageReference ref : expiredMessages) {
+               try {
+                  expire(tx, ref);
+                  refRemoved(ref);
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.errorExpiringReferencesOnQueue(e, ref);
+               }
+            }
+
+            try {
+               tx.commit();
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.unableToCommitTransaction(e);
+            }
+            logger.debug("Expired " + elementsExpired + " references");
+
+
+         }
+
+         // If empty we need to schedule depaging to make sure we would depage expired messages as well
+         if ((!hasElements || expired) && pageIterator != null && pageIterator.tryNext() > 0) {
+            scheduleDepage(true);
+         }
       }
    }
 
@@ -1717,7 +2361,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (ref.getMessage().getMessageID() == messageID) {
-               incDelivering();
+               incDelivering(ref);
                sendToDeadLetterAddress(null, ref);
                iter.remove();
                refRemoved(ref);
@@ -1736,7 +2380,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (filter == null || filter.match(ref.getMessage())) {
-               incDelivering();
+               incDelivering(ref);
                sendToDeadLetterAddress(null, ref);
                iter.remove();
                refRemoved(ref);
@@ -1748,13 +2392,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public boolean moveReference(final long messageID, final SimpleString toAddress) throws Exception {
-      return moveReference(messageID, toAddress, false);
-   }
-
-   @Override
    public synchronized boolean moveReference(final long messageID,
                                              final SimpleString toAddress,
+                                             final Binding binding,
                                              final boolean rejectDuplicate) throws Exception {
       try (LinkedListIterator<MessageReference> iter = iterator()) {
          while (iter.hasNext()) {
@@ -1762,11 +2402,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (ref.getMessage().getMessageID() == messageID) {
                iter.remove();
                refRemoved(ref);
-               incDelivering();
+               incDelivering(ref);
                try {
-                  move(null, toAddress, ref, rejectDuplicate, AckReason.NORMAL);
+                  move(null, toAddress, binding, ref, rejectDuplicate, AckReason.NORMAL, null);
                } catch (Exception e) {
-                  decDelivering();
+                  decDelivering(ref);
                   throw e;
                }
                return true;
@@ -1777,23 +2417,24 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public int moveReferences(final Filter filter, final SimpleString toAddress) throws Exception {
-      return moveReferences(DEFAULT_FLUSH_LIMIT, filter, toAddress, false);
+   public int moveReferences(final Filter filter, final SimpleString toAddress, Binding binding) throws Exception {
+      return moveReferences(DEFAULT_FLUSH_LIMIT, filter, toAddress, false, binding);
    }
 
    @Override
-   public synchronized int moveReferences(final int flushLimit,
+   public int moveReferences(final int flushLimit,
                                           final Filter filter,
                                           final SimpleString toAddress,
-                                          final boolean rejectDuplicates) throws Exception {
+                                          final boolean rejectDuplicates,
+                                          final Binding binding) throws Exception {
       final DuplicateIDCache targetDuplicateCache = postOffice.getDuplicateIDCache(toAddress);
 
       return iterQueue(flushLimit, filter, new QueueIterateAction() {
          @Override
-         public void actMessage(Transaction tx, MessageReference ref) throws Exception {
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
             boolean ignored = false;
 
-            incDelivering();
+            incDelivering(ref);
 
             if (rejectDuplicates) {
                byte[] duplicateBytes = ref.getMessage().getDuplicateIDBytes();
@@ -1807,17 +2448,32 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             if (!ignored) {
-               move(toAddress, tx, ref, false, rejectDuplicates);
+               move(null, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL, null);
             }
+
+            return true;
          }
       });
    }
 
-   public synchronized int moveReferencesBetweenSnFQueues(final SimpleString queueSuffix) throws Exception {
+   public int moveReferencesBetweenSnFQueues(final SimpleString queueSuffix) throws Exception {
       return iterQueue(DEFAULT_FLUSH_LIMIT, null, new QueueIterateAction() {
          @Override
-         public void actMessage(Transaction tx, MessageReference ref) throws Exception {
-            moveBetweenSnFQueues(queueSuffix, tx, ref);
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
+            return moveBetweenSnFQueues(queueSuffix, tx, ref);
+         }
+      });
+   }
+
+   public synchronized int rerouteMessages(final SimpleString queueName, final Filter filter) throws Exception {
+      return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
+         @Override
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
+            RoutingContext routingContext = new RoutingContextImpl(tx);
+            routingContext.setAddress(server.locateQueue(queueName).getAddress());
+            server.getPostOffice().getBinding(queueName).route(ref.getMessage(), routingContext);
+            postOffice.processRoute(ref.getMessage(), routingContext, false);
+            return false;
          }
       });
    }
@@ -1829,14 +2485,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
          @Override
-         public void actMessage(Transaction tx, MessageReference ref) throws Exception {
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
 
             String originalMessageAddress = ref.getMessage().getAnnotationString(Message.HDR_ORIGINAL_ADDRESS);
             String originalMessageQueue = ref.getMessage().getAnnotationString(Message.HDR_ORIGINAL_QUEUE);
 
             if (originalMessageAddress != null) {
 
-               incDelivering();
+               incDelivering(ref);
 
                Long targetQueue = null;
                if (originalMessageQueue != null && !originalMessageQueue.equals(originalMessageAddress)) {
@@ -1855,10 +2511,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false, targetQueue.longValue());
                } else {
                   move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false);
-
                }
 
+               return true;
             }
+
+            return false;
          }
       });
 
@@ -1903,11 +2561,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized void resetAllIterators() {
-      for (ConsumerHolder holder : this.consumerList) {
-         if (holder.iter != null) {
-            holder.iter.close();
-         }
-         holder.iter = null;
+      for (ConsumerHolder holder : this.consumers) {
+         holder.resetIterator();
+      }
+      if (redistributor != null) {
+         redistributor.resetIterator();
       }
    }
 
@@ -1937,7 +2595,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (pauseStatusRecord >= 0) {
                storageManager.deleteQueueStatus(pauseStatusRecord);
             }
-            pauseStatusRecord = storageManager.storeQueueStatus(this.id, QueueStatus.PAUSED);
+            pauseStatusRecord = storageManager.storeQueueStatus(this.id, AddressQueueStatus.PAUSED);
          }
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.unableToPauseQueue(e);
@@ -1963,7 +2621,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized boolean isPaused() {
-      return paused;
+      return paused || (addressInfo != null && addressInfo.isPaused());
    }
 
    @Override
@@ -1973,7 +2631,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public boolean isDirectDeliver() {
-      return directDeliver;
+      return directDeliver && supportsDirectDeliver;
    }
 
    /**
@@ -2021,6 +2679,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private synchronized void internalAddTail(final MessageReference ref) {
       refAdded(ref);
       messageReferences.addTail(ref, getPriority(ref));
+      pendingMetrics.incrementMetrics(ref);
+      enforceRing(false);
    }
 
    /**
@@ -2032,11 +2692,31 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     */
    private void internalAddHead(final MessageReference ref) {
       queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      pendingMetrics.incrementMetrics(ref);
       refAdded(ref);
 
       int priority = getPriority(ref);
 
       messageReferences.addHead(ref, priority);
+
+      ref.setInDelivery(false);
+   }
+
+   /**
+    * The caller of this method requires synchronized on the queue.
+    * I'm not going to add synchronized to this method just for a precaution,
+    * as I'm not 100% sure this won't cause any extra runtime.
+    *
+    * @param ref
+    */
+   private void internalAddSorted(final MessageReference ref) {
+      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      pendingMetrics.incrementMetrics(ref);
+      refAdded(ref);
+
+      int priority = getPriority(ref);
+
+      messageReferences.addSorted(ref, priority);
    }
 
    private int getPriority(MessageReference ref) {
@@ -2057,12 +2737,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          internalAddTail(ref);
 
          if (!ref.isPaged()) {
-            messagesAdded.incrementAndGet();
+            incrementMesssagesAdded();
          }
 
          if (added++ > MAX_DELIVERIES_IN_LOOP) {
             // if we just keep polling from the intermediate we could starve in case there's a sustained load
-            deliverAsync();
+            deliverAsync(true);
             return;
          }
       }
@@ -2072,42 +2752,40 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * This method will deliver as many messages as possible until all consumers are busy or there
     * are no more matching or available messages.
     */
-   private void deliver() {
+   private boolean deliver() {
       if (logger.isDebugEnabled()) {
          logger.debug(this + " doing deliver. messageReferences=" + messageReferences.size());
       }
+
+      scheduledRunners.decrementAndGet();
 
       doInternalPoll();
 
       // Either the iterator is empty or the consumer is busy
       int noDelivery = 0;
 
-      int size = 0;
-
-      int endPos = -1;
-
       int handled = 0;
 
-      long timeout = System.currentTimeMillis() + DELIVERY_TIMEOUT;
-
+      long timeout = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(DELIVERY_TIMEOUT);
+      consumers.reset();
       while (true) {
          if (handled == MAX_DELIVERIES_IN_LOOP) {
             // Schedule another one - we do this to prevent a single thread getting caught up in this loop for too
             // long
 
-            deliverAsync();
+            deliverAsync(true);
 
-            return;
+            return false;
          }
 
-         if (System.currentTimeMillis() > timeout) {
+         if (System.nanoTime() - timeout > 0) {
             if (logger.isTraceEnabled()) {
                logger.trace("delivery has been running for too long. Scheduling another delivery task now");
             }
 
-            deliverAsync();
+            deliverAsync(true);
 
-            return;
+            return false;
          }
 
          MessageReference ref;
@@ -2117,28 +2795,24 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          synchronized (this) {
 
             // Need to do these checks inside the synchronized
-            if (paused || consumerList.isEmpty()) {
-               return;
+            if (isPaused() || !canDispatch() && redistributor == null) {
+               return false;
             }
 
             if (messageReferences.size() == 0) {
                break;
             }
 
-            if (endPos < 0 || consumersChanged) {
-               consumersChanged = false;
-
-               size = consumerList.size();
-
-               endPos = pos - 1;
-
-               if (endPos < 0) {
-                  endPos = size - 1;
-                  noDelivery = 0;
+            ConsumerHolder<? extends Consumer> holder;
+            if (redistributor == null) {
+               if (consumers.hasNext()) {
+                  holder = consumers.next();
+               } else {
+                  break;
                }
+            } else {
+               holder = redistributor;
             }
-
-            ConsumerHolder holder = consumerList.get(pos);
 
             Consumer consumer = holder.consumer;
             Consumer groupConsumer = null;
@@ -2159,12 +2833,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   if (logger.isTraceEnabled()) {
                      logger.trace("Reference " + ref + " being expired");
                   }
-                  holder.iter.remove();
-
-                  refRemoved(ref);
-
+                  removeMessageReference(holder, ref);
                   handled++;
-
+                  consumers.reset();
                   continue;
                }
 
@@ -2172,48 +2843,61 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   logger.trace("Queue " + this.getName() + " is delivering reference " + ref);
                }
 
-               // If a group id is set, then this overrides the consumer chosen round-robin
+               final SimpleString groupID = extractGroupID(ref);
+               groupConsumer = getGroupConsumer(groupID);
 
-               SimpleString groupID = extractGroupID(ref);
-
-               if (groupID != null) {
-                  groupConsumer = groups.get(groupID);
-
-                  if (groupConsumer != null) {
-                     consumer = groupConsumer;
-                  }
+               if (groupConsumer != null) {
+                  consumer = groupConsumer;
                }
 
                HandleStatus status = handle(ref, consumer);
 
                if (status == HandleStatus.HANDLED) {
 
-                  deliveriesInTransit.countUp();
+                  // if a message was delivered, any previous negative attemps need to be cleared
+                  // this is to avoid breaks on the loop when checking for any other factors.
+                  noDelivery = 0;
 
-                  handledconsumer = consumer;
-
-                  holder.iter.remove();
-
-                  refRemoved(ref);
-
-                  if (groupID != null && groupConsumer == null) {
-                     groups.put(groupID, consumer);
+                  if (redistributor == null) {
+                     ref = handleMessageGroup(ref, consumer, groupConsumer, groupID);
                   }
 
+                  deliveriesInTransit.countUp();
+
+                  if (!nonDestructive) {
+                     removeMessageReference(holder, ref);
+                  }
+                  ref.setInDelivery(true);
+                  handledconsumer = consumer;
                   handled++;
+                  consumers.reset();
                } else if (status == HandleStatus.BUSY) {
-                  holder.iter.repeat();
+                  try {
+                     holder.iter.repeat();
+                  } catch (NoSuchElementException e) {
+                     // this could happen if there was an exception on the queue handling
+                     // and it returned BUSY because of that exception
+                     //
+                     // We will just log it as there's nothing else we can do now.
+                     logger.warn(e.getMessage(), e);
+                  }
 
                   noDelivery++;
                } else if (status == HandleStatus.NO_MATCH) {
                   // nothing to be done on this case, the iterators will just jump next
+                  consumers.reset();
                }
             }
 
-            if (pos == endPos) {
+            if (redistributor != null || groupConsumer != null) {
+               if (noDelivery > 0) {
+                  break;
+               }
+               noDelivery = 0;
+            } else if (!consumers.hasNext()) {
                // Round robin'd all
 
-               if (noDelivery == size) {
+               if (noDelivery == this.consumers.size()) {
                   if (handledconsumer != null) {
                      // this shouldn't really happen,
                      // however I'm keeping this as an assertion case future developers ever change the logic here on this class
@@ -2228,16 +2912,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                noDelivery = 0;
             }
-
-            // Only move onto the next position if the consumer on the current position was used.
-            // When using group we don't need to load balance to the next position
-            if (groupConsumer == null) {
-               pos++;
-            }
-
-            if (pos >= size) {
-               pos = 0;
-            }
          }
 
          if (handledconsumer != null) {
@@ -2245,11 +2919,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
       }
 
-      checkDepage();
+      return true;
    }
 
-   private void checkDepage() {
-      if (pageIterator != null && pageSubscription.isPaging() && !depagePending && needsDepage() && pageIterator.hasNext()) {
+   protected void removeMessageReference(ConsumerHolder<? extends Consumer> holder, MessageReference ref) {
+      holder.iter.remove();
+      refRemoved(ref);
+   }
+
+   private void checkDepage(boolean noWait) {
+      if (pageIterator != null && pageSubscription.isPaging() && !depagePending && needsDepage() && (noWait ? pageIterator.tryNext() > 0 : pageIterator.hasNext())) {
          scheduleDepage(false);
       }
    }
@@ -2263,15 +2942,21 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @return
     */
    private boolean needsDepage() {
-      return queueMemorySize.get() < pageSubscription.getPagingStore().getMaxSize();
+      return queueMemorySize.get() < pageSubscription.getPagingStore().getMaxSize() &&
+         /**
+          * In most cases, one depage round following by at most MAX_SCHEDULED_RUNNERS deliver round,
+          * thus we just need to read MAX_DELIVERIES_IN_LOOP * MAX_SCHEDULED_RUNNERS messages. If we read too much, the message reference
+          * maybe discarded by gc collector in response to memory demand and we need to read it again at
+          * a great cost when delivering.
+          */
+         intermediateMessageReferences.size() + messageReferences.size() < MAX_DEPAGE_NUM;
    }
 
    private SimpleString extractGroupID(MessageReference ref) {
-      if (internalQueue) {
+      if (internalQueue || exclusive || groupBuckets == 0) {
          return null;
       } else {
          try {
-            // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
             return ref.getMessage().getGroupID();
          } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.unableToExtractGroupID(e);
@@ -2280,11 +2965,31 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
+   private int extractGroupSequence(MessageReference ref) {
+      if (internalQueue) {
+         return 0;
+      } else {
+         try {
+            // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
+            return ref.getMessage().getGroupSequence();
+         } catch (Throwable e) {
+            ActiveMQServerLogger.LOGGER.unableToExtractGroupSequence(e);
+            return 0;
+         }
+      }
+   }
+
    protected void refRemoved(MessageReference ref) {
       queueMemorySize.addAndGet(-ref.getMessageMemoryEstimate());
+      pendingMetrics.decrementMetrics(ref);
       if (ref.isPaged()) {
          pagedReferences.decrementAndGet();
       }
+   }
+
+   protected void addRefSize(MessageReference ref) {
+      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      pendingMetrics.incrementMetrics(ref);
    }
 
    protected void refAdded(final MessageReference ref) {
@@ -2306,72 +3011,86 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private void depage(final boolean scheduleExpiry) {
       depagePending = false;
 
-      synchronized (this) {
-         if (paused || pageIterator == null) {
-            return;
+      if (!depageLock.tryLock()) {
+         return;
+      }
+
+      try {
+         synchronized (this) {
+            if (isPaused() || pageIterator == null) {
+               return;
+            }
          }
-      }
 
-      long maxSize = pageSubscription.getPagingStore().getPageSizeBytes();
+         long timeout = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(DELIVERY_TIMEOUT);
 
-      long timeout = System.currentTimeMillis() + DELIVERY_TIMEOUT;
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("QueueMemorySize before depage on queue=" + this.getName() + " is " + queueMemorySize.get());
-      }
-
-      this.directDeliver = false;
-
-      int depaged = 0;
-      while (timeout > System.currentTimeMillis() && needsDepage() && pageIterator.hasNext()) {
-         depaged++;
-         PagedReference reference = pageIterator.next();
          if (logger.isTraceEnabled()) {
-            logger.trace("Depaging reference " + reference + " on queue " + this.getName());
+            logger.trace("QueueMemorySize before depage on queue=" + this.getName() + " is " + queueMemorySize.get());
          }
-         addTail(reference, false);
-         pageIterator.remove();
-      }
 
-      if (logger.isDebugEnabled()) {
-         if (depaged == 0 && queueMemorySize.get() >= maxSize) {
-            logger.debug("Couldn't depage any message as the maxSize on the queue was achieved. " + "There are too many pending messages to be acked in reference to the page configuration");
+         this.directDeliver = false;
+
+         int depaged = 0;
+         while (timeout - System.nanoTime() > 0 && needsDepage()) {
+            int status = pageIterator.tryNext();
+            if (status == 2) {
+               continue;
+            } else if (status == 0) {
+               break;
+            }
+
+            depaged++;
+            PagedReference reference = pageIterator.next();
+            if (logger.isTraceEnabled()) {
+               logger.trace("Depaging reference " + reference + " on queue " + this.getName());
+            }
+            addTail(reference, false);
+            pageIterator.remove();
+
+            //We have to increment this here instead of in the iterator so we have access to the reference from next()
+            pageSubscription.incrementDeliveredSize(getPersistentSize(reference));
          }
 
          if (logger.isDebugEnabled()) {
-            logger.debug("Queue Memory Size after depage on queue=" + this.getName() + " is " + queueMemorySize.get() + " with maxSize = " + maxSize + ". Depaged " + depaged + " messages, pendingDelivery=" + messageReferences.size() + ", intermediateMessageReferences= " + intermediateMessageReferences.size() + ", queueDelivering=" + deliveringCount.get());
+            int maxSize = pageSubscription.getPagingStore().getPageSizeBytes();
 
+            if (depaged == 0 && queueMemorySize.get() >= maxSize) {
+               logger.debug("Couldn't depage any message as the maxSize on the queue was achieved. " + "There are too many pending messages to be acked in reference to the page configuration");
+            }
+
+            if (logger.isDebugEnabled()) {
+               logger.debug("Queue Memory Size after depage on queue=" + this.getName() + " is " + queueMemorySize.get() + " with maxSize = " + maxSize + ". Depaged " + depaged + " messages, pendingDelivery=" + messageReferences.size() + ", intermediateMessageReferences= " + intermediateMessageReferences.size() + ", queueDelivering=" + deliveringMetrics.getMessageCount());
+
+            }
          }
-      }
 
-      deliverAsync();
+         deliverAsync(true);
 
-      if (depaged > 0 && scheduleExpiry) {
-         // This will just call an executor
-         expireReferences();
+         if (depaged > 0 && scheduleExpiry) {
+            // This will just call an executor
+            expireReferences();
+         }
+      } finally {
+         depageLock.unlock();
       }
    }
 
    private void internalAddRedistributor(final ArtemisExecutor executor) {
       // create the redistributor only once if there are no local consumers
-      if (consumerSet.isEmpty() && redistributor == null) {
+      if (consumers.isEmpty() && redistributor == null) {
          if (logger.isTraceEnabled()) {
             logger.trace("QueueImpl::Adding redistributor on queue " + this.toString());
          }
-         redistributor = new Redistributor(this, storageManager, postOffice, executor, QueueImpl.REDISTRIBUTOR_BATCH_SIZE);
 
-         consumerList.add(new ConsumerHolder(redistributor));
+         redistributor = (new ConsumerHolder(new Redistributor(this, storageManager, postOffice, executor, QueueImpl.REDISTRIBUTOR_BATCH_SIZE)));
 
-         consumersChanged = true;
-
-         redistributor.start();
+         redistributor.consumer.start();
 
          deliverAsync();
       }
    }
-
    @Override
-   public boolean checkRedelivery(final MessageReference reference,
+   public Pair<Boolean, Boolean> checkRedelivery(final MessageReference reference,
                                   final long timeBase,
                                   final boolean ignoreRedeliveryDelay) throws Exception {
       Message message = reference.getMessage();
@@ -2381,17 +3100,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             logger.trace("Queue " + this.getName() + " is an internal queue, no checkRedelivery");
          }
          // no DLQ check on internal queues
-         return true;
+         return new Pair<>(true, false);
       }
 
-      if (!internalQueue && message.isDurable() && durable && !reference.isPaged()) {
+      if (!internalQueue && reference.isDurable() && isDurable() && !reference.isPaged()) {
          storageManager.updateDeliveryCount(reference);
       }
 
       AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
 
       int maxDeliveries = addressSettings.getMaxDeliveryAttempts();
-      long redeliveryDelay = addressSettings.getRedeliveryDelay();
       int deliveryCount = reference.getDeliveryCount();
 
       // First check DLA
@@ -2399,11 +3117,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (logger.isTraceEnabled()) {
             logger.trace("Sending reference " + reference + " to DLA = " + addressSettings.getDeadLetterAddress() + " since ref.getDeliveryCount=" + reference.getDeliveryCount() + "and maxDeliveries=" + maxDeliveries + " from queue=" + this.getName());
          }
-         sendToDeadLetterAddress(null, reference, addressSettings.getDeadLetterAddress());
+         boolean dlaResult = sendToDeadLetterAddress(null, reference, addressSettings.getDeadLetterAddress());
 
-         return false;
+         return new Pair<>(false, dlaResult);
       } else {
          // Second check Redelivery Delay
+         long redeliveryDelay = addressSettings.getRedeliveryDelay();
          if (!ignoreRedeliveryDelay && redeliveryDelay > 0) {
             redeliveryDelay = calculateRedeliveryDelay(addressSettings, deliveryCount);
 
@@ -2413,14 +3132,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             reference.setScheduledDeliveryTime(timeBase + redeliveryDelay);
 
-            if (!reference.isPaged() && message.isDurable() && durable) {
+            if (!reference.isPaged() && reference.isDurable() && isDurable()) {
                storageManager.updateScheduledDeliveryTime(reference);
             }
          }
 
-         decDelivering();
+         decDelivering(reference);
 
-         return true;
+         return new Pair<>(true, false);
       }
    }
 
@@ -2451,11 +3170,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       postOffice.route(copyMessage, tx, false, rejectDuplicate);
 
-      acknowledge(tx, ref);
+      if (expiry) {
+         acknowledge(tx, ref, AckReason.EXPIRED, null);
+      } else {
+         acknowledge(tx, ref);
+      }
+
    }
 
    @SuppressWarnings({"ArrayToString", "ArrayToStringConcatenation"})
-   private void moveBetweenSnFQueues(final SimpleString queueSuffix,
+   private boolean moveBetweenSnFQueues(final SimpleString queueSuffix,
                                      final Transaction tx,
                                      final MessageReference ref) throws Exception {
       Message copyMessage = makeCopy(ref, false, false);
@@ -2517,6 +3241,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             deliverAsync();
          }
       });
+
+      return true;
    }
 
    private Pair<String, Binding> locateTargetBinding(SimpleString queueSuffix, Message copyMessage, long oldQueueID) {
@@ -2573,6 +3299,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private Message makeCopy(final MessageReference ref,
                             final boolean expiry,
                             final boolean copyOriginalHeaders) throws Exception {
+      if (ref == null) {
+         ActiveMQServerLogger.LOGGER.nullRefMessage();
+         throw new ActiveMQNullRefException("Reference to message is null");
+      }
+
       Message message = ref.getMessage();
       /*
        We copy the message and send that to the dla/expiry queue - this is
@@ -2588,7 +3319,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       Message copy = message.copy(newID);
 
       if (copyOriginalHeaders) {
-         copy.referenceOriginalMessage(message, ref != null ? ref.getQueue().getName().toString() : null);
+         copy.referenceOriginalMessage(message, ref.getQueue().getName().toString());
       }
 
       copy.setExpiration(0);
@@ -2606,10 +3337,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       SimpleString expiryAddress = addressSettingsRepository.getMatch(address.toString()).getExpiryAddress();
 
       if (expiryAddress != null) {
-         Bindings bindingList = postOffice.getBindingsForAddress(expiryAddress);
 
-         if (bindingList.getBindings().isEmpty()) {
+         createExpiryResources();
+
+         Bindings bindingList = postOffice.lookupBindingsForAddress(expiryAddress);
+
+         if (bindingList == null || bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
+            acknowledge(tx, ref, AckReason.EXPIRED, null);
          } else {
             move(expiryAddress, tx, ref, true, true);
          }
@@ -2620,40 +3355,110 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoQueue(name);
          }
 
-         acknowledge(tx, ref);
+         acknowledge(tx, ref, AckReason.EXPIRED, null);
+      }
+
+      if (server != null && server.hasBrokerMessagePlugins()) {
+         ExpiryLogger expiryLogger = (ExpiryLogger)tx.getProperty(TransactionPropertyIndexes.EXPIRY_LOGGER);
+         if (expiryLogger == null) {
+            expiryLogger = new ExpiryLogger();
+            tx.putProperty(TransactionPropertyIndexes.EXPIRY_LOGGER, expiryLogger);
+            tx.addOperation(expiryLogger);
+         }
+
+         expiryLogger.addExpiry(address, ref);
+      }
+
+      // potentially auto-delete this queue if this expired the last message
+      tx.addOperation(new TransactionOperationAbstract() {
+         @Override
+         public void afterCommit(Transaction tx) {
+            refCountForConsumers.check();
+         }
+      });
+   }
+
+   private class ExpiryLogger extends TransactionOperationAbstract {
+
+      List<Pair<SimpleString, MessageReference>> expiries = new LinkedList<>();
+
+      public void addExpiry(SimpleString address, MessageReference ref) {
+         expiries.add(new Pair<>(address, ref));
+      }
+
+      @Override
+      public void afterCommit(Transaction tx) {
+         for (Pair<SimpleString, MessageReference> pair : expiries) {
+            try {
+               server.callBrokerMessagePlugins(plugin -> plugin.messageExpired(pair.getB(), pair.getA(), null));
+            } catch (Throwable e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+         expiries.clear(); // just giving a hand to GC
       }
    }
 
    @Override
-   public void sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception {
-      sendToDeadLetterAddress(tx, ref, addressSettingsRepository.getMatch(address.toString()).getDeadLetterAddress());
+   public boolean sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception {
+      return sendToDeadLetterAddress(tx, ref, addressSettingsRepository.getMatch(address.toString()).getDeadLetterAddress());
    }
 
-   private void sendToDeadLetterAddress(final Transaction tx,
+   private boolean sendToDeadLetterAddress(final Transaction tx,
                                         final MessageReference ref,
                                         final SimpleString deadLetterAddress) throws Exception {
       if (deadLetterAddress != null) {
-         Bindings bindingList = postOffice.getBindingsForAddress(deadLetterAddress);
 
-         if (bindingList.getBindings().isEmpty()) {
+         createDeadLetterResources();
+
+         Bindings bindingList = postOffice.lookupBindingsForAddress(deadLetterAddress);
+
+         if (bindingList == null || bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDelivery(ref, deadLetterAddress);
-            ref.acknowledge(tx, AckReason.KILLED);
+            ref.acknowledge(tx, AckReason.KILLED, null);
          } else {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
-            move(tx, deadLetterAddress, ref, false, AckReason.KILLED);
+            move(tx, deadLetterAddress, null, ref, false, AckReason.KILLED, null);
+            return true;
          }
       } else {
          ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(ref, name);
 
-         ref.acknowledge(tx, AckReason.KILLED);
+         ref.acknowledge(tx, AckReason.KILLED, null);
+      }
+
+      return false;
+   }
+
+   private void createDeadLetterResources() throws Exception {
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getAddress().toString());
+      if (addressSettings.isAutoCreateDeadLetterResources() && !getAddress().equals(addressSettings.getDeadLetterAddress())) {
+         if (addressSettings.getDeadLetterAddress() != null && addressSettings.getDeadLetterAddress().length() != 0) {
+            SimpleString dlqName = addressSettings.getDeadLetterQueuePrefix().concat(getAddress()).concat(addressSettings.getDeadLetterQueueSuffix());
+            SimpleString dlqFilter = new SimpleString(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
+            server.createQueue(addressSettings.getDeadLetterAddress(), RoutingType.MULTICAST, dlqName, dlqFilter, null, true, false, true, false, true, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), true);
+         }
+      }
+   }
+
+   private void createExpiryResources() throws Exception {
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getAddress().toString());
+      if (addressSettings.isAutoCreateExpiryResources() && !getAddress().equals(addressSettings.getExpiryAddress())) {
+         if (addressSettings.getExpiryAddress() != null && addressSettings.getExpiryAddress().length() != 0) {
+            SimpleString expiryQueueName = addressSettings.getExpiryQueuePrefix().concat(getAddress()).concat(addressSettings.getExpiryQueueSuffix());
+            SimpleString expiryFilter = new SimpleString(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
+            server.createQueue(addressSettings.getExpiryAddress(), RoutingType.MULTICAST, expiryQueueName, expiryFilter, null, true, false, true, false, true, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), true);
+         }
       }
    }
 
    private void move(final Transaction originalTX,
                      final SimpleString address,
+                     final Binding binding,
                      final MessageReference ref,
                      final boolean rejectDuplicate,
-                     final AckReason reason) throws Exception {
+                     final AckReason reason,
+                     final ServerConsumer consumer) throws Exception {
       Transaction tx;
 
       if (originalTX != null) {
@@ -2667,9 +3472,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       copyMessage.setAddress(address);
 
-      postOffice.route(copyMessage, tx, false, rejectDuplicate);
+      postOffice.route(copyMessage, tx, false, rejectDuplicate, binding);
 
-      acknowledge(tx, ref, reason);
+      acknowledge(tx, ref, reason, consumer);
 
       if (originalTX == null) {
          tx.commit();
@@ -2680,14 +3485,32 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * This method delivers the reference on the callers thread - this can give us better latency in the case there is nothing in the queue
     */
    private boolean deliverDirect(final MessageReference ref) {
+      //The order to enter the deliverLock re QueueImpl::this lock is very important:
+      //- acquire deliverLock::lock
+      //- acquire QueueImpl::this lock
+      //DeliverRunner::run is doing the same to avoid deadlocks.
+      //Without deliverLock, a directDeliver happening while a DeliverRunner::run
+      //could cause a deadlock.
+      //Both DeliverRunner::run and deliverDirect could trigger a ServerConsumerImpl::individualAcknowledge:
+      //- deliverDirect first acquire QueueImpl::this, then ServerConsumerImpl::this
+      //- DeliverRunner::run first acquire ServerConsumerImpl::this then QueueImpl::this
+      if (!deliverLock.tryLock()) {
+         logger.tracef("Cannot perform a directDelivery because there is a running async deliver");
+         return false;
+      }
+      try {
+         return deliver(ref);
+      } finally {
+         deliverLock.unlock();
+      }
+   }
+
+   private boolean deliver(final MessageReference ref) {
       synchronized (this) {
          if (!supportsDirectDeliver) {
-            // this should never happen, but who knows?
-            // if someone ever change add and removeConsumer,
-            // this would protect any eventual bug
             return false;
          }
-         if (paused || consumerList.isEmpty()) {
+         if (isPaused() || !canDispatch() && redistributor == null) {
             return false;
          }
 
@@ -2695,80 +3518,114 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return true;
          }
 
-         int startPos = pos;
+         consumers.reset();
 
-         int size = consumerList.size();
+         while (consumers.hasNext() || redistributor != null) {
 
-         while (true) {
-            ConsumerHolder holder = consumerList.get(pos);
-
+            ConsumerHolder<? extends Consumer> holder = redistributor == null ? consumers.next() : redistributor;
             Consumer consumer = holder.consumer;
 
-            Consumer groupConsumer = null;
+            final SimpleString groupID = extractGroupID(ref);
+            Consumer groupConsumer = getGroupConsumer(groupID);
 
-            // If a group id is set, then this overrides the consumer chosen round-robin
-
-            SimpleString groupID = extractGroupID(ref);
-
-            if (groupID != null) {
-               groupConsumer = groups.get(groupID);
-
-               if (groupConsumer != null) {
-                  consumer = groupConsumer;
-               }
-            }
-
-            // Only move onto the next position if the consumer on the current position was used.
-            if (groupConsumer == null) {
-               pos++;
-            }
-
-            if (pos == size) {
-               pos = 0;
+            if (groupConsumer != null) {
+               consumer = groupConsumer;
             }
 
             HandleStatus status = handle(ref, consumer);
 
             if (status == HandleStatus.HANDLED) {
-               if (groupID != null && groupConsumer == null) {
-                  groups.put(groupID, consumer);
+               final MessageReference reference;
+               if (redistributor == null) {
+                  reference = handleMessageGroup(ref, consumer, groupConsumer, groupID);
+               } else {
+                  reference = ref;
                }
 
-               messagesAdded.incrementAndGet();
+               incrementMesssagesAdded();
 
                deliveriesInTransit.countUp();
-               proceedDeliver(consumer, ref);
+               reference.setInDelivery(true);
+               proceedDeliver(consumer, reference);
+               consumers.reset();
                return true;
             }
 
-            if (pos == startPos) {
-               // Tried them all
+            if (redistributor != null || groupConsumer != null) {
                break;
             }
          }
+
+         if (logger.isTraceEnabled()) {
+            logger.tracef("Queue " + getName() + " is out of direct delivery as no consumers handled a delivery");
+         }
          return false;
       }
+   }
+
+   private Consumer getGroupConsumer(SimpleString groupID) {
+      Consumer groupConsumer = null;
+      if (exclusive) {
+         // If exclusive is set, then this overrides the consumer chosen round-robin
+         groupConsumer = exclusiveConsumer;
+      } else {
+         // If a group id is set, then this overrides the consumer chosen round-robin
+         if (groupID != null) {
+            groupConsumer = groups.get(groupID);
+         }
+      }
+      return groupConsumer;
+   }
+
+   private MessageReference handleMessageGroup(MessageReference ref, Consumer consumer, Consumer groupConsumer, SimpleString groupID) {
+      if (exclusive) {
+         if (groupConsumer == null) {
+            exclusiveConsumer = consumer;
+            if (groupFirstKey != null) {
+               return new GroupFirstMessageReference(groupFirstKey, ref);
+            }
+         }
+         consumers.repeat();
+      } else if (groupID != null) {
+         if (extractGroupSequence(ref) == -1) {
+            groups.remove(groupID);
+            consumers.repeat();
+         } else if (groupConsumer == null) {
+            groups.put(groupID, consumer);
+            if (groupFirstKey != null) {
+               return new GroupFirstMessageReference(groupFirstKey, ref);
+            }
+         } else {
+            consumers.repeat();
+         }
+      }
+      return ref;
    }
 
    private void proceedDeliver(Consumer consumer, MessageReference reference) {
       try {
          consumer.proceedDeliver(reference);
       } catch (Throwable t) {
-         ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
-
-         synchronized (this) {
-            // If the consumer throws an exception we remove the consumer
-            try {
-               removeConsumer(consumer);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorRemovingConsumer(e);
-            }
-
-            // The message failed to be delivered, hence we try again
-            addHead(reference, false);
-         }
+         errorProcessing(consumer, t, reference);
       } finally {
          deliveriesInTransit.countDown();
+      }
+   }
+
+   /** This will print errors and decide what to do with the errored consumer from the protocol layer. */
+   @Override
+   public void errorProcessing(Consumer consumer, Throwable t, MessageReference reference) {
+      synchronized (this) {
+         ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
+         // If the consumer throws an exception we remove the consumer
+         try {
+            removeConsumer(consumer);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.errorRemovingConsumer(e);
+         }
+
+         // The message failed to be delivered, hence we try again
+         addHead(reference, false);
       }
    }
 
@@ -2819,20 +3676,26 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return status;
    }
 
-   private List<ConsumerHolder> cloneConsumersList() {
-      List<ConsumerHolder> consumerListClone;
-
-      synchronized (this) {
-         consumerListClone = new ArrayList<>(consumerList);
-      }
-      return consumerListClone;
-   }
-
    @Override
-   public void postAcknowledge(final MessageReference ref) {
+   public void postAcknowledge(final MessageReference ref, AckReason reason) {
       QueueImpl queue = (QueueImpl) ref.getQueue();
 
-      queue.decDelivering();
+      queue.decDelivering(ref);
+      if (nonDestructive && reason == AckReason.NORMAL) {
+         // this is done to tell the difference between actual acks and just a closed consumer in the non-destructive use-case
+         ref.setInDelivery(false);
+         return;
+      }
+
+      if (reason == AckReason.EXPIRED) {
+         messagesExpired.incrementAndGet();
+      } else if (reason == AckReason.KILLED) {
+         messagesKilled.incrementAndGet();
+      } else if (reason == AckReason.REPLACED) {
+         messagesReplaced.incrementAndGet();
+      } else {
+         messagesAcknowledged.incrementAndGet();
+      }
 
       if (ref.isPaged()) {
          // nothing to be done
@@ -2848,19 +3711,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          message = null;
       }
 
-      if (message == null)
+      if (message == null || (nonDestructive && reason == AckReason.NORMAL))
          return;
 
-      boolean durableRef = message.isDurable() && queue.durable;
-
-      try {
-         message.decrementRefCount();
-      } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.errorDecrementingRefCount(e);
-      }
+      boolean durableRef = message.isDurable() && queue.isDurable();
 
       if (durableRef) {
-         int count = message.decrementDurableRefCount();
+         int count = queue.durableDown(message);
 
          if (count == 0) {
             // Note - we MUST store the delete after the preceding ack has been committed to storage, we cannot combine
@@ -2883,24 +3740,55 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                ActiveMQServerLogger.LOGGER.errorRemovingMessage(e, message.getMessageID());
             }
          }
+      } else {
+         queue.refDown(message);
       }
    }
 
    void postRollback(final LinkedList<MessageReference> refs) {
+      postRollback(refs, false);
+   }
+
+   void postRollback(final LinkedList<MessageReference> refs, boolean sorted) {
       //if we have purged then ignore adding the messages back
       if (purgeOnNoConsumers && getConsumerCount() == 0) {
+         purgeAfterRollback(refs);
+
          return;
       }
-      addHead(refs, false);
+      if (sorted) {
+         addSorted(refs, false);
+      } else {
+         addHead(refs, false);
+      }
+   }
+
+   private void purgeAfterRollback(LinkedList<MessageReference> refs) {
+      try {
+         Transaction transaction = new TransactionImpl(storageManager);
+         for (MessageReference reference : refs) {
+            incDelivering(reference); // post ack will decrement this, so need to inc
+            acknowledge(transaction, reference, AckReason.KILLED, null);
+         }
+         transaction.commit();
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+      }
    }
 
    private long calculateRedeliveryDelay(final AddressSettings addressSettings, final int deliveryCount) {
       long redeliveryDelay = addressSettings.getRedeliveryDelay();
       long maxRedeliveryDelay = addressSettings.getMaxRedeliveryDelay();
       double redeliveryMultiplier = addressSettings.getRedeliveryMultiplier();
+      double collisionAvoidanceFactor = addressSettings.getRedeliveryCollisionAvoidanceFactor();
 
       int tmpDeliveryCount = deliveryCount > 0 ? deliveryCount - 1 : 0;
       long delay = (long) (redeliveryDelay * (Math.pow(redeliveryMultiplier, tmpDeliveryCount)));
+      if (collisionAvoidanceFactor > 0) {
+         Random random = ThreadLocalRandom.current();
+         double variance = (random.nextBoolean() ? collisionAvoidanceFactor : -collisionAvoidanceFactor) * random.nextDouble();
+         delay += (delay * variance);
+      }
 
       if (delay > maxRedeliveryDelay) {
          delay = maxRedeliveryDelay;
@@ -2940,19 +3828,76 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return BigDecimal.valueOf((locaMessageAdded - messagesAddedSnapshot.getAndSet(locaMessageAdded)) / timeSlice).setScale(2, BigDecimal.ROUND_UP).floatValue();
    }
 
+   @Override
+   public void recheckRefCount(OperationContext context) {
+      ReferenceCounter refCount = refCountForConsumers;
+      if (refCount != null) {
+         context.executeOnCompletion(new IOCallback() {
+            @Override
+            public void done() {
+               refCount.check();
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+
+            }
+         });
+      }
+
+   }
+
+   public static MessageGroups<Consumer> groupMap(int groupBuckets) {
+      if (groupBuckets == -1) {
+         return new SimpleMessageGroups<>();
+      } else if (groupBuckets == 0) {
+         return DisabledMessageGroups.instance();
+      } else {
+         return new BucketMessageGroups<>(groupBuckets);
+      }
+   }
+
    // Inner classes
    // --------------------------------------------------------------------------
 
-   private static class ConsumerHolder {
+   protected static class ConsumerHolder<T extends Consumer> implements PriorityAware {
 
-      ConsumerHolder(final Consumer consumer) {
+      ConsumerHolder(final T consumer) {
          this.consumer = consumer;
       }
 
-      final Consumer consumer;
+      final T consumer;
 
       LinkedListIterator<MessageReference> iter;
 
+      private void resetIterator() {
+         if (iter != null) {
+            iter.close();
+         }
+         iter = null;
+      }
+
+      private Consumer consumer() {
+         return consumer;
+      }
+
+      @Override
+      public boolean equals(Object o) {
+         if (this == o) return true;
+         if (o == null || getClass() != o.getClass()) return false;
+         ConsumerHolder<?> that = (ConsumerHolder<?>) o;
+         return Objects.equals(consumer, that.consumer);
+      }
+
+      @Override
+      public int hashCode() {
+         return Objects.hash(consumer);
+      }
+
+      @Override
+      public int getPriority() {
+         return consumer.getPriority();
+      }
    }
 
    private class DelayedAddRedistributor implements Runnable {
@@ -2989,17 +3934,29 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // We will be using the deliverRunner instance as the guard object to avoid multiple threads executing
             // an asynchronous delivery
             enterCritical(CRITICAL_DELIVER);
+            boolean needCheckDepage = false;
             try {
-               synchronized (QueueImpl.this.deliverRunner) {
-                  deliver();
+               deliverLock.lock();
+               try {
+                  needCheckDepage = deliver();
+               } finally {
+                  deliverLock.unlock();
                }
             } finally {
                leaveCritical(CRITICAL_DELIVER);
             }
+
+            if (needCheckDepage) {
+               enterCritical(CRITICAL_CHECK_DEPAGE);
+               try {
+                  checkDepage(true);
+               } finally {
+                  leaveCritical(CRITICAL_CHECK_DEPAGE);
+               }
+            }
+
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorDelivering(e);
-         } finally {
-            scheduledRunners.decrementAndGet();
          }
       }
    }
@@ -3027,7 +3984,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     */
    abstract class QueueIterateAction {
 
-      public abstract void actMessage(Transaction tx, MessageReference ref) throws Exception;
+      /**
+       *
+       * @param tx   the transaction which the message action should participate in
+       * @param ref  the message reference which the action should act upon
+       * @return     true if the action should result in the removal of the message from the queue; false otherwise
+       * @throws Exception
+       */
+      public abstract boolean actMessage(Transaction tx, MessageReference ref) throws Exception;
    }
 
    /* For external use we need to use a synchronized version since the list is not thread safe */
@@ -3077,7 +4041,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    //Readonly (no remove) iterator over the messages in the queue, in order of
    //paging store, intermediateMessageReferences and MessageReferences
-   private class QueueBrowserIterator implements LinkedListIterator<MessageReference> {
+   private final class QueueBrowserIterator implements LinkedListIterator<MessageReference> {
 
       LinkedListIterator<PagedReference> pagingIterator = null;
       LinkedListIterator<MessageReference> messagesIterator = null;
@@ -3089,10 +4053,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return pagingIterator;
       }
 
-      Iterator lastIterator = null;
+      Iterator<? extends MessageReference> lastIterator = null;
 
       MessageReference cachedNext = null;
-      HashSet<PagePosition> previouslyBrowsed = new HashSet();
+      HashSet<PagePosition> previouslyBrowsed = new HashSet<>();
 
       private QueueBrowserIterator() {
          messagesIterator = new SynchronizedIterator(messageReferences.iterator());
@@ -3125,16 +4089,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
          }
-         while (true) {
-            if (messagesIterator != null && messagesIterator.hasNext()) {
-               MessageReference msg = messagesIterator.next();
-               if (msg.isPaged()) {
-                  previouslyBrowsed.add(((PagedReference) msg).getPosition());
-               }
-               return msg;
-            } else {
-               break;
+         if (messagesIterator != null && messagesIterator.hasNext()) {
+            MessageReference msg = messagesIterator.next();
+            if (msg.isPaged()) {
+               previouslyBrowsed.add(((PagedReference) msg).getPosition());
             }
+            return msg;
          }
          if (getPagingIterator() != null) {
             while (getPagingIterator().hasNext()) {
@@ -3172,17 +4132,24 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   private int incDelivering() {
-      return deliveringCount.incrementAndGet();
+   private void incDelivering(MessageReference ref) {
+      deliveringMetrics.incrementMetrics(ref);
    }
 
-   public void decDelivering() {
-      deliveringCount.decrementAndGet();
+   public void decDelivering(final MessageReference reference) {
+      deliveringMetrics.decrementMetrics(reference);
    }
 
-   @Override
-   public void decDelivering(int size) {
-      deliveringCount.addAndGet(-size);
+   private long getPersistentSize(final MessageReference reference) {
+      long size = 0;
+
+      try {
+         size = reference.getPersistentSize() > 0 ? reference.getPersistentSize() : 0;
+      } catch (Throwable e) {
+         ActiveMQServerLogger.LOGGER.errorCalculatePersistentSize(e);
+      }
+
+      return size;
    }
 
    private void configureExpiry(final AddressSettings settings) {
@@ -3203,7 +4170,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (slowConsumerReaperRunnable == null) {
             scheduleSlowConsumerReaper(settings);
          } else if (slowConsumerReaperRunnable.checkPeriod != settings.getSlowConsumerCheckPeriod() || slowConsumerReaperRunnable.threshold != settings.getSlowConsumerThreshold() || !slowConsumerReaperRunnable.policy.equals(settings.getSlowConsumerPolicy())) {
-            slowConsumerReaperFuture.cancel(false);
+            if (slowConsumerReaperFuture != null) {
+               slowConsumerReaperFuture.cancel(false);
+               slowConsumerReaperFuture = null;
+            }
             scheduleSlowConsumerReaper(settings);
          }
       }
@@ -3219,6 +4189,78 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
+   private void enforceRing(boolean head) {
+      if (ringSize != -1) { // better escaping & inlining when ring isn't being used
+         enforceRing(null, false, head);
+      }
+   }
+
+   private void enforceRing(MessageReference refToAck, boolean scheduling, boolean head) {
+      int adjustment = head ? 1 : 0;
+
+      if (getMessageCountForRing() + adjustment > ringSize) {
+         refToAck = refToAck == null ? messageReferences.poll() : refToAck;
+
+         if (refToAck != null) {
+            if (logger.isDebugEnabled()) {
+               logger.debugf("Preserving ringSize %d by acking message ref %s", ringSize, refToAck);
+            }
+            referenceHandled(refToAck);
+
+            try {
+               refToAck.acknowledge(null, AckReason.REPLACED, null);
+               if (!refToAck.isInDelivery() && !scheduling) {
+                  refRemoved(refToAck);
+               }
+               refToAck.setAlreadyAcked();
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
+            }
+         } else {
+            if (logger.isDebugEnabled()) {
+               logger.debugf("Cannot preserve ringSize %d; message ref is null", ringSize);
+            }
+         }
+      }
+   }
+
+   private void registerMeters() {
+      if (server != null && server.getMetricsManager() != null) {
+         String addressName = address.toString();
+         String queueName = name.toString();
+         MetricsManager metricsManager = server.getMetricsManager();
+
+         metricsManager.registerQueueGauge(addressName, queueName, (builder) -> {
+            builder.register(QueueMetricNames.MESSAGE_COUNT, pendingMetrics, metrics -> Double.valueOf(pendingMetrics.getMessageCount()), QueueControl.MESSAGE_COUNT_DESCRIPTION);
+            builder.register(QueueMetricNames.DURABLE_MESSAGE_COUNT, pendingMetrics, metrics -> Double.valueOf(pendingMetrics.getDurableMessageCount()), QueueControl.DURABLE_MESSAGE_COUNT_DESCRIPTION);
+            builder.register(QueueMetricNames.PERSISTENT_SIZE, pendingMetrics, metrics -> Double.valueOf(pendingMetrics.getPersistentSize()), QueueControl.PERSISTENT_SIZE_DESCRIPTION);
+            builder.register(QueueMetricNames.DURABLE_PERSISTENT_SIZE, pendingMetrics, metrics -> Double.valueOf(pendingMetrics.getDurablePersistentSize()), QueueControl.DURABLE_PERSISTENT_SIZE_DESCRIPTION);
+
+            builder.register(QueueMetricNames.DELIVERING_MESSAGE_COUNT, deliveringMetrics, metrics -> Double.valueOf(deliveringMetrics.getMessageCount()), QueueControl.DELIVERING_MESSAGE_COUNT_DESCRIPTION);
+            builder.register(QueueMetricNames.DELIVERING_DURABLE_MESSAGE_COUNT, deliveringMetrics, metrics -> Double.valueOf(deliveringMetrics.getDurableMessageCount()), QueueControl.DURABLE_DELIVERING_MESSAGE_COUNT_DESCRIPTION);
+            builder.register(QueueMetricNames.DELIVERING_PERSISTENT_SIZE, deliveringMetrics, metrics -> Double.valueOf(deliveringMetrics.getPersistentSize()), QueueControl.DELIVERING_SIZE_DESCRIPTION);
+            builder.register(QueueMetricNames.DELIVERING_DURABLE_PERSISTENT_SIZE, deliveringMetrics, metrics -> Double.valueOf(deliveringMetrics.getDurablePersistentSize()), QueueControl.DURABLE_DELIVERING_SIZE_DESCRIPTION);
+
+            builder.register(QueueMetricNames.SCHEDULED_MESSAGE_COUNT, this, metrics -> Double.valueOf(getScheduledCount()), QueueControl.SCHEDULED_MESSAGE_COUNT_DESCRIPTION);
+            builder.register(QueueMetricNames.SCHEDULED_DURABLE_MESSAGE_COUNT, this, metrics -> Double.valueOf(getDurableScheduledCount()), QueueControl.DURABLE_SCHEDULED_MESSAGE_COUNT_DESCRIPTION);
+            builder.register(QueueMetricNames.SCHEDULED_PERSISTENT_SIZE, this, metrics -> Double.valueOf(getScheduledSize()), QueueControl.SCHEDULED_SIZE_DESCRIPTION);
+            builder.register(QueueMetricNames.SCHEDULED_DURABLE_PERSISTENT_SIZE, this, metrics -> Double.valueOf(getDurableScheduledSize()), QueueControl.DURABLE_SCHEDULED_SIZE_DESCRIPTION);
+
+            builder.register(QueueMetricNames.MESSAGES_ACKNOWLEDGED, this, metrics -> Double.valueOf(getMessagesAcknowledged()), QueueControl.MESSAGES_ACKNOWLEDGED_DESCRIPTION);
+            builder.register(QueueMetricNames.MESSAGES_ADDED, this, metrics -> Double.valueOf(getMessagesAdded()), QueueControl.MESSAGES_ADDED_DESCRIPTION);
+            builder.register(QueueMetricNames.MESSAGES_KILLED, this, metrics -> Double.valueOf(getMessagesKilled()), QueueControl.MESSAGES_KILLED_DESCRIPTION);
+            builder.register(QueueMetricNames.MESSAGES_EXPIRED, this, metrics -> Double.valueOf(getMessagesExpired()), QueueControl.MESSAGES_EXPIRED_DESCRIPTION);
+            builder.register(QueueMetricNames.CONSUMER_COUNT, this, metrics -> Double.valueOf(getConsumerCount()), QueueControl.CONSUMER_COUNT_DESCRIPTION);
+         });
+      }
+   }
+
+   private void unregisterMeters() {
+      if (server != null && server.getMetricsManager() != null) {
+         server.getMetricsManager().remove(ResourceNames.QUEUE + name);
+      }
+   }
+
    private class AddressSettingsRepositoryListener implements HierarchicalRepositoryChangeListener {
 
       @Override
@@ -3231,7 +4273,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private void checkDeadLetterAddressAndExpiryAddress(final AddressSettings settings) {
-      if (!Env.isTestEnv()) {
+      if (!Env.isTestEnv() && !internalQueue && !address.equals(server.getConfiguration().getManagementNotificationAddress())) {
          if (settings.getDeadLetterAddress() == null) {
             ActiveMQServerLogger.LOGGER.AddressSettingsNoDLA(name);
          }
@@ -3256,31 +4298,33 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       @Override
       public void run() {
          float queueRate = getRate();
+         long queueMessages = getMessageCount();
+
          if (logger.isDebugEnabled()) {
-            logger.debug(getAddress() + ":" + getName() + " has " + getConsumerCount() + " consumer(s) and is receiving messages at a rate of " + queueRate + " msgs/second.");
+            logger.debug(getAddress() + ":" + getName() + " has " + queueMessages + " message(s) and " + getConsumerCount() + " consumer(s) and is receiving messages at a rate of " + queueRate + " msgs/second.");
          }
 
-         Set<Consumer> consumersSet = getConsumers();
 
-         if (consumersSet.size() == 0) {
+         if (consumers.size() == 0) {
             logger.debug("There are no consumers, no need to check slow consumer's rate");
             return;
-         } else if (queueRate < (threshold * consumersSet.size())) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
+         } else {
+            float queueThreshold = threshold * consumers.size();
+
+            if (queueRate < queueThreshold && queueMessages < queueThreshold) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
+               }
+               return;
             }
-            return;
          }
 
-         for (Consumer consumer : consumersSet) {
+         for (ConsumerHolder consumerHolder : consumers) {
+            Consumer consumer = consumerHolder.consumer();
             if (consumer instanceof ServerConsumerImpl) {
                ServerConsumerImpl serverConsumer = (ServerConsumerImpl) consumer;
                float consumerRate = serverConsumer.getRate();
-               if (queueRate < threshold) {
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
-                  }
-               } else if (consumerRate < threshold) {
+               if (consumerRate < threshold) {
                   RemotingConnection connection = null;
                   ActiveMQServer server = ((PostOfficeImpl) postOffice).getServer();
                   RemotingService remotingService = server.getRemotingService();

@@ -19,9 +19,11 @@ package org.apache.activemq.artemis.rest;
 public class HttpHeaderProperty {
 
    public static final String CONTENT_TYPE = "http_content$type";
+   public static final String MESSAGE_PROPERTY_DISCRIMINATOR = "message.property.";
 
    /**
-    * Converts an HTTP header name to a selector compatible property name.  '-' character is converted to
+    * Either strips the prefix "message.property." and returns the rest of the name or (if not starting with aforementioned prefix)
+    * converts an HTTP header name to a selector compatible property name.  '-' character is converted to
     * '$'. The return property name will also be all lower case with an "http_" prepended.  For example
     * "Content-Type" would be converted to "http_content$type";
     *
@@ -29,8 +31,12 @@ public class HttpHeaderProperty {
     * @return
     */
    public static String toPropertyName(String httpHeader) {
-      httpHeader = httpHeader.replace('-', '$');
-      return "http_" + httpHeader.toLowerCase();
+      if (httpHeader.startsWith( MESSAGE_PROPERTY_DISCRIMINATOR )) {
+         return httpHeader.replaceAll( MESSAGE_PROPERTY_DISCRIMINATOR, "" );
+      } else {
+         httpHeader = httpHeader.replace( '-', '$' );
+         return "http_" + httpHeader.toLowerCase();
+      }
    }
 
    /**

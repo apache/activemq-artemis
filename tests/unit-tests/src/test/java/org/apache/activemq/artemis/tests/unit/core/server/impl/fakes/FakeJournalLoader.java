@@ -50,8 +50,7 @@ public class FakeJournalLoader implements JournalLoader {
    }
 
    @Override
-   public void initAddresses(Map<Long, AddressBindingInfo> addressBindingInfosMap,
-                             List<AddressBindingInfo> addressBindingInfo) throws Exception {
+   public void initAddresses(List<AddressBindingInfo> addressBindingInfo) throws Exception {
    }
 
    @Override

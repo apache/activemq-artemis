@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -44,17 +45,13 @@ public class XARecoveryConfig {
    private final String password;
    private final Map<String, String> properties;
    private final ClientProtocolManagerFactory clientProtocolManager;
+   private ServerLocatorConfig locatorConfig;
 
    public static XARecoveryConfig newConfig(ActiveMQConnectionFactory factory,
                                             String userName,
                                             String password,
                                             Map<String, String> properties) {
-      if (factory.getServerLocator().getDiscoveryGroupConfiguration() != null) {
-         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getDiscoveryGroupConfiguration(), userName, password, properties, factory.getServerLocator().getProtocolManagerFactory());
-      } else {
-         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getStaticTransportConfigurations(), userName, password, properties, factory.getServerLocator().getProtocolManagerFactory());
-      }
-
+      return new XARecoveryConfig(factory.getServerLocator(), userName, password, properties);
    }
 
    public XARecoveryConfig(final boolean ha,
@@ -77,7 +74,7 @@ public class XARecoveryConfig {
       this.username = username;
       this.password = password;
       this.ha = ha;
-      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
+      this.properties = properties == null ? new HashMap<>() : properties;
       this.clientProtocolManager = clientProtocolManager;
    }
 
@@ -110,6 +107,36 @@ public class XARecoveryConfig {
                            final String password,
                            final Map<String, String> properties) {
       this(ha, discoveryConfiguration, username, password, properties, null);
+   }
+
+   private XARecoveryConfig(ServerLocator serverLocator,
+                            String username,
+                            String password,
+                            Map<String, String> properties) {
+      ClientProtocolManagerFactory clientProtocolManager = serverLocator.getProtocolManagerFactory();
+      if (serverLocator.getDiscoveryGroupConfiguration() != null) {
+         this.discoveryConfiguration = serverLocator.getDiscoveryGroupConfiguration();
+         this.transportConfiguration = null;
+      } else {
+         TransportConfiguration[] transportConfiguration = serverLocator.getStaticTransportConfigurations();
+         TransportConfiguration[] newTransportConfiguration = new TransportConfiguration[transportConfiguration.length];
+         for (int i = 0; i < transportConfiguration.length; i++) {
+            if (clientProtocolManager != null) {
+               newTransportConfiguration[i] = clientProtocolManager.adaptTransportConfiguration(transportConfiguration[i].newTransportConfig(""));
+            } else {
+               newTransportConfiguration[i] = transportConfiguration[i].newTransportConfig("");
+            }
+         }
+
+         this.transportConfiguration = newTransportConfiguration;
+         this.discoveryConfiguration = null;
+      }
+      this.username = username;
+      this.password = password;
+      this.ha = serverLocator.isHA();
+      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
+      this.clientProtocolManager = clientProtocolManager;
+      this.locatorConfig = serverLocator.getLocatorConfig();
    }
 
    public boolean isHA() {
@@ -146,12 +173,18 @@ public class XARecoveryConfig {
     * @return locator
     */
    public ServerLocator createServerLocator() {
+      ServerLocator serverLocator;
       if (getDiscoveryConfiguration() != null) {
-         return ActiveMQClient.createServerLocator(isHA(), getDiscoveryConfiguration()).setProtocolManagerFactory(clientProtocolManager);
+         serverLocator = ActiveMQClient.createServerLocator(isHA(), getDiscoveryConfiguration()).setProtocolManagerFactory(clientProtocolManager);
       } else {
-         return ActiveMQClient.createServerLocator(isHA(), getTransportConfig()).setProtocolManagerFactory(clientProtocolManager);
+         serverLocator = ActiveMQClient.createServerLocator(isHA(), getTransportConfig()).setProtocolManagerFactory(clientProtocolManager);
       }
 
+      if (this.locatorConfig != null) {
+         serverLocator.setLocatorConfig(new ServerLocatorConfig(this.locatorConfig));
+      }
+
+      return serverLocator;
    }
 
    @Override

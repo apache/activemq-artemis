@@ -18,7 +18,7 @@
 package org.apache.activemq.artemis.tests.integration.server;
 
 import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.ServerSocket;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +36,7 @@ public class ActivationFailureListenerTest extends ActiveMQTestBase {
 
    @Test
    public void simpleTest() throws Exception {
-      Socket s = new Socket();
+      ServerSocket s = new ServerSocket();
       try {
          s.bind(new InetSocketAddress("127.0.0.1", 61616));
          server = createServer(false, createDefaultNettyConfig());

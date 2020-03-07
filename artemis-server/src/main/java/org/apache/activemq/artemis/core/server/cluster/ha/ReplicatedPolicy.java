@@ -50,6 +50,12 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    * */
    private int quorumSize;
 
+   private int voteRetries;
+
+   private long voteRetryWait;
+
+   private long retryReplicationWait;
+
    /*
    * this are only used as the policy when the server is started as a live after a failover
    * */
@@ -57,9 +63,12 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    private final NetworkHealthCheck networkHealthCheck;
 
-   public ReplicatedPolicy(NetworkHealthCheck networkHealthCheck) {
-      replicaPolicy = new ReplicaPolicy(networkHealthCheck, this);
+   private final int quorumVoteWait;
+
+   public ReplicatedPolicy(NetworkHealthCheck networkHealthCheck, int quorumVoteWait) {
+      replicaPolicy = new ReplicaPolicy(networkHealthCheck, this, quorumVoteWait);
       this.networkHealthCheck = networkHealthCheck;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
@@ -68,7 +77,11 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            long initialReplicationSyncTimeout,
                            NetworkHealthCheck networkHealthCheck,
                            boolean voteOnReplicationFailure,
-                           int quorumSize) {
+                           int quorumSize,
+                           int voteRetries,
+                           long voteRetryWait,
+                           int quorumVoteWait,
+                           long retryReplicationWait) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
@@ -76,6 +89,10 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.networkHealthCheck = networkHealthCheck;
       this.voteOnReplicationFailure = voteOnReplicationFailure;
       this.quorumSize = quorumSize;
+      this.voteRetries = voteRetries;
+      this.voteRetryWait = voteRetryWait;
+      this.quorumVoteWait = quorumVoteWait;
+      this.retryReplicationWait = retryReplicationWait;
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
@@ -86,7 +103,10 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            ReplicaPolicy replicaPolicy,
                            NetworkHealthCheck networkHealthCheck,
                            boolean voteOnReplicationFailure,
-                           int quorumSize) {
+                           int quorumSize,
+                           int voteRetries,
+                           long voteRetryWait,
+                           int quorumVoteWait) {
       this.checkForLiveServer = checkForLiveServer;
       this.clusterName = clusterName;
       this.groupName = groupName;
@@ -96,6 +116,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.networkHealthCheck = networkHealthCheck;
       this.voteOnReplicationFailure = voteOnReplicationFailure;
       this.quorumSize = quorumSize;
+      this.quorumVoteWait = quorumVoteWait;
    }
 
    public boolean isCheckForLiveServer() {
@@ -137,9 +158,12 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public ReplicaPolicy getReplicaPolicy() {
       if (replicaPolicy == null) {
-         replicaPolicy = new ReplicaPolicy(networkHealthCheck, this);
+         replicaPolicy = new ReplicaPolicy(networkHealthCheck, this, quorumVoteWait);
          replicaPolicy.setQuorumSize(quorumSize);
          replicaPolicy.setVoteOnReplicationFailure(voteOnReplicationFailure);
+         replicaPolicy.setVoteRetries(voteRetries);
+         replicaPolicy.setVoteRetryWait(voteRetryWait);
+         replicaPolicy.setretryReplicationWait(retryReplicationWait);
          if (clusterName != null && clusterName.length() > 0) {
             replicaPolicy.setClusterName(clusterName);
          }
@@ -217,5 +241,13 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public void setQuorumSize(int quorumSize) {
       this.quorumSize = quorumSize;
+   }
+
+   public int getQuorumVoteWait() {
+      return quorumVoteWait;
+   }
+
+   public long getRetryReplicationWait() {
+      return retryReplicationWait;
    }
 }

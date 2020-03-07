@@ -44,6 +44,8 @@
 
      <security-settings>
          <security-setting match="#">
+            <permission type="createAddress" roles="guest,def"/>
+            <permission type="deleteAddress" roles="guest,def"/>
             <permission type="createDurableQueue" roles="guest,def"/>
             <permission type="deleteDurableQueue" roles="guest,def"/>
             <permission type="createNonDurableQueue" roles="guest,def"/>
@@ -51,6 +53,16 @@
             <permission type="consume" roles="guest,def"/>
             <permission type="browse" roles="guest,def"/>
             <permission type="send" roles="guest,def"/>
+         </security-setting>
+
+         <security-setting match="guest.cannot.send">
+             <permission type="createDurableQueue" roles="guest,def"/>
+             <permission type="deleteDurableQueue" roles="guest,def"/>
+             <permission type="createNonDurableQueue" roles="guest,def"/>
+             <permission type="deleteNonDurableQueue" roles="guest,def"/>
+             <permission type="consume" roles="guest,def"/>
+             <permission type="browse" roles="guest,def"/>
+             <permission type="send" roles="def"/>
          </security-setting>
      </security-settings>
    </core>

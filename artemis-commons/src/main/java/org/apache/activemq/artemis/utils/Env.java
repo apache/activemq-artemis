@@ -59,6 +59,10 @@ public final class Env {
     */
    private static boolean testEnv = false;
 
+   private static final String OS = System.getProperty("os.name").toLowerCase();
+   private static final boolean IS_LINUX = OS.startsWith("linux");
+   private static final boolean IS_MAC = OS.startsWith("mac");
+
    private Env() {
 
    }
@@ -77,6 +81,14 @@ public final class Env {
 
    public static void setTestEnv(boolean testEnv) {
       Env.testEnv = testEnv;
+   }
+
+   public static boolean isLinuxOs() {
+      return IS_LINUX == true;
+   }
+
+   public static boolean isMacOs() {
+      return IS_MAC == true;
    }
 
 }

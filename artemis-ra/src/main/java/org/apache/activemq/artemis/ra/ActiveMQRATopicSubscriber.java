@@ -26,11 +26,6 @@ import javax.jms.TopicSubscriber;
 public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer implements TopicSubscriber {
 
    /**
-    * Whether trace is enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * Create a new wrapper
     *
     * @param consumer the topic subscriber
@@ -39,7 +34,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
    public ActiveMQRATopicSubscriber(final TopicSubscriber consumer, final ActiveMQRASession session) {
       super(consumer, session);
 
-      if (ActiveMQRATopicSubscriber.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + consumer + ", " + session + ")");
       }
    }
@@ -52,7 +47,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
     */
    @Override
    public boolean getNoLocal() throws JMSException {
-      if (ActiveMQRATopicSubscriber.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getNoLocal()");
       }
 
@@ -68,7 +63,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
     */
    @Override
    public Topic getTopic() throws JMSException {
-      if (ActiveMQRATopicSubscriber.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getTopic()");
       }
 

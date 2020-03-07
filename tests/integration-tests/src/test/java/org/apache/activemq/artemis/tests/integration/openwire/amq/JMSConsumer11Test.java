@@ -18,13 +18,14 @@ package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
-import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +56,7 @@ public class JMSConsumer11Test extends BasicOpenWireTest {
 
       Session session = connection.createSession(true, 0);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
-      MessageConsumer consumer = session.createConsumer(destination);
+      ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer)session.createConsumer(destination);
 
       // Send 2 messages to the destination.
       sendMessages(session, destination, 2);
@@ -68,7 +69,13 @@ public class JMSConsumer11Test extends BasicOpenWireTest {
       ActiveMQConnection connection2 = (ActiveMQConnection) factory.createConnection();
       connection2.start();
       Session session2 = connection2.createSession(true, 0);
-      MessageConsumer consumer2 = session2.createConsumer(destination);
+      ActiveMQMessageConsumer consumer2 = (ActiveMQMessageConsumer)session2.createConsumer(destination);
+
+      // On a test race you could have a scenario where the message only arrived at the first consumer and
+      // if the test is not fast enough the first consumer will receive the message againt
+      // This will guarantee the test is correctly balanced.
+      Wait.assertEquals(1, consumer::getMessageSize);
+      Wait.assertEquals(1, consumer2::getMessageSize);
 
       System.out.println("consumer receiving ...");
       // Pick up the first message.

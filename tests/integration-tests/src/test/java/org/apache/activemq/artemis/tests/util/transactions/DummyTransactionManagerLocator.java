@@ -26,6 +26,7 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
 import org.apache.activemq.artemis.service.extensions.transactions.TransactionManagerLocator;
+import org.apache.activemq.artemis.tests.integration.ra.DummyTransactionManager;
 
 public class DummyTransactionManagerLocator implements TransactionManagerLocator, TransactionManager {
 
@@ -76,6 +77,6 @@ public class DummyTransactionManagerLocator implements TransactionManagerLocator
 
    @Override
    public TransactionManager getTransactionManager() {
-      return this;
+      return DummyTransactionManager.tm;
    }
 }

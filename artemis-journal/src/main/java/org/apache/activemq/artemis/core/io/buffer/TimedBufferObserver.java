@@ -16,38 +16,22 @@
  */
 package org.apache.activemq.artemis.core.io.buffer;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.io.IOCallback;
 
 public interface TimedBufferObserver {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
-
-   void flushBuffer(ByteBuffer buffer, boolean syncRequested, List<IOCallback> callbacks);
+   /**
+    * It flushes {@link ByteBuf#readableBytes()} of {@code buffer} without changing its reader/writer indexes.<br>
+    * It just use {@code buffer} temporary: it can be reused by the caller right after this call.
+    */
+   void flushBuffer(ByteBuf buffer, boolean syncRequested, List<IOCallback> callbacks);
 
    /**
     * Return the number of remaining bytes that still fit on the observer (file)
     */
    int getRemainingBytes();
-
-   ByteBuffer newBuffer(int size, int limit);
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -883,7 +884,9 @@ public class SelectorTest extends ActiveMQServerTestCase {
    // Test case proposed by a customer on this user forum:
    // http://community.jboss.org/thread/153426?tstart=0
    // This test needs to be moved away
-   public void disabled_testMultipleConsumers() throws Exception {
+   @Test
+   @Ignore
+   public void testMultipleConsumers() throws Exception {
       Connection conn = null;
 
       try {

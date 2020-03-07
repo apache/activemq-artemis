@@ -1,0 +1,24 @@
+sudo: false
+language: java
+install: true
+jdk:
+  - openjdk8
+
+# clean out Artemis artifacts from the cache
+before_install:
+- rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*
+
+# use 'install' so smoke-tests will work
+# use '-Pextra-tests' to ensure extra-tests compiles even though they won't actually run
+# By setting anything to org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED we are disabling libaio loading on the testsuite
+script: 
+- set -e
+- mvn -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Pfast-tests -Pextra-tests -B install -q
+- cd examples
+- mvn install -Prelease install -B -q
+
+cache:
+  directories:
+  - $HOME/.m2
+  before_cache:
+  - rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*

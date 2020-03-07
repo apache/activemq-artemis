@@ -250,9 +250,8 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       } catch (JMSException e) {
          logger.debug("Error unsetting the exception listener " + this, e);
       }
-      if (connection != null) {
-         connection.signalStopToAllSessions();
-      }
+
+      connection.signalStopToAllSessions();
 
       try {
          // we must close the ActiveMQConnectionFactory because it contains a ServerLocator
@@ -277,9 +276,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
              * <p>
              * connection close will close the ClientSessionFactory which will close all sessions.
              */
-            if (connection != null) {
-               connection.close();
-            }
+            connection.close();
 
             if (nonXAsession != null) {
                nonXAsession.close();

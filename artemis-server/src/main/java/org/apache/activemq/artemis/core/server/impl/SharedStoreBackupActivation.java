@@ -114,7 +114,7 @@ public final class SharedStoreBackupActivation extends Activation {
 
             activeMQServer.getNodeManager().releaseBackup();
          }
-         if (sharedStoreSlavePolicy.isAllowAutoFailBack()) {
+         if (sharedStoreSlavePolicy.isAllowAutoFailBack() && ActiveMQServerImpl.SERVER_STATE.STOPPING != activeMQServer.getState() && ActiveMQServerImpl.SERVER_STATE.STOPPED != activeMQServer.getState()) {
             startFailbackChecker();
          }
       } catch (ClosedChannelException | InterruptedException e) {
@@ -215,8 +215,11 @@ public final class SharedStoreBackupActivation extends Activation {
 
                            // ensure that the server to which we are failing back actually starts fully before we restart
                            nodeManager.start();
-                           nodeManager.awaitLiveStatus();
-                           nodeManager.stop();
+                           try {
+                              nodeManager.awaitLiveStatus();
+                           } finally {
+                              nodeManager.stop();
+                           }
 
                            synchronized (failbackCheckerGuard) {
                               if (cancelFailBackChecker || !sharedStoreSlavePolicy.isRestartBackup())

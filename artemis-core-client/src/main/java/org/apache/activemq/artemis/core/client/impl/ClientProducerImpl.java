@@ -18,17 +18,16 @@ package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.apache.activemq.artemis.utils.DeflaterReader;
@@ -116,14 +115,14 @@ public class ClientProducerImpl implements ClientProducerInternal {
    public void send(final Message msg) throws ActiveMQException {
       checkClosed();
 
-      doSend(null, msg, null, false);
+      send(null, msg, sessionContext.getSendAcknowledgementHandler());
    }
 
    @Override
    public void send(final SimpleString address1, final Message msg) throws ActiveMQException {
       checkClosed();
 
-      doSend(address1, msg, null, false);
+      send(address1, msg, sessionContext.getSendAcknowledgementHandler());
    }
 
    @Override
@@ -136,14 +135,20 @@ public class ClientProducerImpl implements ClientProducerInternal {
                     Message message,
                     SendAcknowledgementHandler handler) throws ActiveMQException {
       checkClosed();
-      boolean confirmationWindowEnabled = session.isConfirmationWindowEnabled();
-      if (confirmationWindowEnabled) {
-         doSend(address1, message, handler, true);
-      } else {
-         doSend(address1, message, null, true);
-         if (handler != null) {
-            session.scheduleConfirmation(handler, message);
+
+      if (handler != null) {
+         handler = new SendAcknowledgementHandlerWrapper(handler);
+      }
+
+      doSend(address1, message, handler);
+
+      if (handler != null && !session.isConfirmationWindowEnabled()) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Handler was used on producing messages towards address " + address1 + " however there is no confirmationWindowEnabled");
          }
+
+         // if there is no confirmation enabled, we will at least call the handler after the sent is done
+         session.scheduleConfirmation(handler, message);
       }
    }
 
@@ -209,8 +214,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
    private void doSend(SimpleString sendingAddress,
                        final Message msgToSend,
-                       final SendAcknowledgementHandler handler,
-                       final boolean forceAsync) throws ActiveMQException {
+                       final SendAcknowledgementHandler handler) throws ActiveMQException {
       if (sendingAddress == null) {
          sendingAddress = this.address;
       }
@@ -253,8 +257,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
          }
 
          final boolean sendBlockingConfig = msg.isDurable() ? blockOnDurableSend : blockOnNonDurableSend;
-         final boolean forceAsyncOverride = handler != null;
-         final boolean sendBlocking = sendBlockingConfig && !forceAsyncOverride;
+         // if Handler != null, we will send non blocking
+         final boolean sendBlocking = sendBlockingConfig && handler == null && sessionContext.getSendAcknowledgementHandler() == null;
 
          session.workDone();
 
@@ -358,9 +362,9 @@ public class ClientProducerImpl implements ClientProducerInternal {
                                        SendAcknowledgementHandler handler) throws ActiveMQException {
       sendInitialLargeMessageHeader(msgI, credits);
 
-      LargeBodyEncoder context = msgI.getBodyEncoder();
+      LargeBodyReader context = msgI.getLargeBodyReader();
 
-      final long bodySize = context.getLargeBodySize();
+      final long bodySize = context.getSize();
       context.open();
       try {
 
@@ -369,16 +373,18 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
             final int chunkLength = (int) Math.min((bodySize - pos), minLargeMessageSize);
 
-            final ActiveMQBuffer bodyBuffer = ActiveMQBuffers.fixedBuffer(chunkLength);
+            final ByteBuffer bodyBuffer = ByteBuffer.allocate(chunkLength);
 
-            context.encode(bodyBuffer, chunkLength);
+            final int encodedSize = context.readInto(bodyBuffer);
+
+            assert encodedSize == chunkLength;
 
             pos += chunkLength;
 
             lastChunk = pos >= bodySize;
             SendAcknowledgementHandler messageHandler = lastChunk ? handler : null;
 
-            int creditsUsed = sessionContext.sendServerLargeMessageChunk(msgI, -1, sendBlocking, lastChunk, bodyBuffer.toByteBuffer().array(), messageHandler);
+            int creditsUsed = sessionContext.sendServerLargeMessageChunk(msgI, -1, sendBlocking, lastChunk, bodyBuffer.array(), messageHandler);
 
             credits.acquireCredits(creditsUsed);
          }

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 
 /**
@@ -49,6 +50,11 @@ public interface Transaction {
    void commit(boolean onePhase) throws Exception;
 
    void rollback() throws Exception;
+
+   /** In a ServerSession failure scenario,\
+    *  we may try to rollback, however only if it's not prepared.
+    *  In case it's prepared, we will just let it be and let the transaction manager to deal with it */
+   void rollbackIfPossible();
 
    long getID();
 
@@ -95,5 +101,5 @@ public interface Transaction {
 
    void setTimeout(int timeout);
 
-   RefsOperation createRefsOperation(Queue queue);
+   RefsOperation createRefsOperation(Queue queue, AckReason reason);
 }

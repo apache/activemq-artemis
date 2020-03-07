@@ -58,6 +58,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
 
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
+      server.getConfiguration().setDiskScanPeriod(100);
       server.start();
 
       internalTest(MAX_MESSAGES, MY_ADDRESS, MY_QUEUE, server);
@@ -73,7 +74,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
 
       AddressSettings defaultSetting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
-      server.getConfiguration().setGlobalMaxSize(20 * 1024);
+      server.getConfiguration().setGlobalMaxSize(20 * 1024).setDiskScanPeriod(100);
 
       server.start();
 
@@ -122,7 +123,6 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
 
       executor.shutdown();
       session.close();
-
       session = factory.createSession(false, true, true);
       session.start();
       ClientConsumer consumer = session.createConsumer(MY_QUEUE);
@@ -132,7 +132,8 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
             break;
          msg.acknowledge();
       }
-
+      //this is needed to allow to kick-in at least once disk scan
+      TimeUnit.MILLISECONDS.sleep(server.getConfiguration().getDiskScanPeriod() * 2);
       session.close();
       locator.close();
       server.stop();
@@ -140,6 +141,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       // Using the code only so the test doesn't fail just because someone edits the log text
       Assert.assertTrue("Expected to find AMQ222183", AssertionLoggerHandler.findText("AMQ222183", "myAddress"));
       Assert.assertTrue("Expected to find AMQ221046", AssertionLoggerHandler.findText("AMQ221046", "myAddress"));
+      Assert.assertFalse("Expected to not find AMQ222211", AssertionLoggerHandler.findText("AMQ222211"));
    }
 
    @AfterClass

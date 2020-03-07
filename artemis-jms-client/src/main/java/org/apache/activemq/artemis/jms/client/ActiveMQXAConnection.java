@@ -42,8 +42,9 @@ public final class ActiveMQXAConnection extends ActiveMQConnection implements XA
                                final int dupsOKBatchSize,
                                final int transactionBatchSize,
                                final boolean cacheDestinations,
+                               final boolean enable1xNaming,
                                final ClientSessionFactory sessionFactory) {
-      super(options, username, password, connectionType, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, sessionFactory);
+      super(options, username, password, connectionType, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, enable1xNaming, sessionFactory);
    }
 
    @Override

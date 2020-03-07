@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -518,12 +519,12 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                         StorageManager storageManager,
                         HierarchicalRepository<AddressSettings> addressSettingsRepository,
                         ArtemisExecutor executor) {
-            super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor,
+            super(id, address, name, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor,
                   postOffice, storageManager, addressSettingsRepository, executor, null, null);
          }
 
          @Override
-         public void postAcknowledge(final MessageReference ref) {
+         public void postAcknowledge(final MessageReference ref, AckReason reason) {
             System.out.println("Ignoring postACK on message " + ref);
          }
 

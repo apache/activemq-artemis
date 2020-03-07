@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -36,6 +37,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assume.assumeTrue;
 
 public class NetworkHealthTest {
 
@@ -92,7 +95,7 @@ public class NetworkHealthTest {
 
    private void startHTTPServer() throws IOException {
       Assert.assertNull(httpServer);
-      InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8080);
+      InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8787);
       httpServer = HttpServer.create(address, 100);
       httpServer.start();
       httpServer.createContext("/", new HttpHandler() {
@@ -127,6 +130,7 @@ public class NetworkHealthTest {
 
    @Test
    public void testCheck6() throws Exception {
+      assumeTrue(purePingWorks(IPV6_LOCAL));
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100));
       check.addComponent(component);
 
@@ -140,13 +144,37 @@ public class NetworkHealthTest {
    }
 
    @Test
+   public void testAlreadyShutdown() throws Exception {
+      assumeTrue(purePingWorks(IPV6_LOCAL));
+      ReusableLatch latch = new ReusableLatch(0);
+      NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100) {
+         @Override
+         public void run() {
+            super.run();
+            latch.countDown();
+            System.out.println("Check");
+         }
+      });
+      check.addComponent(component);
+      InetAddress address = InetAddress.getByName("127.0.0.1");
+      check.addAddress(address);
+
+      component.stop();
+
+      latch.setCount(1);
+      Assert.assertTrue(latch.await(1, TimeUnit.MINUTES));
+
+      Assert.assertFalse("NetworkHealthCheck should have no business on restarting the component, the network was never down, hence no check needed!", component.isStarted());
+
+   }
+
+   @Test
    public void testParseSpaces() throws Exception {
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100));
 
       // using two addresses for URI and localhost
-      check.parseAddressList("localhost, , 127.0.0.2").parseURIList("http://www.redhat.com, , http://www.apache.org");
+      check.parseAddressList("localhost, , 127.0.0.2");
       Assert.assertEquals(2, check.getAddresses().size());
-      Assert.assertEquals(2, check.getUrls().size());
    }
 
    @Test
@@ -154,13 +182,14 @@ public class NetworkHealthTest {
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100));
 
       // using two addresses for URI and localhost
-      check.parseAddressList("localhost, , 127.0.0.2").parseURIList("http://www.redhat.com, , http://www.apache.org");
+      check.parseAddressList("localhost, , 127.0.0.2");
       Assert.assertEquals(2, check.getAddresses().size());
-      Assert.assertEquals(2, check.getUrls().size());
+      Assert.assertEquals(0, check.getUrls().size());
    }
 
    @Test
    public void testPings() throws Exception {
+      assumeTrue(purePingWorks("127.0.0.1"));
       doCheck("127.0.0.1");
    }
 
@@ -181,7 +210,16 @@ public class NetworkHealthTest {
 
    @Test
    public void testPingsIPV6() throws Exception {
+      assumeTrue(purePingWorks(IPV6_LOCAL));
       doCheck(IPV6_LOCAL);
+   }
+
+   private boolean purePingWorks(String localaddress) throws Exception {
+      try {
+         return addCheck(new NetworkHealthCheck(null, 100, 100)).purePing(InetAddress.getByName(localaddress));
+      } catch (Exception e) {
+         return false;
+      }
    }
 
    @Test
@@ -197,15 +235,15 @@ public class NetworkHealthTest {
 
       NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 1000));
 
-      Assert.assertTrue(check.check(new URL("http://localhost:8080")));
+      Assert.assertTrue(check.check(new URL("http://localhost:8787")));
 
       stopHTTPServer();
 
-      Assert.assertFalse(check.check(new URL("http://localhost:8080")));
+      Assert.assertFalse(check.check(new URL("http://localhost:8787")));
 
       check.addComponent(component);
 
-      URL url = new URL("http://localhost:8080");
+      URL url = new URL("http://localhost:8787");
       Assert.assertFalse(check.check(url));
 
       startHTTPServer();
@@ -230,6 +268,63 @@ public class NetworkHealthTest {
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
       Assert.assertTrue(component.isStarted());
 
+   }
+
+
+   @Test
+   public void testValidateCommand() throws Throwable {
+      AtomicInteger purePing = new AtomicInteger(0);
+      AtomicInteger isReacheable = new AtomicInteger(0);
+      NetworkHealthCheck myCheck =
+         new NetworkHealthCheck() {
+            @Override
+            protected boolean isReachable(InetAddress address) throws IOException {
+               isReacheable.incrementAndGet();
+               return false;
+            }
+
+            @Override
+            public boolean purePing(InetAddress address) throws IOException, InterruptedException {
+               purePing.incrementAndGet();
+               return false;
+            }
+         };
+
+      myCheck.setIpv4Command("whatever");
+      myCheck.setIpv6Command("whatever");
+
+      myCheck.check(InetAddress.getByName("127.0.0.1"));
+
+      Assert.assertEquals(0, isReacheable.get());
+      Assert.assertEquals(1, purePing.get());
+   }
+
+   @Test
+   public void testValidateIsReachable() throws Throwable {
+      AtomicInteger purePing = new AtomicInteger(0);
+      AtomicInteger isReacheable = new AtomicInteger(0);
+      NetworkHealthCheck myCheck =
+         new NetworkHealthCheck() {
+            @Override
+            protected boolean isReachable(InetAddress address) throws IOException {
+               isReacheable.incrementAndGet();
+               return true;
+            }
+
+            @Override
+            public boolean purePing(InetAddress address) throws IOException, InterruptedException {
+               purePing.incrementAndGet();
+               return false;
+            }
+         };
+
+      //myCheck.setIpv4Command("whatever");
+      //myCheck.setIpv6Command("whatever");
+
+      myCheck.check(InetAddress.getByName("127.0.0.1"));
+
+      Assert.assertEquals(1, isReacheable.get());
+      Assert.assertEquals(0, purePing.get());
    }
 
 }

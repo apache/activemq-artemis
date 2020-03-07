@@ -32,35 +32,39 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
 
    // Static --------------------------------------------------------
 
-   public static SimpleString createAddressFromName(final String name) {
-      return new SimpleString(name);
-   }
-
    // Attributes ----------------------------------------------------
 
    // Constructors --------------------------------------------------
-
-   public ActiveMQQueue(final String name) {
-      super(name, name, TYPE.QUEUE, null);
+   public ActiveMQQueue() {
+      this((SimpleString) null);
    }
 
-   public ActiveMQQueue(final String name, boolean temporary) {
-      super(name, name, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, null);
+   public ActiveMQQueue(final String address) {
+      super(address, TYPE.QUEUE, null);
+   }
+
+   public ActiveMQQueue(final SimpleString address) {
+      super(address, TYPE.QUEUE, null);
+   }
+
+   @Deprecated
+   public ActiveMQQueue(final String address, final String name) {
+      super(address, name, TYPE.QUEUE, null);
+   }
+
+   public ActiveMQQueue(final String address, boolean temporary) {
+      super(address, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, null);
    }
 
    /**
     * @param address
-    * @param name
     * @param temporary
     * @param session
     */
-   public ActiveMQQueue(String address, String name, boolean temporary, ActiveMQSession session) {
-      super(address, name, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, session);
+   public ActiveMQQueue(String address, boolean temporary, ActiveMQSession session) {
+      super(address, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, session);
    }
 
-   public ActiveMQQueue(final String address, final String name) {
-      super(address, name, TYPE.QUEUE, null);
-   }
 
    // Queue implementation ------------------------------------------
 
@@ -68,12 +72,12 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
 
    @Override
    public String getQueueName() {
-      return name;
+      return getName();
    }
 
    @Override
    public String toString() {
-      return "ActiveMQQueue[" + name + "]";
+      return "ActiveMQQueue[" + getAddress() + "]";
    }
 
    @Override

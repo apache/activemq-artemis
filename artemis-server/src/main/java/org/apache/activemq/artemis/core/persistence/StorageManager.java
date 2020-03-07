@@ -22,12 +22,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
@@ -68,6 +72,10 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    default long getMaxRecordSize() {
       /** Null journal is pretty much memory */
       return Long.MAX_VALUE;
+   }
+
+   default SequentialFileFactory getJournalSequentialFileFactory() {
+      return null;
    }
 
    void criticalError(Throwable error);
@@ -140,6 +148,12 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @throws Exception
     */
    void beforePageRead() throws Exception;
+
+   /**
+    * Like {@link #beforePageRead()} but return {@code true} if acquired within {@code timeout},
+    * {@code false} otherwise.
+    */
+   boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException;
 
    /**
     * We need a safeguard in place to avoid too much concurrent IO happening on Paging, otherwise
@@ -253,6 +267,17 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     */
    SequentialFile createFileForLargeMessage(long messageID, LargeMessageExtension extension);
 
+   void deleteLargeMessageBody(LargeServerMessage largeServerMessage) throws ActiveMQException;
+
+   default SequentialFile createFileForLargeMessage(long messageID, boolean durable) {
+      if (durable) {
+         return createFileForLargeMessage(messageID, LargeMessageExtension.DURABLE);
+      } else {
+         return createFileForLargeMessage(messageID, LargeMessageExtension.TEMPORARY);
+      }
+   }
+
+
    void prepare(long txID, Xid xid) throws Exception;
 
    void commit(long txID) throws Exception;
@@ -299,9 +324,13 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @return the id of the journal
     * @throws Exception
     */
-   long storeQueueStatus(long queueID, QueueStatus status) throws Exception;
+   long storeQueueStatus(long queueID, AddressQueueStatus status) throws Exception;
 
    void deleteQueueStatus(long recordID) throws Exception;
+
+   long storeAddressStatus(long addressID, AddressQueueStatus status) throws Exception;
+
+   void deleteAddressStatus(long recordID) throws Exception;
 
    void addAddressBinding(long tx, AddressInfo addressInfo) throws Exception;
 
@@ -331,9 +360,9 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    /**
     * @return The ID with the stored counter
     */
-   long storePageCounter(long txID, long queueID, long value) throws Exception;
+   long storePageCounter(long txID, long queueID, long value, long persistentSize) throws Exception;
 
-   long storePendingCounter(long queueID, long pageID, int inc) throws Exception;
+   long storePendingCounter(long queueID, long pageID) throws Exception;
 
    void deleteIncrementRecord(long txID, long recordID) throws Exception;
 
@@ -345,13 +374,13 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @return the ID with the increment record
     * @throws Exception
     */
-   long storePageCounterInc(long txID, long queueID, int add) throws Exception;
+   long storePageCounterInc(long txID, long queueID, int add, long persistentSize) throws Exception;
 
    /**
     * @return the ID with the increment record
     * @throws Exception
     */
-   long storePageCounterInc(long queueID, int add) throws Exception;
+   long storePageCounterInc(long queueID, int add, long size) throws Exception;
 
    /**
     * @return the bindings journal
@@ -399,6 +428,10 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @param bytes
     */
    void addBytesToLargeMessage(SequentialFile appendFile, long messageID, byte[] bytes) throws Exception;
+
+   void addBytesToLargeMessage(SequentialFile file,
+                               long messageId,
+                               ActiveMQBuffer bytes) throws Exception;
 
    /**
     * Stores the id from IDManager.

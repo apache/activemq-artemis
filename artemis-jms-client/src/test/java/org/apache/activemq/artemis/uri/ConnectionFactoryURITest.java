@@ -212,7 +212,7 @@ public class ConnectionFactoryURITest {
       populateConnectorParams(props3, allowableConnectorKeys, sb);
       sb.append(")?ha=true&clientID=myID");
 
-      ActiveMQConnectionFactory factory = parser.newObject(parser.expandURI((sb.toString())), null);
+      ActiveMQConnectionFactory factory = parser.newObject(parser.expandURI(sb.toString()), null);
 
       TransportConfiguration[] staticConnectors = factory.getStaticConnectors();
       Assert.assertEquals(3, staticConnectors.length);

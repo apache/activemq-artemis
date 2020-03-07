@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.protocol.core;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * A Packet represents a packet of data transmitted over a connection.
@@ -41,6 +40,14 @@ public interface Packet {
    default int expectedEncodeSize() {
       return INITIAL_PACKET_SIZE;
    }
+
+   boolean isRequiresResponse();
+
+   boolean isResponseAsync();
+
+   long getCorrelationID();
+
+   void setCorrelationID(long correlationID);
 
    /**
     * Returns the channel id of the channel that should handle this packet.
@@ -71,7 +78,7 @@ public interface Packet {
     * @param connection the connection
     * @return the buffer to encode to
     */
-   ActiveMQBuffer encode(RemotingConnection connection);
+   ActiveMQBuffer encode(CoreRemotingConnection connection);
 
    /**
     * decodes the buffer into this packet

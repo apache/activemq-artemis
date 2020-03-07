@@ -238,19 +238,19 @@ public class JournalTransaction {
       //   without setting this properly...
       if (compacting && compactor != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace("adding tx " + this.id + " into compacting");
+            logger.trace("adding txID=" + this.id + " into compacting");
          }
          compactor.addCommandCommit(this, file);
       } else {
 
          if (logger.isTraceEnabled()) {
-            logger.trace("no compact commit " + this.id);
+            logger.trace("there was no compactor on commit txID=" + this.id);
          }
          if (pos != null) {
             for (JournalUpdate trUpdate : pos) {
                JournalRecord posFiles = journal.getRecords().get(trUpdate.id);
 
-               if (compactor != null && compactor.lookupRecord(trUpdate.id)) {
+               if (compactor != null && compactor.containsRecord(trUpdate.id)) {
                   // This is a case where the transaction was opened after compacting was started,
                   // but the commit arrived while compacting was working
                   // We need to cache the counter update, so compacting will take the correct files when it is done

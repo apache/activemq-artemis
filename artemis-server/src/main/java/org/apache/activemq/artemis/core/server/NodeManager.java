@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 public abstract class NodeManager implements ActiveMQComponent {
 
    protected static final byte FIRST_TIME_START = '0';
-   private static final String SERVER_LOCK_NAME = "server.lock";
+   public static final String SERVER_LOCK_NAME = "server.lock";
    private static final String ACCESS_MODE = "rw";
 
    protected final boolean replicatedBackup;
@@ -127,7 +127,7 @@ public abstract class NodeManager implements ActiveMQComponent {
       isStarted = false;
    }
 
-   public final void stopBackup() throws Exception {
+   public void stopBackup() throws Exception {
       if (replicatedBackup && getNodeId() != null) {
          setUpServerLockFile();
       }
@@ -146,7 +146,7 @@ public abstract class NodeManager implements ActiveMQComponent {
     * the *current* nodeID
     * </ol>
     */
-   protected final synchronized void setUpServerLockFile() throws IOException {
+   protected synchronized void setUpServerLockFile() throws IOException {
       File serverLockFile = newFile(SERVER_LOCK_NAME);
 
       boolean fileCreated = false;

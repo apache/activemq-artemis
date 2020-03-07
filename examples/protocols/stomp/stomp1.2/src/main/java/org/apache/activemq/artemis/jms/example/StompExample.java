@@ -48,8 +48,6 @@ public class StompExample {
          String connectFrame = "CONNECT\n" +
             "accept-version:1.2\n" +
             "host:localhost\n" +
-            "login:guest\n" +
-            "passcode:guest\n" +
             "request-id:1\n" +
             "\n" +
             END_OF_FRAME;
@@ -63,6 +61,7 @@ public class StompExample {
          String text = "Hello World from Stomp 1.2 !";
          String message = "SEND\n" +
             "destination:exampleQueue\n" +
+            "destination-type:ANYCAST\n" +
             "\n" +
             text +
             END_OF_FRAME;

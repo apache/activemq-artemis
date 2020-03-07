@@ -20,7 +20,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-   <bean id="EmbeddedJms" class="org.apache.activemq.artemis.integration.spring.SpringJmsBootstrap" init-method="start">
+   <bean id="EmbeddedActiveMQ" class="org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ" init-method="start" destroy-method="stop">
        <property name="configResourcePath" value="spring-activemq-config.xml"/>
    </bean>
 

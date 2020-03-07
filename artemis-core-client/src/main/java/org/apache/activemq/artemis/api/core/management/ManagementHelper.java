@@ -48,6 +48,8 @@ public final class ManagementHelper {
 
    public static final SimpleString HDR_ADDRESS = new SimpleString("_AMQ_Address");
 
+   public static final SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_Routing_Type");
+
    public static final SimpleString HDR_BINDING_ID = new SimpleString("_AMQ_Binding_ID");
 
    public static final SimpleString HDR_BINDING_TYPE = new SimpleString("_AMQ_Binding_Type");
@@ -59,6 +61,10 @@ public final class ManagementHelper {
    public static final SimpleString HDR_CONSUMER_COUNT = new SimpleString("_AMQ_ConsumerCount");
 
    public static final SimpleString HDR_USER = new SimpleString("_AMQ_User");
+
+   public static final SimpleString HDR_VALIDATED_USER = new SimpleString("_AMQ_ValidatedUser");
+
+   public static final SimpleString HDR_CERT_SUBJECT_DN = new SimpleString("_AMQ_CertSubjectDN");
 
    public static final SimpleString HDR_CHECK_TYPE = new SimpleString("_AMQ_CheckType");
 
@@ -75,6 +81,12 @@ public final class ManagementHelper {
    public static final SimpleString HDR_CONSUMER_NAME = new SimpleString("_AMQ_ConsumerName");
 
    public static final SimpleString HDR_CONNECTION_NAME = new SimpleString("_AMQ_ConnectionName");
+
+   public static final SimpleString HDR_MESSAGE_ID = new SimpleString("_AMQ_Message_ID");
+
+   public static final SimpleString HDR_PROTOCOL_NAME = new SimpleString("_AMQ_Protocol_Name");
+
+   public static final SimpleString HDR_CLIENT_ID = new SimpleString("_AMQ_Client_ID");
 
    // Attributes ----------------------------------------------------
 

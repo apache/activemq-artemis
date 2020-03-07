@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.stomp;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.junit.Test;
 
@@ -40,9 +40,9 @@ public class StompConnectionCleanupTest extends StompTest {
       long start = System.currentTimeMillis();
 
       while (true) {
-         int connCount = server.getActiveMQServer().getRemotingService().getConnections().size();
+         int connCount = server.getRemotingService().getConnections().size();
 
-         int sessionCount = server.getActiveMQServer().getSessions().size();
+         int sessionCount = server.getSessions().size();
 
          // All connections and sessions should be timed out including STOMP + JMS connection
 
@@ -77,9 +77,9 @@ public class StompConnectionCleanupTest extends StompTest {
       long start = System.currentTimeMillis();
 
       while (true) {
-         int connCount = server.getActiveMQServer().getRemotingService().getConnections().size();
+         int connCount = server.getRemotingService().getConnections().size();
 
-         int sessionCount = server.getActiveMQServer().getSessions().size();
+         int sessionCount = server.getSessions().size();
 
          // All connections and sessions should be timed out including STOMP + JMS connection
 
@@ -124,10 +124,10 @@ public class StompConnectionCleanupTest extends StompTest {
    }
 
    @Override
-   protected JMSServerManager createServer() throws Exception {
-      JMSServerManager s = super.createServer();
+   protected ActiveMQServer createServer() throws Exception {
+      ActiveMQServer s = super.createServer();
 
-      s.getActiveMQServer().getConfiguration().setConnectionTTLOverride(CONNECTION_TTL);
+      s.getConfiguration().setConnectionTTLOverride(CONNECTION_TTL);
 
       return s;
    }

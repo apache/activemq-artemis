@@ -23,45 +23,44 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.ArrayList;
+import javax.naming.InitialContext;
 import java.util.Date;
-import java.util.List;
 
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 
 /**
- * This example demonstrates how to run an ActiveMQ Artemis embedded with JMS
+ * This example demonstrates how to run an embedded ActiveMQ Artemis broker with external file configuration
  */
 public class EmbeddedExample {
 
    public static void main(final String[] args) throws Exception {
-      EmbeddedJMS jmsServer = new EmbeddedJMS();
-
+      // Step 1. Configure security.
       SecurityConfiguration securityConfig = new SecurityConfiguration();
       securityConfig.addUser("guest", "guest");
       securityConfig.addRole("guest", "guest");
       securityConfig.setDefaultUser("guest");
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfig);
-      jmsServer.setSecurityManager(securityManager);
 
-      jmsServer.start();
-      System.out.println("Started Embedded JMS Server");
+      // Step 2. Create and start embedded broker.
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer("broker.xml", null, securityManager);
+      server.start();
+      System.out.println("Started Embedded Broker");
 
-      JMSServerManager jmsServerManager = jmsServer.getJMSServerManager();
-      List<String> connectors = new ArrayList<>();
-      connectors.add("in-vm");
-      jmsServerManager.createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
-      jmsServerManager.createQueue(false, "exampleQueue", null, false, "queue/exampleQueue");
+      InitialContext initialContext = null;
+      // Step 3. Create an initial context to perform the JNDI lookup.
+      initialContext = new InitialContext();
 
-      ConnectionFactory cf = (ConnectionFactory) jmsServer.lookup("ConnectionFactory");
-      Queue queue = (Queue) jmsServer.lookup("queue/exampleQueue");
+      // Step 4. Look-up the JMS queue
+      Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
-      // Step 10. Send and receive a message using JMS API
+      // Step 5. Look-up the JMS connection factory
+      ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
+
+      // Step 6. Send and receive a message using JMS API
       try (Connection connection = cf.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(queue);
@@ -73,9 +72,9 @@ public class EmbeddedExample {
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(1000);
          System.out.println("Received message:" + messageReceived.getText());
       } finally {
-         // Step 11. Stop the JMS server
-         jmsServer.stop();
-         System.out.println("Stopped the JMS Server");
+         // Step 7. Stop the embedded broker.
+         server.stop();
+         System.out.println("Stopped the Embedded Broker");
       }
    }
 }

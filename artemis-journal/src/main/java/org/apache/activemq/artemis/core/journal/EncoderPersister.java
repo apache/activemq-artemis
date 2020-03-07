@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.journal;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 
 /** This is a facade between the new Persister and the former EncodingSupport.
@@ -27,6 +28,11 @@ public class EncoderPersister implements Persister<EncodingSupport> {
    private static final EncoderPersister theInstance = new EncoderPersister();
 
    private EncoderPersister() {
+   }
+
+   @Override
+   public byte getID() {
+      return 0;
    }
 
    public static EncoderPersister getInstance() {
@@ -44,7 +50,7 @@ public class EncoderPersister implements Persister<EncodingSupport> {
    }
 
    @Override
-   public EncodingSupport decode(ActiveMQBuffer buffer, EncodingSupport record) {
+   public EncodingSupport decode(ActiveMQBuffer buffer, EncodingSupport record, CoreMessageObjectPools pools) {
       record.decode(buffer);
       return record;
    }

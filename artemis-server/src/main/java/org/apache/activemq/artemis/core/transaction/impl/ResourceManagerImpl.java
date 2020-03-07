@@ -62,6 +62,11 @@ public class ResourceManagerImpl implements ResourceManager {
    // ActiveMQComponent implementation
 
    @Override
+   public int size() {
+      return transactions.size();
+   }
+
+   @Override
    public void start() throws Exception {
       if (started) {
          return;
@@ -129,7 +134,9 @@ public class ResourceManagerImpl implements ResourceManager {
       Map<Xid, Long> xidsWithCreationTime = new HashMap<>();
 
       for (Map.Entry<Xid, Transaction> entry : transactions.entrySet()) {
-         xidsWithCreationTime.put(entry.getKey(), entry.getValue().getCreateTime());
+         if (entry.getValue().getState() == Transaction.State.PREPARED) {
+            xidsWithCreationTime.put(entry.getKey(), entry.getValue().getCreateTime());
+         }
       }
       return xidsWithCreationTime;
    }

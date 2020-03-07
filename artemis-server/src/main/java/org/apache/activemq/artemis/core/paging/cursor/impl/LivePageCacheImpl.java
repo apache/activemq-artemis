@@ -16,86 +16,79 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.cursor.LivePageCache;
-import org.apache.activemq.artemis.core.paging.impl.Page;
-import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.utils.collections.ConcurrentAppendOnlyChunkedList;
 import org.jboss.logging.Logger;
 
 /**
  * This is the same as PageCache, however this is for the page that's being currently written.
  */
-public class LivePageCacheImpl implements LivePageCache {
+public final class LivePageCacheImpl implements LivePageCache {
 
    private static final Logger logger = Logger.getLogger(LivePageCacheImpl.class);
 
-   private final List<PagedMessage> messages = new LinkedList<>();
+   private static final int CHUNK_SIZE = 32;
 
-   private final Page page;
+   private final ConcurrentAppendOnlyChunkedList<PagedMessage> messages;
 
-   private boolean isLive = true;
+   private final long pageId;
 
-   public LivePageCacheImpl(final Page page) {
-      this.page = page;
+   private volatile boolean isLive = true;
+
+   public LivePageCacheImpl(final long pageId) {
+      this.pageId = pageId;
+      this.messages = new ConcurrentAppendOnlyChunkedList<>(CHUNK_SIZE);
    }
 
    @Override
    public long getPageId() {
-      return page.getPageId();
+      return pageId;
    }
 
    @Override
-   public synchronized int getNumberOfMessages() {
+   public int getNumberOfMessages() {
       return messages.size();
    }
 
    @Override
-   public synchronized void setMessages(PagedMessage[] messages) {
+   public void setMessages(PagedMessage[] messages) {
       // This method shouldn't be called on liveCache, but we will provide the implementation for it anyway
-      for (PagedMessage msg : messages) {
-         addLiveMessage(msg);
+      for (PagedMessage message : messages) {
+         addLiveMessage(message);
       }
    }
 
    @Override
-   public synchronized PagedMessage getMessage(int messageNumber) {
-      if (messageNumber < messages.size()) {
-         return messages.get(messageNumber);
-      } else {
-         return null;
-      }
+   public PagedMessage getMessage(PagePosition pagePosition) {
+      return messages.get(pagePosition.getMessageNr());
    }
 
    @Override
-   public synchronized boolean isLive() {
+   public boolean isLive() {
       return isLive;
    }
 
    @Override
-   public synchronized void addLiveMessage(PagedMessage message) {
-      if (message.getMessage().isLargeMessage()) {
-         ((LargeServerMessage) message.getMessage()).incrementDelayDeletionCount();
-      }
-      this.messages.add(message);
+   public void addLiveMessage(PagedMessage message) {
+      message.getMessage().usageUp();
+      messages.add(message);
    }
 
    @Override
-   public synchronized void close() {
+   public void close() {
       logger.tracef("Closing %s", this);
       this.isLive = false;
    }
 
    @Override
-   public synchronized PagedMessage[] getMessages() {
-      return messages.toArray(new PagedMessage[messages.size()]);
+   public PagedMessage[] getMessages() {
+      return messages.toArray(PagedMessage[]::new);
    }
 
    @Override
    public String toString() {
-      return "LivePacheCacheImpl::page=" + page.getPageId() + " number of messages=" + messages.size() + " isLive = " +
-         isLive;
+      return "LivePacheCacheImpl::page=" + pageId + " number of messages=" + getNumberOfMessages() + " isLive = " + isLive;
    }
 }

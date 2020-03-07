@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.objectweb.jtests.jms.admin.Admin;
 
 /**
@@ -130,7 +130,7 @@ public class AbstractAdmin implements Admin {
    public void deleteQueue(final String name) {
       Boolean result;
       try {
-         invokeSyncOperation(ResourceNames.BROKER, "destroyQueue", name);
+         invokeSyncOperation(ResourceNames.BROKER, "destroyQueue", name, true);
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }
@@ -159,7 +159,7 @@ public class AbstractAdmin implements Admin {
    public void deleteTopic(final String name) {
       Boolean result;
       try {
-         invokeSyncOperation(ResourceNames.BROKER, "deleteAddress", name);
+         invokeSyncOperation(ResourceNames.BROKER, "deleteAddress", name, Boolean.TRUE);
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }

@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -73,7 +72,7 @@ public class ServerJMSMessage implements Message {
    protected ActiveMQBuffer getReadBodyBuffer() {
       if (readBodyBuffer == null) {
          // to avoid clashes between multiple threads
-         readBodyBuffer = message.getReadOnlyBodyBuffer();
+         readBodyBuffer = message.getDataBuffer();
       }
       return readBodyBuffer;
    }
@@ -118,28 +117,36 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final void setJMSCorrelationIDAsBytes(byte[] correlationID) throws JMSException {
-      try {
-         MessageUtil.setJMSCorrelationIDAsBytes(message, correlationID);
-      } catch (ActiveMQException e) {
-         throw new JMSException(e.getMessage());
+      if (correlationID == null || correlationID.length == 0) {
+         throw new JMSException("Please specify a non-zero length byte[]");
       }
+      message.setCorrelationID(correlationID);
    }
 
    @Override
    public final String getJMSCorrelationID() throws JMSException {
-      return MessageUtil.getJMSCorrelationID(message);
+
+      Object correlationID = message.getCorrelationID();
+      if (correlationID instanceof String) {
+
+         return ((String) correlationID);
+      } else if (correlationID != null) {
+         return String.valueOf(correlationID);
+      } else {
+         return null;
+      }
    }
 
    @Override
    public final void setJMSCorrelationID(String correlationID) throws JMSException {
-      MessageUtil.setJMSCorrelationID(message, correlationID);
+      message.setCorrelationID(correlationID);
    }
 
    @Override
    public final Destination getJMSReplyTo() throws JMSException {
       SimpleString reply = MessageUtil.getJMSReplyTo(message);
       if (reply != null) {
-         return new ServerDestination(reply.toString());
+         return ActiveMQDestination.fromPrefixedName(reply.toString());
       } else {
          return null;
       }
@@ -148,24 +155,17 @@ public class ServerJMSMessage implements Message {
    @Override
    public final void setJMSReplyTo(Destination replyTo) throws JMSException {
       MessageUtil.setJMSReplyTo(message, replyTo == null ? null : ((ActiveMQDestination) replyTo).getSimpleAddress());
-
    }
 
    @Override
-   public final Destination getJMSDestination() throws JMSException {
-      SimpleString sdest = message.getAddressSimpleString();
-
-      if (sdest == null) {
-         return null;
-      } else {
-         return new ServerDestination(sdest.toString());
-      }
+   public Destination getJMSDestination() throws JMSException {
+      return ActiveMQDestination.createDestination(message.getRoutingType(), message.getAddressSimpleString());
    }
 
    @Override
    public final void setJMSDestination(Destination destination) throws JMSException {
       if (destination == null) {
-         message.setAddress((SimpleString)null);
+         message.setAddress((SimpleString) null);
       } else {
          message.setAddress(((ActiveMQDestination) destination).getSimpleAddress());
       }
@@ -267,12 +267,12 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final int getIntProperty(String name) throws JMSException {
-      return message.getIntProperty(name);
+      return MessageUtil.getIntProperty(message, name);
    }
 
    @Override
    public final long getLongProperty(String name) throws JMSException {
-      return message.getLongProperty(name);
+      return MessageUtil.getLongProperty(message, name);
    }
 
    @Override
@@ -287,16 +287,12 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final String getStringProperty(String name) throws JMSException {
-      return message.getStringProperty(name);
+      return MessageUtil.getStringProperty(message, name);
    }
 
    @Override
    public final Object getObjectProperty(String name) throws JMSException {
-      Object val = message.getObjectProperty(name);
-      if (val instanceof SimpleString) {
-         val = ((SimpleString) val).toString();
-      }
-      return val;
+      return MessageUtil.getObjectProperty(message, name);
    }
 
    @Override
@@ -321,12 +317,12 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final void setIntProperty(String name, int value) throws JMSException {
-      message.putIntProperty(name, value);
+      MessageUtil.setIntProperty(message, name, value);
    }
 
    @Override
    public final void setLongProperty(String name, long value) throws JMSException {
-      message.putLongProperty(name, value);
+      MessageUtil.setLongProperty(message, name, value);
    }
 
    @Override
@@ -341,12 +337,12 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final void setStringProperty(String name, String value) throws JMSException {
-      message.putStringProperty(name, value);
+      MessageUtil.setStringProperty(message, name, value);
    }
 
    @Override
    public final void setObjectProperty(String name, Object value) throws JMSException {
-      message.putObjectProperty(name, value);
+      MessageUtil.setObjectProperty(message, name, value);
    }
 
    @Override
@@ -369,11 +365,15 @@ public class ServerJMSMessage implements Message {
     * Encode the body into the internal message
     */
    public void encode() throws Exception {
-      message.getBodyBuffer().resetReaderIndex();
+      if (!message.isLargeMessage()) {
+         message.getBodyBuffer().resetReaderIndex();
+      }
    }
 
    public void decode() throws Exception {
-      message.getBodyBuffer().resetReaderIndex();
+      if (!message.isLargeMessage()) {
+         message.getBodyBuffer().resetReaderIndex();
+      }
    }
 
    @Override

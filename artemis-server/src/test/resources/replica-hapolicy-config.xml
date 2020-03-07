@@ -31,6 +31,7 @@
                <restart-backup>false</restart-backup>
                <allow-failback>true</allow-failback>
                <initial-replication-sync-timeout>9876</initial-replication-sync-timeout>
+               <retry-replication-wait>12345</retry-replication-wait>
                <scale-down>
                   <!--a grouping of servers that can be scaled down to-->
                   <group-name>boo!</group-name>

@@ -240,17 +240,17 @@ public class AddressingTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(queueName);
       // there is a consumer now so the message should be routed
       producer.send(session.createMessage(true));
-      Wait.waitFor(() -> queue.getMessageCount() == 1);
-      assertEquals(1, queue.getMessageCount());
+      Wait.assertEquals(1, queue::getMessageCount);
+
 
       consumer.close();
       // the last consumer was closed so the queue should exist but be purged
       assertNotNull(server.locateQueue(queueName));
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
 
       // there are no consumers so no messages should be routed to the queue
       producer.send(session.createMessage(true));
-      assertEquals(0, queue.getMessageCount());
+      Wait.assertEquals(0, queue::getMessageCount);
    }
 
    @Test
@@ -264,7 +264,7 @@ public class AddressingTest extends ActiveMQTestBase {
       producer.send(session.createMessage(true));
       session.createConsumer(queueName).close();
       assertNotNull(server.locateQueue(queueName));
-      assertEquals(1, server.locateQueue(queueName).getMessageCount());
+      Wait.assertEquals(1, server.locateQueue(queueName)::getMessageCount);
    }
 
    @Test

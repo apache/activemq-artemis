@@ -49,11 +49,13 @@ import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -99,6 +101,18 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory");
 
       connectionFactory.createConnection().close();
+   }
+
+   @Test
+   public void testEmptyConnectionFactoryString() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put("connectionFactory.ConnectionFactory", "vm://0");
+
+      //IIB v10 assumes this property is mandatory and sets it to an empty string when not specified
+      props.put("java.naming.provider.url", "");
+      new InitialContext(props);//Must not throw an exception
+
    }
 
    @Test
@@ -486,7 +500,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       //setup user and role on broker
       ((ActiveMQJAASSecurityManager) liveService.getSecurityManager()).getConfiguration().addUser("myUser", "myPassword");
       ((ActiveMQJAASSecurityManager) liveService.getSecurityManager()).getConfiguration().addRole("myUser", "consumeCreateRole");
-      Role consumeCreateRole = new Role("consumeCreateRole", false, true, true, true, true, true, true, true);
+      Role consumeCreateRole = new Role("consumeCreateRole", false, true, true, true, true, true, true, true, true, true);
       Set<Role> consumerCreateRoles = new HashSet<>();
       consumerCreateRoles.add(consumeCreateRole);
       liveService.getSecurityRepository().addMatch("test.queue", consumerCreateRoles);
@@ -663,5 +677,83 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       testContext(ctx, "myConnectionFactory", JMSFactoryType.CF);
 
+   }
+
+   @Test
+   public void test1xNaming() throws NamingException, JMSException {
+      liveService.getSecurityStore().setSecurityEnabled(false);
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put("connectionFactory.ConnectionFactory", "vm://0?enable1xPrefixes=true");
+      props.put("connectionFactory.ConnectionFactory2", "vm://0");
+      Context ctx = new InitialContext(props);
+
+      ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory");
+      Connection connection = connectionFactory.createConnection();
+      Session session = connection.createSession();
+
+      assertTrue(((ActiveMQDestination)session.createQueue("testQueue")).getSimpleAddress().startsWith(PacketImpl.OLD_QUEUE_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTemporaryQueue()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTopic("testTopic")).getSimpleAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTemporaryTopic()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX));
+
+      // The name should not include the prefix
+      assertFalse(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
+      assertFalse(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
+
+
+      connection.close();
+
+      // test setting programmatically
+      connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory2");
+      ((ActiveMQConnectionFactory)connectionFactory).setEnable1xPrefixes(true);
+      connection = connectionFactory.createConnection();
+      session = connection.createSession();
+
+      assertTrue(((ActiveMQDestination)session.createQueue("testQueue")).getSimpleAddress().startsWith(PacketImpl.OLD_QUEUE_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTemporaryQueue()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTopic("testTopic")).getSimpleAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX));
+      assertTrue(((ActiveMQDestination)session.createTemporaryTopic()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX));
+
+      // The name should not include the prefix
+      assertFalse(session.createQueue("testQueue").getQueueName().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTemporaryQueue().getQueueName().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString()));
+      assertFalse(session.createTopic("testTopic").getTopicName().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString()));
+      assertFalse(session.createTemporaryTopic().getTopicName().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString()));
+
+      connection.close();
+   }
+
+   @Test
+   public void test1xNamingNegative() throws NamingException, JMSException {
+      liveService.getSecurityStore().setSecurityEnabled(false);
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put("connectionFactory.ConnectionFactory", "vm://0");
+      Context ctx = new InitialContext(props);
+
+      ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory");
+      Connection connection = connectionFactory.createConnection();
+      Session session = connection.createSession();
+
+      assertFalse(((ActiveMQDestination)session.createQueue("testQueue")).getSimpleAddress().startsWith(PacketImpl.OLD_QUEUE_PREFIX));
+      assertFalse(((ActiveMQDestination)session.createTemporaryQueue()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_QUEUE_PREFIX));
+      assertFalse(((ActiveMQDestination)session.createTopic("testTopic")).getSimpleAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX));
+      assertFalse(((ActiveMQDestination)session.createTemporaryTopic()).getSimpleAddress().startsWith(PacketImpl.OLD_TEMP_TOPIC_PREFIX));
+
+      connection.close();
+   }
+
+   @Test
+   public void testUseTopologyForLoadBalancing() throws Exception {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put("connectionFactory.ConnectionFactory", "vm://0?useTopologyForLoadBalancing=false");
+      Context ctx = new InitialContext(props);
+
+      ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("ConnectionFactory");
+      assertFalse(((ActiveMQConnectionFactory)connectionFactory).getServerLocator().getUseTopologyForLoadBalancing());
    }
 }

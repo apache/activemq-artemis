@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -46,6 +47,7 @@ import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -157,6 +159,16 @@ public class PageCursorStressTest extends ActiveMQTestBase {
          }
 
          @Override
+         public boolean match(Map<String, String> map) {
+            return false;
+         }
+
+         @Override
+         public boolean match(Filterable filterable) {
+            return false;
+         }
+
+         @Override
          public SimpleString getFilterString() {
             return new SimpleString("even=true");
          }
@@ -173,6 +185,16 @@ public class PageCursorStressTest extends ActiveMQTestBase {
             } else {
                return !property.booleanValue();
             }
+         }
+
+         @Override
+         public boolean match(Map<String, String> map) {
+            return false;
+         }
+
+         @Override
+         public boolean match(Filterable filterable) {
+            return false;
          }
 
          @Override

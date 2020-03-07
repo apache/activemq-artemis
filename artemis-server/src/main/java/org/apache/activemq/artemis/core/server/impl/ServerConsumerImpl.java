@@ -17,18 +17,18 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.CoreLargeServerMessage;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -63,6 +64,7 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
@@ -87,6 +89,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private final Filter filter;
 
+   private final int priority;
+
    private final int minLargeMessageSize;
 
    private final ServerSession session;
@@ -103,22 +107,20 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private SlowConsumerDetectionListener slowConsumerListener;
 
-   /**
-    * We get a readLock when a message is handled, and return the readLock when the message is finally delivered
-    * When stopping the consumer we need to get a writeLock to make sure we had all delivery finished
-    * otherwise a rollback may get message sneaking in
-    */
-   private final ReadWriteLock lockDelivery = new ReentrantReadWriteLock();
+   private final ReusableLatch pendingDelivery = new ReusableLatch(0);
 
    private volatile AtomicInteger availableCredits = new AtomicInteger(0);
 
    private boolean started;
 
-   private volatile LargeMessageDeliverer largeMessageDeliverer = null;
+   private volatile CoreLargeMessageDeliverer largeMessageDeliverer = null;
 
    @Override
    public String debug() {
-      return toString() + "::Delivering " + this.deliveringRefs.size();
+      String debug = toString() + "::Delivering ";
+      synchronized (lock) {
+         return debug + this.deliveringRefs.size();
+      }
    }
 
    /**
@@ -133,7 +135,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private final StorageManager storageManager;
 
-   protected final java.util.Deque<MessageReference> deliveringRefs = new ConcurrentLinkedDeque<>();
+   private final java.util.Deque<MessageReference> deliveringRefs = new ArrayDeque<>();
 
    private final SessionCallback callback;
 
@@ -156,6 +158,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    private boolean requiresLegacyPrefix = false;
 
    private boolean anycast = false;
+
+   private boolean isClosed = false;
 
    // Constructors ---------------------------------------------------------------------------------
 
@@ -188,11 +192,31 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                              final boolean supportLargeMessage,
                              final Integer credits,
                              final ActiveMQServer server) throws Exception {
+      this(id, session, binding, filter, ActiveMQDefaultConfiguration.getDefaultConsumerPriority(), started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
+   }
+
+   public ServerConsumerImpl(final long id,
+                             final ServerSession session,
+                             final QueueBinding binding,
+                             final Filter filter,
+                             final int priority,
+                             final boolean started,
+                             final boolean browseOnly,
+                             final StorageManager storageManager,
+                             final SessionCallback callback,
+                             final boolean preAcknowledge,
+                             final boolean strictUpdateDeliveryCount,
+                             final ManagementService managementService,
+                             final boolean supportLargeMessage,
+                             final Integer credits,
+                             final ActiveMQServer server) throws Exception {
       this.id = id;
 
       this.sequentialID = server.getStorageManager().generateID();
 
       this.filter = filter;
+
+      this.priority = priority;
 
       this.session = session;
 
@@ -237,7 +261,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       if (session.getRemotingConnection() instanceof CoreRemotingConnection) {
          CoreRemotingConnection coreRemotingConnection = (CoreRemotingConnection) session.getRemotingConnection();
-         if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null && coreRemotingConnection.getClientVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
+         if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null && coreRemotingConnection.getChannelVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
             requiresLegacyPrefix = true;
             if (getQueue().getRoutingType().equals(RoutingType.ANYCAST)) {
                anycast = true;
@@ -254,6 +278,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    // ServerConsumer implementation
    // ----------------------------------------------------------------------
 
+
+   @Override
+   public boolean allowReferenceCallback() {
+      if (browseOnly) {
+         return false;
+      } else {
+         return messageQueue.allowsReferenceCallback();
+      }
+   }
 
    @Override
    public long sequentialID() {
@@ -324,16 +357,20 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public List<MessageReference> getDeliveringMessages() {
-      List<MessageReference> refs = new LinkedList<>();
       synchronized (lock) {
+         int expectedSize = 0;
          List<MessageReference> refsOnConsumer = session.getInTXMessagesForConsumer(this.id);
+         if (refsOnConsumer != null) {
+            expectedSize = refsOnConsumer.size();
+         }
+         expectedSize += deliveringRefs.size();
+         final List<MessageReference> refs = new ArrayList<>(expectedSize);
          if (refsOnConsumer != null) {
             refs.addAll(refsOnConsumer);
          }
          refs.addAll(deliveringRefs);
+         return refs;
       }
-
-      return refs;
    }
 
    /** i
@@ -345,10 +382,16 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return callback.supportsDirectDelivery();
    }
 
+   @Override
+   public void errorProcessing(Throwable e, MessageReference deliveryObject) {
+      messageQueue.errorProcessing(this, e, deliveryObject);
+   }
 
    @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
-      if (callback != null && !callback.hasCredits(this) || availableCredits != null && availableCredits.get() <= 0) {
+      // available credits can be set back to null with a flow control option.
+      AtomicInteger checkInteger = availableCredits;
+      if (callback != null && !callback.hasCredits(this) || checkInteger != null && checkInteger.get() <= 0) {
          if (logger.isDebugEnabled()) {
             logger.debug(this + " is busy for the lack of credits. Current credits = " +
                             availableCredits +
@@ -364,7 +407,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          // should go back into the
          // queue for delivery later.
          // TCP-flow control has to be done first than everything else otherwise we may lose notifications
-         if (!callback.isWritable(this, protocolContext) || !started || transferring) {
+         if ((callback != null && !callback.isWritable(this, protocolContext)) || !started || transferring) {
             return HandleStatus.BUSY;
          }
 
@@ -416,24 +459,26 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                }
             }
 
+            // The deliverer will increase the usageUp, so the preAck has to be done after this is created
+            // otherwise we may have a removed message early on
+            if (message instanceof CoreLargeServerMessage && this.supportLargeMessage) {
+               largeMessageDeliverer = new CoreLargeMessageDeliverer((LargeServerMessage) message, ref);
+            }
+
             if (preAcknowledge) {
                if (message.isLargeMessage()) {
                   // we must hold one reference, or the file will be deleted before it could be delivered
-                  ((LargeServerMessage) message).incrementDelayDeletionCount();
+                  ((LargeServerMessage) message).toMessage().usageUp();
                }
 
                // With pre-ack, we ack *before* sending to the client
-               ref.getQueue().acknowledge(ref);
+               ref.getQueue().acknowledge(ref, this);
                acks++;
-            }
-
-            if (message.isLargeMessage() && this.supportLargeMessage) {
-               largeMessageDeliverer = new LargeMessageDeliverer((LargeServerMessage) message, ref);
             }
 
          }
 
-         lockDelivery.readLock().lock();
+         pendingDelivery.countUp();
 
          return HandleStatus.HANDLED;
       }
@@ -444,14 +489,16 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       try {
          Message message = reference.getMessage();
 
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeDeliver(this, reference) : null);
+         if (server.hasBrokerMessagePlugins()) {
+            server.callBrokerMessagePlugins(plugin -> plugin.beforeDeliver(this, reference));
+         }
 
-         if (message.isLargeMessage() && supportLargeMessage) {
+         if (message instanceof CoreLargeServerMessage && supportLargeMessage) {
             if (largeMessageDeliverer == null) {
                // This can't really happen as handle had already crated the deliverer
                // instead of throwing an exception in weird cases there is no problem on just go ahead and create it
                // again here
-               largeMessageDeliverer = new LargeMessageDeliverer((LargeServerMessage) message, reference);
+               largeMessageDeliverer = new CoreLargeMessageDeliverer((LargeServerMessage) message, reference);
             }
             // The deliverer was prepared during handle, as we can't have more than one pending large message
             // as it would return busy if there is anything pending
@@ -460,9 +507,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             deliverStandardMessage(reference, message);
          }
       } finally {
-         lockDelivery.readLock().unlock();
+         pendingDelivery.countDown();
          callback.afterDelivery();
-         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterDeliver(this, reference) : null);
+         if (server.hasBrokerMessagePlugins()) {
+            server.callBrokerMessagePlugins(plugin -> plugin.afterDeliver(this, reference));
+         }
       }
 
    }
@@ -473,16 +522,38 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
+   public int getPriority() {
+      return priority;
+   }
+
+   @Override
+   public SimpleString getFilterString() {
+      return filter == null ? null : filter.getFilterString();
+   }
+
+   @Override
    public void close(final boolean failed) throws Exception {
+      close(failed, false);
+   }
+
+   @Override
+   public synchronized void close(final boolean failed, boolean sorted) throws Exception {
+
+      // Close should only ever be done once per consumer.
+      if (isClosed) return;
+      isClosed = true;
+
       if (logger.isTraceEnabled()) {
          logger.trace("ServerConsumerImpl::" + this + " being closed with failed=" + failed, new Exception("trace"));
       }
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCloseConsumer(this, failed) : null);
+      if (server.hasBrokerConsumerPlugins()) {
+         server.callBrokerConsumerPlugins(plugin -> plugin.beforeCloseConsumer(this, failed));
+      }
 
       setStarted(false);
 
-      LargeMessageDeliverer del = largeMessageDeliverer;
+      CoreLargeMessageDeliverer del = largeMessageDeliverer;
 
       if (del != null) {
          del.finish();
@@ -490,23 +561,20 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       removeItself();
 
-      LinkedList<MessageReference> refs = cancelRefs(failed, false, null);
+      List<MessageReference> refs = cancelRefs(failed, false, null);
 
-      Iterator<MessageReference> iter = refs.iterator();
+      Transaction tx = new TransactionImpl(storageManager, sorted);
 
-      Transaction tx = new TransactionImpl(storageManager);
-
-      while (iter.hasNext()) {
-         MessageReference ref = iter.next();
-
+      refs.forEach(ref -> {
          if (logger.isTraceEnabled()) {
             logger.trace("ServerConsumerImpl::" + this + " cancelling reference " + ref);
          }
-
          ref.getQueue().cancel(tx, ref, true);
-      }
+      });
 
       tx.rollback();
+
+      addLingerRefs();
 
       if (!browseOnly) {
          TypedProperties props = new TypedProperties();
@@ -535,7 +603,22 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          managementService.sendNotification(notification);
       }
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterCloseConsumer(this, failed) : null);
+
+      // The check here has to be done after the notification is sent, otherwise the queue will be removed before the consumer.close reach other nodes on a cluster
+      messageQueue.recheckRefCount(session.getSessionContext());
+
+      if (server.hasBrokerConsumerPlugins()) {
+         server.callBrokerConsumerPlugins(plugin -> plugin.afterCloseConsumer(this, failed));
+      }
+   }
+
+   private void addLingerRefs() throws Exception {
+      if (!browseOnly) {
+         List<MessageReference> lingerRefs = session.getInTXMessagesForConsumer(this.id);
+         if (lingerRefs != null && !lingerRefs.isEmpty()) {
+            session.addLingerConsumer(this);
+         }
+      }
    }
 
    @Override
@@ -559,13 +642,14 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    public void forceDelivery(final long sequence)  {
       forceDelivery(sequence, () -> {
          Message forcedDeliveryMessage = new CoreMessage(storageManager.generateID(), 50);
+         MessageReference reference = MessageReference.Factory.createReference(forcedDeliveryMessage, messageQueue);
+         reference.setDeliveryCount(0);
 
          forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
          forcedDeliveryMessage.setAddress(messageQueue.getName());
 
          applyPrefixForLegacyConsumer(forcedDeliveryMessage);
-         callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
-
+         callback.sendMessage(reference, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
       });
    }
 
@@ -601,13 +685,13 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public LinkedList<MessageReference> cancelRefs(final boolean failed,
-                                                  final boolean lastConsumedAsDelivered,
-                                                  final Transaction tx) throws Exception {
+   public List<MessageReference> cancelRefs(final boolean failed,
+                                            final boolean lastConsumedAsDelivered,
+                                            final Transaction tx) throws Exception {
       boolean performACK = lastConsumedAsDelivered;
 
       try {
-         LargeMessageDeliverer pendingLargeMessageDeliverer = largeMessageDeliverer;
+         CoreLargeMessageDeliverer pendingLargeMessageDeliverer = largeMessageDeliverer;
          if (pendingLargeMessageDeliverer != null) {
             pendingLargeMessageDeliverer.finish();
          }
@@ -617,30 +701,30 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          largeMessageDeliverer = null;
       }
 
-      LinkedList<MessageReference> refs = new LinkedList<>();
-
       synchronized (lock) {
-         if (!deliveringRefs.isEmpty()) {
-            for (MessageReference ref : deliveringRefs) {
-               if (performACK) {
-                  ref.acknowledge(tx);
+         if (deliveringRefs.isEmpty()) {
+            return Collections.emptyList();
+         }
+         final List<MessageReference> refs = new ArrayList<>(deliveringRefs.size());
+         MessageReference ref;
+         while ((ref = deliveringRefs.poll()) != null) {
+            if (performACK) {
+               ref.acknowledge(tx, this);
 
-                  performACK = false;
-               } else {
-                  refs.add(ref);
-                  updateDeliveryCountForCanceledRef(ref, failed);
-               }
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("ServerConsumerImpl::" + this + " Preparing Cancelling list for messageID = " + ref.getMessage().getMessageID() + ", ref = " + ref);
-               }
+               performACK = false;
+            } else {
+               refs.add(ref);
+               updateDeliveryCountForCanceledRef(ref, failed);
             }
 
-            deliveringRefs.clear();
+            if (logger.isTraceEnabled()) {
+               logger.trace("ServerConsumerImpl::" + this + " Preparing Cancelling list for messageID = " + ref.getMessage().getMessageID() + ", ref = " + ref);
+            }
          }
+
+         return refs;
       }
 
-      return refs;
    }
 
    protected void updateDeliveryCountForCanceledRef(MessageReference ref, boolean failed) {
@@ -659,31 +743,21 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public void setStarted(final boolean started) {
       synchronized (lock) {
-         boolean locked = lockDelivery();
-
-         // This is to make sure nothing would sneak to the client while started = false
-         // the client will stop the session and perform a rollback in certain cases.
-         // in case something sneaks to the client you could get to messaging delivering forever until
-         // you restart the server
-         try {
-            this.started = browseOnly || started;
-         } finally {
-            if (locked) {
-               lockDelivery.writeLock().unlock();
-            }
-         }
+         this.started = browseOnly || started;
       }
 
       // Outside the lock
       if (started) {
          promptDelivery();
+      } else {
+         flushDelivery();
       }
    }
 
-   private boolean lockDelivery() {
+   private boolean flushDelivery() {
       try {
-         if (!lockDelivery.writeLock().tryLock(30, TimeUnit.SECONDS)) {
-            ActiveMQServerLogger.LOGGER.timeoutLockingConsumer();
+         if (!pendingDelivery.await(30, TimeUnit.SECONDS)) {
+            ActiveMQServerLogger.LOGGER.timeoutLockingConsumer(this.toString(), session.getRemotingConnection().getTransportConnection().getRemoteAddress());
             if (server != null) {
                server.threadDump();
             }
@@ -699,16 +773,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public void setTransferring(final boolean transferring) {
       synchronized (lock) {
-         // This is to make sure that the delivery process has finished any pending delivery
-         // otherwise a message may sneak in on the client while we are trying to stop the consumer
-         boolean locked = lockDelivery();
-         try {
-            this.transferring = transferring;
-         } finally {
-            if (locked) {
-               lockDelivery.writeLock().unlock();
-            }
-         }
+         this.transferring = transferring;
       }
 
       // Outside the lock
@@ -730,6 +795,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       if (!transferring) {
          promptDelivery();
+      } else {
+         flushDelivery();
       }
    }
 
@@ -853,11 +920,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                throw ils;
             }
 
-            ref.acknowledge(tx);
+            ref.acknowledge(tx, this);
 
             acks++;
          }
-         while (ref.getMessage().getMessageID() != messageID);
+         while (ref.getMessageID() != messageID);
 
          if (startedTransaction) {
             tx.commit();
@@ -916,7 +983,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             throw ils;
          }
 
-         ref.acknowledge(tx);
+         ref.acknowledge(tx, this);
 
          acks++;
 
@@ -926,7 +993,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       } catch (ActiveMQException e) {
          if (startedTransaction) {
             tx.rollback();
-         } else {
+         } else if (tx != null) {
             tx.markAsRollbackOnly(e);
          }
          throw e;
@@ -935,7 +1002,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          ActiveMQIllegalStateException hqex = new ActiveMQIllegalStateException(e.getMessage());
          if (startedTransaction) {
             tx.rollback();
-         } else {
+         } else if (tx != null) {
             tx.markAsRollbackOnly(hqex);
          }
          throw hqex;
@@ -944,7 +1011,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public synchronized void individualCancel(final long messageID, boolean failed) throws Exception {
+   public synchronized void individualCancel(final long messageID, boolean failed, boolean sorted) throws Exception {
       if (browseOnly) {
          return;
       }
@@ -959,7 +1026,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          ref.decrementDeliveryCount();
       }
 
-      ref.getQueue().cancel(ref, System.currentTimeMillis());
+      ref.getQueue().cancel(ref, System.currentTimeMillis(), sorted);
    }
 
 
@@ -980,7 +1047,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public synchronized void backToDelivering(MessageReference reference) {
-      deliveringRefs.addFirst(reference);
+      synchronized (lock) {
+         deliveringRefs.addFirst(reference);
+      }
    }
 
    @Override
@@ -1001,24 +1070,30 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          if (deliveringRefs.peek().getMessage().getMessageID() == messageID) {
             return deliveringRefs.poll();
          }
-
-         Iterator<MessageReference> iter = deliveringRefs.iterator();
-
-         MessageReference ref = null;
-
-         while (iter.hasNext()) {
-            MessageReference theRef = iter.next();
-
-            if (theRef.getMessage().getMessageID() == messageID) {
-               iter.remove();
-
-               ref = theRef;
-
-               break;
-            }
-         }
-         return ref;
+         //slow path in a separate method
+         return removeDeliveringRefById(messageID);
       }
+   }
+
+   private MessageReference removeDeliveringRefById(long messageID) {
+      assert deliveringRefs.peek().getMessage().getMessageID() != messageID;
+
+      Iterator<MessageReference> iter = deliveringRefs.iterator();
+
+      MessageReference ref = null;
+
+      while (iter.hasNext()) {
+         MessageReference theRef = iter.next();
+
+         if (theRef.getMessage().getMessageID() == messageID) {
+            iter.remove();
+
+            ref = theRef;
+
+            break;
+         }
+      }
+      return ref;
    }
 
    /**
@@ -1043,7 +1118,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public void disconnect() {
-      callback.disconnect(this, getQueue().getName().toString());
+      callback.disconnect(this, getQueue().getName());
    }
 
    public float getRate() {
@@ -1148,7 +1223,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * Internal encapsulation of the logic on sending LargeMessages.
     * This Inner class was created to avoid a bunch of loose properties about the current LargeMessage being sent
     */
-   private final class LargeMessageDeliverer {
+   private final class CoreLargeMessageDeliverer {
 
       private long sizePendingLargeMessage;
 
@@ -1163,18 +1238,40 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
        */
       private long positionPendingLargeMessage;
 
-      private LargeBodyEncoder context;
+      private LargeBodyReader context;
 
-      private LargeMessageDeliverer(final LargeServerMessage message, final MessageReference ref) throws Exception {
+      private ByteBuffer chunkBytes;
+
+      private CoreLargeMessageDeliverer(final LargeServerMessage message, final MessageReference ref) throws Exception {
          largeMessage = message;
 
-         largeMessage.incrementDelayDeletionCount();
+         largeMessage.toMessage().usageUp();
 
          this.ref = ref;
+
+         this.chunkBytes = null;
+      }
+
+      @Override
+      public String toString() {
+         return "ServerConsumerImpl$LargeMessageDeliverer[ref=[" + ref + "]]";
+      }
+
+      private ByteBuffer acquireHeapBodyBuffer(int requiredCapacity) {
+         if (this.chunkBytes == null || this.chunkBytes.capacity() != requiredCapacity) {
+            this.chunkBytes = ByteBuffer.allocate(requiredCapacity);
+         } else {
+            this.chunkBytes.clear();
+         }
+         return this.chunkBytes;
+      }
+
+      private void releaseHeapBodyBuffer() {
+         this.chunkBytes = null;
       }
 
       public boolean deliver() throws Exception {
-         lockDelivery.readLock().lock();
+         pendingDelivery.countUp();
          try {
             if (!started) {
                return false;
@@ -1190,23 +1287,27 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                   logger.trace(this + "::FlowControl::delivery largeMessage interrupting as there are no more credits, available=" +
                                   availableCredits);
                }
-
+               releaseHeapBodyBuffer();
                return false;
             }
 
             if (!sentInitialPacket) {
-               context = currentLargeMessage.getBodyEncoder();
+               context = currentLargeMessage.getLargeBodyReader();
 
-               sizePendingLargeMessage = context.getLargeBodySize();
+               sizePendingLargeMessage = context.getSize();
 
                context.open();
 
                sentInitialPacket = true;
 
-               int packetSize = callback.sendLargeMessage(ref, currentLargeMessage, ServerConsumerImpl.this, context.getLargeBodySize(), ref.getDeliveryCount());
+               int packetSize = callback.sendLargeMessage(ref, currentLargeMessage.toMessage(), ServerConsumerImpl.this, context.getSize(), ref.getDeliveryCount());
 
                if (availableCredits != null) {
-                  availableCredits.addAndGet(-packetSize);
+                  final int credits = availableCredits.addAndGet(-packetSize);
+
+                  if (credits <= 0) {
+                     releaseHeapBodyBuffer();
+                  }
 
                   if (logger.isTraceEnabled()) {
                      logger.trace(this + "::FlowControl::" +
@@ -1229,32 +1330,38 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                      logger.trace(this + "::FlowControl::deliverLargeMessage Leaving loop of send LargeMessage because of credits, available=" +
                                      availableCredits);
                   }
-
+                  releaseHeapBodyBuffer();
                   return false;
                }
 
-               int localChunkLen = 0;
+               final int localChunkLen = (int) Math.min(sizePendingLargeMessage - positionPendingLargeMessage, minLargeMessageSize);
 
-               localChunkLen = (int) Math.min(sizePendingLargeMessage - positionPendingLargeMessage, minLargeMessageSize);
+               final ByteBuffer bodyBuffer = acquireHeapBodyBuffer(localChunkLen);
 
-               ActiveMQBuffer bodyBuffer = ActiveMQBuffers.fixedBuffer(localChunkLen);
+               assert bodyBuffer.remaining() == localChunkLen;
 
-               context.encode(bodyBuffer, localChunkLen);
+               final int readBytes = context.readInto(bodyBuffer);
 
-               byte[] body;
+               assert readBytes == localChunkLen;
 
-               if (bodyBuffer.toByteBuffer().hasArray()) {
-                  body = bodyBuffer.toByteBuffer().array();
-               } else {
-                  body = new byte[0];
-               }
+               final byte[] body = bodyBuffer.array();
+
+               assert body.length == readBytes;
+
+               //It is possible to recycle the same heap body buffer because it won't be cached by sendLargeMessageContinuation
+               //given that requiresResponse is false: ChannelImpl::send will use the resend cache only if
+               //resendCache != null && packet.isRequiresConfirmations()
 
                int packetSize = callback.sendLargeMessageContinuation(ServerConsumerImpl.this, body, positionPendingLargeMessage + localChunkLen < sizePendingLargeMessage, false);
 
                int chunkLen = body.length;
 
                if (availableCredits != null) {
-                  availableCredits.addAndGet(-packetSize);
+                  final int credits = availableCredits.addAndGet(-packetSize);
+
+                  if (credits <= 0) {
+                     releaseHeapBodyBuffer();
+                  }
 
                   if (logger.isTraceEnabled()) {
                      logger.trace(this + "::FlowControl::largeMessage deliver continuation, packetSize=" +
@@ -1281,12 +1388,14 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
             return true;
          } finally {
-            lockDelivery.readLock().unlock();
+            pendingDelivery.countDown();
          }
       }
 
       public void finish() throws Exception {
          synchronized (lock) {
+            releaseHeapBodyBuffer();
+
             if (largeMessage == null) {
                // handleClose could be calling close while handle is also calling finish.
                // As a result one of them could get here after the largeMessage is already gone.
@@ -1295,16 +1404,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             }
             if (context != null) {
                context.close();
+               context = null;
             }
 
-            largeMessage.releaseResources();
+            largeMessage.releaseResources(false);
 
-            largeMessage.decrementDelayDeletionCount();
-
-            if (preAcknowledge && !browseOnly) {
-               // PreAck will have an extra reference
-               largeMessage.decrementDelayDeletionCount();
-            }
+            largeMessage.toMessage().usageDown();
 
             largeMessageDeliverer = null;
 
@@ -1386,5 +1491,50 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          boolean b = !iterator.hasNext();
          return b;
       }
+   }
+
+   @Override
+   public long getSequentialID() {
+      return sequentialID;
+   }
+
+   @Override
+   public SimpleString getQueueName() {
+      return getQueue().getName();
+   }
+
+   @Override
+   public RoutingType getQueueType() {
+      return getQueue().getRoutingType();
+   }
+
+   @Override
+   public SimpleString getQueueAddress() {
+      return getQueue().getAddress();
+   }
+
+   @Override
+   public String getSessionName() {
+      return this.session.getName();
+   }
+
+   @Override
+   public String getConnectionClientID() {
+      return this.session.getRemotingConnection().getClientID();
+   }
+
+   @Override
+   public String getConnectionProtocolName() {
+      return this.session.getRemotingConnection().getProtocolName();
+   }
+
+   @Override
+   public String getConnectionLocalAddress() {
+      return this.session.getRemotingConnection().getTransportConnection().getLocalAddress();
+   }
+
+   @Override
+   public String getConnectionRemoteAddress() {
+      return this.session.getRemotingConnection().getTransportConnection().getRemoteAddress();
    }
 }

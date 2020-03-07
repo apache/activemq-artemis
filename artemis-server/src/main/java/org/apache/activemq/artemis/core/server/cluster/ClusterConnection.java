@@ -25,6 +25,8 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
+import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionMetrics;
 
 public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyListener {
 
@@ -80,4 +82,18 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
 
    long getCallTimeout();
 
+   /**
+    * The metric for this cluster connection
+    *
+    * @return
+    */
+   ClusterConnectionMetrics getMetrics();
+
+   /**
+    * Returns the BridgeMetrics for the bridge to the given node if exists
+    *
+    * @param nodeId
+    * @return
+    */
+   BridgeMetrics getBridgeMetrics(String nodeId);
 }

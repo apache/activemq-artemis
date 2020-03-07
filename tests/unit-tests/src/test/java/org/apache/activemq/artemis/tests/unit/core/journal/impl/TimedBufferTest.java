@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.io.DummyCallback;
@@ -68,17 +69,13 @@ public class TimedBufferTest extends ActiveMQTestBase {
       class TestObserver implements TimedBufferObserver {
 
          @Override
-         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
+         public void flushBuffer(final ByteBuf byteBuf, final boolean sync, final List<IOCallback> callbacks) {
+            final ByteBuffer buffer = ByteBuffer.allocate(byteBuf.readableBytes());
+            buffer.limit(byteBuf.readableBytes());
+            byteBuf.getBytes(byteBuf.readerIndex(), buffer);
+            buffer.flip();
             buffers.add(buffer);
             flushTimes.incrementAndGet();
-         }
-
-         /* (non-Javadoc)
-          * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
-          */
-         @Override
-         public ByteBuffer newBuffer(final int minSize, final int maxSize) {
-            return ByteBuffer.allocate(maxSize);
          }
 
          @Override
@@ -87,7 +84,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
       }
 
-      TimedBuffer timedBuffer = new TimedBuffer(100, TimedBufferTest.ONE_SECOND_IN_NANOS, false);
+      TimedBuffer timedBuffer = new TimedBuffer(null, 100, TimedBufferTest.ONE_SECOND_IN_NANOS, false);
 
       timedBuffer.start();
 
@@ -135,18 +132,13 @@ public class TimedBufferTest extends ActiveMQTestBase {
       class TestObserver implements TimedBufferObserver {
 
          @Override
-         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
+         public void flushBuffer(final ByteBuf byteBuf, final boolean sync, final List<IOCallback> callbacks) {
+            final ByteBuffer buffer = ByteBuffer.allocate(byteBuf.readableBytes());
+            buffer.limit(byteBuf.readableBytes());
+            byteBuf.getBytes(byteBuf.readerIndex(), buffer);
             for (IOCallback callback : callbacks) {
                callback.done();
             }
-         }
-
-         /* (non-Javadoc)
-          * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
-          */
-         @Override
-         public ByteBuffer newBuffer(final int minSize, final int maxSize) {
-            return ByteBuffer.allocate(maxSize);
          }
 
          @Override
@@ -155,7 +147,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
       }
 
-      TimedBuffer timedBuffer = new TimedBuffer(100, TimedBufferTest.ONE_SECOND_IN_NANOS / 2, false);
+      TimedBuffer timedBuffer = new TimedBuffer(null, 100, TimedBufferTest.ONE_SECOND_IN_NANOS / 2, false);
 
       timedBuffer.start();
 
@@ -262,25 +254,16 @@ public class TimedBufferTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
+      public void flushBuffer(final ByteBuf byteBuf, final boolean sync, final List<IOCallback> callbacks) {
          assert sync;
-         assert dummyBuffer == buffer;
-         if (buffer.position() > 0) {
+         dummyBuffer.limit(byteBuf.readableBytes());
+         byteBuf.getBytes(byteBuf.readerIndex(), dummyBuffer);
+         if (dummyBuffer.position() > 0) {
             dummyBuffer.clear();
             flushes++;
             //ask the device to perform a flush
             flushRequest.lazySet(flushes);
          }
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
-       */
-      @Override
-      public ByteBuffer newBuffer(final int minSize, final int maxSize) {
-         assert maxSize <= dummyBuffer.capacity();
-         dummyBuffer.limit(minSize);
-         return dummyBuffer;
       }
 
       @Override
@@ -318,9 +301,10 @@ public class TimedBufferTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
+      public void flushBuffer(final ByteBuf byteBuf, final boolean sync, final List<IOCallback> callbacks) {
          assert sync;
-         assert dummyBuffer == buffer;
+         dummyBuffer.limit(byteBuf.readableBytes());
+         byteBuf.getBytes(byteBuf.readerIndex(), dummyBuffer);
          if (dummyBuffer.position() > 0) {
             dummyBuffer.clear();
             //emulate the flush time of a blocking device with a precise sleep
@@ -329,16 +313,6 @@ public class TimedBufferTest extends ActiveMQTestBase {
             //publish the number of flushes happened
             flushesDone.lazySet(flushes);
          }
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
-       */
-      @Override
-      public ByteBuffer newBuffer(final int minSize, final int maxSize) {
-         assert maxSize <= dummyBuffer.capacity();
-         dummyBuffer.limit(minSize);
-         return dummyBuffer;
       }
 
       @Override
@@ -393,7 +367,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
       //it is optimistic: the timeout and the blockingDeviceFlushTime are a perfect match
       final long deviceTime = timeout;
       final int bufferSize = Env.osPageSize();
-      final TimedBuffer timedBuffer = new TimedBuffer(bufferSize, (int) timeout, false);
+      final TimedBuffer timedBuffer = new TimedBuffer(null, bufferSize, (int) timeout, false);
       timedBuffer.start();
       try (NonBlockingObserver observer = new NonBlockingObserver(bufferSize, deviceTime)) {
          timedBuffer.setObserver(observer);
@@ -434,7 +408,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
       //it is optimistic: the timeout and the blockingDeviceFlushTime are a perfect match
       final long deviceTime = timeout;
       final int bufferSize = Env.osPageSize();
-      final TimedBuffer timedBuffer = new TimedBuffer(bufferSize, (int) timeout, false);
+      final TimedBuffer timedBuffer = new TimedBuffer(null, bufferSize, (int) timeout, false);
       timedBuffer.start();
       try (BlockingObserver observer = new BlockingObserver(bufferSize, deviceTime)) {
          timedBuffer.setObserver(observer);
@@ -470,17 +444,13 @@ public class TimedBufferTest extends ActiveMQTestBase {
       class TestObserver implements TimedBufferObserver {
 
          @Override
-         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
+         public void flushBuffer(final ByteBuf byteBuf, final boolean sync, final List<IOCallback> callbacks) {
+            final ByteBuffer buffer = ByteBuffer.allocate(byteBuf.readableBytes());
+            buffer.limit(byteBuf.readableBytes());
+            byteBuf.getBytes(byteBuf.readerIndex(), buffer);
+            buffer.flip();
             buffers.add(buffer);
             flushTimes.incrementAndGet();
-         }
-
-         /* (non-Javadoc)
-          * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
-          */
-         @Override
-         public ByteBuffer newBuffer(final int minSize, final int maxSize) {
-            return ByteBuffer.allocate(maxSize);
          }
 
          @Override
@@ -489,7 +459,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
       }
 
-      TimedBuffer timedBuffer = new TimedBuffer(100, TimedBufferTest.ONE_SECOND_IN_NANOS / 10, false);
+      TimedBuffer timedBuffer = new TimedBuffer(null, 100, TimedBufferTest.ONE_SECOND_IN_NANOS / 10, false);
 
       timedBuffer.start();
 

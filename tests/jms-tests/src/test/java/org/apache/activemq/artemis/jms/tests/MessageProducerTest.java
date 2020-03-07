@@ -30,8 +30,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -710,9 +709,7 @@ public class MessageProducerTest extends JMSTestCase {
    public void testSendToQueueOnlyWhenTopicWithSameAddress() throws Exception {
       SimpleString addr = SimpleString.toSimpleString("testAddr");
 
-      Set<RoutingType> supportedRoutingTypes = new HashSet<>();
-      supportedRoutingTypes.add(RoutingType.ANYCAST);
-      supportedRoutingTypes.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> supportedRoutingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
 
       servers.get(0).getActiveMQServer().addAddressInfo(new AddressInfo(addr, supportedRoutingTypes));
       servers.get(0).getActiveMQServer().createQueue(addr, RoutingType.ANYCAST, addr, null, false, false);

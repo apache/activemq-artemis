@@ -35,6 +35,11 @@ public final class FakePagingManager implements PagingManager {
    }
 
    @Override
+   public void checkMemory(Runnable runWhenAvailable) {
+
+   }
+
+   @Override
    public void addTransaction(final PageTransactionInfo pageTransaction) {
    }
 
@@ -113,6 +118,16 @@ public final class FakePagingManager implements PagingManager {
    @Override
    public boolean isDiskFull() {
       return false;
+   }
+
+   @Override
+   public long getDiskUsableSpace() {
+      return 0;
+   }
+
+   @Override
+   public long getDiskTotalSpace() {
+      return 0;
    }
 
    /*

@@ -47,18 +47,12 @@ under the License.
       </constructor-arg>
    </bean>
 
-   <bean id="EmbeddedJms" class="org.apache.activemq.artemis.integration.spring.SpringJmsBootstrap" init-method="start"
-         destroy-method="close">
+   <bean id="EmbeddedActiveMQ" class="org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ" init-method="start" destroy-method="stop">
        <property name="SecurityManager" ref="securityManager"/>
    </bean>
 
    <bean id="connectionFactory" class="org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory">
-      <constructor-arg value="false"/>
-      <constructor-arg>
-         <bean class="org.apache.activemq.artemis.api.core.TransportConfiguration">
-            <constructor-arg value="org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"/>
-         </bean>
-      </constructor-arg>
+      <constructor-arg value="vm://0"/>
    </bean>
 
    <bean id="exampleQueue" class="org.apache.activemq.artemis.jms.client.ActiveMQQueue">

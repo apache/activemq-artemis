@@ -189,10 +189,34 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     *
     * @throws Exception if an error occurs while creating the sender.
     */
-   public AmqpSender createSender(final String address, final SenderSettleMode senderMode, ReceiverSettleMode receiverMode) throws Exception {
+   public AmqpSender createSender(final String address,
+                                  final SenderSettleMode senderMode,
+                                  ReceiverSettleMode receiverMode) throws Exception {
+      return createSender(address, senderMode, receiverMode, AmqpSender.DEFAULT_OUTCOMES);
+   }
+
+   /**
+    * Create a sender instance using the given address
+    *
+    * @param address
+    *        the address to which the sender will produce its messages.
+    * @param senderSettlementMode
+    *        controls the settlement mode used by the created Sender
+    * @param receiverSettlementMode
+    *        controls the desired settlement mode used by the remote Receiver
+    * @param outcomes
+    *        specifies the outcomes supported by the sender
+    *
+    * @return a newly created sender that is ready for use.
+    *
+    * @throws Exception if an error occurs while creating the sender.
+    */
+   public AmqpSender createSender(final String address,
+                                  final SenderSettleMode senderMode,
+                                  ReceiverSettleMode receiverMode, final Symbol[] outcomes) throws Exception {
       checkClosed();
 
-      final AmqpSender sender = new AmqpSender(AmqpSession.this, address, getNextSenderId(), senderMode, receiverMode);
+      final AmqpSender sender = new AmqpSender(AmqpSession.this, address, getNextSenderId(), senderMode, receiverMode, outcomes);
       final ClientFuture request = new ClientFuture();
 
       connection.getScheduler().execute(new Runnable() {
@@ -306,6 +330,12 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       return createReceiver(address, selector, noLocal, false);
    }
 
+   public AmqpReceiver createReceiver(String address,
+                                      String selector,
+                                      boolean noLocal,
+                                      boolean presettle) throws Exception {
+      return createReceiver(address, selector, noLocal, presettle, null);
+   }
    /**
     * Create a receiver instance using the given address
     *
@@ -313,13 +343,15 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * @param selector  the JMS selector to use for the subscription
     * @param noLocal   should the subscription have messages from its connection filtered.
     * @param presettle should the receiver be created with a settled sender mode.
+    * @param properties to set on the receiver
     * @return a newly created receiver that is ready for use.
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(String address,
                                       String selector,
                                       boolean noLocal,
-                                      boolean presettle) throws Exception {
+                                      boolean presettle,
+                                      Map<Symbol, Object> properties) throws Exception {
       checkClosed();
 
       final ClientFuture request = new ClientFuture();
@@ -329,6 +361,9 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       receiver.setPresettle(presettle);
       if (selector != null && !selector.isEmpty()) {
          receiver.setSelector(selector);
+      }
+      if (properties != null && !properties.isEmpty()) {
+         receiver.setProperties(properties);
       }
 
       connection.getScheduler().execute(new Runnable() {

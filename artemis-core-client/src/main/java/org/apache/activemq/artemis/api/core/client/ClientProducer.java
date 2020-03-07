@@ -94,9 +94,9 @@ public interface ClientProducer extends AutoCloseable {
    /**
     * Sends a message to the specified address instead of the ClientProducer's address. <br>
     * <br>
-    * This message will be sent asynchronously.
+    * This message will be sent asynchronously as long as {@link ServerLocator#setConfirmationWindowSize(int)} was set.
     * <p>
-    * The handler will only get called if {@link ServerLocator#setConfirmationWindowSize(int) -1}.
+    * Notice that if no confirmationWindowsize is set
     *
     * @param address the address where the message will be sent
     * @param message the message to send

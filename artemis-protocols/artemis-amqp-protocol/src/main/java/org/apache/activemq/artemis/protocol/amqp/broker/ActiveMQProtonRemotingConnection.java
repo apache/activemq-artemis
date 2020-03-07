@@ -46,18 +46,21 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    public ActiveMQProtonRemotingConnection(ProtonProtocolManager manager,
                                            AMQPConnectionContext amqpConnection,
                                            Connection transportConnection,
-                                           Executor executor) {
-      super(transportConnection, executor);
+                                           Executor connectionExecutor) {
+      super(transportConnection, connectionExecutor);
       this.manager = manager;
       this.amqpConnection = amqpConnection;
-   }
-
-   public Executor getExecutor() {
-      return this.executor;
+      transportConnection.setProtocolConnection(this);
    }
 
    public ProtonProtocolManager getManager() {
       return manager;
+   }
+
+
+   @Override
+   public void scheduledFlush() {
+      amqpConnection.scheduledFlush();
    }
 
    /*
@@ -73,7 +76,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 
       //filter it like the other protocols
       if (!(me instanceof ActiveMQRemoteDisconnectException)) {
-         ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+         ActiveMQClientLogger.LOGGER.connectionFailureDetected(amqpConnection.getConnectionCallback().getTransportConnection().getRemoteAddress(), me.getMessage(), me.getType());
       }
 
       // Then call the listeners
@@ -115,7 +118,8 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       ErrorCondition errorCondition = new ErrorCondition();
       errorCondition.setCondition(AmqpSupport.CONNECTION_FORCED);
       amqpConnection.close(errorCondition);
-      getTransportConnection().close();
+      // There's no need to flush, amqpConnection.close() is calling flush
+      // as long this semantic is kept no need to flush here
    }
 
    /**
@@ -173,10 +177,16 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 
    @Override
    public String getClientID() {
-      return amqpConnection.getContainer();
+      return amqpConnection.getRemoteContainer();
    }
 
    public void open() {
       amqpConnection.open();
    }
+
+   @Override
+   public String getTransportLocalAddress() {
+      return getTransportConnection().getLocalAddress();
+   }
+
 }

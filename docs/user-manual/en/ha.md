@@ -32,31 +32,34 @@ Apache ActiveMQ Artemis supports two different strategies for backing up a serve
 *shared store* and *replication*. Which is configured via the
 `ha-policy` configuration element.
 
-    <ha-policy>
-      <replication/>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication/>
+</ha-policy>
+```
 
 
 or
 
-    <ha-policy>
-       <shared-store/>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <shared-store/>
+</ha-policy>
+```
 
 As well as these 2 strategies there is also a 3rd called `live-only`.
 This of course means there will be no Backup Strategy and is the default
 if none is provided, however this is used to configure `scale-down`
 which we will cover in a later chapter.
 
-> **Note**
+> **Note:**
 >
 > The `ha-policy` configurations replaces any current HA configuration
 > in the root of the `broker.xml` configuration. All old
 > configuration is now deprecated although best efforts will be made to
 > honour it if configured this way.
 
-> **Note**
+> **Note:**
 >
 > Only persistent message data will survive failover. Any non persistent
 > message data will not be available after failover.
@@ -67,30 +70,33 @@ element is configured how a server should behave within the cluster,
 either as a master (live), slave (backup) or colocated (both live and
 backup). This would look something like:
 
-    <ha-policy>
-       <replication>
-          <master/>
-       </replication>
-    </ha-policy>
-
-
-or
-
-    <ha-policy>
-       <shared-store/>
-          <slave/>
-       </shared-store/>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <replication>
+      <master/>
+   </replication>
+</ha-policy>
+```
 
 or
 
-    <ha-policy>
-       <replication>
-          <colocated/>
-       </replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <shared-store>
+      <slave/>
+   </shared-store>
+</ha-policy>
+```
 
+or
+
+```xml
+<ha-policy>
+   <replication>
+      <colocated/>
+   </replication>
+</ha-policy>
+```
 
 ### Data Replication
 
@@ -109,7 +115,7 @@ synchronizing the data with its live server. The time it will take for
 this to happen will depend on the amount of data to be synchronized and
 the connection speed.
 
-> **Note**
+> **Note:**
 >
 > In general, synchronization occurs in parallel with current network traffic so
 > this won't cause any blocking on current clients. However, there is a critical
@@ -131,37 +137,37 @@ Cluster Connection also defines how backup servers will find the remote
 live servers to pair with. Refer to [Clusters](clusters.md) for details on how this is done,
 and how to configure a cluster connection. Notice that:
 
--   Both live and backup servers must be part of the same cluster.
-    Notice that even a simple live/backup replicating pair will require
-    a cluster configuration.
+- Both live and backup servers must be part of the same cluster.
+  Notice that even a simple live/backup replicating pair will require
+  a cluster configuration.
 
--   Their cluster user and password must match.
+- Their cluster user and password must match.
 
 Within a cluster, there are two ways that a backup server will locate a
 live server to replicate from, these are:
 
--   `specifying a node group`. You can specify a group of live servers
-    that a backup server can connect to. This is done by configuring
-    `group-name` in either the `master` or the `slave` element of the
-    `broker.xml`. A Backup server will only connect to a
-    live server that shares the same node group name
+- `specifying a node group`. You can specify a group of live servers
+  that a backup server can connect to. This is done by configuring
+  `group-name` in either the `master` or the `slave` element of the
+  `broker.xml`. A Backup server will only connect to a
+  live server that shares the same node group name
 
--   `connecting to any live`. This will be the behaviour if `group-name`
-    is not configured allowing a backup server to connect to any live
-    server
+- `connecting to any live`. This will be the behaviour if `group-name`
+  is not configured allowing a backup server to connect to any live
+  server
 
-> **Note**
+> **Note:**
 >
 > A `group-name` example: suppose you have 5 live servers and 6 backup
 > servers:
 >
-> -   `live1`, `live2`, `live3`: with `group-name=fish`
+> - `live1`, `live2`, `live3`: with `group-name=fish`
 >
-> -   `live4`, `live5`: with `group-name=bird`
+> - `live4`, `live5`: with `group-name=bird`
 >
-> -   `backup1`, `backup2`, `backup3`, `backup4`: with `group-name=fish`
+> - `backup1`, `backup2`, `backup3`, `backup4`: with `group-name=fish`
 >
-> -   `backup5`, `backup6`: with `group-name=bird`
+> - `backup5`, `backup6`: with `group-name=bird`
 >
 > After joining the cluster the backups with `group-name=fish` will
 > search for live servers with `group-name=fish` to pair with. Since
@@ -177,7 +183,7 @@ until it finds a live server that has no current backup configured. If
 no live server is available it will wait until the cluster topology
 changes and repeats the process.
 
-> **Note**
+> **Note:**
 >
 > This is an important distinction from a shared-store backup, if a
 > backup starts and does not find a live server, the server will just
@@ -205,127 +211,73 @@ reconnecting with the live. This avoids a split brain situation.
 To configure the live and backup servers to be a replicating pair,
 configure the live server in ' `broker.xml` to have:
 
-    <ha-policy>
-       <replication>
-          <master/>
-       </replication>
-    </ha-policy>
-    .
-    <cluster-connections>
-       <cluster-connection name="my-cluster">
-          ...
-       </cluster-connection>
-    </cluster-connections>
-
+```xml
+<ha-policy>
+   <replication>
+      <master/>
+   </replication>
+</ha-policy>
+...
+<cluster-connections>
+   <cluster-connection name="my-cluster">
+      ...
+   </cluster-connection>
+</cluster-connections>
+```
 
 The backup server must be similarly configured but as a `slave`
 
-    <ha-policy>
-       <replication>
-          <slave/>
-       </replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <slave/>
+   </replication>
+</ha-policy>
+```
 
 #### All Replication Configuration
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Replication for `master`:
 
-<table summary="HA Replication Master Policy" border="1">
-    <colgroup>
-        <col/>
-        <col/>
-    </colgroup>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>`check-for-live-server`</td>
-        <td>Whether to check the cluster for a (live) server using our own server ID
-        when starting up. This option is only necessary for performing 'fail-back'
-        on replicating servers.</td>
-    </tr>
-    <tr>
-        <td>`cluster-name`</td>
-        <td>Name of the cluster configuration to use for replication. This setting is
-        only necessary if you configure multiple cluster connections. If configured then
-        the connector configuration of the cluster configuration with this name will be
-        used when connecting to the cluster to discover if a live server is already running,
-        see `check-for-live-server`. If unset then the default cluster connections configuration
-        is used (the first one configured).</td>
-    </tr>
-    <tr>
-        <td>`group-name`</td>
-        <td>If set, backup servers will only pair with live servers with matching group-name.</td>
-    </tr>
-    <tr>
-        <td>`initial-replication-sync-timeout`</td>
-        <td>The amount of time the replicating server will wait at the completion of the initial
-        replication process for the replica to acknowledge it has received all the necessary
-        data. The default is 30,000 milliseconds. <strong>Note</strong>: during this interval any
-        journal related operations will be blocked.</td>
-    </tr>
-    </tbody>
-</table>
+- `check-for-live-server`
+
+  Whether to check the cluster for a (live) server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers.
+
+- `cluster-name`
+
+  Name of the cluster configuration to use for replication. This setting is only necessary if you configure multiple cluster connections. If configured then the connector configuration of the cluster configuration with this name will be used when connecting to the cluster to discover if a live server is already running, see `check-for-live-server`. If unset then the default cluster connections configuration is used (the first one configured).
+
+- `group-name`
+
+  If set, backup servers will only pair with live servers with matching group-name.
+
+- `initial-replication-sync-timeout`
+
+  The amount of time the replicating server will wait at the completion of the initial replication process for the replica to acknowledge it has received all the necessary data. The default is 30,000 milliseconds. **Note:** during this interval any journal related operations will be blocked.
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Replication for `slave`:
 
-<table summary="HA Replication Slave Policy" border="1">
-    <colgroup>
-        <col/>
-        <col/>
-    </colgroup>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>`cluster-name`</td>
-        <td>Name of the cluster configuration to use for replication.
-        This setting is only necessary if you configure multiple cluster
-        connections. If configured then the connector configuration of
-        the cluster configuration with this name will be used when
-        connecting to the cluster to discover if a live server is already
-        running, see `check-for-live-server`. If unset then the default
-        cluster connections configuration is used (the first one configured)</td>
-    </tr>
-    <tr>
-        <td>`group-name`</td>
-        <td>If set, backup servers will only pair with live servers with matching group-name</td>
-    </tr>
-    <tr>
-        <td>`max-saved-replicated-journals-size`</td>
-        <td>This specifies how many times a replicated backup server
-        can restart after moving its files on start. Once there are
-        this number of backup journal files the server will stop permanently
-        after if fails back.</td>
-    </tr>
-    <tr>
-        <td>`allow-failback`</td>
-        <td>Whether a server will automatically stop when a another places a
-        request to take over its place. The use case is when the backup has
-        failed over</td>
-    </tr>
-    <tr>
-        <td>`initial-replication-sync-timeout`</td>
-        <td>After failover and the slave has become live, this is
-        set on the new live server. It represents the amount of time
-        the replicating server will wait at the completion of the
-        initial replication process for the replica to acknowledge
-        it has received all the necessary data. The default is
-        30,000 milliseconds. <strong>Note</strong>: during this interval any
-        journal related operations will be blocked.</td>
-    </tr>
-    </tbody>
-</table>
+- `cluster-name`
+
+  Name of the cluster configuration to use for replication. This setting is only necessary if you configure multiple cluster connections. If configured then the connector configuration of the cluster configuration with this name will be used when connecting to the cluster to discover if a live server is already running, see `check-for-live-server`. If unset then the default cluster connections configuration is used (the first one configured)
+
+- `group-name`
+
+  If set, backup servers will only pair with live servers with matching group-name
+
+- `max-saved-replicated-journals-size`
+
+  This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back.
+
+- `allow-failback`
+
+  Whether a server will automatically stop when another places a request to take over its place. The use case is when the backup has failed over
+
+- `initial-replication-sync-timeout`
+
+  After failover and the slave has become live, this is set on the new live server. It represents the amount of time the replicating server will wait at the completion of the initial replication process for the replica to acknowledge it has received all the necessary data. The default is 30,000 milliseconds. **Note:** during this interval any journal related operations will be blocked.
 
 ### Shared Store
 
@@ -365,33 +317,35 @@ on amount of data).
 To configure the live and backup servers to share their store, configure
 id via the `ha-policy` configuration in `broker.xml`:
 
-    <ha-policy>
-       <shared-store>
-          <master/>
-       </shared-store>
-    </ha-policy>
-    .
-    <cluster-connections>
-       <cluster-connection name="my-cluster">
-    ...
-       </cluster-connection>
-    </cluster-connections>
-
+```xml
+<ha-policy>
+   <shared-store>
+      <master/>
+   </shared-store>
+</ha-policy>
+...
+<cluster-connections>
+   <cluster-connection name="my-cluster">
+      ...
+   </cluster-connection>
+</cluster-connections>
+```
 
 The backup server must also be configured as a backup.
 
-    <ha-policy>
-       <shared-store>
-          <slave/>
-       </shared-store>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <shared-store>
+      <slave/>
+   </shared-store>
+</ha-policy>
+```
 
 In order for live - backup groups to operate properly with a shared
 store, both servers must have configured the location of journal
 directory to point to the *same shared location* (as explained in [Configuring the message journal](persistence.md))
 
-> **Note**
+> **Note:**
 >
 > todo write something about GFS
 
@@ -408,18 +362,20 @@ duties, you may want to restart the live server and have clients fail
 back.
 
 In case of "shared disk", simply restart the original live server and
-kill the new live server by can do this by killing the process itself.
+kill the new live server. You can do this by killing the process itself.
 Alternatively you can set `allow-fail-back` to `true` on the slave
 config which will force the backup that has become live to automatically
 stop. This configuration would look like:
 
-    <ha-policy>
-       <shared-store>
-          <slave>
-             <allow-failback>true</allow-failback>
-          </slave>
-       </shared-store>
-    </ha-policy>
+```xml
+<ha-policy>
+   <shared-store>
+      <slave>
+         <allow-failback>true</allow-failback>
+      </slave>
+   </shared-store>
+</ha-policy>
+```
 
 In replication HA mode you need to set an extra property
 `check-for-live-server` to `true` in the `master` configuration. If set
@@ -435,13 +391,15 @@ and if there was if the server that took its duties is still running or
 not. To configure this option at your `broker.xml`
 configuration file as follows:
 
-    <ha-policy>
-       <replication>
-          <master>
-             <check-for-live-server>true</check-for-live-server>
-          <master>
-       </replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <master>
+         <check-for-live-server>true</check-for-live-server>
+      </master>
+   </replication>
+</ha-policy>
+```
 
 > **Warning**
 >
@@ -455,13 +413,15 @@ occur on normal server shutdown, to enable this set the following
 property to true in the `ha-policy` configuration on either the `master`
 or `slave` like so:
 
-    <ha-policy>
-       <shared-store>
-          <master>
-             <failover-on-shutdown>true</failover-on-shutdown>
-          </master>
-       </shared-store>
-    </ha-policy>
+```xml
+<ha-policy>
+   <shared-store>
+      <master>
+         <failover-on-shutdown>true</failover-on-shutdown>
+      </master>
+   </shared-store>
+</ha-policy>
+```
 
 By default this is set to false, if by some chance you have set this to
 false but still want to stop the server normally and cause failover then
@@ -472,80 +432,39 @@ server comes back up allowing the original live server to take over
 automatically by setting the following property in the
 `broker.xml` configuration file as follows:
 
-    <ha-policy>
-       <shared-store>
-          <slave>
-             <allow-failback>true</allow-failback>
-          </slave>
-       </shared-store>
-    </ha-policy>
+```xml
+<ha-policy>
+   <shared-store>
+      <slave>
+         <allow-failback>true</allow-failback>
+      </slave>
+   </shared-store>
+</ha-policy>
+```
 
 #### All Shared Store Configuration
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy shared store for `master`:
 
-<table summary="HA Shared Store Master Policy" border="1">
-    <colgroup>
-        <col/>
-        <col/>
-    </colgroup>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>`failover-on-server-shutdown`</td>
-        <td>If set to true then when this server is stopped
-        normally the backup will become live assuming failover.
-        If false then the backup server will remain passive.
-        Note that if false you want failover to occur the you
-        can use the the management API as explained at [Management](management.md)</td>
-    </tr>
-    <tr>
-        <td>`wait-for-activation`</td>
-        <td>If set to true then server startup will wait until it is activated.
-        If set to false then server startup will be done in the background.
-        Default is true.</td>
-    </tr>
-    </tbody>
-</table>
+- `failover-on-shutdown`
+
+  If set to true then when this server is stopped normally the backup will become live assuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md).
+
+- `wait-for-activation`
+
+  If set to true then server startup will wait until it is activated. If set to false then server startup will be done in the background. Default is true.
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Shared Store for `slave`:
 
-<table summary="HA Shared Store Slave Policy" border="1">
-    <colgroup>
-        <col/>
-        <col/>
-    </colgroup>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>`failover-on-server-shutdown`</td>
-        <td>In the case of a backup that has become live. then
-        when set to true then when this server is stopped normally
-        the backup will become liveassuming failover. If false then
-        the backup server will remain passive. Note that if false
-        you want failover to occur the you can use the the management
-        API as explained at [Management](management.md)</td>
-    </tr>
-    <tr>
-        <td>`allow-failback`</td>
-        <td>Whether a server will automatically stop when a another
-        places a request to take over its place. The use case is
-        when the backup has failed over.</td>
-    </tr>
-    </tbody>
-</table>
+- `failover-on-shutdown`
+
+  In the case of a backup that has become live. then when set to true then when this server is stopped normally the backup will become liveassuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md).
+
+- `allow-failback`
+
+  Whether a server will automatically stop when another places a request to take over its place. The use case is when the backup has failed over.
 
 #### Colocated Backup Servers
 
@@ -563,18 +482,20 @@ can evenly distribute backups around the cluster. This is configured via
 the `ha-policy` element in the `broker.xml` file like
 so:
 
-    <ha-policy>
-       <replication>
-          <colocated>
-             <request-backup>true</request-backup>
-             <max-backups>1</max-backups>
-             <backup-request-retries>-1</backup-request-retries>
-             <backup-request-retry-interval>5000</backup-request-retry-interval>
-             <master/>
-             <slave/>
-          </colocated>
-       <replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <colocated>
+         <request-backup>true</request-backup>
+         <max-backups>1</max-backups>
+         <backup-request-retries>-1</backup-request-retries>
+         <backup-request-retry-interval>5000</backup-request-retry-interval>
+         <master/>
+         <slave/>
+      </colocated>
+   </replication>
+</ha-policy>
+```
 
 
 the above example is configured to use replication, in this case the
@@ -589,10 +510,10 @@ If the HA Policy is colocated then connectors and acceptors will be
 inherited from the live server creating it and offset depending on the
 setting of `backup-port-offset` configuration element. If this is set to
 say 100 (which is the default) and a connector is using port 61616 then
-this will be set to 5545 for the first server created, 5645 for the
-second and so on.
+this will be set to 61716 for the first server created, 61816 for the
+second, and so on.
 
-> **Note**
+> **Note:**
 >
 > for INVM connectors and Acceptors the id will have
 > `colocated_backup_n` appended, where n is the backup server number.
@@ -601,18 +522,20 @@ second and so on.
 
 It may be that some of the Connectors configured are for external
 servers and hence should be excluded from the offset. for instance a
-Connector used by the cluster connection to do quorum voting for a
+connector used by the cluster connection to do quorum voting for a
 replicated backup server, these can be omitted from being offset by
 adding them to the `ha-policy` configuration like so:
 
-    <ha-policy>
-       <replication>
-          <colocated>
-             <excludes>
-                <connector-ref>remote-connector</connector-ref>
-             </excludes>
-    .........
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <colocated>
+         <excludes>
+            <connector-ref>remote-connector</connector-ref>
+         </excludes>
+.........
+</ha-policy>
+```
 
 
 #### Configuring Directories
@@ -625,40 +548,25 @@ creating server but have the new backups name appended.
 
 The following table lists all the `ha-policy` configuration elements for colocated policy:
 
-<table summary="HA Replication Colocation Policy" border="1">
-    <colgroup>
-        <col/>
-        <col/>
-    </colgroup>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>`request-backup`</td>
-        <td>If true then the server will request a backup on another node</td>
-    </tr>
-    <tr>
-        <td>`backup-request-retries`</td>
-        <td>How many times the live server will try to request a backup, -1 means for ever.</td>
-    </tr>
-    <tr>
-        <td>`backup-request-retry-interval`</td>
-        <td>How long to wait for retries between attempts to request a backup server.</td>
-    </tr>
-    <tr>
-        <td>`max-backups`</td>
-        <td>How many backups a live server can create</td>
-    </tr>
-    <tr>
-        <td>`backup-port-offset`</td>
-        <td>The offset to use for the Connectors and Acceptors when creating a new backup server.</td>
-    </tr>
-    </tbody>
-</table>
+- `request-backup`
+
+  If true then the server will request a backup on another node
+
+- `backup-request-retries`
+
+  How many times the live server will try to request a backup, -1 means for ever.
+
+- `backup-request-retry-interval`
+
+  How long to wait for retries between attempts to request a backup server.
+
+- `max-backups`
+
+  How many backups a live server can create
+
+- `backup-port-offset`
+
+  The offset to use for the Connectors and Acceptors when creating a new backup server.
 
 ### Scaling Down
 
@@ -684,15 +592,17 @@ so server 1 could have messages 1,3,5,7,9 and server 2 would have
 The configuration for a live server to scale down would be something
 like:
 
-    <ha-policy>
-       <live-only>
-          <scale-down>
-             <connectors>
-                <connector-ref>server1-connector</connector-ref>
-             </connectors>
-          </scale-down>
-       </live-only>
-    </ha-policy>
+```xml
+<ha-policy>
+   <live-only>
+      <scale-down>
+         <connectors>
+            <connector-ref>server1-connector</connector-ref>
+         </connectors>
+      </scale-down>
+   </live-only>
+</ha-policy>
+```
 
 
 In this instance the server is configured to use a specific connector to
@@ -701,14 +611,15 @@ connector is chosen, this is to make scale down fromm a backup server
 easy to configure. It is also possible to use discovery to scale down,
 this would look like:
 
-    <ha-policy>
-       <live-only>
-          <scale-down>
-             <discovery-group-ref discovery-group-name="my-discovery-group"/>
-          </scale-down>
-       </live-only>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <live-only>
+      <scale-down>
+         <discovery-group-ref discovery-group-name="my-discovery-group"/>
+      </scale-down>
+   </live-only>
+</ha-policy>
+```
 
 #### Scale Down with groups
 
@@ -716,15 +627,16 @@ It is also possible to configure servers to only scale down to servers
 that belong in the same group. This is done by configuring the group
 like so:
 
-    <ha-policy>
-       <live-only>
-          <scale-down>
-             ...
-             <group-name>my-group</group-name>
-          </scale-down>
-       </live-only>
-    </ha-policy>
-
+```xml
+<ha-policy>
+   <live-only>
+      <scale-down>
+         ...
+         <group-name>my-group</group-name>
+      </scale-down>
+   </live-only>
+</ha-policy>
+```
 
 In this scenario only servers that belong to the group `my-group` will
 be scaled down to
@@ -740,34 +652,36 @@ they will automatically be backed up by server and as live servers are
 shutdown, there messages are made available on another live server. A
 typical configuration would look like:
 
-    <ha-policy>
-       <replication>
-          <colocated>
-             <backup-request-retries>44</backup-request-retries>
-             <backup-request-retry-interval>33</backup-request-retry-interval>
-             <max-backups>3</max-backups>
-             <request-backup>false</request-backup>
-             <backup-port-offset>33</backup-port-offset>
-             <master>
-                <group-name>purple</group-name>
-                <check-for-live-server>true</check-for-live-server>
-                <cluster-name>abcdefg</cluster-name>
-             </master>
-             <slave>
-                <group-name>tiddles</group-name>
-                <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
-                <cluster-name>33rrrrr</cluster-name>
-                <restart-backup>false</restart-backup>
-                <scale-down>
-                   <!--a grouping of servers that can be scaled down to-->
-                   <group-name>boo!</group-name>
-                   <!--either a discovery group-->
-                   <discovery-group-ref discovery-group-name="wahey"/>
-                </scale-down>
-             </slave>
-          </colocated>
-       </replication>
-    </ha-policy>
+```xml
+<ha-policy>
+   <replication>
+      <colocated>
+         <backup-request-retries>44</backup-request-retries>
+         <backup-request-retry-interval>33</backup-request-retry-interval>
+         <max-backups>3</max-backups>
+         <request-backup>false</request-backup>
+         <backup-port-offset>33</backup-port-offset>
+         <master>
+            <group-name>purple</group-name>
+            <check-for-live-server>true</check-for-live-server>
+            <cluster-name>abcdefg</cluster-name>
+         </master>
+         <slave>
+            <group-name>tiddles</group-name>
+            <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
+            <cluster-name>33rrrrr</cluster-name>
+            <restart-backup>false</restart-backup>
+            <scale-down>
+               <!--a grouping of servers that can be scaled down to-->
+               <group-name>boo!</group-name>
+               <!--either a discovery group-->
+               <discovery-group-ref discovery-group-name="wahey"/>
+            </scale-down>
+         </slave>
+      </colocated>
+   </replication>
+</ha-policy>
+```
 
 
 #### Scale Down and Clients
@@ -785,9 +699,9 @@ be high enough to deal with the time needed to scale down.
 
 Apache ActiveMQ Artemis defines two types of client failover:
 
--   Automatic client failover
+- Automatic client failover
 
--   Application-level client failover
+- Application-level client failover
 
 Apache ActiveMQ Artemis also provides 100% transparent automatic reattachment of
 connections to the same server (e.g. in case of transient network
@@ -941,7 +855,7 @@ response will come back. In this case it is not easy for the client to
 determine whether the transaction commit was actually processed on the
 live server before failure occurred.
 
-> **Note**
+> **Note:**
 >
 > If XA is being used either via JMS or through the core API then an
 > `XAException.XA_RETRY` is thrown. This is to inform Transaction
@@ -959,7 +873,7 @@ retried, duplicate detection will ensure that any durable messages
 resent in the transaction will be ignored on the server to prevent them
 getting sent more than once.
 
-> **Note**
+> **Note:**
 >
 > By catching the rollback exceptions and retrying, catching unblocked
 > calls and enabling duplicate detection, once and only once delivery
@@ -996,28 +910,13 @@ following:
 
 JMSException error codes
 
-<table summary="HA Replication Colocation Policy" border="1">
-    <colgroup>
-        <col/>
-        <col/>
-    </colgroup>
-    <thead>
-    <tr>
-        <th>Error code</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>FAILOVER</td>
-        <td>Failover has occurred and we have successfully reattached or reconnected.</td>
-    </tr>
-    <tr>
-        <td>DISCONNECT</td>
-        <td>No failover has occurred and we are disconnected.</td>
-    </tr>
-    </tbody>
-</table>
+- `FAILOVER`
+
+  Failover has occurred and we have successfully reattached or reconnected.
+
+- `DISCONNECT`
+
+  No failover has occurred and we are disconnected.
 
 ### Application-Level Failover
 
@@ -1034,7 +933,7 @@ connection failure is detected. In your `ExceptionListener`, you would
 close your old JMS connections, potentially look up new connection
 factory instances from JNDI and creating new connections.
 
-For a working example of application-level failover, please see [the examples](examples.md) chapter.
+For a working example of application-level failover, please see [the Application-Layer Failover Example](examples.md#application-layer-failover).
 
 If you are using the core API, then the procedure is very similar: you
 would set a `FailureListener` on the core `ClientSession` instances.

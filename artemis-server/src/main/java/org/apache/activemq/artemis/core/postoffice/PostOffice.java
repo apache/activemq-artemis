@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.postoffice;
 
-import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,11 +24,13 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
@@ -57,14 +59,42 @@ public interface PostOffice extends ActiveMQComponent {
 
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 
+   AddressInfo removeAddressInfo(SimpleString address, boolean force) throws Exception;
+
    AddressInfo getAddressInfo(SimpleString address);
 
-   AddressInfo updateAddressInfo(SimpleString addressName, Collection<RoutingType> routingTypes) throws Exception;
+   AddressInfo updateAddressInfo(SimpleString addressName, EnumSet<RoutingType> routingTypes) throws Exception;
 
    QueueBinding updateQueue(SimpleString name,
                             RoutingType routingType,
+                            Filter filter,
                             Integer maxConsumers,
-                            Boolean purgeOnNoConsumers) throws Exception;
+                            Boolean purgeOnNoConsumers,
+                            Boolean exclusive,
+                            Boolean groupRebalance,
+                            Integer groupBuckets,
+                            SimpleString groupFirstKey,
+                            Boolean nonDestructive,
+                            Integer consumersBeforeDispatch,
+                            Long delayBeforeDispatch,
+                            SimpleString user,
+                            Boolean configurationManaged) throws Exception;
+
+   QueueBinding updateQueue(SimpleString name,
+                            RoutingType routingType,
+                            Filter filter,
+                            Integer maxConsumers,
+                            Boolean purgeOnNoConsumers,
+                            Boolean exclusive,
+                            Boolean groupRebalance,
+                            Integer groupBuckets,
+                            SimpleString groupFirstKey,
+                            Boolean nonDestructive,
+                            Integer consumersBeforeDispatch,
+                            Long delayBeforeDispatch,
+                            SimpleString user,
+                            Boolean configurationManaged,
+                            Long ringSize) throws Exception;
 
    List<Queue> listQueuesForAddress(SimpleString address) throws Exception;
 
@@ -94,6 +124,8 @@ public interface PostOffice extends ActiveMQComponent {
 
    Bindings getMatchingBindings(SimpleString address) throws Exception;
 
+   Bindings getDirectBindings(SimpleString address) throws Exception;
+
    Map<SimpleString, Binding> getAllBindings();
 
    SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
@@ -112,15 +144,35 @@ public interface PostOffice extends ActiveMQComponent {
                        boolean rejectDuplicates) throws Exception;
 
    RoutingStatus route(Message message,
+                       Transaction tx,
+                       boolean direct,
+                       boolean rejectDuplicates,
+                       Binding binding) throws Exception;
+
+   RoutingStatus route(Message message,
                        RoutingContext context,
                        boolean direct) throws Exception;
 
    RoutingStatus route(Message message,
                        RoutingContext context,
                        boolean direct,
-                       boolean rejectDuplicates) throws Exception;
+                       boolean rejectDuplicates,
+                       Binding binding) throws Exception;
 
-   MessageReference reroute(Message message, Queue queue, Transaction tx) throws Exception;
+   /**
+    * This method was renamed as reload, use the new method instead
+    * @param message
+    * @param queue
+    * @param tx
+    * @return
+    * @throws Exception
+    */
+   @Deprecated
+   default MessageReference reroute(Message message, Queue queue, Transaction tx) throws Exception {
+      return reload(message, queue, tx);
+   }
+
+   MessageReference reload(Message message, Queue queue, Transaction tx) throws Exception;
 
    Pair<RoutingContext, Message> redistribute(Message message,
                                                     Queue originatingQueue,
@@ -137,7 +189,11 @@ public interface PostOffice extends ActiveMQComponent {
    // we can't start expiry scanner until the system is load otherwise we may get weird races - https://issues.jboss.org/browse/HORNETQ-1142
    void startExpiryScanner();
 
+   void startAddressQueueScanner();
+
    boolean isAddressBound(SimpleString address) throws Exception;
 
    Set<SimpleString> getAddresses();
+
+   void updateMessageLoadBalancingTypeForAddress(SimpleString  address, MessageLoadBalancingType messageLoadBalancingType) throws Exception;
 }

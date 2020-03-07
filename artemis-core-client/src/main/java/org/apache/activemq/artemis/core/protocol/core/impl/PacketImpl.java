@@ -21,18 +21,28 @@ import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PacketImpl implements Packet {
    // Constants -------------------------------------------------------------------------
 
 
+   // 2.0.0
    public static final int ADDRESSING_CHANGE_VERSION = 129;
 
+   // 2.7.0
+   public static final int ARTEMIS_2_7_0_VERSION = 130;
+   public static final int ASYNC_RESPONSE_CHANGE_VERSION = ARTEMIS_2_7_0_VERSION;
+   public static final int CONSUMER_PRIORITY_CHANGE_VERSION = ARTEMIS_2_7_0_VERSION;
+   public static final int FQQN_CHANGE_VERSION = ARTEMIS_2_7_0_VERSION;
+
+
    public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
+   public static final SimpleString OLD_TEMP_QUEUE_PREFIX = new SimpleString("jms.tempqueue.");
    public static final SimpleString OLD_TOPIC_PREFIX = new SimpleString("jms.topic.");
+   public static final SimpleString OLD_TEMP_TOPIC_PREFIX = new SimpleString("jms.temptopic.");
 
    // The minimal size for all the packets, Common data for all the packets (look at
    // PacketImpl.encode)
@@ -267,6 +277,9 @@ public class PacketImpl implements Packet {
 
    public static final byte SESS_BINDINGQUERY_RESP_V4 = -15;
 
+   public static final byte FEDERATION_DOWNSTREAM_CONNECT = -16;
+
+
    // Static --------------------------------------------------------
 
    public PacketImpl(final byte type) {
@@ -305,28 +318,35 @@ public class PacketImpl implements Packet {
    }
 
    @Override
-   public ActiveMQBuffer encode(final RemotingConnection connection) {
+   public ActiveMQBuffer encode(final CoreRemotingConnection connection) {
       ActiveMQBuffer buffer =  createPacket(connection);
 
-      // The standard header fields
+      encodeHeader(buffer);
 
+      encodeRest(buffer, connection);
+
+      encodeSize(buffer);
+
+      return buffer;
+   }
+
+   protected void encodeHeader(ActiveMQBuffer buffer) {
+      // The standard header fields
       buffer.writeInt(0); // The length gets filled in at the end
       buffer.writeByte(type);
       buffer.writeLong(channelID);
+   }
 
-      encodeRest(buffer);
-
+   protected void encodeSize(ActiveMQBuffer buffer) {
       size = buffer.writerIndex();
 
       // The length doesn't include the actual length byte
       int len = size - DataConstants.SIZE_INT;
 
       buffer.setInt(0, len);
-
-      return buffer;
    }
 
-   protected ActiveMQBuffer createPacket(RemotingConnection connection) {
+   protected ActiveMQBuffer createPacket(CoreRemotingConnection connection) {
 
       int size = expectedEncodeSize();
 
@@ -346,7 +366,7 @@ public class PacketImpl implements Packet {
       size = buffer.readerIndex();
    }
 
-   protected ByteBuf copyMessageBuffer(ByteBuf buffer, int skipBytes) {
+   protected static ByteBuf copyMessageBuffer(ByteBuf buffer, int skipBytes) {
 
       ByteBuf newNettyBuffer = Unpooled.buffer(buffer.capacity() - PACKET_HEADERS_SIZE - skipBytes);
 
@@ -377,6 +397,10 @@ public class PacketImpl implements Packet {
    }
 
    public void encodeRest(final ActiveMQBuffer buffer) {
+   }
+
+   public void encodeRest(final ActiveMQBuffer buffer, final CoreRemotingConnection coreRemotingConnection) {
+      encodeRest(buffer);
    }
 
    public void decodeRest(final ActiveMQBuffer buffer) {
@@ -416,7 +440,7 @@ public class PacketImpl implements Packet {
    }
 
    protected String getParentString() {
-      return "PACKET(" + this.getClass().getSimpleName() + ")[type=" + type + ", channelID=" + channelID + ", packetObject=" + this.getClass().getSimpleName();
+      return "PACKET(" + this.getClass().getSimpleName() + ")[type=" + type + ", channelID=" + channelID + ", responseAsync=" + isResponseAsync() + ", requiresResponse=" + isRequiresResponse() + ", correlationID=" + getCorrelationID() + ", packetObject=" + this.getClass().getSimpleName();
    }
 
    private int stringEncodeSize(final String str) {
@@ -425,6 +449,25 @@ public class PacketImpl implements Packet {
 
    protected int nullableStringEncodeSize(final String str) {
       return DataConstants.SIZE_BOOLEAN + (str != null ? stringEncodeSize(str) : 0);
+   }
+
+   @Override
+   public boolean isRequiresResponse() {
+      return false;
+   }
+
+   @Override
+   public boolean isResponseAsync() {
+      return false;
+   }
+
+   @Override
+   public long getCorrelationID() {
+      return -1;
+   }
+
+   @Override
+   public void setCorrelationID(long correlationID) {
    }
 
 

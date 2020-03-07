@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.transaction.xa.XAResource;
@@ -25,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -46,7 +51,11 @@ import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
@@ -57,10 +66,16 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -71,6 +86,8 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.apache.activemq.artemis.jms.client.ActiveMQConnection.JMS_SESSION_CLIENT_ID_PROPERTY;
 
 public class ActiveMQServerControlTest extends ManagementTestBase {
 
@@ -166,6 +183,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Object[] config = (Object[]) connectorData[0];
 
       Assert.assertEquals(connectorConfig.getName(), config[0]);
+   }
+
+   @Test
+   public void testIsReplicaSync() throws Exception {
+      Assert.assertFalse(createManagementControl().isReplicaSync());
    }
 
    @Test
@@ -315,6 +337,66 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testCreateAndDestroyQueue_5() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString name = RandomUtil.randomSimpleString();
+      boolean durable = RandomUtil.randomBoolean();
+      int maxConsumers = RandomUtil.randomInt();
+      boolean purgeOnNoConsumers = RandomUtil.randomBoolean();
+      boolean exclusive = RandomUtil.randomBoolean();
+      boolean groupRebalance = RandomUtil.randomBoolean();
+      int groupBuckets = 1;
+      String groupFirstKey = RandomUtil.randomSimpleString().toString();
+      boolean lastValue = false;
+      String lastValueKey = null;
+      boolean nonDestructive = RandomUtil.randomBoolean();
+      int consumersBeforeDispatch = RandomUtil.randomInt();
+      long delayBeforeDispatch = RandomUtil.randomLong();
+      boolean autoDelete = RandomUtil.randomBoolean();
+      long autoDeleteDelay = RandomUtil.randomLong();
+      long autoDeleteMessageCount = RandomUtil.randomLong();
+      boolean autoCreateAddress = true;
+      long ringSize = RandomUtil.randomLong();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createQueue(address.toString(), RoutingType.ANYCAST.toString(), name.toString(), null, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
+
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
+      Assert.assertEquals(address.toString(), queueControl.getAddress());
+      Assert.assertEquals(name.toString(), queueControl.getName());
+      Assert.assertNull(queueControl.getFilter());
+      Assert.assertEquals(durable, queueControl.isDurable());
+      Assert.assertEquals(maxConsumers, queueControl.getMaxConsumers());
+      Assert.assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
+      Assert.assertEquals(false, queueControl.isTemporary());
+      Assert.assertEquals(exclusive, queueControl.isExclusive());
+//      Assert.assertEquals(groupRebalance, queueControl.getGroupRebalance());
+//      Assert.assertEquals(groupBuckets, queueControl.getGroupBuckets());
+//      Assert.assertEquals(groupFirstKey, queueControl.getGroupFirstKey());
+      Assert.assertEquals(lastValue, queueControl.isLastValue());
+//      Assert.assertEquals(lastValueKey, queueControl.getLastValueKey());
+//      Assert.assertEquals(nonDestructive, queueControl.isNonDestructive());
+//      Assert.assertEquals(consumersBeforeDispatch, queueControl.getConsumersBeforeDispatch());
+//      Assert.assertEquals(delayBeforeDispatch, queueControl.getDelayBeforeDispatch());
+//      Assert.assertEquals(autoDelete, queueControl.isAutoDelete());
+//      Assert.assertEquals(autoDeleteDelay, queueControl.getAutoDeleteDelay());
+//      Assert.assertEquals(autoDeleteMessageCount, queueControl.autoDeleteMessageCount());
+      Assert.assertEquals(ringSize, queueControl.getRingSize());
+
+      checkResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
+      AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
+      Assert.assertEquals(address.toString(), addressControl.getAddress());
+
+      serverControl.destroyQueue(name.toString(), true, true);
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
+   }
+
+   @Test
    public void testCreateAndDestroyQueueClosingConsumers() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -443,6 +525,27 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       serverControl.destroyQueue(multicastName.toString());
       Assert.assertFalse(ActiveMQServerControlTest.contains(anycastName.toString(), serverControl.getQueueNames()));
       Assert.assertFalse(ActiveMQServerControlTest.contains(multicastName.toString(), serverControl.getQueueNames()));
+   }
+
+   @Test
+   public void testGetClusterConnectionNames() throws Exception {
+      String clusterConnection1 = RandomUtil.randomString();
+      String clusterConnection2 = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      Assert.assertFalse(ActiveMQServerControlTest.contains(clusterConnection1, serverControl.getClusterConnectionNames()));
+      Assert.assertFalse(ActiveMQServerControlTest.contains(clusterConnection2, serverControl.getClusterConnectionNames()));
+
+      server.stop();
+      server
+         .getConfiguration()
+         .addClusterConfiguration(new ClusterConnectionConfiguration().setName(clusterConnection1).setConnectorName(connectorConfig.getName()))
+         .addClusterConfiguration(new ClusterConnectionConfiguration().setName(clusterConnection2).setConnectorName(connectorConfig.getName()));
+      server.start();
+
+      Assert.assertTrue(ActiveMQServerControlTest.contains(clusterConnection1, serverControl.getClusterConnectionNames()));
+      Assert.assertTrue(ActiveMQServerControlTest.contains(clusterConnection2, serverControl.getClusterConnectionNames()));
    }
 
    @Test
@@ -619,23 +722,164 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String addressFullMessagePolicy = "PAGE";
       long slowConsumerThreshold = 5;
       long slowConsumerCheckPeriod = 10;
-      String slowConsumerPolicy = SlowConsumerPolicy.KILL.toString();
-      boolean autoCreateJmsQueues = false;
-      boolean autoDeleteJmsQueues = false;
-      boolean autoCreateJmsTopics = false;
-      boolean autoDeleteJmsTopics = false;
+      String slowConsumerPolicy = SlowConsumerPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
+      boolean autoCreateJmsQueues = RandomUtil.randomBoolean();
+      boolean autoDeleteJmsQueues = RandomUtil.randomBoolean();
+      boolean autoCreateJmsTopics = RandomUtil.randomBoolean();
+      boolean autoDeleteJmsTopics = RandomUtil.randomBoolean();
+      boolean autoCreateQueues = RandomUtil.randomBoolean();
+      boolean autoDeleteQueues = RandomUtil.randomBoolean();
+      boolean autoCreateAddresses = RandomUtil.randomBoolean();
+      boolean autoDeleteAddresses = RandomUtil.randomBoolean();
+      String configDeleteQueues = DeletionPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
+      String configDeleteAddresses = DeletionPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
+      long maxSizeBytesRejectThreshold = RandomUtil.randomPositiveLong();
+      String defaultLastValueKey = RandomUtil.randomString();
+      boolean defaultNonDestructive = RandomUtil.randomBoolean();
+      boolean defaultExclusiveQueue = RandomUtil.randomBoolean();
+      boolean defaultGroupRebalance = RandomUtil.randomBoolean();
+      int defaultGroupBuckets = RandomUtil.randomPositiveInt();
+      String defaultGroupFirstKey = RandomUtil.randomString();
+      int defaultMaxConsumers = RandomUtil.randomPositiveInt();
+      boolean defaultPurgeOnNoConsumers = RandomUtil.randomBoolean();
+      int defaultConsumersBeforeDispatch = RandomUtil.randomPositiveInt();
+      long defaultDelayBeforeDispatch = RandomUtil.randomPositiveLong();
+      String defaultQueueRoutingType = RoutingType.getType((byte) (RandomUtil.randomPositiveInt() % 2)).toString();
+      String defaultAddressRoutingType = RoutingType.getType((byte) (RandomUtil.randomPositiveInt() % 2)).toString();
+      int defaultConsumerWindowSize = RandomUtil.randomPositiveInt();
+      long defaultRingSize = RandomUtil.randomPositiveLong();
+      boolean autoDeleteCreatedQueues = RandomUtil.randomBoolean();
+      long autoDeleteQueuesDelay = RandomUtil.randomPositiveLong();
+      long autoDeleteQueuesMessageCount = RandomUtil.randomPositiveLong();
+      long autoDeleteAddressesDelay = RandomUtil.randomPositiveLong();
+      double redeliveryCollisionAvoidanceFactor = RandomUtil.randomDouble();
+      long retroactiveMessageCount = RandomUtil.randomPositiveLong();
+      boolean autoCreateDeadLetterResources = RandomUtil.randomBoolean();
+      String deadLetterQueuePrefix = RandomUtil.randomString();
+      String deadLetterQueueSuffix = RandomUtil.randomString();
+      boolean autoCreateExpiryResources = RandomUtil.randomBoolean();
+      String expiryQueuePrefix = RandomUtil.randomString();
+      String expiryQueueSuffix = RandomUtil.randomString();
 
-      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
+      serverControl.addAddressSettings(addressMatch,
+                                       DLA,
+                                       expiryAddress,
+                                       expiryDelay,
+                                       lastValueQueue,
+                                       deliveryAttempts,
+                                       maxSizeBytes,
+                                       pageSizeBytes,
+                                       pageMaxCacheSize,
+                                       redeliveryDelay,
+                                       redeliveryMultiplier,
+                                       maxRedeliveryDelay,
+                                       redistributionDelay,
+                                       sendToDLAOnNoRoute,
+                                       addressFullMessagePolicy,
+                                       slowConsumerThreshold,
+                                       slowConsumerCheckPeriod,
+                                       slowConsumerPolicy,
+                                       autoCreateJmsQueues,
+                                       autoDeleteJmsQueues,
+                                       autoCreateJmsTopics,
+                                       autoDeleteJmsTopics,
+                                       autoCreateQueues,
+                                       autoDeleteQueues,
+                                       autoCreateAddresses,
+                                       autoDeleteAddresses,
+                                       configDeleteQueues,
+                                       configDeleteAddresses,
+                                       maxSizeBytesRejectThreshold,
+                                       defaultLastValueKey,
+                                       defaultNonDestructive,
+                                       defaultExclusiveQueue,
+                                       defaultGroupRebalance,
+                                       defaultGroupBuckets,
+                                       defaultGroupFirstKey,
+                                       defaultMaxConsumers,
+                                       defaultPurgeOnNoConsumers,
+                                       defaultConsumersBeforeDispatch,
+                                       defaultDelayBeforeDispatch,
+                                       defaultQueueRoutingType,
+                                       defaultAddressRoutingType,
+                                       defaultConsumerWindowSize,
+                                       defaultRingSize,
+                                       autoDeleteCreatedQueues,
+                                       autoDeleteQueuesDelay,
+                                       autoDeleteQueuesMessageCount,
+                                       autoDeleteAddressesDelay,
+                                       redeliveryCollisionAvoidanceFactor,
+                                       retroactiveMessageCount,
+                                       autoCreateDeadLetterResources,
+                                       deadLetterQueuePrefix,
+                                       deadLetterQueueSuffix,
+                                       autoCreateExpiryResources,
+                                       expiryQueuePrefix,
+                                       expiryQueueSuffix);
 
       boolean ex = false;
       try {
-         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, 100, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
+         serverControl.addAddressSettings(addressMatch,
+                                          DLA,
+                                          expiryAddress,
+                                          expiryDelay,
+                                          lastValueQueue,
+                                          deliveryAttempts,
+                                          100,
+                                          1000,
+                                          pageMaxCacheSize,
+                                          redeliveryDelay,
+                                          redeliveryMultiplier,
+                                          maxRedeliveryDelay,
+                                          redistributionDelay,
+                                          sendToDLAOnNoRoute,
+                                          addressFullMessagePolicy,
+                                          slowConsumerThreshold,
+                                          slowConsumerCheckPeriod,
+                                          slowConsumerPolicy,
+                                          autoCreateJmsQueues,
+                                          autoDeleteJmsQueues,
+                                          autoCreateJmsTopics,
+                                          autoDeleteJmsTopics,
+                                          autoCreateQueues,
+                                          autoDeleteQueues,
+                                          autoCreateAddresses,
+                                          autoDeleteAddresses,
+                                          configDeleteQueues,
+                                          configDeleteAddresses,
+                                          maxSizeBytesRejectThreshold,
+                                          defaultLastValueKey,
+                                          defaultNonDestructive,
+                                          defaultExclusiveQueue,
+                                          defaultGroupRebalance,
+                                          defaultGroupBuckets,
+                                          defaultGroupFirstKey,
+                                          defaultMaxConsumers,
+                                          defaultPurgeOnNoConsumers,
+                                          defaultConsumersBeforeDispatch,
+                                          defaultDelayBeforeDispatch,
+                                          defaultQueueRoutingType,
+                                          defaultAddressRoutingType,
+                                          defaultConsumerWindowSize,
+                                          defaultRingSize,
+                                          autoDeleteCreatedQueues,
+                                          autoDeleteQueuesDelay,
+                                          autoDeleteQueuesMessageCount,
+                                          autoDeleteAddressesDelay,
+                                          redeliveryCollisionAvoidanceFactor,
+                                          retroactiveMessageCount,
+                                          autoCreateDeadLetterResources,
+                                          deadLetterQueuePrefix,
+                                          deadLetterQueueSuffix,
+                                          autoCreateExpiryResources,
+                                          expiryQueuePrefix,
+                                          expiryQueueSuffix);
       } catch (Exception expected) {
          ex = true;
       }
 
       assertTrue("Exception expected", ex);
-      //restartServer();
+      restartServer();
       serverControl = createManagementControl();
 
       String jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
@@ -659,10 +903,97 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-      //      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
+      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
+      assertEquals(autoCreateQueues, info.isAutoCreateQueues());
+      assertEquals(autoDeleteQueues, info.isAutoDeleteQueues());
+      assertEquals(autoCreateAddresses, info.isAutoCreateAddresses());
+      assertEquals(autoDeleteAddresses, info.isAutoDeleteAddresses());
+      assertEquals(configDeleteQueues, info.getConfigDeleteQueues());
+      assertEquals(configDeleteAddresses, info.getConfigDeleteAddresses());
+      assertEquals(maxSizeBytesRejectThreshold, info.getMaxSizeBytesRejectThreshold());
+      assertEquals(defaultLastValueKey, info.getDefaultLastValueKey());
+      assertEquals(defaultNonDestructive, info.isDefaultNonDestructive());
+      assertEquals(defaultExclusiveQueue, info.isDefaultExclusiveQueue());
+      assertEquals(defaultGroupRebalance, info.isDefaultGroupRebalance());
+      assertEquals(defaultGroupBuckets, info.getDefaultGroupBuckets());
+      assertEquals(defaultGroupFirstKey, info.getDefaultGroupFirstKey());
+      assertEquals(defaultMaxConsumers, info.getDefaultMaxConsumers());
+      assertEquals(defaultPurgeOnNoConsumers, info.isDefaultPurgeOnNoConsumers());
+      assertEquals(defaultConsumersBeforeDispatch, info.getDefaultConsumersBeforeDispatch());
+      assertEquals(defaultDelayBeforeDispatch, info.getDefaultDelayBeforeDispatch());
+      assertEquals(defaultQueueRoutingType, info.getDefaultQueueRoutingType());
+      assertEquals(defaultAddressRoutingType, info.getDefaultAddressRoutingType());
+      assertEquals(defaultConsumerWindowSize, info.getDefaultConsumerWindowSize());
+      assertEquals(defaultRingSize, info.getDefaultRingSize());
+      assertEquals(autoDeleteCreatedQueues, info.isAutoDeleteCreatedQueues());
+      assertEquals(autoDeleteQueuesDelay, info.getAutoDeleteQueuesDelay());
+      assertEquals(autoDeleteQueuesMessageCount, info.getAutoDeleteQueuesMessageCount());
+      assertEquals(autoDeleteAddressesDelay, info.getAutoDeleteAddressesDelay());
+      assertEquals(redeliveryCollisionAvoidanceFactor, info.getRedeliveryCollisionAvoidanceFactor(), 0);
+      assertEquals(retroactiveMessageCount, info.getRetroactiveMessageCount());
+      assertEquals(autoCreateDeadLetterResources, info.isAutoCreateDeadLetterResources());
+      assertEquals(deadLetterQueuePrefix, info.getDeadLetterQueuePrefix());
+      assertEquals(deadLetterQueueSuffix, info.getDeadLetterQueueSuffix());
+      assertEquals(autoCreateExpiryResources, info.isAutoCreateExpiryResources());
+      assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
+      assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
 
-      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -1, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
+      serverControl.addAddressSettings(addressMatch,
+                                       DLA,
+                                       expiryAddress,
+                                       expiryDelay,
+                                       lastValueQueue,
+                                       deliveryAttempts,
+                                       -1,
+                                       1000,
+                                       pageMaxCacheSize,
+                                       redeliveryDelay,
+                                       redeliveryMultiplier,
+                                       maxRedeliveryDelay,
+                                       redistributionDelay,
+                                       sendToDLAOnNoRoute,
+                                       addressFullMessagePolicy,
+                                       slowConsumerThreshold,
+                                       slowConsumerCheckPeriod,
+                                       slowConsumerPolicy,
+                                       autoCreateJmsQueues,
+                                       autoDeleteJmsQueues,
+                                       autoCreateJmsTopics,
+                                       autoDeleteJmsTopics,
+                                       autoCreateQueues,
+                                       autoDeleteQueues,
+                                       autoCreateAddresses,
+                                       autoDeleteAddresses,
+                                       configDeleteQueues,
+                                       configDeleteAddresses,
+                                       maxSizeBytesRejectThreshold,
+                                       defaultLastValueKey,
+                                       defaultNonDestructive,
+                                       defaultExclusiveQueue,
+                                       defaultGroupRebalance,
+                                       defaultGroupBuckets,
+                                       defaultGroupFirstKey,
+                                       defaultMaxConsumers,
+                                       defaultPurgeOnNoConsumers,
+                                       defaultConsumersBeforeDispatch,
+                                       defaultDelayBeforeDispatch,
+                                       defaultQueueRoutingType,
+                                       defaultAddressRoutingType,
+                                       defaultConsumerWindowSize,
+                                       defaultRingSize,
+                                       autoDeleteCreatedQueues,
+                                       autoDeleteQueuesDelay,
+                                       autoDeleteQueuesMessageCount,
+                                       autoDeleteAddressesDelay,
+                                       redeliveryCollisionAvoidanceFactor,
+                                       retroactiveMessageCount,
+                                       autoCreateDeadLetterResources,
+                                       deadLetterQueuePrefix,
+                                       deadLetterQueueSuffix,
+                                       autoCreateExpiryResources,
+                                       expiryQueuePrefix,
+                                       expiryQueueSuffix);
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
       info = AddressSettingsInfo.from(jsonString);
@@ -685,12 +1016,99 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-      //      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
+      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
+      assertEquals(autoCreateQueues, info.isAutoCreateQueues());
+      assertEquals(autoDeleteQueues, info.isAutoDeleteQueues());
+      assertEquals(autoCreateAddresses, info.isAutoCreateAddresses());
+      assertEquals(autoDeleteAddresses, info.isAutoDeleteAddresses());
+      assertEquals(configDeleteQueues, info.getConfigDeleteQueues());
+      assertEquals(configDeleteAddresses, info.getConfigDeleteAddresses());
+      assertEquals(maxSizeBytesRejectThreshold, info.getMaxSizeBytesRejectThreshold());
+      assertEquals(defaultLastValueKey, info.getDefaultLastValueKey());
+      assertEquals(defaultNonDestructive, info.isDefaultNonDestructive());
+      assertEquals(defaultExclusiveQueue, info.isDefaultExclusiveQueue());
+      assertEquals(defaultGroupRebalance, info.isDefaultGroupRebalance());
+      assertEquals(defaultGroupBuckets, info.getDefaultGroupBuckets());
+      assertEquals(defaultGroupFirstKey, info.getDefaultGroupFirstKey());
+      assertEquals(defaultMaxConsumers, info.getDefaultMaxConsumers());
+      assertEquals(defaultPurgeOnNoConsumers, info.isDefaultPurgeOnNoConsumers());
+      assertEquals(defaultConsumersBeforeDispatch, info.getDefaultConsumersBeforeDispatch());
+      assertEquals(defaultDelayBeforeDispatch, info.getDefaultDelayBeforeDispatch());
+      assertEquals(defaultQueueRoutingType, info.getDefaultQueueRoutingType());
+      assertEquals(defaultAddressRoutingType, info.getDefaultAddressRoutingType());
+      assertEquals(defaultConsumerWindowSize, info.getDefaultConsumerWindowSize());
+      assertEquals(defaultRingSize, info.getDefaultRingSize());
+      assertEquals(autoDeleteCreatedQueues, info.isAutoDeleteCreatedQueues());
+      assertEquals(autoDeleteQueuesDelay, info.getAutoDeleteQueuesDelay());
+      assertEquals(autoDeleteQueuesMessageCount, info.getAutoDeleteQueuesMessageCount());
+      assertEquals(autoDeleteAddressesDelay, info.getAutoDeleteAddressesDelay());
+      assertEquals(redeliveryCollisionAvoidanceFactor, info.getRedeliveryCollisionAvoidanceFactor(), 0);
+      assertEquals(retroactiveMessageCount, info.getRetroactiveMessageCount());
+      assertEquals(autoCreateDeadLetterResources, info.isAutoCreateDeadLetterResources());
+      assertEquals(deadLetterQueuePrefix, info.getDeadLetterQueuePrefix());
+      assertEquals(deadLetterQueueSuffix, info.getDeadLetterQueueSuffix());
+      assertEquals(autoCreateExpiryResources, info.isAutoCreateExpiryResources());
+      assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
+      assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
 
       ex = false;
       try {
-         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -2, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
+         serverControl.addAddressSettings(addressMatch,
+                                          DLA,
+                                          expiryAddress,
+                                          expiryDelay,
+                                          lastValueQueue,
+                                          deliveryAttempts,
+                                          -2,
+                                          1000,
+                                          pageMaxCacheSize,
+                                          redeliveryDelay,
+                                          redeliveryMultiplier,
+                                          maxRedeliveryDelay,
+                                          redistributionDelay,
+                                          sendToDLAOnNoRoute,
+                                          addressFullMessagePolicy,
+                                          slowConsumerThreshold,
+                                          slowConsumerCheckPeriod,
+                                          slowConsumerPolicy,
+                                          autoCreateJmsQueues,
+                                          autoDeleteJmsQueues,
+                                          autoCreateJmsTopics,
+                                          autoDeleteJmsTopics,
+                                          autoCreateQueues,
+                                          autoDeleteQueues,
+                                          autoCreateAddresses,
+                                          autoDeleteAddresses,
+                                          configDeleteQueues,
+                                          configDeleteAddresses,
+                                          maxSizeBytesRejectThreshold,
+                                          defaultLastValueKey,
+                                          defaultNonDestructive,
+                                          defaultExclusiveQueue,
+                                          defaultGroupRebalance,
+                                          defaultGroupBuckets,
+                                          defaultGroupFirstKey,
+                                          defaultMaxConsumers,
+                                          defaultPurgeOnNoConsumers,
+                                          defaultConsumersBeforeDispatch,
+                                          defaultDelayBeforeDispatch,
+                                          defaultQueueRoutingType,
+                                          defaultAddressRoutingType,
+                                          defaultConsumerWindowSize,
+                                          defaultRingSize,
+                                          autoDeleteCreatedQueues,
+                                          autoDeleteQueuesDelay,
+                                          autoDeleteQueuesMessageCount,
+                                          autoDeleteAddressesDelay,
+                                          redeliveryCollisionAvoidanceFactor,
+                                          retroactiveMessageCount,
+                                          autoCreateDeadLetterResources,
+                                          deadLetterQueuePrefix,
+                                          deadLetterQueueSuffix,
+                                          autoCreateExpiryResources,
+                                          expiryQueuePrefix,
+                                          expiryQueueSuffix);
       } catch (Exception e) {
          ex = true;
       }
@@ -903,12 +1321,29 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
+      // add another TX, but don't prepare it
+      ClientMessage m5 = createTextMessage(clientSession, "");
+      ClientMessage m6 = createTextMessage(clientSession, "");
+      ClientMessage m7 = createTextMessage(clientSession, "");
+      ClientMessage m8 = createTextMessage(clientSession, "");
+      m5.putStringProperty("m5", "m5");
+      m6.putStringProperty("m6", "m6");
+      m7.putStringProperty("m7", "m7");
+      m8.putStringProperty("m8", "m8");
+      Xid xid2 = newXID();
+      clientSession.start(xid2, XAResource.TMNOFLAGS);
+      clientProducer.send(m5);
+      clientProducer.send(m6);
+      clientProducer.send(m7);
+      clientProducer.send(m8);
+      clientSession.end(xid2, XAResource.TMSUCCESS);
+
       ActiveMQServerControl serverControl = createManagementControl();
 
       JsonArray jsonArray = JsonUtil.readJsonArray(serverControl.listProducersInfoAsJSON());
 
       assertEquals(1, jsonArray.size());
-      assertEquals(4, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
+      assertEquals(8, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
 
       clientSession.close();
       locator.close();
@@ -919,6 +1354,59 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(txDetails.matches(".*m2.*"));
       Assert.assertTrue(txDetails.matches(".*m3.*"));
       Assert.assertTrue(txDetails.matches(".*m4.*"));
+      Assert.assertFalse(txDetails.matches(".*m5.*"));
+      Assert.assertFalse(txDetails.matches(".*m6.*"));
+      Assert.assertFalse(txDetails.matches(".*m7.*"));
+      Assert.assertFalse(txDetails.matches(".*m8.*"));
+   }
+
+   @Test
+   public void testListPreparedTransactionDetailsOnConsumer() throws Exception {
+      SimpleString atestq = new SimpleString("BasicXaTestq");
+      Xid xid = newXID();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(locator);
+      ClientSession clientSession = csf.createSession(true, false, false);
+      clientSession.createQueue(atestq, atestq, null, true);
+
+      ClientMessage m1 = createTextMessage(clientSession, "");
+      ClientMessage m2 = createTextMessage(clientSession, "");
+      ClientMessage m3 = createTextMessage(clientSession, "");
+      ClientMessage m4 = createTextMessage(clientSession, "");
+      m1.putStringProperty("m1", "valuem1");
+      m2.putStringProperty("m2", "valuem2");
+      m3.putStringProperty("m3", "valuem3");
+      m4.putStringProperty("m4", "valuem4");
+      ClientProducer clientProducer = clientSession.createProducer(atestq);
+      clientSession.start(xid, XAResource.TMNOFLAGS);
+      clientProducer.send(m1);
+      clientProducer.send(m2);
+      clientProducer.send(m3);
+      clientProducer.send(m4);
+      clientSession.end(xid, XAResource.TMSUCCESS);
+      clientSession.prepare(xid);
+      clientSession.commit(xid, false);
+
+      ClientConsumer consumer = clientSession.createConsumer(atestq);
+      clientSession.start();
+      xid = newXID();
+      clientSession.start(xid, XAResource.TMNOFLAGS);
+      m1 = consumer.receive(1000);
+      Assert.assertNotNull(m1);
+      m1.acknowledge();
+      clientSession.end(xid, XAResource.TMSUCCESS);
+      clientSession.prepare(xid);
+      ActiveMQServerControl serverControl = createManagementControl();
+      String jsonOutput = serverControl.listPreparedTransactionDetailsAsJSON();
+
+      // just one message is pending, and it should be listed on the output
+      Assert.assertTrue(jsonOutput.lastIndexOf("valuem1") > 0);
+      Assert.assertTrue(jsonOutput.lastIndexOf("valuem2") < 0);
+      Assert.assertTrue(jsonOutput.lastIndexOf("valuem3") < 0);
+      Assert.assertTrue(jsonOutput.lastIndexOf("valuem4") < 0);
+      clientSession.close();
+      locator.close();
    }
 
    @Test
@@ -1427,7 +1915,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session1 = addClientSession(factory.createSession());
-      Thread.sleep(5);
       ClientSession session2 = addClientSession(factory.createSession("myUser", "myPass", false, false, false, false, 0));
       session2.createConsumer(queueName);
 
@@ -1436,15 +1923,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(2, array.size());
-      JsonObject first;
-      JsonObject second;
-      if (array.getJsonObject(0).getJsonNumber("creationTime").longValue() < array.getJsonObject(1).getJsonNumber("creationTime").longValue()) {
-         first = array.getJsonObject(0);
-         second = array.getJsonObject(1);
-      } else {
-         first = array.getJsonObject(1);
-         second = array.getJsonObject(0);
-      }
+      JsonObject first = lookupSession(array, session1);
+      JsonObject second = lookupSession(array, session2);
 
       Assert.assertTrue(first.getString("sessionID").length() > 0);
       Assert.assertEquals(((ClientSessionImpl) session1).getName(), first.getString("sessionID"));
@@ -1459,6 +1939,90 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals("myUser", second.getString("principal"));
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(1, second.getJsonNumber("consumerCount").longValue());
+   }
+
+   private JsonObject lookupSession(JsonArray jsonArray, ClientSession session) throws Exception {
+      String name = ((ClientSessionImpl)session).getName();
+
+      for (int i = 0; i < jsonArray.size(); i++) {
+         JsonObject obj = jsonArray.getJsonObject(i);
+         String sessionID = obj.getString("sessionID");
+         Assert.assertNotNull(sessionID);
+
+         if (sessionID.equals(name)) {
+            return obj;
+         }
+      }
+
+      Assert.fail("Sesison not found for session id " + name);
+
+      // not going to happen, fail will throw an exception but it won't compile without this
+      return null;
+   }
+
+   @Test
+   public void testListAllSessionsAsJSON() throws Exception {
+      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
+      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory factory = createSessionFactory(locator);
+      ServerLocator locator2 = createInVMNonHALocator();
+      ClientSessionFactory factory2 = createSessionFactory(locator2);
+      ClientSession session1 = addClientSession(factory.createSession());
+      Thread.sleep(5);
+      ClientSession session2 = addClientSession(factory2.createSession("myUser", "myPass", false, false, false, false, 0));
+      session2.addMetaData("foo", "bar");
+      session2.addMetaData("bar", "baz");
+      session2.createConsumer(queueName);
+
+      String jsonString = serverControl.listAllSessionsAsJSON();
+      IntegrationTestLogger.LOGGER.info(jsonString);
+      Assert.assertNotNull(jsonString);
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(2 + (usingCore() ? 1 : 0), array.size());
+      JsonObject first = lookupSession(array, session1);
+      JsonObject second = lookupSession(array, session2);
+
+      Assert.assertTrue(first.getString("sessionID").length() > 0);
+      Assert.assertEquals(((ClientSessionImpl) session1).getName(), first.getString("sessionID"));
+      Assert.assertTrue(first.getString("principal").length() > 0);
+      Assert.assertEquals("guest", first.getString("principal"));
+      Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
+      Assert.assertEquals(0, first.getJsonNumber("consumerCount").longValue());
+
+      Assert.assertTrue(second.getString("sessionID").length() > 0);
+      Assert.assertEquals(((ClientSessionImpl) session2).getName(), second.getString("sessionID"));
+      Assert.assertTrue(second.getString("principal").length() > 0);
+      Assert.assertEquals("myUser", second.getString("principal"));
+      Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
+      Assert.assertEquals(1, second.getJsonNumber("consumerCount").longValue());
+      Assert.assertEquals(second.getJsonObject("metadata").getJsonString("foo").getString(), "bar");
+      Assert.assertEquals(second.getJsonObject("metadata").getJsonString("bar").getString(), "baz");
+   }
+
+   @Test
+   public void testListAllSessionsAsJSONWithJMS() throws Exception {
+      SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
+      server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
+      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory("vm://0", "cf");
+      Connection con = cf.createConnection();
+      String clientID = UUID.randomUUID().toString();
+      con.setClientID(clientID);
+
+      String jsonString = serverControl.listAllSessionsAsJSON();
+      IntegrationTestLogger.LOGGER.info(jsonString);
+      Assert.assertNotNull(jsonString);
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(1 + (usingCore() ? 1 : 0), array.size());
+      JsonObject obj = lookupSession(array, ((ActiveMQConnection)con).getInitialSession());
+      Assert.assertEquals(obj.getJsonObject("metadata").getJsonString(ActiveMQConnection.JMS_SESSION_CLIENT_ID_PROPERTY).getString(), clientID);
+      Assert.assertNotNull(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY));
    }
 
    @Test
@@ -1508,6 +2072,144 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       array = (JsonArray) queuesAsJsonObject.get("data");
 
       Assert.assertEquals("number of queues returned from query", 1, array.size());
+      //check all field names are available
+      Assert.assertNotEquals("name", "", array.getJsonObject(0).getString("name"));
+      Assert.assertNotEquals("id", "", array.getJsonObject(0).getString("id"));
+      Assert.assertNotEquals("address", "", array.getJsonObject(0).getString("address"));
+      Assert.assertEquals("filter", "", array.getJsonObject(0).getString("filter"));
+      Assert.assertNotEquals("rate", "", array.getJsonObject(0).getString("rate"));
+      Assert.assertEquals("durable", "false", array.getJsonObject(0).getString("durable"));
+      Assert.assertEquals("paused", "false", array.getJsonObject(0).getString("paused"));
+      Assert.assertNotEquals("temporary", "", array.getJsonObject(0).getString("temporary"));
+      Assert.assertEquals("purgeOnNoConsumers", "false", array.getJsonObject(0).getString("purgeOnNoConsumers"));
+      Assert.assertNotEquals("consumerCount", "", array.getJsonObject(0).getString("consumerCount"));
+      Assert.assertEquals("maxConsumers", "-1", array.getJsonObject(0).getString("maxConsumers"));
+      Assert.assertEquals("autoCreated", "false", array.getJsonObject(0).getString("autoCreated"));
+      Assert.assertEquals("user", "", array.getJsonObject(0).getString("user"));
+      Assert.assertNotEquals("routingType", "", array.getJsonObject(0).getString("routingType"));
+      Assert.assertEquals("messagesAdded", "0", array.getJsonObject(0).getString("messagesAdded"));
+      Assert.assertEquals("messageCount", "0", array.getJsonObject(0).getString("messageCount"));
+      Assert.assertEquals("messagesAcked", "0", array.getJsonObject(0).getString("messagesAcked"));
+      Assert.assertEquals("deliveringCount", "0", array.getJsonObject(0).getString("deliveringCount"));
+      Assert.assertEquals("messagesKilled", "0", array.getJsonObject(0).getString("messagesKilled"));
+      String resultDirectDeliver = array.getJsonObject(0).getString("deliverDeliver");
+      // if there is a core consumer, the result here would be true (if directDeliver is supported).
+      // as for what we expect it's either true or false through management, we are not testing for directDeliver here, just
+      // if management works.
+      Assert.assertTrue(resultDirectDeliver.equals("true") || resultDirectDeliver.equals("false"));
+
+   }
+
+   @Test
+   public void testListQueuesOrder() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_1");
+      SimpleString queueName2 = new SimpleString("my_queue_2");
+      SimpleString queueName3 = new SimpleString("my_queue_3");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(queueName1, RoutingType.ANYCAST));
+      server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, new SimpleString("filter1"),null,true,
+                         false, false,20,false,false);
+      Thread.sleep(500);
+      server.addAddressInfo(new AddressInfo(queueName2, RoutingType.ANYCAST));
+      server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, new SimpleString("filter3"), null,true,
+                         false, true,40,false,false);
+      Thread.sleep(500);
+      server.addAddressInfo(new AddressInfo(queueName3, RoutingType.ANYCAST));
+      server.createQueue(queueName3, RoutingType.ANYCAST, queueName3,  new SimpleString("filter0"),null,true,
+                         false, false,10,false,false);
+
+      //test default order
+      String filterString = createJsonFilter("name", "CONTAINS", "my_queue");
+      String queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue1 default Order", queueName1.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue2 default Order", queueName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue3 default Order", queueName3.toString(), array.getJsonObject(2).getString("name"));
+
+      //test ordered by id desc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "id", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue3 ordered by id", queueName3.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue2 ordered by id", queueName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue1 ordered by id", queueName1.toString(), array.getJsonObject(2).getString("name"));
+
+      //ordered by address desc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue3 ordered by address", queueName3.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue2 ordered by address", queueName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue1 ordered by address", queueName1.toString(), array.getJsonObject(2).getString("name"));
+
+      //ordered by auto create desc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "autoCreated", "asc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("pos1 ordered by autocreate", "false", array.getJsonObject(0).getString("autoCreated"));
+      Assert.assertEquals("pos2 ordered by autocreate", "false", array.getJsonObject(1).getString("autoCreated"));
+      Assert.assertEquals("pos3 ordered by autocreate", "true", array.getJsonObject(2).getString("autoCreated"));
+
+      //ordered by filter desc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "filter", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue2 ordered by filter", queueName2.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue1 ordered by filter", queueName1.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue3 ordered by filter", queueName3.toString(), array.getJsonObject(2).getString("name"));
+
+      //ordered by max consumers asc
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "maxConsumers", "asc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 3, array.size());
+      Assert.assertEquals("queue3 ordered by filter", queueName3.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("queue1 ordered by filter", queueName1.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("queue2 ordered by filter", queueName2.toString(), array.getJsonObject(2).getString("name"));
+
+      //ordering between the pages
+      //page 1
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 1);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+      Assert.assertEquals("number of queues returned from query", 1, array.size());
+      Assert.assertEquals("queue3 ordered by page", queueName3.toString(), array.getJsonObject(0).getString("name"));
+
+      //page 2
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 2, 1);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+      Assert.assertEquals("number of queues returned from query", 1, array.size());
+      Assert.assertEquals("queue2 ordered by page", queueName2.toString(), array.getJsonObject(0).getString("name"));
+
+      //page 3
+      filterString = createJsonFilter("name", "CONTAINS", "my_queue", "address", "desc");
+      queuesAsJsonString = serverControl.listQueues(filterString, 3, 1);
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+      Assert.assertEquals("number of queues returned from query", 1, array.size());
+      Assert.assertEquals("queue1 ordered by page", queueName1.toString(), array.getJsonObject(0).getString("name"));
 
    }
 
@@ -1783,7 +2485,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       array = (JsonArray) addressesAsJsonObject.get("data");
 
       Assert.assertEquals("number of addresses returned from query", 1, array.size());
+      //check all field names
       Assert.assertEquals("address name check", addressName1.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertNotEquals("id", "", array.getJsonObject(0).getString("id"));
+      Assert.assertTrue("routingTypes", array.getJsonObject(0).getString("routingTypes").contains(RoutingType.ANYCAST.name()));
+      Assert.assertEquals("queueCount", "1", array.getJsonObject(0).getString("queueCount"));
 
       //test with empty filter - all addresses should be returned
       filterString = createJsonFilter("", "", "");
@@ -1817,6 +2523,61 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       Assert.assertEquals("number of addresses returned from query", 0, array.size());
 
+   }
+
+   @Test
+   public void testListAddressOrder() throws Exception {
+
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString queueName2 = new SimpleString("my_queue_two");
+      SimpleString queueName3 = new SimpleString("other_queue_three");
+      SimpleString queueName4 = new SimpleString("other_queue_four");
+
+      SimpleString addressName1 = new SimpleString("my_address_1");
+      SimpleString addressName2 = new SimpleString("my_address_2");
+      SimpleString addressName3 = new SimpleString("my_address_3");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+      server.addAddressInfo(new AddressInfo(addressName2, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(addressName3, RoutingType.ANYCAST));
+      server.createQueue(addressName3, RoutingType.ANYCAST, queueName3, null, false, false);
+      server.createQueue(addressName3, RoutingType.ANYCAST, queueName4, null, false, false);
+
+      //test default order
+      String filterString = createJsonFilter("name", "CONTAINS", "my");
+      String addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      JsonObject addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      JsonArray array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number addresses returned", 3, array.size());
+      Assert.assertEquals("address1 default order", addressName1.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("address2 default order", addressName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("address3 default order", addressName3.toString(), array.getJsonObject(2).getString("name"));
+
+      //test  ordered by name desc
+      filterString = createJsonFilter("name", "CONTAINS", "my", "name", "desc");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number addresses returned", 3, array.size());
+      Assert.assertEquals("address3 ordered by name", addressName3.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("address2 ordered by name", addressName2.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("address1 ordered by name", addressName1.toString(), array.getJsonObject(2).getString("name"));
+
+      //test  ordered by queue count asc
+      filterString = createJsonFilter("name", "CONTAINS", "my", "queueCount", "asc");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number addresses returned", 3, array.size());
+      Assert.assertEquals("address2 ordered by queue count", addressName2.toString(), array.getJsonObject(0).getString("name"));
+      Assert.assertEquals("address1 ordered by queue count", addressName1.toString(), array.getJsonObject(1).getString("name"));
+      Assert.assertEquals("address3 ordered by queue count", addressName3.toString(), array.getJsonObject(2).getString("name"));
    }
 
    @Test
@@ -1899,9 +2660,360 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          Assert.assertEquals("address name in consumer", addressName2.toString(), jsonConsumer.getString("address"));
          Assert.assertEquals("consumer protocol ", "CORE", jsonConsumer.getString("protocol"));
          Assert.assertEquals("queue type", "anycast", jsonConsumer.getString("queueType"));
-
+         Assert.assertNotEquals("id", "", jsonConsumer.getString("id"));
+         Assert.assertNotEquals("session", "", jsonConsumer.getString("session"));
+         Assert.assertEquals("clientID", "", jsonConsumer.getString("clientID"));
+         Assert.assertEquals("user", "", jsonConsumer.getString("user"));
+         Assert.assertNotEquals("localAddress", "", jsonConsumer.getString("localAddress"));
+         Assert.assertNotEquals("remoteAddress", "", jsonConsumer.getString("remoteAddress"));
+         Assert.assertNotEquals("creationTime", "", jsonConsumer.getString("creationTime"));
       }
 
+   }
+
+   @Test
+   public void testListConsumersOrder() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+
+         ClientSessionImpl session1 = (ClientSessionImpl) csf.createSession();
+         ClientSessionImpl session2 = (ClientSessionImpl) csf.createSession();
+         ClientSessionImpl session3 = (ClientSessionImpl) csf.createSession();
+
+         //sleep - test compares creationTimes
+         ClientConsumer consumer_s1 = session1.createConsumer(queueName1);
+         Thread.sleep(500);
+         ClientConsumer consumer_s2 = session2.createConsumer(queueName1);
+         Thread.sleep(500);
+         ClientConsumer consumer_s3 = session3.createConsumer(queueName1);
+
+         //test default Order
+         String filterString = createJsonFilter("queue", "EQUALS", queueName1.toString());
+         String consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
+         JsonObject consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         JsonArray array = (JsonArray) consumersAsJsonObject.get("data");
+         Assert.assertEquals("number of consumers returned from query", 3, array.size());
+
+         Assert.assertEquals("Consumer1 default order", session1.getName(), array.getJsonObject(0).getString("session"));
+         Assert.assertEquals("Consumer2 default order", session2.getName(), array.getJsonObject(1).getString("session"));
+         Assert.assertEquals("Consumer3 default order", session3.getName(), array.getJsonObject(2).getString("session"));
+
+         //test ordered by creationTime
+         filterString = createJsonFilter("queue", "EQUALS", queueName1.toString(), "creationTime", "desc");
+         consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
+         consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         array = (JsonArray) consumersAsJsonObject.get("data");
+         Assert.assertEquals("number of consumers returned from query", 3, array.size());
+
+         Assert.assertEquals("Consumer3 creation time", session3.getName(), array.getJsonObject(0).getString("session"));
+         Assert.assertEquals("Consumer2 creation time", session2.getName(), array.getJsonObject(1).getString("session"));
+         Assert.assertEquals("Consumer1 creation time", session1.getName(), array.getJsonObject(2).getString("session"));
+
+      }
+   }
+
+   @Test
+   public void testListSessions() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+
+         ClientSessionImpl session1 = (ClientSessionImpl) csf.createSession();
+         Thread.sleep(500);
+         ClientSessionImpl session2 = (ClientSessionImpl) csf.createSession();
+         Thread.sleep(500);
+         ClientSessionImpl session3 = (ClientSessionImpl) csf.createSession();
+         ClientConsumer consumer1_s1 = session1.createConsumer(queueName1);
+         ClientConsumer consumer2_s1 = session1.createConsumer(queueName1);
+
+         ClientConsumer consumer1_s2 = session2.createConsumer(queueName1);
+         ClientConsumer consumer2_s2 = session2.createConsumer(queueName1);
+         ClientConsumer consumer3_s2 = session2.createConsumer(queueName1);
+         ClientConsumer consumer4_s2 = session2.createConsumer(queueName1);
+
+         ClientConsumer consumer1_s3 = session3.createConsumer(queueName1);
+         ClientConsumer consumer2_s3 = session3.createConsumer(queueName1);
+         ClientConsumer consumer3_s3 = session3.createConsumer(queueName1);
+
+         String filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1");
+         String sessionsAsJsonString = serverControl.listSessions(filterString, 1, 50);
+         JsonObject sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
+         JsonArray array = (JsonArray) sessionsAsJsonObject.get("data");
+
+
+         Assert.assertEquals("number of sessions returned from query", 3, array.size());
+         JsonObject jsonSession = array.getJsonObject(0);
+
+         //check all fields
+         Assert.assertNotEquals("id", "", jsonSession.getString("id"));
+         Assert.assertEquals("user", "", jsonSession.getString("user"));
+         Assert.assertNotEquals("creationTime", "", jsonSession.getString("creationTime"));
+         Assert.assertEquals("consumerCount", 2, jsonSession.getInt("consumerCount"));
+         Assert.assertTrue("producerCount", 0 <= jsonSession.getInt("producerCount"));
+         Assert.assertNotEquals("connectionID", "", jsonSession.getString("connectionID"));
+
+         //check default order
+         Assert.assertEquals("session1 location", session1.getName(), array.getJsonObject(0).getString("id"));
+         Assert.assertEquals("session2 location", session2.getName(), array.getJsonObject(1).getString("id"));
+         Assert.assertEquals("session3 location", session3.getName(), array.getJsonObject(2).getString("id"));
+
+         //bring back session ordered by consumer count
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1", "consumerCount", "asc");
+         sessionsAsJsonString = serverControl.listSessions(filterString, 1, 50);
+         sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
+         array = (JsonArray) sessionsAsJsonObject.get("data");
+
+         Assert.assertTrue("number of sessions returned from query", 3 == array.size());
+         Assert.assertEquals("session1 ordered by consumer", session1.getName(), array.getJsonObject(0).getString("id"));
+         Assert.assertEquals("session3 ordered by consumer", session3.getName(), array.getJsonObject(1).getString("id"));
+         Assert.assertEquals("session2 ordered by consumer", session2.getName(), array.getJsonObject(2).getString("id"));
+
+         //bring back session ordered by consumer Count
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1", "consumerCount", "asc");
+         sessionsAsJsonString = serverControl.listSessions(filterString, 1, 50);
+         sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
+         array = (JsonArray) sessionsAsJsonObject.get("data");
+
+         Assert.assertTrue("number of sessions returned from query", 3 == array.size());
+         Assert.assertEquals("session1 ordered by consumer", session1.getName(), array.getJsonObject(0).getString("id"));
+         Assert.assertEquals("session3 ordered by consumer", session3.getName(), array.getJsonObject(1).getString("id"));
+         Assert.assertEquals("session2 ordered by consumer", session2.getName(), array.getJsonObject(2).getString("id"));
+
+         //bring back session ordered by creation time (desc)
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "1", "creationTime", "desc");
+         sessionsAsJsonString = serverControl.listSessions(filterString, 1, 50);
+         sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
+         array = (JsonArray) sessionsAsJsonObject.get("data");
+
+         Assert.assertTrue("number of sessions returned from query", 3 == array.size());
+         Assert.assertEquals("session3 ordered by creationTime", session3.getName(), array.getJsonObject(0).getString("id"));
+         Assert.assertEquals("session2 ordered by creationTime", session2.getName(), array.getJsonObject(1).getString("id"));
+         Assert.assertEquals("session1 ordered by creationTime", session1.getName(), array.getJsonObject(2).getString("id"));
+
+      }
+   }
+
+   @Test
+   public void testListConnections() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      ClientSessionFactoryImpl csf = null;
+      ClientSessionFactoryImpl csf2 = null;
+      ClientSessionFactoryImpl csf3 = null;
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator()) {
+
+         //sleep as test compares creationTime
+         csf = (ClientSessionFactoryImpl) createSessionFactory(locator);
+         Thread.sleep(500);
+         csf2 = (ClientSessionFactoryImpl) createSessionFactory(locator);
+         Thread.sleep(500);
+         csf3 = (ClientSessionFactoryImpl) createSessionFactory(locator);
+
+         ClientSession session1_c1 = csf.createSession("guest", "guest", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session2_c1 = csf.createSession("guest", "guest", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+
+         ClientSession session1_c2 = csf2.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session2_c2 = csf2.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session3_c2 = csf2.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session4_c2 = csf2.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+
+         ClientSession session1_c4 = csf3.createSession("myUser", "myPass", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session2_c4 = csf3.createSession("guest", "guest", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+         ClientSession session3_c4 = csf3.createSession("guest", "guest", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+
+         String filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1");
+         String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         System.err.println(connectionsAsJsonString);
+         JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         JsonObject jsonConnection = array.getJsonObject(0);
+
+         //check all fields
+         Assert.assertNotEquals("connectionID", "", jsonConnection.getString("connectionID"));
+         Assert.assertNotEquals("remoteAddress", "", jsonConnection.getString("remoteAddress"));
+         Assert.assertEquals("users", "guest", jsonConnection.getString("users"));
+         Assert.assertNotEquals("creationTime", "", jsonConnection.getString("creationTime"));
+         Assert.assertNotEquals("implementation", "", jsonConnection.getString("implementation"));
+         Assert.assertNotEquals("protocol", "", jsonConnection.getString("protocol"));
+         Assert.assertEquals("clientID", "", jsonConnection.getString("clientID"));
+         Assert.assertNotEquals("localAddress", "", jsonConnection.getString("localAddress"));
+         Assert.assertEquals("sessionCount", 2, jsonConnection.getInt("sessionCount"));
+
+         //check default order
+         Assert.assertEquals("connection1 default Order", csf.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
+         Assert.assertEquals("connection2 default Order", csf2.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
+         Assert.assertEquals("connection3 session Order", csf3.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+
+         //check order by users asc
+         filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "users", "asc");
+         connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         Assert.assertEquals("connection1 users Order", "guest", array.getJsonObject(0).getString("users"));
+         Assert.assertEquals("connection3 users Order", "guest,myUser", array.getJsonObject(1).getString("users"));
+         Assert.assertEquals("connection2 users Order", "myUser", array.getJsonObject(2).getString("users"));
+
+         //check order by users desc
+         filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "users", "desc");
+         connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         Assert.assertEquals("connection2 users Order", "myUser", array.getJsonObject(0).getString("users"));
+         Assert.assertEquals("connection3 users Order", "guest,myUser", array.getJsonObject(1).getString("users"));
+         Assert.assertEquals("connection1 users Order", "guest", array.getJsonObject(2).getString("users"));
+
+         //check order by session count desc
+         filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "sessionCount", "desc");
+         connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         Assert.assertEquals("connection2 session Order", csf2.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
+         Assert.assertEquals("connection3 session Order", csf3.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
+         Assert.assertEquals("connection1 session Order", csf.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+
+         //check order by creationTime desc
+         filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1", "creationTime", "desc");
+         connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 3, array.size());
+         Assert.assertEquals("connection3 creationTime Order", csf3.getConnection().getID(), array.getJsonObject(0).getString("connectionID"));
+         Assert.assertEquals("connection2 creationTime Order", csf2.getConnection().getID(), array.getJsonObject(1).getString("connectionID"));
+         Assert.assertEquals("connection1 creationTime Order", csf.getConnection().getID(), array.getJsonObject(2).getString("connectionID"));
+      } finally {
+         if (csf != null) {
+            csf.close();
+         }
+         if (csf2 != null) {
+            csf.close();
+         }
+         if (csf3 != null) {
+            csf.close();
+         }
+      }
+   }
+
+   @Test
+   public void testListConnectionsClientID() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      ClientSessionFactoryImpl csf = null;
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator()) {
+         //sleep as test compares creationTime
+         csf = (ClientSessionFactoryImpl) createSessionFactory(locator);
+         ClientSession session1_c1 = csf.createSession();
+         ClientSession session2_c1 = csf.createSession();
+         session1_c1.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
+         session1_c1.addMetaData(JMS_SESSION_CLIENT_ID_PROPERTY, "MYClientID");
+
+         String filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1");
+         String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);
+         JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+         JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
+
+         Assert.assertEquals("number of connections returned from query", 1, array.size());
+         JsonObject jsonConnection = array.getJsonObject(0);
+
+         //check all fields
+         Assert.assertEquals("clientID", "MYClientID", jsonConnection.getString("clientID"));
+      } finally {
+         if (csf != null) {
+            csf.close();
+         }
+      }
+   }
+
+   @Test
+   public void testListProducers() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+
+         ClientSession session1 = csf.createSession();
+         ClientSession session2 = csf.createSession();
+
+         ClientProducer producer1 = session1.createProducer(addressName1);
+         ClientProducer producer2 = session1.createProducer(addressName1);
+
+         //bring back all producers
+         String filterString = createJsonFilter("", "", "");
+         String producersAsJsonString = serverControl.listProducers(filterString, 1, 50);
+         JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
+         JsonArray array = (JsonArray) producersAsJsonObject.get("data");
+
+         Assert.assertTrue("number of producers returned from query", 2 <= array.size());
+
+         boolean foundElement = false;
+         for (int i = 0; i < array.size(); i++) {
+
+            JsonObject jsonSession = array.getJsonObject(i);
+            if (jsonSession.getString("address").equals("activemq.management")) {
+               continue;
+            }
+
+            foundElement = true;
+
+            //check all fields
+            Assert.assertNotEquals("id", "", jsonSession.getString("id"));
+            Assert.assertNotEquals("session", "", jsonSession.getString("session"));
+            Assert.assertEquals("clientID", "", jsonSession.getString("clientID"));
+            Assert.assertEquals("user", "", jsonSession.getString("user"));
+            Assert.assertNotEquals("protocol", "", jsonSession.getString("protocol"));
+            Assert.assertEquals("address", "", jsonSession.getString("address"));
+            Assert.assertNotEquals("localAddress", "", jsonSession.getString("localAddress"));
+            Assert.assertNotEquals("remoteAddress", "", jsonSession.getString("remoteAddress"));
+            Assert.assertNotEquals("creationTime", "", jsonSession.getString("creationTime"));
+         }
+
+
+         Assert.assertTrue("Valid session not found", foundElement);
+      }
    }
 
    @Test
@@ -1977,6 +3089,104 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(1, server.getConnectorsService().getConnectors().size());
       Assert.assertEquals("myconn2", managementControl.getConnectorServices()[0]);
    }
+
+   @Test
+   public void testCloseCOREclient() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString name = RandomUtil.randomSimpleString();
+      boolean durable = true;
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, durable, -1, false, false);
+
+      ServerLocator receiveLocator = createInVMNonHALocator();
+      ClientSessionFactory receiveCsf = createSessionFactory(receiveLocator);
+      ClientSession receiveClientSession = receiveCsf.createSession(true, false, false);
+      final ClientConsumer COREclient = receiveClientSession.createConsumer(name);
+
+      ServerSession ss = server.getSessions().iterator().next();
+      ServerConsumer sc = ss.getServerConsumers().iterator().next();
+
+      Assert.assertFalse(COREclient.isClosed());
+      serverControl.closeConsumerWithID(((ClientSessionImpl)receiveClientSession).getName(), Long.toString(sc.sequentialID()));
+      Wait.waitFor(() -> COREclient.isClosed());
+      Assert.assertTrue(COREclient.isClosed());
+   }
+
+   @Test
+   public void testCloseJMSclient() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Connection conn = cf.createConnection();
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Topic topic = ActiveMQJMSClient.createTopic("ConsumerTestTopic");
+
+      MessageConsumer JMSclient = session.createConsumer(topic, "test1");
+
+
+      long clientID = -1;
+      String sessionID = ((ClientSessionImpl)(((ActiveMQSession)session).getCoreSession())).getName();
+
+      Set<ServerSession> sessions = server.getSessions();
+      for (ServerSession sess : sessions) {
+         if (sess.getName().equals(sessionID.toString())) {
+            Set<ServerConsumer> serverConsumers = sess.getServerConsumers();
+            for (ServerConsumer serverConsumer : serverConsumers) {
+               clientID = serverConsumer.sequentialID();
+            }
+         }
+      }
+
+      Assert.assertFalse(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
+      serverControl.closeConsumerWithID(sessionID, Long.toString(clientID));
+      Wait.waitFor(() -> ((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
+      Assert.assertTrue(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
+   }
+
+   @Test
+   public void testAddUser() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.addUser("x", "x", "x", true);
+         fail();
+      } catch (Exception expected) {
+      }
+   }
+
+   @Test
+   public void testRemoveUser() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.removeUser("x");
+         fail();
+      } catch (Exception expected) {
+      }
+   }
+
+   @Test
+   public void testListUser() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.listUser("x");
+         fail();
+      } catch (Exception expected) {
+      }
+   }
+
+   @Test
+   public void testResetUser() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.resetUser("x","x","x");
+         fail();
+      } catch (Exception expected) {
+      }
+   }
+
 
    protected void scaleDown(ScaleDownHandler handler) throws Exception {
       SimpleString address = new SimpleString("testQueue");
@@ -2058,6 +3268,17 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       filterMap.put("field", fieldName);
       filterMap.put("operation", operationName);
       filterMap.put("value", value);
+      JsonObject jsonFilterObject = JsonUtil.toJsonObject(filterMap);
+      return jsonFilterObject.toString();
+   }
+
+   private String createJsonFilter(String fieldName, String operationName, String value,String sortColumn, String sortOrder) {
+      HashMap<String, Object> filterMap = new HashMap<>();
+      filterMap.put("field", fieldName);
+      filterMap.put("operation", operationName);
+      filterMap.put("value", value);
+      filterMap.put("sortColumn", sortColumn);
+      filterMap.put("sortOrder", sortOrder);
       JsonObject jsonFilterObject = JsonUtil.toJsonObject(filterMap);
       return jsonFilterObject.toString();
    }

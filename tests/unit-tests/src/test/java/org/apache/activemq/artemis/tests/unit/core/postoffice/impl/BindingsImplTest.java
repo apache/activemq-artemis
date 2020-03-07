@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
-import javax.transaction.xa.Xid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -33,10 +35,12 @@ import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
+import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
@@ -70,7 +74,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
    private void internalTest(final boolean route) throws Exception {
       final FakeBinding fake = new FakeBinding(new SimpleString("a"));
 
-      final Bindings bind = new BindingsImpl(null, null, null);
+      final Bindings bind = new BindingsImpl(null, null);
       bind.addBinding(fake);
       bind.addBinding(new FakeBinding(new SimpleString("a")));
       bind.addBinding(new FakeBinding(new SimpleString("a")));
@@ -132,6 +136,11 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       @Override
       public void commit() throws Exception {
+
+      }
+
+      @Override
+      public void rollbackIfPossible() {
 
       }
 
@@ -248,7 +257,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public RefsOperation createRefsOperation(Queue queue) {
+      public RefsOperation createRefsOperation(Queue queue, AckReason reason) {
          // TODO Auto-generated method stub
          return null;
       }
@@ -277,6 +286,17 @@ public class BindingsImplTest extends ActiveMQTestBase {
          return false;
       }
 
+      @Override
+      public boolean match(Map<String, String> map) {
+         return false;
+
+      }
+
+      @Override
+      public boolean match(Filterable filterable) {
+         return false;
+      }
+
    }
 
    private final class FakeBinding implements Binding {
@@ -292,6 +312,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       final SimpleString name;
+      final SimpleString uniqueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
 
       FakeBinding(final SimpleString name) {
          this.name = name;
@@ -363,7 +384,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
        */
       @Override
       public SimpleString getUniqueName() {
-         return null;
+         return uniqueName;
       }
 
       @Override

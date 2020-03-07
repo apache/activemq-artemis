@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+
 /**
  * Represents a property expression
  *
@@ -23,9 +25,13 @@ package org.apache.activemq.artemis.selector.filter;
  */
 public class PropertyExpression implements Expression {
 
-   private final String name;
+   private final SimpleString name;
 
    public PropertyExpression(String name) {
+      this(SimpleString.toSimpleString(name));
+   }
+
+   public PropertyExpression(SimpleString name) {
       this.name = name;
    }
 
@@ -35,7 +41,7 @@ public class PropertyExpression implements Expression {
    }
 
    public String getName() {
-      return name;
+      return name.toString();
    }
 
    /**
@@ -43,7 +49,7 @@ public class PropertyExpression implements Expression {
     */
    @Override
    public String toString() {
-      return name;
+      return name.toString();
    }
 
    /**

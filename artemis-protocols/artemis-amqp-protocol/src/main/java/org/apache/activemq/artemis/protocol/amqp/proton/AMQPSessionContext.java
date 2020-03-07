@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.impl.ServerProducerImpl;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -69,6 +70,8 @@ public class AMQPSessionContext extends ProtonInitializable {
          if (sessionSPI != null) {
             try {
                sessionSPI.init(this, connection.getSASLResult());
+            } catch (ActiveMQSecurityException e) {
+               throw e;
             } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
@@ -83,6 +86,8 @@ public class AMQPSessionContext extends ProtonInitializable {
    public void disconnect(Object consumer, String queueName) {
       ProtonServerSenderContext protonConsumer = senders.remove(consumer);
       if (protonConsumer != null) {
+         serverSenders.remove(protonConsumer.getBrokerConsumer());
+
          try {
             protonConsumer.close(false);
          } catch (ActiveMQAMQPException e) {
@@ -129,6 +134,7 @@ public class AMQPSessionContext extends ProtonInitializable {
          }
       }
       senders.clear();
+      serverSenders.clear();
       try {
          if (sessionSPI != null) {
             sessionSPI.close();
@@ -150,13 +156,11 @@ public class AMQPSessionContext extends ProtonInitializable {
       coordinator.setCapabilities(Symbol.getSymbol("amqp:local-transactions"), Symbol.getSymbol("amqp:multi-txns-per-ssn"), Symbol.getSymbol("amqp:multi-ssns-per-txn"));
 
       receiver.setContext(transactionHandler);
-      connection.lock();
-      try {
+      connection.runNow(() -> {
          receiver.open();
          receiver.flow(connection.getAmqpCredits());
-      } finally {
-         connection.unlock();
-      }
+         connection.flush();
+      });
    }
 
    public void addSender(Sender sender) throws Exception {
@@ -169,29 +173,27 @@ public class AMQPSessionContext extends ProtonInitializable {
          senders.put(sender, protonSender);
          serverSenders.put(protonSender.getBrokerConsumer(), protonSender);
          sender.setContext(protonSender);
-         connection.lock();
-         try {
+         connection.runNow(() -> {
             sender.open();
-         } finally {
-            connection.unlock();
-         }
+            connection.flush();
+         });
 
          protonSender.start();
       } catch (ActiveMQAMQPException e) {
          senders.remove(sender);
+         if (protonSender.getBrokerConsumer() != null) {
+            serverSenders.remove(protonSender.getBrokerConsumer());
+         }
          sender.setSource(null);
          sender.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-         connection.lock();
-         try {
+         connection.runNow(() -> {
             sender.close();
-         } finally {
-            connection.unlock();
-         }
+            connection.flush();
+         });
       }
    }
 
    public void removeSender(Sender sender) throws ActiveMQAMQPException {
-      senders.remove(sender);
       ProtonServerSenderContext senderRemoved = senders.remove(sender);
       if (senderRemoved != null) {
          serverSenders.remove(senderRemoved.getBrokerConsumer());
@@ -206,22 +208,26 @@ public class AMQPSessionContext extends ProtonInitializable {
          ServerProducer serverProducer = new ServerProducerImpl(receiver.getName(), "AMQP", receiver.getTarget().getAddress());
          sessionSPI.addProducer(serverProducer);
          receiver.setContext(protonReceiver);
-         connection.lock();
-         try {
+         connection.runNow(() -> {
             receiver.open();
-         } finally {
-            connection.unlock();
-         }
+            connection.flush();
+         });
       } catch (ActiveMQAMQPException e) {
          receivers.remove(receiver);
          receiver.setTarget(null);
          receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-         connection.lock();
-         try {
+         connection.runNow(() -> {
             receiver.close();
-         } finally {
-            connection.unlock();
-         }
+            connection.flush();
+         });
       }
+   }
+
+   public int getReceiverCount() {
+      return receivers.size();
+   }
+
+   public int getSenderCount() {
+      return senders.size();
    }
 }

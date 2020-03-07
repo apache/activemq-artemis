@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -40,13 +42,16 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();
    private final String backupGroupName;
+   private final long retryReplicationWait;
    private Queue<Pair<TransportConfiguration, TransportConfiguration>> liveConfigurations = new LinkedList<>();
+   private ArrayList<Pair<TransportConfiguration, TransportConfiguration>> triedConfigurations = new ArrayList<>();
 
    private String nodeID;
 
-   public NamedLiveNodeLocatorForReplication(String backupGroupName, SharedNothingBackupQuorum quorumManager) {
+   public NamedLiveNodeLocatorForReplication(String backupGroupName, SharedNothingBackupQuorum quorumManager, long retryReplicationWait) {
       super(quorumManager);
       this.backupGroupName = backupGroupName;
+      this.retryReplicationWait = retryReplicationWait;
    }
 
    @Override
@@ -64,7 +69,9 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
                   ConcurrentUtil.await(condition, timeout);
                } else {
                   while (liveConfigurations.size() == 0) {
-                     condition.await();
+                     condition.await(retryReplicationWait, TimeUnit.MILLISECONDS);
+                     liveConfigurations.addAll(triedConfigurations);
+                     triedConfigurations.clear();
                   }
                }
             } catch (InterruptedException e) {
@@ -112,7 +119,7 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
    public void notifyRegistrationFailed(boolean alreadyReplicating) {
       try {
          lock.lock();
-         liveConfigurations.poll();
+         triedConfigurations.add(liveConfigurations.poll());
          super.notifyRegistrationFailed(alreadyReplicating);
       } finally {
          lock.unlock();

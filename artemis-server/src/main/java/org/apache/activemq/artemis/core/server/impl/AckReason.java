@@ -18,5 +18,5 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 public enum AckReason {
-   KILLED, EXPIRED, NORMAL
+   KILLED, EXPIRED, NORMAL, REPLACED
 }

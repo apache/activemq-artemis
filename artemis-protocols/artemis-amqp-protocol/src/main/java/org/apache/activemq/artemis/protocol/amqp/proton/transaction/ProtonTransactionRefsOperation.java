@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -36,8 +37,8 @@ import org.apache.qpid.proton.engine.Delivery;
  */
 public class ProtonTransactionRefsOperation extends RefsOperation {
 
-   public ProtonTransactionRefsOperation(final Queue queue, StorageManager storageManager) {
-      super(queue, storageManager);
+   public ProtonTransactionRefsOperation(final Queue queue, AckReason reason, StorageManager storageManager) {
+      super(queue, reason, storageManager);
    }
 
    @Override

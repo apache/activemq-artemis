@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
 import org.apache.activemq.artemis.core.protocol.core.CommandConfirmationHandler;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.ResponseHandler;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -63,6 +64,9 @@ public final class ChannelImpl implements Channel {
        * cluster used for controlling nodes in a cluster remotely
        */
       CLUSTER(3),
+
+      FEDERATION(4),
+
       /**
        * Channels [0-9] are reserved for the system, user channels must be greater than that.
        */
@@ -95,6 +99,8 @@ public final class ChannelImpl implements Channel {
    private Packet response;
 
    private final java.util.Queue<Packet> resendCache;
+
+   private final ResponseCache responseAsyncCache;
 
    private int firstStoredCommandID;
 
@@ -138,8 +144,10 @@ public final class ChannelImpl implements Channel {
 
       if (confWindowSize != -1) {
          resendCache = new ConcurrentLinkedQueue<>();
+         responseAsyncCache = new ResponseCache();
       } else {
          resendCache = null;
+         responseAsyncCache = null;
       }
 
       this.interceptors = interceptors;
@@ -152,7 +160,7 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public boolean supports(final byte packetType) {
-      return supports(packetType, connection.getClientVersion());
+      return supports(packetType, connection.getChannelVersion());
    }
 
    @Override
@@ -211,7 +219,11 @@ public final class ChannelImpl implements Channel {
       lock.lock();
 
       try {
-         response = new ActiveMQExceptionMessage(ActiveMQClientMessageBundle.BUNDLE.unblockingACall(cause));
+         ActiveMQException activeMQException = ActiveMQClientMessageBundle.BUNDLE.unblockingACall(cause);
+         if (responseAsyncCache != null) {
+            responseAsyncCache.errorAll(activeMQException);
+         }
+         response = new ActiveMQExceptionMessage(activeMQException);
 
          sendCondition.signal();
       } finally {
@@ -244,6 +256,10 @@ public final class ChannelImpl implements Channel {
       this.transferring = transferring;
    }
 
+   protected ResponseCache getCache() {
+      return responseAsyncCache;
+   }
+
    /**
     * @param timeoutMsg message to log on blocking call failover timeout
     */
@@ -270,8 +286,12 @@ public final class ChannelImpl implements Channel {
       synchronized (sendLock) {
          packet.setChannelID(id);
 
+         if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+            packet.setCorrelationID(responseAsyncCache.nextCorrelationID());
+         }
+
          if (logger.isTraceEnabled()) {
-            logger.trace("Sending packet nonblocking " + packet + " on channelID=" + id);
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Sending packet nonblocking " + packet + " on channelID=" + id);
          }
 
          ActiveMQBuffer buffer = packet.encode(connection);
@@ -280,7 +300,7 @@ public final class ChannelImpl implements Channel {
 
          try {
             if (failingOver) {
-               waitForFailOver("timed-out waiting for fail-over condition on non-blocking send");
+               waitForFailOver("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " timed-out waiting for fail-over condition on non-blocking send");
             }
 
             // Sanity check
@@ -291,19 +311,41 @@ public final class ChannelImpl implements Channel {
             if (resendCache != null && packet.isRequiresConfirmations()) {
                addResendPacket(packet);
             }
+
          } finally {
             lock.unlock();
          }
 
          if (logger.isTraceEnabled()) {
-            logger.trace("Writing buffer for channelID=" + id);
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Writing buffer for channelID=" + id);
          }
 
          checkReconnectID(reconnectID);
 
+         //We do this outside the lock as ResponseCache is threadsafe and allows responses to come in,
+         //As the send could block if the response cache cannot add, preventing responses to be handled.
+         if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+            while (!responseAsyncCache.add(packet)) {
+               try {
+                  Thread.sleep(1);
+               } catch (Exception e) {
+                  // Ignore
+               }
+            }
+         }
+
          // The actual send must be outside the lock, or with OIO transport, the write can block if the tcp
          // buffer is full, preventing any incoming buffers being handled and blocking failover
-         connection.getTransportConnection().write(buffer, flush, batch);
+         try {
+            connection.getTransportConnection().write(buffer, flush, batch);
+         } catch (Throwable t) {
+            //If runtime exception, we must remove from the cache to avoid filling up the cache causing it to be full.
+            //The client would get still know about this as the exception bubbles up the call stack instead.
+            if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+               responseAsyncCache.remove(packet.getCorrelationID());
+            }
+            throw t;
+         }
          return true;
       }
    }
@@ -331,15 +373,24 @@ public final class ChannelImpl implements Channel {
       String interceptionResult = invokeInterceptors(packet, interceptors, connection);
 
       if (interceptionResult != null) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " interceptionResult=" + interceptionResult);
+         }
          // if we don't throw an exception here the client might not unblock
          throw ActiveMQClientMessageBundle.BUNDLE.interceptorRejectedPacket(interceptionResult);
       }
 
       if (closed) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " closed.");
+         }
          throw ActiveMQClientMessageBundle.BUNDLE.connectionDestroyed();
       }
 
       if (connection.getBlockingCallTimeout() == -1) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Cannot do a blocking call timeout on a server side connection");
+         }
          throw new IllegalStateException("Cannot do a blocking call timeout on a server side connection");
       }
 
@@ -354,7 +405,7 @@ public final class ChannelImpl implements Channel {
 
          try {
             if (failingOver) {
-               waitForFailOver("timed-out waiting for fail-over condition on blocking send");
+               waitForFailOver("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " timed-out waiting for fail-over condition on blocking send");
             }
 
             response = null;
@@ -366,7 +417,7 @@ public final class ChannelImpl implements Channel {
             checkReconnectID(reconnectID);
 
             if (logger.isTraceEnabled()) {
-               logger.trace("Sending blocking " + packet);
+               logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Sending blocking " + packet);
             }
 
             connection.getTransportConnection().write(buffer, false, false);
@@ -382,7 +433,7 @@ public final class ChannelImpl implements Channel {
                   throw new ActiveMQInterruptedException(e);
                }
 
-               if (response != null && response.getType() != PacketImpl.EXCEPTION && response.getType() != expectedPacket) {
+               if (response != null && response.getType() != PacketImpl.EXCEPTION && response.getType() != expectedPacket && !response.isResponseAsync()) {
                   ActiveMQClientLogger.LOGGER.packetOutOfOrder(response, new Exception("trace"));
                }
 
@@ -397,8 +448,15 @@ public final class ChannelImpl implements Channel {
                start = now;
             }
 
+            if (closed && toWait > 0 && response == null) {
+               Throwable cause = ActiveMQClientMessageBundle.BUNDLE.connectionDestroyed();
+               throw ActiveMQClientMessageBundle.BUNDLE.unblockingACall(cause);
+            }
+
             if (response == null) {
-               throw ActiveMQClientMessageBundle.BUNDLE.timedOutSendingPacket(connection.getBlockingCallTimeout(), packet.getType());
+               ActiveMQException e = ActiveMQClientMessageBundle.BUNDLE.timedOutSendingPacket(connection.getBlockingCallTimeout(), packet.getType());
+               connection.asyncFail(e);
+               throw e;
             }
 
             if (response.getType() == PacketImpl.EXCEPTION) {
@@ -455,15 +513,30 @@ public final class ChannelImpl implements Channel {
    public void setCommandConfirmationHandler(final CommandConfirmationHandler handler) {
       if (confWindowSize < 0) {
          final String msg = "You can't set confirmationHandler on a connection with confirmation-window-size < 0." + " Look at the documentation for more information.";
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " " + msg);
+         }
          throw new IllegalStateException(msg);
       }
       commandConfirmationHandler = handler;
    }
 
    @Override
+   public void setResponseHandler(final ResponseHandler responseHandler) {
+      if (confWindowSize < 0) {
+         final String msg = "You can't set responseHandler on a connection with confirmation-window-size < 0." + " Look at the documentation for more information.";
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " " + msg);
+         }
+         throw new IllegalStateException(msg);
+      }
+      responseAsyncCache.setResponseHandler(responseHandler);
+   }
+
+   @Override
    public void setHandler(final ChannelHandler handler) {
       if (logger.isTraceEnabled()) {
-         logger.trace("Setting handler on " + this + " as " + handler);
+         logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Setting handler on " + this + " as " + handler);
       }
 
       this.handler = handler;
@@ -497,13 +570,15 @@ public final class ChannelImpl implements Channel {
       synchronized (connection.getTransferLock()) {
          connection.removeChannel(id);
 
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " transferConnection to new RemotingConnectionID=" + (newConnection == null ? "NULL" : newConnection.getID()));
+         }
+
          // And switch it
 
-         final CoreRemotingConnection rnewConnection = newConnection;
+         newConnection.putChannel(id, this);
 
-         rnewConnection.putChannel(id, this);
-
-         connection = rnewConnection;
+         connection = newConnection;
 
          transferring = true;
       }
@@ -513,7 +588,7 @@ public final class ChannelImpl implements Channel {
    public void replayCommands(final int otherLastConfirmedCommandID) {
       if (resendCache != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Replaying commands on channelID=" + id);
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Replaying commands on channelID=" + id);
          }
          clearUpTo(otherLastConfirmedCommandID);
 
@@ -526,7 +601,7 @@ public final class ChannelImpl implements Channel {
    @Override
    public void lock() {
       if (logger.isTraceEnabled()) {
-         logger.trace("lock channel " + this);
+         logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " lock channel " + this);
       }
       lock.lock();
 
@@ -540,7 +615,7 @@ public final class ChannelImpl implements Channel {
    @Override
    public void unlock() {
       if (logger.isTraceEnabled()) {
-         logger.trace("unlock channel " + this);
+         logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " unlock channel " + this);
       }
       lock.lock();
 
@@ -567,10 +642,16 @@ public final class ChannelImpl implements Channel {
          confirmed.setChannelID(id);
 
          if (logger.isTraceEnabled()) {
-            logger.trace("ChannelImpl::flushConfirmation flushing confirmation " + confirmed);
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " ChannelImpl::flushConfirmation flushing confirmation " + confirmed);
          }
 
          doWrite(confirmed);
+      }
+   }
+
+   public void handleAsyncResponse(Packet packet) {
+      if (responseAsyncCache != null && packet.isResponseAsync()) {
+         responseAsyncCache.handleResponse(packet);
       }
    }
 
@@ -580,7 +661,7 @@ public final class ChannelImpl implements Channel {
          lastConfirmedCommandID.incrementAndGet();
 
          if (logger.isTraceEnabled()) {
-            logger.trace("ChannelImpl::confirming packet " + packet + " last commandID=" + lastConfirmedCommandID);
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " ChannelImpl::confirming packet " + packet + " last commandID=" + lastConfirmedCommandID);
          }
 
          receivedBytes += packet.getPacketSize();
@@ -617,7 +698,7 @@ public final class ChannelImpl implements Channel {
             clearUpTo(msg.getCommandID());
          }
 
-         if (!connection.isClient()) {
+         if (!connection.isClient() && handler != null) {
             handler.handlePacket(packet);
          }
 
@@ -626,6 +707,7 @@ public final class ChannelImpl implements Channel {
          if (packet.isResponse()) {
             confirm(packet);
 
+            handleAsyncResponse(packet);
             lock.lock();
 
             try {
@@ -651,7 +733,7 @@ public final class ChannelImpl implements Channel {
       resendCache.add(packet);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("ChannelImpl::addResendPacket adding packet " + packet + " stored commandID=" + firstStoredCommandID + " possible commandIDr=" + (firstStoredCommandID + resendCache.size()));
+         logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " ChannelImpl::addResendPacket adding packet " + packet + " stored commandID=" + firstStoredCommandID + " possible commandIDr=" + (firstStoredCommandID + resendCache.size()));
       }
    }
 
@@ -659,9 +741,7 @@ public final class ChannelImpl implements Channel {
       final int numberToClear = 1 + lastReceivedCommandID - firstStoredCommandID;
 
       if (logger.isTraceEnabled()) {
-         logger.trace("ChannelImpl::clearUpTo lastReceived commandID=" + lastReceivedCommandID +
-                         " first commandID=" + firstStoredCommandID +
-                         " number to clear " + numberToClear);
+         logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " ChannelImpl::clearUpTo lastReceived commandID=" + lastReceivedCommandID + " first commandID=" + firstStoredCommandID + " number to clear " + numberToClear);
       }
 
       for (int i = 0; i < numberToClear; i++) {
@@ -674,10 +754,13 @@ public final class ChannelImpl implements Channel {
          }
 
          if (logger.isTraceEnabled()) {
-            logger.trace("ChannelImpl::clearUpTo confirming " + packet + " towards " + commandConfirmationHandler);
+            logger.trace("RemotingConnectionID=" + connection.getID() + " ChannelImpl::clearUpTo confirming " + packet + " towards " + commandConfirmationHandler);
          }
          if (commandConfirmationHandler != null) {
             commandConfirmationHandler.commandConfirmed(packet);
+         }
+         if (responseAsyncCache != null) {
+            responseAsyncCache.handleResponse(packet);
          }
       }
 
@@ -686,6 +769,6 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public String toString() {
-      return "Channel[id=" + CHANNEL_ID.idToString(id) + ", handler=" + handler + "]";
+      return "Channel[id=" + CHANNEL_ID.idToString(id) + ", RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + ", handler=" + handler + "]";
    }
 }

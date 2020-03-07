@@ -24,13 +24,13 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples</groupId>
       <artifactId>artemis-examples</artifactId>
-      <version>2.4.0-SNAPSHOT</version>
+      <version>2.12.0-SNAPSHOT</version>
    </parent>
 
    <groupId>org.apache.activemq.examples.clustered</groupId>
    <artifactId>broker-features</artifactId>
    <packaging>pom</packaging>
-   <name>ActiveMQ Artemis Clustered Examples</name>
+   <name>ActiveMQ Artemis Features Examples</name>
 
    <!-- Properties -->
    <properties>
@@ -48,6 +48,7 @@ under the License.
          <id>examples</id>
          <modules>
             <module>clustered</module>
+            <module>federation</module>
             <module>ha</module>
             <module>standard</module>
             <module>sub-modules</module>
@@ -57,6 +58,7 @@ under the License.
       <profile>
          <id>release</id>
          <modules>
+            <module>federation</module>
             <module>clustered</module>
             <module>ha</module>
             <module>standard</module>

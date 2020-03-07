@@ -48,14 +48,12 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
  */
 public class ActiveMQXAResourceRecovery {
 
-   private final boolean trace = ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled();
-
    private boolean hasMore;
 
    private ActiveMQXAResourceWrapper res;
 
    public ActiveMQXAResourceRecovery() {
-      if (trace) {
+      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled()) {
          ActiveMQXARecoveryLogger.LOGGER.trace("Constructing ActiveMQXAResourceRecovery");
       }
    }

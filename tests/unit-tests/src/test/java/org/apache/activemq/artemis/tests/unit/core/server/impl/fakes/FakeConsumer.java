@@ -105,7 +105,7 @@ public class FakeConsumer implements Consumer {
          if (filter != null) {
             if (filter.match(reference.getMessage())) {
                references.addLast(reference);
-               reference.getQueue().referenceHandled();
+               reference.getQueue().referenceHandled(reference);
                notify();
 
                return HandleStatus.HANDLED;
@@ -125,7 +125,7 @@ public class FakeConsumer implements Consumer {
          }
 
          if (statusToReturn == HandleStatus.HANDLED) {
-            reference.getQueue().referenceHandled();
+            reference.getQueue().referenceHandled(reference);
             references.addLast(reference);
             notify();
          }

@@ -17,11 +17,18 @@
 
 package org.apache.activemq.artemis.cli.commands.messages;
 
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Session;
+
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
+import org.apache.activemq.artemis.cli.factory.serialize.XMLMessageSerializer;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 public class DestAbstract extends ConnectionAbstract {
 
-   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// (Default: queue://TEST)")
+   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. (Default: queue://TEST)")
    String destination = "queue://TEST";
 
    @Option(name = "--message-count", description = "Number of messages to act on (Default: 1000)")
@@ -36,4 +43,40 @@ public class DestAbstract extends ConnectionAbstract {
    @Option(name = "--threads", description = "Number of Threads to be used (Default: 1)")
    int threads = 1;
 
+   @Option(name = "--serializer", description = "Override the default serializer with a custom implementation")
+   String serializer;
+
+   protected MessageSerializer getMessageSerializer() {
+      if (serializer != null) {
+         try {
+            return (MessageSerializer) Class.forName(serializer).getConstructor().newInstance();
+         } catch (Exception e) {
+            System.err.println("Error: unable to instantiate serializer class: " + serializer);
+            System.err.println("Defaulting to: " + XMLMessageSerializer.class.getName());
+         }
+      }
+
+      if (!protocol.equalsIgnoreCase("CORE")) {
+         System.err.println("Default Serializer does not support: " + protocol + " protocol");
+         return null;
+      }
+
+      return new XMLMessageSerializer();
+   }
+
+   protected Destination getDestination(Session session) throws JMSException {
+      if (destination.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
+         return session.createTopic(stripPrefix(destination));
+      }
+      return session.createQueue(stripPrefix(destination));
+   }
+
+   private String stripPrefix(String destination) {
+      int index = destination.indexOf("://");
+      if (index != -1) {
+         return destination.substring(index + 3);
+      } else {
+         return destination;
+      }
+   }
 }

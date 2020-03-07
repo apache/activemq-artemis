@@ -65,6 +65,8 @@ public class InVMConnection implements Connection {
 
    private boolean bufferPoolingEnabled = TransportConstants.DEFAULT_BUFFER_POOLING;
 
+   private boolean directDeliver = TransportConstants.DEFAULT_DIRECT_DELIVER;
+
    public InVMConnection(final int serverID,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener listener,
@@ -86,6 +88,7 @@ public class InVMConnection implements Connection {
                          final BaseConnectionLifeCycleListener listener,
                          final Executor executor,
                          final ActiveMQPrincipal defaultActiveMQPrincipal) {
+
       this.serverID = serverID;
 
       this.handler = handler;
@@ -110,6 +113,11 @@ public class InVMConnection implements Connection {
 
    @Override
    public boolean isWritable(ReadyListener listener) {
+      return true;
+   }
+
+   @Override
+   public boolean isOpen() {
       return true;
    }
 
@@ -276,8 +284,34 @@ public class InVMConnection implements Connection {
    }
 
    @Override
+   public boolean isDirectDeliver() {
+      return directDeliver;
+   }
+
+   public void setDirectDeliver(boolean directDeliver) {
+      this.directDeliver = directDeliver;
+   }
+
+   @Override
    public String toString() {
       return "InVMConnection [serverID=" + serverID + ", id=" + id + "]";
    }
 
+   @Override
+   public boolean isSameTarget(TransportConfiguration... configs) {
+      boolean result = false;
+      for (TransportConfiguration cfg : configs) {
+         if (cfg == null) {
+            continue;
+         }
+         if (InVMConnectorFactory.class.getName().equals(cfg.getFactoryClassName())) {
+            //factory same, get id
+            if (serverID == (int) cfg.getParams().get(TransportConstants.SERVER_ID_PROP_NAME)) {
+               result = true;
+               break;
+            }
+         }
+      }
+      return result;
+   }
 }

@@ -64,7 +64,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
    private static final Logger logger = Logger.getLogger(NIOJournalCompactTest.class);
 
-   private static final int NUMBER_OF_RECORDS = 1000;
+   private static final int NUMBER_OF_RECORDS = 100;
 
    IDGenerator idGenerator = new SimpleIDGenerator(100000);
 
@@ -126,19 +126,6 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       Assert.assertFalse(iterNewFiles.hasNext());
 
    }
-
-   //   public void testRepeat() throws Exception
-   //   {
-   //      int i = 0 ;
-   //
-   //      while (true)
-   //      {
-   //         System.out.println("#test (" + (i++) + ")");
-   //         testCrashRenamingFiles();
-   //         tearDown();
-   //         setUp();
-   //      }
-   //   }
 
    @Test
    public void testCrashRenamingFiles() throws Exception {
@@ -484,7 +471,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          performNonTransactionalDelete = false;
       }
 
-      setup(2, 60 * 4096, false);
+      setup(2, 60 * 4096, true);
 
       ArrayList<Long> liveIDs = new ArrayList<>();
 
@@ -785,16 +772,6 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       createJournal();
       startJournal();
       loadAndCheck();
-   }
-
-   @Test
-   public void testLoopStressAppends() throws Exception {
-      for (int i = 0; i < 10; i++) {
-         logger.info("repetition " + i);
-         testStressAppends();
-         tearDown();
-         setUp();
-      }
    }
 
    @Test

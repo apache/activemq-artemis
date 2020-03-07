@@ -23,6 +23,7 @@ import javax.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * A LoginModule allowing for SSL certificate based authentication based on
@@ -41,6 +42,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
    private static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.role";
 
    private Map<String, Set<String>> rolesByUser;
+   private Map<String, Pattern> regexpByUser;
    private Map<String, String> usersByDn;
 
    /**
@@ -53,6 +55,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
                           Map<String, ?> options) {
       super.initialize(subject, callbackHandler, sharedState, options);
       usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
+      regexpByUser = load(USER_FILE_PROP_NAME, "", options).regexpPropertiesMap();
       rolesByUser = load(ROLE_FILE_PROP_NAME, "", options).invertedPropertiesValuesMap();
    }
 
@@ -71,8 +74,8 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
       if (certs == null) {
          throw new LoginException("Client certificates not found. Cannot authenticate.");
       }
-
-      return usersByDn.get(getDistinguishedName(certs));
+      String dn = getDistinguishedName(certs);
+      return usersByDn.containsKey(dn) ? usersByDn.get(dn) : getUserByRegexp(dn);
    }
 
    /**
@@ -92,4 +95,17 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
 
       return userRoles;
    }
+
+   private synchronized String getUserByRegexp(String dn) {
+      String name = null;
+      for (Map.Entry<String, Pattern> val : regexpByUser.entrySet()) {
+         if (val.getValue().matcher(dn).matches()) {
+            name = val.getKey();
+            break;
+         }
+      }
+      usersByDn.put(dn, name);
+      return name;
+   }
+
 }

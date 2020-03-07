@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -50,6 +52,11 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       this.transportConnection = transportConnection;
       this.executor = executor;
       this.creationTime = System.currentTimeMillis();
+   }
+
+   @Override
+   public void scheduledFlush() {
+      flush();
    }
 
    @Override
@@ -211,6 +218,23 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    @Override
    public void fail(final ActiveMQException me) {
       fail(me, null);
+   }
+
+   @Override
+   public Future asyncFail(final ActiveMQException me) {
+
+      FutureTask<Void> task = new FutureTask(() -> {
+         fail(me);
+         return null;
+      });
+
+      if (executor == null) {
+         // only tests cases can do this
+         task.run();
+      } else {
+         executor.execute(task);
+      }
+      return task;
    }
 
    @Override

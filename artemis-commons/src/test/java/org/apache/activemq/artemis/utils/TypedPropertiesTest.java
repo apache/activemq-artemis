@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.utils;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -25,6 +27,11 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import static org.apache.activemq.artemis.utils.collections.TypedProperties.searchProperty;
 
 public class TypedPropertiesTest {
 
@@ -221,9 +228,183 @@ public class TypedPropertiesTest {
       TypedPropertiesTest.assertEqualsTypeProperties(emptyProps, decodedProps);
    }
 
+   private static final SimpleString PROP_NAME = SimpleString.toSimpleString("TEST_PROP");
+
+   @Test
+   public void testCannotClearInternalPropertiesIfEmpty() {
+      TypedProperties properties = new TypedProperties();
+      Assert.assertFalse(properties.clearInternalProperties());
+   }
+
+   @Test
+   public void testClearInternalPropertiesIfAny() {
+      TypedProperties properties = new TypedProperties(PROP_NAME::equals);
+      properties.putBooleanProperty(PROP_NAME, RandomUtil.randomBoolean());
+      Assert.assertTrue(properties.clearInternalProperties());
+      Assert.assertFalse(properties.containsProperty(PROP_NAME));
+   }
+
+   @Test
+   public void testCannotClearInternalPropertiesTwiceIfAny() {
+      TypedProperties properties = new TypedProperties(PROP_NAME::equals);
+      properties.putBooleanProperty(PROP_NAME, RandomUtil.randomBoolean());
+      Assert.assertTrue(properties.clearInternalProperties());
+      Assert.assertFalse(properties.clearInternalProperties());
+   }
+
+   @Test
+   public void testSearchPropertyIfNone() {
+      TypedProperties props = new TypedProperties();
+      ByteBuf buf = Unpooled.buffer(Byte.BYTES, Byte.BYTES);
+      props.encode(buf);
+      buf.resetReaderIndex();
+      Assert.assertFalse("There is no property", searchProperty(SimpleString.toSimpleString(""), buf, 0));
+   }
+
+   @Test
+   public void testSearchAllProperties() {
+      TypedProperties props = new TypedProperties();
+      props.putByteProperty(RandomUtil.randomSimpleString(), RandomUtil.randomByte());
+      props.putBytesProperty(RandomUtil.randomSimpleString(), RandomUtil.randomBytes());
+      props.putBytesProperty(RandomUtil.randomSimpleString(), null);
+      props.putBooleanProperty(RandomUtil.randomSimpleString(), RandomUtil.randomBoolean());
+      props.putShortProperty(RandomUtil.randomSimpleString(), RandomUtil.randomShort());
+      props.putIntProperty(RandomUtil.randomSimpleString(), RandomUtil.randomInt());
+      props.putLongProperty(RandomUtil.randomSimpleString(), RandomUtil.randomLong());
+      props.putFloatProperty(RandomUtil.randomSimpleString(), RandomUtil.randomFloat());
+      props.putDoubleProperty(RandomUtil.randomSimpleString(), RandomUtil.randomDouble());
+      props.putCharProperty(RandomUtil.randomSimpleString(), RandomUtil.randomChar());
+      props.putSimpleStringProperty(RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString());
+      props.putSimpleStringProperty(RandomUtil.randomSimpleString(), null);
+      final SimpleString value = RandomUtil.randomSimpleString();
+      props.putSimpleStringProperty(RandomUtil.randomSimpleString(), value);
+      ByteBuf buf = Unpooled.buffer();
+      props.encode(buf);
+      buf.resetReaderIndex();
+      Assert.assertFalse(searchProperty(value, buf, 0));
+      props.forEachKey(key -> {
+         Assert.assertTrue(searchProperty(key, buf, 0));
+         Assert.assertTrue(searchProperty(SimpleString.toSimpleString(key.toString()), buf, 0));
+         // concat a string just to check if the search won't perform an eager search to find the string pattern
+         Assert.assertFalse(searchProperty(key.concat(" "), buf, 0));
+      });
+   }
+
+   @Test(expected = IndexOutOfBoundsException.class)
+   public void testSearchPartiallyEncodedBuffer() {
+      final int expectedLength = Integer.BYTES + Byte.BYTES;
+      ByteBuf buf = Unpooled.buffer(expectedLength, expectedLength);
+      buf.writeByte(DataConstants.NOT_NULL);
+      buf.writeInt(1);
+      buf.resetReaderIndex();
+      searchProperty(SimpleString.toSimpleString(" "), buf, 0);
+   }
+
+   @Test(expected = IndexOutOfBoundsException.class)
+   public void testSearchPartiallyEncodedString() {
+      final int expectedLength = Integer.BYTES + Byte.BYTES + Integer.BYTES;
+      ByteBuf buf = Unpooled.buffer(expectedLength, expectedLength);
+      buf.writeByte(DataConstants.NOT_NULL);
+      buf.writeInt(1);
+      //SimpleString::data length
+      buf.writeInt(2);
+      buf.resetReaderIndex();
+      searchProperty(SimpleString.toSimpleString("a"), buf, 0);
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testSearchWithInvalidTypeBeforeEnd() {
+      ByteBuf buf = Unpooled.buffer();
+      buf.writeByte(DataConstants.NOT_NULL);
+      // fake 2 properties
+      buf.writeInt(2);
+      // 1 key with length 2
+      buf.writeInt(2);
+      buf.writeShort(3);
+      // invalid type
+      buf.writeByte(Byte.MIN_VALUE);
+      buf.resetReaderIndex();
+      searchProperty(SimpleString.toSimpleString(""), buf, 0);
+   }
+
+   @Test
+   public void testSearchWithInvalidTypeEnd() {
+      ByteBuf buf = Unpooled.buffer();
+      buf.writeByte(DataConstants.NOT_NULL);
+      // fake 1 property
+      buf.writeInt(1);
+      // 1 key with length 2
+      buf.writeInt(2);
+      buf.writeShort(3);
+      // invalid type
+      buf.writeByte(Byte.MIN_VALUE);
+      buf.resetReaderIndex();
+      Assert.assertFalse(searchProperty(SimpleString.toSimpleString(""), buf, 0));
+   }
+
    @Before
    public void setUp() throws Exception {
       props = new TypedProperties();
       key = RandomUtil.randomSimpleString();
+   }
+
+   @Test
+   public void testByteBufStringValuePool() {
+      final int capacity = 8;
+      final int chars = Integer.toString(capacity).length();
+      final TypedProperties.StringValue.ByteBufStringValuePool pool = new TypedProperties.StringValue.ByteBufStringValuePool(capacity, chars);
+      final int bytes = new SimpleString(Integer.toString(capacity)).sizeof();
+      final ByteBuf bb = Unpooled.buffer(bytes, bytes);
+      for (int i = 0; i < capacity; i++) {
+         final SimpleString s = new SimpleString(Integer.toString(i));
+         bb.resetWriterIndex();
+         SimpleString.writeSimpleString(bb, s);
+         bb.resetReaderIndex();
+         final TypedProperties.StringValue expectedPooled = pool.getOrCreate(bb);
+         bb.resetReaderIndex();
+         Assert.assertSame(expectedPooled, pool.getOrCreate(bb));
+         bb.resetReaderIndex();
+      }
+   }
+
+   @Test
+   public void testByteBufStringValuePoolTooLong() {
+      final SimpleString tooLong = new SimpleString("aa");
+      final ByteBuf bb = Unpooled.buffer(tooLong.sizeof(), tooLong.sizeof());
+      SimpleString.writeSimpleString(bb, tooLong);
+      final TypedProperties.StringValue.ByteBufStringValuePool pool = new TypedProperties.StringValue.ByteBufStringValuePool(1, tooLong.length() - 1);
+      Assert.assertNotSame(pool.getOrCreate(bb), pool.getOrCreate(bb.resetReaderIndex()));
+   }
+
+   @Test
+   public void testCopyingWhileMessingUp() throws Exception {
+      TypedProperties properties = new TypedProperties();
+      AtomicBoolean running = new AtomicBoolean(true);
+      AtomicLong copies = new AtomicLong(0);
+      AtomicBoolean error = new AtomicBoolean(false);
+      Thread t = new Thread() {
+         @Override
+         public void run() {
+            while (running.get() && !error.get()) {
+               try {
+                  copies.incrementAndGet();
+                  TypedProperties copiedProperties = new TypedProperties(properties);
+               } catch (Throwable e) {
+                  e.printStackTrace();
+                  error.set(true);
+               }
+            }
+         }
+      };
+      t.start();
+      for (int i = 0; !error.get() && (i < 100 || copies.get() < 50); i++) {
+         properties.putIntProperty(SimpleString.toSimpleString("key" + i), i);
+      }
+
+      running.set(false);
+
+      t.join();
+
+      Assert.assertFalse(error.get());
    }
 }

@@ -26,6 +26,7 @@ import io.airlift.airline.Option;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
 import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
@@ -58,6 +59,10 @@ public abstract class Configurable extends ActionAbstract {
       System.err.println();
       System.err.println("Error:" + e.getMessage());
       System.err.println();
+
+      if (!(e instanceof ActiveMQException)) {
+         e.printStackTrace();
+      }
       helpGroup(group, command);
    }
 
@@ -76,25 +81,31 @@ public abstract class Configurable extends ActionAbstract {
 
    protected FileConfiguration getFileConfiguration() throws Exception {
       if (fileConfiguration == null) {
-         if (getBrokerInstance() == null) {
-            final String defaultLocation = "./data";
-            fileConfiguration = new FileConfiguration();
-            // These will be the default places in case the file can't be loaded
-            fileConfiguration.setBindingsDirectory(defaultLocation + "/bindings");
-            fileConfiguration.setJournalDirectory(defaultLocation + "/journal");
-            fileConfiguration.setLargeMessagesDirectory(defaultLocation + "/largemessages");
-            fileConfiguration.setPagingDirectory(defaultLocation + "/paging");
-            fileConfiguration.setBrokerInstance(new File("."));
-         } else {
-            fileConfiguration = new FileConfiguration();
-            FileJMSConfiguration jmsConfiguration = new FileJMSConfiguration();
+         fileConfiguration = readConfiguration();
+      }
 
-            String serverConfiguration = getBrokerDTO().server.getConfigurationURI().toASCIIString();
-            FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(serverConfiguration);
-            fileDeploymentManager.addDeployable(fileConfiguration).addDeployable(jmsConfiguration);
-            fileDeploymentManager.readConfiguration();
-            fileConfiguration.setBrokerInstance(new File(getBrokerInstance()));
-         }
+      return fileConfiguration;
+   }
+
+   protected FileConfiguration readConfiguration() throws Exception {
+      FileConfiguration fileConfiguration = new FileConfiguration();
+      if (getBrokerInstance() == null) {
+         final String defaultLocation = "./data";
+         fileConfiguration = new FileConfiguration();
+         // These will be the default places in case the file can't be loaded
+         fileConfiguration.setBindingsDirectory(defaultLocation + "/bindings");
+         fileConfiguration.setJournalDirectory(defaultLocation + "/journal");
+         fileConfiguration.setLargeMessagesDirectory(defaultLocation + "/largemessages");
+         fileConfiguration.setPagingDirectory(defaultLocation + "/paging");
+         fileConfiguration.setBrokerInstance(new File("."));
+      } else {
+         FileJMSConfiguration jmsConfiguration = new FileJMSConfiguration();
+
+         String serverConfiguration = getBrokerDTO().server.getConfigurationURI().toASCIIString();
+         FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(serverConfiguration);
+         fileDeploymentManager.addDeployable(fileConfiguration).addDeployable(jmsConfiguration);
+         fileDeploymentManager.readConfiguration();
+         fileConfiguration.setBrokerInstance(new File(getBrokerInstance()));
       }
 
       return fileConfiguration;
@@ -125,7 +136,7 @@ public abstract class Configurable extends ActionAbstract {
 
    protected String getConfiguration() {
       if (configuration == null) {
-         File xmlFile = new File(new File(new File(getBrokerInstance()), "etc"), "bootstrap.xml");
+         File xmlFile = new File(new File(getBrokerEtc()), "bootstrap.xml");
          configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
 
          // To support Windows paths as explained above.
@@ -138,7 +149,7 @@ public abstract class Configurable extends ActionAbstract {
    }
 
    protected String getManagementConfiguration() {
-      File xmlFile = new File(new File(new File(getBrokerInstance()), "etc"), "management.xml");
+      File xmlFile = new File(new File(getBrokerEtc()), "management.xml");
       String configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
 
       // To support Windows paths as explained above.

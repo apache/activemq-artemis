@@ -75,6 +75,7 @@ public class MessageCounterExample {
 
          // Step 7. Use JMX to retrieve the message counters using the JMSQueueControl
          ObjectName on = ObjectNameBuilder.DEFAULT.getQueueObjectName(SimpleString.toSimpleString(queue.getQueueName()), SimpleString.toSimpleString(queue.getQueueName()), RoutingType.ANYCAST);
+         //we dont actually need credentials as the guest login i sused but this is how its done
          HashMap env = new HashMap();
          String[] creds = {"guest", "guest"};
          env.put(JMXConnector.CREDENTIALS, creds);
@@ -128,7 +129,7 @@ public class MessageCounterExample {
    }
 
    private static void displayMessageCounter(final MessageCounterInfo counter) {
-      System.out.format("%s (sample updated at %s)%n", counter.getName(), counter.getUdpateTimestamp());
+      System.out.format("%s (sample updated at %s)%n", counter.getName(), counter.getUpdateTimestamp());
       System.out.format("   %s message(s) added to the queue (since last sample: %s)%n", counter.getCount(), counter.getCountDelta());
       System.out.format("   %s message(s) in the queue (since last sample: %s)%n", counter.getDepth(), counter.getDepthDelta());
       System.out.format("   last message added at %s%n%n", counter.getLastAddTimestamp());

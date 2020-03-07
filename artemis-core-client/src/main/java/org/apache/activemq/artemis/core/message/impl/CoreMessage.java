@@ -19,9 +19,15 @@ package org.apache.activemq.artemis.core.message.impl;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Set;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -33,16 +39,16 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
-
-import io.netty.buffer.ByteBuf;
 
 /** Note: you shouldn't change properties using multi-threads. Change your properties before you can send it to multiple
  *  consumers */
@@ -57,7 +63,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    // There's an integer with the number of bytes for the body
    public static final int BODY_OFFSET = DataConstants.SIZE_INT;
 
-   /** That is the encode for the whole message, including properties..
+   /** That is the readInto for the whole message, including properties..
        it does not include the buffer for the Packet send and receive header on core protocol */
    protected ByteBuf buffer;
 
@@ -94,7 +100,14 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    protected volatile TypedProperties properties;
 
+   private final CoreMessageObjectPools coreMessageObjectPools;
+
+   public CoreMessage(final CoreMessageObjectPools coreMessageObjectPools) {
+      this.coreMessageObjectPools = coreMessageObjectPools;
+   }
+
    public CoreMessage() {
+      this.coreMessageObjectPools = null;
    }
 
    /** On core there's no delivery annotation */
@@ -110,26 +123,10 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public void cleanupInternalProperties() {
-      if (properties.hasInternalProperties()) {
-         LinkedList<SimpleString> valuesToRemove = null;
-
-         for (SimpleString name : getPropertyNames()) {
-            // We use properties to establish routing context on clustering.
-            // However if the client resends the message after receiving, it needs to be removed
-            if ((name.startsWith(Message.HDR_ROUTE_TO_IDS) && !name.equals(Message.HDR_ROUTE_TO_IDS)) || (name.startsWith(Message.HDR_ROUTE_TO_ACK_IDS) && !name.equals(Message.HDR_ROUTE_TO_ACK_IDS))) {
-               if (valuesToRemove == null) {
-                  valuesToRemove = new LinkedList<>();
-               }
-               valuesToRemove.add(name);
-            }
-         }
-
-         if (valuesToRemove != null) {
-            for (SimpleString removal : valuesToRemove) {
-               this.removeProperty(removal);
-            }
-         }
+   public void clearInternalProperties() {
+      final TypedProperties properties = this.properties;
+      if (properties != null && properties.clearInternalProperties()) {
+         messageChanged();
       }
    }
 
@@ -139,7 +136,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    public CoreMessage initBuffer(final int initialMessageBufferSize) {
-      buffer = ActiveMQBuffers.dynamicBuffer(initialMessageBufferSize).byteBuf();
+      buffer = Unpooled.buffer(initialMessageBufferSize);
 
       // There's a bug in netty which means a dynamic buffer won't resize until you write a byte
       buffer.writeByte((byte) 0);
@@ -176,8 +173,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public CoreMessage setReplyTo(SimpleString address) {
 
       if (address == null) {
-         checkProperties();
-         properties.removeProperty(MessageUtil.REPLYTO_HEADER_NAME);
+         getProperties().removeProperty(MessageUtil.REPLYTO_HEADER_NAME);
       } else {
          putStringProperty(MessageUtil.REPLYTO_HEADER_NAME, address);
       }
@@ -188,15 +184,89 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public void receiveBuffer(ByteBuf buffer) {
       this.buffer = buffer;
       this.buffer.retain();
-      decode();
-      this.validBuffer = true;
+      decode(false);
+   }
+
+   /** This will fix the incoming body of 1.x messages */
+   @Override
+   public void receiveBuffer_1X(ByteBuf buffer) {
+      this.buffer = buffer;
+      this.buffer.retain();
+      decode(true);
+      validBuffer = false;
    }
 
    @Override
    public ActiveMQBuffer getReadOnlyBodyBuffer() {
       checkEncode();
-      internalWritableBuffer();
       return new ChannelBufferWrapper(buffer.slice(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE).setIndex(0, endOfBodyPosition - BUFFER_HEADER_SPACE).asReadOnly());
+   }
+
+   @Override
+   public int getBodyBufferSize() {
+      checkEncode();
+      return endOfBodyPosition - BUFFER_HEADER_SPACE;
+   }
+
+   /**
+    * This will return the proper buffer to represent the data of the Message. If compressed it will decompress.
+    * If large, it will read from the file or streaming.
+    * @return
+    * @throws ActiveMQException
+    */
+   @Override
+   public ActiveMQBuffer getDataBuffer() {
+
+      ActiveMQBuffer buffer;
+
+      try {
+         if (isLargeMessage()) {
+            buffer = getLargeMessageBuffer();
+         } else {
+            buffer = getReadOnlyBodyBuffer();
+         }
+
+         if (Boolean.TRUE.equals(getBooleanProperty(Message.HDR_LARGE_COMPRESSED))) {
+            buffer = inflate(buffer);
+         }
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+         return getReadOnlyBodyBuffer();
+      }
+
+      return buffer;
+   }
+
+   private ActiveMQBuffer getLargeMessageBuffer() throws ActiveMQException {
+      LargeBodyReader encoder = getLargeBodyReader();
+      encoder.open();
+      int bodySize = (int) encoder.getSize();
+      final ActiveMQBuffer buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
+      buffer.byteBuf().ensureWritable(bodySize);
+      final ByteBuffer nioBuffer = buffer.byteBuf().internalNioBuffer(0, bodySize);
+      encoder.readInto(nioBuffer);
+      buffer.writerIndex(bodySize);
+      encoder.close();
+      return buffer;
+   }
+
+   private ActiveMQBuffer inflate(ActiveMQBuffer buffer) throws DataFormatException {
+      int bytesToRead = buffer.readableBytes();
+      Inflater inflater = new Inflater();
+      inflater.setInput(ByteUtil.getActiveArray(buffer.readBytes(bytesToRead).toByteBuffer()));
+
+      //get the real size of large message
+      long sizeBody = getLongProperty(Message.HDR_LARGE_BODY_SIZE);
+
+      byte[] data = new byte[(int) sizeBody];
+      inflater.inflate(data);
+      inflater.end();
+      ActiveMQBuffer qbuff = ActiveMQBuffers.wrappedBuffer(data);
+      qbuff.resetReaderIndex();
+      qbuff.resetWriterIndex();
+      qbuff.writeBytes(data);
+      buffer = qbuff;
+      return buffer;
    }
 
    @Override
@@ -204,27 +274,72 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return this.getSimpleStringProperty(Message.HDR_GROUP_ID);
    }
 
+   @Override
+   public CoreMessage setGroupID(SimpleString groupId) {
+      return this.putStringProperty(Message.HDR_GROUP_ID, groupId);
+   }
+
+   @Override
+   public CoreMessage setGroupID(String groupId) {
+      return this.setGroupID(SimpleString.toSimpleString(groupId, coreMessageObjectPools == null ? null : coreMessageObjectPools.getGroupIdStringSimpleStringPool()));
+   }
+
+   @Override
+   public int getGroupSequence() {
+      return containsProperty(Message.HDR_GROUP_SEQUENCE) ? getIntProperty(Message.HDR_GROUP_SEQUENCE) : 0;
+   }
+
+   @Override
+   public CoreMessage setGroupSequence(int sequence) {
+      return this.putIntProperty(Message.HDR_GROUP_SEQUENCE, sequence);
+   }
+
+   @Override
+   public Object getCorrelationID() {
+      return getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME);
+   }
+
+   @Override
+   public Message setCorrelationID(final Object correlationID) {
+      putObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME, correlationID);
+      return this;
+   }
+
    /**
-    *
     * @param sendBuffer
     * @param deliveryCount Some protocols (AMQP) will have this as part of the message. ignored on core
     */
    @Override
-   public void sendBuffer(ByteBuf sendBuffer, int deliveryCount) {
+   public synchronized void sendBuffer(ByteBuf sendBuffer, int deliveryCount) {
       checkEncode();
       sendBuffer.writeBytes(buffer, 0, buffer.writerIndex());
    }
 
-   private synchronized void checkEncode() {
+   /**
+    * Recast the message as an 1.4 message
+    */
+   @Override
+   public synchronized void sendBuffer_1X(ByteBuf sendBuffer) {
+      checkEncode();
+      ByteBuf tmpBuffer = buffer.duplicate();
+      sendBuffer.writeInt(endOfBodyPosition + DataConstants.SIZE_INT);
+      tmpBuffer.readerIndex(DataConstants.SIZE_INT);
+      tmpBuffer.readBytes(sendBuffer, endOfBodyPosition - BUFFER_HEADER_SPACE);
+      sendBuffer.writeInt(tmpBuffer.writerIndex() + DataConstants.SIZE_INT + BUFFER_HEADER_SPACE);
+      tmpBuffer.readBytes(sendBuffer, tmpBuffer.readableBytes());
+      sendBuffer.readerIndex(0);
+   }
+
+   protected synchronized void checkEncode() {
       if (!validBuffer) {
          encode();
       }
+      internalWritableBuffer();
    }
 
    @Override
    public Long getScheduledDeliveryTime() {
-      checkProperties();
-      Object property = getObjectProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+      Object property = getProperties().getProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
 
       if (property != null && property instanceof Number) {
          return ((Number) property).longValue();
@@ -235,9 +350,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public CoreMessage setScheduledDeliveryTime(Long time) {
-      checkProperties();
       if (time == null || time == 0) {
-         removeProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+         getProperties().removeProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
       } else {
          putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
       }
@@ -255,7 +369,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public ActiveMQBuffer getBodyBuffer() {
       // if using the writable buffer, we must parse properties
-      checkProperties();
+      getProperties();
 
       internalWritableBuffer();
 
@@ -264,10 +378,15 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    private void internalWritableBuffer() {
       if (writableBuffer == null) {
-         writableBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer.duplicate(), this);
-         if (endOfBodyPosition > 0) {
-            writableBuffer.byteBuf().setIndex(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE + BODY_OFFSET);
-            writableBuffer.resetReaderIndex();
+         synchronized (this) {
+            if (writableBuffer == null) {
+               ResetLimitWrappedActiveMQBuffer writableBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer.duplicate(), this);
+               if (endOfBodyPosition > 0) {
+                  writableBuffer.byteBuf().setIndex(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE + BODY_OFFSET);
+                  writableBuffer.resetReaderIndex();
+               }
+               this.writableBuffer = writableBuffer;
+            }
          }
       }
    }
@@ -280,15 +399,12 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return endOfBodyPosition;
    }
 
-
-   public TypedProperties getTypedProperties() {
-      return checkProperties();
-   }
-
-
    @Override
-   public void messageChanged() {
-      validBuffer = false;
+   public synchronized void messageChanged() {
+      //a volatile store is a costly operation: better to check if is necessary
+      if (validBuffer) {
+         validBuffer = false;
+      }
    }
 
    protected CoreMessage(CoreMessage other) {
@@ -296,34 +412,51 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    public CoreMessage(long id, int bufferSize) {
+      this(id, bufferSize, null);
+   }
+
+   public CoreMessage(long id, int bufferSize, CoreMessageObjectPools coreMessageObjectPools) {
       this.initBuffer(bufferSize);
       this.setMessageID(id);
+      this.coreMessageObjectPools = coreMessageObjectPools;
    }
 
    protected CoreMessage(CoreMessage other, TypedProperties copyProperties) {
-      this.body = other.body;
-      this.endOfBodyPosition = other.endOfBodyPosition;
-      this.messageID = other.messageID;
-      this.address = other.address;
-      this.type = other.type;
-      this.durable = other.durable;
-      this.expiration = other.expiration;
-      this.timestamp = other.timestamp;
-      this.priority = other.priority;
-      this.userID = other.userID;
-      if (copyProperties != null) {
-         this.properties = new TypedProperties(copyProperties);
-      }
-      if (other.buffer != null) {
-         this.buffer = other.buffer.copy();
+      // This MUST be synchronized using the monitor on the other message to prevent it running concurrently
+      // with getEncodedBuffer(), otherwise can introduce race condition when delivering concurrently to
+      // many subscriptions and bridging to other nodes in a cluster
+      synchronized (other) {
+         this.body = other.body;
+         this.endOfBodyPosition = other.endOfBodyPosition;
+         internalSetMessageID(other.messageID);
+         this.address = other.address;
+         this.type = other.type;
+         this.durable = other.durable;
+         this.expiration = other.expiration;
+         this.timestamp = other.timestamp;
+         this.priority = other.priority;
+         this.userID = other.userID;
+         this.coreMessageObjectPools = other.coreMessageObjectPools;
+         if (copyProperties != null) {
+            this.properties = new TypedProperties(copyProperties);
+         }
+         if (other.buffer != null) {
+            this.buffer = other.buffer.copy();
+         }
       }
    }
 
+   /** This method serves as a purpose of extension.
+    *   Large Message on a Core Message will have to set the messageID on the attached NewLargeMessage */
+   protected void internalSetMessageID(final long messageID) {
+      this.messageID = messageID;
+   }
+
    @Override
-   public void copyHeadersAndProperties(final Message msg) {
-      messageID = msg.getMessageID();
+   public void moveHeadersAndProperties(final Message msg) {
+      internalSetMessageID(msg.getMessageID());
       address = msg.getAddressSimpleString();
-      userID = (UUID)msg.getUserID();
+      userID = (UUID) msg.getUserID();
       type = msg.toCore().getType();
       durable = msg.isDurable();
       expiration = msg.getExpiration();
@@ -331,13 +464,13 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       priority = msg.getPriority();
 
       if (msg instanceof CoreMessage) {
-         properties = ((CoreMessage)msg).getTypedProperties();
+         properties = new TypedProperties(((CoreMessage) msg).getProperties());
       }
    }
 
-
    @Override
    public Message copy() {
+      getProperties();
       checkEncode();
       return new CoreMessage(this);
    }
@@ -380,7 +513,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public CoreMessage setUserID(Object uuid) {
-      this.userID = (UUID)uuid;
+      this.userID = (UUID) uuid;
       return this;
    }
 
@@ -391,13 +524,13 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public CoreMessage setValidatedUserID(String validatedUserID) {
-      putStringProperty(Message.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUserID));
+      putStringProperty(Message.HDR_VALIDATED_USER, value(validatedUserID));
       return this;
    }
 
    @Override
    public CoreMessage setMessageID(long messageID) {
-      this.messageID = messageID;
+      internalSetMessageID(messageID);
       if (messageIDPosition >= 0 && validBuffer) {
          buffer.setLong(messageIDPosition, messageID);
       }
@@ -406,7 +539,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public CoreMessage setAddress(SimpleString address) {
-      if (validBuffer && !address.equals(this.address)) {
+      if (address == null && this.address == null) {
+         // no-op so just return
+         return this;
+      }
+      if (validBuffer && (address == null || !address.equals(this.address))) {
          messageChanged();
       }
       this.address = address;
@@ -417,7 +554,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public SimpleString getAddressSimpleString() {
       return address;
    }
-
 
    @Override
    public CoreMessage setExpiration(long expiration) {
@@ -442,16 +578,45 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    /**
     * I am keeping this synchronized as the decode of the Properties is lazy
     */
-   protected TypedProperties checkProperties() {
+   public final TypedProperties getProperties() {
+      TypedProperties properties = this.properties;
       if (properties == null) {
-         TypedProperties properties = new TypedProperties();
-         if (buffer != null && propertiesLocation >= 0) {
-            properties.decode(buffer.duplicate().readerIndex(propertiesLocation));
-         }
-         this.properties = properties;
+         properties = getOrInitializeTypedProperties();
       }
+      return properties;
+   }
 
-      return this.properties;
+   private synchronized TypedProperties getOrInitializeTypedProperties() {
+      try {
+         TypedProperties properties = this.properties;
+         if (properties == null) {
+            properties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE);
+            if (buffer != null && propertiesLocation >= 0) {
+               final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
+               properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
+            }
+            this.properties = properties;
+         }
+         return properties;
+      } catch (Throwable e) {
+         throw onCheckPropertiesError(e);
+      }
+   }
+
+   private RuntimeException onCheckPropertiesError(Throwable e) {
+      // This is not an expected error, hence no specific logger created
+      logger.warn("Could not decode properties for CoreMessage[messageID=" + messageID + ",durable=" + durable + ",userID=" + userID + ",priority=" + priority +
+                     ", timestamp=" + timestamp + ",expiration=" + expiration + ",address=" + address + ", propertiesLocation=" + propertiesLocation, e);
+      final ByteBuf buffer = this.buffer;
+      if (buffer != null) {
+         //risky: a racy modification to buffer indexes could break this duplicate operation
+         final ByteBuf duplicatebuffer = buffer.duplicate();
+         duplicatebuffer.readerIndex(0);
+         logger.warn("Failed message has messageID=" + messageID + " and the following buffer:\n" + ByteBufUtil.prettyHexDump(duplicatebuffer));
+      } else {
+         logger.warn("Failed message has messageID=" + messageID + " and the buffer was null");
+      }
+      return new RuntimeException(e.getMessage(), e);
    }
 
    @Override
@@ -487,27 +652,35 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return this;
    }
 
-   private void decode() {
+   private void decode(boolean beforeAddress) {
+      decode(beforeAddress, coreMessageObjectPools);
+   }
+
+   private void decode(boolean beforeAddress, CoreMessageObjectPools pools) {
       endOfBodyPosition = buffer.readInt();
 
       buffer.skipBytes(endOfBodyPosition - BUFFER_HEADER_SPACE);
 
-      decodeHeadersAndProperties(buffer, true);
+      decodeHeadersAndProperties(buffer, true, pools);
       buffer.readerIndex(0);
+      validBuffer = true;
+
+      if (beforeAddress) {
+         endOfBodyPosition = endOfBodyPosition - DataConstants.SIZE_INT;
+      }
 
       internalWritableBuffer();
    }
 
-
    public void decodeHeadersAndProperties(final ByteBuf buffer) {
-      decodeHeadersAndProperties(buffer, false);
+      decodeHeadersAndProperties(buffer, false, coreMessageObjectPools);
    }
 
-   private void decodeHeadersAndProperties(final ByteBuf buffer, boolean lazyProperties) {
+   private void decodeHeadersAndProperties(final ByteBuf buffer, boolean lazyProperties, CoreMessageObjectPools pools) {
       messageIDPosition = buffer.readerIndex();
-      messageID = buffer.readLong();
+      internalSetMessageID(buffer.readLong());
 
-      address = SimpleString.readNullableSimpleString(buffer);
+      address = SimpleString.readNullableSimpleString(buffer, pools == null ? null : pools.getAddressDecoderPool());
       if (buffer.readByte() == DataConstants.NOT_NULL) {
          byte[] bytes = new byte[16];
          buffer.readBytes(bytes);
@@ -524,15 +697,14 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          properties = null;
          propertiesLocation = buffer.readerIndex();
       } else {
-         properties = new TypedProperties();
-         properties.decode(buffer);
+         properties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE);
+         properties.decode(buffer, pools == null ? null : pools.getPropertiesDecoderPools());
       }
    }
 
-
    public synchronized CoreMessage encode() {
 
-      checkProperties();
+      getProperties();
 
       if (writableBuffer != null) {
          // The message encode takes into consideration the PacketImpl which is not part of this encoding
@@ -556,7 +728,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    public void encodeHeadersAndProperties(final ByteBuf buffer) {
-      checkProperties();
+      final TypedProperties properties = getProperties();
       messageIDPosition = buffer.writerIndex();
       buffer.writeLong(messageID);
       SimpleString.writeNullableSimpleString(buffer, address);
@@ -585,7 +757,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          DataConstants./* Expiration */SIZE_LONG +
          DataConstants./* Timestamp */SIZE_LONG +
          DataConstants./* Priority */SIZE_BYTE +
-             /* PropertySize and Properties */checkProperties().getEncodeSize();
+             /* PropertySize and Properties */getProperties().getEncodeSize();
    }
 
    @Override
@@ -599,9 +771,17 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
+   public Message setLastValueProperty(SimpleString lastValueName) {
+      return putStringProperty(Message.HDR_LAST_VALUE_NAME, lastValueName);
+   }
+
+   @Override
    public int getEncodeSize() {
+      if (buffer == null) {
+         return -1;
+      }
       checkEncode();
-      return buffer == null ? -1 : buffer.writerIndex();
+      return buffer.writerIndex();
    }
 
    @Override
@@ -621,7 +801,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public CoreMessage setAddress(String address) {
       messageChanged();
-      this.address = SimpleString.toSimpleString(address);
+      this.address = SimpleString.toSimpleString(address, coreMessageObjectPools == null ? null : coreMessageObjectPools.getAddressStringSimpleStringPool());
       return this;
    }
 
@@ -649,297 +829,232 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return this;
    }
 
-
    @Override
    public CoreMessage putBooleanProperty(final String key, final boolean value) {
-      messageChanged();
-      checkProperties();
-      properties.putBooleanProperty(new SimpleString(key), value);
-      return this;
+      return putBooleanProperty(key(key), value);
    }
 
    @Override
    public CoreMessage putBooleanProperty(final SimpleString key, final boolean value) {
       messageChanged();
-      checkProperties();
-      properties.putBooleanProperty(key, value);
+      getProperties().putBooleanProperty(key, value);
       return this;
    }
 
    @Override
    public Boolean getBooleanProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getBooleanProperty(key);
+      return getProperties().getBooleanProperty(key);
    }
 
    @Override
    public Boolean getBooleanProperty(final String key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getBooleanProperty(new SimpleString(key));
+      return getBooleanProperty(key(key));
    }
-
 
    @Override
    public CoreMessage putByteProperty(final SimpleString key, final byte value) {
       messageChanged();
-      checkProperties();
-      properties.putByteProperty(key, value);
+      getProperties().putByteProperty(key, value);
       return this;
    }
-
 
    @Override
    public CoreMessage putByteProperty(final String key, final byte value) {
-      messageChanged();
-      checkProperties();
-      properties.putByteProperty(new SimpleString(key), value);
-
-      return this;
+      return putByteProperty(key(key), value);
    }
-
 
    @Override
    public Byte getByteProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getByteProperty(key);
+      return getProperties().getByteProperty(key);
    }
 
    @Override
    public Byte getByteProperty(final String key) throws ActiveMQPropertyConversionException {
-      return getByteProperty(SimpleString.toSimpleString(key));
+      return getByteProperty(key(key));
    }
 
    @Override
    public CoreMessage putBytesProperty(final SimpleString key, final byte[] value) {
       messageChanged();
-      checkProperties();
-      properties.putBytesProperty(key, value);
-
+      getProperties().putBytesProperty(key, value);
       return this;
    }
 
    @Override
    public CoreMessage putBytesProperty(final String key, final byte[] value) {
-      messageChanged();
-      checkProperties();
-      properties.putBytesProperty(new SimpleString(key), value);
-      return this;
+      return putBytesProperty(key(key), value);
    }
-
 
    @Override
    public byte[] getBytesProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getBytesProperty(key);
+      return getProperties().getBytesProperty(key);
    }
 
    @Override
    public byte[] getBytesProperty(final String key) throws ActiveMQPropertyConversionException {
-      return getBytesProperty(new SimpleString(key));
+      return getBytesProperty(key(key));
    }
 
    @Override
    public CoreMessage putCharProperty(SimpleString key, char value) {
       messageChanged();
-      checkProperties();
-      properties.putCharProperty(key, value);
+      getProperties().putCharProperty(key, value);
       return this;
    }
 
    @Override
    public CoreMessage putCharProperty(String key, char value) {
-      messageChanged();
-      checkProperties();
-      properties.putCharProperty(new SimpleString(key), value);
-      return this;
+      return putCharProperty(key(key), value);
    }
 
    @Override
    public CoreMessage putShortProperty(final SimpleString key, final short value) {
       messageChanged();
-      checkProperties();
-      properties.putShortProperty(key, value);
+      getProperties().putShortProperty(key, value);
       return this;
    }
 
    @Override
    public CoreMessage putShortProperty(final String key, final short value) {
-      messageChanged();
-      checkProperties();
-      properties.putShortProperty(new SimpleString(key), value);
-      return this;
+      return putShortProperty(key(key), value);
    }
-
 
    @Override
    public CoreMessage putIntProperty(final SimpleString key, final int value) {
       messageChanged();
-      checkProperties();
-      properties.putIntProperty(key, value);
+      getProperties().putIntProperty(key, value);
       return this;
    }
 
    @Override
    public CoreMessage putIntProperty(final String key, final int value) {
-      messageChanged();
-      checkProperties();
-      properties.putIntProperty(new SimpleString(key), value);
-      return this;
+      return putIntProperty(key(key), value);
    }
 
    @Override
    public Integer getIntProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getIntProperty(key);
+      return getProperties().getIntProperty(key);
    }
 
    @Override
    public Integer getIntProperty(final String key) throws ActiveMQPropertyConversionException {
-      return getIntProperty(SimpleString.toSimpleString(key));
+      return getIntProperty(key(key));
    }
-
 
    @Override
    public CoreMessage putLongProperty(final SimpleString key, final long value) {
       messageChanged();
-      checkProperties();
-      properties.putLongProperty(key, value);
+      getProperties().putLongProperty(key, value);
       return this;
    }
 
    @Override
    public CoreMessage putLongProperty(final String key, final long value) {
-      messageChanged();
-      checkProperties();
-      properties.putLongProperty(new SimpleString(key), value);
-      return this;
+      return putLongProperty(key(key), value);
    }
 
    @Override
    public Long getLongProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getLongProperty(key);
+      return getProperties().getLongProperty(key);
    }
 
    @Override
    public Long getLongProperty(final String key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return getLongProperty(SimpleString.toSimpleString(key));
+      return getLongProperty(key(key));
    }
-
 
    @Override
    public CoreMessage putFloatProperty(final SimpleString key, final float value) {
       messageChanged();
-      checkProperties();
-      properties.putFloatProperty(key, value);
+      getProperties().putFloatProperty(key, value);
       return this;
    }
 
    @Override
    public CoreMessage putFloatProperty(final String key, final float value) {
-      messageChanged();
-      checkProperties();
-      properties.putFloatProperty(new SimpleString(key), value);
-      return this;
+      return putFloatProperty(key(key), value);
    }
 
    @Override
    public CoreMessage putDoubleProperty(final SimpleString key, final double value) {
       messageChanged();
-      checkProperties();
-      properties.putDoubleProperty(key, value);
+      getProperties().putDoubleProperty(key, value);
       return this;
    }
 
    @Override
    public CoreMessage putDoubleProperty(final String key, final double value) {
-      messageChanged();
-      checkProperties();
-      properties.putDoubleProperty(new SimpleString(key), value);
-      return this;
+      return putDoubleProperty(key(key), value);
    }
-
 
    @Override
    public Double getDoubleProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      messageChanged();
-      checkProperties();
-      return properties.getDoubleProperty(key);
+      return getProperties().getDoubleProperty(key);
    }
 
    @Override
    public Double getDoubleProperty(final String key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return getDoubleProperty(SimpleString.toSimpleString(key));
+      return getDoubleProperty(key(key));
    }
 
    @Override
    public CoreMessage putStringProperty(final SimpleString key, final SimpleString value) {
       messageChanged();
-      checkProperties();
-      properties.putSimpleStringProperty(key, value);
+      getProperties().putSimpleStringProperty(key, value);
       return this;
    }
 
    @Override
+   public CoreMessage putStringProperty(final SimpleString key, final String value) {
+      return putStringProperty(key, value(value));
+   }
+
+   @Override
    public CoreMessage putStringProperty(final String key, final String value) {
-      messageChanged();
-      checkProperties();
-      properties.putSimpleStringProperty(new SimpleString(key), SimpleString.toSimpleString(value));
-      return this;
+      return putStringProperty(key(key), value(value));
    }
 
    @Override
    public CoreMessage putObjectProperty(final SimpleString key,
                                         final Object value) throws ActiveMQPropertyConversionException {
       messageChanged();
-      checkProperties();
-      TypedProperties.setObjectProperty(key, value, properties);
+      TypedProperties.setObjectProperty(key, value, getProperties());
       return this;
    }
 
    @Override
    public Object getObjectProperty(final String key) {
-      checkProperties();
-      return getObjectProperty(SimpleString.toSimpleString(key));
+      return getObjectProperty(key(key));
    }
 
    @Override
    public Object getObjectProperty(final SimpleString key) {
-      checkProperties();
-      return properties.getProperty(key);
+      return getProperties().getProperty(key);
    }
 
    @Override
    public CoreMessage putObjectProperty(final String key, final Object value) throws ActiveMQPropertyConversionException {
-      messageChanged();
-      putObjectProperty(new SimpleString(key), value);
-      return this;
+      return putObjectProperty(key(key), value);
    }
 
    @Override
    public Short getShortProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getShortProperty(key);
+      return getProperties().getShortProperty(key);
    }
 
    @Override
    public Short getShortProperty(final String key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getShortProperty(new SimpleString(key));
+      return getShortProperty(key(key));
    }
 
    @Override
    public Float getFloatProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getFloatProperty(key);
+      return getProperties().getFloatProperty(key);
    }
 
    @Override
    public Float getFloatProperty(final String key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getFloatProperty(new SimpleString(key));
+      return getFloatProperty(key(key));
    }
 
    @Override
@@ -955,25 +1070,22 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public String getStringProperty(final String key) throws ActiveMQPropertyConversionException {
-      return getStringProperty(new SimpleString(key));
+      return getStringProperty(key(key));
    }
 
    @Override
    public SimpleString getSimpleStringProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getSimpleStringProperty(key);
+      return getProperties().getSimpleStringProperty(key);
    }
 
    @Override
    public SimpleString getSimpleStringProperty(final String key) throws ActiveMQPropertyConversionException {
-      checkProperties();
-      return properties.getSimpleStringProperty(new SimpleString(key));
+      return getSimpleStringProperty(key(key));
    }
 
    @Override
    public Object removeProperty(final SimpleString key) {
-      checkProperties();
-      Object oldValue = properties.removeProperty(key);
+      Object oldValue = getProperties().removeProperty(key);
       if (oldValue != null) {
          messageChanged();
       }
@@ -982,43 +1094,65 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    @Override
    public Object removeProperty(final String key) {
-      messageChanged();
-      checkProperties();
-      Object oldValue = properties.removeProperty(new SimpleString(key));
-      if (oldValue != null) {
-         messageChanged();
+      return removeProperty(key(key));
+   }
+
+   @Override
+   public boolean hasScheduledDeliveryTime() {
+      return searchProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+   }
+
+   /**
+    * Differently from {@link #containsProperty(SimpleString)}, this method can save decoding the message,
+    * performing a search of the {@code key} property and falling back to {@link #containsProperty(SimpleString)}
+    * if not possible or if already decoded.
+    */
+   public boolean searchProperty(SimpleString key) {
+      Objects.requireNonNull(key, "key cannot be null");
+      TypedProperties properties = this.properties;
+      if (properties != null) {
+         return properties.containsProperty(key);
       }
-      return oldValue;
+      synchronized (this) {
+         final ByteBuf buffer = this.buffer;
+         // acquiring the lock here, although heavy-weight, is the safer way to do this,
+         // because we cannot trust that a racing thread won't modify buffer
+         if (buffer == null) {
+            throw new NullPointerException("buffer cannot be null");
+         }
+         final int propertiesLocation = this.propertiesLocation;
+         if (propertiesLocation < 0) {
+            throw new IllegalStateException("propertiesLocation = " + propertiesLocation);
+         }
+         return TypedProperties.searchProperty(key, buffer, propertiesLocation);
+      }
    }
 
    @Override
    public boolean containsProperty(final SimpleString key) {
-      checkProperties();
-      return properties.containsProperty(key);
+      return getProperties().containsProperty(key);
    }
 
    @Override
    public boolean containsProperty(final String key) {
-      checkProperties();
-      return properties.containsProperty(new SimpleString(key));
+      return containsProperty(key(key));
    }
 
    @Override
    public Set<SimpleString> getPropertyNames() {
-      checkProperties();
-      return properties.getPropertyNames();
+      return getProperties().getPropertyNames();
    }
 
    @Override
-   public LargeBodyEncoder getBodyEncoder() throws ActiveMQException {
-      return new DecodingContext();
+   public LargeBodyReader getLargeBodyReader() throws ActiveMQException {
+      return new CoreLargeBodyReaderImpl();
    }
 
-   private final class DecodingContext implements LargeBodyEncoder {
+   private final class CoreLargeBodyReaderImpl implements LargeBodyReader {
 
       private int lastPos = 0;
 
-      private DecodingContext() {
+      private CoreLargeBodyReaderImpl() {
       }
 
       @Override
@@ -1026,25 +1160,30 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       }
 
       @Override
+      public void position(long position) throws ActiveMQException {
+         lastPos = (int)position;
+      }
+
+      @Override
+      public long position() {
+         return lastPos;
+      }
+
+      @Override
       public void close() {
       }
 
       @Override
-      public long getLargeBodySize() {
+      public long getSize() {
          return buffer.writerIndex();
       }
 
       @Override
-      public int encode(final ByteBuffer bufferRead) throws ActiveMQException {
-         ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(bufferRead);
-         return encode(buffer, bufferRead.capacity());
-      }
-
-      @Override
-      public int encode(final ActiveMQBuffer bufferOut, final int size) {
-         bufferOut.byteBuf().writeBytes(buffer, lastPos, size);
-         lastPos += size;
-         return size;
+      public int readInto(final ByteBuffer bufferRead) {
+         final int remaining = bufferRead.remaining();
+         buffer.getBytes(lastPos, bufferRead);
+         lastPos += remaining;
+         return remaining;
       }
    }
 
@@ -1062,11 +1201,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public void reloadPersistence(ActiveMQBuffer record) {
+   public void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools) {
       int size = record.readInt();
       initBuffer(size);
       buffer.setIndex(0, 0).writeBytes(record.byteBuf(), size);
-      decode();
+      decode(false, pools);
    }
 
    @Override
@@ -1075,12 +1214,17 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
+   public CoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
+      return this;
+   }
+
+   @Override
    public String toString() {
       try {
-         checkProperties();
+         final TypedProperties properties = getProperties();
          return "CoreMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority()  +
             ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
-            ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties + "]@" + System.identityHashCode(this);
+            ", durable=" + durable + ", address=" + getAddress() + ",size=" + getPersistentSize() + ",properties=" + properties + "]@" + System.identityHashCode(this);
       } catch (Throwable e) {
          logger.warn("Error creating String for message: ", e);
          return "ServerMessage[messageID=" + messageID + "]";
@@ -1093,5 +1237,26 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       } else {
          return new java.util.Date(timestamp).toString();
       }
+   }
+
+   private SimpleString key(String key) {
+      return SimpleString.toSimpleString(key, getPropertyKeysPool());
+   }
+
+   private SimpleString value(String value) {
+      return SimpleString.toSimpleString(value, getPropertyValuesPool());
+   }
+
+   private SimpleString.StringSimpleStringPool getPropertyKeysPool() {
+      return coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesStringSimpleStringPools().getPropertyKeysPool();
+   }
+
+   private SimpleString.StringSimpleStringPool getPropertyValuesPool() {
+      return coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesStringSimpleStringPools().getPropertyValuesPool();
+   }
+
+   @Override
+   public long getPersistentSize() throws ActiveMQException {
+      return getEncodeSize();
    }
 }

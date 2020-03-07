@@ -408,6 +408,24 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-name>DeserializationBlackList</config-property-name>" +
       "         <config-property-type>java.lang.String</config-property-type>" +
       "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
+      "         <description>***add***</description>" +
+      "         <config-property-name>IgnoreJTA</config-property-name>" +
+      "         <config-property-type>boolean</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
+      "         <description>***add***</description>" +
+      "         <config-property-name>Enable1xPrefixes</config-property-name>" +
+      "         <config-property-type>boolean</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
+      "         <description>***add***</description>" +
+      "         <config-property-name>UseTopologyForLoadBalancing</config-property-name>" +
+      "         <config-property-type>boolean</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
       "      </config-property>";
 
    private static String rootConfig = "<root>" + config + commentedOutConfigs + "</root>";
@@ -436,7 +454,6 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
          assertEquals(el.toString(), elementsByTagName.getLength(), 1);
          Node configPropertyNameNode = elementsByTagName.item(0);
          String configPropertyName = configPropertyNameNode.getTextContent();
-         System.out.println("configPropertyName = " + configPropertyName);
          Method setter = methodList.remove("set" + configPropertyName);
          assertNotNull("setter " + configPropertyName + " does not exist", setter);
          Class c = lookupType(setter);
@@ -459,8 +476,6 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
          }
          System.out.println(newConfig);
          fail("methods not shown please see previous and add");
-      } else {
-         System.out.println(commentedOutConfigs);
       }
    }
 

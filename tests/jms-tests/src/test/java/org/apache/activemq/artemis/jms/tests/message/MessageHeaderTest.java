@@ -32,12 +32,15 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.File;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueAttributes;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -49,7 +52,6 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
@@ -916,6 +918,17 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       }
 
+      @Override
+      public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                                    boolean durable, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void createSharedQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException {
+
+      }
+
       /**
        * Creates a <em>non-temporary</em> queue.
        *
@@ -1017,6 +1030,18 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       }
 
+      @Override
+      public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable,
+                              boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue)
+         throws ActiveMQException {
+
+      }
+
+      @Override
+      public void createQueue(SimpleString address, SimpleString queueName, boolean autoCreated, QueueAttributes queueAttributes) throws ActiveMQException {
+
+      }
+
       /**
        * Creates a <em>non-temporary</em>queue.
        *
@@ -1047,6 +1072,13 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       }
 
+      @Override
+      public void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable,
+                              boolean autoCreated,
+                              int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
+
+      }
+
       /**
        * Creates a <em>temporary</em> queue.
        *
@@ -1070,6 +1102,18 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
        */
       @Override
       public void createTemporaryQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                                       int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue)
+         throws ActiveMQException {
+
+      }
+
+      @Override
+      public void createTemporaryQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException {
 
       }
 
@@ -1131,11 +1175,21 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       }
 
       @Override
+      public ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, int priority, boolean browseOnly) throws ActiveMQException {
+         return null;
+      }
+
+      @Override
       public ClientConsumer createConsumer(final SimpleString queueName,
                                            final SimpleString filterString,
                                            final int windowSize,
                                            final int maxRate,
                                            final boolean browseOnly) throws ActiveMQException {
+         return null;
+      }
+
+      @Override
+      public ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, int priority, int windowSize, int maxRate, boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
@@ -1369,6 +1423,10 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       @Override
       public int getVersion() {
          return 0;
+      }
+
+      @Override
+      public void createAddress(SimpleString address, EnumSet<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException {
       }
 
       /**

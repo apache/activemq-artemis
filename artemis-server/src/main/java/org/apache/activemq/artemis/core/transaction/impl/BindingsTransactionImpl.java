@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.transaction.impl;
 
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 
 public class BindingsTransactionImpl extends TransactionImpl {
@@ -45,7 +46,7 @@ public class BindingsTransactionImpl extends TransactionImpl {
    }
 
    @Override
-   public RefsOperation createRefsOperation(Queue queue) {
+   public RefsOperation createRefsOperation(Queue queue, AckReason reason) {
       return null;
    }
 }

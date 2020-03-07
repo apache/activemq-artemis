@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.EnumSet;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -33,11 +32,12 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    public SimpleString name;
 
    public boolean autoCreated;
+   public AddressStatusEncoding addressStatusEncoding;
 
-   public Set<RoutingType> routingTypes;
+   public EnumSet<RoutingType> routingTypes;
 
    public PersistentAddressBindingEncoding() {
-      routingTypes = new HashSet<>();
+      routingTypes = EnumSet.noneOf(RoutingType.class);
    }
 
    @Override
@@ -57,7 +57,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    public PersistentAddressBindingEncoding(final SimpleString name,
-                                           final Set<RoutingType> routingTypes,
+                                           final EnumSet<RoutingType> routingTypes,
                                            final boolean autoCreated) {
       this.name = name;
       this.routingTypes = routingTypes;
@@ -79,8 +79,17 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    @Override
-   public Set<RoutingType> getRoutingTypes() {
+   public EnumSet<RoutingType> getRoutingTypes() {
       return routingTypes;
+   }
+
+   @Override
+   public AddressStatusEncoding getAddressStatusEncoding() {
+      return addressStatusEncoding;
+   }
+
+   public void setAddressStatusEncoding(AddressStatusEncoding addressStatusEncoding) {
+      this.addressStatusEncoding = addressStatusEncoding;
    }
 
    @Override

@@ -22,7 +22,7 @@
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.4.0-SNAPSHOT</version>
+      <version>2.12.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>apache-artemis</artifactId>
@@ -37,6 +37,11 @@
 
    <dependencies>
      <!-- ActiveMQ Artemis artifacts -->
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client-all</artifactId>
+         <version>${project.version}</version>
+      </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-boot</artifactId>
@@ -119,8 +124,8 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-native</artifactId>
-         <version>${project.version}</version>
+         <artifactId>activemq-artemis-native</artifactId>
+         <version>${activemq-artemis-native-version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -139,13 +144,17 @@
       </dependency>
       <!-- dependencies -->
       <dependency>
-         <groupId>org.jboss.logmanager</groupId>
-         <artifactId>jboss-logmanager</artifactId>
+          <groupId>org.jboss.logmanager</groupId>
+          <artifactId>jboss-logmanager</artifactId>
       </dependency>
-         <dependency>
-            <groupId>org.jboss.slf4j</groupId>
-            <artifactId>slf4j-jboss-logmanager</artifactId>
-         </dependency>
+      <dependency>
+          <groupId>org.jboss.slf4j</groupId>
+          <artifactId>slf4j-jboss-logmanager</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.wildfly.common</groupId>
+          <artifactId>wildfly-common</artifactId>
+      </dependency>
        <dependency>
            <groupId>io.airlift</groupId>
            <artifactId>airline</artifactId>
@@ -153,6 +162,10 @@
        <dependency>
            <groupId>org.apache.activemq</groupId>
            <artifactId>activemq-client</artifactId>
+       </dependency>
+       <dependency>
+           <groupId>org.apache.activemq</groupId>
+           <artifactId>activemq-openwire-legacy</artifactId>
        </dependency>
        <dependency>
           <groupId>org.eclipse.jetty.aggregate</groupId>
@@ -164,13 +177,16 @@
            <groupId>org.apache.tomcat</groupId>
            <artifactId>tomcat-servlet-api</artifactId>
        </dependency>
-       <dependency>
-          <groupId>org.jolokia</groupId>
-          <artifactId>jolokia-war</artifactId>
-          <type>war</type>
-       </dependency>
 
-       <!-- Management Console Dependencies -->
+      <!-- for artemis cli producer/consumer -->
+      <dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>qpid-jms-client</artifactId>
+         <version>${qpid.jms.version}</version>
+      </dependency>
+
+
+      <!-- Management Console Dependencies -->
        <dependency>
            <groupId>org.apache.activemq</groupId>
            <artifactId>artemis-console</artifactId>
@@ -216,6 +232,10 @@
            <groupId>org.apache.johnzon</groupId>
            <artifactId>johnzon-core</artifactId>
        </dependency>
+      <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jaspic_1.0_spec</artifactId>
+      </dependency>
    </dependencies>
 
    <build>
@@ -234,7 +254,7 @@
             <artifactId>maven-assembly-plugin</artifactId>
             <version>${maven.assembly.plugin.version}</version>
             <executions>
-               <execution>
+              <execution>
                   <id>source</id>
                   <configuration>
                      <descriptor>src/main/assembly/source-assembly.xml</descriptor>
@@ -246,7 +266,7 @@
                   </goals>
                </execution>
                <execution>
-                 <id>bin</id>
+                  <id>bin</id>
                   <configuration>
                      <descriptor>src/main/assembly/dep.xml</descriptor>
                      <tarLongFileMode>gnu</tarLongFileMode>

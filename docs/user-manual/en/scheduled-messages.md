@@ -15,7 +15,7 @@ The specified value must be a positive `long` corresponding to the time
 the message must be delivered (in milliseconds). An example of sending a
 scheduled message using the JMS API is as follows.
 
-``` java
+```java
 TextMessage message = session.createTextMessage("This is a scheduled message message which will be delivered in 5 sec.");
 message.setLongProperty("_AMQ_SCHED_DELIVERY", System.currentTimeMillis() + 5000);
 producer.send(message);
@@ -30,5 +30,5 @@ same property on the core message before sending.
 
 ## Example
 
-See the [examples](examples.md) chapter for an example which shows how scheduled messages can be used with
+See the [Scheduled Message Example](examples.md#scheduled-message) which shows how scheduled messages can be used with
 JMS.

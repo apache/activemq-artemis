@@ -51,7 +51,9 @@ public interface PageTransactionInfo extends EncodingSupport {
                      int increment) throws Exception;
 
    // To be used after the update was stored or reload
-   void onUpdate(int update, StorageManager storageManager, PagingManager pagingManager);
+   boolean onUpdate(int update, StorageManager storageManager, PagingManager pagingManager);
+
+   boolean checkSize(StorageManager storageManager, PagingManager pagingManager);
 
    void increment(int durableSize, int nonDurableSize);
 

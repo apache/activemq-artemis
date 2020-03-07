@@ -59,7 +59,6 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.ra.recovery.RecoveryManager;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
-import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.jboss.logging.Logger;
 import org.jgroups.JChannel;
 
@@ -122,6 +121,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    private final List<ActiveMQRAManagedConnectionFactory> managedConnectionFactories = new ArrayList<>();
 
    private String entries;
+
+   //fix of ARTEMIS-1669 - propagated value of transactional attribute JMSConnectionFactoryDefinition annotation with the
+   //default value is falso -> original behavior
+   private boolean ignoreJTA;
 
    /**
     * Keep track of the connection factories that we create so we don't create a bunch of instances of factories
@@ -611,12 +614,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     *
     * @param failoverOnInitialConnection The value
     */
+   @Deprecated
    public void setFailoverOnInitialConnection(final Boolean failoverOnInitialConnection) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setFailoverOnInitialConnection(" + failoverOnInitialConnection + ")");
-      }
-
-      raProperties.setFailoverOnInitialConnection(failoverOnInitialConnection);
    }
 
    /**
@@ -624,12 +623,9 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     *
     * @return The value
     */
+   @Deprecated
    public Boolean isFailoverOnInitialConnection() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isFailoverOnInitialConnection()");
-      }
-
-      return raProperties.isFailoverOnInitialConnection();
+      return false;
    }
 
    /**
@@ -656,6 +652,32 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       }
 
       return raProperties.isCacheDestinations();
+   }
+
+   /**
+    * Set enable1xPrefixes
+    *
+    * @param enable1xPrefixes The value
+    */
+   public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
+      if (logger.isTraceEnabled()) {
+         ActiveMQRALogger.LOGGER.trace("setEnable1xPrefixes(" + enable1xPrefixes + ")");
+      }
+
+      raProperties.setEnable1xPrefixes(enable1xPrefixes);
+   }
+
+   /**
+    * Get isCacheDestinations
+    *
+    * @return The value
+    */
+   public Boolean isEnable1xPrefixes() {
+      if (logger.isTraceEnabled()) {
+         ActiveMQRALogger.LOGGER.trace("isEnable1xPrefixes()");
+      }
+
+      return raProperties.isEnable1xPrefixes();
    }
 
    /**
@@ -877,6 +899,14 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       }
 
       raProperties.setProducerMaxRate(producerMaxRate);
+   }
+
+   public void setUseTopologyForLoadBalancing(Boolean useTopologyForLoadBalancing) {
+      raProperties.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
+   }
+
+   public Boolean isUseTopologyForLoadBalancing() {
+      return raProperties.isUseTopologyForLoadBalancing();
    }
 
    /**
@@ -1751,8 +1781,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          }
 
          if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-            ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for transport=" +
-                                             Arrays.toString(transportConfigurations) + " with ha=" + ha);
+            ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for transport=" + Arrays.toString(transportConfigurations) + " with ha=" + ha);
          }
 
          if (ha) {
@@ -1764,6 +1793,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
       }
 
+      cf.setUseTopologyForLoadBalancing(raProperties.isUseTopologyForLoadBalancing());
+
+      cf.setEnableSharedClientID(true);
+      cf.setEnable1xPrefixes(raProperties.isEnable1xPrefixes() == null ? false : raProperties.isEnable1xPrefixes());
       setParams(cf, overrideProperties);
       return cf;
    }
@@ -1830,6 +1863,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
       cf.setReconnectAttempts(0);
       cf.setInitialConnectAttempts(0);
+      cf.setEnable1xPrefixes(raProperties.isEnable1xPrefixes() == null ? false : raProperties.isEnable1xPrefixes());
+      cf.setEnableSharedClientID(true);
       return cf;
    }
 
@@ -1911,11 +1946,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       val = overrideProperties.isCompressLargeMessage() != null ? overrideProperties.isCompressLargeMessage() : raProperties.isCompressLargeMessage();
       if (val != null) {
          cf.setCompressLargeMessage(val);
-      }
-
-      val = overrideProperties.isFailoverOnInitialConnection() != null ? overrideProperties.isFailoverOnInitialConnection() : raProperties.isFailoverOnInitialConnection();
-      if (val != null) {
-         cf.setFailoverOnInitialConnection(val);
       }
 
       val = overrideProperties.isCacheDestinations() != null ? overrideProperties.isCacheDestinations() : raProperties.isCacheDestinations();
@@ -2031,14 +2061,16 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (val5 != null) {
          cf.setDeserializationWhiteList(val5);
       }
+
+      cf.setIgnoreJTA(isIgnoreJTA());
    }
 
    public void setManagedConnectionFactory(ActiveMQRAManagedConnectionFactory activeMQRAManagedConnectionFactory) {
       managedConnectionFactories.add(activeMQRAManagedConnectionFactory);
    }
 
-   public SensitiveDataCodec<String> getCodecInstance() {
-      return raProperties.getCodecInstance();
+   public String getCodec() {
+      return raProperties.getCodec();
    }
 
    public synchronized void closeConnectionFactory(ConnectionFactoryProperties properties) {
@@ -2047,5 +2079,13 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (pair.getA() != null && pair.getA() != defaultActiveMQConnectionFactory && references == 0) {
          knownConnectionFactories.remove(properties).getA().close();
       }
+   }
+
+   public Boolean isIgnoreJTA() {
+      return ignoreJTA;
+   }
+
+   public void setIgnoreJTA(Boolean ignoreJTA) {
+      this.ignoreJTA = ignoreJTA;
    }
 }

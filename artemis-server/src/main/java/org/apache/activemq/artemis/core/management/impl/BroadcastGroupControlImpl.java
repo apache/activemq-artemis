@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
+import org.apache.activemq.artemis.logs.AuditLogger;
 
 public class BroadcastGroupControlImpl extends AbstractControl implements BroadcastGroupControl {
 
@@ -52,6 +53,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    @Override
    public String getName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getName(this.broadcastGroup);
+      }
       clearIO();
       try {
          return configuration.getName();
@@ -62,6 +66,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    @Override
    public long getBroadcastPeriod() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getBroadcastPeriod(this.broadcastGroup);
+      }
       clearIO();
       try {
          return configuration.getBroadcastPeriod();
@@ -72,6 +79,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    @Override
    public Object[] getConnectorPairs() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getConnectorPairs(this.broadcastGroup);
+      }
       clearIO();
       try {
          Object[] ret = new Object[configuration.getConnectorInfos().size()];
@@ -80,7 +90,6 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
          for (String connector : configuration.getConnectorInfos()) {
             ret[i++] = connector;
          }
-
          return ret;
       } finally {
          blockOnIO();
@@ -89,6 +98,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    @Override
    public String getConnectorPairsAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getConnectorPairsAsJSON(this.broadcastGroup);
+      }
       clearIO();
       try {
          return JsonUtil.toJsonArray(configuration.getConnectorInfos()).toString();
@@ -100,6 +112,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
    //todo ghoward we should deal with this properly
    @Override
    public String getGroupAddress() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getGroupAddress(this.broadcastGroup);
+      }
       clearIO();
       try {
          if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory) {
@@ -113,6 +128,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    @Override
    public int getGroupPort() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getGroupPort(this.broadcastGroup);
+      }
       clearIO();
       try {
          if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory) {
@@ -126,6 +144,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    @Override
    public int getLocalBindPort() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getLocalBindPort(this.broadcastGroup);
+      }
       clearIO();
       try {
          if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory) {
@@ -141,6 +162,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    @Override
    public boolean isStarted() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isStarted(this.broadcastGroup);
+      }
       clearIO();
       try {
          return broadcastGroup.isStarted();
@@ -151,6 +175,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    @Override
    public void start() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.startBroadcastGroup(this.broadcastGroup);
+      }
       clearIO();
       try {
          broadcastGroup.start();
@@ -161,6 +188,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    @Override
    public void stop() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.stopBroadcastGroup(this.broadcastGroup);
+      }
       clearIO();
       try {
          broadcastGroup.stop();

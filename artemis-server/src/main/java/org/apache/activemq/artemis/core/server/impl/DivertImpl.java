@@ -17,14 +17,14 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.Divert;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.jboss.logging.Logger;
 
@@ -51,7 +51,7 @@ public class DivertImpl implements Divert {
 
    private final StorageManager storageManager;
 
-   private final DivertConfigurationRoutingType routingType;
+   private final ComponentConfigurationRoutingType routingType;
 
    public DivertImpl(final SimpleString forwardAddress,
                      final SimpleString uniqueName,
@@ -61,7 +61,7 @@ public class DivertImpl implements Divert {
                      final Transformer transformer,
                      final PostOffice postOffice,
                      final StorageManager storageManager,
-                     final DivertConfigurationRoutingType routingType) {
+                     final ComponentConfigurationRoutingType routingType) {
       this.forwardAddress = forwardAddress;
 
       this.uniqueName = uniqueName;
@@ -90,21 +90,21 @@ public class DivertImpl implements Divert {
          logger.trace("Diverting message " + message + " into " + this);
       }
 
+      context.setReusable(false);
+
       Message copy = null;
 
       // Shouldn't copy if it's not routed anywhere else
-      if (!forwardAddress.equals(context.getAddress())) {
+      if (!forwardAddress.equals(context.getAddress(message))) {
          long id = storageManager.generateID();
          copy = message.copy(id);
 
          // This will set the original MessageId, and the original address
-         copy.referenceOriginalMessage(message, null);
+         copy.referenceOriginalMessage(message, this.getUniqueName().toString());
 
          copy.setAddress(forwardAddress);
 
          copy.setExpiration(message.getExpiration());
-
-         copy.reencode();
 
          switch (routingType) {
             case ANYCAST:
@@ -123,11 +123,14 @@ public class DivertImpl implements Divert {
          if (transformer != null) {
             copy = transformer.transform(copy);
          }
+
+         // We call reencode at the end only, in a single call.
+         copy.reencode();
       } else {
          copy = message;
       }
 
-      postOffice.route(copy, context.getTransaction(), false);
+      postOffice.route(copy, new RoutingContextImpl(context.getTransaction()).setReusable(false).setRoutingType(copy.getRoutingType()), false);
    }
 
    @Override
@@ -158,6 +161,11 @@ public class DivertImpl implements Divert {
    @Override
    public Transformer getTransformer() {
       return transformer;
+   }
+
+   @Override
+   public SimpleString getForwardAddress() {
+      return forwardAddress;
    }
 
    /* (non-Javadoc)

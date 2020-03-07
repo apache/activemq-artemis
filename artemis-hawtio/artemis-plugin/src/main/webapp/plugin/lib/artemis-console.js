@@ -38,8 +38,8 @@ function ArtemisConsole() {
       jolokia.execute(mbean, "destroyQueue(java.lang.String)", name,  method);
    };
 
-   this.purgeQueue = function (mbean, jolokia, name, method) {
-      //todo
+   this.purgeQueue = function (mbean, jolokia, method) {
+	  jolokia.execute(mbean, "removeAllMessages()", method);
    };
 
    this.browse = function (mbean, jolokia, method) {
@@ -52,11 +52,11 @@ function ArtemisConsole() {
    };
 
    this.moveMessage = function (mbean, jolokia, id, queueName,  method) {
-      jolokia.execute(mbean, "moveMessage(java.lang.String,java.lang.String)", id, queueName, method);
+      jolokia.execute(mbean, "moveMessage(long,java.lang.String)", id, queueName, method);
    };
 
    this.retryMessage = function (mbean, jolokia, id, method) {
-      jolokia.execute(mbean, "retryMessage(java.lang.String)", id,  method);
+      jolokia.execute(mbean, "retryMessage(long)", id,  method);
    };
 
    this.sendMessage = function (mbean, jolokia, headers, type, body, durable, user, pwd, method) {
@@ -69,6 +69,16 @@ function ArtemisConsole() {
 
    this.getRemoteBrokers = function (mbean, jolokia, method) {
       jolokia.request({ type: 'exec', mbean: mbean, operation: 'listNetworkTopology()' }, method);
+   };
+
+   this.ownUnescape = function (name) {
+      //simple return unescape(name); does not work for this :(
+      return name.replace(/\\\\/g, "\\").replace(/\\\*/g, "*").replace(/\\\?/g, "?");
+   };
+
+   this.isBackup = function (jolokia, mBean) {
+      var req1 = { type: "read", mbean: mBean, attribute: "Backup"};
+      return jolokia.request(req1, {method: "get"});
    };
 }
 

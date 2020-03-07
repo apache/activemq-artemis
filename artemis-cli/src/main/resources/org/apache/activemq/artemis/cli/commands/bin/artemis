@@ -45,11 +45,11 @@ if [ -z "$ARTEMIS_INSTANCE" ] ; then
 fi
 
 # Load Profile Data
-. "$ARTEMIS_INSTANCE/etc/artemis.profile"
+ARTEMIS_INSTANCE_ETC='${artemis.instance.etc}'
+. "$ARTEMIS_INSTANCE_ETC/artemis.profile"
 
 # Set Defaults Properties
-ARTEMIS_LOGGING_CONF="$ARTEMIS_INSTANCE_URI/etc/logging.properties"
-ARTEMIS_DATA_DIR="$ARTEMIS_INSTANCE/data"
+ARTEMIS_LOGGING_CONF="$ARTEMIS_INSTANCE_ETC_URI/logging.properties"
 ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
 
 
@@ -106,10 +106,21 @@ if [ -z "$LOG_MANAGER" ] ; then
   LOG_MANAGER="$ARTEMIS_HOME/lib/${logmanager}"
 fi
 
+WILDFLY_COMMON=`ls $ARTEMIS_HOME/lib/wildfly-common*jar 2>/dev/null`
+if [ -z "$WILDFLY_COMMON" ] ; then
+  # this is the one found when the server was created
+  WILDFLY_COMMON="$ARTEMIS_HOME/lib/${wildfly-common}"
+fi
+
+if [ -f "$ARTEMIS_OOME_DUMP" ] ; then
+  # backup the last OOME heap dump
+  mv $ARTEMIS_OOME_DUMP $ARTEMIS_OOME_DUMP.bkp
+fi
+
 exec "$JAVACMD" \
     $JAVA_ARGS \
-    -Xbootclasspath/a:"$LOG_MANAGER" \
-    -Djava.security.auth.login.config="$ARTEMIS_INSTANCE/etc/login.config" \
+    -Xbootclasspath/a:"$LOG_MANAGER:$WILDFLY_COMMON" \
+    -Djava.security.auth.login.config="$ARTEMIS_INSTANCE_ETC/login.config" \
     $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \
     -Dartemis.home="$ARTEMIS_HOME" \
@@ -117,6 +128,7 @@ exec "$JAVACMD" \
     -Djava.library.path="$ARTEMIS_HOME/bin/lib/linux-$(uname -m)" \
     -Djava.io.tmpdir="$ARTEMIS_INSTANCE/tmp" \
     -Ddata.dir="$ARTEMIS_DATA_DIR" \
+    -Dartemis.instance.etc="$ARTEMIS_INSTANCE_ETC" \
     -Djava.util.logging.manager="$ARTEMIS_LOG_MANAGER" \
     -Dlogging.configuration="$ARTEMIS_LOGGING_CONF" \
     $DEBUG_ARGS \

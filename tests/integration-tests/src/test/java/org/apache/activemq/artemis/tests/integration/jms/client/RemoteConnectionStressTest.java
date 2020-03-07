@@ -21,18 +21,13 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,25 +38,14 @@ import org.junit.Test;
 public class RemoteConnectionStressTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
-   MBeanServer mbeanServer;
-   JMSServerManagerImpl jmsServer;
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
 
-      mbeanServer = MBeanServerFactory.createMBeanServer();
-
-      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultNettyConfig(), mbeanServer, false));
-
-      InVMNamingContext namingContext = new InVMNamingContext();
-      jmsServer = new JMSServerManagerImpl(server);
-      jmsServer.setRegistry(new JndiBindingRegistry(namingContext));
-
-      jmsServer.start();
-
-      jmsServer.createQueue(true, "SomeQueue", null, true, "/jms/SomeQueue");
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultNettyConfig(), false));
+      server.start();
    }
 
    @Test

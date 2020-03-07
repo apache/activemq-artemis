@@ -23,16 +23,14 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.EOFException;
-import java.lang.reflect.Field;
 import java.net.ProtocolException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -44,11 +42,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -63,14 +63,13 @@ import org.fusesource.mqtt.client.Topic;
 import org.fusesource.mqtt.client.Tracer;
 import org.fusesource.mqtt.codec.MQTTFrame;
 import org.fusesource.mqtt.codec.PUBLISH;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * QT
  * MQTT Test imported from ActiveMQ MQTT component.
  */
 public class MQTTTest extends MQTTTestSupport {
@@ -78,15 +77,6 @@ public class MQTTTest extends MQTTTestSupport {
    private static final Logger LOG = LoggerFactory.getLogger(MQTTTest.class);
 
    private static final String AMQP_URI = "tcp://localhost:61616";
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      Field sessions = MQTTSession.class.getDeclaredField("SESSIONS");
-      sessions.setAccessible(true);
-      sessions.set(null, new ConcurrentHashMap<>());
-      super.setUp();
-   }
 
    @Test
    public void testConnectWithLargePassword() throws Exception {
@@ -149,6 +139,23 @@ public class MQTTTest extends MQTTTestSupport {
       assertEquals(0, latch.getCount());
       subscriptionProvider.disconnect();
       publishProvider.disconnect();
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testDirectDeliverFalse() throws Exception {
+      final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
+      initializeConnection(subscriptionProvider);
+
+      subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
+
+
+      for (Binding b : server.getPostOffice().getAllBindings().values()) {
+         if (b instanceof QueueBinding) {
+            Assert.assertFalse("Queue " + ((QueueBinding) b).getQueue().getName(), ((QueueBinding)b).getQueue().isDirectDeliver());
+         }
+      }
+
+      subscriptionProvider.disconnect();
    }
 
    @Test(timeout = 60 * 1000)
@@ -470,7 +477,7 @@ public class MQTTTest extends MQTTTestSupport {
             assertTrue("RETAINED prefix " + wildcard + " msg " + msgPayload, msgPayload.startsWith(RETAINED));
             assertTrue("RETAINED matching " + wildcard + " " + msg.getTopic(), pattern.matcher(msg.getTopic()).matches());
             msg.ack();
-            msg = connection.receive(5000, TimeUnit.MILLISECONDS);
+            msg = connection.receive(500, TimeUnit.MILLISECONDS);
          }
          while (msg != null);
 
@@ -483,7 +490,7 @@ public class MQTTTest extends MQTTTestSupport {
             assertNotNull("Non-retained Null " + wildcard, msg);
             assertTrue("Non-retained matching " + wildcard + " " + msg.getTopic(), pattern.matcher(msg.getTopic()).matches());
             msg.ack();
-            msg = connection.receive(1000, TimeUnit.MILLISECONDS);
+            msg = connection.receive(500, TimeUnit.MILLISECONDS);
          }
          while (msg != null);
 
@@ -521,12 +528,8 @@ public class MQTTTest extends MQTTTestSupport {
          final Message msg = connection.receive(5000, TimeUnit.MILLISECONDS);
          assertNotNull(msg);
          assertEquals(topic, new String(msg.getPayload()));
-         int waitCount = 0;
-         while (actualQoS[0] == -1 && waitCount < 10) {
-            Thread.sleep(1000);
-            waitCount++;
-         }
-         assertEquals(i, actualQoS[0]);
+
+         Wait.assertEquals(i, () -> actualQoS[0]);
          msg.ack();
 
          connection.unsubscribe(new String[]{topic});
@@ -566,12 +569,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No message for " + qos, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         int waitCount = 0;
-         while (actualQoS[0] == -1 && waitCount < 10) {
-            Thread.sleep(1000);
-            waitCount++;
-         }
-         assertEquals(qos.ordinal(), actualQoS[0]);
+         Wait.assertEquals(qos.ordinal(), () -> actualQoS[0]);
          actualQoS[0] = -1;
       }
 
@@ -605,7 +603,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No retained message for " + clientId, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         assertNull(connection.receive(500, TimeUnit.MILLISECONDS));
+         assertNull(connection.receive(100, TimeUnit.MILLISECONDS));
 
          // test duplicate subscription
          connection.subscribe(new Topic[]{new Topic(TOPICA, QoS.AT_LEAST_ONCE)});
@@ -613,13 +611,13 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No retained message on duplicate subscription for " + clientId, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         assertNull(connection.receive(500, TimeUnit.MILLISECONDS));
+         assertNull(connection.receive(100, TimeUnit.MILLISECONDS));
          connection.unsubscribe(new String[]{TOPICA});
 
          // clear retained message and check that we don't receive it
          connection.publish(TOPICA, "".getBytes(), QoS.AT_MOST_ONCE, true);
          connection.subscribe(new Topic[]{new Topic(TOPICA, QoS.AT_LEAST_ONCE)});
-         msg = connection.receive(500, TimeUnit.MILLISECONDS);
+         msg = connection.receive(100, TimeUnit.MILLISECONDS);
          assertNull("Retained message not cleared for " + clientId, msg);
          connection.unsubscribe(new String[]{TOPICA});
 
@@ -630,7 +628,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No reset retained message for " + clientId, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         assertNull(connection.receive(500, TimeUnit.MILLISECONDS));
+         assertNull(connection.receive(100, TimeUnit.MILLISECONDS));
 
          // re-connect and check
          connection.disconnect();
@@ -641,7 +639,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No reset retained message for " + clientId, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         assertNull(connection.receive(500, TimeUnit.MILLISECONDS));
+         assertNull(connection.receive(100, TimeUnit.MILLISECONDS));
 
          connection.unsubscribe(new String[]{TOPICA});
          connection.disconnect();
@@ -674,7 +672,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No retained message for " + clientId, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         assertNull(connection.receive(500, TimeUnit.MILLISECONDS));
+         assertNull(connection.receive(100, TimeUnit.MILLISECONDS));
 
          // test duplicate subscription
          connection.subscribe(new Topic[]{new Topic(TOPICA, QoS.AT_LEAST_ONCE)});
@@ -682,7 +680,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No retained message on duplicate subscription for " + clientId, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         assertNull(connection.receive(500, TimeUnit.MILLISECONDS));
+         assertNull(connection.receive(100, TimeUnit.MILLISECONDS));
          connection.unsubscribe(new String[]{TOPICA});
 
          // clear retained message and check that we don't receive it
@@ -699,7 +697,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No reset retained message for " + clientId, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         assertNull(connection.receive(500, TimeUnit.MILLISECONDS));
+         assertNull(connection.receive(100, TimeUnit.MILLISECONDS));
 
          // re-connect and check
          connection.disconnect();
@@ -710,7 +708,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("No reset retained message for " + clientId, msg);
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
-         assertNull(connection.receive(500, TimeUnit.MILLISECONDS));
+         assertNull(connection.receive(100, TimeUnit.MILLISECONDS));
 
          LOG.info("Test now unsubscribing from: {} for the last time", TOPICA);
          connection.unsubscribe(new String[]{TOPICA});
@@ -1015,9 +1013,6 @@ public class MQTTTest extends MQTTTestSupport {
       // kill transport
       connection.kill();
 
-      // FIXME Wait for the previous connection to timeout.  This is not required in ActiveMQ.  Needs investigating.
-      Thread.sleep(10000);
-
       final BlockingConnection newConnection = mqtt.blockingConnection();
       newConnection.connect();
       Wait.waitFor(() -> newConnection.isConnected());
@@ -1052,8 +1047,6 @@ public class MQTTTest extends MQTTTestSupport {
       // kill transport
       connection.kill();
 
-      // FIXME Wait for the previous connection to timeout.  This is not required in ActiveMQ.  Needs investigating.
-      Thread.sleep(10000);
       Message m = connection2.receive(1000, TimeUnit.MILLISECONDS);
       assertEquals("test message", new String(m.getPayload()));
    }
@@ -1090,7 +1083,7 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test(timeout = 60 * 1000)
-   public void testCleanSession() throws Exception {
+   public void testCleanSessionForSubscriptions() throws Exception {
       final String CLIENTID = "cleansession";
       final MQTT mqttNotClean = createMQTTConnection(CLIENTID, false);
       BlockingConnection notClean = mqttNotClean.blockingConnection();
@@ -1100,7 +1093,9 @@ public class MQTTTest extends MQTTTestSupport {
       notClean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
       notClean.disconnect();
 
-      // MUST receive message from previous not clean session
+      assertEquals(1, getSessions().size());
+
+      // MUST receive message from existing subscription from previous not clean session
       notClean = mqttNotClean.blockingConnection();
       notClean.connect();
       Message msg = notClean.receive(10000, TimeUnit.MILLISECONDS);
@@ -1110,22 +1105,54 @@ public class MQTTTest extends MQTTTestSupport {
       notClean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
       notClean.disconnect();
 
-      // MUST NOT receive message from previous not clean session
+      assertEquals(1, getSessions().size());
+
+      // MUST NOT receive message from previous not clean session as existing subscription should be gone
       final MQTT mqttClean = createMQTTConnection(CLIENTID, true);
       final BlockingConnection clean = mqttClean.blockingConnection();
       clean.connect();
-      msg = clean.receive(10000, TimeUnit.MILLISECONDS);
+      msg = clean.receive(100, TimeUnit.MILLISECONDS);
       assertNull(msg);
       clean.subscribe(new Topic[]{new Topic(TOPIC, QoS.EXACTLY_ONCE)});
       clean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
       clean.disconnect();
 
-      // MUST NOT receive message from previous clean session
+      assertEquals(0, getSessions().size());
+
+      // MUST NOT receive message from previous clean session as existing subscription should be gone
       notClean = mqttNotClean.blockingConnection();
       notClean.connect();
-      msg = notClean.receive(1000, TimeUnit.MILLISECONDS);
+      msg = notClean.receive(100, TimeUnit.MILLISECONDS);
       assertNull(msg);
       notClean.disconnect();
+
+      assertEquals(1, getSessions().size());
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testCleanSessionForMessages() throws Exception {
+      final String CLIENTID = "cleansession";
+      final MQTT mqttNotClean = createMQTTConnection(CLIENTID, false);
+      BlockingConnection notClean = mqttNotClean.blockingConnection();
+      final String TOPIC = "TopicA";
+      notClean.connect();
+      notClean.subscribe(new Topic[]{new Topic(TOPIC, QoS.EXACTLY_ONCE)});
+      notClean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
+      notClean.disconnect();
+
+      assertEquals(1, getSessions().size());
+
+      // MUST NOT receive message from previous not clean session even when creating a new subscription
+      final MQTT mqttClean = createMQTTConnection(CLIENTID, true);
+      final BlockingConnection clean = mqttClean.blockingConnection();
+      clean.connect();
+      clean.subscribe(new Topic[]{new Topic(TOPIC, QoS.EXACTLY_ONCE)});
+      Message msg = clean.receive(100, TimeUnit.MILLISECONDS);
+      assertNull(msg);
+      clean.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
+      clean.disconnect();
+
+      assertEquals(0, getSessions().size());
    }
 
    @Test(timeout = 60 * 1000)
@@ -1284,7 +1311,7 @@ public class MQTTTest extends MQTTTestSupport {
       connection.subscribe(new Topic[]{new Topic(DOLLAR_TOPIC, QoS.EXACTLY_ONCE)});
       connection.publish(DOLLAR_TOPIC, DOLLAR_TOPIC.getBytes(), QoS.EXACTLY_ONCE, true);
 
-      Message message = connection.receive(10, TimeUnit.SECONDS);
+      Message message = connection.receive(100, TimeUnit.MILLISECONDS);
       assertNull("Publish enabled for $ Topics by default", message);
       connection.disconnect();
 
@@ -1526,13 +1553,13 @@ public class MQTTTest extends MQTTTestSupport {
          BlockingConnection connection = mqtt.blockingConnection();
          connection.connect();
          connection.disconnect();
-         Thread.sleep(1000);
+         Thread.sleep(100);
       }
       {
          BlockingConnection connection = mqtt.blockingConnection();
          connection.connect();
          connection.disconnect();
-         Thread.sleep(1000);
+         Thread.sleep(100);
       }
    }
 
@@ -1582,7 +1609,7 @@ public class MQTTTest extends MQTTTestSupport {
       }
 
       // these should not be received
-      assertNull(connectionSub.receive(5, TimeUnit.SECONDS));
+      assertNull(connectionSub.receive(100, TimeUnit.MILLISECONDS));
 
       connectionSub.disconnect();
       connectionPub.disconnect();
@@ -1761,10 +1788,10 @@ public class MQTTTest extends MQTTTestSupport {
       connection2.publish(sendAddress, message2.getBytes(), QoS.AT_LEAST_ONCE, false);
 
       assertNotNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
-      assertNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
+      assertNull(connection1.receive(100, TimeUnit.MILLISECONDS));
 
       assertNotNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
-      assertNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
+      assertNull(connection2.receive(100, TimeUnit.MILLISECONDS));
    }
 
    @Test(timeout = 60 * 1000)
@@ -1795,19 +1822,17 @@ public class MQTTTest extends MQTTTestSupport {
       connection2.publish(anycastAddress, message2.getBytes(), QoS.AT_LEAST_ONCE, false);
 
       assertNotNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
-      assertNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
+      assertNull(connection1.receive(100, TimeUnit.MILLISECONDS));
 
       assertNotNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
-      assertNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
+      assertNull(connection2.receive(100, TimeUnit.MILLISECONDS));
    }
 
    @Test(timeout = 60 * 1000)
    public void testAmbiguousRoutingWithMQTT() throws Exception {
       String anycastAddress = "foo/bar";
 
-      Set<RoutingType> routingTypeSet = new HashSet<>();
-      routingTypeSet.add(RoutingType.ANYCAST);
-      routingTypeSet.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> routingTypeSet = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
 
       getServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), routingTypeSet));
       String clientId = "testMqtt";
@@ -1948,5 +1973,21 @@ public class MQTTTest extends MQTTTestSupport {
          if (connection2.isConnected())
             connection2.disconnect();
       }
+   }
+
+   @Test
+   public void autoDestroyAddress() throws Exception {
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAutoDeleteAddresses(true);
+      server.getAddressSettingsRepository().addMatch("foo.bar", addressSettings);
+
+      final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
+      initializeConnection(subscriptionProvider);
+      subscriptionProvider.subscribe("foo/bar", AT_MOST_ONCE);
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString("foo.bar")));
+
+      subscriptionProvider.disconnect();
+
+      assertNull(server.getAddressInfo(SimpleString.toSimpleString("foo.bar")));
    }
 }

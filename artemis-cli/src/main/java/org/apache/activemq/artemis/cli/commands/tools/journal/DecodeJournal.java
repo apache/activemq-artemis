@@ -75,8 +75,9 @@ public class DecodeJournal extends LockAbstract {
                                     final int minFiles,
                                     final int fileSize,
                                     final String fileInput) throws Exception {
-      FileInputStream fileInputStream = new FileInputStream(new File(fileInput));
-      importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, fileInputStream);
+      try (FileInputStream fileInputStream = new FileInputStream(new File(fileInput))) {
+         importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, fileInputStream);
+      }
 
    }
 
@@ -86,8 +87,9 @@ public class DecodeJournal extends LockAbstract {
                                      final int minFiles,
                                      final int fileSize,
                                      final InputStream stream) throws Exception {
-      Reader reader = new InputStreamReader(stream);
-      importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, reader);
+      try (Reader reader = new InputStreamReader(stream)) {
+         importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, reader);
+      }
    }
 
    public static void importJournal(final String directory,

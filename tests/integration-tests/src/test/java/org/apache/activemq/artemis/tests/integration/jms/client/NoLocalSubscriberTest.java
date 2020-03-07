@@ -145,7 +145,8 @@ public class NoLocalSubscriberTest extends JMSTestBase {
          connection.setClientID(clientID);
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer messageProducer = session.createProducer(topic);
-         messageProducer.send(session.createTextMessage("M3"));
+         TextMessage textMessage = session.createTextMessage("M3");
+         messageProducer.send(textMessage);
          connection.close();
       }
 
@@ -157,7 +158,8 @@ public class NoLocalSubscriberTest extends JMSTestBase {
          connection.setClientID(clientID + "_different");
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer messageProducer = session.createProducer(topic);
-         messageProducer.send(session.createTextMessage("M4"));
+         TextMessage textMessage = session.createTextMessage("M4");
+         messageProducer.send(textMessage);
          connection.close();
       }
 

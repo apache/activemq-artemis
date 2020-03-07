@@ -19,10 +19,7 @@ rem under the License.
 setlocal
 
 if NOT "%ARTEMIS_HOME%"=="" goto CHECK_ARTEMIS_HOME
-PUSHD .
-CD %~dp0..
-set ARTEMIS_HOME="%CD%"
-POPD
+set ARTEMIS_HOME="%~dp0.."
 
 :CHECK_ARTEMIS_HOME
 if exist %ARTEMIS_HOME%\bin\artemis.cmd goto CHECK_JAVA
@@ -48,7 +45,7 @@ echo.
 :RUN_JAVA
 
 rem "Set Defaults."
-set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M
+set JAVA_ARGS=-XX:+UseParallelGC -Xms512M -Xmx1024M
 
 rem "Create full JVM Args"
 set JVM_ARGS=%JAVA_ARGS%

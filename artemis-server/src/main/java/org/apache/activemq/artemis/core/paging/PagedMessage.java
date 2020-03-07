@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -38,4 +39,13 @@ public interface PagedMessage extends EncodingSupport {
    void initMessage(StorageManager storageManager);
 
    long getTransactionID();
+
+   /**
+    * This is the size of the message when persisted on disk and is used for metrics tracking
+    * If a normal message it will be the encoded message size
+    * If a large message it will be encoded message size + large message body size
+    * @return
+    * @throws ActiveMQException
+    */
+   long getPersistentSize() throws ActiveMQException;
 }

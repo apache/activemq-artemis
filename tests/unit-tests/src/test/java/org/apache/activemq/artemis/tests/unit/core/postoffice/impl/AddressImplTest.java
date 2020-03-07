@@ -274,4 +274,15 @@ public class AddressImplTest extends ActiveMQTestBase {
       Assert.assertFalse(a1.matches(w));
    }
 
+   /**
+    * https://issues.apache.org/jira/browse/ARTEMIS-1890
+    */
+   @Test
+   public void testV() {
+      final SimpleString s1 = new SimpleString("a.b.d");
+      final SimpleString s3 = new SimpleString("a.b.#.d");
+      final Address a1 = new AddressImpl(s1);
+      final Address w = new AddressImpl(s3);
+      Assert.assertTrue(a1.matches(w));
+   }
 }

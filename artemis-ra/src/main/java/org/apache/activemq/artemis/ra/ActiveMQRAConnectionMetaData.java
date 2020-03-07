@@ -26,15 +26,10 @@ import java.util.Vector;
 public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
 
    /**
-    * Trace enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * Constructor
     */
    public ActiveMQRAConnectionMetaData() {
-      if (ActiveMQRAConnectionMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor()");
       }
    }
@@ -46,7 +41,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     */
    @Override
    public String getJMSVersion() {
-      if (ActiveMQRAConnectionMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getJMSVersion()");
       }
 
@@ -60,7 +55,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     */
    @Override
    public int getJMSMajorVersion() {
-      if (ActiveMQRAConnectionMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getJMSMajorVersion()");
       }
 
@@ -74,7 +69,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     */
    @Override
    public int getJMSMinorVersion() {
-      if (ActiveMQRAConnectionMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getJMSMinorVersion()");
       }
 
@@ -88,7 +83,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     */
    @Override
    public String getJMSProviderName() {
-      if (ActiveMQRAConnectionMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getJMSProviderName()");
       }
 
@@ -102,7 +97,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     */
    @Override
    public String getProviderVersion() {
-      if (ActiveMQRAConnectionMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getJMSProviderName()");
       }
 
@@ -116,7 +111,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     */
    @Override
    public int getProviderMajorVersion() {
-      if (ActiveMQRAConnectionMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getProviderMajorVersion()");
       }
 
@@ -130,7 +125,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     */
    @Override
    public int getProviderMinorVersion() {
-      if (ActiveMQRAConnectionMetaData.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getProviderMinorVersion()");
       }
 

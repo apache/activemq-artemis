@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.extras.jms.bridge;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -34,21 +35,34 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import static org.apache.activemq.artemis.core.settings.impl.AddressSettings.DEFAULT_MAX_DELIVERY_ATTEMPTS;
 import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.ra.DummyTransactionManager;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 public class JMSBridgeTest extends BridgeTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+
+   @Rule
+   public Timeout timeout = new Timeout(120000);
 
    // MaxBatchSize but no MaxBatchTime
 
@@ -327,7 +341,7 @@ public class JMSBridgeTest extends BridgeTestBase {
    @Test
    public void testStartBridgeFirst() throws Exception {
       //stop the source server, we want to start the bridge first
-      jmsServer0.stop();
+      server0.stop();
       JMSBridgeImpl bridge = null;
 
       ConnectionFactoryFactory factInUse0 = cff0;
@@ -340,10 +354,8 @@ public class JMSBridgeTest extends BridgeTestBase {
          bridge.start();
 
          //now start the server
-         jmsServer0.start();
-         createQueue("sourceQueue", 0);
-         createQueue("localTargetQueue", 0);
-         jmsServer0.createTopic(false, "sourceTopic", "/topic/sourceTopic");
+         server0.start();
+
          // Send half the messages
 
          sendMessages(cf0, sourceQueue, 0, NUM_MESSAGES / 2, false, false);
@@ -780,6 +792,8 @@ public class JMSBridgeTest extends BridgeTestBase {
 
       TransactionManager mgr = newTransactionManager();
 
+      final int NUM_MESSAGES = 10;
+
       try {
 
          toResume = mgr.suspend();
@@ -788,14 +802,14 @@ public class JMSBridgeTest extends BridgeTestBase {
 
          started = mgr.getTransaction();
 
-         final int NUM_MESSAGES = 10;
-
          bridge = new JMSBridgeImpl(cff0, cff1, sourceTopicFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false).setBridgeName("test-bridge");
          bridge.start();
 
          sendMessages(cf0, sourceTopic, 0, NUM_MESSAGES, false, largeMessage);
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, largeMessage);
+         Assert.assertEquals(0L, bridge.getAbortedMessageCount());
+         Assert.assertEquals("We didn't get the correct number processed messages", NUM_MESSAGES, bridge.getMessageCount());
       } finally {
          if (started != null) {
             try {
@@ -816,6 +830,47 @@ public class JMSBridgeTest extends BridgeTestBase {
             bridge.stop();
          }
       }
+   }
+
+   @Test
+   public void testAbortedMessages() throws Exception {
+      JMSBridgeImpl bridge = null;
+
+      final int NUM_MESSAGES = 20;
+      final int MAX_BATCH_SIZE = 1;
+      final int RETRY = 2;
+      final int LIMIT = 2;
+      final int FAILURES = (NUM_MESSAGES - LIMIT) * DEFAULT_MAX_DELIVERY_ATTEMPTS;
+      FailingTransactionManager transactionManager = new FailingTransactionManager(newTransactionManager(), LIMIT);
+      try {
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, RETRY, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, MAX_BATCH_SIZE, -1, null, null, false).setBridgeName("test-bridge");
+         bridge.setTransactionManager(transactionManager);
+         bridge.start();
+         sendMessages(cf0, sourceQueue, 0, NUM_MESSAGES, false, false);
+         try (Connection conn = cf1.createConnection()) {
+            conn.start();
+            Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageConsumer cons = sess.createConsumer(targetQueue);
+            // Consume the messages
+            for (int i = 0; i <= LIMIT; i++) {
+               Message tm = cons.receive(3000);
+               if (tm != null) {
+                  Assert.assertNotNull("Message " + i + " is null", tm);
+                  Assert.assertEquals("message" + i, ((TextMessage) tm).getText());
+               }
+            }
+         }
+         Assert.assertEquals("We didn't get the correct number failures", FAILURES, transactionManager.getFailures());
+         Assert.assertEquals("We didn't get the correct number of aborted messages", FAILURES, bridge.getAbortedMessageCount());
+         Assert.assertEquals("We didn't get the correct number of processed messages", FAILURES + LIMIT, bridge.getMessageCount());
+      } finally {
+         if (bridge != null) {
+            bridge.stop();
+         }
+      }
+      Assert.assertEquals("We didn't get the correct number failures", FAILURES, transactionManager.getFailures());
+      Assert.assertEquals("We didn't get the correct number of aborted messages", FAILURES, bridge.getAbortedMessageCount());
+      Assert.assertEquals("We didn't get the correct number of processed messages", FAILURES + LIMIT, bridge.getMessageCount());
    }
 
    @Test
@@ -841,6 +896,8 @@ public class JMSBridgeTest extends BridgeTestBase {
          sendMessages(cf0, sourceTopic, 0, NUM_MESSAGES, false, largeMessage);
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, largeMessage);
+         Assert.assertEquals(0L, bridge.getAbortedMessageCount());
+         Assert.assertEquals("We didn't get the correct number processed messages", NUM_MESSAGES, bridge.getMessageCount());
       } finally {
          if (bridge != null) {
             bridge.stop();
@@ -871,6 +928,8 @@ public class JMSBridgeTest extends BridgeTestBase {
          sendMessages(cf0, sourceTopic, 0, NUM_MESSAGES, true, largeMessage);
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, largeMessage);
+         Assert.assertEquals(0L, bridge.getAbortedMessageCount());
+         Assert.assertEquals("We didn't get the correct number processed messages", NUM_MESSAGES, bridge.getMessageCount());
       } finally {
          if (bridge != null) {
             bridge.stop();
@@ -1153,7 +1212,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
          Assert.assertEquals(0, tm.getJMSExpiration());
 
-         m = cons.receive(5000);
+         m = cons.receive(500);
 
          Assert.assertNull(m);
 
@@ -1287,6 +1346,48 @@ public class JMSBridgeTest extends BridgeTestBase {
             connTarget.close();
          }
       }
+   }
+
+   @Test
+   public void testCrashDestStopBridge() throws Exception {
+      cff1xa = new ConnectionFactoryFactory() {
+         @Override
+         public Object createConnectionFactory() throws Exception {
+            ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1));
+
+            cf.setReconnectAttempts(-1);
+            cf.setCallFailoverTimeout(-1);
+            cf.setCallTimeout(10000);
+            cf.setBlockOnNonDurableSend(true);
+            cf.setBlockOnDurableSend(true);
+            cf.setCacheLargeMessagesClient(true);
+
+            return cf;
+         }
+
+      };
+
+      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0xa, cff1xa, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10, 5000, null, null, false).setBridgeName("test-bridge");
+      addActiveMQComponent(bridge);
+      bridge.setTransactionManager(newTransactionManager());
+
+      bridge.start();
+
+      // Now crash the dest server
+
+      JMSBridgeTest.log.info("About to crash server");
+
+      server1.stop();
+
+      // Now stop the bridge while the failover is happening
+
+      JMSBridgeTest.log.info("About to stop the bridge");
+
+      bridge.stop();
+
+      // Shutdown the source server
+
+      server0.stop();
    }
 
    // Private -------------------------------------------------------------------------------
@@ -1562,7 +1663,7 @@ public class JMSBridgeTest extends BridgeTestBase {
       try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(factInUse0, factInUse0, sourceQueueFactory, localTargetQueueFactory, null, null, null, null, null, 5000, 10, qosMode, NUM_MESSAGES, -1, null, null, false).setBridgeName("test-bridge");
+         bridge = new JMSBridgeImpl(factInUse0, factInUse0, sourceQueueFactory, localTargetQueueFactory, null, null, null, null, null, 500, 10, qosMode, NUM_MESSAGES, -1, null, null, false).setBridgeName("test-bridge");
 
          bridge.start();
 
@@ -1715,8 +1816,186 @@ public class JMSBridgeTest extends BridgeTestBase {
       Assert.assertFalse(mbeanServer.isRegistered(objectName));
    }
 
+   @Test
+   public void testDuplicateMessagesWhenBridgeStops() throws Exception {
+      final int NUM_MESSAGES = 500;
+
+      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0xa, cff1xa, sourceQueueFactory, targetQueueFactory, null, null,
+         null, null, null, 1000, 10,
+         QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10, 100, null, "ClientId123",
+         true)
+         .setBridgeName("test-bridge");
+      bridge.setTransactionManager(getNewTm());
+      createQueue(targetQueue.getQueueName(), 1);
+
+      final List<TextMessage> sentMessages = new ArrayList<>();
+      final List<TextMessage> receivedMessages = new ArrayList<>();
+
+      log.info("Starting bridge " + bridge);
+      bridge.start();
+      waitForComponent(bridge, 15);
+
+      Thread producerThread = new Thread(() -> {
+         Connection conn = null;
+         Session session = null;
+         int counter = 0;
+         try {
+            conn = cf0.createConnection();
+            session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(sourceQueue);
+            TextMessage msg = null;
+
+            while (counter < NUM_MESSAGES) {
+               msg = session.createTextMessage("message" + counter);
+               msg.setIntProperty("count", counter);
+               producer.send(msg);
+               sentMessages.add(msg);
+               log.info("Sent message with property counter: " + counter + ", messageId:" + msg.getJMSMessageID()
+                  + ((msg.getStringProperty("_AMQ_DUPL_ID") != null) ? ", _AMQ_DUPL_ID=" + msg.getStringProperty("_AMQ_DUPL_ID") : ""));
+               counter++;
+               Thread.sleep(200);
+            }
+
+            producer.close();
+         } catch (InterruptedException | JMSException e) {
+            log.error("Error while producing messages: ", e);
+         } finally {
+            try {
+               if (session != null) {
+                  session.close();
+               }
+
+               if (conn != null) {
+                  conn.close();
+               }
+            } catch (JMSException e) {
+               log.error("Error cleaning up the producer thread! ", e);
+            }
+         }
+      });
+
+      Thread consumerThread = new Thread(() -> {
+         Connection conn = null;
+         Session session = null;
+         try {
+            conn = cf1.createConnection();
+            conn.start();
+
+            session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+            MessageConsumer consumer = session.createConsumer(targetQueue);
+            TextMessage msg = null;
+
+            boolean running = true;
+            while (running) {
+               msg = (TextMessage) consumer.receive(5000);
+               if (msg != null) {
+                  msg.acknowledge();
+                  receivedMessages.add(msg);
+                  log.info("Received message with messageId: " + msg.getJMSMessageID() +
+                     " and property counter " + msg.getIntProperty("count"));
+               } else {
+                  running = false;
+               }
+            }
+
+         } catch (JMSException e) {
+            log.error("Error while consuming messages: ", e);
+         } finally {
+            try {
+               if (session != null) {
+                  session.close();
+               }
+
+               if (conn != null) {
+                  conn.close();
+               }
+            } catch (JMSException e) {
+               log.error("Error cleaning up the consumer thread! ", e);
+            }
+         }
+      });
+
+      log.info("Starting producer thread...");
+      producerThread.start();
+
+      Assert.assertTrue(waitForMessages(server1, targetQueue.getQueueName(), NUM_MESSAGES / 100, 250000));
+
+      log.info("Stopping bridge " + bridge);
+      bridge.stop();
+      Thread.sleep(5000);
+
+      log.info("Starting bridge " + bridge + " again");
+      bridge.start();
+      waitForComponent(bridge, 15);
+
+      Assert.assertTrue(waitForMessages(server1, targetQueue.getQueueName(), NUM_MESSAGES, 300000));
+
+
+
+      log.info("Starting consumer thread...");
+      consumerThread.start();
+
+      log.info("Waiting for the consumer thread to die...");
+      consumerThread.join();
+
+      log.info("Waiting for the producer thread to die...");
+      producerThread.join();
+
+      bridge.stop();
+
+      server1.stop();
+      server0.stop();
+
+      Assert.assertEquals("Number of sent messages is different from received messages", sentMessages.size(), receivedMessages.size());
+   }
+
    public TransactionManager getNewTm() {
       return newTransactionManager();
+   }
+
+   private static long countMessagesInQueue(ActiveMQServer server, String queueName) {
+      QueueControl queueControl = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queueName);
+      Assert.assertNotNull(queueControl);
+      long count = -1;
+      int numberOfTries = 0;
+      int maxNumberOfTries = 10;
+      while (count == -1 && numberOfTries < maxNumberOfTries) {
+         try {
+            numberOfTries++;
+            count = queueControl.countMessages();
+            break;
+         } catch (Exception ex) {
+            if (numberOfTries > maxNumberOfTries - 1) {
+               throw new RuntimeException("countMessagesInQueue() failed for queue:" + queueName
+                  + " and server: " + server + ". Number of tries: " + numberOfTries, ex);
+            }
+            try {
+               Thread.sleep(2000);
+            } catch (InterruptedException e) {
+               log.error(e.getMessage(), e);
+            }
+         }
+      }
+      log.info("Number of messages in queue " + queueName + " on server: " + server + " is: " + count);
+      return count;
+   }
+
+   private static boolean waitForMessages(ActiveMQServer server, String queueName, long numberOfMessages, long timeout) throws Exception {
+
+      long startTime = System.currentTimeMillis();
+
+      long count = 0;
+      while ((count = countMessagesInQueue(server, queueName)) < numberOfMessages) {
+         log.info("Total number of messages in queue: " + queueName + " on server " + server + " is " + count);
+         Thread.sleep(5000);
+         if (System.currentTimeMillis() - startTime > timeout) {
+            log.warn(numberOfMessages + " not on server " + server + " in timeout " + timeout + "ms.");
+            return false;
+         }
+      }
+      return true;
+
    }
 
    // Inner classes -------------------------------------------------------------------

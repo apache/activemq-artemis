@@ -23,31 +23,27 @@ import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.zip.Inflater;
 
-import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
-import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.PendingTask;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -80,6 +76,11 @@ public class StompSession implements SessionCallback {
       this.manager = manager;
       this.sessionContext = sessionContext;
       this.consumerCredits = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_CONSUMERS_CREDIT, TransportConstants.STOMP_DEFAULT_CONSUMERS_CREDIT, connection.getAcceptorUsed().getConfiguration());
+   }
+
+   @Override
+   public boolean supportsDirectDelivery() {
+      return false;
    }
 
    @Override
@@ -134,43 +135,14 @@ public class StompSession implements SessionCallback {
 
       ICoreMessage  coreMessage = serverMessage.toCore();
 
-      LargeServerMessageImpl largeMessage = null;
       ICoreMessage newServerMessage = serverMessage.toCore();
       try {
          StompSubscription subscription = subscriptions.get(consumer.getID());
+         // subscription might be null if the consumer was closed
+         if (subscription == null)
+            return 0;
          StompFrame frame;
-         ActiveMQBuffer buffer;
-
-         if (coreMessage.isLargeMessage()) {
-            LargeBodyEncoder encoder = coreMessage.getBodyEncoder();
-            encoder.open();
-            int bodySize = (int) encoder.getLargeBodySize();
-
-            buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
-
-            encoder.encode(buffer, bodySize);
-            encoder.close();
-         } else {
-            buffer = coreMessage.getReadOnlyBodyBuffer();
-         }
-
-         if (serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED)) {
-            ActiveMQBuffer qbuff = buffer;
-            int bytesToRead = qbuff.readerIndex();
-            Inflater inflater = new Inflater();
-            inflater.setInput(ByteUtil.getActiveArray(qbuff.readBytes(bytesToRead).toByteBuffer()));
-
-            //get the real size of large message
-            long sizeBody = newServerMessage.getLongProperty(Message.HDR_LARGE_BODY_SIZE);
-
-            byte[] data = new byte[(int) sizeBody];
-            inflater.inflate(data);
-            inflater.end();
-            qbuff.resetReaderIndex();
-            qbuff.resetWriterIndex();
-            qbuff.writeBytes(data);
-            buffer = qbuff;
-         }
+         ActiveMQBuffer buffer = coreMessage.getDataBuffer();
 
          frame = connection.createStompMessage(newServerMessage, buffer, subscription, deliveryCount);
 
@@ -205,13 +177,7 @@ public class StompSession implements SessionCallback {
             ActiveMQStompProtocolLogger.LOGGER.debug(e);
          }
          return 0;
-      } finally {
-         if (largeMessage != null) {
-            largeMessage.releaseResources();
-            largeMessage = null;
-         }
       }
-
    }
 
    @Override
@@ -236,13 +202,13 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
-   public void disconnect(ServerConsumer consumerId, String queueName) {
+   public void disconnect(ServerConsumer consumerId, SimpleString queueName) {
       StompSubscription stompSubscription = subscriptions.remove(consumerId.getID());
       if (stompSubscription != null) {
          StompFrame frame = connection.getFrameHandler().createStompFrame(Stomp.Responses.ERROR);
          frame.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
          frame.setBody("consumer with ID " + consumerId + " disconnected by server");
-         connection.sendFrame(frame);
+         connection.sendFrame(frame, null);
       }
    }
 
@@ -278,45 +244,44 @@ public class StompSession implements SessionCallback {
       session.commit();
    }
 
-   public void addSubscription(long consumerID,
+   public StompPostReceiptFunction addSubscription(long consumerID,
                                String subscriptionID,
                                String clientID,
                                String durableSubscriptionName,
                                String destination,
                                String selector,
                                String ack) throws Exception {
+      SimpleString address = SimpleString.toSimpleString(destination);
       SimpleString queueName = SimpleString.toSimpleString(destination);
-      boolean pubSub = false;
-      int receiveCredits = consumerCredits;
-      if (ack.equals(Stomp.Headers.Subscribe.AckModeValues.AUTO)) {
-         receiveCredits = -1;
-      }
+      SimpleString selectorSimple = SimpleString.toSimpleString(selector);
+      final int receiveCredits = ack.equals(Stomp.Headers.Subscribe.AckModeValues.AUTO) ? -1 : consumerCredits;
 
-      Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(getCoreSession().removePrefix(SimpleString.toSimpleString(destination))).getRoutingTypes();
-      if (routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST)) {
+      Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(getCoreSession().removePrefix(address)).getRoutingTypes();
+      boolean multicast = routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST);
+      if (multicast) {
          // subscribes to a topic
-         pubSub = true;
          if (durableSubscriptionName != null) {
             if (clientID == null) {
                throw BUNDLE.missingClientID();
             }
             queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
             if (manager.getServer().locateQueue(queueName) == null) {
-               session.createQueue(SimpleString.toSimpleString(destination), queueName, SimpleString.toSimpleString(selector), false, true);
+               try {
+                  session.createQueue(address, queueName, selectorSimple, false, true);
+               } catch (ActiveMQQueueExistsException e) {
+                  // ignore; can be caused by concurrent durable subscribers
+               }
             }
          } else {
             queueName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-            session.createQueue(SimpleString.toSimpleString(destination), queueName, SimpleString.toSimpleString(selector), true, false);
+            session.createQueue(address, queueName, selectorSimple, true, false);
          }
-         session.createConsumer(consumerID, queueName, null, false, false, receiveCredits);
-      } else {
-         session.createConsumer(consumerID, queueName, SimpleString.toSimpleString(selector), false, false, receiveCredits);
       }
-
-      StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, pubSub);
+      final ServerConsumer consumer = session.createConsumer(consumerID, queueName, multicast ? null : selectorSimple, false, false, 0);
+      StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, multicast);
       subscriptions.put(consumerID, subscription);
-
       session.start();
+      return () -> consumer.receiveCredits(receiveCredits);
    }
 
    public boolean unsubscribe(String id, String durableSubscriptionName, String clientID) throws Exception {
@@ -331,14 +296,15 @@ public class StompSession implements SessionCallback {
             iterator.remove();
             SimpleString queueName = sub.getQueueName();
             session.closeConsumer(consumerID);
-            if (sub.isPubSub() && manager.getServer().locateQueue(queueName) != null) {
+            Queue queue = manager.getServer().locateQueue(queueName);
+            if (sub.isMulticast() && queue != null && (durableSubscriptionName == null && !queue.isDurable())) {
                session.deleteQueue(queueName);
             }
             result = true;
          }
       }
 
-      if (!result && durableSubscriptionName != null && clientID != null) {
+      if (durableSubscriptionName != null && clientID != null) {
          SimpleString queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
          if (manager.getServer().locateQueue(queueName) != null) {
             session.deleteQueue(queueName);
@@ -395,13 +361,11 @@ public class StompSession implements SessionCallback {
 
       largeMessage.addBytes(bytes);
 
-      largeMessage.releaseResources();
+      largeMessage.releaseResources(true);
 
-      largeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, bytes.length);
+      largeMessage.toMessage().putLongProperty(Message.HDR_LARGE_BODY_SIZE, bytes.length);
 
-      session.send(largeMessage, direct);
-
-      largeMessage = null;
+      session.send(largeMessage.toMessage(), direct);
    }
 
 }

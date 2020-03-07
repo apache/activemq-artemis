@@ -146,7 +146,7 @@ public class PagingOMETest extends ActiveMQTestBase {
 
       session.start();
 
-      Assert.assertTrue(Wait.waitFor(() -> numberOfMessages == queue.getMessageCount()));
+      Wait.assertTrue(() -> numberOfMessages == queue.getMessageCount());
 
       // The consumer has to be created after the queue.getMessageCount assertion
       // otherwise delivery could alter the messagecount and give us a false failure

@@ -105,7 +105,7 @@ public class PageTest extends ActiveMQTestBase {
       addPageElements(simpleDestination, impl, numberOfElements);
 
       impl.sync();
-      impl.close();
+      impl.close(false, false);
 
       file = factory.createSequentialFile("00010.page");
       file.open();
@@ -168,7 +168,7 @@ public class PageTest extends ActiveMQTestBase {
 
       file.writeDirect(buffer, true);
 
-      impl.close();
+      impl.close(false);
 
       file = factory.createSequentialFile("00010.page");
       file.open();

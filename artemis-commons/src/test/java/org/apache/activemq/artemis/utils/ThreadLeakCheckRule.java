@@ -28,24 +28,27 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.logging.Logger;
 import org.junit.Assert;
-import org.junit.rules.ExternalResource;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 /**
  * This is useful to make sure you won't have leaking threads between tests
  */
-public class ThreadLeakCheckRule extends ExternalResource {
+public class ThreadLeakCheckRule extends TestWatcher {
 
    private static Logger log = Logger.getLogger(ThreadLeakCheckRule.class);
 
    private static Set<String> knownThreads = new HashSet<>();
 
-   boolean enabled = true;
+   protected boolean enabled = true;
 
-   private Map<Thread, StackTraceElement[]> previousThreads;
+   protected boolean testFailed = false;
 
-   public void disable() {
-      enabled = false;
-   }
+   protected Description testDescription = null;
+
+   protected Throwable failure = null;
+
+   protected Map<Thread, StackTraceElement[]> previousThreads;
 
    /**
     * Override to set up your specific external resource.
@@ -53,25 +56,43 @@ public class ThreadLeakCheckRule extends ExternalResource {
     * @throws if setup fails (which will disable {@code after}
     */
    @Override
-   protected void before() throws Throwable {
+   protected void starting(Description description) {
       // do nothing
 
       previousThreads = Thread.getAllStackTraces();
 
    }
 
+   public void disable() {
+      enabled = false;
+   }
+
+   @Override
+   protected void failed(Throwable e, Description description) {
+      this.failure = e;
+      this.testFailed = true;
+      this.testDescription = description;
+   }
+
+   @Override
+   protected void succeeded(Description description) {
+      this.testFailed = false;
+   }
+
    /**
     * Override to tear down your specific external resource.
     */
    @Override
-   protected void after() {
+   protected void finished(Description description) {
+      log.debug("checking thread enabled? " + enabled + " testFailed? " + testFailed);
       try {
          if (enabled) {
             boolean failed = true;
 
             boolean failedOnce = false;
 
-            long timeout = System.currentTimeMillis() + 60000;
+            // if the test failed.. there's no point on waiting a full minute.. we will report it once and go
+            long timeout = System.currentTimeMillis() + (testFailed ? 30000 : 60000);
             while (failed && timeout > System.currentTimeMillis()) {
                failed = checkThread();
 
@@ -86,7 +107,16 @@ public class ThreadLeakCheckRule extends ExternalResource {
             }
 
             if (failed) {
-               Assert.fail("Thread leaked");
+               if (!testFailed) {
+                  //we only fail on thread leak if test passes.
+                  Assert.fail("Thread leaked");
+               } else {
+                  System.out.println("***********************************************************************");
+                  System.out.println("             The test failed and there is a leak");
+                  System.out.println("***********************************************************************");
+                  failure.printStackTrace();
+                  Assert.fail("Test " + testDescription + " Failed with a leak - " + failure.getMessage());
+               }
             } else if (failedOnce) {
                System.out.println("******************** Threads cleared after retries ********************");
                System.out.println();
@@ -182,6 +212,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
                for (StackTraceElement el : elements) {
                   System.out.println(el);
                }
+               aliveThread.interrupt();
             }
 
          }
@@ -207,6 +238,8 @@ public class ThreadLeakCheckRule extends ExternalResource {
 
       if (threadName.contains("SunPKCS11")) {
          return true;
+      } else if (threadName.contains("Keep-Alive-Timer")) {
+         return true;
       } else if (threadName.contains("Attach Listener")) {
          return true;
       } else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper")) {
@@ -214,6 +247,8 @@ public class ThreadLeakCheckRule extends ExternalResource {
       } else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("ClassCache Reaper")) {
          return true;
       } else if (javaVendor.contains("IBM") && threadName.equals("MemoryPoolMXBean notification dispatcher")) {
+         return true;
+      } else if (threadName.contains("MemoryMXBean")) {
          return true;
       } else if (threadName.contains("globalEventExecutor")) {
          return true;
@@ -229,8 +264,11 @@ public class ThreadLeakCheckRule extends ExternalResource {
       } else if (threadName.contains("Abandoned connection cleanup thread")) {
          // MySQL Engine checks for abandoned connections
          return true;
-      } else if (threadName.contains("hawtdispatch")) {
+      } else if (threadName.contains("hawtdispatch") || (group != null && group.getName().contains("hawtdispatch"))) {
          // Static workers used by MQTT client.
+         return true;
+      } else if (threadName.contains("ObjectCleanerThread")) {
+         // Required since upgrade to Netty 4.1.22 maybe because https://github.com/netty/netty/commit/739e70398ccb6b11ffa97c6b5f8d55e455a2165e
          return true;
       } else {
          for (StackTraceElement element : thread.getStackTrace()) {

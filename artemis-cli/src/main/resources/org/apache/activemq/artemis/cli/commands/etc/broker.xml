@@ -20,6 +20,7 @@ under the License.
 
 <configuration xmlns="urn:activemq"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xi="http://www.w3.org/2001/XInclude"
                xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
 
    <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -27,6 +28,7 @@ under the License.
 
       <name>${name}</name>
 
+${jdbc}
       <persistence-enabled>${persistence-enabled}</persistence-enabled>
 
       <!-- this could be ASYNCIO, MAPPED, NIO
@@ -48,7 +50,9 @@ under the License.
 
       <journal-min-files>2</journal-min-files>
 
-      <journal-pool-files>-1</journal-pool-files>
+      <journal-pool-files>10</journal-pool-files>
+
+      <journal-device-block-size>${device-block-size}</journal-device-block-size>
 
       <journal-file-size>10M</journal-file-size>
       ${journal-buffer.settings}${ping-config.settings}${connector-config.settings}
@@ -69,15 +73,26 @@ under the License.
 
       <critical-analyzer-policy>HALT</critical-analyzer-policy>
 
-${global-max-section}
+      ${page-sync.settings}
+
+      ${global-max-section}
       <acceptors>
 
          <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->
          <!-- amqpCredits: The number of credits sent to AMQP producers -->
          <!-- amqpLowCredits: The server will send the # credits specified at amqpCredits at this low mark -->
+         <!-- amqpDuplicateDetection: If you are not using duplicate detection, set this to false
+                                      as duplicate detection requires applicationProperties to be parsed on the server. -->
+         <!-- amqpMinLargeMessageSize: Determines how many bytes are considered large, so we start using files to hold their data.
+                                       default: 102400, -1 would mean to disable large mesasge control -->
+
+         <!-- Note: If an acceptor needs to be compatible with HornetQ and/or Artemis 1.x clients add
+                    "anycastPrefix=jms.queue.;multicastPrefix=jms.topic." to the acceptor url.
+                    See https://issues.apache.org/jira/browse/ARTEMIS-1644 for more information. -->
+
 
          <!-- Acceptor for every supported protocol -->
-         <acceptor name="artemis">tcp://${host}:${default.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300</acceptor>
+         <acceptor name="artemis">tcp://${host}:${default.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true</acceptor>
 ${amqp-acceptor}${stomp-acceptor}${hornetq-acceptor}${mqtt-acceptor}
       </acceptors>
 
@@ -141,6 +156,21 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             </anycast>
          </address>${address-queue.settings}
       </addresses>
+
+
+      <!-- Uncomment the following if you want to use the Standard LoggingActiveMQServerPlugin pluging to log in events
+      <broker-plugins>
+         <broker-plugin class-name="org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin">
+            <property key="LOG_ALL_EVENTS" value="true"/>
+            <property key="LOG_CONNECTION_EVENTS" value="true"/>
+            <property key="LOG_SESSION_EVENTS" value="true"/>
+            <property key="LOG_CONSUMER_EVENTS" value="true"/>
+            <property key="LOG_DELIVERING_EVENTS" value="true"/>
+            <property key="LOG_SENDING_EVENTS" value="true"/>
+            <property key="LOG_INTERNAL_EVENTS" value="true"/>
+         </broker-plugin>
+      </broker-plugins>
+      -->
 
    </core>
 </configuration>

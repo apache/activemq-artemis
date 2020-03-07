@@ -23,6 +23,7 @@ import java.util.Set;
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list
  */
+//tmp comment: Can we use AddressInfo as the 'match' key?
 public interface HierarchicalRepository<T> {
 
    void disableListeners();

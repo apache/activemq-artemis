@@ -17,5 +17,6 @@
 BrokerDTO
 SecurityDTO
 JaasSecurityDTO
+SecurityManagerDTO
 ManagementContextDTO
 

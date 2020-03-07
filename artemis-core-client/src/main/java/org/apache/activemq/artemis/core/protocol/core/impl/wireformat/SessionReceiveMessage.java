@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -26,9 +27,9 @@ public class SessionReceiveMessage extends MessagePacket {
 
    // Attributes ----------------------------------------------------
 
-   private long consumerID;
+   protected long consumerID;
 
-   private int deliveryCount;
+   protected int deliveryCount;
 
    public SessionReceiveMessage(final long consumerID, final ICoreMessage message, final int deliveryCount) {
       super(SESS_RECEIVE_MSG, message);
@@ -69,13 +70,17 @@ public class SessionReceiveMessage extends MessagePacket {
    public void decodeRest(final ActiveMQBuffer buffer) {
       // Buffer comes in after having read standard headers and positioned at Beginning of body part
 
-      message.receiveBuffer(copyMessageBuffer(buffer.byteBuf(), DataConstants.SIZE_LONG + DataConstants.SIZE_INT));
+      receiveMessage(copyMessageBuffer(buffer.byteBuf(), DataConstants.SIZE_LONG + DataConstants.SIZE_INT));
 
       buffer.readerIndex(buffer.capacity() - DataConstants.SIZE_LONG - DataConstants.SIZE_INT);
       this.consumerID = buffer.readLong();
       this.deliveryCount = buffer.readInt();
-
    }
+
+   protected void receiveMessage(ByteBuf buffer) {
+      message.receiveBuffer(buffer);
+   }
+
    @Override
    public int hashCode() {
       final int prime = 31;

@@ -131,7 +131,7 @@ public final class SharedNothingBackupActivation extends Activation {
             logger.trace("Entered a synchronized");
             if (closed)
                return;
-            backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool(), networkHealthCheck, replicaPolicy.getQuorumSize());
+            backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool(), networkHealthCheck, replicaPolicy.getQuorumSize(), replicaPolicy.getVoteRetries(), replicaPolicy.getVoteRetryWait(), replicaPolicy.getQuorumVoteWait());
             activeMQServer.getClusterManager().getQuorumManager().registerQuorum(backupQuorum);
             activeMQServer.getClusterManager().getQuorumManager().registerQuorumHandler(new ServerConnectVoteHandler(activeMQServer));
          }
@@ -142,7 +142,7 @@ public final class SharedNothingBackupActivation extends Activation {
             TopologyMember member = (TopologyMember) activationParams.get(ActivationParams.REPLICATION_ENDPOINT);
             nodeLocator = new NamedNodeIdNodeLocator(member.getNodeId(), new Pair<>(member.getLive(), member.getBackup()));
          } else {
-            nodeLocator = replicaPolicy.getGroupName() == null ? new AnyLiveNodeLocatorForReplication(backupQuorum, activeMQServer) : new NamedLiveNodeLocatorForReplication(replicaPolicy.getGroupName(), backupQuorum);
+            nodeLocator = replicaPolicy.getGroupName() == null ? new AnyLiveNodeLocatorForReplication(backupQuorum, activeMQServer, replicaPolicy.getRetryReplicationWait()) : new NamedLiveNodeLocatorForReplication(replicaPolicy.getGroupName(), backupQuorum, replicaPolicy.getRetryReplicationWait());
          }
          ClusterController clusterController = activeMQServer.getClusterManager().getClusterController();
          clusterController.addClusterTopologyListenerForReplication(nodeLocator);
@@ -213,20 +213,13 @@ public final class SharedNothingBackupActivation extends Activation {
                activeMQServer.getNodeManager().setNodeID(nodeID);
             }
 
-            try {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Calling clusterController.connectToNodeInReplicatedCluster(" + possibleLive.getA() + ")");
+            if (possibleLive != null) {
+               clusterControl = tryConnectToNodeInReplicatedCluster(clusterController, possibleLive.getA());
+               if (clusterControl == null) {
+                  clusterControl = tryConnectToNodeInReplicatedCluster(clusterController, possibleLive.getB());
                }
-               clusterControl = clusterController.connectToNodeInReplicatedCluster(possibleLive.getA());
-            } catch (Exception e) {
-               logger.debug(e.getMessage(), e);
-               if (possibleLive.getB() != null) {
-                  try {
-                     clusterControl = clusterController.connectToNodeInReplicatedCluster(possibleLive.getB());
-                  } catch (Exception e1) {
-                     clusterControl = null;
-                  }
-               }
+            } else {
+               clusterControl = null;
             }
             if (clusterControl == null) {
 
@@ -363,6 +356,20 @@ public final class SharedNothingBackupActivation extends Activation {
             return;
          ActiveMQServerLogger.LOGGER.initializationError(e);
       }
+   }
+
+   private static ClusterControl tryConnectToNodeInReplicatedCluster(ClusterController clusterController, TransportConfiguration tc) {
+      try {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Calling clusterController.connectToNodeInReplicatedCluster(" + tc + ")");
+         }
+         if (tc != null) {
+            return clusterController.connectToNodeInReplicatedCluster(tc);
+         }
+      } catch (Exception e) {
+         logger.debug(e.getMessage(), e);
+      }
+      return null;
    }
 
    @Override

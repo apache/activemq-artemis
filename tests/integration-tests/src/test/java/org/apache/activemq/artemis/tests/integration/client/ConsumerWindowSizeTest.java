@@ -24,7 +24,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -32,18 +34,23 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ConsumerWindowSizeTest extends ActiveMQTestBase {
@@ -542,8 +549,9 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       internalTestSlowConsumerNoBuffer(false);
    }
 
-   // I believe this test became invalid after we started using another thread to deliver the large message
-   public void disabled_testSlowConsumerNoBufferLargeMessages() throws Exception {
+   @Test
+   @Ignore("I believe this test became invalid after we started using another thread to deliver the large message")
+   public void testSlowConsumerNoBufferLargeMessages() throws Exception {
       internalTestSlowConsumerNoBuffer(true);
    }
 
@@ -559,12 +567,11 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          server.start();
 
          locator.setConsumerWindowSize(0);
+         if (largeMessages) {
+            locator.setMinLargeMessageSize(100);
+         }
 
          ClientSessionFactory sf = createSessionFactory(locator);
-
-         if (largeMessages) {
-            sf.getServerLocator().setMinLargeMessageSize(100);
-         }
 
          session = sf.createSession(false, true, true);
 
@@ -1385,4 +1392,92 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testDefaultConsumerWindowSize() throws Exception {
+      ActiveMQServer messagingService = createServer(false, isNetty());
+
+      messagingService.start();
+      messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession(false, true, true);
+      ClientConsumerImpl consumer = (ClientConsumerImpl) session.createConsumer(queueA);
+
+      consumer.start();
+
+      assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE / 2, consumer.getClientWindowSize());
+   }
+
+   @Test
+   public void testConsumerWindowSizeAddressSettings() throws Exception {
+      ActiveMQServer messagingService = createServer(false, isNetty());
+
+      final int defaultConsumerWindowSize = 1024 * 5;
+      final AddressSettings settings = new AddressSettings();
+      settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
+      messagingService.getConfiguration()
+            .getAddressesSettings().put(queueA.toString(), settings);
+
+      messagingService.start();
+      messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession(false, true, true);
+      ClientConsumerImpl consumer = (ClientConsumerImpl) session.createConsumer(queueA);
+
+      session.start();
+
+      assertEquals(defaultConsumerWindowSize / 2, consumer.getClientWindowSize());
+   }
+
+   @Test
+   public void testConsumerWindowSizeAddressSettingsDifferentAddressAndQueueName() throws Exception {
+      ActiveMQServer messagingService = createServer(false, isNetty());
+
+      final int defaultConsumerWindowSize = 1024 * 5;
+      final AddressSettings settings = new AddressSettings();
+      settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
+      messagingService.getConfiguration()
+            .getAddressesSettings().put(addressA.toString(), settings);
+
+      messagingService.start();
+      messagingService.createQueue(addressA, RoutingType.ANYCAST, queueA, null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession(false, true, true);
+      ClientConsumerImpl consumer = (ClientConsumerImpl) session.createConsumer(queueA);
+
+      session.start();
+
+      assertEquals(defaultConsumerWindowSize / 2, consumer.getClientWindowSize());
+
+      ServerSession ss = messagingService.getSessionByID(((ClientSessionImpl)session).getName());
+      ServerConsumerImpl cons = (ServerConsumerImpl) ss.locateConsumer(consumer.getConsumerContext().getId());
+
+      assertTrue(Wait.waitFor(() -> cons.getAvailableCredits().get() == consumer.getClientWindowSize() * 2, 5000, 50));
+   }
+
+   @Test
+   public void testConsumerWindowSizeAddressSettingsWildCard() throws Exception {
+      ActiveMQServer messagingService = createServer(false, isNetty());
+
+      final int defaultConsumerWindowSize = 1024 * 5;
+      final AddressSettings settings = new AddressSettings();
+      settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
+      messagingService.getConfiguration()
+         .getAddressesSettings().put("#", settings);
+
+      messagingService.start();
+      messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession(false, true, true);
+      ClientConsumerImpl consumer = (ClientConsumerImpl) session.createConsumer(queueA);
+      ClientConsumerImpl consumer2 = (ClientConsumerImpl) session.createConsumer(queueA);
+
+      session.start();
+
+      assertEquals(defaultConsumerWindowSize / 2, consumer.getClientWindowSize());
+      assertEquals(defaultConsumerWindowSize / 2, consumer2.getClientWindowSize());
+   }
 }

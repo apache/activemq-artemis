@@ -25,11 +25,6 @@ import javax.resource.spi.ConnectionRequestInfo;
 public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
 
    /**
-    * Trace enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * The user name
     */
    private String userName;
@@ -66,7 +61,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @param type The connection type
     */
    public ActiveMQRAConnectionRequestInfo(final ActiveMQRAProperties prop, final int type) {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + prop + ")");
       }
 
@@ -86,7 +81,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @param type            The connection type
     */
    public ActiveMQRAConnectionRequestInfo(final boolean transacted, final int acknowledgeMode, final int type) {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + transacted +
                                           ", " +
                                           acknowledgeMode +
@@ -106,7 +101,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @param prop The resource adapter properties
     */
    public void setDefaults(final ActiveMQRAProperties prop) {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setDefaults(" + prop + ")");
       }
 
@@ -127,7 +122,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @return The value
     */
    public String getUserName() {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getUserName()");
       }
 
@@ -140,7 +135,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @param userName The value
     */
    public void setUserName(final String userName) {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setUserName(" + userName + ")");
       }
 
@@ -153,7 +148,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @return The value
     */
    public String getPassword() {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getPassword()");
       }
 
@@ -166,7 +161,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @param password The value
     */
    public void setPassword(final String password) {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setPassword(****)");
       }
 
@@ -179,7 +174,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @return The value
     */
    public String getClientID() {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getClientID()");
       }
 
@@ -192,7 +187,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @param clientID The value
     */
    public void setClientID(final String clientID) {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setClientID(" + clientID + ")");
       }
 
@@ -205,7 +200,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @return The type
     */
    public int getType() {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getType()");
       }
 
@@ -218,7 +213,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @return True if transacted; otherwise false
     */
    public boolean isTransacted() {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("isTransacted() " + transacted);
       }
 
@@ -231,7 +226,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     * @return The mode
     */
    public int getAcknowledgeMode() {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getAcknowledgeMode()");
       }
 
@@ -246,7 +241,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     */
    @Override
    public boolean equals(final Object obj) {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("equals(" + obj + ")");
       }
 
@@ -273,7 +268,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
     */
    @Override
    public int hashCode() {
-      if (ActiveMQRAConnectionRequestInfo.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("hashCode()");
       }
 

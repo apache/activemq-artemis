@@ -18,10 +18,7 @@ package org.apache.activemq.artemis.core.io.mapped;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -113,7 +110,7 @@ final class MappedSequentialFile implements SequentialFile {
    @Override
    public boolean fits(int size) {
       checkIsOpen();
-      final long newPosition = this.mappedFile.position() + size;
+      final long newPosition = (long) this.mappedFile.position() + size;
       final boolean hasRemaining = newPosition <= this.mappedFile.length();
       return hasRemaining;
    }
@@ -135,15 +132,17 @@ final class MappedSequentialFile implements SequentialFile {
    public void fill(int size) throws IOException {
       checkIsOpen();
       //the fill will give a big performance hit when done in parallel of other writings!
-      this.mappedFile.zeros(this.mappedFile.position(), size);
+      this.mappedFile.zeros(0, size);
       if (factory.isDatasync()) {
          this.mappedFile.force();
       }
+      //set the position to 0 to match the fill contract
+      this.mappedFile.position(0);
    }
 
    @Override
    public void delete() {
-      close();
+      close(false);
       if (file.exists() && !file.delete()) {
          ActiveMQJournalLogger.LOGGER.errorDeletingFile(this);
       }
@@ -272,6 +271,28 @@ final class MappedSequentialFile implements SequentialFile {
    }
 
    @Override
+   public void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) throws Exception {
+      try {
+         checkIsOpen();
+         final int position = bytes.position();
+         final int limit = bytes.limit();
+         final int remaining = limit - position;
+         if (remaining > 0) {
+            this.mappedFile.write(bytes, position, remaining);
+            final int newPosition = position + remaining;
+            bytes.position(newPosition);
+            if (factory.isDatasync() && sync) {
+               this.mappedFile.force();
+            }
+         }
+      } finally {
+         if (releaseBuffer) {
+            this.factory.releaseBuffer(bytes);
+         }
+      }
+   }
+
+   @Override
    public int read(ByteBuffer bytes, IOCallback callback) throws IOException {
       if (callback == null) {
          throw new NullPointerException("callback parameter need to be set");
@@ -340,6 +361,8 @@ final class MappedSequentialFile implements SequentialFile {
    @Override
    public void close(boolean waitOnSync) {
       if (this.mappedFile != null) {
+         if (waitOnSync && factory.isDatasync())
+            this.mappedFile.force();
          this.mappedFile.close();
          this.mappedFile = null;
       }
@@ -364,14 +387,7 @@ final class MappedSequentialFile implements SequentialFile {
 
    @Override
    public void renameTo(String newFileName) throws Exception {
-      try {
-         close();
-      } catch (Exception e) {
-         if (e instanceof IOException) {
-            factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
-         }
-         throw e;
-      }
+      close();
       if (this.fileName == null) {
          this.fileName = this.file.getName();
       }
@@ -399,21 +415,12 @@ final class MappedSequentialFile implements SequentialFile {
       if (dstFile.isOpen()) {
          throw new IllegalArgumentException("dstFile must be closed too");
       }
-      try (RandomAccessFile src = new RandomAccessFile(file, "rw"); FileChannel srcChannel = src.getChannel(); FileLock srcLock = srcChannel.lock()) {
-         final long readableBytes = srcChannel.size();
-         if (readableBytes > 0) {
-            try (RandomAccessFile dst = new RandomAccessFile(dstFile.getJavaFile(), "rw"); FileChannel dstChannel = dst.getChannel(); FileLock dstLock = dstChannel.lock()) {
-               final long oldLength = dst.length();
-               final long newLength = oldLength + readableBytes;
-               dst.setLength(newLength);
-               final long transferred = dstChannel.transferFrom(srcChannel, oldLength, readableBytes);
-               if (transferred != readableBytes) {
-                  dstChannel.truncate(oldLength);
-                  throw new IOException("copied less then expected");
-               }
-            }
-         }
-      }
+      SequentialFile.appendTo(file.toPath(), dstFile.getJavaFile().toPath());
+   }
+
+   @Override
+   public ByteBuffer map(int position, long size) throws IOException {
+      return null;
    }
 
    @Override

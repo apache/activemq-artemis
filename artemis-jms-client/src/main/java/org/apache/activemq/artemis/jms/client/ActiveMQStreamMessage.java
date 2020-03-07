@@ -44,7 +44,7 @@ import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadStr
 /**
  * ActiveMQ Artemis implementation of a JMS StreamMessage.
  */
-public final class ActiveMQStreamMessage extends ActiveMQMessage implements StreamMessage {
+public class ActiveMQStreamMessage extends ActiveMQMessage implements StreamMessage {
 
    public static final byte TYPE = Message.STREAM_TYPE;
 
@@ -73,7 +73,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
 
    // For testing only
    public ActiveMQStreamMessage() {
-      message = new ClientMessageImpl((byte) 0, false, 0, 0, (byte) 4, 1500);
+      message = new ClientMessageImpl((byte) 0, false, 0, 0, (byte) 4, 1500, null);
    }
 
    // Public --------------------------------------------------------

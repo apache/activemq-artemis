@@ -31,44 +31,51 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
    private static final long serialVersionUID = 7873614001276404156L;
    // Static --------------------------------------------------------
 
-   public static SimpleString createAddressFromName(final String name) {
-      return new SimpleString(name);
-   }
-
    // Attributes ----------------------------------------------------
 
    // Constructors --------------------------------------------------
-
-   public ActiveMQTopic(final String name) {
-      this(name, false);
+   public ActiveMQTopic() {
+      this((SimpleString) null);
    }
 
-   public ActiveMQTopic(final String name, boolean temporary) {
-      super(name, name, TYPE.TOPIC, null);
+   public ActiveMQTopic(final String address) {
+      this(address, false);
+   }
+
+   public ActiveMQTopic(final SimpleString address) {
+      super(address, TYPE.TOPIC, null);
+   }
+
+   @Deprecated
+   public ActiveMQTopic(final String address, final String name) {
+      super(address, name, TYPE.TOPIC, null);
+   }
+
+   public ActiveMQTopic(final String address, boolean temporary) {
+      this(address, temporary, null);
    }
 
    /**
     * @param address
-    * @param name
     * @param temporary
     * @param session
     */
-   protected ActiveMQTopic(String address, String name, boolean temporary, ActiveMQSession session) {
-      super(address, name, temporary ? TYPE.TEMP_TOPIC : TYPE.TOPIC, session);
+   protected ActiveMQTopic(String address, boolean temporary, ActiveMQSession session) {
+      super(address, temporary ? TYPE.TEMP_TOPIC : TYPE.TOPIC, session);
    }
 
    // Topic implementation ------------------------------------------
 
    @Override
    public String getTopicName() {
-      return name;
+      return getName();
    }
 
    // Public --------------------------------------------------------
 
    @Override
    public String toString() {
-      return "ActiveMQTopic[" + name + "]";
+      return "ActiveMQTopic[" + getName() + "]";
    }
 
    @Override

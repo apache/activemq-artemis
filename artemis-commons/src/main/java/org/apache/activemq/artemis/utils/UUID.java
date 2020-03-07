@@ -98,6 +98,7 @@ public final class UUID {
     * @param data 16 byte UUID contents
     */
    public UUID(final int type, final byte[] data) {
+      assert data.length == 16;
       mId = data;
       // Type is multiplexed with time_hi:
       mId[UUID.INDEX_TYPE] &= (byte) 0x0F;
@@ -105,6 +106,16 @@ public final class UUID {
       // Variant masks first two bits of the clock_seq_hi:
       mId[UUID.INDEX_VARIATION] &= (byte) 0x3F;
       mId[UUID.INDEX_VARIATION] |= (byte) 0x80;
+   }
+
+   private UUID(final byte[] data) {
+      assert data.length == 16;
+      mId = data;
+   }
+
+   /** This is for conversions between two types of UUID */
+   public UUID(java.util.UUID uuid) {
+      this(ByteUtil.doubleLongToBytes(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits()));
    }
 
    public byte[] asBytes() {

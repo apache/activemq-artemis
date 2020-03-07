@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static java.beans.Introspector.getBeanInfo;
@@ -41,8 +42,13 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    static {
       UNSUPPORTED_CF_PROPERTIES = new TreeSet<>();
       UNSUPPORTED_CF_PROPERTIES.add("discoveryGroupName");
+      UNSUPPORTED_CF_PROPERTIES.add("brokerURL");
       UNSUPPORTED_CF_PROPERTIES.add("incomingInterceptorList");
       UNSUPPORTED_CF_PROPERTIES.add("outgoingInterceptorList");
+      UNSUPPORTED_CF_PROPERTIES.add("user");
+      UNSUPPORTED_CF_PROPERTIES.add("userName");
+      UNSUPPORTED_CF_PROPERTIES.add("password");
+      UNSUPPORTED_CF_PROPERTIES.add("enableSharedClientID");
 
       UNSUPPORTED_RA_PROPERTIES = new TreeSet<>();
       UNSUPPORTED_RA_PROPERTIES.add("HA");
@@ -62,6 +68,7 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
       UNSUPPORTED_RA_PROPERTIES.add("useMaskedPassword");
       UNSUPPORTED_RA_PROPERTIES.add("useAutoRecovery");
       UNSUPPORTED_RA_PROPERTIES.add("useLocalTx");
+      UNSUPPORTED_RA_PROPERTIES.add("user");
       UNSUPPORTED_RA_PROPERTIES.add("userName");
       UNSUPPORTED_RA_PROPERTIES.add("jgroupsChannelLocatorClass");
       UNSUPPORTED_RA_PROPERTIES.add("jgroupsChannelRefName");
@@ -75,6 +82,7 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    @Test
    public void testCompareConnectionFactoryAndResourceAdapterProperties() throws Exception {
       SortedSet<String> connectionFactoryProperties = findAllPropertyNames(ActiveMQConnectionFactory.class);
+      Assert.assertTrue(connectionFactoryProperties.contains("useTopologyForLoadBalancing"));
       connectionFactoryProperties.removeAll(UNSUPPORTED_CF_PROPERTIES);
       SortedSet<String> raProperties = findAllPropertyNames(ActiveMQResourceAdapter.class);
       raProperties.removeAll(UNSUPPORTED_RA_PROPERTIES);

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
@@ -29,12 +30,15 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -219,6 +223,49 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          }
       } finally {
          connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testDurableConsumerLarge() throws Exception {
+      String durableClientId = getTopicName() + "-ClientId";
+
+      Connection connection = createConnection(durableClientId);
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(getTopicName());
+         final MessageConsumer consumer1 = session.createDurableSubscriber(topic, "DurbaleSub1");
+         final MessageConsumer consumer2 = session.createDurableSubscriber(topic, "DurbaleSub2");
+         MessageProducer producer = session.createProducer(topic);
+         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+         connection.start();
+
+         ObjectMessage objMessage = session.createObjectMessage();
+         BigObject bigObject = new BigObject(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         objMessage.setObject(bigObject);
+         producer.send(objMessage);
+
+         ObjectMessage msg1 = (ObjectMessage)consumer1.receive(5000);
+         Assert.assertNotNull(msg1);
+         assertTrue("Should be an instance of TextMessage", msg1 instanceof ObjectMessage);
+
+         ObjectMessage msg2 = (ObjectMessage)consumer2.receive(5000);
+         assertNotNull("Should have received a message by now.", msg2);
+         assertTrue("Should be an instance of TextMessage", msg2 instanceof ObjectMessage);
+      } finally {
+         connection.close();
+      }
+   }
+
+   public static class BigObject implements Serializable {
+
+      private char[] contents;
+
+      public BigObject(int size) {
+         contents = new char[size];
+         for (int i = 0; i < size; i++) {
+            contents[i] = 'X';
+         }
       }
    }
 }

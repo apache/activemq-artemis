@@ -43,6 +43,8 @@ public interface Connection {
 
    boolean isWritable(ReadyListener listener);
 
+   boolean isOpen();
+
    /**
     * Causes the current thread to wait until the connection can enqueue the required capacity unless the specified waiting time elapses.
     * The available capacity of the connection could change concurrently hence this method is suitable to perform precise flow-control
@@ -140,6 +142,8 @@ public interface Connection {
     */
    TransportConfiguration getConnectorConfig();
 
+   boolean isDirectDeliver();
+
    ActiveMQPrincipal getDefaultActiveMQPrincipal();
 
    /**
@@ -149,4 +153,8 @@ public interface Connection {
     * @return
     */
    boolean isUsingProtocolHandling();
+
+   //returns true if one of the configs points to the same
+   //node as this connection does.
+   boolean isSameTarget(TransportConfiguration... configs);
 }

@@ -88,6 +88,7 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.After;
 import org.junit.Assert;
@@ -191,7 +192,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       setupServer(false);
       try {
          ClientSessionFactory sf = createSessionFactory(locator);
-         manager = new ReplicationManager((CoreRemotingConnection) sf.getConnection(), sf.getServerLocator().getCallTimeout(), sf.getServerLocator().getCallTimeout(), factory);
+         manager = new ReplicationManager(null, (CoreRemotingConnection) sf.getConnection(), sf.getServerLocator().getCallTimeout(), sf.getServerLocator().getCallTimeout(), factory);
          addActiveMQComponent(manager);
          manager.start();
          Assert.fail("Exception was expected");
@@ -598,7 +599,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
                                              final ExecutorFactory executorFactory,
                                              final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
 
-      PagingManager paging = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), 1000, null, executorFactory, false, null), addressSettingsRepository);
+      PagingManager paging = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), 1000, null, executorFactory, false, null), addressSettingsRepository, configuration.getManagementAddress());
 
       paging.start();
       return paging;
@@ -811,9 +812,19 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
+      public JournalLoadInformation load(final SparseArrayLinkedList<RecordInfo> committedRecords,
+                                         final List<PreparedTransactionInfo> preparedTransactions,
+                                         final TransactionFailureCallback transactionFailure,
+                                         final boolean fixbadtx) throws Exception {
+
+         return new JournalLoadInformation();
+      }
+
+      @Override
       public JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                          final List<PreparedTransactionInfo> preparedTransactions,
-                                         final TransactionFailureCallback transactionFailure) throws Exception {
+                                         final TransactionFailureCallback transactionFailure,
+                                         final boolean fixbadtx) throws Exception {
 
          return new JournalLoadInformation();
       }

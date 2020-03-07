@@ -52,7 +52,7 @@ public class ClientAckQueueTest extends MessageTestBase {
       testAckTimeout();
    }
 
-   public void testAckTimeout() throws Exception {
+   private void testAckTimeout() throws Exception {
       ClientRequest request = new ClientRequest(generateURL("/queues/testAck"));
 
       ClientResponse<?> response = Util.head(request);
@@ -127,7 +127,7 @@ public class ClientAckQueueTest extends MessageTestBase {
       testSuccessFirst(3, testName);
    }
 
-   public void testSuccessFirst(int start, String queueName) throws Exception {
+   private void testSuccessFirst(int start, String queueName) throws Exception {
       ClientRequest request = new ClientRequest(generateURL(Util.getUrlPath(queueName)));
 
       ClientResponse<?> response = Util.head(request);
@@ -205,7 +205,7 @@ public class ClientAckQueueTest extends MessageTestBase {
       testPull(4, testName);
    }
 
-   public void testPull(int start, String queueName) throws Exception {
+   private void testPull(int start, String queueName) throws Exception {
       ClientRequest request = new ClientRequest(generateURL(Util.getUrlPath(queueName)));
 
       ClientResponse<?> response = Util.head(request);
@@ -287,7 +287,7 @@ public class ClientAckQueueTest extends MessageTestBase {
       testReconnect(testName);
    }
 
-   public void testReconnect(String queueName) throws Exception {
+   private void testReconnect(String queueName) throws Exception {
       ClientRequest request = new ClientRequest(generateURL(Util.getUrlPath(queueName)));
 
       ClientResponse<?> response = Util.head(request);

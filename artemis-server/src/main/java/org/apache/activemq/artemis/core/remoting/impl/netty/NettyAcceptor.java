@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
@@ -28,18 +29,22 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -50,19 +55,18 @@ import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.WriteBufferWaterMark;
-import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelGroupFuture;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.kqueue.KQueue;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -96,6 +100,9 @@ import org.jboss.logging.Logger;
  * A Netty TCP Acceptor that is embedding Netty.
  */
 public class NettyAcceptor extends AbstractAcceptor {
+
+   private static final Logger logger = Logger.getLogger(NettyAcceptor.class);
+
 
    public static String INVM_ACCEPTOR_TYPE = "IN-VM";
    public static String NIO_ACCEPTOR_TYPE = "NIO";
@@ -156,15 +163,25 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final String trustStorePassword;
 
+   private final String crlPath;
+
    private final String enabledCipherSuites;
 
    private final String enabledProtocols;
 
    private final boolean needClientAuth;
 
+   private final boolean wantClientAuth;
+
+   private final String sslProvider;
+
    private final boolean verifyHost;
 
+   private final String trustManagerFactoryPlugin;
+
    private final String kerb5Config;
+
+   private String sniHost;
 
    private final boolean tcpNoDelay;
 
@@ -188,6 +205,12 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private NotificationService notificationService;
 
+   /** The amount of time we wait before new tasks are added during a shutdown period. */
+   private int quietPeriod;
+
+   /** The total amount of time we wait before a hard shutdown. */
+   private int shutdownTimeout;
+
    private boolean paused;
 
    private BatchFlusher flusher;
@@ -204,9 +227,10 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private Map<String, Object> extraConfigs;
 
-   private static final Logger logger = Logger.getLogger(NettyAcceptor.class);
 
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
+
+   final Executor failureExecutor;
 
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
@@ -214,8 +238,11 @@ public class NettyAcceptor extends AbstractAcceptor {
                         final BufferHandler handler,
                         final ServerConnectionLifeCycleListener listener,
                         final ScheduledExecutorService scheduledThreadPool,
+                        final Executor failureExecutor,
                         final Map<String, ProtocolManager> protocolMap) {
       super(protocolMap);
+
+      this.failureExecutor = failureExecutor;
 
       this.name = name;
 
@@ -244,6 +271,10 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       this.protocolsString = getProtocols(protocolMap);
 
+      this.quietPeriod = ConfigurationHelper.getIntProperty(TransportConstants.QUIET_PERIOD, TransportConstants.DEFAULT_QUIET_PERIOD, configuration);
+
+      this.shutdownTimeout = ConfigurationHelper.getIntProperty(TransportConstants.SHUTDOWN_TIMEOUT, TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT, configuration);
+
       host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, configuration);
       port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, configuration);
       if (sslEnabled) {
@@ -259,13 +290,23 @@ public class NettyAcceptor extends AbstractAcceptor {
 
          trustStorePassword = ConfigurationHelper.getPasswordProperty(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD, configuration, ActiveMQDefaultConfiguration.getPropMaskPassword(), ActiveMQDefaultConfiguration.getPropPasswordCodec());
 
+         crlPath = ConfigurationHelper.getStringProperty(TransportConstants.CRL_PATH_PROP_NAME, TransportConstants.DEFAULT_CRL_PATH, configuration);
+
          enabledCipherSuites = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES, configuration);
 
          enabledProtocols = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, TransportConstants.DEFAULT_ENABLED_PROTOCOLS, configuration);
 
          needClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, TransportConstants.DEFAULT_NEED_CLIENT_AUTH, configuration);
 
+         wantClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.WANT_CLIENT_AUTH_PROP_NAME, TransportConstants.DEFAULT_WANT_CLIENT_AUTH, configuration);
+
          verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
+
+         sslProvider = ConfigurationHelper.getStringProperty(TransportConstants.SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER, configuration);
+
+         sniHost = ConfigurationHelper.getStringProperty(TransportConstants.SNIHOST_PROP_NAME, TransportConstants.DEFAULT_SNIHOST_CONFIG, configuration);
+
+         trustManagerFactoryPlugin = ConfigurationHelper.getStringProperty(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME, TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN, configuration);
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
@@ -273,10 +314,15 @@ public class NettyAcceptor extends AbstractAcceptor {
          trustStoreProvider = TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER;
          trustStorePath = TransportConstants.DEFAULT_TRUSTSTORE_PATH;
          trustStorePassword = TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD;
+         crlPath = TransportConstants.DEFAULT_CRL_PATH;
          enabledCipherSuites = TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES;
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
          needClientAuth = TransportConstants.DEFAULT_NEED_CLIENT_AUTH;
+         wantClientAuth = TransportConstants.DEFAULT_WANT_CLIENT_AUTH;
          verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
+         sslProvider = TransportConstants.DEFAULT_SSL_PROVIDER;
+         sniHost = TransportConstants.DEFAULT_SNIHOST_CONFIG;
+         trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;
       }
 
       tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME, TransportConstants.DEFAULT_TCP_NODELAY, configuration);
@@ -315,7 +361,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             remotingThreads = Runtime.getRuntime().availableProcessors() * 3;
          }
 
-         if (useEpoll && Epoll.isAvailable()) {
+         if (useEpoll && CheckDependencies.isEpollAvailable()) {
             channelClazz = EpollServerSocketChannel.class;
             eventLoopGroup = new EpollEventLoopGroup(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
                @Override
@@ -326,7 +372,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             acceptorType = EPOLL_ACCEPTOR_TYPE;
 
             logger.debug("Acceptor using native epoll");
-         } else if (useKQueue && KQueue.isAvailable()) {
+         } else if (useKQueue && CheckDependencies.isKQueueAvailable()) {
             channelClazz = KQueueServerSocketChannel.class;
             eventLoopGroup = new KQueueEventLoopGroup(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
                @Override
@@ -359,7 +405,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();
             if (sslEnabled) {
-               pipeline.addLast("ssl", getSslHandler());
+               pipeline.addLast("ssl", getSslHandler(channel.alloc()));
                pipeline.addLast("sslHandshakeExceptionHandler", new SslHandshakeExceptionHandler());
             }
             pipeline.addLast(protocolHandler.getProtocolDecoder());
@@ -421,6 +467,12 @@ public class NettyAcceptor extends AbstractAcceptor {
       return name;
    }
 
+
+   //for test purpose
+   public Map<Object, NettyServerConnection> getConnections() {
+      return connections;
+   }
+
    // only for testing purposes
    public void setKeyStorePath(String keyStorePath) {
       this.keyStorePath = keyStorePath;
@@ -446,41 +498,21 @@ public class NettyAcceptor extends AbstractAcceptor {
       startServerChannels();
    }
 
-   public synchronized SslHandler getSslHandler() throws Exception {
-      final SSLContext context;
-      try {
-         if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
-            throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME +
-                                                  "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " +
-                                                  "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
-         context = SSLSupport.createContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword);
-      } catch (Exception e) {
-         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
-         ise.initCause(e);
-         throw ise;
+   public synchronized SslHandler getSslHandler(ByteBufAllocator alloc) throws Exception {
+      SSLEngine engine;
+      if (sslProvider.equals(TransportConstants.OPENSSL_PROVIDER)) {
+         engine = loadOpenSslEngine(alloc);
+      } else {
+         engine = loadJdkSslEngine();
       }
-      Subject subject = null;
-      if (kerb5Config != null) {
-         LoginContext loginContext = new LoginContext(kerb5Config);
-         loginContext.login();
-         subject = loginContext.getSubject();
-      }
-
-      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
-         @Override
-         public SSLEngine run() {
-            if (verifyHost) {
-               return context.createSSLEngine(host, port);
-            } else {
-               return context.createSSLEngine();
-            }
-         }
-      });
 
       engine.setUseClientMode(false);
 
-      if (needClientAuth)
+      if (needClientAuth) {
          engine.setNeedClientAuth(true);
+      } else if (wantClientAuth) {
+         engine.setWantClientAuth(true);
+      }
 
       // setting the enabled cipher suites resets the enabled protocols so we need
       // to save the enabled protocols so that after the customer cipher suite is enabled
@@ -531,7 +563,93 @@ public class NettyAcceptor extends AbstractAcceptor {
          engine.setSSLParameters(sslParameters);
       }
 
+      if (sniHost != null) {
+         SSLParameters sslParameters = engine.getSSLParameters();
+         sslParameters.setSNIMatchers(Arrays.asList(SNIHostName.createSNIMatcher(sniHost)));
+         engine.setSSLParameters(sslParameters);
+      }
+
       return new SslHandler(engine);
+   }
+
+   private SSLEngine loadJdkSslEngine() throws Exception {
+      final SSLContext context;
+      try {
+         if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
+            throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME + "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " + "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
+         context = new SSLSupport()
+            .setKeystoreProvider(keyStoreProvider)
+            .setKeystorePath(keyStorePath)
+            .setKeystorePassword(keyStorePassword)
+            .setTruststoreProvider(trustStoreProvider)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword(trustStorePassword)
+            .setCrlPath(crlPath)
+            .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
+            .createContext();
+      } catch (Exception e) {
+         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
+         ise.initCause(e);
+         throw ise;
+      }
+      Subject subject = null;
+      if (kerb5Config != null) {
+         LoginContext loginContext = new LoginContext(kerb5Config);
+         loginContext.login();
+         subject = loginContext.getSubject();
+      }
+
+      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
+         @Override
+         public SSLEngine run() {
+            if (verifyHost) {
+               return context.createSSLEngine(host, port);
+            } else {
+               return context.createSSLEngine();
+            }
+         }
+      });
+      return engine;
+   }
+
+   private SSLEngine loadOpenSslEngine(ByteBufAllocator alloc) throws Exception {
+      final SslContext context;
+      try {
+         if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
+            throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME + "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " + "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
+         context = new SSLSupport()
+            .setKeystoreProvider(keyStoreProvider)
+            .setKeystorePath(keyStorePath)
+            .setKeystorePassword(keyStorePassword)
+            .setTruststoreProvider(trustStoreProvider)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword(trustStorePassword)
+            .setSslProvider(sslProvider)
+            .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
+            .createNettyContext();
+      } catch (Exception e) {
+         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
+         ise.initCause(e);
+         throw ise;
+      }
+      Subject subject = null;
+      if (kerb5Config != null) {
+         LoginContext loginContext = new LoginContext(kerb5Config);
+         loginContext.login();
+         subject = loginContext.getSubject();
+      }
+
+      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
+         @Override
+         public SSLEngine run() {
+            if (verifyHost) {
+               return context.newEngine(alloc, host, port);
+            } else {
+               return context.newEngine(alloc);
+            }
+         }
+      });
+      return engine;
    }
 
    private void startServerChannels() {
@@ -554,8 +672,18 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    @Override
-   public synchronized void stop() {
+   public void stop() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+
+      asyncStop(latch::countDown);
+
+      latch.await();
+   }
+
+   @Override
+   public synchronized void asyncStop(Runnable callback) {
       if (channelClazz == null) {
+         callback.run();
          return;
       }
 
@@ -591,11 +719,6 @@ public class NettyAcceptor extends AbstractAcceptor {
          }
       }
 
-      // Shutdown the EventLoopGroup if no new task was added for 100ms or if
-      // 3000ms elapsed.
-      eventLoopGroup.shutdownGracefully(100, 3000, TimeUnit.MILLISECONDS);
-      eventLoopGroup = null;
-
       channelClazz = null;
 
       for (Connection connection : connections.values()) {
@@ -618,6 +741,11 @@ public class NettyAcceptor extends AbstractAcceptor {
       }
 
       paused = false;
+
+      // Shutdown the EventLoopGroup if no new task was added for 100ms or if
+      // 3000ms elapsed.
+      eventLoopGroup.shutdownGracefully(quietPeriod, shutdownTimeout, TimeUnit.MILLISECONDS).addListener(f -> callback.run());
+      eventLoopGroup = null;
    }
 
    @Override
@@ -681,7 +809,25 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    public ConnectionCreator createConnectionCreator() {
-      return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener());
+      return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener(), failureExecutor);
+   }
+
+   public int getQuietPeriod() {
+      return quietPeriod;
+   }
+
+   public NettyAcceptor setQuietPeriod(int quietPeriod) {
+      this.quietPeriod = quietPeriod;
+      return this;
+   }
+
+   public int getShutdownTimeout() {
+      return shutdownTimeout;
+   }
+
+   public NettyAcceptor setShutdownTimeout(int shutdownTimeout) {
+      this.shutdownTimeout = shutdownTimeout;
+      return this;
    }
 
    private static String getProtocols(Map<String, ProtocolManager> protocolManager) {
@@ -704,8 +850,9 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       ActiveMQServerChannelHandler(final ChannelGroup group,
                                    final BufferHandler handler,
-                                   final ServerConnectionLifeCycleListener listener) {
-         super(group, handler, listener);
+                                   final ServerConnectionLifeCycleListener listener,
+                                   final Executor failureExecutor) {
+         super(group, handler, listener, failureExecutor);
       }
 
       @Override

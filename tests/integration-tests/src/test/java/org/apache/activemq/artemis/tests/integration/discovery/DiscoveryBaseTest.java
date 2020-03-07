@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
+import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -194,22 +195,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
 
       @Override
       public ActivateCallback startLiveNode() throws Exception {
-         return new ActivateCallback() {
-            @Override
-            public void preActivate() {
-            }
-
-            @Override
-            public void activated() {
-            }
-
-            @Override
-            public void deActivate() {
-            }
-
-            @Override
-            public void activationComplete() {
-            }
+         return new CleaningActivateCallback() {
          };
       }
 

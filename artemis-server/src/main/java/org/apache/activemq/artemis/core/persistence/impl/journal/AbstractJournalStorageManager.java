@@ -16,12 +16,16 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
-import javax.transaction.xa.Xid;
-import java.io.File;
-import java.io.FileInputStream;
-import java.security.DigestInputStream;
+import static org.apache.activemq.artemis.api.core.SimpleString.ByteBufSimpleStringPool.DEFAULT_MAX_LENGTH;
+import static org.apache.activemq.artemis.api.core.SimpleString.ByteBufSimpleStringPool.DEFAULT_POOL_CAPACITY;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
+
 import java.security.InvalidParameterException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,11 +41,15 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.transaction.xa.Xid;
+
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -50,6 +58,7 @@ import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -61,11 +70,12 @@ import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AddressStatusEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.DeleteEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.DeliveryCountUpdateEncoding;
@@ -102,19 +112,13 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
-import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
+import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.jboss.logging.Logger;
-
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 
 /**
  * Controls access to the journals and other storage files such as the ones used to store pages and
@@ -125,8 +129,23 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
  */
 public abstract class AbstractJournalStorageManager extends CriticalComponentImpl implements StorageManager {
 
-   private static final int CRITICAL_PATHS = 1;
-   private static final int CRITICAL_STORE = 0;
+   protected static final int CRITICAL_PATHS = 3;
+   protected static final int CRITICAL_STORE = 0;
+   protected static final int CRITICAL_STOP = 1;
+   protected static final int CRITICAL_STOP_2 = 2;
+
+
+   public static ThreadLocal<StorageManager> storageManagerThreadLocal = new ThreadLocal<>();
+
+   /** Persisters may need to access this on reloading of the journal,
+    *  for large message processing */
+   public static void setupThreadLocal(StorageManager manager) {
+      storageManagerThreadLocal.set(manager);
+   }
+
+   public static StorageManager getThreadLocal() {
+      return storageManagerThreadLocal.get();
+   }
 
    private static final Logger logger = Logger.getLogger(AbstractJournalStorageManager.class);
 
@@ -154,7 +173,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    protected BatchingIDGenerator idGenerator;
 
-   protected final ExecutorFactory ioExecutors;
+   protected final ExecutorFactory ioExecutorFactory;
 
    protected final ScheduledExecutorService scheduledExecutorService;
 
@@ -181,7 +200,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    protected boolean journalLoaded = false;
 
-   private final IOCriticalErrorListener ioCriticalErrorListener;
+   protected final IOCriticalErrorListener ioCriticalErrorListener;
 
    protected final Configuration config;
 
@@ -190,21 +209,21 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    protected final Map<SimpleString, PersistedAddressSetting> mapPersistedAddressSettings = new ConcurrentHashMap<>();
 
-   protected final Set<Long> largeMessagesToDelete = new HashSet<>();
+   protected final ConcurrentLongHashMap<LargeServerMessage> largeMessagesToDelete = new ConcurrentLongHashMap<>();
 
    public AbstractJournalStorageManager(final Configuration config,
                                         final CriticalAnalyzer analyzer,
                                         final ExecutorFactory executorFactory,
                                         final ScheduledExecutorService scheduledExecutorService,
-                                        final ExecutorFactory ioExecutors) {
-      this(config, analyzer, executorFactory, scheduledExecutorService, ioExecutors, null);
+                                        final ExecutorFactory ioExecutorFactory) {
+      this(config, analyzer, executorFactory, scheduledExecutorService, ioExecutorFactory, null);
    }
 
    public AbstractJournalStorageManager(Configuration config,
                                         CriticalAnalyzer analyzer,
                                         ExecutorFactory executorFactory,
                                         ScheduledExecutorService scheduledExecutorService,
-                                        ExecutorFactory ioExecutors,
+                                        ExecutorFactory ioExecutorFactory,
                                         IOCriticalErrorListener criticalErrorListener) {
       super(analyzer, CRITICAL_PATHS);
 
@@ -212,7 +231,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       this.ioCriticalErrorListener = criticalErrorListener;
 
-      this.ioExecutors = ioExecutors;
+      this.ioExecutorFactory = ioExecutorFactory;
 
       this.scheduledExecutorService = scheduledExecutorService;
 
@@ -251,25 +270,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    @Override
    public void clearContext() {
       OperationContextImpl.clearContext();
-   }
-
-   public static String md5(File file) {
-      try {
-         byte[] buffer = new byte[1 << 4];
-         MessageDigest md = MessageDigest.getInstance("MD5");
-
-         byte[] digest;
-         try (FileInputStream is = new FileInputStream(file);
-              DigestInputStream is2 = new DigestInputStream(is, md)) {
-            while (is2.read(buffer) > 0) {
-               continue;
-            }
-            digest = md.digest();
-         }
-         return Base64.encodeBytes(digest);
-      } catch (Exception e) {
-         throw new RuntimeException(e);
-      }
    }
 
    public IDGenerator getIDGenerator() {
@@ -372,7 +372,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          // Note that we don't sync, the add reference that comes immediately after will sync if
          // appropriate
 
-         if (message.isLargeMessage()) {
+         if (message.isLargeMessage() && message instanceof LargeServerMessageImpl) {
             messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), message, false, getContext(false));
          } else {
             messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_MESSAGE_PROTOCOL, message.getPersister(), message, false, getContext(false));
@@ -402,6 +402,16 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    public void readUnLock() {
       storageManagerLock.readLock().unlock();
       leaveCritical(CRITICAL_STORE);
+   }
+
+   /** for internal use and testsuite, don't use it outside of tests */
+   public void writeLock() {
+      storageManagerLock.writeLock().lock();
+   }
+
+   /** for internal use and testsuite, don't use it outside of tests */
+   public void writeUnlock() {
+      storageManagerLock.writeLock().unlock();
    }
 
    @Override
@@ -483,7 +493,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       readLock();
       try {
-         if (message.isLargeMessage()) {
+         if (message.isLargeMessage() && message instanceof LargeServerMessageImpl) {
+            // this is a core large message
             messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), message);
          } else {
             messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_MESSAGE_PROTOCOL, message.getPersister(), message);
@@ -656,6 +667,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       try {
          messageJournal.appendCommitRecord(txID, syncTransactional, getContext(syncTransactional), lineUpContext);
          if (!lineUpContext && !syncTransactional) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("calling getContext(true).done() for txID=" + txID + ",lineupContext=" + lineUpContext + " syncTransactional=" + syncTransactional + "... forcing call on getContext(true).done");
+            }
             /**
              * If {@code lineUpContext == false}, it means that we have previously lined up a
              * context somewhere else (specifically see @{link TransactionImpl#asyncAppendCommit}),
@@ -835,15 +849,18 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                                                     final Set<Pair<Long, Long>> pendingLargeMessages,
                                                     List<PageCountPending> pendingNonTXPageCounter,
                                                     final JournalLoader journalLoader) throws Exception {
-      List<RecordInfo> records = new ArrayList<>();
+      SparseArrayLinkedList<RecordInfo> records = new SparseArrayLinkedList<>();
 
       List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
 
+      Set<PageTransactionInfo> invalidPageTransactions = new HashSet<>();
+
       Map<Long, Message> messages = new HashMap<>();
       readLock();
+      setupThreadLocal(this);
       try {
 
-         JournalLoadInformation info = messageJournal.load(records, preparedTransactions, new LargeMessageTXFailureCallback(this, messages));
+         JournalLoadInformation info = messageJournal.load(records, preparedTransactions, new LargeMessageTXFailureCallback(this));
 
          ArrayList<LargeServerMessage> largeMessages = new ArrayList<>();
 
@@ -851,298 +868,344 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
          Map<Long, PageSubscription> pageSubscriptions = new HashMap<>();
 
-         final int totalSize = records.size();
+         final long totalSize = records.size();
 
-         for (int reccount = 0; reccount < totalSize; reccount++) {
-            // It will show log.info only with large journals (more than 1 million records)
-            if (reccount > 0 && reccount % 1000000 == 0) {
-               long percent = (long) ((((double) reccount) / ((double) totalSize)) * 100f);
+         final class MutableLong {
 
-               ActiveMQServerLogger.LOGGER.percentLoaded(percent);
-            }
-
-            RecordInfo record = records.get(reccount);
-            byte[] data = record.data;
-
-            ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
-
-            byte recordType = record.getUserRecordType();
-
-            switch (recordType) {
-               case JournalRecordIds.ADD_LARGE_MESSAGE_PENDING: {
-                  PendingLargeMessageEncoding pending = new PendingLargeMessageEncoding();
-
-                  pending.decode(buff);
-
-                  if (pendingLargeMessages != null) {
-                     // it could be null on tests, and we don't need anything on that case
-                     pendingLargeMessages.add(new Pair<>(record.id, pending.largeMessageID));
-                  }
-                  break;
-               }
-               case JournalRecordIds.ADD_LARGE_MESSAGE: {
-                  LargeServerMessage largeMessage = parseLargeMessage(messages, buff);
-
-                  messages.put(record.id, largeMessage);
-
-                  largeMessages.add(largeMessage);
-
-                  break;
-               }
-               case JournalRecordIds.ADD_MESSAGE: {
-                  throw new IllegalStateException("This is using old journal data, export your data and import at the correct version");
-               }
-
-               case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
-
-                  Message message = MessagePersister.getInstance().decode(buff, null);
-
-                  messages.put(record.id, message);
-
-                  break;
-               }
-               case JournalRecordIds.ADD_REF: {
-                  long messageID = record.id;
-
-                  RefEncoding encoding = new RefEncoding();
-
-                  encoding.decode(buff);
-
-                  Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
-
-                  if (queueMessages == null) {
-                     queueMessages = new LinkedHashMap<>();
-
-                     queueMap.put(encoding.queueID, queueMessages);
-                  }
-
-                  Message message = messages.get(messageID);
-
-                  if (message == null) {
-                     ActiveMQServerLogger.LOGGER.cannotFindMessage(record.id);
-                  } else {
-                     queueMessages.put(messageID, new AddMessageRecord(message));
-                  }
-
-                  break;
-               }
-               case JournalRecordIds.ACKNOWLEDGE_REF: {
-                  long messageID = record.id;
-
-                  RefEncoding encoding = new RefEncoding();
-
-                  encoding.decode(buff);
-
-                  Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
-
-                  if (queueMessages == null) {
-                     ActiveMQServerLogger.LOGGER.journalCannotFindQueue(encoding.queueID, messageID);
-                  } else {
-                     AddMessageRecord rec = queueMessages.remove(messageID);
-
-                     if (rec == null) {
-                        ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
-                     }
-                  }
-
-                  break;
-               }
-               case JournalRecordIds.UPDATE_DELIVERY_COUNT: {
-                  long messageID = record.id;
-
-                  DeliveryCountUpdateEncoding encoding = new DeliveryCountUpdateEncoding();
-
-                  encoding.decode(buff);
-
-                  Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
-
-                  if (queueMessages == null) {
-                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueDelCount(encoding.queueID);
-                  } else {
-                     AddMessageRecord rec = queueMessages.get(messageID);
-
-                     if (rec == null) {
-                        ActiveMQServerLogger.LOGGER.journalCannotFindMessageDelCount(messageID);
-                     } else {
-                        rec.setDeliveryCount(encoding.count);
-                     }
-                  }
-
-                  break;
-               }
-               case JournalRecordIds.PAGE_TRANSACTION: {
-                  if (record.isUpdate) {
-                     PageUpdateTXEncoding pageUpdate = new PageUpdateTXEncoding();
-
-                     pageUpdate.decode(buff);
-
-                     PageTransactionInfo pageTX = pagingManager.getTransaction(pageUpdate.pageTX);
-
-                     if (pageTX == null) {
-                        ActiveMQServerLogger.LOGGER.journalCannotFindPageTX(pageUpdate.pageTX);
-                     } else {
-                        pageTX.onUpdate(pageUpdate.recods, null, null);
-                     }
-                  } else {
-                     PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
-
-                     pageTransactionInfo.decode(buff);
-
-                     pageTransactionInfo.setRecordID(record.id);
-
-                     pagingManager.addTransaction(pageTransactionInfo);
-                  }
-
-                  break;
-               }
-               case JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME: {
-                  long messageID = record.id;
-
-                  ScheduledDeliveryEncoding encoding = new ScheduledDeliveryEncoding();
-
-                  encoding.decode(buff);
-
-                  Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
-
-                  if (queueMessages == null) {
-                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueScheduled(encoding.queueID, messageID);
-                  } else {
-
-                     AddMessageRecord rec = queueMessages.get(messageID);
-
-                     if (rec == null) {
-                        ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
-                     } else {
-                        rec.setScheduledDeliveryTime(encoding.scheduledDeliveryTime);
-                     }
-                  }
-
-                  break;
-               }
-               case JournalRecordIds.DUPLICATE_ID: {
-                  DuplicateIDEncoding encoding = new DuplicateIDEncoding();
-
-                  encoding.decode(buff);
-
-                  List<Pair<byte[], Long>> ids = duplicateIDMap.get(encoding.address);
-
-                  if (ids == null) {
-                     ids = new ArrayList<>();
-
-                     duplicateIDMap.put(encoding.address, ids);
-                  }
-
-                  ids.add(new Pair<>(encoding.duplID, record.id));
-
-                  break;
-               }
-               case JournalRecordIds.HEURISTIC_COMPLETION: {
-                  HeuristicCompletionEncoding encoding = new HeuristicCompletionEncoding();
-                  encoding.decode(buff);
-                  resourceManager.putHeuristicCompletion(record.id, encoding.xid, encoding.isCommit);
-                  break;
-               }
-               case JournalRecordIds.ACKNOWLEDGE_CURSOR: {
-                  CursorAckRecordEncoding encoding = new CursorAckRecordEncoding();
-                  encoding.decode(buff);
-
-                  encoding.position.setRecordID(record.id);
-
-                  PageSubscription sub = locateSubscription(encoding.queueID, pageSubscriptions, queueInfos, pagingManager);
-
-                  if (sub != null) {
-                     sub.reloadACK(encoding.position);
-                  } else {
-                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloading(encoding.queueID);
-                     messageJournal.appendDeleteRecord(record.id, false);
-
-                  }
-
-                  break;
-               }
-               case JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE: {
-                  PageCountRecord encoding = new PageCountRecord();
-
-                  encoding.decode(buff);
-
-                  PageSubscription sub = locateSubscription(encoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
-
-                  if (sub != null) {
-                     sub.getCounter().loadValue(record.id, encoding.getValue());
-                  } else {
-                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPage(encoding.getQueueID());
-                     messageJournal.appendDeleteRecord(record.id, false);
-                  }
-
-                  break;
-               }
-
-               case JournalRecordIds.PAGE_CURSOR_COUNTER_INC: {
-                  PageCountRecordInc encoding = new PageCountRecordInc();
-
-                  encoding.decode(buff);
-
-                  PageSubscription sub = locateSubscription(encoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
-
-                  if (sub != null) {
-                     sub.getCounter().loadInc(record.id, encoding.getValue());
-                  } else {
-                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPageCursor(encoding.getQueueID());
-                     messageJournal.appendDeleteRecord(record.id, false);
-                  }
-
-                  break;
-               }
-
-               case JournalRecordIds.PAGE_CURSOR_COMPLETE: {
-                  CursorAckRecordEncoding encoding = new CursorAckRecordEncoding();
-                  encoding.decode(buff);
-
-                  encoding.position.setRecordID(record.id);
-
-                  PageSubscription sub = locateSubscription(encoding.queueID, pageSubscriptions, queueInfos, pagingManager);
-
-                  if (sub != null) {
-                     if (!sub.reloadPageCompletion(encoding.position)) {
-                        if (logger.isDebugEnabled()) {
-                           logger.debug("Complete page " + encoding.position.getPageNr() + " doesn't exist on page manager " + sub.getPagingStore().getAddress());
-                        }
-                        messageJournal.appendDeleteRecord(record.id, false);
-                     }
-                  } else {
-                     ActiveMQServerLogger.LOGGER.cantFindQueueOnPageComplete(encoding.queueID);
-                     messageJournal.appendDeleteRecord(record.id, false);
-                  }
-
-                  break;
-               }
-
-               case JournalRecordIds.PAGE_CURSOR_PENDING_COUNTER: {
-
-                  PageCountPendingImpl pendingCountEncoding = new PageCountPendingImpl();
-                  pendingCountEncoding.decode(buff);
-                  pendingCountEncoding.setID(record.id);
-
-                  // This can be null on testcases not interested on this outcome
-                  if (pendingNonTXPageCounter != null) {
-                     pendingNonTXPageCounter.add(pendingCountEncoding);
-                  }
-                  break;
-               }
-
-               default: {
-                  throw new IllegalStateException("Invalid record type " + recordType);
-               }
-            }
-
-            // This will free up memory sooner. The record is not needed any more
-            // and its byte array would consume memory during the load process even though it's not necessary any longer
-            // what would delay processing time during load
-            records.set(reccount, null);
+            long value;
          }
 
+         final MutableLong recordNumber = new MutableLong();
+         final CoreMessageObjectPools pools;
+         if (totalSize > 0) {
+            final int addresses = (int)Math.max(
+               DEFAULT_POOL_CAPACITY,
+               queueInfos == null ? 0 :
+                  queueInfos.values().stream()
+                     .map(QueueBindingInfo::getAddress)
+                     .filter(addr -> addr.length() <= DEFAULT_MAX_LENGTH)
+                     .count() * 2);
+            pools = new CoreMessageObjectPools(addresses, DEFAULT_POOL_CAPACITY, 128, 128);
+         } else {
+            pools = null;
+         }
+         // This will free up memory sooner while reading the records
+         records.clear(record -> {
+            try {
+               // It will show log.info only with large journals (more than 1 million records)
+               if (recordNumber.value > 0 && recordNumber.value % 1000000 == 0) {
+                  long percent = (long) ((((double) recordNumber.value) / ((double) totalSize)) * 100f);
+
+                  ActiveMQServerLogger.LOGGER.percentLoaded(percent);
+               }
+               recordNumber.value++;
+
+               byte[] data = record.data;
+
+               // We can make this byte[] buffer releasable, because subsequent methods using it are not supposed
+               // to release it. It saves creating useless UnreleasableByteBuf wrappers
+               ChannelBufferWrapper buff = new ChannelBufferWrapper(Unpooled.wrappedBuffer(data), true);
+
+               byte recordType = record.getUserRecordType();
+
+               switch (recordType) {
+                  case JournalRecordIds.ADD_LARGE_MESSAGE_PENDING: {
+                     PendingLargeMessageEncoding pending = new PendingLargeMessageEncoding();
+
+                     pending.decode(buff);
+
+                     if (pendingLargeMessages != null) {
+                        // it could be null on tests, and we don't need anything on that case
+                        pendingLargeMessages.add(new Pair<>(record.id, pending.largeMessageID));
+                     }
+                     break;
+                  }
+                  case JournalRecordIds.ADD_LARGE_MESSAGE: {
+                     LargeServerMessage largeMessage = parseLargeMessage(buff);
+
+                     messages.put(record.id, largeMessage.toMessage());
+
+                     largeMessages.add(largeMessage);
+
+                     break;
+                  }
+                  case JournalRecordIds.ADD_MESSAGE: {
+                     throw new IllegalStateException("This is using old journal data, export your data and import at the correct version");
+                  }
+
+                  case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
+
+                     Message message = MessagePersister.getInstance().decode(buff, null, pools);
+
+                     /* if (message instanceof LargeServerMessage) {
+                        try {
+                           ((LargeServerMessage) message).finishParse();
+                        } catch (Exception e) {
+                           logger.warn(e.getMessage(), e);
+                        }
+                     } */
+
+                     messages.put(record.id, message);
+
+                     break;
+                  }
+                  case JournalRecordIds.ADD_REF: {
+                     long messageID = record.id;
+
+                     RefEncoding encoding = new RefEncoding();
+
+                     encoding.decode(buff);
+
+                     Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
+
+                     if (queueMessages == null) {
+                        queueMessages = new LinkedHashMap<>();
+
+                        queueMap.put(encoding.queueID, queueMessages);
+                     }
+
+                     Message message = messages.get(messageID);
+
+                     if (message == null) {
+                        ActiveMQServerLogger.LOGGER.cannotFindMessage(record.id);
+                     } else {
+                        queueMessages.put(messageID, new AddMessageRecord(message));
+                     }
+
+                     break;
+                  }
+                  case JournalRecordIds.ACKNOWLEDGE_REF: {
+                     long messageID = record.id;
+
+                     RefEncoding encoding = new RefEncoding();
+
+                     encoding.decode(buff);
+
+                     Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
+
+                     if (queueMessages == null) {
+                        ActiveMQServerLogger.LOGGER.journalCannotFindQueue(encoding.queueID, messageID);
+                     } else {
+                        AddMessageRecord rec = queueMessages.remove(messageID);
+
+                        if (rec == null) {
+                           ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
+                        }
+                     }
+
+                     break;
+                  }
+                  case JournalRecordIds.UPDATE_DELIVERY_COUNT: {
+                     long messageID = record.id;
+
+                     DeliveryCountUpdateEncoding encoding = new DeliveryCountUpdateEncoding();
+
+                     encoding.decode(buff);
+
+                     Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
+
+                     if (queueMessages == null) {
+                        ActiveMQServerLogger.LOGGER.journalCannotFindQueueDelCount(encoding.queueID);
+                     } else {
+                        AddMessageRecord rec = queueMessages.get(messageID);
+
+                        if (rec == null) {
+                           ActiveMQServerLogger.LOGGER.journalCannotFindMessageDelCount(messageID);
+                        } else {
+                           rec.setDeliveryCount(encoding.count);
+                        }
+                     }
+
+                     break;
+                  }
+                  case JournalRecordIds.PAGE_TRANSACTION: {
+                     PageTransactionInfo invalidPGTx = null;
+                     if (record.isUpdate) {
+                        PageUpdateTXEncoding pageUpdate = new PageUpdateTXEncoding();
+
+                        pageUpdate.decode(buff);
+
+                        PageTransactionInfo pageTX = pagingManager.getTransaction(pageUpdate.pageTX);
+
+                        if (pageTX == null) {
+                           ActiveMQServerLogger.LOGGER.journalCannotFindPageTX(pageUpdate.pageTX);
+                        } else {
+                           if (!pageTX.onUpdate(pageUpdate.recods, null, null)) {
+                              invalidPGTx = pageTX;
+                           }
+                        }
+                     } else {
+                        PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
+
+                        pageTransactionInfo.decode(buff);
+
+                        pageTransactionInfo.setRecordID(record.id);
+
+                        pagingManager.addTransaction(pageTransactionInfo);
+
+                        if (!pageTransactionInfo.checkSize(null, null)) {
+                           invalidPGTx = pageTransactionInfo;
+                        }
+                     }
+
+                     if (invalidPGTx != null) {
+                        invalidPageTransactions.add(invalidPGTx);
+                     }
+
+                     break;
+                  }
+                  case JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME: {
+                     long messageID = record.id;
+
+                     ScheduledDeliveryEncoding encoding = new ScheduledDeliveryEncoding();
+
+                     encoding.decode(buff);
+
+                     Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
+
+                     if (queueMessages == null) {
+                        ActiveMQServerLogger.LOGGER.journalCannotFindQueueScheduled(encoding.queueID, messageID);
+                     } else {
+
+                        AddMessageRecord rec = queueMessages.get(messageID);
+
+                        if (rec == null) {
+                           ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
+                        } else {
+                           rec.setScheduledDeliveryTime(encoding.scheduledDeliveryTime);
+                        }
+                     }
+
+                     break;
+                  }
+                  case JournalRecordIds.DUPLICATE_ID: {
+                     DuplicateIDEncoding encoding = new DuplicateIDEncoding();
+
+                     encoding.decode(buff);
+
+                     List<Pair<byte[], Long>> ids = duplicateIDMap.get(encoding.address);
+
+                     if (ids == null) {
+                        ids = new ArrayList<>();
+
+                        duplicateIDMap.put(encoding.address, ids);
+                     }
+
+                     ids.add(new Pair<>(encoding.duplID, record.id));
+
+                     break;
+                  }
+                  case JournalRecordIds.HEURISTIC_COMPLETION: {
+                     HeuristicCompletionEncoding encoding = new HeuristicCompletionEncoding();
+                     encoding.decode(buff);
+                     resourceManager.putHeuristicCompletion(record.id, encoding.xid, encoding.isCommit);
+                     break;
+                  }
+                  case JournalRecordIds.ACKNOWLEDGE_CURSOR: {
+                     CursorAckRecordEncoding encoding = new CursorAckRecordEncoding();
+                     encoding.decode(buff);
+
+                     encoding.position.setRecordID(record.id);
+
+                     PageSubscription sub = locateSubscription(encoding.queueID, pageSubscriptions, queueInfos, pagingManager);
+
+                     if (sub != null) {
+                        sub.reloadACK(encoding.position);
+                     } else {
+                        ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloading(encoding.queueID);
+                        messageJournal.appendDeleteRecord(record.id, false);
+
+                     }
+
+                     break;
+                  }
+                  case JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE: {
+                     PageCountRecord encoding = new PageCountRecord();
+
+                     encoding.decode(buff);
+
+                     PageSubscription sub = locateSubscription(encoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
+
+                     if (sub != null) {
+                        sub.getCounter().loadValue(record.id, encoding.getValue(), encoding.getPersistentSize());
+                     } else {
+                        ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPage(encoding.getQueueID());
+                        messageJournal.appendDeleteRecord(record.id, false);
+                     }
+
+                     break;
+                  }
+
+                  case JournalRecordIds.PAGE_CURSOR_COUNTER_INC: {
+                     PageCountRecordInc encoding = new PageCountRecordInc();
+
+                     encoding.decode(buff);
+
+                     PageSubscription sub = locateSubscription(encoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
+
+                     if (sub != null) {
+                        sub.getCounter().loadInc(record.id, encoding.getValue(), encoding.getPersistentSize());
+                     } else {
+                        ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPageCursor(encoding.getQueueID());
+                        messageJournal.appendDeleteRecord(record.id, false);
+                     }
+
+                     break;
+                  }
+
+                  case JournalRecordIds.PAGE_CURSOR_COMPLETE: {
+                     CursorAckRecordEncoding encoding = new CursorAckRecordEncoding();
+                     encoding.decode(buff);
+
+                     encoding.position.setRecordID(record.id);
+
+                     PageSubscription sub = locateSubscription(encoding.queueID, pageSubscriptions, queueInfos, pagingManager);
+
+                     if (sub != null) {
+                        if (!sub.reloadPageCompletion(encoding.position)) {
+                           if (logger.isDebugEnabled()) {
+                              logger.debug("Complete page " + encoding.position.getPageNr() + " doesn't exist on page manager " + sub.getPagingStore().getAddress());
+                           }
+                           messageJournal.appendDeleteRecord(record.id, false);
+                        }
+                     } else {
+                        ActiveMQServerLogger.LOGGER.cantFindQueueOnPageComplete(encoding.queueID);
+                        messageJournal.appendDeleteRecord(record.id, false);
+                     }
+
+                     break;
+                  }
+
+                  case JournalRecordIds.PAGE_CURSOR_PENDING_COUNTER: {
+
+                     PageCountPendingImpl pendingCountEncoding = new PageCountPendingImpl();
+
+                     pendingCountEncoding.decode(buff);
+                     pendingCountEncoding.setID(record.id);
+                     PageSubscription sub = locateSubscription(pendingCountEncoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
+                     if (sub != null) {
+                        sub.notEmpty();
+                     }
+                     // This can be null on testcases not interested on this outcome
+                     if (pendingNonTXPageCounter != null) {
+                        pendingNonTXPageCounter.add(pendingCountEncoding);
+                     }
+
+                     break;
+                  }
+
+                  default: {
+                     throw new IllegalStateException("Invalid record type " + recordType);
+                  }
+               }
+            } catch (RuntimeException e) {
+               throw e;
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            }
+         });
+
          // Release the memory as soon as not needed any longer
-         records.clear();
          records = null;
 
          journalLoader.handleAddMessage(queueMap);
@@ -1154,9 +1217,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          }
 
          for (LargeServerMessage msg : largeMessages) {
-            if (msg.getRefCount() == 0) {
+            if (msg.toMessage().getRefCount() == 0) {
                ActiveMQServerLogger.LOGGER.largeMessageWithNoRef(msg.getMessageID());
-               msg.decrementDelayDeletionCount();
+               msg.toMessage().usageDown();
             }
          }
 
@@ -1170,10 +1233,24 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          }
 
          journalLoader.postLoad(messageJournal, resourceManager, duplicateIDMap);
+
+         checkInvalidPageTransactions(pagingManager, invalidPageTransactions);
+
          journalLoaded = true;
          return info;
       } finally {
          readUnLock();
+         // need to clear it, otherwise we may have a permanent leak
+         setupThreadLocal(null);
+      }
+   }
+
+   public void checkInvalidPageTransactions(PagingManager pagingManager,
+                                            Set<PageTransactionInfo> invalidPageTransactions) {
+      if (invalidPageTransactions != null && !invalidPageTransactions.isEmpty()) {
+         for (PageTransactionInfo pginfo : invalidPageTransactions) {
+            pginfo.checkSize(this, pagingManager);
+         }
       }
    }
 
@@ -1195,6 +1272,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          if (queueInfo != null) {
             SimpleString address = queueInfo.getAddress();
             PagingStore store = pagingManager.getPageStore(address);
+            if (store == null) {
+               return null;
+            }
             subs = store.getCursorProvider().getSubscription(queueID);
             pageSubscriptions.put(queueID, subs);
          }
@@ -1244,7 +1324,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       SimpleString filterString = filter == null ? null : filter.getFilterString();
 
-      PersistentQueueBindingEncoding bindingEncoding = new PersistentQueueBindingEncoding(queue.getName(), binding.getAddress(), filterString, queue.getUser(), queue.isAutoCreated(), queue.getMaxConsumers(), queue.isPurgeOnNoConsumers(), queue.getRoutingType().getType());
+      PersistentQueueBindingEncoding bindingEncoding = new PersistentQueueBindingEncoding(queue.getName(), binding.getAddress(), filterString, queue.getUser(), queue.isAutoCreated(), queue.getMaxConsumers(), queue.isPurgeOnNoConsumers(), queue.isExclusive(), queue.isGroupRebalance(), queue.getGroupBuckets(), queue.getGroupFirstKey(), queue.isLastValue(), queue.getLastValueKey(), queue.isNonDestructive(), queue.getConsumersBeforeDispatch(), queue.getDelayBeforeDispatch(), queue.isAutoDelete(), queue.getAutoDeleteDelay(), queue.getAutoDeleteMessageCount(), queue.getRoutingType().getType(), queue.isConfigurationManaged(), queue.getRingSize());
 
       readLock();
       try {
@@ -1269,7 +1349,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storeQueueStatus(long queueID, QueueStatus status) throws Exception {
+   public long storeQueueStatus(long queueID, AddressQueueStatus status) throws Exception {
       long recordID = idGenerator.generateID();
 
       readLock();
@@ -1285,6 +1365,31 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    @Override
    public void deleteQueueStatus(long recordID) throws Exception {
+      readLock();
+      try {
+         bindingsJournal.appendDeleteRecord(recordID, true);
+      } finally {
+         readUnLock();
+      }
+   }
+
+   @Override
+   public long storeAddressStatus(long addressID, AddressQueueStatus status) throws Exception {
+      long recordID = idGenerator.generateID();
+
+      readLock();
+      try {
+         bindingsJournal.appendAddRecord(recordID, JournalRecordIds.ADDRESS_STATUS_RECORD, new AddressStatusEncoding(addressID, status), true);
+      } finally {
+         readUnLock();
+      }
+
+
+      return recordID;
+   }
+
+   @Override
+   public void deleteAddressStatus(long recordID) throws Exception {
       readLock();
       try {
          bindingsJournal.appendDeleteRecord(recordID, true);
@@ -1321,11 +1426,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storePageCounterInc(long txID, long queueID, int value) throws Exception {
+   public long storePageCounterInc(long txID, long queueID, int value, long persistentSize) throws Exception {
       readLock();
       try {
          long recordID = idGenerator.generateID();
-         messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value));
+         messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value, persistentSize));
          return recordID;
       } finally {
          readUnLock();
@@ -1333,11 +1438,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storePageCounterInc(long queueID, int value) throws Exception {
+   public long storePageCounterInc(long queueID, int value, long persistentSize) throws Exception {
       readLock();
       try {
          final long recordID = idGenerator.generateID();
-         messageJournal.appendAddRecord(recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value), true, getContext());
+         messageJournal.appendAddRecord(recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value, persistentSize), true, getContext());
          return recordID;
       } finally {
          readUnLock();
@@ -1345,11 +1450,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storePageCounter(long txID, long queueID, long value) throws Exception {
+   public long storePageCounter(long txID, long queueID, long value, long persistentSize) throws Exception {
       readLock();
       try {
          final long recordID = idGenerator.generateID();
-         messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE, new PageCountRecord(queueID, value));
+         messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE, new PageCountRecord(queueID, value, persistentSize));
          return recordID;
       } finally {
          readUnLock();
@@ -1357,11 +1462,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public long storePendingCounter(final long queueID, final long pageID, final int inc) throws Exception {
+   public long storePendingCounter(final long queueID, final long pageID) throws Exception {
       readLock();
       try {
          final long recordID = idGenerator.generateID();
-         PageCountPendingImpl pendingInc = new PageCountPendingImpl(queueID, pageID, inc);
+         PageCountPendingImpl pendingInc = new PageCountPendingImpl(queueID, pageID);
          // We must guarantee the record sync before we actually write on the page otherwise we may get out of sync
          // on the counter
          messageJournal.appendAddRecord(recordID, JournalRecordIds.PAGE_CURSOR_PENDING_COUNTER, pendingInc, true);
@@ -1405,53 +1510,71 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    public JournalLoadInformation loadBindingJournal(final List<QueueBindingInfo> queueBindingInfos,
                                                     final List<GroupingInfo> groupingInfos,
                                                     final List<AddressBindingInfo> addressBindingInfos) throws Exception {
-      List<RecordInfo> records = new ArrayList<>();
+      SparseArrayLinkedList<RecordInfo> records = new SparseArrayLinkedList<>();
 
       List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
 
       JournalLoadInformation bindingsInfo = bindingsJournal.load(records, preparedTransactions, null);
 
       HashMap<Long, PersistentQueueBindingEncoding> mapBindings = new HashMap<>();
+      HashMap<Long, PersistentAddressBindingEncoding> mapAddressBindings = new HashMap<>();
 
-      for (RecordInfo record : records) {
-         long id = record.id;
+      records.clear(record -> {
+         try {
+            long id = record.id;
 
-         ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
+            ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
 
-         byte rec = record.getUserRecordType();
+            byte rec = record.getUserRecordType();
 
-         if (rec == JournalRecordIds.QUEUE_BINDING_RECORD) {
-            PersistentQueueBindingEncoding bindingEncoding = newQueueBindingEncoding(id, buffer);
-            mapBindings.put(bindingEncoding.getId(), bindingEncoding);
-         } else if (rec == JournalRecordIds.ID_COUNTER_RECORD) {
-            idGenerator.loadState(record.id, buffer);
-         } else if (rec == JournalRecordIds.ADDRESS_BINDING_RECORD) {
-            PersistentAddressBindingEncoding bindingEncoding = newAddressBindingEncoding(id, buffer);
-            addressBindingInfos.add(bindingEncoding);
-         } else if (rec == JournalRecordIds.GROUP_RECORD) {
-            GroupingEncoding encoding = newGroupEncoding(id, buffer);
-            groupingInfos.add(encoding);
-         } else if (rec == JournalRecordIds.ADDRESS_SETTING_RECORD) {
-            PersistedAddressSetting setting = newAddressEncoding(id, buffer);
-            mapPersistedAddressSettings.put(setting.getAddressMatch(), setting);
-         } else if (rec == JournalRecordIds.SECURITY_RECORD) {
-            PersistedRoles roles = newSecurityRecord(id, buffer);
-            mapPersistedRoles.put(roles.getAddressMatch(), roles);
-         } else if (rec == JournalRecordIds.QUEUE_STATUS_RECORD) {
-            QueueStatusEncoding statusEncoding = newQueueStatusEncoding(id, buffer);
-            PersistentQueueBindingEncoding queueBindingEncoding = mapBindings.get(statusEncoding.queueID);
-            if (queueBindingEncoding != null) {
-               queueBindingEncoding.addQueueStatusEncoding(statusEncoding);
+            if (rec == JournalRecordIds.QUEUE_BINDING_RECORD) {
+               PersistentQueueBindingEncoding bindingEncoding = newQueueBindingEncoding(id, buffer);
+               mapBindings.put(bindingEncoding.getId(), bindingEncoding);
+            } else if (rec == JournalRecordIds.ID_COUNTER_RECORD) {
+               idGenerator.loadState(record.id, buffer);
+            } else if (rec == JournalRecordIds.ADDRESS_BINDING_RECORD) {
+               PersistentAddressBindingEncoding bindingEncoding = newAddressBindingEncoding(id, buffer);
+               addressBindingInfos.add(bindingEncoding);
+               mapAddressBindings.put(id, bindingEncoding);
+            } else if (rec == JournalRecordIds.GROUP_RECORD) {
+               GroupingEncoding encoding = newGroupEncoding(id, buffer);
+               groupingInfos.add(encoding);
+            } else if (rec == JournalRecordIds.ADDRESS_SETTING_RECORD) {
+               PersistedAddressSetting setting = newAddressEncoding(id, buffer);
+               mapPersistedAddressSettings.put(setting.getAddressMatch(), setting);
+            } else if (rec == JournalRecordIds.SECURITY_RECORD) {
+               PersistedRoles roles = newSecurityRecord(id, buffer);
+               mapPersistedRoles.put(roles.getAddressMatch(), roles);
+            } else if (rec == JournalRecordIds.QUEUE_STATUS_RECORD) {
+               QueueStatusEncoding statusEncoding = newQueueStatusEncoding(id, buffer);
+               PersistentQueueBindingEncoding queueBindingEncoding = mapBindings.get(statusEncoding.queueID);
+               if (queueBindingEncoding != null) {
+                  queueBindingEncoding.addQueueStatusEncoding(statusEncoding);
+               } else {
+                  // unlikely to happen, so I didn't bother about the Logger method
+                  ActiveMQServerLogger.LOGGER.infoNoQueueWithID(statusEncoding.queueID, statusEncoding.getId());
+                  this.deleteQueueStatus(statusEncoding.getId());
+               }
+            } else if (rec == JournalRecordIds.ADDRESS_STATUS_RECORD) {
+               AddressStatusEncoding statusEncoding = newAddressStatusEncoding(id, buffer);
+               PersistentAddressBindingEncoding addressBindingEncoding = mapAddressBindings.get(statusEncoding.getAddressId());
+               if (addressBindingEncoding != null) {
+                  addressBindingEncoding.setAddressStatusEncoding(statusEncoding);
+               } else {
+                  // unlikely to happen, so I didn't bother about the Logger method
+                  ActiveMQServerLogger.LOGGER.infoNoAddressWithID(statusEncoding.getAddressId(), statusEncoding.getId());
+                  this.deleteAddressStatus(statusEncoding.getId());
+               }
             } else {
-               // unlikely to happen, so I didn't bother about the Logger method
-               ActiveMQServerLogger.LOGGER.infoNoQueueWithID(statusEncoding.queueID, statusEncoding.getId());
-               this.deleteQueueStatus(statusEncoding.getId());
+               // unlikely to happen
+               ActiveMQServerLogger.LOGGER.invalidRecordType(rec, new Exception("invalid record type " + rec));
             }
-         } else {
-            // unlikely to happen
-            ActiveMQServerLogger.LOGGER.invalidRecordType(rec, new Exception("invalid record type " + rec));
+         } catch (RuntimeException e) {
+            throw e;
+         } catch (Exception e) {
+            throw new RuntimeException(e);
          }
-      }
+      });
 
       for (PersistentQueueBindingEncoding queue : mapBindings.values()) {
          queueBindingInfos.add(queue);
@@ -1488,7 +1611,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       beforeStart();
 
-      singleThreadExecutor = executorFactory.getExecutor();
+      singleThreadExecutor = ioExecutorFactory.getExecutor();
 
       bindingsJournal.start();
 
@@ -1580,6 +1703,15 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
+   public boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException {
+      final Semaphore pageMaxConcurrentIO = this.pageMaxConcurrentIO;
+      if (pageMaxConcurrentIO == null) {
+         return true;
+      }
+      return pageMaxConcurrentIO.tryAcquire(timeout, unit);
+   }
+
+   @Override
    public void afterPageRead() throws Exception {
       if (pageMaxConcurrentIO != null) {
          pageMaxConcurrentIO.release();
@@ -1601,18 +1733,19 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    // Package protected ---------------------------------------------
 
    protected void confirmLargeMessage(final LargeServerMessage largeServerMessage) {
-      if (largeServerMessage.getPendingRecordID() >= 0) {
-         try {
-            confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
-            largeServerMessage.setPendingRecordID(LargeServerMessage.NO_PENDING_ID);
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+      synchronized (largeServerMessage) {
+         if (largeServerMessage.getPendingRecordID() >= 0) {
+            try {
+               confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
+               largeServerMessage.clearPendingRecordID();
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            }
          }
       }
    }
 
-   protected abstract LargeServerMessage parseLargeMessage(Map<Long, Message> messages,
-                                                           ActiveMQBuffer buff) throws Exception;
+   protected abstract LargeServerMessage parseLargeMessage(ActiveMQBuffer buff) throws Exception;
 
    private void loadPreparedTransactions(final PostOffice postOffice,
                                          final PagingManager pagingManager,
@@ -1624,6 +1757,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                                          final Set<Pair<Long, Long>> pendingLargeMessages,
                                          JournalLoader journalLoader) throws Exception {
       // recover prepared transactions
+      CoreMessageObjectPools pools = null;
+
       for (PreparedTransactionInfo preparedTransaction : preparedTransactions) {
          XidEncoding encodingXid = new XidEncoding(preparedTransaction.getExtraData());
 
@@ -1648,7 +1783,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
             switch (recordType) {
                case JournalRecordIds.ADD_LARGE_MESSAGE: {
-                  messages.put(record.id, parseLargeMessage(messages, buff));
+                  messages.put(record.id, parseLargeMessage(buff).toMessage());
 
                   break;
                }
@@ -1657,7 +1792,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   break;
                }
                case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
-                  Message message = MessagePersister.getInstance().decode(buff, null);
+                  if (pools == null) {
+                     pools = new CoreMessageObjectPools();
+                  }
+                  Message message = MessagePersister.getInstance().decode(buff, null, pools);
 
                   messages.put(record.id, message);
 
@@ -1699,7 +1837,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                   if (record.isUpdate) {
                      PageTransactionInfo pgTX = pagingManager.getTransaction(pageTransactionInfo.getTransactionID());
-                     pgTX.reloadUpdate(this, pagingManager, tx, pageTransactionInfo.getNumberOfMessages());
+                     if (pgTX != null) {
+                        pgTX.reloadUpdate(this, pagingManager, tx, pageTransactionInfo.getNumberOfMessages());
+                     }
                   } else {
                      pageTransactionInfo.setCommitted(false);
 
@@ -1761,7 +1901,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   PageSubscription sub = locateSubscription(encoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
 
                   if (sub != null) {
-                     sub.getCounter().applyIncrementOnTX(tx, record.id, encoding.getValue());
+                     sub.getCounter().applyIncrementOnTX(tx, record.id, encoding.getValue(), encoding.getPersistentSize());
                      sub.notEmpty();
                   } else {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.getQueueID());
@@ -1894,6 +2034,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       setting.decode(buffer);
       setting.setStoreId(id);
       return setting;
+   }
+
+   static AddressStatusEncoding newAddressStatusEncoding(long id, ActiveMQBuffer buffer) {
+      AddressStatusEncoding addressStatus = new AddressStatusEncoding();
+      addressStatus.decode(buffer);
+      addressStatus.setId(id);
+      return addressStatus;
    }
 
    /**

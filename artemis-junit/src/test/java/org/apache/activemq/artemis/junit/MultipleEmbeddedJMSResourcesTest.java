@@ -18,11 +18,12 @@ package org.apache.activemq.artemis.junit;
 
 import javax.jms.Message;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class MultipleEmbeddedJMSResourcesTest {
@@ -34,34 +35,23 @@ public class MultipleEmbeddedJMSResourcesTest {
    static final String ASSERT_PUSHED_FORMAT = "Message should have been pushed a message to %s";
    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in destination %s";
 
-   static {
-      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
-      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
-   }
-
    public EmbeddedJMSResource jmsServerOne = new EmbeddedJMSResource(0);
 
    public EmbeddedJMSResource jmsServerTwo = new EmbeddedJMSResource(1);
 
    @Rule
-   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(jmsServerOne).around(jmsServerTwo);
+   public RuleChain rulechain = RuleChain.outerRule(jmsServerOne).around(jmsServerTwo);
 
    @Test
    public void testMultipleServers() throws Exception {
+      jmsServerOne.getJmsServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+      jmsServerTwo.getJmsServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+
       Message pushedOne = jmsServerOne.pushMessage(TEST_QUEUE_ONE, TEST_BODY);
       assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_ONE), pushedOne);
 
       Message pushedTwo = jmsServerTwo.pushMessage(TEST_QUEUE_TWO, TEST_BODY);
       assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_TWO), pushedTwo);
-
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return jmsServerOne.getMessageCount(TEST_QUEUE_ONE) == 1 && jmsServerTwo.getMessageCount(TEST_QUEUE_TWO) == 1;
-         }
-      }, 5000, 100);
-      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_ONE), 1, jmsServerOne.getMessageCount(TEST_QUEUE_ONE));
-      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_TWO), 1, jmsServerTwo.getMessageCount(TEST_QUEUE_TWO));
    }
 
 }

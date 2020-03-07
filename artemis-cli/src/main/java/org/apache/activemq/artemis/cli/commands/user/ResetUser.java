@@ -20,11 +20,12 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
+import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Reset a user's password or roles, example:
- * ./artemis user reset --username guest --role admin --password ***
+ * ./artemis user reset --user guest --role admin --password ***
  */
 @Command(name = "reset", description = "Reset user's password or roles")
 public class ResetUser extends PasswordAction {
@@ -57,7 +58,7 @@ public class ResetUser extends PasswordAction {
          context.err.println("Nothing to update.");
          return;
       }
-      FileBasedSecStoreConfig config = getConfiguration();
+      PropertiesLoginModuleConfigurator config = new PropertiesLoginModuleConfigurator(entry, getBrokerEtc());
       config.updateUser(username, password, roles);
       config.save();
       context.out.println("User updated");

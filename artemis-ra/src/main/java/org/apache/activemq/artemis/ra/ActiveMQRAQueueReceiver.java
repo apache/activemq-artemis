@@ -26,11 +26,6 @@ import javax.jms.QueueReceiver;
 public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implements QueueReceiver {
 
    /**
-    * Whether trace is enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
-   /**
     * Create a new wrapper
     *
     * @param consumer the queue receiver
@@ -39,7 +34,7 @@ public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implement
    public ActiveMQRAQueueReceiver(final QueueReceiver consumer, final ActiveMQRASession session) {
       super(consumer, session);
 
-      if (ActiveMQRAQueueReceiver.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + consumer + ", " + session + ")");
       }
    }
@@ -52,7 +47,7 @@ public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implement
     */
    @Override
    public Queue getQueue() throws JMSException {
-      if (ActiveMQRAQueueReceiver.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getQueue()");
       }
 

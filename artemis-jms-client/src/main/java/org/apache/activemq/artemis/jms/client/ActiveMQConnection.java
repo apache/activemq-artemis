@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
+import java.lang.ref.WeakReference;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.jms.ConnectionConsumer;
 import javax.jms.ConnectionMetaData;
 import javax.jms.Destination;
@@ -32,13 +40,6 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
-import java.lang.ref.WeakReference;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -78,6 +79,14 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    public static final SimpleString CONNECTION_ID_PROPERTY_NAME = MessageUtil.CONNECTION_ID_PROPERTY_NAME;
 
+   /**
+    * Just like {@link ClientSession.AddressQuery#JMS_SESSION_IDENTIFIER_PROPERTY} this is
+    * used to identify the ClientID over JMS Session.
+    * However this is only used when the JMS Session.clientID is set (which is optional).
+    * With this property management tools and the server can identify the jms-client-id used over JMS
+    */
+   public static String JMS_SESSION_CLIENT_ID_PROPERTY = "jms-client-id";
+
    // Static ---------------------------------------------------------------------------------------
 
    // Attributes -----------------------------------------------------------------------------------
@@ -87,8 +96,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    private final Set<ActiveMQSession> sessions = new ConcurrentHashSet<>();
 
    private final Set<SimpleString> tempQueues = new ConcurrentHashSet<>();
-
-   private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<>();
 
    private volatile boolean hasNoLocal;
 
@@ -128,6 +135,8 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private final boolean cacheDestinations;
 
+   private final boolean enable1xPrefixes;
+
    private ClientSession initialSession;
 
    private final Exception creationStack;
@@ -146,6 +155,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
                              final int dupsOKBatchSize,
                              final int transactionBatchSize,
                              final boolean cacheDestinations,
+                             final boolean enable1xPrefixes,
                              final ClientSessionFactory sessionFactory) {
       this.options = options;
 
@@ -168,6 +178,8 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       this.transactionBatchSize = transactionBatchSize;
 
       this.cacheDestinations = cacheDestinations;
+
+      this.enable1xPrefixes = enable1xPrefixes;
 
       creationStack = new Exception();
    }
@@ -242,10 +254,9 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
          throw new IllegalStateException("setClientID can only be called directly after the connection is created");
       }
 
-      validateClientID(initialSession, clientID);
-
-      this.clientID = clientID;
       try {
+         validateClientID(initialSession, clientID);
+         this.clientID = clientID;
          this.addSessionMetaData(initialSession);
       } catch (ActiveMQException e) {
          JMSException ex = new JMSException("Internal error setting metadata jms-client-id");
@@ -257,12 +268,15 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       justCreated = false;
    }
 
-   private void validateClientID(ClientSession validateSession, String clientID) throws InvalidClientIDException {
+   private void validateClientID(ClientSession validateSession, String clientID)
+         throws InvalidClientIDException, ActiveMQException {
       try {
-         validateSession.addUniqueMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
+         validateSession.addUniqueMetaData(JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
       } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.DUPLICATE_METADATA) {
             throw new InvalidClientIDException("clientID=" + clientID + " was already set into another connection");
+         } else {
+            throw e;
          }
       }
    }
@@ -527,19 +541,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    public void addTemporaryQueue(final SimpleString queueAddress) {
       tempQueues.add(queueAddress);
-      knownDestinations.add(queueAddress);
    }
 
    public void removeTemporaryQueue(final SimpleString queueAddress) {
       tempQueues.remove(queueAddress);
-   }
-
-   public void addKnownDestination(final SimpleString address) {
-      knownDestinations.add(address);
-   }
-
-   public boolean containsKnownDestination(final SimpleString address) {
-      return knownDestinations.contains(address);
    }
 
    public boolean containsTemporaryQueue(final SimpleString queueAddress) {
@@ -658,9 +663,9 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
                                               ClientSession session,
                                               int type) {
       if (isXA) {
-         return new ActiveMQXASession(options, this, transacted, true, acknowledgeMode, cacheDestinations, session, type);
+         return new ActiveMQXASession(options, this, transacted, true, acknowledgeMode, cacheDestinations, enable1xPrefixes, session, type);
       } else {
-         return new ActiveMQSession(options, this, transacted, false, acknowledgeMode, cacheDestinations, session, type);
+         return new ActiveMQSession(options, this, transacted, false, acknowledgeMode, cacheDestinations, enable1xPrefixes, session, type);
       }
    }
 
@@ -671,11 +676,19 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    public void authorize() throws JMSException {
+      authorize(true);
+   }
+
+   public void authorize(boolean validateClientId) throws JMSException {
       try {
          initialSession = sessionFactory.createSession(username, password, false, false, false, false, 0);
 
          if (clientID != null) {
-            validateClientID(initialSession, clientID);
+            if (validateClientId) {
+               validateClientID(initialSession, clientID);
+            } else {
+               initialSession.addMetaData(JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
+            }
          }
 
          addSessionMetaData(initialSession);
@@ -690,7 +703,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    private void addSessionMetaData(ClientSession session) throws ActiveMQException {
       session.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
       if (clientID != null) {
-         session.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
+         session.addMetaData(JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
       }
    }
 
@@ -709,6 +722,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    public String getDeserializationWhiteList() {
       return this.factoryReference.getDeserializationWhiteList();
    }
+
 
    // Inner classes --------------------------------------------------------------------------------
 

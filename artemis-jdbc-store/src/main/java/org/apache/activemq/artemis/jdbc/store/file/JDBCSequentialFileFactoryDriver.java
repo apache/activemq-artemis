@@ -108,12 +108,14 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @throws SQLException
     */
    public void openFile(JDBCSequentialFile file) throws SQLException {
-      final long fileId = fileExists(file);
-      if (fileId < 0) {
-         createFile(file);
-      } else {
-         file.setId(fileId);
-         loadFile(file);
+      synchronized (connection) {
+         final long fileId = fileExists(file);
+         if (fileId < 0) {
+            createFile(file);
+         } else {
+            file.setId(fileId);
+            loadFile(file);
+         }
       }
    }
 
@@ -244,6 +246,10 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       }
    }
 
+   public int writeToFile(JDBCSequentialFile file, byte[] data) throws SQLException {
+      return writeToFile(file, data, true);
+   }
+
    /**
     * Persists data to this files associated database mapping.
     *
@@ -252,7 +258,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @return
     * @throws SQLException
     */
-   public int writeToFile(JDBCSequentialFile file, byte[] data) throws SQLException {
+   public int writeToFile(JDBCSequentialFile file, byte[] data, boolean append) throws SQLException {
       synchronized (connection) {
          connection.setAutoCommit(false);
          appendToLargeObject.setLong(1, file.getId());
@@ -264,7 +270,12 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
                if (blob == null) {
                   blob = connection.createBlob();
                }
-               bytesWritten = blob.setBytes(blob.length() + 1, data);
+               if (append) {
+                  bytesWritten = blob.setBytes(blob.length() + 1, data);
+               } else {
+                  blob.truncate(0);
+                  bytesWritten = blob.setBytes(1, data);
+               }
                rs.updateBlob(1, blob);
                rs.updateRow();
             }
@@ -294,17 +305,27 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
             if (rs.next()) {
                final Blob blob = rs.getBlob(1);
                if (blob != null) {
-                  readLength = (int) calculateReadLength(blob.length(), bytes.remaining(), file.position());
-                  byte[] data = blob.getBytes(file.position() + 1, readLength);
-                  bytes.put(data);
+                  final long blobLength = blob.length();
+                  final int bytesRemaining = bytes.remaining();
+                  final long filePosition = file.position();
+                  readLength = (int) calculateReadLength(blobLength, bytesRemaining, filePosition);
+                  if (logger.isDebugEnabled()) {
+                     logger.debugf("trying read %d bytes: blobLength = %d bytesRemaining = %d filePosition = %d",
+                                   readLength, blobLength, bytesRemaining, filePosition);
+                  }
+                  if (readLength < 0) {
+                     readLength = -1;
+                  } else if (readLength > 0) {
+                     byte[] data = blob.getBytes(file.position() + 1, readLength);
+                     bytes.put(data);
+                  }
                }
             }
             connection.commit();
             return readLength;
-         } catch (Throwable e) {
-            throw e;
-         } finally {
+         } catch (SQLException e) {
             connection.rollback();
+            throw e;
          }
       }
    }

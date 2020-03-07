@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 
 public abstract class AbstractClientStompFrame implements ClientStompFrame {
@@ -86,6 +88,16 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
    @Override
    public ByteBuffer toByteBufferWithExtra(String str) {
       return toByteBufferInternal(str);
+   }
+
+   @Override
+   public ByteBuf toNettyByteBuf() {
+      return Unpooled.copiedBuffer(toByteBuffer());
+   }
+
+   @Override
+   public ByteBuf toNettyByteBufWithExtras(String str) {
+      return Unpooled.copiedBuffer(toByteBufferWithExtra(str));
    }
 
    public ByteBuffer toByteBufferInternal(String str) {

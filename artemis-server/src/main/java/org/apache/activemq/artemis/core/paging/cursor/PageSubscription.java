@@ -44,6 +44,8 @@ public interface PageSubscription {
 
    long getMessageCount();
 
+   long getPersistentSize();
+
    long getId();
 
    boolean isPersistent();
@@ -53,7 +55,7 @@ public interface PageSubscription {
     */
    boolean isPaging();
 
-   LinkedListIterator<PagedReference> iterator();
+   PageIterator iterator();
 
    LinkedListIterator<PagedReference> iterator(boolean jumpRemoves);
 
@@ -161,4 +163,12 @@ public interface PageSubscription {
     * @throws Exception
     */
    void onDeletePage(Page deletedPage) throws Exception;
+
+   long getDeliveredCount();
+
+   long getDeliveredSize();
+
+   void incrementDeliveredSize(long size);
+
+   void removePendingDelivery(PagePosition position);
 }

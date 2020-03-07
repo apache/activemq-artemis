@@ -53,4 +53,30 @@ public class JsonUtilTest {
 
       Assert.assertEquals(2, jsonArray.size());
    }
+
+   @Test
+   public void testAddByteArrayToJsonObject() {
+      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
+      byte[] bytes = {0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f};
+
+      JsonUtil.addToObject("not-null", "not-null", jsonObjectBuilder);
+      JsonUtil.addToObject("byteArray", bytes, jsonObjectBuilder);
+      JsonUtil.addToObject("null", null, jsonObjectBuilder);
+
+      JsonObject jsonObject = jsonObjectBuilder.build();
+
+      Assert.assertTrue(jsonObject.containsKey("byteArray"));
+      Assert.assertEquals(6, jsonObject.getJsonArray("byteArray").size());
+   }
+
+   @Test public void testAddByteArrayToJsonArray() {
+      JsonArrayBuilder jsonArrayBuilder = JsonLoader.createArrayBuilder();
+      byte[] bytes = {0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f};
+
+      JsonUtil.addToArray(bytes, jsonArrayBuilder);
+
+      JsonArray jsonArray = jsonArrayBuilder.build();
+
+      Assert.assertEquals(1, jsonArray.size());
+   }
 }

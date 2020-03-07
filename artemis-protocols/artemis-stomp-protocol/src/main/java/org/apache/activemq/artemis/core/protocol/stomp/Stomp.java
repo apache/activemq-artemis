@@ -152,9 +152,19 @@ public interface Stomp {
 
          String DURABLE_SUBSCRIPTION_NAME = "durable-subscription-name";
 
+         /**
+          * Backwards compatibility for STOMP clients that were using 5.x
+          */
+         String ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME = "activemq.subscriptionName";
+
          String SUBSCRIPTION_TYPE = "subscription-type";
 
          String NO_LOCAL = "no-local";
+
+         /**
+          * Backwards compatibility for STOMP clients that were using 5.x
+          */
+         String ACTIVEMQ_NO_LOCAL = "activemq.noLocal";
 
          public interface AckModeValues {
 
@@ -176,6 +186,11 @@ public interface Stomp {
          String DURABLE_SUBSCRIBER_NAME = "durable-subscriber-name";
 
          String DURABLE_SUBSCRIPTION_NAME = "durable-subscription-name";
+
+         /**
+          * Backwards compatibility for STOMP clients that were using 5.x
+          */
+         String ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME = "activemq.subscriptionName";
       }
 
       interface Connect {

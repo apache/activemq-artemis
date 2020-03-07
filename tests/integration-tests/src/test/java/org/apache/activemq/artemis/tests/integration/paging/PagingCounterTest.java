@@ -89,15 +89,17 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          Transaction tx = new TransactionImpl(server.getStorageManager());
 
-         counter.increment(tx, 1);
+         counter.increment(tx, 1, 1000);
 
          assertEquals(0, counter.getValue());
+         assertEquals(0, counter.getPersistentSize());
 
          tx.commit();
 
          storage.waitOnOperations();
 
          assertEquals(1, counter.getValue());
+         assertEquals(1000, counter.getPersistentSize());
       } finally {
          sf.close();
          session.close();
@@ -121,7 +123,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          for (int i = 0; i < 2100; i++) {
 
-            counter.increment(tx, 1);
+            counter.increment(tx, 1, 1000);
 
             if (i % 200 == 0) {
                tx.commit();
@@ -129,6 +131,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
                storage.waitOnOperations();
 
                assertEquals(i + 1, counter.getValue());
+               assertEquals((i + 1) * 1000, counter.getPersistentSize());
 
                tx = new TransactionImpl(server.getStorageManager());
             }
@@ -139,6 +142,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
          storage.waitOnOperations();
 
          assertEquals(2100, counter.getValue());
+         assertEquals(2100 * 1000, counter.getPersistentSize());
 
          server.stop();
 
@@ -153,6 +157,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
          counter = locateCounter(queue);
 
          assertEquals(2100, counter.getValue());
+         assertEquals(2100 * 1000, counter.getPersistentSize());
 
       } finally {
          sf.close();
@@ -180,7 +185,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          for (int i = 0; i < 2100; i++) {
 
-            counter.increment(tx, 1);
+            counter.increment(tx, 1, 1000);
 
             if (i % 200 == 0) {
                tx.commit();
@@ -188,6 +193,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
                storage.waitOnOperations();
 
                assertEquals(i + 1, counter.getValue());
+               assertEquals((i + 1) * 1000, counter.getPersistentSize());
 
                tx = new TransactionImpl(server.getStorageManager());
             }
@@ -198,6 +204,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
          storage.waitOnOperations();
 
          assertEquals(2100, counter.getValue());
+         assertEquals(2100 * 1000, counter.getPersistentSize());
 
          server.stop();
 
@@ -212,6 +219,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
          counter = locateCounter(queue);
 
          assertEquals(0, counter.getValue());
+         assertEquals(0, counter.getPersistentSize());
 
       } finally {
          sf.close();
@@ -230,15 +238,17 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       Transaction tx = new TransactionImpl(server.getStorageManager());
 
-      counter.increment(tx, 1);
+      counter.increment(tx, 1, 1000);
 
       assertEquals(0, counter.getValue());
+      assertEquals(0, counter.getPersistentSize());
 
       tx.commit();
 
       storage.waitOnOperations();
 
       assertEquals(1, counter.getValue());
+      assertEquals(1000, counter.getPersistentSize());
 
       sl.close();
 
@@ -255,6 +265,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
       counter = locateCounter(queue);
 
       assertEquals(1, counter.getValue());
+      assertEquals(1000, counter.getPersistentSize());
 
    }
 
@@ -283,7 +294,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
       Transaction tx = new TransactionImpl(xid, server.getStorageManager(), 300);
 
       for (int i = 0; i < 2000; i++) {
-         counter.increment(tx, 1);
+         counter.increment(tx, 1, 1000);
       }
 
       assertEquals(0, counter.getValue());

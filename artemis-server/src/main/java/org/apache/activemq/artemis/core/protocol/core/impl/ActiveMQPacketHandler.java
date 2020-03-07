@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
@@ -24,6 +23,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerProducerImpl;
@@ -121,7 +120,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
    private void handleCheckForFailover(CheckFailoverMessage failoverMessage) {
       String nodeID = failoverMessage.getNodeID();
-      boolean okToFailover = nodeID == null || !(server.getHAPolicy().canScaleDown() && !server.hasScaledDown(new SimpleString(nodeID)));
+      boolean okToFailover = nodeID == null || server.getNodeID().toString().equals(nodeID) || !(server.getHAPolicy().canScaleDown() && !server.hasScaledDown(new SimpleString(nodeID)));
       channel1.send(new CheckFailoverReplyMessage(okToFailover));
    }
 
@@ -145,10 +144,10 @@ public class ActiveMQPacketHandler implements ChannelHandler {
                                        "Server will not accept create session requests");
          }*/
 
-         if (connection.getClientVersion() == 0) {
-            connection.setClientVersion(request.getVersion());
-         } else if (connection.getClientVersion() != request.getVersion()) {
-            ActiveMQServerLogger.LOGGER.incompatibleVersionAfterConnect(request.getVersion(), connection.getClientVersion());
+         if (connection.getChannelVersion() == 0) {
+            connection.setChannelVersion(request.getVersion());
+         } else if (connection.getChannelVersion() != request.getVersion()) {
+            ActiveMQServerLogger.LOGGER.incompatibleVersionAfterConnect(request.getVersion(), connection.getChannelVersion());
          }
 
          Channel channel = connection.getChannel(request.getSessionChannelID(), request.getWindowSize());
@@ -163,12 +162,6 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
          Map<SimpleString, RoutingType> routingTypeMap = protocolManager.getPrefixes();
 
-         if (connection.getClientVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
-            routingTypeMap = new HashMap<>();
-            routingTypeMap.put(PacketImpl.OLD_QUEUE_PREFIX, RoutingType.ANYCAST);
-            routingTypeMap.put(PacketImpl.OLD_TOPIC_PREFIX, RoutingType.MULTICAST);
-         }
-
          CoreSessionCallback sessionCallback = new CoreSessionCallback(request.getName(), protocolManager, channel, connection);
          ServerSession session = server.createSession(request.getName(), activeMQPrincipal == null ? request.getUsername() : activeMQPrincipal.getUserName(), activeMQPrincipal == null ? request.getPassword() : activeMQPrincipal.getPassword(), request.getMinLargeMessageSize(), connection, request.isAutoCommitSends(), request.isAutoCommitAcks(), request.isPreAcknowledge(), request.isXA(), request.getDefaultAddress(), sessionCallback, true, sessionOperationContext, routingTypeMap);
          ServerProducer serverProducer = new ServerProducerImpl(session.getName(), "CORE", request.getDefaultAddress());
@@ -182,7 +175,6 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
          response = new CreateSessionResponseMessage(server.getVersion().getIncrementingVersion());
       } catch (ActiveMQClusterSecurityException | ActiveMQSecurityException e) {
-         ActiveMQServerLogger.LOGGER.securityProblemWhileCreatingSession(e.getMessage());
          response = new ActiveMQExceptionMessage(e);
       } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {

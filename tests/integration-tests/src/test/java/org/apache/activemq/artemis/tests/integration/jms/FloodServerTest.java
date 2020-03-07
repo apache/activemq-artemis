@@ -24,21 +24,12 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,10 +43,6 @@ public class FloodServerTest extends ActiveMQTestBase {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
-
-   private JMSServerManagerImpl serverManager;
-
-   private InVMNamingContext initialContext;
 
    private final String topicName = "my-topic";
 
@@ -81,39 +68,18 @@ public class FloodServerTest extends ActiveMQTestBase {
       Configuration config = createDefaultNettyConfig();
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
-
-      serverManager = new JMSServerManagerImpl(server);
-      initialContext = new InVMNamingContext();
-      serverManager.setRegistry(new JndiBindingRegistry(initialContext));
-      serverManager.start();
-      serverManager.activated();
-
-      serverManager.createTopic(false, topicName, topicName);
-      registerConnectionFactory();
    }
 
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
 
-   private void registerConnectionFactory() throws Exception {
-      int retryInterval = 1000;
-      double retryIntervalMultiplier = 1.0;
-      int reconnectAttempts = -1;
-      long callTimeout = 30000;
-
-      List<TransportConfiguration> connectorConfigs = new ArrayList<>();
-      connectorConfigs.add(new TransportConfiguration(NettyConnectorFactory.class.getName()));
-
-      serverManager.createConnectionFactory("ManualReconnectionToSingleServerTest", false, JMSFactoryType.CF, registerConnectors(server, connectorConfigs), null, 1000, ActiveMQClient.DEFAULT_CONNECTION_TTL, callTimeout, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, false, false, false, ActiveMQClient.DEFAULT_AUTO_GROUP, false, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, retryInterval, retryIntervalMultiplier, 1000, reconnectAttempts, ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION, null, "/cf");
-   }
-
    @Test
    public void testFoo() {
    }
 
    public void _testFlood() throws Exception {
-      ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/cf");
+      ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory("tcp://127.0.0.1:61616?retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1&callTimeout=30000&clientFailureCheckPeriod=1000&maxRetryInterval=1000&blockOnDurableSend=false&blockOnAcknowledge=false", "cf");
 
       final int numProducers = 20;
 

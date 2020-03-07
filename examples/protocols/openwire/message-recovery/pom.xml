@@ -24,12 +24,12 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.openwire</groupId>
       <artifactId>openwire-examples</artifactId>
-      <version>2.4.0-SNAPSHOT</version>
+      <version>2.12.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>message-recovery</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS Queue Example for openwire</name>
+   <name>ActiveMQ Artemis OpenWire JMS Message Recovery Example</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -79,7 +79,7 @@ under the License.
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.apache.activemq.artemis.jms.example.QueueExample</clientClass>
+                     <clientClass>org.apache.activemq.artemis.jms.example.MessageRecoveryExample</clientClass>
                      <args>
                         <param>${basedir}/target/server0</param>
                      </args>
@@ -94,7 +94,23 @@ under the License.
                </dependency>
             </dependencies>
          </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+         </plugin>
       </plugins>
    </build>
-
+   <profiles>
+      <profile>
+         <id>release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>com.vladsch.flexmark</groupId>
+                  <artifactId>markdown-page-generator-plugin</artifactId>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
 </project>

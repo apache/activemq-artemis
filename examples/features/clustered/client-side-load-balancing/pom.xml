@@ -24,7 +24,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.clustered</groupId>
       <artifactId>broker-clustered</artifactId>
-      <version>2.4.0-SNAPSHOT</version>
+      <version>2.12.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>client-side-load-balancing</artifactId>
@@ -58,6 +58,10 @@ under the License.
                      <ignore>${noServer}</ignore>
                      <instance>${basedir}/target/server0</instance>
                      <clustered>true</clustered>
+                     <args>
+                        <arg>--queues</arg>
+                        <arg>exampleQueue</arg>
+                     </args>
                      <!-- this makes it easier in certain envs -->
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                   </configuration>
@@ -74,6 +78,10 @@ under the License.
                      <portOffset>1</portOffset>
                      <!-- this makes it easier in certain envs -->
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <args>
+                        <arg>--queues</arg>
+                        <arg>exampleQueue</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>
@@ -88,6 +96,10 @@ under the License.
                      <portOffset>2</portOffset>
                      <!-- this makes it easier in certain envs -->
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <args>
+                        <arg>--queues</arg>
+                        <arg>exampleQueue</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>
@@ -197,7 +209,23 @@ under the License.
                </dependency>
             </dependencies>
          </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+         </plugin>
       </plugins>
    </build>
-
+   <profiles>
+      <profile>
+         <id>release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>com.vladsch.flexmark</groupId>
+                  <artifactId>markdown-page-generator-plugin</artifactId>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
 </project>

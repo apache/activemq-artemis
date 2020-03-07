@@ -49,36 +49,60 @@ public class ActiveMQProducerResource extends AbstractActiveMQClientResource {
    SimpleString address = null;
    ClientProducer producer;
 
+   protected ActiveMQProducerResource(String url, String username, String password) {
+      super(url, username, password);
+   }
+
    protected ActiveMQProducerResource(String url) {
       super(url);
+   }
+
+   protected ActiveMQProducerResource(ServerLocator serverLocator, String username, String password) {
+      super(serverLocator, username, password);
    }
 
    protected ActiveMQProducerResource(ServerLocator serverLocator) {
       super(serverLocator);
    }
 
-   public ActiveMQProducerResource(String url, String address) {
-      this(url, SimpleString.toSimpleString(address));
+   public ActiveMQProducerResource(String url, String address, String username, String password) {
+      this(url, SimpleString.toSimpleString(address), username, password);
    }
 
-   public ActiveMQProducerResource(String url, SimpleString address) {
-      super(url);
+   public ActiveMQProducerResource(String url, String address) {
+      this(url, address, null, null);
+   }
+
+   public ActiveMQProducerResource(String url, SimpleString address, String username, String password) {
+      super(url, username, password);
       if (address == null) {
          throw new IllegalArgumentException(String.format("%s construction error - address cannot be null", this.getClass().getSimpleName()));
       }
       this.address = address;
+   }
+
+   public ActiveMQProducerResource(String url, SimpleString address) {
+      this(url, address, null, null);
+   }
+
+   public ActiveMQProducerResource(ServerLocator serverLocator, String address, String username, String password) {
+      this(serverLocator, SimpleString.toSimpleString(address), username, password);
    }
 
    public ActiveMQProducerResource(ServerLocator serverLocator, String address) {
       this(serverLocator, SimpleString.toSimpleString(address));
    }
 
-   public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address) {
-      super(serverLocator);
+   public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address, String username, String password) {
+      super(serverLocator, username, password);
       if (address == null) {
          throw new IllegalArgumentException(String.format("%s construction error - address cannot be null", this.getClass().getSimpleName()));
       }
       this.address = address;
+   }
+
+   public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address) {
+      this(serverLocator, address, null, null);
    }
 
    public boolean isUseDurableMessage() {

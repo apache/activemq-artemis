@@ -18,14 +18,18 @@
 package org.apache.activemq.artemis.cli.commands.messages;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.jms.Session;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 
 @Command(name = "consumer", description = "It will consume messages from an instance")
 public class Consumer extends DestAbstract {
@@ -42,16 +46,40 @@ public class Consumer extends DestAbstract {
    @Option(name = "--filter", description = "filter to be used with the consumer")
    String filter;
 
+   @Option(name = "--data", description = "serialize the messages to the specified file as they are consumed")
+   String file;
+
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
       System.out.println("Consumer:: filter = " + filter);
 
-      ActiveMQConnectionFactory factory = createConnectionFactory();
+      SerialiserMessageListener listener = null;
+      MessageSerializer serializer = null;
+      if (file != null) {
+         serializer = getMessageSerializer();
+         if (serializer == null) {
+            System.err.println("Error. Unable to instantiate serializer class: " + this.serializer);
+            return null;
+         }
 
-      Destination dest = ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.TYPE.QUEUE);
+         OutputStream out;
+         try {
+            out = new FileOutputStream(file);
+         } catch (Exception e) {
+            System.err.println("Error: Unable to open file for writing\n" + e.getMessage());
+            return null;
+         }
+
+         listener = new SerialiserMessageListener(serializer, out);
+         serializer.start();
+      }
+
+      ConnectionFactory factory = createConnectionFactory();
+
       try (Connection connection = factory.createConnection()) {
+         // We read messages in a single thread when persisting to file.
          ConsumerThread[] threadsArray = new ConsumerThread[threads];
          for (int i = 0; i < threads; i++) {
             Session session;
@@ -60,9 +88,21 @@ public class Consumer extends DestAbstract {
             } else {
                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
+
+            Destination dest = getDestination(session);
             threadsArray[i] = new ConsumerThread(session, dest, i);
 
-            threadsArray[i].setVerbose(verbose).setSleep(sleep).setDurable(durable).setBatchSize(txBatchSize).setBreakOnNull(breakOnNull).setMessageCount(messageCount).setReceiveTimeOut(receiveTimeout).setFilter(filter).setBrowse(false);
+            threadsArray[i]
+               .setVerbose(verbose)
+               .setSleep(sleep)
+               .setDurable(durable)
+               .setBatchSize(txBatchSize)
+               .setBreakOnNull(breakOnNull)
+               .setMessageCount(messageCount)
+               .setReceiveTimeOut(receiveTimeout)
+               .setFilter(filter)
+               .setBrowse(false)
+               .setListener(listener);
          }
 
          for (ConsumerThread thread : threadsArray) {
@@ -78,8 +118,26 @@ public class Consumer extends DestAbstract {
             received += thread.getReceived();
          }
 
+         if (serializer != null) {
+            serializer.stop();
+         }
+
          return received;
       }
    }
 
+   private class SerialiserMessageListener implements MessageListener {
+
+      private MessageSerializer messageSerializer;
+
+      SerialiserMessageListener(MessageSerializer messageSerializer, OutputStream outputStream) throws Exception {
+         this.messageSerializer = messageSerializer;
+         this.messageSerializer.setOutput(outputStream);
+      }
+
+      @Override
+      public void onMessage(Message message) {
+         messageSerializer.write(message);
+      }
+   }
 }

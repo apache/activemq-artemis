@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.core.paging.cursor;
 
 import org.apache.activemq.artemis.core.paging.PagedMessage;
-import org.apache.activemq.artemis.utils.SoftValueHashMap;
+import org.apache.activemq.artemis.utils.SoftValueLongObjectHashMap;
 
-public interface PageCache extends SoftValueHashMap.ValueCache {
+public interface PageCache extends SoftValueLongObjectHashMap.ValueCache {
 
    long getPageId();
 
@@ -36,10 +36,10 @@ public interface PageCache extends SoftValueHashMap.ValueCache {
    boolean isLive();
 
    /**
-    * @param messageNumber The order of the message on the page
+    * @param pagePosition page position
     * @return
     */
-   PagedMessage getMessage(int messageNumber);
+   PagedMessage getMessage(PagePosition pagePosition);
 
    void close();
 

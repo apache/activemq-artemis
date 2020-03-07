@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.FilterUtils;
 import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 
 public final class QueueConfig {
@@ -30,6 +31,7 @@ public final class QueueConfig {
    private final SimpleString address;
    private final SimpleString name;
    private final Filter filter;
+   final PagingStore pagingStore;
    private final PageSubscription pageSubscription;
    private final SimpleString user;
    private final boolean durable;
@@ -37,7 +39,21 @@ public final class QueueConfig {
    private final boolean autoCreated;
    private final RoutingType routingType;
    private final int maxConsumers;
+   private final boolean exclusive;
+   private final boolean lastValue;
    private final boolean purgeOnNoConsumers;
+   private final int consumersBeforeDispatch;
+   private final long delayBeforeDispatch;
+   private final boolean groupRebalance;
+   private final int groupBuckets;
+   private final SimpleString groupFirstKey;
+   private final boolean configurationManaged;
+   private final SimpleString lastValueKey;
+   private final boolean nonDestructive;
+   private final boolean autoDelete;
+   private final long autoDeleteDelay;
+   private final long autoDeleteMessageCount;
+   private final long ringSize;
 
    public static final class Builder {
 
@@ -52,7 +68,21 @@ public final class QueueConfig {
       private boolean autoCreated;
       private RoutingType routingType;
       private int maxConsumers;
+      private boolean exclusive;
+      private boolean lastValue;
+      private SimpleString lastValueKey;
+      private boolean nonDestructive;
       private boolean purgeOnNoConsumers;
+      private int consumersBeforeDispatch;
+      private long delayBeforeDispatch;
+      private boolean groupRebalance;
+      private int groupBuckets;
+      private SimpleString groupFirstKey;
+      private boolean autoDelete;
+      private long autoDeleteDelay;
+      private long autoDeleteMessageCount;
+      private long ringSize;
+      private boolean configurationManaged;
 
       private Builder(final long id, final SimpleString name) {
          this(id, name, name);
@@ -70,7 +100,21 @@ public final class QueueConfig {
          this.autoCreated = true;
          this.routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType();
          this.maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
+         this.exclusive = ActiveMQDefaultConfiguration.getDefaultExclusive();
+         this.lastValue = ActiveMQDefaultConfiguration.getDefaultLastValue();
+         this.lastValueKey = ActiveMQDefaultConfiguration.getDefaultLastValueKey();
+         this.nonDestructive = ActiveMQDefaultConfiguration.getDefaultNonDestructive();
          this.purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
+         this.consumersBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch();
+         this.delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
+         this.groupRebalance = ActiveMQDefaultConfiguration.getDefaultGroupRebalance();
+         this.groupBuckets = ActiveMQDefaultConfiguration.getDefaultGroupBuckets();
+         this.groupFirstKey = ActiveMQDefaultConfiguration.getDefaultGroupFirstKey();
+         this.autoDelete = ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated);
+         this.autoDeleteDelay = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay();
+         this.autoDeleteMessageCount = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount();
+         this.ringSize = ActiveMQDefaultConfiguration.getDefaultRingSize();
+         this.configurationManaged = false;
          validateState();
       }
 
@@ -85,6 +129,11 @@ public final class QueueConfig {
          if (isEmptyOrNull(this.address)) {
             throw new IllegalStateException("address can't be null or empty!");
          }
+      }
+
+      public Builder configurationManaged(final boolean configurationManaged) {
+         this.configurationManaged = configurationManaged;
+         return this;
       }
 
       public Builder filter(final Filter filter) {
@@ -122,10 +171,78 @@ public final class QueueConfig {
          return this;
       }
 
+      public Builder exclusive(final boolean exclusive) {
+         this.exclusive = exclusive;
+         return this;
+      }
+
+      public Builder lastValue(final boolean lastValue) {
+         this.lastValue = lastValue;
+         return this;
+      }
+
+      public Builder lastValueKey(SimpleString lastValueKey) {
+         this.lastValueKey = lastValueKey;
+         return this;
+      }
+
+      public Builder nonDestructive(boolean nonDestructive) {
+         this.nonDestructive = nonDestructive;
+         return this;
+      }
+
+      public Builder consumersBeforeDispatch(final int consumersBeforeDispatch) {
+         this.consumersBeforeDispatch = consumersBeforeDispatch;
+         return this;
+      }
+
+      public Builder delayBeforeDispatch(final long delayBeforeDispatch) {
+         this.delayBeforeDispatch = delayBeforeDispatch;
+         return this;
+      }
+
       public Builder purgeOnNoConsumers(final boolean purgeOnNoConsumers) {
          this.purgeOnNoConsumers = purgeOnNoConsumers;
          return this;
       }
+
+      public Builder autoDelete(final boolean autoDelete) {
+         this.autoDelete = autoDelete;
+         return this;
+      }
+
+      public Builder autoDeleteDelay(final long autoDeleteDelay) {
+         this.autoDeleteDelay = autoDeleteDelay;
+         return this;
+      }
+
+      public Builder autoDeleteMessageCount(final long autoDeleteMessageCount) {
+         this.autoDeleteMessageCount = autoDeleteMessageCount;
+         return this;
+      }
+
+      public Builder ringSize(final long ringSize) {
+         this.ringSize = ringSize;
+         return this;
+      }
+
+
+      public Builder groupRebalance(final boolean groupRebalance) {
+         this.groupRebalance = groupRebalance;
+         return this;
+      }
+
+
+      public Builder groupBuckets(final int groupBuckets) {
+         this.groupBuckets = groupBuckets;
+         return this;
+      }
+
+      public Builder groupFirstKey(final SimpleString groupFirstKey) {
+         this.groupFirstKey = groupFirstKey;
+         return this;
+      }
+
 
       public Builder routingType(RoutingType routingType) {
          this.routingType = routingType;
@@ -143,17 +260,24 @@ public final class QueueConfig {
        * @throws IllegalStateException if the creation of {@link PageSubscription} fails
        */
       public QueueConfig build() {
+         final PagingStore pageStore;
          final PageSubscription pageSubscription;
          if (pagingManager != null && !FilterUtils.isTopicIdentification(filter)) {
             try {
-               pageSubscription = this.pagingManager.getPageStore(address).getCursorProvider().createSubscription(id, filter, durable);
+               pageStore = this.pagingManager.getPageStore(address);
+               if (pageStore != null) {
+                  pageSubscription = pageStore.getCursorProvider().createSubscription(id, filter, durable);
+               } else {
+                  pageSubscription = null;
+               }
             } catch (Exception e) {
                throw new IllegalStateException(e);
             }
          } else {
             pageSubscription = null;
+            pageStore = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, purgeOnNoConsumers);
+         return new QueueConfig(id, address, name, filter, pageStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, groupRebalance, groupBuckets, groupFirstKey, autoDelete, autoDeleteDelay, autoDeleteMessageCount, ringSize, configurationManaged);
       }
 
    }
@@ -190,6 +314,7 @@ public final class QueueConfig {
                        final SimpleString address,
                        final SimpleString name,
                        final Filter filter,
+                       final PagingStore pagingStore,
                        final PageSubscription pageSubscription,
                        final SimpleString user,
                        final boolean durable,
@@ -197,11 +322,26 @@ public final class QueueConfig {
                        final boolean autoCreated,
                        final RoutingType routingType,
                        final int maxConsumers,
-                       final boolean purgeOnNoConsumers) {
+                       final boolean exclusive,
+                       final boolean lastValue,
+                       final SimpleString lastValueKey,
+                       final boolean nonDestructive,
+                       final int consumersBeforeDispatch,
+                       final long delayBeforeDispatch,
+                       final boolean purgeOnNoConsumers,
+                       final boolean groupRebalance,
+                       final int groupBuckets,
+                       final SimpleString groupFirstKey,
+                       final boolean autoDelete,
+                       final long autoDeleteDelay,
+                       final long autoDeleteMessageCount,
+                       final long ringSize,
+                       final boolean configurationManaged) {
       this.id = id;
       this.address = address;
       this.name = name;
       this.filter = filter;
+      this.pagingStore = pagingStore;
       this.pageSubscription = pageSubscription;
       this.user = user;
       this.durable = durable;
@@ -209,7 +349,21 @@ public final class QueueConfig {
       this.autoCreated = autoCreated;
       this.routingType = routingType;
       this.purgeOnNoConsumers = purgeOnNoConsumers;
+      this.exclusive = exclusive;
+      this.lastValue = lastValue;
+      this.lastValueKey = lastValueKey;
+      this.nonDestructive = nonDestructive;
       this.maxConsumers = maxConsumers;
+      this.consumersBeforeDispatch = consumersBeforeDispatch;
+      this.delayBeforeDispatch = delayBeforeDispatch;
+      this.groupRebalance = groupRebalance;
+      this.groupBuckets = groupBuckets;
+      this.groupFirstKey = groupFirstKey;
+      this.autoDelete = autoDelete;
+      this.autoDeleteDelay = autoDeleteDelay;
+      this.autoDeleteMessageCount = autoDeleteMessageCount;
+      this.ringSize = ringSize;
+      this.configurationManaged = configurationManaged;
    }
 
    public long id() {
@@ -256,8 +410,68 @@ public final class QueueConfig {
       return maxConsumers;
    }
 
+   public boolean isExclusive() {
+      return exclusive;
+   }
+
+   public boolean isLastValue() {
+      return lastValue;
+   }
+
+   public SimpleString lastValueKey() {
+      return lastValueKey;
+   }
+
+   public boolean isNonDestructive() {
+      return nonDestructive;
+   }
+
    public RoutingType deliveryMode() {
       return routingType;
+   }
+
+   public int consumersBeforeDispatch() {
+      return consumersBeforeDispatch;
+   }
+
+   public long delayBeforeDispatch() {
+      return delayBeforeDispatch;
+   }
+
+   public boolean isGroupRebalance() {
+      return groupRebalance;
+   }
+
+   public int getGroupBuckets() {
+      return groupBuckets;
+   }
+
+   public SimpleString getGroupFirstKey() {
+      return groupFirstKey;
+   }
+
+   public boolean isConfigurationManaged() {
+      return configurationManaged;
+   }
+
+   public boolean isAutoDelete() {
+      return autoDelete;
+   }
+
+   public long getAutoDeleteDelay() {
+      return autoDeleteDelay;
+   }
+
+   public long getAutoDeleteMessageCount() {
+      return autoDeleteMessageCount;
+   }
+
+   public long getRingSize() {
+      return ringSize;
+   }
+
+   public PagingStore getPagingStore() {
+      return pagingStore;
    }
 
    @Override
@@ -289,7 +503,37 @@ public final class QueueConfig {
          return false;
       if (maxConsumers != that.maxConsumers)
          return false;
+      if (exclusive != that.exclusive)
+         return false;
+      if (lastValue != that.lastValue)
+         return false;
+      if (lastValueKey != null ? !lastValueKey.equals(that.lastValueKey) : that.lastValueKey != null)
+         return false;
+      if (nonDestructive != that.nonDestructive)
+         return false;
       if (purgeOnNoConsumers != that.purgeOnNoConsumers)
+         return false;
+      if (consumersBeforeDispatch != that.consumersBeforeDispatch)
+         return false;
+      if (delayBeforeDispatch != that.delayBeforeDispatch)
+         return false;
+      if (purgeOnNoConsumers != that.purgeOnNoConsumers)
+         return false;
+      if (groupRebalance != that.groupRebalance)
+         return false;
+      if (groupBuckets != that.groupBuckets)
+         return false;
+      if (groupFirstKey != null ? !groupFirstKey.equals(that.groupFirstKey) : that.groupFirstKey != null)
+         return false;
+      if (autoDelete != that.autoDelete)
+         return false;
+      if (autoDeleteDelay != that.autoDeleteDelay)
+         return false;
+      if (autoDeleteMessageCount != that.autoDeleteMessageCount)
+         return false;
+      if (ringSize != that.ringSize)
+         return false;
+      if (configurationManaged != that.configurationManaged)
          return false;
       return user != null ? user.equals(that.user) : that.user == null;
 
@@ -308,7 +552,21 @@ public final class QueueConfig {
       result = 31 * result + (autoCreated ? 1 : 0);
       result = 31 * result + routingType.getType();
       result = 31 * result + maxConsumers;
+      result = 31 * result + (exclusive ? 1 : 0);
+      result = 31 * result + (lastValue ? 1 : 0);
+      result = 31 * result + (lastValueKey != null ? lastValueKey.hashCode() : 0);
+      result = 31 * result + (nonDestructive ? 1 : 0);
+      result = 31 * result + consumersBeforeDispatch;
+      result = 31 * result + Long.hashCode(delayBeforeDispatch);
       result = 31 * result + (purgeOnNoConsumers ? 1 : 0);
+      result = 31 * result + (groupRebalance ? 1 : 0);
+      result = 31 * result + groupBuckets;
+      result = 31 * result + (groupFirstKey != null ? groupFirstKey.hashCode() : 0);
+      result = 31 * result + (autoDelete ? 1 : 0);
+      result = 31 * result + Long.hashCode(autoDeleteDelay);
+      result = 31 * result + Long.hashCode(autoDeleteMessageCount);
+      result = 31 * result + Long.hashCode(ringSize);
+      result = 31 * result + (configurationManaged ? 1 : 0);
       return result;
    }
 
@@ -326,6 +584,20 @@ public final class QueueConfig {
          + ", autoCreated=" + autoCreated
          + ", routingType=" + routingType
          + ", maxConsumers=" + maxConsumers
-         + ", purgeOnNoConsumers=" + purgeOnNoConsumers + '}';
+         + ", exclusive=" + exclusive
+         + ", lastValue=" + lastValue
+         + ", lastValueKey=" + lastValueKey
+         + ", nonDestructive=" + nonDestructive
+         + ", consumersBeforeDispatch=" + consumersBeforeDispatch
+         + ", delayBeforeDispatch=" + delayBeforeDispatch
+         + ", purgeOnNoConsumers=" + purgeOnNoConsumers
+         + ", groupRebalance=" + groupRebalance
+         + ", groupBuckets=" + groupBuckets
+         + ", groupFirstKey=" + groupFirstKey
+         + ", autoDelete=" + autoDelete
+         + ", autoDeleteDelay=" + autoDeleteDelay
+         + ", autoDeleteMessageCount=" + autoDeleteMessageCount
+         + ", ringSize=" + ringSize
+         + ", configurationManaged=" + configurationManaged + '}';
    }
 }

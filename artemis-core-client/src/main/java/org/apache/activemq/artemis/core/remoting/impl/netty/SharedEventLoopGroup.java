@@ -84,30 +84,32 @@ public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
 
    @Override
    public Future<?> shutdownGracefully(final long l, final long l2, final TimeUnit timeUnit) {
-      if (channelFactoryCount.decrementAndGet() == 0) {
-         shutdown.compareAndSet(null, next().scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-               synchronized (SharedEventLoopGroup.class) {
-                  if (shutdown.get() != null) {
-                     Future<?> future = SharedEventLoopGroup.super.shutdownGracefully(l, l2, timeUnit);
-                     future.addListener(new FutureListener<Object>() {
-                        @Override
-                        public void operationComplete(Future<Object> future) throws Exception {
-                           if (future.isSuccess()) {
-                              terminationPromise.setSuccess(null);
-                           } else {
-                              terminationPromise.setFailure(future.cause());
+      synchronized (SharedEventLoopGroup.class) {
+         if (channelFactoryCount.decrementAndGet() == 0) {
+            shutdown.compareAndSet(null, next().scheduleAtFixedRate(new Runnable() {
+               @Override
+               public void run() {
+                  synchronized (SharedEventLoopGroup.class) {
+                     if (shutdown.get() != null) {
+                        Future<?> future = SharedEventLoopGroup.super.shutdownGracefully(l, l2, timeUnit);
+                        future.addListener(new FutureListener<Object>() {
+                           @Override
+                           public void operationComplete(Future<Object> future) throws Exception {
+                              if (future.isSuccess()) {
+                                 terminationPromise.setSuccess(null);
+                              } else {
+                                 terminationPromise.setFailure(future.cause());
+                              }
                            }
-                        }
-                     });
-                     instance = null;
+                        });
+                        instance = null;
+                     }
                   }
                }
-            }
 
-         }, 10, 10, TimeUnit.SECONDS));
+            }, 10, 10, TimeUnit.SECONDS));
+         }
+         return terminationPromise;
       }
-      return terminationPromise;
    }
 }

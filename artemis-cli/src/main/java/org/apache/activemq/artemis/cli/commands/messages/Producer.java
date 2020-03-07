@@ -18,17 +18,24 @@
 package org.apache.activemq.artemis.cli.commands.messages;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 
 @Command(name = "producer", description = "It will send messages to an instance")
 public class Producer extends DestAbstract {
+
+   public static final String DEMO_TEXT = "demo.txt";
 
    @Option(name = "--non-persistent", description = "It will send messages non persistently")
    boolean nonpersistent = false;
@@ -36,8 +43,14 @@ public class Producer extends DestAbstract {
    @Option(name = "--message-size", description = "Size of each byteMessage (The producer will use byte message on this case)")
    int messageSize = 0;
 
+   @Option(name = "--message", description = "Content of each textMessage (The producer will use text message on this case)")
+   String message = null;
+
    @Option(name = "--text-size", description = "Size of each textMessage (The producer will use text message on this case)")
    int textMessageSize;
+
+   @Option(name = "--object-size", description = "Size of each ObjectMessage (The producer will use object message on this case)")
+   int objectSize;
 
    @Option(name = "--msgttl", description = "TTL for each message")
    long msgTTL = 0L;
@@ -45,42 +58,99 @@ public class Producer extends DestAbstract {
    @Option(name = "--group", description = "Message Group to be used")
    String msgGroupID = null;
 
+   @Option(name = "--data", description = "Messages will be read form the specified file, other message options will be ignored.")
+   String fileName = null;
+
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      ActiveMQConnectionFactory factory = createConnectionFactory();
+      ConnectionFactory factory = createConnectionFactory();
 
-      Destination dest = ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.TYPE.QUEUE);
       try (Connection connection = factory.createConnection()) {
-         ProducerThread[] threadsArray = new ProducerThread[threads];
-         for (int i = 0; i < threads; i++) {
-            Session session;
-            if (txBatchSize > 0) {
-               session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            } else {
-               session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         // If we are reading from file, we process messages sequentially to guarantee ordering.  i.e. no thread creation.
+         if (fileName != null) {
+            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            Destination dest = getDestination(session);
+
+            MessageProducer producer = session.createProducer(dest);
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+            int messageCount = 0;
+            try {
+               MessageSerializer serializer = getMessageSerializer();
+               if (serializer == null) {
+                  System.err.println("Error. Unable to instantiate serializer class: " + serializer);
+                  return null;
+               }
+
+               InputStream in;
+               try {
+                  in = new FileInputStream(fileName);
+               } catch (Exception e) {
+                  System.err.println("Error: Unable to open file for reading\n" + e.getMessage());
+                  return null;
+               }
+
+               serializer.setInput(in, session);
+               serializer.start();
+
+               Message message = serializer.read();
+
+               while (message != null) {
+                  producer.send(message);
+                  message = serializer.read();
+                  messageCount++;
+               }
+
+               session.commit();
+               serializer.stop();
+            } catch (Exception e) {
+               System.err.println("Error occurred during import.  Rolling back.");
+               session.rollback();
+               e.printStackTrace();
+               return 0;
             }
-            threadsArray[i] = new ProducerThread(session, dest, i);
+            System.out.println("Sent " + messageCount + " Messages.");
+            return messageCount;
+         } else {
+            ProducerThread[] threadsArray = new ProducerThread[threads];
+            for (int i = 0; i < threads; i++) {
+               Session session;
+               if (txBatchSize > 0) {
+                  session = connection.createSession(true, Session.SESSION_TRANSACTED);
+               } else {
+                  session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               }
+               Destination dest = getDestination(session);
+               threadsArray[i] = new ProducerThread(session, dest, i);
 
-            threadsArray[i].setVerbose(verbose).setSleep(sleep).setPersistent(!nonpersistent).
-               setMessageSize(messageSize).setTextMessageSize(textMessageSize).
-               setMsgTTL(msgTTL).setMsgGroupID(msgGroupID).setTransactionBatchSize(txBatchSize).
-               setMessageCount(messageCount);
+               threadsArray[i]
+                  .setVerbose(verbose)
+                  .setSleep(sleep)
+                  .setPersistent(!nonpersistent)
+                  .setMessageSize(messageSize)
+                  .setTextMessageSize(textMessageSize)
+                  .setMessage(message)
+                  .setObjectSize(objectSize)
+                  .setMsgTTL(msgTTL)
+                  .setMsgGroupID(msgGroupID)
+                  .setTransactionBatchSize(txBatchSize)
+                  .setMessageCount(messageCount);
+            }
+
+            for (ProducerThread thread : threadsArray) {
+               thread.start();
+            }
+
+            int messagesProduced = 0;
+            for (ProducerThread thread : threadsArray) {
+               thread.join();
+               messagesProduced += thread.getSentCount();
+            }
+            return messagesProduced;
          }
-
-         for (ProducerThread thread : threadsArray) {
-            thread.start();
-         }
-
-         int messagesProduced = 0;
-         for (ProducerThread thread : threadsArray) {
-            thread.join();
-            messagesProduced += thread.getSentCount();
-         }
-
-         return messagesProduced;
       }
    }
-
 }

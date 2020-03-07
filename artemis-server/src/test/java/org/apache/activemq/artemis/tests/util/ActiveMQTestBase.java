@@ -34,11 +34,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
-import java.net.ServerSocket;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -62,6 +59,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -89,6 +87,7 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -125,27 +124,33 @@ import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.LiveOnlyActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.CleanupSystemPropertiesRule;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
@@ -164,8 +169,27 @@ public abstract class ActiveMQTestBase extends Assert {
 
    private static final Logger logger = Logger.getLogger(ActiveMQTestBase.class);
 
+   /** This will make sure threads are not leaking between tests */
+   @ClassRule
+   public static ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+
+   @ClassRule
+   public static NoProcessFilesBehind noProcessFilesBehind = new NoProcessFilesBehind(1000);
+
+   /** We should not under any circunstance create data outside of ./target
+    *  if you have a test failing because because of this rule for any reason,
+    *  even if you use afterClass events, move the test to ./target and always cleanup after
+    *  your data even under ./target.
+    *  Do not try to disable this rule! Fix your test! */
    @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+   public NoFilesBehind noFilesBehind = new NoFilesBehind("data");
+
+   /** This will cleanup any system property changed inside tests */
+   @Rule
+   public CleanupSystemPropertiesRule propertiesRule = new CleanupSystemPropertiesRule();
+
+   @ClassRule
+   public static PortCheckRule portCheckRule = new PortCheckRule(61616);
 
    public static final String TARGET_TMP = "./target/tmp";
    public static final String INVM_ACCEPTOR_FACTORY = InVMAcceptorFactory.class.getCanonicalName();
@@ -215,12 +239,12 @@ public abstract class ActiveMQTestBase extends Assert {
    public TestRule watcher = new TestWatcher() {
       @Override
       protected void starting(Description description) {
-         log.info(String.format("#*#*# Starting test: %s()...", description.getMethodName()));
+         log.info(String.format("**** start #test %s() ***", description.getMethodName()));
       }
 
       @Override
       protected void finished(Description description) {
-         log.info(String.format("#*#*# Finished test: %s()...", description.getMethodName()));
+         log.info(String.format("**** end #test %s() ***", description.getMethodName()));
       }
    };
 
@@ -240,7 +264,9 @@ public abstract class ActiveMQTestBase extends Assert {
    public ActiveMQTestBase() {
       File parent = new File(TARGET_TMP);
       parent.mkdirs();
-      temporaryFolder = new TemporaryFolder(parent);
+      File subParent = new File(parent, this.getClass().getSimpleName());
+      subParent.mkdirs();
+      temporaryFolder = new TemporaryFolder(subParent);
    }
 
    protected <T> T serialClone(Object object) throws Exception {
@@ -270,6 +296,16 @@ public abstract class ActiveMQTestBase extends Assert {
                if (server == null) {
                   continue;
                }
+
+               // disable scaledown on tearDown, otherwise it takes a lot of time
+               try {
+                  ((LiveOnlyActivation) server.getActivation()).getLiveOnlyPolicy().getScaleDownPolicy().setEnabled(false);
+               } catch (Throwable ignored) {
+                  // don't care about anything here
+                  // if can't find activation, livePolicy or no LiveONlyActivation... don't care!!!
+                  // all I care is f you have scaleDownPolicy, it should be set to false at this point
+               }
+
                try {
                   final ClusterManager clusterManager = server.getClusterManager();
                   if (clusterManager != null) {
@@ -303,8 +339,9 @@ public abstract class ActiveMQTestBase extends Assert {
          //clean up pools before failing
          if (!exceptions.isEmpty()) {
             for (Exception exception : exceptions) {
-               exception.printStackTrace();
+               exception.printStackTrace(System.out);
             }
+            System.out.println(threadDump("Thread dump with reconnects happening"));
             fail("Client Session Factories still trying to reconnect, see above to see where created");
          }
          Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
@@ -357,10 +394,6 @@ public abstract class ActiveMQTestBase extends Assert {
       OperationContextImpl.clearContext();
 
       InVMRegistry.instance.clear();
-
-      // checkFreePort(TransportConstants.DEFAULT_PORT);
-
-      logAndSystemOut("#test " + getName());
    }
 
    public static void assertEqualsByteArrays(final byte[] expected, final byte[] actual) {
@@ -457,10 +490,17 @@ public abstract class ActiveMQTestBase extends Assert {
    protected ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD).setJournalDatasync(false);
 
+      // When it comes to the testsuite, we don't need any batching, I will leave some minimal batching to exercise the codebase
+      configuration.setJournalBufferTimeout_AIO(100).setJournalBufferTimeout_NIO(100);
+
       return configuration;
    }
 
    protected void setDBStoreType(Configuration configuration) {
+      configuration.setStoreConfiguration(createDefaultDatabaseStorageConfiguration());
+   }
+
+   protected DatabaseStorageConfiguration createDefaultDatabaseStorageConfiguration() {
       DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
       dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
       dbStorageConfiguration.setBindingsTableName("BINDINGS");
@@ -468,8 +508,22 @@ public abstract class ActiveMQTestBase extends Assert {
       dbStorageConfiguration.setLargeMessageTableName("LARGE_MESSAGE");
       dbStorageConfiguration.setPageStoreTableName("PAGE_STORE");
       dbStorageConfiguration.setJdbcDriverClassName(getJDBCClassName());
+      dbStorageConfiguration.setJdbcLockAcquisitionTimeoutMillis(getJdbcLockAcquisitionTimeoutMillis());
+      dbStorageConfiguration.setJdbcLockExpirationMillis(getJdbcLockExpirationMillis());
+      dbStorageConfiguration.setJdbcLockRenewPeriodMillis(getJdbcLockRenewPeriodMillis());
+      return dbStorageConfiguration;
+   }
 
-      configuration.setStoreConfiguration(dbStorageConfiguration);
+   protected long getJdbcLockAcquisitionTimeoutMillis() {
+      return Long.getLong("jdbc.lock.acquisition", ActiveMQDefaultConfiguration.getDefaultJdbcLockAcquisitionTimeoutMillis());
+   }
+
+   protected long getJdbcLockExpirationMillis() {
+      return Long.getLong("jdbc.lock.expiration", ActiveMQDefaultConfiguration.getDefaultJdbcLockExpirationMillis());
+   }
+
+   protected long getJdbcLockRenewPeriodMillis() {
+      return Long.getLong("jdbc.lock.renew", ActiveMQDefaultConfiguration.getDefaultJdbcLockRenewPeriodMillis());
    }
 
    public void destroyTables(List<String> tableNames) throws Exception {
@@ -489,6 +543,7 @@ public abstract class ActiveMQTestBase extends Assert {
                connection.rollback();
             }
          }
+         connection.setAutoCommit(true);
       } catch (Throwable e) {
          e.printStackTrace();
       } finally {
@@ -528,6 +583,14 @@ public abstract class ActiveMQTestBase extends Assert {
       return params;
    }
 
+
+   /** This exists as an extension point for tests, so tests can replace it */
+   protected ClusterConnectionConfiguration createBasicClusterConfig(String connectorName,
+                                                                                      String... connectors) {
+      return basicClusterConnectionConfig(connectorName, connectors);
+   }
+
+
    protected static final ClusterConnectionConfiguration basicClusterConnectionConfig(String connectorName,
                                                                                       String... connectors) {
       ArrayList<String> connectors0 = new ArrayList<>();
@@ -536,7 +599,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       ClusterConnectionConfiguration clusterConnectionConfiguration = new ClusterConnectionConfiguration().
          setName("cluster1").setAddress("jms").setConnectorName(connectorName).
-         setRetryInterval(1000).setDuplicateDetection(false).setMaxHops(1).
+         setRetryInterval(100).setDuplicateDetection(false).setMaxHops(1).
          setConfirmationWindowSize(1).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).
          setStaticConnectors(connectors0);
 
@@ -576,7 +639,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    public static JournalType getDefaultJournalType() {
-      if (LibaioContext.isLoaded()) {
+      if (AIOSequentialFileFactory.isSupported()) {
          return JournalType.ASYNCIO;
       } else {
          return JournalType.NIO;
@@ -591,7 +654,6 @@ public abstract class ActiveMQTestBase extends Assert {
     * Verifies whether weak references are released after a few GCs.
     *
     * @param references
-    * @throws InterruptedException
     */
    public static void checkWeakReferences(final WeakReference<?>... references) {
       int i = 0;
@@ -619,34 +681,9 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    public static String threadDump(final String msg) {
-      StringWriter str = new StringWriter();
-      PrintWriter out = new PrintWriter(str);
 
-      Map<Thread, StackTraceElement[]> stackTrace = Thread.getAllStackTraces();
+      return ThreadDumpUtil.threadDump(msg);
 
-      out.println("*******************************************************************************");
-      out.println("Complete Thread dump " + msg);
-
-      for (Map.Entry<Thread, StackTraceElement[]> el : stackTrace.entrySet()) {
-         out.println("===============================================================================");
-         out.println("Thread " + el.getKey() +
-                        " name = " +
-                        el.getKey().getName() +
-                        " id = " +
-                        el.getKey().getId() +
-                        " group = " +
-                        el.getKey().getThreadGroup());
-         out.println();
-         for (StackTraceElement traceEl : el.getValue()) {
-            out.println(traceEl);
-         }
-      }
-
-      out.println("===============================================================================");
-      out.println("End Thread dump " + msg);
-      out.println("*******************************************************************************");
-
-      return str.toString();
    }
 
    /**
@@ -784,24 +821,6 @@ public abstract class ActiveMQTestBase extends Assert {
          connectors.add(name1);
       }
       return connectors;
-   }
-
-   protected static final void checkFreePort(final int... ports) {
-      for (int port : ports) {
-         ServerSocket ssocket = null;
-         try {
-            ssocket = new ServerSocket(port);
-         } catch (Exception e) {
-            throw new IllegalStateException("port " + port + " is bound", e);
-         } finally {
-            if (ssocket != null) {
-               try {
-                  ssocket.close();
-               } catch (IOException e) {
-               }
-            }
-         }
-      }
    }
 
    /**
@@ -1138,7 +1157,6 @@ public abstract class ActiveMQTestBase extends Assert {
          for (TopologyMemberImpl member : topology.getMembers()) {
             if (member.getLive() != null) {
                liveNodesCount++;
-               ActiveMQServerLogger.LOGGER.info("Found live server connected to " + server.getNodeID());
             }
             if (member.getBackup() != null) {
                backupNodesCount++;
@@ -1221,7 +1239,7 @@ public abstract class ActiveMQTestBase extends Assert {
       return params;
    }
 
-   protected static final TransportConfiguration getNettyAcceptorTransportConfiguration(final boolean live) {
+   protected TransportConfiguration getNettyAcceptorTransportConfiguration(final boolean live) {
       if (live) {
          return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY);
       }
@@ -1233,7 +1251,7 @@ public abstract class ActiveMQTestBase extends Assert {
       return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, server1Params);
    }
 
-   protected static final TransportConfiguration getNettyConnectorTransportConfiguration(final boolean live) {
+   protected TransportConfiguration getNettyConnectorTransportConfiguration(final boolean live) {
       if (live) {
          return new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       }
@@ -1241,6 +1259,7 @@ public abstract class ActiveMQTestBase extends Assert {
       Map<String, Object> server1Params = new HashMap<>();
 
       server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+      server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.NETTY_CONNECT_TIMEOUT, 1000);
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, server1Params);
    }
 
@@ -1263,7 +1282,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       if (params == null)
          params = new HashMap<>();
-      return new TransportConfiguration(className, params);
+      return new TransportConfiguration(className, params, UUIDGenerator.getInstance().generateStringUUID(), new HashMap<String, Object>());
    }
 
    protected void waitForServerToStart(ActiveMQServer server) throws InterruptedException {
@@ -1311,7 +1330,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @param backup
     */
    public static final void waitForRemoteBackupSynchronization(final ActiveMQServer backup) {
-      waitForRemoteBackup(null, 10, true, backup);
+      waitForRemoteBackup(null, 20, true, backup);
    }
 
    /**
@@ -1326,9 +1345,13 @@ public abstract class ActiveMQTestBase extends Assert {
                                                 final ActiveMQServer backup) {
       ClientSessionFactoryInternal sessionFactory = (ClientSessionFactoryInternal) sessionFactoryP;
       final ActiveMQServerImpl actualServer = (ActiveMQServerImpl) backup;
-      final long toWait = seconds * 1000;
+      final long toWait = seconds * 1000L;
       final long time = System.currentTimeMillis();
       int loop = 0;
+      //Note: if maxLoop is too small there won't be
+      //enough time for quorum vote to complete and
+      //will cause test to fail.
+      final int maxLoop = 40;
       while (true) {
          Activation activation = actualServer.getActivation();
          boolean isReplicated = !backup.getHAPolicy().isSharedStore();
@@ -1340,7 +1363,7 @@ public abstract class ActiveMQTestBase extends Assert {
                //we may have already failed over and changed the Activation
                if (actualServer.isStarted()) {
                   //let it fail a few time to have time to start stopping in the case of waiting to failback
-                  isRemoteUpToDate = loop++ > 10;
+                  isRemoteUpToDate = loop++ > maxLoop;
                } else {
                   //we could be waiting to failback or restart if the server is stopping
                   isRemoteUpToDate = false;
@@ -1353,10 +1376,12 @@ public abstract class ActiveMQTestBase extends Assert {
             break;
          }
          if (System.currentTimeMillis() > (time + toWait)) {
+            String threadDump = threadDump("can't get synchronization finished " + backup.isReplicaSync());
+            System.err.println(threadDump);
             fail("backup started? (" + actualServer.isStarted() + "). Finished synchronizing (" +
                     (activation) + "). SessionFactory!=null ? " + (sessionFactory != null) +
                     " || sessionFactory.getBackupConnector()==" +
-                    (sessionFactory != null ? sessionFactory.getBackupConnector() : "not-applicable"));
+                    (sessionFactory != null ? sessionFactory.getBackupConnector() : "not-applicable") + "\n" + threadDump);
          }
          try {
             Thread.sleep(100);
@@ -1368,7 +1393,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
    public static final void waitForRemoteBackup(ClientSessionFactory sessionFactory, int seconds) {
       ClientSessionFactoryInternal factoryInternal = (ClientSessionFactoryInternal) sessionFactory;
-      final long toWait = seconds * 1000;
+      final long toWait = seconds * 1000L;
       final long time = System.currentTimeMillis();
       while (true) {
          if (factoryInternal.getBackupConnector() != null) {
@@ -1387,14 +1412,14 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
-                                               final long pageSize,
+                                               final int pageSize,
                                                final long maxAddressSize) {
       return createServer(realFiles, configuration, pageSize, maxAddressSize, (Map<String, AddressSettings>) null);
    }
 
    protected ActiveMQServer createServer(final boolean realFiles,
                                          final Configuration configuration,
-                                         final long pageSize,
+                                         final int pageSize,
                                          final long maxAddressSize,
                                          final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
@@ -1414,7 +1439,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
-                                               final long pageSize,
+                                               final int pageSize,
                                                final long maxAddressSize,
                                                final Map<String, AddressSettings> settings,
                                                StoreConfiguration.StoreType storeType) {
@@ -1622,7 +1647,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @param session
     * @param producer
     * @param numMessages
-    * @throws Exception
+    * @throws ActiveMQException
     */
    public final void sendMessages(ClientSession session,
                                   ClientProducer producer,
@@ -1769,7 +1794,7 @@ public abstract class ActiveMQTestBase extends Assert {
       journal.load(committedRecords, preparedTransactions, null, false);
 
       for (RecordInfo info : committedRecords) {
-         Integer ikey = new Integer(info.getUserRecordType());
+         Integer ikey = (int) info.getUserRecordType();
          AtomicInteger value = recordsType.get(ikey);
          if (value == null) {
             value = new AtomicInteger();
@@ -1798,7 +1823,7 @@ public abstract class ActiveMQTestBase extends Assert {
          if (key == 0) {
             System.out.println("huh?");
          }
-         Integer ikey = new Integer(key);
+         Integer ikey = (int) key;
          AtomicInteger value = recordsType.get(ikey);
          if (value == null) {
             value = new AtomicInteger();
@@ -1917,26 +1942,16 @@ public abstract class ActiveMQTestBase extends Assert {
       return false;
    }
 
+   protected int getNumberOfFiles(File directory) {
+      return directory.listFiles().length;
+   }
    /**
     * Deleting a file on LargeDir is an asynchronous process. We need to keep looking for a while if
     * the file hasn't been deleted yet.
     */
    protected void validateNoFilesOnLargeDir(final String directory, final int expect) throws Exception {
       File largeMessagesFileDir = new File(directory);
-
-      // Deleting the file is async... we keep looking for a period of the time until the file is really gone
-      long timeout = System.currentTimeMillis() + 5000;
-      while (timeout > System.currentTimeMillis() && largeMessagesFileDir.listFiles().length != expect) {
-         Thread.sleep(100);
-      }
-
-      if (expect != largeMessagesFileDir.listFiles().length) {
-         for (File file : largeMessagesFileDir.listFiles()) {
-            System.out.println("File " + file + " still on ");
-         }
-      }
-
-      Assert.assertEquals(expect, largeMessagesFileDir.listFiles().length);
+      Wait.assertEquals(expect, () -> getNumberOfFiles(largeMessagesFileDir));
    }
 
    /**
@@ -2013,17 +2028,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
-   private void checkFilesUsage() {
-
-      long timeout = System.currentTimeMillis() + 15000;
-
-      while (LibaioContext.getTotalMaxIO() != 0 && System.currentTimeMillis() > timeout) {
-         try {
-            Thread.sleep(100);
-         } catch (Exception ignored) {
-         }
-      }
-
+   private void checkFilesUsage() throws Exception {
       int invmSize = InVMRegistry.instance.size();
       if (invmSize > 0) {
          InVMRegistry.instance.clear();
@@ -2031,11 +2036,10 @@ public abstract class ActiveMQTestBase extends Assert {
          fail("invm registry still had acceptors registered");
       }
 
-      final long totalMaxIO = LibaioContext.getTotalMaxIO();
-      if (totalMaxIO != 0) {
-         LibaioContext.resetMaxAIO();
-         Assert.fail("test did not close all its files " + totalMaxIO);
+      if (!Wait.waitFor(() -> LibaioContext.getTotalMaxIO() == 0)) {
+         Assert.fail("test did not close all its files " + LibaioContext.getTotalMaxIO());
       }
+
    }
 
    private void cleanupPools() {
@@ -2138,6 +2142,20 @@ public abstract class ActiveMQTestBase extends Assert {
       return message;
    }
 
+   protected ClientMessage createTextMessage(final ClientSession session, final boolean durable, final int numChars) {
+      ClientMessage message = session.createMessage(Message.TEXT_TYPE,
+                durable,
+                0,
+                System.currentTimeMillis(),
+                (byte)4);
+      StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < numChars; i++) {
+         builder.append('a');
+      }
+      message.getBodyBuffer().writeString(builder.toString());
+      return message;
+   }
+
    protected XidImpl newXID() {
       return new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
    }
@@ -2168,6 +2186,25 @@ public abstract class ActiveMQTestBase extends Assert {
    protected int getMessageCount(final Queue queue) {
       queue.flushExecutor();
       return (int) queue.getMessageCount();
+   }
+
+   /**
+    * @param postOffice
+    * @param address
+    * @return
+    * @throws Exception
+    */
+   protected int getMessagesAdded(final PostOffice postOffice, final String address) throws Exception {
+      int messageCount = 0;
+
+      List<QueueBinding> bindings = getLocalQueueBindings(postOffice, address);
+
+      for (QueueBinding qBinding : bindings) {
+         qBinding.getQueue().flushExecutor();
+         messageCount += getMessagesAdded(qBinding.getQueue());
+      }
+
+      return messageCount;
    }
 
    protected int getMessagesAdded(final Queue queue) {

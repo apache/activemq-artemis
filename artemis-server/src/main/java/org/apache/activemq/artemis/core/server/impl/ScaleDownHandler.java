@@ -31,6 +31,7 @@ import java.util.TreeSet;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -114,16 +115,18 @@ public class ScaleDownHandler {
          // perform a loop per address
          for (SimpleString address : postOffice.getAddresses()) {
             logger.debug("Scaling down address " + address);
-            Bindings bindings = postOffice.getBindingsForAddress(address);
+            Bindings bindings = postOffice.lookupBindingsForAddress(address);
 
             // It will get a list of queues on this address, ordered by the number of messages
             Set<Queue> queues = new TreeSet<>(new OrderQueueByNumberOfReferencesComparator());
-            for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof LocalQueueBinding) {
-                  Queue queue = ((LocalQueueBinding) binding).getQueue();
-                  // as part of scale down we will cancel any scheduled message and pass it to theWhile we scan for the queues we will also cancel any scheduled messages and deliver them right away
-                  queue.deliverScheduledMessages();
-                  queues.add(queue);
+            if (bindings != null) {
+               for (Binding binding : bindings.getBindings()) {
+                  if (binding instanceof LocalQueueBinding) {
+                     Queue queue = ((LocalQueueBinding) binding).getQueue();
+                     // as part of scale down we will cancel any scheduled message and pass it to theWhile we scan for the queues we will also cancel any scheduled messages and deliver them right away
+                     queue.deliverScheduledMessages();
+                     queues.add(queue);
+                  }
                }
             }
 
@@ -153,7 +156,9 @@ public class ScaleDownHandler {
 
       Transaction tx = new TransactionImpl(storageManager);
 
-      pageStore.disableCleanup();
+      if (pageStore != null) {
+         pageStore.disableCleanup();
+      }
 
       try {
 
@@ -162,14 +167,28 @@ public class ScaleDownHandler {
          }
 
          // compile a list of all the relevant queues and queue iterators for this address
+         RoutingType routingType;
+         Integer routingTypeOrdinal;
+         String routingTypeString = "";
          for (Queue loopQueue : queues) {
             logger.debug("Scaling down messages on address " + address + " / performing loop on queue " + loopQueue);
 
             try (LinkedListIterator<MessageReference> messagesIterator = loopQueue.browserIterator()) {
 
+               routingType = loopQueue.getRoutingType();
+               if (null != routingType) {
+                  routingTypeOrdinal = routingType.ordinal();
+                  routingTypeString = routingTypeOrdinal.toString();
+               }
+
                while (messagesIterator.hasNext()) {
                   MessageReference messageReference = messagesIterator.next();
-                  Message message = messageReference.getMessage().copy();
+                  Message originalMessage = messageReference.getMessage();
+
+                  if (null != routingType) {
+                     originalMessage.putStringProperty(Message.HDR_ROUTING_TYPE.toString(), routingTypeString);
+                  }
+                  Message message = originalMessage.copy();
 
                   logger.debug("Reading message " + message + " from queue " + loopQueue);
                   Set<QueuesXRefInnerManager> queuesFound = new HashSet<>();
@@ -179,7 +198,7 @@ public class ScaleDownHandler {
                         // no need to lookup on itself, we just add it
                         queuesFound.add(controlEntry.getValue());
                      } else if (controlEntry.getValue().lookup(messageReference)) {
-                        logger.debug("Message existed on queue " + controlEntry.getKey().getID() + " removeID=" + controlEntry.getValue().getQueueID());
+                        logger.debug("Message existed on queue " + controlEntry.getKey().getID() + " removeID=" + controlEntry.getValue().getQueueID(message));
                         queuesFound.add(controlEntry.getValue());
                      }
                   }
@@ -188,7 +207,7 @@ public class ScaleDownHandler {
                   ByteBuffer buffer = ByteBuffer.allocate(queuesFound.size() * 8);
 
                   for (QueuesXRefInnerManager control : queuesFound) {
-                     long queueID = control.getQueueID();
+                     long queueID = control.getQueueID(message);
                      buffer.putLong(queueID);
                   }
 
@@ -225,8 +244,10 @@ public class ScaleDownHandler {
 
          return messageCount;
       } finally {
-         pageStore.enableCleanup();
-         pageStore.getCursorProvider().scheduleCleanup();
+         if (pageStore != null) {
+            pageStore.enableCleanup();
+            pageStore.getCursorProvider().scheduleCleanup();
+         }
       }
    }
 
@@ -307,7 +328,7 @@ public class ScaleDownHandler {
    }
 
    private String getTargetNodeId(ClientSessionFactory sessionFactory) {
-      return sessionFactory.getServerLocator().getTopology().getMember(sessionFactory.getConnectorConfiguration()).getNodeId();
+      return sessionFactory.getServerLocator().getTopology().getMember(sessionFactory.getConnection()).getNodeId();
    }
 
    public void scaleDownTransactions(ClientSessionFactory sessionFactory,
@@ -339,7 +360,7 @@ public class ScaleDownHandler {
                   if (queueIDs.containsKey(queueName)) {
                      queueID = queueIDs.get(queueName);
                   } else {
-                     queueID = createQueueIfNecessaryAndGetID(queueCreateSession, queue, message.getAddressSimpleString());
+                     queueID = createQueueWithRoutingTypeIfNecessaryAndGetID(queueCreateSession, queue, message.getAddressSimpleString(), message.getRoutingType());
                      queueIDs.put(queueName, queueID);  // store it so we don't have to look it up every time
                   }
                   Pair<List<Long>, List<Long>> queueIds = queuesToSendTo.get(message);
@@ -361,7 +382,7 @@ public class ScaleDownHandler {
                   if (queueIDs.containsKey(queueName)) {
                      queueID = queueIDs.get(queueName);
                   } else {
-                     queueID = createQueueIfNecessaryAndGetID(queueCreateSession, queue, message.getAddressSimpleString());
+                     queueID = createQueueWithRoutingTypeIfNecessaryAndGetID(queueCreateSession, queue, message.getAddressSimpleString(), message.getRoutingType());
                      queueIDs.put(queueName, queueID);  // store it so we don't have to look it up every time
                   }
                   Pair<List<Long>, List<Long>> queueIds = queuesToSendTo.get(message);
@@ -426,13 +447,14 @@ public class ScaleDownHandler {
     * send directly to a queue, we have to send to an address instead but not all the queues related to the
     * address may need the message
     */
-   private long createQueueIfNecessaryAndGetID(ClientSession session,
-                                               Queue queue,
-                                               SimpleString addressName) throws Exception {
+   private long createQueueWithRoutingTypeIfNecessaryAndGetID(ClientSession session,
+                                                              Queue queue,
+                                                              SimpleString addressName,
+                                                              RoutingType routingType) throws Exception {
       long queueID = getQueueID(session, queue.getName());
       if (queueID == -1) {
-         session.createQueue(addressName, queue.getName(), queue.getFilter() == null ? null : queue.getFilter().getFilterString(), queue.isDurable());
-         logger.debug("Failed to get queue ID, creating queue [addressName=" + addressName + ", queueName=" + queue.getName() + ", filter=" + (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()) + ", durable=" + queue.isDurable() + "]");
+         session.createQueue(addressName, routingType, queue.getName(), queue.getFilter() == null ? null : queue.getFilter().getFilterString(), queue.isDurable());
+         logger.debug("Failed to get queue ID, creating queue [addressName=" + addressName + ", queueName=" + queue.getName() + ", routingType=" + queue.getRoutingType() + ", filter=" + (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()) + ", durable=" + queue.isDurable() + "]");
          queueID = getQueueID(session, queue.getName());
       }
 
@@ -523,10 +545,10 @@ public class ScaleDownHandler {
          return queue;
       }
 
-      public long getQueueID() throws Exception {
+      public long getQueueID(Message message) throws Exception {
 
          if (targetQueueID < 0) {
-            targetQueueID = createQueueIfNecessaryAndGetID(clientSession, queue, queue.getAddress());
+            targetQueueID = createQueueWithRoutingTypeIfNecessaryAndGetID(clientSession, queue, queue.getAddress(), message.getRoutingType());
          }
          return targetQueueID;
       }
@@ -540,6 +562,9 @@ public class ScaleDownHandler {
       public boolean lookup(MessageReference reference) throws Exception {
 
          if (reference.isPaged()) {
+            if (store == null) {
+               return false;
+            }
             PageSubscription subscription = store.getCursorProvider().getSubscription(queue.getID());
             if (subscription.contains((PagedReference) reference)) {
                return true;

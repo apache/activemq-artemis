@@ -18,21 +18,22 @@ rem under the License.
 
 set ARTEMIS_HOME="${artemis.home}"
 set ARTEMIS_INSTANCE="${artemis.instance}"
+set ARTEMIS_DATA_DIR="${artemis.instance.data}"
+set ARTEMIS_ETC_DIR="${artemis.instance.etc}"
+set ARTEMIS_OOME_DUMP="${artemis.instance.oome.dump}"
+
 
 rem The logging config will need an URI
 rem this will be encoded in case you use spaces or special characters
 rem on your directory structure
 set ARTEMIS_INSTANCE_URI="${artemis.instance.uri.windows}"
+set ARTEMIS_INSTANCE_ETC_URI="${artemis.instance.etc.uri.windows}"
 
 rem Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
 rem set ARTEMIS_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
 
 rem Java Opts
-set JAVA_ARGS=${java-opts} -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager} -Djava.security.auth.login.config=%ARTEMIS_INSTANCE%\etc\login.config -Dhawtio.offline="true" -Dhawtio.realm=activemq -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=%ARTEMIS_INSTANCE_URI%\etc\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%
-
-rem There might be options that you only want to enable on specifc commands, like setting a JMX port
-rem See https://issues.apache.org/jira/browse/ARTEMIS-318
-rem if "%1"=="run" set JAVA_ARGS=%JAVA_ARGS% -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+IF "%JAVA_ARGS%"=="" (set JAVA_ARGS=${java-opts} -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx1024M -Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager};%ARTEMIS_HOME%\lib\${wildfly-common} -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\login.config -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%)
 
 rem Logs Safepoints JVM pauses: Uncomment to enable them
 rem In addition to the traditional GC logs you could enable some JVM flags to know any meaningful and "hidden" pause that could
@@ -40,6 +41,9 @@ rem affect the latencies of the services delivered by the broker, including thos
 rem and dependent by JVM background work (eg method deoptimizations, lock unbiasing, JNI, counted loops and obviously GC activity).
 rem Replace "all_pauses.log" with the file name you want to log to.
 rem set JAVA_ARGS=%JAVA_ARGS% -XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1 -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCApplicationConcurrentTime -XX:+LogVMOutput -XX:LogFile=all_pauses.log
+
+rem Enables the dumping of the java heap when a java.lang.OutOfMemoryError exception is thrown.
+rem set JAVA_ARGS=%JAVA_ARGS% -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=%ARTEMIS_OOME_DUMP%
 
 rem Debug args: Uncomment to enable debug
 rem set DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005

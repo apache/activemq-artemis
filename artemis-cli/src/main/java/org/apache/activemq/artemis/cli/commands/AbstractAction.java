@@ -30,8 +30,8 @@ public abstract class AbstractAction extends ConnectionAbstract {
 
    public void performCoreManagement(ManagementCallback<ClientMessage> cb) throws Exception {
 
-      try (ActiveMQConnectionFactory factory = createConnectionFactory();
-         ServerLocator locator = factory.getServerLocator();
+      try (ActiveMQConnectionFactory factory = createCoreConnectionFactory();
+           ServerLocator locator = factory.getServerLocator();
            ClientSessionFactory sessionFactory = locator.createSessionFactory();
            ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE)) {
          session.start();

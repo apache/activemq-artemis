@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.timing.util;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.UTF8Util;
 import org.junit.After;
 import org.junit.Assert;
@@ -26,31 +27,31 @@ import org.junit.Test;
 
 public class UTF8Test extends ActiveMQTestBase {
 
-   private final String str = "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5";
+   private static final String str = "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5";
 
    final int TIMES = 5;
 
-   final long numberOfIteractions = 1000000;
+   final int numberOfIteractions = 1000000;
+
+   //It's needed to be sure that the JVM won't perform Dead Code Elimination
+   //on String/ActiveMQBuffer operations
+   private volatile Object blackHole;
 
    @Test
    public void testWriteUTF() throws Exception {
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(10 * 1024);
 
-      long start = System.currentTimeMillis();
-
       for (int c = 0; c < TIMES; c++) {
+         final long start = System.currentTimeMillis();
          for (long i = 0; i < numberOfIteractions; i++) {
-            if (i == 10000) {
-               start = System.currentTimeMillis();
-            }
-
             buffer.clear();
             buffer.writeUTF(str);
+            blackHole = buffer;
          }
+         final long spentTime = System.currentTimeMillis() - start;
 
-         long spentTime = System.currentTimeMillis() - start;
-
-         System.out.println("Time WriteUTF = " + spentTime);
+         System.out.println("Time writeUTF = " + spentTime + " ms");
+         System.out.println("Throughput writeUTF = " + numberOfIteractions / spentTime + " ops/ms");
       }
    }
 
@@ -60,22 +61,19 @@ public class UTF8Test extends ActiveMQTestBase {
 
       buffer.writeUTF(str);
 
-      long start = System.currentTimeMillis();
-
       for (int c = 0; c < TIMES; c++) {
+         ThreadLeakCheckRule.forceGC();
+         final long start = System.currentTimeMillis();
          for (long i = 0; i < numberOfIteractions; i++) {
-            if (i == 10000) {
-               start = System.currentTimeMillis();
-            }
-
             buffer.resetReaderIndex();
             String newstr = buffer.readUTF();
             Assert.assertEquals(str, newstr);
+            blackHole = newstr;
          }
+         final long spentTime = System.currentTimeMillis() - start;
 
-         long spentTime = System.currentTimeMillis() - start;
-
-         System.out.println("Time readUTF = " + spentTime);
+         System.out.println("Time readUTF = " + spentTime + " ms");
+         System.out.println("Throughput readUTF = " + numberOfIteractions / spentTime + " ops/ms");
       }
 
    }

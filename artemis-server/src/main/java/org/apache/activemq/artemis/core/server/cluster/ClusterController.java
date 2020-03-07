@@ -185,10 +185,19 @@ public class ClusterController implements ActiveMQComponent {
       serverLocator.setConnectionTTL(config.getConnectionTTL());
       serverLocator.setClientFailureCheckPeriod(config.getClientFailureCheckPeriod());
       //if the cluster isn't available we want to hang around until it is
-      serverLocator.setReconnectAttempts(-1);
-      serverLocator.setInitialConnectAttempts(-1);
+      serverLocator.setReconnectAttempts(config.getReconnectAttempts());
+      serverLocator.setInitialConnectAttempts(config.getInitialConnectAttempts());
+      serverLocator.setRetryInterval(config.getRetryInterval());
+      serverLocator.setRetryIntervalMultiplier(config.getRetryIntervalMultiplier());
+      serverLocator.setMaxRetryInterval(config.getMaxRetryInterval());
       //this is used for replication so need to use the server packet decoder
       serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator));
+      serverLocator.setThreadPools(server.getThreadPool(), server.getScheduledPool());
+      try {
+         serverLocator.initialize();
+      } catch (Exception e) {
+         throw new IllegalStateException(e.getMessage(), e);
+      }
       locators.put(name, serverLocator);
    }
 
@@ -302,6 +311,10 @@ public class ClusterController implements ActiveMQComponent {
       this.replicatedClusterName = new SimpleString(replicatedClusterName);
    }
 
+   public Map<SimpleString, ServerLocatorInternal> getLocators() {
+      return this.locators;
+   }
+
    /**
     * a handler for handling packets sent between the cluster.
     */
@@ -378,6 +391,10 @@ public class ClusterController implements ActiveMQComponent {
             } else if (packet.getType() == PacketImpl.QUORUM_VOTE) {
                QuorumVoteMessage quorumVoteMessage = (QuorumVoteMessage) packet;
                QuorumVoteHandler voteHandler = quorumManager.getVoteHandler(quorumVoteMessage.getHandler());
+               if (voteHandler == null) {
+                  ActiveMQServerLogger.LOGGER.noVoteHandlerConfigured();
+                  return;
+               }
                quorumVoteMessage.decode(voteHandler);
                ActiveMQServerLogger.LOGGER.receivedQuorumVoteRequest(quorumVoteMessage.getVote().toString());
                Vote vote = quorumManager.vote(quorumVoteMessage.getHandler(), quorumVoteMessage.getVote());
@@ -426,6 +443,10 @@ public class ClusterController implements ActiveMQComponent {
 
    public ServerLocator getReplicationLocator() {
       return this.replicationLocator;
+   }
+
+   public ServerLocator getServerLocator(SimpleString name) {
+      return locators.get(name);
    }
 
 }

@@ -250,7 +250,7 @@ public class IdGenerator {
     */
    protected static String getLocalHostName() throws UnknownHostException {
       try {
-         return (InetAddress.getLocalHost()).getHostName();
+         return InetAddress.getLocalHost().getHostName();
       } catch (UnknownHostException uhe) {
          String host = uhe.getMessage(); // host = "hostname: hostname"
          if (host != null) {

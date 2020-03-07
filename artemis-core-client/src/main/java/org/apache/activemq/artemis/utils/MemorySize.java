@@ -56,11 +56,11 @@ public class MemorySize {
 
       MemorySize.newObject(factory);
 
-      int i = 0;
-      long heap1 = 0;
-      long heap2 = 0;
-      long totalMemory1 = 0;
-      long totalMemory2 = 0;
+      int i;
+      long heap1;
+      long heap2;
+      long totalMemory1;
+      long totalMemory2;
 
       // First we do a dry run with twice as many then throw away the results
 

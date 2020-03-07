@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -85,6 +86,17 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultServerDumpInterval(), conf.getServerDumpInterval());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMemoryWarningThreshold(), conf.getMemoryWarningThreshold());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMemoryMeasureInterval(), conf.getMemoryMeasureInterval());
+      Assert.assertEquals(conf.getJournalLocation(), conf.getNodeManagerLockLocation());
+      Assert.assertNull(conf.getJournalDeviceBlockSize());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultReadWholePage(), conf.isReadWholePage());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio(), conf.getPageSyncTimeout());
+   }
+
+   @Test
+   public void testNullMaskPassword() {
+      ConfigurationImpl impl = new ConfigurationImpl();
+      impl.setMaskPassword(null);
+      impl.hashCode();
    }
 
    @Test
@@ -266,6 +278,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          s = RandomUtil.randomString();
          conf.setClusterPassword(s);
          Assert.assertEquals(s, conf.getClusterPassword());
+
+         i = RandomUtil.randomInt();
+         conf.setPageSyncTimeout(i);
+         Assert.assertEquals(i, conf.getPageSyncTimeout());
       }
    }
 
@@ -469,6 +485,13 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       conf.setClusterPassword(s);
       Assert.assertEquals(s, conf.getClusterPassword());
 
+      i = RandomUtil.randomInt();
+      conf.setPageSyncTimeout(i);
+      Assert.assertEquals(i, conf.getPageSyncTimeout());
+
+      conf.registerBrokerPlugin(new LoggingActiveMQServerPlugin());
+      Assert.assertEquals("ensure one plugin registered", 1, conf.getBrokerPlugins().size());
+
       // This will use serialization to perform a deep copy of the object
       Configuration conf2 = conf.copy();
 
@@ -487,6 +510,11 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          configuration.setJournalDirectory("./data-journal");
          File journalLocation = configuration.getJournalLocation();
          Assert.assertFalse("This path shouldn't resolve to a real folder", journalLocation.exists());
+         Assert.assertEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
+         Assert.assertFalse(configuration.getNodeManagerLockLocation().exists());
+         configuration.setNodeManagerLockDirectory("./lock-folder");
+         Assert.assertNotEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
+         Assert.assertFalse("This path shouldn't resolve to a real folder", configuration.getNodeManagerLockLocation().exists());
       } finally {
          if (oldProperty == null) {
             System.clearProperty("artemis.instance");
@@ -502,6 +530,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       // Validate that the resolve method will work even with artemis.instance doesn't exist
 
       String oldProperty = System.getProperty("artemis.instance");
+      String oldEtc = System.getProperty("artemis.instance.etc");
 
       File tempFolder = null;
       try {
@@ -519,11 +548,29 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          File journalLocation = configuration.getJournalLocation();
 
          Assert.assertTrue(journalLocation.exists());
+         Assert.assertEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
+         Assert.assertTrue(configuration.getNodeManagerLockLocation().exists());
+
+         tempFolder = File.createTempFile("lock-folder", "");
+         tempFolder.delete();
+
+         tempFolder.getAbsolutePath();
+
+         tempFolder = new File(tempFolder.getAbsolutePath());
+         tempFolder.mkdirs();
+
+         System.out.println("TempFolder = " + tempFolder.getAbsolutePath());
+         configuration.setNodeManagerLockDirectory(tempFolder.getAbsolutePath());
+         File lockLocation = configuration.getNodeManagerLockLocation();
+         Assert.assertTrue(lockLocation.exists());
+
       } finally {
          if (oldProperty == null) {
             System.clearProperty("artemis.instance");
+            System.clearProperty("artemis.instance.etc");
          } else {
             System.setProperty("artemis.instance", oldProperty);
+            System.setProperty("artemis.instance.etc", oldEtc);
          }
 
          if (tempFolder != null) {

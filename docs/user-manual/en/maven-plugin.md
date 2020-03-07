@@ -13,17 +13,17 @@ You could for example use these maven plugins on your testsuite or deployment au
 
 There are three goals that you can use
 
-- create
+- `create`
 
-This will create a server accordingly to your arguments. You can do some extra tricks here such as installing extra libraries for external modules.
+  This will create a server accordingly to your arguments. You can do some extra tricks here such as installing extra libraries for external modules.
 
-- cli
+- `cli`
 
-This will perform any CLI operation. This is basically a maven expression of the CLI classes
+  This will perform any CLI operation. This is basically a maven expression of the CLI classes
 
-- runClient
+- `runClient`
 
-This is a simple wrapper around classes implementing a static main call. Notice that this won't spawn a new VM or new Thread.
+  This is a simple wrapper around classes implementing a static main call. Notice that this won't spawn a new VM or new Thread.
 
 
 ## Declaration
@@ -31,11 +31,14 @@ This is a simple wrapper around classes implementing a static main call. Notice 
 On your pom, use the plugins section:
 
 ```xml
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-maven-plugin</artifactId>
+<build>
+   <plugins>
+      <plugin>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-maven-plugin</artifactId>
+      </plugin>
+   </plugins>
+</build>
 ```
 
 ## create goal
@@ -43,7 +46,7 @@ On your pom, use the plugins section:
 I won't detail every operation of the create plugin here, but I will try to describe the main parameters:
 
 Name | Description
-:--- | :---
+--- | ---
 configuration | A place that will hold any file to replace on the configuration. For instance if you are providing your own broker.xml. Default is "${basedir}/target/classes/activemq/server0"
 home | The location where you downloaded and installed artemis. Default is "${activemq.basedir}"
 alternateHome | This is used case you have two possible locations for your home (e.g. one under compile and one under production
@@ -54,16 +57,15 @@ liblist[] | A list of libraries to be installed under ./lib. ex: "org.jgroups:jg
 Example:
 
 ```xml
-<executions>
-   <execution>
-      <id>create</id>
-      <goals>
-         <goal>create</goal>
-      </goals>
-      <configuration>
-         <ignore>${noServer}</ignore>
-      </configuration>
-   </execution>
+<execution>
+   <id>create</id>
+   <goals>
+      <goal>create</goal>
+   </goals>
+   <configuration>
+      <ignore>${noServer}</ignore>
+   </configuration>
+</execution>
 ```
 
 
@@ -72,7 +74,7 @@ Example:
 Some properties for the CLI
 
 Name | Description
-:--- | :---
+--- | ---
 configuration | A place that will hold any file to replace on the configuration. For instance if you are providing your own broker.xml. Default is "${basedir}/target/classes/activemq/server0"
 home | The location where you downloaded and installed artemis. Default is "${activemq.basedir}"
 alternateHome | This is used case you have two possible locations for your home (e.g. one under compile and one under production
@@ -105,7 +107,7 @@ Example:
 This is a simple solution for running classes implementing the main method.
 
 Name | Description
-:--- | :---
+--- | ---
 clientClass | A class implement a static void main(String arg[])
 args | A string array of arguments passed to the method
 

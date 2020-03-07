@@ -60,7 +60,7 @@ lead to dead-lock situations if the upper bound is chosen to be too low.
 The default value for `thread-pool-max-size` is `30`.
 
 See the [J2SE
-javadoc](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/ThreadPoolExecutor.htm)
+javadoc](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ThreadPoolExecutor.html)
 for more information on unbounded (cached), and bounded (fixed) thread
 pools.
 

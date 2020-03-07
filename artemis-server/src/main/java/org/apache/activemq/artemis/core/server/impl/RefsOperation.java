@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.paging.cursor.NonExistentPage;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -37,6 +37,8 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    private static final Logger logger = Logger.getLogger(RefsOperation.class);
 
+   private final AckReason reason;
+
    private final StorageManager storageManager;
    private Queue queue;
    List<MessageReference> refsToAck = new ArrayList<>();
@@ -49,14 +51,22 @@ public class RefsOperation extends TransactionOperationAbstract {
     */
    protected boolean ignoreRedeliveryCheck = false;
 
-   public RefsOperation(Queue queue, StorageManager storageManager) {
+   private String lingerSessionId = null;
+
+   public RefsOperation(Queue queue, AckReason reason, StorageManager storageManager) {
       this.queue = queue;
+      this.reason = reason;
       this.storageManager = storageManager;
    }
+
 
    // once turned on, we shouldn't turn it off, that's why no parameters
    public void setIgnoreRedeliveryCheck() {
       ignoreRedeliveryCheck = true;
+   }
+
+   synchronized void addOnlyRefAck(final MessageReference ref) {
+      refsToAck.add(ref);
    }
 
    synchronized void addAck(final MessageReference ref) {
@@ -66,11 +76,19 @@ public class RefsOperation extends TransactionOperationAbstract {
             pagedMessagesToPostACK = new ArrayList<>();
          }
          pagedMessagesToPostACK.add(ref);
+         //here we do something to prevent page file
+         //from being deleted until the operation is done.
+         ((PagedReference)ref).addPendingFlag();
       }
    }
 
    @Override
    public void afterRollback(final Transaction tx) {
+      afterRollback(tx, false);
+   }
+
+   @Override
+   public void afterRollback(final Transaction tx, boolean sorted) {
       Map<QueueImpl, LinkedList<MessageReference>> queueMap = new HashMap<>();
 
       long timeBase = System.currentTimeMillis();
@@ -80,7 +98,9 @@ public class RefsOperation extends TransactionOperationAbstract {
       List<MessageReference> ackedRefs = new ArrayList<>();
 
       for (MessageReference ref : refsToAck) {
-         ref.setConsumerId(null);
+         clearLingerRef(ref);
+
+         ref.emptyConsumerID();
 
          if (logger.isTraceEnabled()) {
             logger.trace("rolling back " + ref);
@@ -101,7 +121,7 @@ public class RefsOperation extends TransactionOperationAbstract {
          QueueImpl queue = entry.getKey();
 
          synchronized (queue) {
-            queue.postRollback(refs);
+            queue.postRollback(refs, sorted);
          }
       }
 
@@ -113,7 +133,7 @@ public class RefsOperation extends TransactionOperationAbstract {
             for (MessageReference ref : ackedRefs) {
                Message message = ref.getMessage();
                if (message.isDurable()) {
-                  int durableRefCount = message.incrementDurableRefCount();
+                  int durableRefCount = ref.getQueue().durableUp(ref.getMessage());
 
                   if (durableRefCount == 1) {
                      storageManager.storeMessageTransactional(ackedTX.getID(), message);
@@ -125,18 +145,25 @@ public class RefsOperation extends TransactionOperationAbstract {
                   ackedTX.setContainsPersistent();
                }
 
-               message.incrementRefCount();
+               // TODO-NOW: THIS MUST BE SOLVED BEFORE MERGED, DO NOT LET ME COMMIT THIS WITHOUT REVIEW
+               queue.refUp(message);
             }
             ackedTX.commit(true);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.failedToProcessMessageReferenceAfterRollback(e);
          }
       }
+
+      if (pagedMessagesToPostACK != null) {
+         for (MessageReference refmsg : pagedMessagesToPostACK) {
+            ((PagedReference)refmsg).removePendingFlag();
+         }
+      }
    }
 
    protected void rollbackRedelivery(Transaction tx, MessageReference ref, long timeBase, Map<QueueImpl, LinkedList<MessageReference>> queueMap) throws Exception {
       // if ignore redelivery check, we just perform redelivery straight
-      if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck)) {
+      if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck).getA()) {
          LinkedList<MessageReference> toCancel = queueMap.get(ref.getQueue());
 
          if (toCancel == null) {
@@ -152,33 +179,37 @@ public class RefsOperation extends TransactionOperationAbstract {
    @Override
    public void afterCommit(final Transaction tx) {
       for (MessageReference ref : refsToAck) {
+         clearLingerRef(ref);
+
          synchronized (ref.getQueue()) {
-            queue.postAcknowledge(ref);
+            ref.getQueue().postAcknowledge(ref, reason);
          }
       }
 
       if (pagedMessagesToPostACK != null) {
          for (MessageReference refmsg : pagedMessagesToPostACK) {
-            decrementRefCount(refmsg);
+            ((PagedReference)refmsg).removePendingFlag();
+            if (((PagedReference) refmsg).isLargeMessage()) {
+               refmsg.getQueue().refDown(refmsg.getMessage());
+            }
          }
       }
    }
 
-   private void decrementRefCount(MessageReference refmsg) {
-      try {
-         refmsg.getMessage().decrementRefCount();
-      } catch (NonExistentPage e) {
-         // This could happen on after commit, since the page could be deleted on file earlier by another thread
-         logger.debug(e);
-      } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.failedToDecrementMessageReferenceCount(e);
+   private void clearLingerRef(MessageReference ref) {
+      if (!ref.hasConsumerId() && lingerSessionId != null) {
+         ref.getQueue().removeLingerSession(lingerSessionId);
       }
    }
 
    @Override
    public synchronized List<MessageReference> getRelatedMessageReferences() {
       List<MessageReference> listRet = new LinkedList<>();
-      listRet.addAll(listRet);
+
+      if (refsToAck != null && !refsToAck.isEmpty()) {
+         listRet.addAll(refsToAck);
+      }
+
       return listRet;
    }
 
@@ -186,7 +217,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    public synchronized List<MessageReference> getListOnConsumer(long consumerID) {
       List<MessageReference> list = new LinkedList<>();
       for (MessageReference ref : refsToAck) {
-         if (ref.getConsumerId() != null && ref.getConsumerId().equals(consumerID)) {
+         if (ref.hasConsumerId() && ref.getConsumerId() == consumerID) {
             list.add(ref);
          }
       }
@@ -198,4 +229,18 @@ public class RefsOperation extends TransactionOperationAbstract {
       return refsToAck;
    }
 
+   public synchronized List<MessageReference> getLingerMessages() {
+      List<MessageReference> list = new LinkedList<>();
+      for (MessageReference ref : refsToAck) {
+         if (!ref.hasConsumerId() && lingerSessionId != null) {
+            list.add(ref);
+         }
+      }
+
+      return list;
+   }
+
+   public void setLingerSession(String lingerSessionId) {
+      this.lingerSessionId = lingerSessionId;
+   }
 }

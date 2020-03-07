@@ -35,7 +35,7 @@ public class ProducerFilterPredicate extends ActiveMQFilterPredicate<ServerProdu
    }
 
    @Override
-   public boolean apply(ServerProducer producer) {
+   public boolean test(ServerProducer producer) {
       // Using switch over enum vs string comparison is better for perf.
       if (f == null)
          return true;

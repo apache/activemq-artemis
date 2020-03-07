@@ -36,8 +36,6 @@ public class ActiveMQRACredential implements Serializable {
     */
    static final long serialVersionUID = 210476602237497193L;
 
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
-
    /**
     * The user name
     */
@@ -52,7 +50,7 @@ public class ActiveMQRACredential implements Serializable {
     * Private constructor
     */
    private ActiveMQRACredential() {
-      if (ActiveMQRACredential.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor()");
       }
    }
@@ -63,7 +61,7 @@ public class ActiveMQRACredential implements Serializable {
     * @return The value
     */
    public String getUserName() {
-      if (ActiveMQRACredential.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getUserName()");
       }
 
@@ -76,7 +74,7 @@ public class ActiveMQRACredential implements Serializable {
     * @param userName The value
     */
    private void setUserName(final String userName) {
-      if (ActiveMQRACredential.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setUserName(" + userName + ")");
       }
 
@@ -89,7 +87,7 @@ public class ActiveMQRACredential implements Serializable {
     * @return The value
     */
    public String getPassword() {
-      if (ActiveMQRACredential.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getPassword()");
       }
 
@@ -102,7 +100,7 @@ public class ActiveMQRACredential implements Serializable {
     * @param password The value
     */
    private void setPassword(final String password) {
-      if (ActiveMQRACredential.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setPassword(****)");
       }
 
@@ -121,7 +119,7 @@ public class ActiveMQRACredential implements Serializable {
    public static ActiveMQRACredential getCredential(final ManagedConnectionFactory mcf,
                                                     final Subject subject,
                                                     final ConnectionRequestInfo info) throws SecurityException {
-      if (ActiveMQRACredential.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getCredential(" + mcf + ", " + subject + ", " + info + ")");
       }
 
@@ -152,7 +150,7 @@ public class ActiveMQRACredential implements Serializable {
     */
    @Override
    public String toString() {
-      if (ActiveMQRACredential.trace) {
+      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("toString()");
       }
 
@@ -181,7 +179,7 @@ public class ActiveMQRACredential implements Serializable {
        * @param mcf     The managed connection factory
        */
       GetCredentialAction(final Subject subject, final ManagedConnectionFactory mcf) {
-         if (ActiveMQRACredential.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("constructor(" + subject + ", " + mcf + ")");
          }
 
@@ -196,7 +194,7 @@ public class ActiveMQRACredential implements Serializable {
        */
       @Override
       public PasswordCredential run() {
-         if (ActiveMQRACredential.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("run()");
          }
 
@@ -220,7 +218,7 @@ public class ActiveMQRACredential implements Serializable {
        * @return The credential
        */
       static PasswordCredential getCredential(final Subject subject, final ManagedConnectionFactory mcf) {
-         if (ActiveMQRACredential.trace) {
+         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
             ActiveMQRALogger.LOGGER.trace("getCredential(" + subject + ", " + mcf + ")");
          }
 

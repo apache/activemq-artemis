@@ -25,10 +25,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.EnumSet;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -128,7 +128,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          msg.putStringProperty("myNonAsciiStringProperty", international.toString());
          msg.putStringProperty("mySpecialCharacters", special);
          msg.putStringProperty(new SimpleString("mySimpleStringProperty"), new SimpleString("mySimpleStringPropertyValue_" + i));
-         msg.putStringProperty(new SimpleString("myNullSimpleStringProperty"), null);
+         msg.putStringProperty(new SimpleString("myNullSimpleStringProperty"), (SimpleString) null);
          producer.send(msg);
       }
 
@@ -468,7 +468,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-      fileMessage.releaseResources();
+      fileMessage.releaseResources(false);
 
       session.createQueue("A", RoutingType.MULTICAST, "A", true);
 
@@ -519,6 +519,92 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       msg.acknowledge();
       session.commit();
+   }
+
+   @Test
+   public void testLargeMessagesNoTmpFiles() throws Exception {
+      server = createServer(true);
+      server.start();
+      locator = createInVMNonHALocator();
+      factory = createSessionFactory(locator);
+      ClientSession session = factory.createSession(false, false);
+
+      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+
+      fileMessage.setMessageID(1005);
+      fileMessage.setDurable(true);
+
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
+         fileMessage.addBytes(new byte[]{getSamplebyte(i)});
+      }
+
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+
+      fileMessage.releaseResources(false);
+
+      session.createQueue("A", RoutingType.MULTICAST, "A", true);
+
+      ClientProducer prod = session.createProducer("A");
+
+      prod.send(fileMessage);
+      prod.send(fileMessage);
+
+      fileMessage.deleteFile();
+
+      session.commit();
+
+      session.close();
+      locator.close();
+      server.stop();
+
+      ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
+      System.out.print(new String(xmlOutputStream.toByteArray()));
+
+      clearDataRecreateServerDirs();
+      server.start();
+      checkForLongs();
+      locator = createInVMNonHALocator();
+      factory = createSessionFactory(locator);
+      session = factory.createSession(false, true, true);
+
+      ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.sort = true;
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
+      xmlDataImporter.process(xmlInputStream, session);
+      session.close();
+      session = factory.createSession(false, false);
+      session.start();
+
+      ClientConsumer cons = session.createConsumer("A");
+
+      ClientMessage msg = cons.receive(CONSUMER_TIMEOUT);
+      assertNotNull(msg);
+      assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
+
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
+         assertEquals(getSamplebyte(i), msg.getBodyBuffer().readByte());
+      }
+      msg = cons.receive(CONSUMER_TIMEOUT);
+      assertNotNull(msg);
+      assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
+
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
+         assertEquals(getSamplebyte(i), msg.getBodyBuffer().readByte());
+      }
+
+      msg.acknowledge();
+      session.commit();
+
+      //make sure there is not tmp file left
+      File workingDir = new File(System.getProperty("user.dir"));
+      String[] flist = workingDir.list();
+      for (String fn : flist) {
+         assertFalse("leftover: " + fn, fn.endsWith(".tmp"));
+      }
    }
 
    @Test
@@ -798,7 +884,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-      fileMessage.releaseResources();
+      fileMessage.releaseResources(false);
 
       producer.send(fileMessage);
 
@@ -1006,9 +1092,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       SimpleString myAddress = SimpleString.toSimpleString("myAddress");
       ClientSession session = basicSetUp();
 
-      Set<RoutingType> routingTypes = new HashSet<>();
-      routingTypes.add(RoutingType.ANYCAST);
-      routingTypes.add(RoutingType.MULTICAST);
+      EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
 
       session.createAddress(myAddress, routingTypes, false);
 

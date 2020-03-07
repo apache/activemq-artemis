@@ -19,11 +19,30 @@ package org.apache.activemq.artemis.core.server;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public interface RoutingContext {
+
+   /*
+     This will return true if the RoutingContext can be reused
+     false if it cannot
+     null, if we don't know.
+
+
+     Once false, it can't be set to true
+   */
+   boolean isReusable();
+
+   int getPreviousBindingsVersion();
+
+   SimpleString getPreviousAddress();
+
+   RoutingContext setReusable(boolean reusable);
+
+   RoutingContext setReusable(boolean reusable, int version);
 
    Transaction getTransaction();
 
@@ -41,7 +60,7 @@ public interface RoutingContext {
 
    int getQueueCount();
 
-   void clear();
+   RoutingContext clear();
 
    void addQueueWithAck(SimpleString address, Queue queue);
 
@@ -49,9 +68,23 @@ public interface RoutingContext {
 
    void setAddress(SimpleString address);
 
-   void setRoutingType(RoutingType routingType);
+   RoutingContext setRoutingType(RoutingType routingType);
+
+   SimpleString getAddress(Message message);
 
    SimpleString getAddress();
 
    RoutingType getRoutingType();
+
+   RoutingType getPreviousRoutingType();
+
+   void processReferences(List<MessageReference> refs, boolean direct);
+
+   boolean isReusable(Message message, int version);
+
+   boolean isDuplicateDetection();
+
+   RoutingContext setDuplicateDetection(boolean value);
+
+
 }

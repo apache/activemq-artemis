@@ -27,7 +27,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -37,6 +36,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -336,7 +336,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
    }
 
-   class FakeMessageWithID extends RefCountMessage {
+   class FakeMessageWithID implements Message {
 
       final long id;
 
@@ -366,6 +366,11 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
+      public int getDurableCount() {
+         return 0;
+      }
+
+      @Override
       public void persist(ActiveMQBuffer targetRecord) {
       }
 
@@ -375,7 +380,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void reloadPersistence(ActiveMQBuffer record) {
+      public void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools) {
 
       }
 
@@ -386,6 +391,11 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
       @Override
       public ICoreMessage toCore() {
+         return toCore(null);
+      }
+
+      @Override
+      public ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
          return null;
       }
 
@@ -429,22 +439,37 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public int incrementRefCount() throws Exception {
+      public int getUsage() {
          return 0;
       }
 
       @Override
-      public int decrementRefCount() throws Exception {
+      public int usageUp() {
          return 0;
       }
 
       @Override
-      public int incrementDurableRefCount() {
+      public int usageDown() {
          return 0;
       }
 
       @Override
-      public int decrementDurableRefCount() {
+      public int refUp() {
+         return 0;
+      }
+
+      @Override
+      public int refDown() {
+         return 0;
+      }
+
+      @Override
+      public int durableUp() {
+         return 0;
+      }
+
+      @Override
+      public int durableDown() {
          return 0;
       }
 
@@ -648,6 +673,11 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
+      public Message putStringProperty(SimpleString key, String value) {
+         return null;
+      }
+
+      @Override
       public Message putStringProperty(String key, String value) {
          return null;
       }
@@ -805,6 +835,11 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       @Override
       public Map<String, Object> toPropertyMap() {
          return null;
+      }
+
+      @Override
+      public long getPersistentSize() throws ActiveMQException {
+         return 0;
       }
    }
 }

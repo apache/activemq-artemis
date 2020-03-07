@@ -676,6 +676,11 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       }
 
       @Override
+      public Thread getCurrentThread() {
+         return null;
+      }
+
+      @Override
       public ClientMessage receive(final long timeout) throws ActiveMQException {
          return null;
       }
@@ -731,9 +736,19 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       }
 
       @Override
+      public int getInitialWindowSize() {
+         return 0;
+      }
+
+      @Override
       public SimpleString getFilterString() {
 
          return null;
+      }
+
+      @Override
+      public int getPriority() {
+         return 0;
       }
 
       public long getID() {

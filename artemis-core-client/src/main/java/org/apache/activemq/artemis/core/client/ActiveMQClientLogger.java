@@ -32,7 +32,7 @@ import java.net.UnknownHostException;
 /**
  * Logger Code 21
  * <p>
- * Each message id must be 6 digits long starting with 10, the 3rd digit donates the level so
+ * Each message id must be 6 digits long starting with 21, the 3rd digit donates the level so
  *
  * <pre>
  * INF0  1
@@ -43,7 +43,7 @@ import java.net.UnknownHostException;
  * FATAL 6
  * </pre>
  *
- * so an INFO message would be 101000 to 101999.
+ * so an INFO message would be 211000 to 211999.
  * <p>
  * Once released, methods should not be deleted as they may be referenced by knowledge base
  * articles. Unused methods should be marked as deprecated.
@@ -63,6 +63,14 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 211001, value = "session created", format = Message.Format.MESSAGE_FORMAT)
    void dumpingSessionStack(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 211002, value = "Started {0} Netty Connector version {1} to {2}:{3,number,#}", format = Message.Format.MESSAGE_FORMAT)
+   void startedNettyConnector(String connectorType, String version, String host, Integer port);
+
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 211003, value = "Started InVM Connector", format = Message.Format.MESSAGE_FORMAT)
+   void startedInVMConnector();
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212000, value = "{0}", format = Message.Format.MESSAGE_FORMAT)
@@ -217,8 +225,8 @@ public interface ActiveMQClientLogger extends BasicLogger {
    void cannotFindPacketToClear(Integer lastReceivedCommandID, Integer firstStoredCommandID);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212037, value = "Connection failure has been detected: {0} [code={1}]", format = Message.Format.MESSAGE_FORMAT)
-   void connectionFailureDetected(String message, ActiveMQExceptionType type);
+   @Message(id = 212037, value = "Connection failure to {0} has been detected: {1} [code={2}]", format = Message.Format.MESSAGE_FORMAT)
+   void connectionFailureDetected(String remoteAddress, String message, ActiveMQExceptionType type);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212038, value = "Failure in calling interceptor: {0}", format = Message.Format.MESSAGE_FORMAT)
@@ -396,6 +404,26 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @Message(id = 212073, value = "Unable to check KQueue availability ",
            format = Message.Format.MESSAGE_FORMAT)
    void unableToCheckKQueueAvailability(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212074, value = "SendAcknowledgementHandler will not be asynchronous without setting up confirmation window size",
+      format = Message.Format.MESSAGE_FORMAT)
+   void confirmationNotSet();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212075, value = "KQueue is not available, please add to the classpath or configure useKQueue=false to remove this warning",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToCheckKQueueAvailabilityNoClass();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212076, value = "Epoll is not available, please add to the classpath or configure useEpoll=false to remove this warning",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToCheckEpollAvailabilitynoClass();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212077, value = "Timed out waiting to receive initial broadcast from cluster. Retry {0} of {1}",
+           format = Message.Format.MESSAGE_FORMAT)
+   void broadcastTimeout(int retry, int maxretry);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)

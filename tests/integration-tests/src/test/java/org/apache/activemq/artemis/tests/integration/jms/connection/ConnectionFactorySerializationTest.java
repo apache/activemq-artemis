@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
@@ -151,6 +153,41 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       }
    }
 
+   @Test
+   public void testConnectionFactoryEncodeDecode() throws Exception {
+      jmsServer.getActiveMQServer().getConfiguration().addConnectorConfiguration("foo", "tcp://localhost:1234");
+
+      ArrayList<String> connectorNames = new ArrayList<>();
+      connectorNames.add("foo");
+      ConnectionFactoryConfiguration cfc1 = new ConnectionFactoryConfigurationImpl()
+         .setName("MyConnectionFactory")
+         .setConnectorNames(connectorNames)
+         .setUseTopologyForLoadBalancing(false)
+         .setEnableSharedClientID(true);
+
+      ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
+      cfc1.encode(buffer);
+      byte[] bytes = new byte[buffer.readableBytes()];
+      buffer.readBytes(bytes);
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      outputStream.write(bytes);
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+      buffer = ActiveMQBuffers.dynamicBuffer(1024);
+      while (true) {
+         int byteRead = inputStream.read();
+         if (byteRead < 0) {
+            break;
+         }
+
+         buffer.writeByte((byte)byteRead);
+      }
+      ConnectionFactoryConfigurationImpl cfc2 = new ConnectionFactoryConfigurationImpl();
+      cfc2.decode(buffer);
+
+      assertEquals(cfc1.getUseTopologyForLoadBalancing(), cfc2.getUseTopologyForLoadBalancing());
+      assertEquals(cfc1.isEnableSharedClientID(), cfc2.isEnableSharedClientID());
+   }
+
    private void createDiscoveryFactoryUDP() throws Exception {
       // Deploy a connection factory with discovery
       List<String> bindings = new ArrayList<>();
@@ -225,7 +262,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       ArrayList<String> connectorNames = new ArrayList<>();
       connectorNames.add(main.getName());
       connectorNames.add(main2.getName());
-      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName("MyConnectionFactory").setHA(b).setConnectorNames(connectorNames).setClientID("clientID").setClientFailureCheckPeriod(-1).setConnectionTTL(-2).setFactoryType(JMSFactoryType.CF).setCallTimeout(-3).setCallFailoverTimeout(-4).setCacheLargeMessagesClient(b).setMinLargeMessageSize(-5).setConsumerWindowSize(-6).setConsumerMaxRate(-7).setConfirmationWindowSize(-8).setProducerWindowSize(-9).setProducerMaxRate(-10).setBlockOnAcknowledge(b).setBlockOnDurableSend(b).setBlockOnNonDurableSend(b).setAutoGroup(b).setPreAcknowledge(b).setLoadBalancingPolicyClassName("foobar").setTransactionBatchSize(-11).setDupsOKBatchSize(-12).setUseGlobalPools(b).setScheduledThreadPoolMaxSize(-13).setThreadPoolMaxSize(-14).setRetryInterval(-15).setRetryIntervalMultiplier(-16).setMaxRetryInterval(-17).setReconnectAttempts(-18).setFailoverOnInitialConnection(b).setGroupID("groupID")
+      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName("MyConnectionFactory").setHA(b).setConnectorNames(connectorNames).setClientID("clientID").setClientFailureCheckPeriod(-1).setConnectionTTL(-2).setFactoryType(JMSFactoryType.CF).setCallTimeout(-3).setCallFailoverTimeout(-4).setCacheLargeMessagesClient(b).setMinLargeMessageSize(-5).setConsumerWindowSize(-6).setConsumerMaxRate(-7).setConfirmationWindowSize(-8).setProducerWindowSize(-9).setProducerMaxRate(-10).setBlockOnAcknowledge(b).setBlockOnDurableSend(b).setBlockOnNonDurableSend(b).setAutoGroup(b).setPreAcknowledge(b).setLoadBalancingPolicyClassName("foobar").setTransactionBatchSize(-11).setDupsOKBatchSize(-12).setUseGlobalPools(b).setScheduledThreadPoolMaxSize(-13).setThreadPoolMaxSize(-14).setRetryInterval(-15).setRetryIntervalMultiplier(-16).setMaxRetryInterval(-17).setReconnectAttempts(-18).setGroupID("groupID")
               .setInitialMessagePacketSize(1499);
 
       jmsServer.createConnectionFactory(false, configuration, "/MyConnectionFactory");

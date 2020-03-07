@@ -29,18 +29,18 @@ public class StompSubscription {
 
    private final SimpleString queueName;
 
-   // whether or not this subscription follows publish/subscribe semantics (e.g. for a JMS topic)
-   private final boolean pubSub;
+   // whether or not this subscription follows multicast semantics (e.g. for a JMS topic)
+   private final boolean multicast;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public StompSubscription(String subID, String ack, SimpleString queueName, boolean pubSub) {
+   public StompSubscription(String subID, String ack, SimpleString queueName, boolean multicast) {
       this.subID = subID;
       this.ack = ack;
       this.queueName = queueName;
-      this.pubSub = pubSub;
+      this.multicast = multicast;
    }
 
    // Public --------------------------------------------------------
@@ -57,13 +57,13 @@ public class StompSubscription {
       return queueName;
    }
 
-   public boolean isPubSub() {
-      return pubSub;
+   public boolean isMulticast() {
+      return multicast;
    }
 
    @Override
    public String toString() {
-      return "StompSubscription[id=" + subID + ", ack=" + ack + ", queueName=" + queueName + ", pubSub=" + pubSub + "]";
+      return "StompSubscription[id=" + subID + ", ack=" + ack + ", queueName=" + queueName + ", multicast=" + multicast + "]";
    }
 
 }

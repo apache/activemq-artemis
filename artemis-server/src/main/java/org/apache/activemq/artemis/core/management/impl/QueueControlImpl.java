@@ -22,7 +22,6 @@ import javax.json.JsonObjectBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.openmbean.CompositeData;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -35,35 +34,33 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.management.impl.openmbean.OpenTypeSupport;
-import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.core.security.CheckType;
-import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.selector.filter.Filterable;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
 public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    public static final int FLUSH_LIMIT = 500;
+
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -72,7 +69,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    private final String address;
 
-   private final PostOffice postOffice;
+   private final ActiveMQServer server;
 
    private final StorageManager storageManager;
    private final SecurityStore securityStore;
@@ -111,14 +108,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    public QueueControlImpl(final Queue queue,
                            final String address,
-                           final PostOffice postOffice,
+                           final ActiveMQServer server,
                            final StorageManager storageManager,
                            final SecurityStore securityStore,
                            final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
       super(QueueControl.class, storageManager);
       this.queue = queue;
       this.address = address;
-      this.postOffice = postOffice;
+      this.server = server;
       this.storageManager = storageManager;
       this.securityStore = securityStore;
       this.addressSettingsRepository = addressSettingsRepository;
@@ -134,6 +131,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getName(queue);
+      }
       clearIO();
       try {
          return queue.getName().toString();
@@ -144,6 +144,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddress(queue);
+      }
+
       checkStarted();
 
       return address;
@@ -151,6 +155,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getFilter() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFilter(queue);
+      }
+
       checkStarted();
 
       clearIO();
@@ -165,6 +173,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isDurable() {
+
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isDurable(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -176,7 +188,27 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public String getUser() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getUser(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         SimpleString user = queue.getUser();
+         return user == null ? null : user.toString();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
+   @Override
    public String getRoutingType() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRoutingType(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -190,6 +222,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isTemporary() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isTemporary(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -201,7 +236,25 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public boolean isRetroactiveResource() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isRetroactiveResource(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return ResourceNames.isRetroactiveResource(server.getInternalNamingPrefix(), queue.getName());
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public long getMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessageCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -213,7 +266,67 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public float getProducedRate() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getProducedRate(queue);
+      }
+      checkStarted();
+
+      // This is an attribute, no need to blockOnIO
+      return queue.getRate();
+   }
+
+   @Override
+   public long getPersistentSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getPersistentSize(queue);
+      }
+
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getPersistentSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurableMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableMessageCount(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableMessageCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurablePersistentSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurablePersistSize(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurablePersistentSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public int getConsumerCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getConsumerCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -226,6 +339,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getDeliveringCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDeliveringCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -237,7 +353,55 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long getDeliveringSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDeliveringSize(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDeliveringSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getDurableDeliveringCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableDeliveringCount(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableDeliveringCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurableDeliveringSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableDeliveringSize(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableDeliveringSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public long getMessagesAdded() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesAdded(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -250,6 +414,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesAcknowledged() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesAcknowledged(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -261,7 +428,25 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long getAcknowledgeAttempts() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesAcknowledged(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getAcknowledgeAttempts();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public long getMessagesExpired() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesExpired(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -274,6 +459,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesKilled() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMessagesKilled(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -286,6 +474,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getID() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getID(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -298,6 +489,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getScheduledCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getScheduledCount(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -309,7 +503,55 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long getScheduledSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getScheduledSize(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getScheduledSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurableScheduledCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableScheduledCount(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableScheduledCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDurableScheduledSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDurableScheduledSize(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDurableScheduledSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String getDeadLetterAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getDeadLetterAddress(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -327,6 +569,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getExpiryAddress() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getExpiryAddress(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -345,6 +590,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getMaxConsumers() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMaxConsumers(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -357,6 +605,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isPurgeOnNoConsumers() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPurgeOnNoConsumers(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -368,7 +619,55 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public boolean isConfigurationManaged() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isConfigurationManaged(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isConfigurationManaged();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isExclusive() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isExclusive(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isExclusive();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isLastValue() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isLastValue(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isLastValue();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public Map<String, Object>[] listScheduledMessages() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listScheduledMessages(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -382,6 +681,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listScheduledMessagesAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listScheduledMessagesAsJSON(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -408,6 +710,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Map<String, Map<String, Object>[]> listDeliveringMessages() throws ActiveMQException {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listDeliveringMessages(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -419,15 +724,18 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          for (Map.Entry<String, List<MessageReference>> entry : msgs.entrySet()) {
             msgRet.put(entry.getKey(), convertMessagesToMaps(entry.getValue()));
          }
+
          return msgRet;
       } finally {
          blockOnIO();
       }
-
    }
 
    @Override
    public String listDeliveringMessagesAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listDeliveringMessagesAsJSON(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -440,6 +748,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Map<String, Object>[] listMessages(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessages(queue, filterStr);
+      }
       checkStarted();
 
       clearIO();
@@ -470,6 +781,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessagesAsJSON(final String filter) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessagesAsJSON(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -481,6 +795,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    protected Map<String, Object>[] getFirstMessage() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFirstMessage(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -504,11 +821,18 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getFirstMessageAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFirstMessageAsJSON(queue);
+      }
       return toJSON(getFirstMessage());
    }
 
    @Override
    public Long getFirstMessageTimestamp() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFirstMessageTimestamp(queue);
+      }
+
       Map<String, Object>[] _message = getFirstMessage();
       if (_message == null || _message.length == 0 || _message[0] == null) {
          return null;
@@ -522,6 +846,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Long getFirstMessageAge() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFirstMessageAge(queue);
+      }
+
       Long firstMessageTimestamp = getFirstMessageTimestamp();
       if (firstMessageTimestamp == null) {
          return null;
@@ -531,38 +859,119 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long countMessages() throws Exception {
+      return countMessages(null);
+   }
+
+   @Override
    public long countMessages(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.countMessages(queue, filterStr);
+      }
+
+      Long value = internalCountMessages(filterStr, null).get(null);
+      return value == null ? 0 : value;
+   }
+
+   @Override
+   public String countMessages(final String filterStr, final String groupByProperty) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.countMessages(queue, filterStr, groupByProperty);
+      }
+
+      return JsonUtil.toJsonObject(internalCountMessages(filterStr, groupByProperty)).toString();
+   }
+
+   private Map<String, Long> internalCountMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
       checkStarted();
 
       clearIO();
+
+      Map<String, Long> result = new HashMap<>();
       try {
          Filter filter = FilterImpl.createFilter(filterStr);
-         if (filter == null) {
-            return getMessageCount();
+         SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
+         if (filter == null && groupByProperty == null) {
+            result.put(null, getMessageCount());
          } else {
             try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
-               int count = 0;
-
                try {
                   while (iterator.hasNext()) {
-                     MessageReference ref = iterator.next();
-                     if (filter.match(ref.getMessage())) {
-                        count++;
-                     }
+                     Message message = iterator.next().getMessage();
+                     internalComputeMessage(result, filter, groupByProperty, message);
                   }
                } catch (NoSuchElementException ignored) {
                   // this could happen through paging browsing
                }
-               return count;
             }
          }
+         return result;
       } finally {
          blockOnIO();
       }
    }
 
    @Override
+   public long countDeliveringMessages(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.countDeliveringMessages(queue, filterStr);
+      }
+
+      Long value = internalCountDeliveryMessages(filterStr, null).get(null);
+      return value == null ? 0 : value;
+   }
+
+   @Override
+   public String countDeliveringMessages(final String filterStr, final String groupByProperty) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.countDeliveringMessages(queue, filterStr, groupByProperty);
+      }
+
+      return JsonUtil.toJsonObject(internalCountDeliveryMessages(filterStr, groupByProperty)).toString();
+   }
+
+   private Map<String, Long> internalCountDeliveryMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      Map<String, Long> result = new HashMap<>();
+      try {
+         Filter filter = FilterImpl.createFilter(filterStr);
+         SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
+         if (filter == null && groupByProperty == null) {
+            result.put(null, Long.valueOf(getDeliveringCount()));
+         } else {
+            Map<String, List<MessageReference>> deliveringMessages = queue.getDeliveringMessages();
+            deliveringMessages.forEach((s, messageReferenceList) ->
+                            messageReferenceList.forEach(messageReference ->
+                                    internalComputeMessage(result, filter, groupByProperty, messageReference.getMessage())
+                            ));
+         }
+         return result;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   private void internalComputeMessage(Map<String, Long> result, Filter filter, SimpleString groupByProperty, Message message) {
+      if (filter == null || filter.match(message)) {
+         if (groupByProperty == null) {
+            result.compute(null, (k, v) -> v == null ? 1 : ++v);
+         } else {
+            Object value = message.getObjectProperty(groupByProperty);
+            String valueStr = value == null ? null : value.toString();
+            result.compute(valueStr, (k, v) -> v == null ? 1 : ++v);
+         }
+      }
+   }
+
+
+   @Override
    public boolean removeMessage(final long messageID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeMessage(queue, messageID);
+      }
       checkStarted();
 
       clearIO();
@@ -582,6 +991,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int removeMessages(final int flushLimit, final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeMessages(queue, flushLimit, filterStr);
+      }
       checkStarted();
 
       clearIO();
@@ -601,6 +1013,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean expireMessage(final long messageID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.expireMessage(queue, messageID);
+      }
       checkStarted();
 
       clearIO();
@@ -613,6 +1028,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int expireMessages(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.expireMessages(queue, filterStr);
+      }
       checkStarted();
 
       clearIO();
@@ -628,6 +1046,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean retryMessage(final long messageID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.retryMessage(queue, messageID);
+      }
 
       checkStarted();
       clearIO();
@@ -637,6 +1058,16 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             @Override
             public boolean match(Message message) {
                return message.getMessageID() == messageID;
+            }
+
+            @Override
+            public boolean match(Map<String, String> map) {
+               return false;
+            }
+
+            @Override
+            public boolean match(Filterable filterable) {
+               return false;
             }
 
             @Override
@@ -653,6 +1084,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int retryMessages() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.retryMessages(queue);
+      }
       checkStarted();
       clearIO();
 
@@ -672,17 +1106,20 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    public boolean moveMessage(final long messageID,
                               final String otherQueueName,
                               final boolean rejectDuplicates) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.moveMessage(queue, messageID, otherQueueName, rejectDuplicates);
+      }
       checkStarted();
 
       clearIO();
       try {
-         Binding binding = postOffice.getBinding(new SimpleString(otherQueueName));
+         Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
 
          if (binding == null) {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
          }
 
-         return queue.moveReference(messageID, binding.getAddress(), rejectDuplicates);
+         return queue.moveReference(messageID, binding.getAddress(), binding, rejectDuplicates);
       } finally {
          blockOnIO();
       }
@@ -699,20 +1136,22 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                            final String filterStr,
                            final String otherQueueName,
                            final boolean rejectDuplicates) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.moveMessages(queue, flushLimit, filterStr, otherQueueName, rejectDuplicates);
+      }
       checkStarted();
 
       clearIO();
       try {
          Filter filter = FilterImpl.createFilter(filterStr);
 
-         Binding binding = postOffice.getBinding(new SimpleString(otherQueueName));
+         Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
 
          if (binding == null) {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
          }
 
-         int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates);
-
+         int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates, binding);
          return retValue;
       } finally {
          blockOnIO();
@@ -729,6 +1168,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.sendMessagesToDeadLetterAddress(queue, filterStr);
+      }
       checkStarted();
 
       clearIO();
@@ -748,52 +1190,21 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.sendMessage(queue, null, headers, type, body, durable, user, "****");
+      }
       try {
-         securityStore.check(queue.getAddress(), queue.getName(), CheckType.SEND, new SecurityAuth() {
-            @Override
-            public String getUsername() {
-               return user;
-            }
-
-            @Override
-            public String getPassword() {
-               return password;
-            }
-
-            @Override
-            public RemotingConnection getRemotingConnection() {
-               return null;
-            }
-         });
-         CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
-         if (headers != null) {
-            for (String header : headers.keySet()) {
-               message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
-            }
-         }
-         message.setType((byte) type);
-         message.setDurable(durable);
-         message.setTimestamp(System.currentTimeMillis());
-         if (body != null) {
-            if (type == Message.TEXT_TYPE) {
-               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
-            } else {
-               message.getBodyBuffer().writeBytes(Base64.decode(body));
-            }
-         }
-         message.setAddress(queue.getAddress());
-         ByteBuffer buffer = ByteBuffer.allocate(8);
-         buffer.putLong(queue.getID());
-         message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
-         postOffice.route(message, true);
-         return "" + message.getMessageID();
-      } catch (ActiveMQException e) {
+         return sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, queue.getID());
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage());
       }
    }
 
    @Override
    public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.sendMessageToDeadLetterAddress(queue, messageID);
+      }
       checkStarted();
 
       clearIO();
@@ -806,6 +1217,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int changeMessagesPriority(final String filterStr, final int newPriority) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.changeMessagesPriority(queue, filterStr, newPriority);
+      }
       checkStarted();
 
       clearIO();
@@ -823,6 +1237,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.changeMessagePriority(queue, messageID, newPriority);
+      }
       checkStarted();
 
       clearIO();
@@ -838,11 +1255,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounter() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessageCounter(queue);
+      }
       checkStarted();
 
       clearIO();
       try {
-         return MessageCounterInfo.toJSon(counter);
+         return counter.toJSon();
       } catch (Exception e) {
          throw new IllegalStateException(e);
       } finally {
@@ -852,6 +1272,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessageCounter() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessageCounter(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -864,6 +1287,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounterAsHTML() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessageCounterAsHTML(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -876,6 +1302,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounterHistory() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessageCounterHistory(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -888,6 +1317,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounterHistoryAsHTML() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listMessageCounterHistoryAsHTML(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -900,6 +1332,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void pause() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.pause(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -913,6 +1348,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void pause(boolean persist) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.pause(queue, persist);
+      }
       checkStarted();
 
       clearIO();
@@ -924,6 +1362,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
    @Override
    public void resume() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resume(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -936,6 +1377,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isPaused() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isPaused(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -947,11 +1391,58 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public CompositeData[] browse(int page, int pageSize) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.browse(queue, page, pageSize);
+      }
+      String filter = null;
+      checkStarted();
+
+      clearIO();
+      try {
+         long index = 0;
+         long start = (long) (page - 1) * pageSize;
+         long end = Math.min(page * pageSize, queue.getMessageCount());
+
+         ArrayList<CompositeData> c = new ArrayList<>();
+         Filter thefilter = FilterImpl.createFilter(filter);
+         queue.flushExecutor();
+
+         try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
+            try {
+               while (iterator.hasNext() && index < end) {
+                  MessageReference ref = iterator.next();
+                  if (thefilter == null || thefilter.match(ref.getMessage())) {
+                     if (index >= start) {
+                        c.add(OpenTypeSupport.convert(ref));
+                     }
+                  }
+                  index++;
+               }
+            } catch (NoSuchElementException ignored) {
+               // this could happen through paging browsing
+            }
+
+            CompositeData[] rc = new CompositeData[c.size()];
+            c.toArray(rc);
+            return rc;
+         }
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public CompositeData[] browse() throws Exception {
       return browse(null);
    }
    @Override
    public CompositeData[] browse(String filter) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.browse(queue, filter);
+      }
       checkStarted();
 
       clearIO();
@@ -987,6 +1478,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void flushExecutor() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.flushExecutor(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -998,7 +1492,101 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public void resetAllGroups() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetAllGroups(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         queue.resetAllGroups();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void resetGroup(String groupID) {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetGroup(queue, groupID);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         queue.resetGroup(SimpleString.toSimpleString(groupID));
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getGroupCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getGroupCount(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getGroupCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listGroupsAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listGroupsAsJSON(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         Map<SimpleString, Consumer> groups = queue.getGroups();
+
+         JsonArrayBuilder jsonArray = JsonLoader.createArrayBuilder();
+
+         for (Map.Entry<SimpleString, Consumer> group : groups.entrySet()) {
+
+            if (group.getValue() instanceof ServerConsumer) {
+               ServerConsumer serverConsumer = (ServerConsumer) group.getValue();
+
+               JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("groupID", group.getKey().toString()).add("consumerID", serverConsumer.getID()).add("connectionID", serverConsumer.getConnectionID().toString()).add("sessionID", serverConsumer.getSessionID()).add("browseOnly", serverConsumer.isBrowseOnly()).add("creationTime", serverConsumer.getCreationTime());
+
+               jsonArray.add(obj);
+            }
+
+         }
+
+         return jsonArray.build().toString();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getRingSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getRingSize(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getRingSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String listConsumersAsJSON() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listConsumersAsJSON(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1037,6 +1625,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesAdded() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessagesAdded(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1050,6 +1641,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesAcknowledged() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessagesAcknowledged(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1063,6 +1657,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesExpired() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessagesExpired(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1076,6 +1673,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesKilled() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetMessagesKilled(queue);
+      }
       checkStarted();
 
       clearIO();
@@ -1094,7 +1694,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    // Private -------------------------------------------------------
 
    private void checkStarted() {
-      if (!postOffice.isStarted()) {
+      if (!server.getPostOffice().isStarted()) {
          throw new IllegalStateException("Broker is not started. Queue can not be managed yet");
       }
    }

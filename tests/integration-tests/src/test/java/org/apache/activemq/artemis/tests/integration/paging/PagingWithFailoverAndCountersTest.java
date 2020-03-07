@@ -39,8 +39,8 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    PagingWithFailoverServer inProcessBackup;
 
-   private static final int PORT1 = 5000;
-   private static final int PORT2 = 5001;
+   private static final int PORT1 = 5050;
+   private static final int PORT2 = 5051;
 
    private void startLive() throws Exception {
       assertNull(liveProcess);

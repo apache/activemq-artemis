@@ -18,27 +18,18 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xmlns="urn:activemq"
-               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:activemq" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
    <core xmlns="urn:activemq:core">
 
       <persistence-enabled>false</persistence-enabled>
-
-      <connectors>
-         <connector name="in-vm">vm://0</connector>
-      </connectors>
 
       <acceptors>
          <acceptor name="in-vm">vm://0</acceptor>
       </acceptors>
 
-      <!-- Other config -->
-
       <security-settings>
-         <!--security for example queue-->
          <security-setting match="#">
+            <permission type="createAddress" roles="guest"/>
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -47,6 +38,5 @@ under the License.
             <permission type="send" roles="guest"/>
          </security-setting>
       </security-settings>
-
    </core>
 </configuration>

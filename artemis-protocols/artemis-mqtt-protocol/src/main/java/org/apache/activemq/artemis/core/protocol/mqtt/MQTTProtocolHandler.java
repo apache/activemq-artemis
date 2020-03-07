@@ -100,7 +100,11 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
          MQTTUtil.logMessage(session.getState(), message, true);
 
-         this.protocolManager.invokeIncoming(message, this.connection);
+         if (this.protocolManager.invokeIncoming(message, this.connection) != null) {
+            log.debugf("Interceptor rejected MQTT message: %s", message);
+            disconnect(true);
+            return;
+         }
 
          switch (message.fixedHeader().messageType()) {
             case CONNECT:
@@ -246,8 +250,10 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    private void sendToClient(MqttMessage message) {
+      if (this.protocolManager.invokeOutgoing(message, connection) != null) {
+         return;
+      }
       MQTTUtil.logMessage(session.getSessionState(), message, false);
-      this.protocolManager.invokeOutgoing(message, connection);
       ctx.write(message);
       ctx.flush();
    }

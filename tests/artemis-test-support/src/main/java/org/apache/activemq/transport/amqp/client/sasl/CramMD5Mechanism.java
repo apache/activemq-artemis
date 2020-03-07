@@ -19,7 +19,7 @@ package org.apache.activemq.transport.amqp.client.sasl;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.sasl.SaslException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -30,7 +30,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public class CramMD5Mechanism extends AbstractMechanism {
 
-   private static final String ASCII = "ASCII";
    private static final String HMACMD5 = "HMACMD5";
    private boolean sentResponse;
 
@@ -53,7 +52,7 @@ public class CramMD5Mechanism extends AbstractMechanism {
    public byte[] getChallengeResponse(byte[] challenge) throws SaslException {
       if (!sentResponse && challenge != null && challenge.length != 0) {
          try {
-            SecretKeySpec key = new SecretKeySpec(getPassword().getBytes(ASCII), HMACMD5);
+            SecretKeySpec key = new SecretKeySpec(getPassword().getBytes(StandardCharsets.US_ASCII), HMACMD5);
             Mac mac = Mac.getInstance(HMACMD5);
             mac.init(key);
 
@@ -70,9 +69,7 @@ public class CramMD5Mechanism extends AbstractMechanism {
             }
 
             sentResponse = true;
-            return hash.toString().getBytes(ASCII);
-         } catch (UnsupportedEncodingException e) {
-            throw new SaslException("Unable to utilise required encoding", e);
+            return hash.toString().getBytes(StandardCharsets.US_ASCII);
          } catch (InvalidKeyException e) {
             throw new SaslException("Unable to utilise key", e);
          } catch (NoSuchAlgorithmException e) {

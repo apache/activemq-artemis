@@ -39,7 +39,7 @@ public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingC
    }
 
    @Override
-   public boolean apply(RemotingConnection connection) {
+   public boolean test(RemotingConnection connection) {
       // Using switch over enum vs string comparison is better for perf.
       if (f == null)
          return true;

@@ -25,6 +25,6 @@ public class TransactionManagerLocatorTest extends Assert {
    @Test
    public void getTM() {
       assertNotNull(ServiceUtils.getTransactionManager());
-      assertEquals(ServiceUtils.getTransactionManager().getClass(), DummyTransactionManagerLocator.class);
+      assertEquals(org.apache.activemq.artemis.tests.integration.ra.DummyTransactionManager.class, ServiceUtils.getTransactionManager().getClass());
    }
 }

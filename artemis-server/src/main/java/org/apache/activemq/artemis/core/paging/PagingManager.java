@@ -107,8 +107,18 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    boolean isDiskFull();
 
+   long getDiskUsableSpace();
+
+   long getDiskTotalSpace();
+
    default long getGlobalSize() {
       return 0;
    }
+
+   /**
+    * Use this when you have no refernce of an address. (anonymous AMQP Producers for example)
+    * @param runWhenAvailable
+    */
+   void checkMemory(Runnable runWhenAvailable);
 
 }

@@ -30,17 +30,18 @@ import javax.jms.XAConnectionFactory;
 import javax.jms.XAJMSContext;
 import javax.jms.XAQueueConnection;
 import javax.jms.XATopicConnection;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
+import javax.naming.Context;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -48,25 +49,32 @@ import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.artemis.jms.referenceable.ConnectionFactoryObjectFactory;
-import org.apache.activemq.artemis.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.jndi.JNDIStorable;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
+import org.apache.activemq.artemis.utils.uri.URISupport;
 
 /**
  * <p>ActiveMQ Artemis implementation of a JMS ConnectionFactory.</p>
  * <p>This connection factory will use defaults defined by {@link DefaultConnectionProperties}.
  */
-public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Externalizable, Referenceable, ConnectionFactory, XAConnectionFactory, AutoCloseable {
+public class ActiveMQConnectionFactory extends JNDIStorable implements ConnectionFactoryOptions, Externalizable, ConnectionFactory, XAConnectionFactory, AutoCloseable {
+
+   private static final long serialVersionUID = 6730844785641767519L;
 
    private ServerLocator serverLocator;
 
    private String clientID;
+
+   private boolean enableSharedClientID = ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
 
    private int dupsOKBatchSize = ActiveMQClient.DEFAULT_ACK_BATCH_SIZE;
 
@@ -87,6 +95,10 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    private boolean cacheDestinations;
 
    private boolean finalizeChecks;
+
+   private boolean ignoreJTA;
+
+   private boolean enable1xPrefixes = ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
 
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
@@ -143,7 +155,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
          AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
-               ClientProtocolManagerFactory protocolManagerFactory = (ClientProtocolManagerFactory) ClassloadingUtil.newInstanceFromClassLoader(protocolManagerFactoryStr);
+               ClientProtocolManagerFactory protocolManagerFactory = (ClientProtocolManagerFactory) ClassloadingUtil.newInstanceFromClassLoader(ActiveMQConnectionFactory.class, protocolManagerFactoryStr);
                serverLocator.setProtocolManagerFactory(protocolManagerFactory);
                return null;
             }
@@ -193,7 +205,9 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
          serverLocator = locatorParser.newObject(uri, null);
          parser.populateObject(uri, this);
       } catch (Exception e) {
-         throw new InvalidObjectException(e.getMessage());
+         InvalidObjectException ex = new InvalidObjectException(e.getMessage());
+         ex.initCause(e);
+         throw ex;
       }
    }
 
@@ -204,10 +218,28 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       this(DefaultConnectionProperties.DEFAULT_BROKER_URL);
    }
 
-   public ActiveMQConnectionFactory(String url) {
+   public ActiveMQConnectionFactory(String brokerURL) {
+      try {
+         setBrokerURL(brokerURL);
+      } catch (Throwable e) {
+         throw new IllegalStateException(e);
+      }
+   }
+
+   /** Warning: This method will not clear any previous properties.
+    *           Say, you set the user on a first call.
+    *                Now you just change the brokerURI on a second call without passing the user.
+    *                The previous filled user will be already set, and nothing will clear it out.
+    *
+    *            Also: you cannot use this method after the connection factory is made readOnly.
+    *                  Which happens after you create a first connection. */
+   public void setBrokerURL(String brokerURL) throws JMSException {
+      if (readOnly) {
+         throw new javax.jms.IllegalStateException("You cannot use setBrokerURL after the connection factory has been used");
+      }
       ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
       try {
-         URI uri = cfParser.expandURI(url);
+         URI uri = cfParser.expandURI(brokerURL);
          serverLocator = ServerLocatorImpl.newLocator(uri);
          cfParser.populateObject(uri, this);
       } catch (Exception e) {
@@ -378,8 +410,59 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    }
 
    @Override
-   public Reference getReference() throws NamingException {
-      return new Reference(this.getClass().getCanonicalName(), new SerializableObjectRefAddr("ActiveMQ-CF", this), ConnectionFactoryObjectFactory.class.getCanonicalName(), null);
+   protected void buildFromProperties(Properties props) {
+      String url = props.getProperty(Context.PROVIDER_URL);
+      if (url == null || url.isEmpty()) {
+         url = props.getProperty("brokerURL");
+      }
+
+      if (url == null || url.isEmpty()) {
+         throw new IllegalArgumentException(Context.PROVIDER_URL + " or " + "brokerURL is required");
+      }
+      try {
+         if (url != null && url.length() > 0) {
+            url = updateBrokerURL(url, props);
+            setBrokerURL(url);
+         }
+
+         BeanSupport.setProperties(this, props);
+      } catch (JMSException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+         throw new RuntimeException(e);
+      }
+   }
+
+   private String updateBrokerURL(String url, Properties props) {
+      ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
+      try {
+         URI uri = cfParser.expandURI(url);
+         final Map<String, String> params = URISupport.parseParameters(uri);
+
+         for (String key : TransportConstants.ALLOWABLE_CONNECTOR_KEYS) {
+            final String val = props.getProperty(key);
+            if (val != null) {
+               params.put(key, val);
+            }
+         }
+
+         final String newUrl = URISupport.applyParameters(uri, params).toString();
+         return newUrl;
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
+   }
+
+   @Override
+   protected void populateProperties(Properties props) {
+      try {
+         URI uri = toURI();
+         if (uri != null) {
+            props.put(Context.PROVIDER_URL, uri.toASCIIString());
+            props.put("brokerURL", uri.toASCIIString());
+         }
+         BeanSupport.getProperties(this, props);
+      } catch (IOException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+         throw new RuntimeException(e);
+      }
    }
 
    public boolean isHA() {
@@ -412,6 +495,14 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       this.clientID = clientID;
    }
 
+   public boolean isEnableSharedClientID() {
+      return enableSharedClientID;
+   }
+
+   public void setEnableSharedClientID(boolean enableSharedClientID) {
+      this.enableSharedClientID = enableSharedClientID;
+   }
+
    public synchronized int getDupsOKBatchSize() {
       return dupsOKBatchSize;
    }
@@ -437,6 +528,15 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    public synchronized void setCacheDestinations(final boolean cacheDestinations) {
       checkWrite();
       this.cacheDestinations = cacheDestinations;
+   }
+
+   public synchronized boolean isEnable1xPrefixes() {
+      return this.enable1xPrefixes;
+   }
+
+   public synchronized void setEnable1xPrefixes(final boolean enable1xPrefixes) {
+      checkWrite();
+      this.enable1xPrefixes = enable1xPrefixes;
    }
 
    public synchronized long getClientFailureCheckPeriod() {
@@ -473,6 +573,15 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    public synchronized void setCallFailoverTimeout(final long callTimeout) {
       checkWrite();
       serverLocator.setCallFailoverTimeout(callTimeout);
+   }
+
+   public synchronized void setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
+      checkWrite();
+      serverLocator.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
+   }
+
+   public synchronized boolean isUseTopologyForLoadBalancing() {
+      return serverLocator.getUseTopologyForLoadBalancing();
    }
 
    public synchronized int getConsumerWindowSize() {
@@ -631,13 +740,13 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       return serverLocator.getInitialConnectAttempts();
    }
 
+   @Deprecated
    public synchronized boolean isFailoverOnInitialConnection() {
-      return serverLocator.isFailoverOnInitialConnection();
+      return false;
    }
 
+   @Deprecated
    public synchronized void setFailoverOnInitialConnection(final boolean failover) {
-      checkWrite();
-      serverLocator.setFailoverOnInitialConnection(failover);
    }
 
    public synchronized boolean isUseGlobalPools() {
@@ -674,6 +783,15 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    public synchronized void setInitialMessagePacketSize(final int size) {
       checkWrite();
       serverLocator.setInitialMessagePacketSize(size);
+   }
+
+   public boolean isIgnoreJTA() {
+      return ignoreJTA;
+   }
+
+   public void setIgnoreJTA(boolean ignoreJTA) {
+      checkWrite();
+      this.ignoreJTA = ignoreJTA;
    }
 
    /**
@@ -777,19 +895,19 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
       if (isXA) {
          if (type == ActiveMQConnection.TYPE_GENERIC_CONNECTION) {
-            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, enable1xPrefixes, factory);
          } else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
-            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, enable1xPrefixes, factory);
          } else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
-            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, enable1xPrefixes, factory);
          }
       } else {
          if (type == ActiveMQConnection.TYPE_GENERIC_CONNECTION) {
-            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, enable1xPrefixes, factory);
          } else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
-            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, enable1xPrefixes, factory);
          } else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
-            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, enable1xPrefixes, factory);
          }
       }
 
@@ -799,7 +917,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       connection.setReference(this);
 
       try {
-         connection.authorize();
+         connection.authorize(!isEnableSharedClientID());
       } catch (JMSException e) {
          try {
             connection.close();
@@ -824,6 +942,8 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
          transactionBatchSize +
          ", readOnly=" +
          readOnly +
+         "EnableSharedClientID=" +
+         enableSharedClientID +
          "]";
    }
 

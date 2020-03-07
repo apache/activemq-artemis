@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import javax.jms.Destination;
-import javax.jms.Queue;
-import javax.jms.TemporaryQueue;
-import javax.jms.TemporaryTopic;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -30,8 +29,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.jms.Destination;
+import javax.jms.Queue;
+import javax.jms.TemporaryQueue;
+import javax.jms.TemporaryTopic;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
@@ -39,7 +46,8 @@ import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
-import org.apache.qpid.proton.Proton;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
@@ -47,13 +55,11 @@ import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.message.Message;
+import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import io.netty.buffer.Unpooled;
 
 public class JMSMappingInboundTransformerTest {
 
@@ -72,10 +78,10 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateBytesMessageFromNoBodySectionAndContentType() throws Exception {
-      Message message = Message.Factory.create();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       message.setContentType(AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE);
 
-      AMQPMessage messageEncode = new AMQPMessage(message);
+      AMQPStandardMessage messageEncode = encodeAndCreateAMQPMessage(message);
 
       ICoreMessage coreMessage = messageEncode.toCore();
 
@@ -94,9 +100,9 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateBytesMessageFromNoBodySectionAndNoContentType() throws Exception {
-      Message message = Message.Factory.create();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSBytesMessage.class, jmsMessage.getClass());
@@ -104,10 +110,10 @@ public class JMSMappingInboundTransformerTest {
 
    @Test
    public void testCreateTextMessageFromNoBodySectionAndContentType() throws Exception {
-      Message message = Message.Factory.create();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       message.setContentType("text/plain");
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSTextMessage.class, jmsMessage.getClass());
@@ -125,12 +131,13 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateBytesMessageFromDataWithEmptyBinaryAndContentType() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       Binary binary = new Binary(new byte[0]);
       message.setBody(new Data(binary));
       message.setContentType(AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE);
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      AMQPStandardMessage amqp = encodeAndCreateAMQPMessage(message);
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(amqp.toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSBytesMessage.class, jmsMessage.getClass());
@@ -144,13 +151,14 @@ public class JMSMappingInboundTransformerTest {
     * @throws Exception
     *         if an error occurs during the test.
     */
+   @Test
    public void testCreateBytesMessageFromDataWithUnknownContentType() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       Binary binary = new Binary(new byte[0]);
       message.setBody(new Data(binary));
       message.setContentType("unknown-content-type");
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSBytesMessage.class, jmsMessage.getClass());
@@ -165,13 +173,13 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateBytesMessageFromDataWithEmptyBinaryAndNoContentType() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       Binary binary = new Binary(new byte[0]);
       message.setBody(new Data(binary));
 
       assertNull(message.getContentType());
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSBytesMessage.class, jmsMessage.getClass());
@@ -187,12 +195,12 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateObjectMessageFromDataWithContentTypeAndEmptyBinary() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       Binary binary = new Binary(new byte[0]);
       message.setBody(new Data(binary));
       message.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString());
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSObjectMessage.class, jmsMessage.getClass());
@@ -287,12 +295,12 @@ public class JMSMappingInboundTransformerTest {
    }
 
    private void doCreateTextMessageFromDataWithContentTypeTestImpl(String contentType, Charset expectedCharset) throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       Binary binary = new Binary(new byte[0]);
       message.setBody(new Data(binary));
       message.setContentType(contentType);
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       if (StandardCharsets.UTF_8.equals(expectedCharset)) {
@@ -313,10 +321,10 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateTextMessageFromAmqpValueWithString() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       message.setBody(new AmqpValue("content"));
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSTextMessage.class, jmsMessage.getClass());
@@ -331,10 +339,10 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateTextMessageFromAmqpValueWithNull() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       message.setBody(new AmqpValue(null));
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSTextMessage.class, jmsMessage.getClass());
@@ -350,11 +358,11 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateObjectMessageFromAmqpValueWithBinaryAndContentType() throws Exception {
-      Message message = Message.Factory.create();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       message.setBody(new AmqpValue(new Binary(new byte[0])));
       message.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString());
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSObjectMessage.class, jmsMessage.getClass());
@@ -369,11 +377,11 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateAmqpMapMessageFromAmqpValueWithMap() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       Map<String, String> map = new HashMap<>();
       message.setBody(new AmqpValue(map));
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSMapMessage.class, jmsMessage.getClass());
@@ -388,11 +396,11 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateAmqpStreamMessageFromAmqpValueWithList() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       List<String> list = new ArrayList<>();
       message.setBody(new AmqpValue(list));
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSStreamMessage.class, jmsMessage.getClass());
@@ -407,11 +415,11 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateAmqpStreamMessageFromAmqpSequence() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       List<String> list = new ArrayList<>();
       message.setBody(new AmqpSequence(list));
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSStreamMessage.class, jmsMessage.getClass());
@@ -426,11 +434,11 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateAmqpBytesMessageFromAmqpValueWithBinary() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       Binary binary = new Binary(new byte[0]);
       message.setBody(new AmqpValue(binary));
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSBytesMessage.class, jmsMessage.getClass());
@@ -446,10 +454,10 @@ public class JMSMappingInboundTransformerTest {
     */
    @Test
    public void testCreateBytesMessageFromAmqpValueWithUncategorisedContent() throws Exception {
-      Message message = Proton.message();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       message.setBody(new AmqpValue(UUID.randomUUID()));
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSBytesMessage.class, jmsMessage.getClass());
@@ -458,10 +466,10 @@ public class JMSMappingInboundTransformerTest {
    @Test
    public void testTransformMessageWithAmqpValueStringCreatesTextMessage() throws Exception {
       String contentString = "myTextMessageContent";
-      Message message = Message.Factory.create();
+      MessageImpl message = (MessageImpl) Message.Factory.create();
       message.setBody(new AmqpValue(contentString));
 
-      ServerJMSTextMessage jmsMessage = (ServerJMSTextMessage)ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      ServerJMSTextMessage jmsMessage = (ServerJMSTextMessage)ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
       jmsMessage.decode();
 
       assertTrue("Expected TextMessage", jmsMessage instanceof TextMessage);
@@ -504,17 +512,17 @@ public class JMSMappingInboundTransformerTest {
       throws Exception {
 
       String toAddress = "toAddress";
-      Message amqp = Message.Factory.create();
-      amqp.setBody(new AmqpValue("myTextMessageContent"));
-      amqp.setAddress(toAddress);
+      MessageImpl message = (MessageImpl) Message.Factory.create();
+      message.setBody(new AmqpValue("myTextMessageContent"));
+      message.setAddress(toAddress);
       if (toTypeAnnotationValue != null) {
          Map<Symbol, Object> map = new HashMap<>();
          map.put(Symbol.valueOf("x-opt-to-type"), toTypeAnnotationValue);
          MessageAnnotations ma = new MessageAnnotations(map);
-         amqp.setMessageAnnotations(ma);
+         message.setMessageAnnotations(ma);
       }
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(amqp).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
       assertTrue("Expected TextMessage", jmsMessage instanceof TextMessage);
    }
 
@@ -549,18 +557,26 @@ public class JMSMappingInboundTransformerTest {
       throws Exception {
 
       String replyToAddress = "replyToAddress";
-      Message amqp = Message.Factory.create();
-      amqp.setBody(new AmqpValue("myTextMessageContent"));
-      amqp.setReplyTo(replyToAddress);
+      MessageImpl message = (MessageImpl) Message.Factory.create();
+      message.setBody(new AmqpValue("myTextMessageContent"));
+      message.setReplyTo(replyToAddress);
       if (replyToTypeAnnotationValue != null) {
          Map<Symbol, Object> map = new HashMap<>();
          map.put(Symbol.valueOf("x-opt-reply-type"), replyToTypeAnnotationValue);
          MessageAnnotations ma = new MessageAnnotations(map);
-         amqp.setMessageAnnotations(ma);
+         message.setMessageAnnotations(ma);
       }
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(amqp).toCore());
+      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
       assertTrue("Expected TextMessage", jmsMessage instanceof TextMessage);
    }
 
+   private AMQPStandardMessage encodeAndCreateAMQPMessage(MessageImpl message) {
+      NettyWritable encoded = new NettyWritable(Unpooled.buffer(1024));
+      message.encode(encoded);
+
+      NettyReadable readable = new NettyReadable(encoded.getByteBuf());
+
+      return new AMQPStandardMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
+   }
 }

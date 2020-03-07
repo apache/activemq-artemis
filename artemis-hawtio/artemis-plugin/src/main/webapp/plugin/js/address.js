@@ -84,12 +84,13 @@ var ARTEMIS = (function(ARTEMIS) {
             if (mbean) {
                 if (selection && jolokia && entries) {
                     var domain = selection.domain;
-                    var name = entries["name"];
+                    var name = entries["address"];
                     name = name.unescapeHTML();
                     if (name.charAt(0) === '"' && name.charAt(name.length -1) === '"')
                     {
                         name = name.substr(1,name.length -2);
                     }
+                    name = ARTEMISService.artemisConsole.ownUnescape(name);
                     ARTEMIS.log.info(name);
                     var operation;
                     $scope.message = "Deleted address " + name;
@@ -100,7 +101,7 @@ var ARTEMIS = (function(ARTEMIS) {
         $scope.name = function () {
             var selection = workspace.selection;
             if (selection) {
-                return selection.title;
+                return ARTEMISService.artemisConsole.ownUnescape(selection.title);
             }
             return null;
         };

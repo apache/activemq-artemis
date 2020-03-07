@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+
 /**
  * Utility class that provides methods for parsing URI's
  *
@@ -75,7 +77,7 @@ public class URISupport {
       }
 
       public URI toURI() throws URISyntaxException {
-         StringBuffer sb = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
          if (scheme != null) {
             sb.append(scheme);
             sb.append(':');
@@ -98,16 +100,21 @@ public class URISupport {
             sb.append('/');
             sb.append(path);
          }
-         if (!parameters.isEmpty()) {
-            sb.append("?");
-            sb.append(createQueryString(parameters));
-         }
+         appendParameters(sb, parameters);
          if (fragment != null) {
-            sb.append("#");
+            sb.append('#');
             sb.append(fragment);
          }
          return new URI(sb.toString());
       }
+   }
+
+   public static StringBuilder appendParameters(StringBuilder sb, Map<String, String> parameters) throws URISyntaxException {
+      if (!parameters.isEmpty()) {
+         sb.append('?');
+         sb.append(createQueryString(parameters));
+      }
+      return sb;
    }
 
    /**
@@ -122,13 +129,20 @@ public class URISupport {
          uri = uri.substring(uri.lastIndexOf("?") + 1); // get only the relevant part of the query
          Map<String, String> rc = new HashMap<>();
          if (uri != null && !uri.isEmpty()) {
-            parseParameters(rc, uri.split("&"));
-            parseParameters(rc, uri.split(";"));
+            parseParameters(rc, uri.split("[&;]"));
          }
          return rc;
       } catch (UnsupportedEncodingException e) {
          throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
       }
+   }
+
+   public static boolean containsQuery(String uri) {
+      return uri.contains("?");
+   }
+
+   public static boolean containsQuery(SimpleString uri) {
+      return uri.contains('?');
    }
 
    private static void parseParameters(Map<String, String> rc,
@@ -198,7 +212,7 @@ public class URISupport {
                                      Map<String, String> queryParameters,
                                      String optionPrefix) throws URISyntaxException {
       if (queryParameters != null && !queryParameters.isEmpty()) {
-         StringBuffer newQuery = uri.getRawQuery() != null ? new StringBuffer(uri.getRawQuery()) : new StringBuffer();
+         StringBuilder newQuery = uri.getRawQuery() != null ? new StringBuilder(uri.getRawQuery()) : new StringBuilder();
          for (Map.Entry<String, String> param : queryParameters.entrySet()) {
             if (param.getKey().startsWith(optionPrefix)) {
                if (newQuery.length() != 0) {

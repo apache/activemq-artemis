@@ -150,6 +150,7 @@ public class Redistributor implements Consumer {
       final Pair<RoutingContext, Message> routingInfo = postOffice.redistribute(reference.getMessage(), queue, tx);
 
       if (routingInfo == null) {
+         tx.rollback();
          return HandleStatus.BUSY;
       }
 

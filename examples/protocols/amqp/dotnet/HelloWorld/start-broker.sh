@@ -18,5 +18,5 @@
 
 # if you are using a source distribution you will have to create and start the broker manually
 # Use this as a reference!
-../../../../bin/artemis create ./server1 --user a --password a --role a --allow-anonymous --force
+../../../../../bin/artemis create ./server1 --user a --password a --role a --allow-anonymous --force
 ./server1/bin/artemis-service start

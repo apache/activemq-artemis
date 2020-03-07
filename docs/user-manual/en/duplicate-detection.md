@@ -48,7 +48,7 @@ already received a message with that value of the header. If it has
 received a message with the same value before then it will ignore the
 message.
 
-> **Note**
+> **Note:**
 >
 > Using duplicate detection to move messages between nodes can give you
 > the same *once and only once* delivery guarantees as if you were using
@@ -73,7 +73,7 @@ by generating a UUID.
 
 Here's an example of setting the property using the core API:
 
-``` java
+```java
 ...
 
 ClientMessage message = session.createMessage(true);
@@ -86,7 +86,7 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID, myUniqueID);
 
 And here's an example using the JMS API:
 
-``` java
+```java
 ...
 
 Message jmsMessage = session.createMessage();
@@ -110,7 +110,7 @@ size of `n` elements, then the `n + 1`th id stored will overwrite the
 
 The maximum size of the cache is configured by the parameter
 `id-cache-size` in `broker.xml`, the default value is
-`2000` elements.
+`20000` elements.
 
 The caches can also be configured to persist to disk or not. This is
 configured by the parameter `persist-id-cache`, also in
@@ -118,7 +118,7 @@ configured by the parameter `persist-id-cache`, also in
 be persisted to permanent storage as they are received. The default
 value for this parameter is `true`.
 
-> **Note**
+> **Note:**
 >
 > When choosing a size of the duplicate id cache be sure to set it to a
 > larger enough size so if you resend messages all the previously sent
@@ -128,7 +128,7 @@ value for this parameter is `true`.
 
 Core bridges can be configured to automatically add a unique duplicate
 id value (if there isn't already one in the message) before forwarding
-the message to it's target. This ensures that if the target server
+the message to its target. This ensures that if the target server
 crashes or the connection is interrupted and the bridge resends the
 message, then if it has already been received by the target server, it
 will be ignored.

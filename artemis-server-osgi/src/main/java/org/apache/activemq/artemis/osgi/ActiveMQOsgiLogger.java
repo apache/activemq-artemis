@@ -26,7 +26,7 @@ import org.jboss.logging.annotations.MessageLogger;
 /**
  * Logger code 58
  *
- * each message id must be 6 digits long starting with 57, the 3rd digit donates the level so
+ * each message id must be 6 digits long starting with 58, the 3rd digit donates the level so
  *
  * INF0  1
  * WARN  2

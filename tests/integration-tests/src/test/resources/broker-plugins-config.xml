@@ -22,6 +22,7 @@
    </jms>
    <core xmlns="urn:activemq:core">
 
+      <persistence-enabled>false</persistence-enabled>
       <connectors>
          <connector name="netty-connector">tcp://localhost:61616</connector>
       </connectors>
@@ -42,6 +43,10 @@
             
       <broker-plugins>
          <broker-plugin class-name="org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier" />
+         <broker-plugin class-name="org.apache.activemq.artemis.tests.integration.plugin.ConfigurationVerifier">
+             <property key="property1" value="val_1"/>
+             <property key="property2" value="val_2"/>
+         </broker-plugin>
       </broker-plugins>
    </core>
 

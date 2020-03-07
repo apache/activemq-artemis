@@ -20,6 +20,9 @@ import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
+import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -31,9 +34,13 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -54,7 +61,11 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -261,6 +272,94 @@ public class ConsumerTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testAutoCreateCOnConsumerAMQP() throws Throwable {
+      testAutoCreate(2);
+   }
+
+   @Test
+   public void testAutoCreateCOnConsumerCore() throws Throwable {
+      testAutoCreate(1);
+   }
+
+   @Test
+   public void testAutoCreateCOnConsumerOpenWire() throws Throwable {
+      testAutoCreate(3);
+   }
+
+   private void testAutoCreate(int protocol) throws Throwable {
+
+      final SimpleString thisQueue = SimpleString.toSimpleString("ThisQueue");
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
+      }
+
+      for (int i = 0; i < 10; i++) {
+         ConnectionFactory factorySend = createFactory(protocol);
+         Connection connection = factorySend.createConnection();
+
+         try {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            javax.jms.Queue queue = session.createQueue(thisQueue.toString());
+            MessageProducer producer = session.createProducer(queue);
+
+            MessageConsumer consumer = session.createConsumer(queue);
+            connection.start();
+
+            producer.send(session.createTextMessage("hello"));
+
+            Assert.assertNotNull(consumer.receive(5000));
+            consumer.close();
+            session.close();
+         } finally {
+            connection.close();
+         }
+
+         Wait.waitFor(() -> server.getAddressInfo(thisQueue) == null, 1000, 10);
+         assertNull(server.getAddressInfo(thisQueue));
+         assertEquals(0, server.getTotalMessageCount());
+      }
+   }
+
+   @Test
+   public void testContextOnConsumerAMQP() throws Throwable {
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
+      }
+
+      assertNull(server.getAddressInfo(SimpleString.toSimpleString("queue")));
+
+      ConnectionFactory factory = createFactory(2);
+      JMSContext context = factory.createContext("admin", "admin", Session.AUTO_ACKNOWLEDGE);
+
+      try {
+         javax.jms.Queue queue = context.createQueue("queue");
+
+         JMSConsumer consumer = context.createConsumer(queue);
+
+         ServerConsumer serverConsumer = null;
+         for (ServerSession session : server.getSessions()) {
+            for (ServerConsumer sessionConsumer : session.getServerConsumers()) {
+               serverConsumer = sessionConsumer;
+            }
+         }
+
+         consumer.close();
+
+         Assert.assertTrue(serverConsumer.getProtocolContext() instanceof ProtonServerSenderContext);
+
+         final AMQPSessionContext sessionContext = ((ProtonServerSenderContext)
+            serverConsumer.getProtocolContext()).getSessionContext();
+
+         Wait.assertEquals(0, () -> sessionContext.getSenderCount(), 1000, 10);
+      } finally {
+         context.stop();
+         context.close();
+      }
+   }
+
+   @Test
    public void testAutoDeleteAutoCreatedAddressAndQueue() throws Throwable {
       if (!isNetty()) {
          // no need to run the test, there's no AMQP support
@@ -289,9 +388,9 @@ public class ConsumerTest extends ActiveMQTestBase {
          connection.close();
       }
 
-      assertNull(server.getAddressInfo(SimpleString.toSimpleString("queue")));
-      assertNull(server.locateQueue(SimpleString.toSimpleString("queue")));
-      assertEquals(0, server.getTotalMessageCount());
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString("queue")) == null);
+      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString("queue")) == null);
+      Wait.assertEquals(0, server::getTotalMessageCount);
    }
 
    @Test
@@ -366,7 +465,10 @@ public class ConsumerTest extends ActiveMQTestBase {
 
    private ConnectionFactory createFactory(int protocol) {
       switch (protocol) {
-         case 1: return new ActiveMQConnectionFactory();// core protocol
+         case 1: ActiveMQConnectionFactory coreCF = new ActiveMQConnectionFactory();// core protocol
+            coreCF.setCompressLargeMessage(true);
+            coreCF.setMinLargeMessageSize(10 * 1024);
+            return coreCF;
          case 2: return new JmsConnectionFactory("amqp://localhost:61616"); // amqp
          case 3: return new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"); // openwire
          default: return null;
@@ -379,38 +481,51 @@ public class ConsumerTest extends ActiveMQTestBase {
       ConnectionFactory factorySend = createFactory(protocolSender);
       ConnectionFactory factoryConsume = protocolConsumer == protocolSender ? factorySend : createFactory(protocolConsumer);
 
+      StringBuilder bufferLarge = new StringBuilder();
+      while (bufferLarge.length() < 100 * 1024) {
+         bufferLarge.append("          ");
+      }
+      final String bufferLargeContent = bufferLarge.toString();
 
-      Connection connection = factorySend.createConnection();
-
-      try {
-         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         javax.jms.Queue queue = session.createQueue(QUEUE.toString());
-         MessageProducer producer = session.createProducer(queue);
-         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-
-         TextMessage msg = session.createTextMessage("hello");
-         msg.setIntProperty("mycount", 0);
-         producer.send(msg);
-         connection.close();
-
-         connection = factoryConsume.createConnection();
-         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         queue = session.createQueue(QUEUE.toString());
-
+      try (Connection connection = factorySend.createConnection()) {
          connection.start();
+         try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+            javax.jms.Queue queue = session.createQueue(QUEUE.toString());
+            try (MessageProducer producer = session.createProducer(queue)) {
+               producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         MessageConsumer consumer = session.createConsumer(queue);
+               TextMessage msg = session.createTextMessage("hello");
+               msg.setIntProperty("mycount", 0);
+               producer.send(msg);
 
-         TextMessage message = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(0, message.getIntProperty("mycount"));
-         Assert.assertEquals("hello", message.getText());
+               msg = session.createTextMessage(bufferLargeContent);
+               msg.setIntProperty("mycount", 1);
+               producer.send(msg);
+            }
+         }
 
-         Wait.waitFor(() -> server.getPagingManager().getGlobalSize() == 0, 5000, 100);
-         Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+      }
+      try (Connection connection = factoryConsume.createConnection()) {
+         connection.start();
+         try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+            javax.jms.Queue queue = session.createQueue(QUEUE.toString());
 
-      } finally {
-         connection.close();
+            try (MessageConsumer consumer = session.createConsumer(queue)) {
+
+               TextMessage message = (TextMessage) consumer.receive(1000);
+               Assert.assertNotNull(message);
+               Assert.assertEquals(0, message.getIntProperty("mycount"));
+               Assert.assertEquals("hello", message.getText());
+
+               message = (TextMessage) consumer.receive(1000);
+               Assert.assertNotNull(message);
+               Assert.assertEquals(1, message.getIntProperty("mycount"));
+               Assert.assertEquals(bufferLargeContent, message.getText());
+
+               Wait.waitFor(() -> server.getPagingManager().getGlobalSize() == 0, 5000, 100);
+               Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+            }
+         }
       }
    }
 
@@ -429,10 +544,16 @@ public class ConsumerTest extends ActiveMQTestBase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          javax.jms.Queue queue = session.createQueue(QUEUE.toString());
          MessageProducer producer = session.createProducer(queue);
-         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+         if (durable) {
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+         } else {
+
+            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+         }
 
          long time = System.currentTimeMillis();
-         int NUMBER_OF_MESSAGES = 100;
+         int NUMBER_OF_MESSAGES = durable ? 5 : 50;
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage msg = session.createTextMessage("hello " + i);
             msg.setIntProperty("mycount", i);
@@ -1038,4 +1159,119 @@ public class ConsumerTest extends ActiveMQTestBase {
       session.close();
    }
 
+   @Test
+   public void testMultipleConsumersOnSharedQueue() throws Throwable {
+      if (!isNetty() || this.durable) {
+         return;
+      }
+      final boolean durable = false;
+      final long TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(1);
+      final int forks = 100;
+      final int queues = forks;
+      final int runs = 1;
+      final int messages = 1;
+      final ConnectionFactory factorySend = createFactory(1);
+      final AtomicLongArray receivedMessages = new AtomicLongArray(forks);
+      final Thread[] producersRunners = new Thread[forks];
+      final Thread[] consumersRunners = new Thread[forks];
+      //parties are forks (1 producer 1 consumer) + 1 controller in the main test thread
+      final CyclicBarrier onStartRun = new CyclicBarrier((forks * 2) + 1);
+      final CyclicBarrier onFinishRun = new CyclicBarrier((forks * 2) + 1);
+
+      final int messagesSent = forks * messages;
+      final AtomicInteger messagesRecieved = new AtomicInteger(0);
+
+      for (int i = 0; i < forks; i++) {
+         final int forkIndex = i;
+         final String queueName = "q_" + (forkIndex % queues);
+         final Thread producerRunner = new Thread(() -> {
+            try (Connection connection = factorySend.createConnection()) {
+               connection.start();
+               try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+                  final javax.jms.Queue queue = session.createQueue(queueName);
+                  try (MessageProducer producer = session.createProducer(queue)) {
+                     producer.setDeliveryMode(durable ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
+                     for (int r = 0; r < runs; r++) {
+                        onStartRun.await();
+                        for (int m = 0; m < messages; m++) {
+                           final BytesMessage bytesMessage = session.createBytesMessage();
+                           bytesMessage.writeInt(forkIndex);
+                           producer.send(bytesMessage);
+                        }
+                        onFinishRun.await();
+                     }
+                  } catch (InterruptedException | BrokenBarrierException e) {
+                     e.printStackTrace();
+                  }
+               }
+            } catch (JMSException e) {
+               e.printStackTrace();
+            }
+         });
+
+         producerRunner.setDaemon(true);
+
+         final Thread consumerRunner = new Thread(() -> {
+            try (Connection connection = factorySend.createConnection()) {
+               connection.start();
+               try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+                  final javax.jms.Queue queue = session.createQueue(queueName);
+                  try (MessageConsumer consumer = session.createConsumer(queue)) {
+                     for (int r = 0; r < runs; r++) {
+                        onStartRun.await();
+                        while (messagesRecieved.get() != messagesSent) {
+                           final BytesMessage receivedMessage = (BytesMessage) consumer.receive(1000);
+                           if (receivedMessage != null) {
+                              final int receivedConsumerIndex = receivedMessage.readInt();
+                              receivedMessages.getAndIncrement(receivedConsumerIndex);
+                              messagesRecieved.incrementAndGet();
+                           }
+                        }
+                        onFinishRun.await();
+                     }
+                  } catch (InterruptedException e) {
+                     e.printStackTrace();
+                  } catch (BrokenBarrierException e) {
+                     e.printStackTrace();
+                  }
+               }
+            } catch (JMSException e) {
+               e.printStackTrace();
+            }
+         });
+         consumerRunner.setDaemon(true);
+         consumersRunners[forkIndex] = consumerRunner;
+         producersRunners[forkIndex] = producerRunner;
+      }
+      Stream.of(consumersRunners).forEach(Thread::start);
+      Stream.of(producersRunners).forEach(Thread::start);
+      final long messagesPerRun = (forks * messages);
+      for (int r = 0; r < runs; r++) {
+         onStartRun.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+         System.out.println("started run " + r);
+         final long start = System.currentTimeMillis();
+         onFinishRun.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+         final long elapsedMillis = System.currentTimeMillis() - start;
+         System.out.println((messagesPerRun * 1000L) / elapsedMillis + " msg/sec");
+      }
+      Stream.of(producersRunners).forEach(runner -> {
+         try {
+            runner.join(TIMEOUT_MILLIS * runs);
+         } catch (InterruptedException e) {
+            e.printStackTrace();
+         }
+      });
+      Stream.of(producersRunners).forEach(Thread::interrupt);
+      Stream.of(consumersRunners).forEach(runner -> {
+         try {
+            runner.join(TIMEOUT_MILLIS * runs);
+         } catch (InterruptedException e) {
+            e.printStackTrace();
+         }
+      });
+      Stream.of(consumersRunners).forEach(Thread::interrupt);
+      for (int i = 0; i < forks; i++) {
+         Assert.assertEquals("The consumer " + i + " must receive all the messages sent.", messages * runs, receivedMessages.get(i));
+      }
+   }
 }

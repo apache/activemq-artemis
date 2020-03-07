@@ -19,7 +19,7 @@
  */
 var ARTEMIS = (function(ARTEMIS) {
 
-    ARTEMIS.QueuesController = function ($scope, $location, workspace, ARTEMISService, jolokia, localStorage, artemisConnection, artemisSession, artemisQueue) {
+    ARTEMIS.QueuesController = function ($scope, $location, workspace, ARTEMISService, jolokia, localStorage, artemisConnection, artemisSession, artemisQueue, artemisAddress) {
 
         var artemisJmxDomain = localStorage['artemisJmxDomain'] || "org.apache.activemq.artemis";
 
@@ -29,7 +29,7 @@ var ARTEMIS = (function(ARTEMIS) {
 
         var objectType = "queue";
         var method = 'listQueues(java.lang.String, int, int)';
-        var attributes = [
+        var defaultAttributes = [
             {
                 field: 'manage',
                 displayName: 'manage',
@@ -44,12 +44,14 @@ var ARTEMIS = (function(ARTEMIS) {
             {
                 field: 'name',
                 displayName: 'Name',
-                width: '*'
+                width: '*',
+                cellTemplate: '<div class="ngCellText" title="{{row.entity.name}}">{{row.entity.name}}</div>'
             },
             {
                 field: 'address',
                 displayName: 'Address',
-                width: '*'
+                width: '*',
+                cellTemplate: '<div class="ngCellText" title="{{row.entity.address}}"><a ng-click="selectAddress(row)">{{row.entity.address}}</a></div>'
             },
             {
                 field: 'routingType',
@@ -59,7 +61,8 @@ var ARTEMIS = (function(ARTEMIS) {
             {
                 field: 'filter',
                 displayName: 'Filter',
-                width: '*'
+                width: '*',
+                cellTemplate: '<div class="ngCellText" title="{{row.entity.filter}}">{{row.entity.filter}}</div>'
             },
             {
                 field: 'durable',
@@ -89,7 +92,8 @@ var ARTEMIS = (function(ARTEMIS) {
             {
                 field: 'messageCount',
                 displayName: 'Message Count',
-                width: '*'
+                width: '*',
+                cellTemplate: '<div class="ngCellText"><a ng-click="navigateToBrowseQueue(row)">{{row.entity.messageCount}}</a></div>'
             },
 
             // Hidden
@@ -148,6 +152,23 @@ var ARTEMIS = (function(ARTEMIS) {
                 visible: false
             }
         ];
+        ARTEMIS.log.debug('sessionStorage: queuesColumnDefs =', sessionStorage.getItem('queuesColumnDefs'));
+        var attributes = defaultAttributes;
+        if (sessionStorage.getItem('queuesColumnDefs')) {
+            attributes = JSON.parse(sessionStorage.getItem('queuesColumnDefs'));
+        }
+        $scope.$on('ngGridEventColumns', function (newColumns) {
+            ARTEMIS.log.debug('ngGridEventColumns:', newColumns);
+            var visibles = newColumns.targetScope.columns.reduce(function (visibles, column) {
+                visibles[column.field] = column.visible;
+                return visibles;
+            }, {});
+            ARTEMIS.log.debug('ngGridEventColumns: visibles =', visibles);
+            attributes.forEach(function (attribute) {
+                attribute.visible = visibles[attribute.field];
+            });
+            sessionStorage.setItem('queuesColumnDefs', JSON.stringify(attributes));
+        });
 
         $scope.filter = {
             fieldOptions: [
@@ -178,7 +199,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "ID"
+                sortBy: "id"
             }
         };
 
@@ -187,6 +208,12 @@ var ARTEMIS = (function(ARTEMIS) {
          *
          *  TODO Refactor into new separate files
          */
+        if (artemisAddress.address) {
+            $scope.filter.values.field = $scope.filter.fieldOptions[3].id;
+            $scope.filter.values.operation = $scope.filter.operationOptions[0].id;
+            $scope.filter.values.value = artemisAddress.address.name;
+            artemisAddress.address = null;
+        }
         if (artemisQueue.queue) {
             $scope.filter.values.field = $scope.filter.fieldOptions[1].id;
             $scope.filter.values.operation = $scope.filter.operationOptions[0].id;
@@ -201,6 +228,13 @@ var ARTEMIS = (function(ARTEMIS) {
         $scope.navigateToQueueOps = function (row) {
             $location.path("jmx/operations").search({"tab": "artemis", "nid": ARTEMIS.getQueueNid(row.entity, $location)});
         };
+        $scope.navigateToBrowseQueue = function (row) {
+            $location.path("artemis/browseQueue").search({"tab": "artemis", "nid": ARTEMIS.getQueueNid(row.entity, $location)});
+        };
+        $scope.selectAddress = function (row) {
+            artemisAddress.address = row.entity;
+            $location.path("artemis/addresses");
+        };
         $scope.workspace = workspace;
         $scope.objects = [];
         $scope.totalServerItems = 0;
@@ -209,10 +243,11 @@ var ARTEMIS = (function(ARTEMIS) {
             pageSize: 100,
             currentPage: 1
         };
-        $scope.sort = {
-            fields: ["ID"],
-            directions: ["asc"]
-        };
+        $scope.sortOptions = {
+                fields: ["id"],
+                columns: ["id"],
+                directions: ["asc"]
+            };
         var refreshed = false;
 
         $scope.gridOptions = {
@@ -250,10 +285,13 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.loadTable();
         };
         $scope.loadTable = function () {
-            $scope.filter.values.sortColumn = $scope.sort.fields[0];
-            $scope.filter.values.sortBy = $scope.sort.directions[0];
+            $scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
+            $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
+            $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
             var mbean = getBrokerMBean(jolokia);
-            if (mbean) {
+            if (mbean.includes("undefined")) {
+                onBadMBean();
+            } else if (mbean) {
                 var filter = JSON.stringify($scope.filter.values);
                 console.log("Filter string: " + filter);
                 jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [filter, $scope.pagingOptions.currentPage, $scope.pagingOptions.pageSize] }, onSuccess(populateTable, { error: onError }));
@@ -261,6 +299,9 @@ var ARTEMIS = (function(ARTEMIS) {
         };
         function onError() {
             Core.notification("error", "Could not retrieve " + objectType + " list from Artemis.");
+        }
+        function onBadMBean() {
+            Core.notification("error", "Could not retrieve " + objectType + " list. Wrong MBean selected.");
         }
         function populateTable(response) {
             var data = JSON.parse(response.value);
@@ -282,6 +323,10 @@ var ARTEMIS = (function(ARTEMIS) {
         }, true);
         $scope.$watch('pagingOptions', function (newVal, oldVal) {
             if (parseInt(newVal.currentPage) && newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
+                $scope.loadTable();
+            }
+            if (parseInt(newVal.pageSize) && newVal !== oldVal && newVal.pageSize !== oldVal.pageSize) {
+                $scope.pagingOptions.currentPage = 1;
                 $scope.loadTable();
             }
         }, true);

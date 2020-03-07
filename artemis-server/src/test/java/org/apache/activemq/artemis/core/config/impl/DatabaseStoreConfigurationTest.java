@@ -19,11 +19,14 @@ package org.apache.activemq.artemis.core.config.impl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.jdbc.store.drivers.oracle.Oracle12CSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
+
+import static org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory.SQLDialect.ORACLE;
 
 public class DatabaseStoreConfigurationTest extends ActiveMQTestBase {
 
@@ -31,7 +34,10 @@ public class DatabaseStoreConfigurationTest extends ActiveMQTestBase {
    public void databaseStoreConfigTest() throws Exception {
       Configuration configuration = createConfiguration("database-store-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      assertEquals(StoreConfiguration.StoreType.DATABASE, server.getConfiguration().getStoreConfiguration().getStoreType());
+      DatabaseStorageConfiguration storeConfiguration = (DatabaseStorageConfiguration) server.getConfiguration().getStoreConfiguration();
+      assertEquals(StoreConfiguration.StoreType.DATABASE, storeConfiguration.getStoreType());
+      assertEquals("sourcepassword", storeConfiguration.getJdbcUser());
+      assertEquals("targetpassword", storeConfiguration.getJdbcPassword());
    }
 
    @Test
@@ -39,7 +45,7 @@ public class DatabaseStoreConfigurationTest extends ActiveMQTestBase {
       for (SQLProvider.DatabaseStoreType storeType : SQLProvider.DatabaseStoreType.values()) {
          Throwable rte = null;
          try {
-            new Oracle12CSQLProvider.Factory().create("_A_TABLE_NAME_THAT_IS_TOO_LONG_", storeType);
+            new PropertySQLProvider.Factory(ORACLE).create("_A_TABLE_NAME_THAT_IS_TOO_LONG_", storeType);
          } catch (Throwable t) {
             rte = t;
          }

@@ -19,6 +19,10 @@ package org.apache.activemq.artemis.core.io;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -40,6 +44,8 @@ public interface SequentialFile {
     * @throws Exception
     */
    void open(int maxIO, boolean useExecutor) throws Exception;
+
+   ByteBuffer map(int position, long size) throws IOException;
 
    boolean fits(int size);
 
@@ -76,6 +82,20 @@ public interface SequentialFile {
     *              {@link SequentialFileFactory#newBuffer(int)}.
     */
    void writeDirect(ByteBuffer bytes, boolean sync) throws Exception;
+
+   /**
+    * Write directly to the file without using any intermediate buffer and wait completion.<br>
+    * If {@code releaseBuffer} is {@code true} the provided {@code bytes} should be released
+    * through {@link SequentialFileFactory#releaseBuffer(ByteBuffer)}, if supported.
+    *
+    * @param bytes         the ByteBuffer must be compatible with the SequentialFile implementation (AIO or
+    *                      NIO). If {@code releaseBuffer} is {@code true} use a buffer from
+    *                      {@link SequentialFileFactory#newBuffer(int)}, {@link SequentialFileFactory#allocateDirectBuffer(int)}
+    *                      otherwise.
+    * @param sync          if {@code true} will durable flush the written data on the file, {@code false} otherwise
+    * @param releaseBuffer if {@code true} will release the buffer, {@code false} otherwise
+    */
+   void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) throws Exception;
 
    /**
     * @param bytes the ByteBuffer must be compatible with the SequentialFile implementation (AIO or
@@ -121,4 +141,24 @@ public interface SequentialFile {
     * Returns a native File of the file underlying this sequential file.
     */
    File getJavaFile();
+
+   static long appendTo(Path src, Path dst) throws IOException {
+      try (FileChannel srcChannel = FileChannel.open(src, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+           FileLock srcLock = srcChannel.lock()) {
+         final long readableBytes = srcChannel.size();
+         if (readableBytes > 0) {
+            try (FileChannel dstChannel = FileChannel.open(dst, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+                 FileLock dstLock = dstChannel.lock()) {
+               final long oldLength = dstChannel.size();
+               final long transferred = dstChannel.transferFrom(srcChannel, oldLength, readableBytes);
+               if (transferred != readableBytes) {
+                  dstChannel.truncate(oldLength);
+                  throw new IOException("copied less then expected");
+               }
+               return transferred;
+            }
+         }
+         return 0;
+      }
+   }
 }

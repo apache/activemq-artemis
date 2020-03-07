@@ -58,12 +58,15 @@ public class Krb5LoginModule implements LoginModule {
       callbacks[0] = new Krb5Callback();
       try {
          callbackHandler.handle(callbacks);
+         Principal principal = ((Krb5Callback)callbacks[0]).getPeerPrincipal();
+         if (principal != null) {
+            principals.add(principal);
+         }
       } catch (IOException ioe) {
          throw new LoginException(ioe.getMessage());
       } catch (UnsupportedCallbackException uce) {
          throw new LoginException(uce.getMessage() + " not available to obtain information from user");
       }
-      principals.add(((Krb5Callback)callbacks[0]).getPeerPrincipal());
       if (!principals.isEmpty()) {
          loginSucceeded = true;
       }

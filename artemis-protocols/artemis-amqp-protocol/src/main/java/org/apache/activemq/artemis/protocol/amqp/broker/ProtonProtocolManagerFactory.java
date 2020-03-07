@@ -41,7 +41,7 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
    @Override
    public Persister<Message>[] getPersister() {
 
-      Persister[] persisters = new Persister[]{AMQPMessagePersister.getInstance(), AMQPMessagePersisterV2.getInstance()};
+      Persister[] persisters = new Persister[]{AMQPMessagePersister.getInstance(), AMQPMessagePersisterV2.getInstance(), AMQPLargeMessagePersister.getInstance()};
       return persisters;
    }
 
@@ -50,6 +50,7 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
                                                 final Map<String, Object> parameters,
                                                 List<BaseInterceptor> incomingInterceptors,
                                                 List<BaseInterceptor> outgoingInterceptors) throws Exception {
+      stripPasswordParameters(parameters);
       return BeanSupport.setData(new ProtonProtocolManager(this, server, incomingInterceptors, outgoingInterceptors), parameters);
    }
 

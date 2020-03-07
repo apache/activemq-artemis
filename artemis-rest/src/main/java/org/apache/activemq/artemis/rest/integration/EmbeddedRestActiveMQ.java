@@ -22,13 +22,13 @@ import org.apache.activemq.artemis.rest.MessageServiceManager;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.jboss.resteasy.test.TestPortProvider;
 
-class EmbeddedRestActiveMQ {
+public class EmbeddedRestActiveMQ {
 
    private TJWSEmbeddedJaxrsServer tjws = new TJWSEmbeddedJaxrsServer();
-   EmbeddedActiveMQ embeddedActiveMQ;
+   private EmbeddedActiveMQ embeddedActiveMQ;
    private MessageServiceManager manager = new MessageServiceManager(null);
 
-   EmbeddedRestActiveMQ(ConnectionFactoryOptions jmsOptions) {
+   public EmbeddedRestActiveMQ(ConnectionFactoryOptions jmsOptions) {
       int port = TestPortProvider.getPort();
       tjws.setPort(port);
       tjws.setRootResourcePath("");
@@ -65,4 +65,11 @@ class EmbeddedRestActiveMQ {
       embeddedActiveMQ.stop();
    }
 
+   public EmbeddedActiveMQ getEmbeddedActiveMQ() {
+      return embeddedActiveMQ;
+   }
+
+   public void setEmbeddedActiveMQ(EmbeddedActiveMQ embeddedActiveMQ) {
+      this.embeddedActiveMQ = embeddedActiveMQ;
+   }
 }

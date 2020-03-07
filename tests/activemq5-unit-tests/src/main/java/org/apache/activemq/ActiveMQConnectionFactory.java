@@ -217,6 +217,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
    }
 
    public ActiveMQConnectionFactory(URI brokerURL) {
+
       setBrokerURL(brokerURL.toString());
    }
 

@@ -41,12 +41,16 @@ public abstract class SingleServerTestBase extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      server = createServer(false, createDefaultInVMConfig());
+      server = createServer();
       server.start();
 
       locator = createLocator();
       sf = createSessionFactory(locator);
       session = addClientSession(sf.createSession(false, true, true));
+   }
+
+   protected ActiveMQServer createServer() throws Exception {
+      return createServer(false, createDefaultInVMConfig());
    }
 
    protected ServerLocator createLocator() {

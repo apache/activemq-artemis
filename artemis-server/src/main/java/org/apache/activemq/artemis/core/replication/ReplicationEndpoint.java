@@ -23,13 +23,16 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -43,8 +46,6 @@ import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.impl.Page;
-import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
-import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager.JournalContent;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageInSync;
@@ -52,6 +53,7 @@ import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationAddMessage;
@@ -126,6 +128,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private Executor executor;
 
+   private List<Interceptor> outgoingInterceptors = null;
+
+
    // Constructors --------------------------------------------------
    public ReplicationEndpoint(final ActiveMQServerImpl server,
                               IOCriticalErrorListener criticalErrorListener,
@@ -150,6 +155,27 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
 
       journals[id] = journal;
+   }
+
+   public void addOutgoingInterceptorForReplication(Interceptor interceptor) {
+      if (outgoingInterceptors == null) {
+         outgoingInterceptors = new CopyOnWriteArrayList<>();
+      }
+      outgoingInterceptors.add(interceptor);
+   }
+
+   /**
+    * This is for tests basically, do not use it as its API is not guaranteed for future usage.
+    */
+   public void pause() {
+      started = false;
+   }
+
+   /**
+    * This is for tests basically, do not use it as its API is not guaranteed for future usage.
+    */
+   public void resume() {
+      started = true;
    }
 
    @Override
@@ -217,10 +243,14 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             logger.trace("Returning " + response);
          }
 
-         channel.send(response);
+         sendResponse(response);
       } else {
          logger.trace("Response is null, ignoring response");
       }
+   }
+
+   protected void sendResponse(PacketImpl response) {
+      channel.send(response);
    }
 
    /**
@@ -262,7 +292,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             journalLoadInformation[jc.typeByte] = journalsHolder.get(jc).loadSyncOnly(JournalState.SYNCING);
          }
 
-         pageManager = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(), config.getJournalBufferSize_NIO(), server.getScheduledPool(), server.getExecutorFactory(), config.isJournalSyncNonTransactional(), criticalErrorListener), server.getAddressSettingsRepository());
+
+         pageManager = server.createPagingManager();
 
          pageManager.start();
 
@@ -291,7 +322,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
 
       for (ReplicatedLargeMessage largeMessage : largeMessages.values()) {
-         largeMessage.releaseResources();
+         largeMessage.releaseResources(true);
       }
       largeMessages.clear();
 
@@ -312,7 +343,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       for (ConcurrentMap<Integer, Page> map : pageIndex.values()) {
          for (Page page : map.values()) {
             try {
-               page.sync();
                page.close(false);
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorClosingPageOnReplication(e);
@@ -335,6 +365,20 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    public void setChannel(final Channel channel) {
       this.channel = channel;
+
+      if (this.channel != null && outgoingInterceptors != null) {
+         if (channel.getConnection() instanceof RemotingConnectionImpl)  {
+            try {
+               RemotingConnectionImpl impl = (RemotingConnectionImpl) channel.getConnection();
+               for (Interceptor interceptor : outgoingInterceptors) {
+                  impl.getOutgoingInterceptors().add(interceptor);
+               }
+            } catch (Throwable e) {
+               // This is code for embedded or testing, it should not affect server's semantics in case of error
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      }
    }
 
    private synchronized void finishSynchronization(String liveID) throws Exception {
@@ -446,6 +490,10 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
 
       if (data == null) {
+         // this means close file
+         if (channel1.isOpen()) {
+            channel1.close();
+         }
          return;
       }
 
@@ -494,11 +542,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             final JournalContent journalContent = SyncDataType.getJournalContentType(packet.getDataType());
             final Journal journal = journalsHolder.get(journalContent);
 
-            if (packet.getNodeID() != null) {
-               // At the start of replication, we still do not know which is the nodeID that the live uses.
-               // This is the point where the backup gets this information.
-               backupQuorum.liveIDSet(packet.getNodeID());
-            }
             Map<Long, JournalSyncFile> mapToFill = filesReservedForSync.get(journalContent);
 
             for (Entry<Long, JournalFile> entry : journal.createFilesForBackupSync(packet.getFileIds()).entrySet()) {
@@ -506,6 +549,18 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             }
             FileWrapperJournal syncJournal = new FileWrapperJournal(journal);
             registerJournal(journalContent.typeByte, syncJournal);
+
+            // We send a response now, to avoid a situation where we handle votes during the deactivation of the live during a failback.
+            sendResponse(replicationResponseMessage);
+            replicationResponseMessage = null;
+
+            // This needs to be done after the response is sent, to avoid voting shutting it down for any reason.
+            if (packet.getNodeID() != null) {
+               // At the start of replication, we still do not know which is the nodeID that the live uses.
+               // This is the point where the backup gets this information.
+               backupQuorum.liveIDSet(packet.getNodeID());
+            }
+
             break;
          default:
             throw ActiveMQMessageBundle.BUNDLE.replicationUnhandledDataType();
@@ -673,7 +728,12 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       Page page = pages.remove(packet.getPageNumber());
 
       if (page == null) {
-         page = getPage(packet.getStoreName(), packet.getPageNumber());
+         // if page is null, we create it the instance and include it on the map
+         // then we must recurse this call
+         // so page.delete or page.close will not leave any closed objects on the hashmap
+         getPage(packet.getStoreName(), packet.getPageNumber());
+         handlePageEvent(packet);
+         return;
       }
 
       if (page != null) {

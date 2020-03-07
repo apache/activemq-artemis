@@ -23,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -39,10 +41,10 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
+import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
@@ -240,6 +242,16 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void deleteLargeMessageBody(LargeServerMessage largeServerMessage) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void addBytesToLargeMessage(SequentialFile file, long messageId, ActiveMQBuffer bytes) throws Exception {
+
+      }
+
+      @Override
       public void pageClosed(SimpleString storeName, int pageNumber) {
 
       }
@@ -250,7 +262,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storeQueueStatus(long queueID, QueueStatus status) throws Exception {
+      public long storeQueueStatus(long queueID, AddressQueueStatus status) throws Exception {
          return 0;
       }
 
@@ -287,6 +299,11 @@ public class TransactionImplTest extends ActiveMQTestBase {
       @Override
       public void beforePageRead() throws Exception {
 
+      }
+
+      @Override
+      public boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException {
+         return true;
       }
 
       @Override
@@ -587,12 +604,12 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storePageCounter(long txID, long queueID, long value) throws Exception {
+      public long storePageCounter(long txID, long queueID, long value, long size) throws Exception {
          return 0;
       }
 
       @Override
-      public long storePendingCounter(long queueID, long pageID, int inc) throws Exception {
+      public long storePendingCounter(long queueID, long pageID) throws Exception {
          return 0;
       }
 
@@ -612,12 +629,12 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public long storePageCounterInc(long txID, long queueID, int add) throws Exception {
+      public long storePageCounterInc(long txID, long queueID, int add, long size) throws Exception {
          return 0;
       }
 
       @Override
-      public long storePageCounterInc(long queueID, int add) throws Exception {
+      public long storePageCounterInc(long queueID, int add, long size) throws Exception {
          return 0;
       }
 
@@ -706,6 +723,16 @@ public class TransactionImplTest extends ActiveMQTestBase {
       @Override
       public long getCurrentID() {
          return 0;
+      }
+
+      @Override
+      public long storeAddressStatus(long addressID, AddressQueueStatus status) throws Exception {
+         return 0;
+      }
+
+      @Override
+      public void deleteAddressStatus(long recordID) throws Exception {
+
       }
    }
 }

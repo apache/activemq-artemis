@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 
-public class DiscoveryClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase {
+public class DiscoveryClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTest {
 
    protected final String groupAddress = getUDPDiscoveryAddress();
 

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.config.impl;
 import java.util.EnumSet;
 
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -76,6 +76,16 @@ public final class Validators {
       }
    };
 
+   public static final Validator PERCENTAGE_OR_MINUS_ONE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         Number val = (Number) value;
+         if (val == null || ((val.intValue() < 0 || val.intValue() > 100) && val.intValue() != -1)) {
+            throw ActiveMQMessageBundle.BUNDLE.notPercentOrMinusOne(name, val);
+         }
+      }
+   };
+
    public static final Validator GE_ZERO = new Validator() {
       @Override
       public void validate(final String name, final Object value) {
@@ -84,6 +94,18 @@ public final class Validators {
             // OK
          } else {
             throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(name, val);
+         }
+      }
+   };
+
+   public static final Validator LE_ONE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         Number val = (Number) value;
+         if (val.doubleValue() <= 1) {
+            // OK
+         } else {
+            throw ActiveMQMessageBundle.BUNDLE.lessThanOrEqualToOne(name, val);
          }
       }
    };
@@ -108,6 +130,30 @@ public final class Validators {
             // OK
          } else {
             throw ActiveMQMessageBundle.BUNDLE.greaterThanZeroOrMinusOne(name, val);
+         }
+      }
+   };
+
+   public static final Validator POSITIVE_INT = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         Number val = (Number) value;
+         if (val.longValue() > 0 && val.longValue() <= Integer.MAX_VALUE) {
+            // OK
+         } else {
+            throw ActiveMQMessageBundle.BUNDLE.inRangeOfPositiveInt(name, val);
+         }
+      }
+   };
+
+   public static final Validator MINUS_ONE_OR_POSITIVE_INT = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         Number val = (Number) value;
+         if (val.longValue() == -1 || (val.longValue() > 0 && val.longValue() <= Integer.MAX_VALUE)) {
+            // OK
+         } else {
+            throw ActiveMQMessageBundle.BUNDLE.inRangeOfPositiveIntThanMinusOne(name, val);
          }
       }
    };
@@ -190,14 +236,14 @@ public final class Validators {
       }
    };
 
-   public static final Validator DIVERT_ROUTING_TYPE = new Validator() {
+   public static final Validator COMPONENT_ROUTING_TYPE = new Validator() {
       @Override
       public void validate(final String name, final Object value) {
          String val = (String) value;
-         if (val == null || !val.equals(DivertConfigurationRoutingType.ANYCAST.toString()) &&
-            !val.equals(DivertConfigurationRoutingType.MULTICAST.toString()) &&
-            !val.equals(DivertConfigurationRoutingType.PASS.toString()) &&
-            !val.equals(DivertConfigurationRoutingType.STRIP.toString())) {
+         if (val == null || !val.equals(ComponentConfigurationRoutingType.ANYCAST.toString()) &&
+            !val.equals(ComponentConfigurationRoutingType.MULTICAST.toString()) &&
+            !val.equals(ComponentConfigurationRoutingType.PASS.toString()) &&
+            !val.equals(ComponentConfigurationRoutingType.STRIP.toString())) {
             throw ActiveMQMessageBundle.BUNDLE.invalidRoutingType(val);
          }
       }

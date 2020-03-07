@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
@@ -50,6 +51,7 @@ public class AcceptorControlTest extends ManagementTestBase {
    @Test
    public void testAttributes() throws Exception {
       TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<String, Object>(), RandomUtil.randomString());
+      acceptorConfig.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "password");
 
       Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig);
       ActiveMQServer service = createServer(false, config);
@@ -60,6 +62,8 @@ public class AcceptorControlTest extends ManagementTestBase {
 
       Assert.assertEquals(acceptorConfig.getName(), acceptorControl.getName());
       Assert.assertEquals(acceptorConfig.getFactoryClassName(), acceptorControl.getFactoryClassName());
+      Assert.assertNotEquals(acceptorConfig.getParams().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME), acceptorControl.getParameters().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
+      Assert.assertEquals("****", acceptorControl.getParameters().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
    }
 
    @Test
@@ -131,17 +135,31 @@ public class AcceptorControlTest extends ManagementTestBase {
 
       acceptorControl.stop();
 
-      Assert.assertEquals(usingCore() ? 5 : 1, notifListener.getNotifications().size());
-      Notification notif = notifListener.getNotifications().get(usingCore() ? 2 : 0);
+      Assert.assertEquals(usingCore() ? 7 : 1, notifListener.getNotifications().size());
+
+      int i = findNotification(notifListener, CoreNotificationType.ACCEPTOR_STOPPED);
+
+      Notification notif = notifListener.getNotifications().get(i);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STOPPED, notif.getType());
       Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
 
       acceptorControl.start();
 
-      Assert.assertEquals(usingCore() ? 10 : 2, notifListener.getNotifications().size());
-      notif = notifListener.getNotifications().get(usingCore() ? 7 : 1);
+      i = findNotification(notifListener, CoreNotificationType.ACCEPTOR_STARTED);
+      notif = notifListener.getNotifications().get(i);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STARTED, notif.getType());
       Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+   }
+
+   private int findNotification(SimpleNotificationService.Listener notifListener, CoreNotificationType type) {
+      int i = 0;
+      for (i = 0; i < notifListener.getNotifications().size(); i++) {
+         if (notifListener.getNotifications().get(i).getType().equals(type)) {
+            break;
+         }
+      }
+      Assert.assertTrue(i < notifListener.getNotifications().size());
+      return i;
    }
 
    // Package protected ---------------------------------------------

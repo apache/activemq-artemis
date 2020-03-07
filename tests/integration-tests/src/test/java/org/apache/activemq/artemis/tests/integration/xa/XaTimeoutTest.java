@@ -646,7 +646,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       }
       server.getRemotingService().addIncomingInterceptor(new SomeInterceptor());
 
-      ServerLocator locatorTimeout = createInVMNonHALocator().setCallTimeout(300);
+      ServerLocator locatorTimeout = createInVMNonHALocator().setCallTimeout(300).setReconnectAttempts(-1);
       ClientSessionFactory factoryTimeout = locatorTimeout.createSessionFactory();
 
       final ClientSession sessionTimeout = factoryTimeout.createSession(true, false, false);

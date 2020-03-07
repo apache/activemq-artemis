@@ -18,11 +18,13 @@ package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 public class AcceptorControlImpl extends AbstractControl implements AcceptorControl {
@@ -51,6 +53,9 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public String getFactoryClassName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getFactoryClassName(this.acceptor);
+      }
       clearIO();
       try {
          return configuration.getFactoryClassName();
@@ -61,6 +66,9 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public String getName() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getName(this.acceptor);
+      }
       clearIO();
       try {
          return configuration.getName();
@@ -71,9 +79,18 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public Map<String, Object> getParameters() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getParameters(this.acceptor);
+      }
       clearIO();
       try {
-         return configuration.getParams();
+         Map<String, Object> clone = new HashMap(configuration.getParams());
+         for (Map.Entry<String, Object> entry : clone.entrySet()) {
+            if (entry.getKey().toLowerCase().contains("password")) {
+               entry.setValue("****");
+            }
+         }
+         return clone;
       } finally {
          blockOnIO();
       }
@@ -81,6 +98,9 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public void reload() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.reload(this.acceptor);
+      }
       clearIO();
       try {
          acceptor.reload();
@@ -91,6 +111,9 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public boolean isStarted() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isStarted(this.acceptor);
+      }
       clearIO();
       try {
          return acceptor.isStarted();
@@ -101,6 +124,9 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public void start() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.startAcceptor(this.acceptor);
+      }
       clearIO();
       try {
          acceptor.start();
@@ -111,6 +137,9 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public void stop() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.stopAcceptor(this.acceptor);
+      }
       clearIO();
       try {
          acceptor.stop();

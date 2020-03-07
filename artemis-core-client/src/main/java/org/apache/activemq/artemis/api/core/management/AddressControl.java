@@ -23,6 +23,8 @@ import java.util.Map;
  * An AddressControl is used to manage an address.
  */
 public interface AddressControl {
+   String ROUTED_MESSAGE_COUNT_DESCRIPTION = "number of messages routed to one or more bindings";
+   String UNROUTED_MESSAGE_COUNT_DESCRIPTION = "number of messages not routed to any bindings";
 
    /**
     * Returns the managed address.
@@ -101,8 +103,20 @@ public interface AddressControl {
    @Attribute(desc = "names of all bindings (both queues and diverts) bound to this address")
    String[] getBindingNames() throws Exception;
 
-   @Attribute(desc = "number of messages added to all the queues for this address")
+   @Attribute(desc = "number of messages currently in all queues bound to this address (includes scheduled, paged, and in-delivery messages)")
    long getMessageCount();
+
+   /**
+    * Returns the number of messages routed to one or more bindings
+    */
+   @Attribute(desc = ROUTED_MESSAGE_COUNT_DESCRIPTION)
+   long getRoutedMessageCount();
+
+   /**
+    * Returns the number of messages not routed to any bindings
+    */
+   @Attribute(desc = UNROUTED_MESSAGE_COUNT_DESCRIPTION)
+   long getUnRoutedMessageCount();
 
 
    /**
@@ -121,4 +135,34 @@ public interface AddressControl {
                       @Parameter(name = "durable", desc = "Whether the message is durable") boolean durable,
                       @Parameter(name = "user", desc = "The user to authenticate with") String user,
                       @Parameter(name = "password", desc = "The users password to authenticate with") String password) throws Exception;
+
+   /**
+    * Pauses all the queues bound to this address.Messages are no longer delivered to all its bounded queues.
+    * Newly added queue will be paused too until resume is called.
+    * @throws java.lang.Exception
+    */
+   @Operation(desc = "Pauses the queues bound to this address", impact = MBeanOperationInfo.ACTION)
+   void pause() throws Exception;
+
+   /**
+    * Pauses all the queues bound to this address.Messages are no longer delivered to all its bounded queues.Newly added queue will be paused too until resume is called.
+    * @param persist if true, the pause state will be persisted.
+    * @throws java.lang.Exception
+    */
+   @Operation(desc = "Pauses the queues bound to this address", impact = MBeanOperationInfo.ACTION)
+   void pause(@Parameter(name = "persist", desc = "if true, the pause state will be persisted.") boolean persist) throws Exception;
+
+   /**
+    * Resume all the queues bound of this address.Messages are delivered again to all its bounded queues.
+    * @throws java.lang.Exception
+    */
+   @Operation(desc = "Resumes the queues bound to this address", impact = MBeanOperationInfo.ACTION)
+   void resume() throws Exception;
+
+   @Attribute(desc = "indicates if the queues bound to this address are paused")
+   boolean isPaused();
+
+   @Attribute(desc = "whether this address is used for a retroactive address")
+   boolean isRetroactiveResource();
+
 }

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Message;
@@ -31,15 +32,18 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -57,7 +61,6 @@ import org.jboss.logging.Logger;
  * Such as such adding extra properties and setting up notifications between the nodes.
  */
 public class ClusterConnectionBridge extends BridgeImpl {
-
    private static final Logger logger = Logger.getLogger(ClusterConnectionBridge.class);
 
    private final ClusterConnection clusterConnection;
@@ -79,6 +82,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
    private final ServerLocatorInternal discoveryLocator;
 
    private final String storeAndForwardPrefix;
+   private TopologyMemberImpl member;
 
    public ClusterConnectionBridge(final ClusterConnection clusterConnection,
                                   final ClusterManager clusterManager,
@@ -109,7 +113,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                   final TransportConfiguration connector,
                                   final String storeAndForwardPrefix) {
       super(targetLocator, initialConnectAttempts, reconnectAttempts, 0, // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
-            retryInterval, retryMultiplier, maxRetryInterval, nodeUUID, name, queue, executor, filterString, forwardingAddress, scheduledExecutor, transformer, useDuplicateDetection, user, password, server);
+            retryInterval, retryMultiplier, maxRetryInterval, nodeUUID, name, queue, executor, filterString, forwardingAddress, scheduledExecutor, transformer, useDuplicateDetection, user, password, server, ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType()));
 
       this.discoveryLocator = discoveryLocator;
 
@@ -125,9 +129,6 @@ public class ClusterConnectionBridge extends BridgeImpl {
       this.managementNotificationAddress = managementNotificationAddress;
       this.flowRecord = flowRecord;
 
-      // we need to disable DLQ check on the clustered bridges
-      queue.setInternalQueue(true);
-
       if (logger.isTraceEnabled()) {
          logger.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator, new Exception("trace"));
       }
@@ -139,6 +140,13 @@ public class ClusterConnectionBridge extends BridgeImpl {
    protected ClientSessionFactoryInternal createSessionFactory() throws Exception {
       serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator));
       ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) serverLocator.createSessionFactory(targetNodeID);
+      //if it is null then its possible the broker was removed after a disconnect so lets try the original connectors
+      if (factory == null) {
+         factory = reconnectOnOriginalNode();
+         if (factory == null) {
+            return null;
+         }
+      }
       setSessionFactory(factory);
 
       if (factory == null) {
@@ -150,7 +158,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    @Override
-   protected Message beforeForward(final Message message) {
+   protected Message beforeForward(final Message message, final SimpleString forwardingAddress) {
       // We make a copy of the message, then we strip out the unwanted routing id headers and leave
       // only
       // the one pertinent for the address node - this is important since different queues on different
@@ -182,22 +190,22 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
       messageCopy.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, queueIds);
 
-      messageCopy = super.beforeForward(messageCopy);
+      messageCopy = super.beforeForwardingNoCopy(messageCopy, forwardingAddress);
 
       return messageCopy;
    }
 
    private void setupNotificationConsumer() throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
-                         " and " +
-                         flowRecord.getBridge().getForwardingConnection() +
-                         " clusterConnection = " +
-                         this.clusterConnection.getName() +
-                         " on server " +
-                         clusterConnection.getServer());
-      }
       if (flowRecord != null) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
+                            " and " +
+                            flowRecord.getBridge().getForwardingConnection() +
+                            " clusterConnection = " +
+                            this.clusterConnection.getName() +
+                            " on server " +
+                            clusterConnection.getServer());
+         }
          flowRecord.reset();
 
          if (notifConsumer != null) {
@@ -225,6 +233,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    " AND " +
                                                    ManagementHelper.HDR_NOTIFICATION_TYPE +
                                                    " IN ('" +
+                                                   CoreNotificationType.SESSION_CREATED +
+                                                   "','" +
                                                    CoreNotificationType.BINDING_ADDED +
                                                    "','" +
                                                    CoreNotificationType.BINDING_REMOVED +
@@ -244,6 +254,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    flowRecord.getMaxHops() +
                                                    " AND (" +
                                                    createSelectorFromAddress(appendIgnoresToFilter(flowRecord.getAddress())) +
+                                                   ") AND (" +
+                                                   createPermissiveManagementNotificationToFilter() +
                                                    ")");
 
          sessionConsumer.createTemporaryQueue(managementNotificationAddress, notifQueueName, filter);
@@ -343,9 +355,33 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
       filterString += "!" + storeAndForwardPrefix;
       filterString += ",!" + managementAddress;
-      filterString += ",!" + managementNotificationAddress;
       return filterString;
    }
+
+   /**
+    * Create a filter rule,in addition to SESSION_CREATED notifications, all other notifications using managementNotificationAddress
+    * as the routing address will be filtered.
+    * @return
+    */
+   private String createPermissiveManagementNotificationToFilter() {
+      StringBuilder filterBuilder = new StringBuilder(ManagementHelper.HDR_NOTIFICATION_TYPE).append(" = '")
+              .append(CoreNotificationType.SESSION_CREATED).append("' OR (").append(ManagementHelper.HDR_ADDRESS)
+              .append(" NOT LIKE '").append(managementNotificationAddress).append("%')");
+      return filterBuilder.toString();
+   }
+
+   @Override
+   protected void nodeUP(TopologyMember member, boolean last) {
+      if (member != null && targetNodeID != null && !this.targetNodeID.equals(member.getNodeId())) {
+         //A ClusterConnectionBridge (identified by holding an internal queue)
+         //never re-connects to another node here. It only connects to its original
+         //target node (from the ClusterConnection) or its backups. That's why
+         //we put a return here.
+         return;
+      }
+      super.nodeUP(member, last);
+   }
+
 
    @Override
    protected void afterConnect() throws Exception {
@@ -361,20 +397,25 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    @Override
-   protected void fail(final boolean permanently) {
+   protected void fail(final boolean permanently, final boolean scaleDown) {
       logger.debug("Cluster Bridge " + this.getName() + " failed, permanently=" + permanently);
-      super.fail(permanently);
+      super.fail(permanently, scaleDown);
 
       if (permanently) {
          logger.debug("cluster node for bridge " + this.getName() + " is permanently down");
          clusterConnection.removeRecord(targetNodeID);
+
+         if (scaleDown) {
+            try {
+               queue.deleteQueue(true);
+               queue.removeAddress();
+
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
       } else {
          clusterConnection.disconnectRecord(targetNodeID);
       }
-   }
-
-   @Override
-   protected boolean isPlainCoreBridge() {
-      return false;
    }
 }

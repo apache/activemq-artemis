@@ -60,7 +60,7 @@ public class ManagementFactory {
       return createJmxAclConfiguration(new URI(configuration), artemisHome, artemisInstance, artemisURIInstance);
    }
 
-   public static ManagementContext create(ManagementContextDTO config) {
+   public static ManagementContext create(ManagementContextDTO config) throws Exception {
       ManagementContext context = new ManagementContext();
 
       if (config.getAuthorisation() != null) {
@@ -95,6 +95,9 @@ public class ManagementFactory {
          jmxConnectorConfiguration.setConnectorPort(jmxConnector.getConnectorPort());
          if (jmxConnector.getConnectorHost() != null) {
             jmxConnectorConfiguration.setConnectorHost(jmxConnector.getConnectorHost());
+         }
+         if (jmxConnector.getRmiRegistryPort() != null) {
+            jmxConnectorConfiguration.setRmiRegistryPort(jmxConnector.getRmiRegistryPort());
          }
          if (jmxConnector.getJmxRealm() != null) {
             jmxConnectorConfiguration.setJmxRealm(jmxConnector.getJmxRealm());

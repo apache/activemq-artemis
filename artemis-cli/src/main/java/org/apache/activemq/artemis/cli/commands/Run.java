@@ -22,6 +22,7 @@ import java.util.TimerTask;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
@@ -65,34 +66,40 @@ public class Run extends LockAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      ManagementContextDTO managementDTO = getManagementDTO();
-      managementContext = ManagementFactory.create(managementDTO);
+      try {
+         ManagementContextDTO managementDTO = getManagementDTO();
+         managementContext = ManagementFactory.create(managementDTO);
 
-      Artemis.printBanner();
+         Artemis.printBanner();
 
-      BrokerDTO broker = getBrokerDTO();
+         BrokerDTO broker = getBrokerDTO();
 
-      addShutdownHook(broker.server.getConfigurationFile().getParentFile());
+         addShutdownHook(broker.server.getConfigurationFile().getParentFile());
 
-      ActiveMQSecurityManager security = SecurityManagerFactory.create(broker.security);
+         ActiveMQSecurityManager security = SecurityManagerFactory.create(broker.security);
 
-      server = BrokerFactory.createServer(broker.server, security);
+         server = BrokerFactory.createServer(broker.server, security);
 
-      managementContext.start();
-      server.start();
+         managementContext.start();
+         server.start();
+         server.getServer().addExternalComponent(managementContext);
 
-      if (broker.web != null) {
-         broker.components.add(broker.web);
+         if (broker.web != null) {
+            broker.components.add(broker.web);
+         }
+
+         for (ComponentDTO componentDTO : broker.components) {
+            Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
+            ExternalComponent component = (ExternalComponent) clazz.newInstance();
+            component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
+            component.start();
+            server.getServer().addExternalComponent(component);
+         }
+      } catch (Throwable t) {
+         t.printStackTrace();
+         stop();
       }
-
-      for (ComponentDTO componentDTO : broker.components) {
-         Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
-         ExternalComponent component = (ExternalComponent) clazz.newInstance();
-         component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
-         component.start();
-         server.getServer().addExternalComponent(component);
-      }
-      return null;
+      return new Pair<>(managementContext, server.getServer());
    }
 
    /**
@@ -155,7 +162,9 @@ public class Run extends LockAbstract {
 
    protected void stop() {
       try {
-         server.stop(true);
+         if (server != null) {
+            server.stop(true);
+         }
          if (managementContext != null) {
             managementContext.stop();
          }

@@ -24,11 +24,14 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.qpid.proton.engine.Delivery;
-
 
 /**
  * AMQP Protocol has different TX Rollback behaviour for Acks depending on whether an AMQP delivery has been settled
@@ -46,13 +49,27 @@ public class ProtonTransactionImpl extends TransactionImpl {
 
    private boolean discharged;
 
-   public ProtonTransactionImpl(final Xid xid, final StorageManager storageManager, final int timeoutSeconds) {
-      super(xid, storageManager, timeoutSeconds);
+   public ProtonTransactionImpl(final Xid xid, final StorageManager storageManager, final int timeoutSeconds, final AMQPConnectionContext connection) {
+      super(xid, storageManager, timeoutSeconds, true);
+      addOperation(new TransactionOperationAbstract() {
+         @Override
+         public void afterCommit(Transaction tx) {
+            super.afterCommit(tx);
+            connection.runNow(() -> {
+               // Settle all unsettled deliveries if commit is successful
+               for (Pair<Delivery, ProtonServerSenderContext> p : deliveries.values()) {
+                  if (!p.getA().isSettled())
+                     p.getB().settle(p.getA());
+               }
+               connection.flush();
+            });
+         }
+      });
    }
 
    @Override
-   public RefsOperation createRefsOperation(Queue queue) {
-      return new ProtonTransactionRefsOperation(queue, storageManager);
+   public RefsOperation createRefsOperation(Queue queue, AckReason reason) {
+      return new ProtonTransactionRefsOperation(queue, reason, storageManager);
    }
 
    @Override
@@ -71,11 +88,6 @@ public class ProtonTransactionImpl extends TransactionImpl {
    @Override
    public void commit() throws Exception {
       super.commit();
-
-      // Settle all unsettled deliveries if commit is successful
-      for (Pair<Delivery, ProtonServerSenderContext> p : deliveries.values()) {
-         if (!p.getA().isSettled()) p.getB().settle(p.getA());
-      }
    }
 
    public boolean isDischarged() {

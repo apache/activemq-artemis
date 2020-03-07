@@ -58,7 +58,7 @@ public class ActiveMQJMSContext implements JMSContext {
    private volatile Message lastMessagesWaitingAck;
 
    private final ActiveMQConnectionForContext connection;
-   private Session session;
+   private volatile Session session;
    private boolean autoStart = ActiveMQJMSContext.DEFAULT_AUTO_START;
    private MessageProducer innerProducer;
    private boolean xa;
@@ -91,6 +91,7 @@ public class ActiveMQJMSContext implements JMSContext {
    }
 
    public Session getSession() {
+      checkSession();
       return session;
    }
 

@@ -93,6 +93,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       commonSettings.setExpiryAddress(dla);
       commonSettings.setAutoCreateQueues(true);
       commonSettings.setAutoCreateAddresses(true);
+      commonSettings.setAutoDeleteQueuesDelay(10_0000);
 
       if (bservice.extraConnectors.size() == 0) {
          serverConfig.addAcceptorConfiguration("home", "tcp://localhost:61616");

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.config;
 import java.io.Serializable;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 public class DivertConfiguration implements Serializable {
@@ -40,7 +40,7 @@ public class DivertConfiguration implements Serializable {
 
    private TransformerConfiguration transformerConfiguration = null;
 
-   private DivertConfigurationRoutingType routingType = DivertConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
+   private ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
 
    public DivertConfiguration() {
    }
@@ -73,7 +73,7 @@ public class DivertConfiguration implements Serializable {
       return transformerConfiguration;
    }
 
-   public DivertConfigurationRoutingType getRoutingType() {
+   public ComponentConfigurationRoutingType getRoutingType() {
       return routingType;
    }
 
@@ -140,7 +140,7 @@ public class DivertConfiguration implements Serializable {
    /**
     * @param routingType the routingType to set
     */
-   public DivertConfiguration setRoutingType(final DivertConfigurationRoutingType routingType) {
+   public DivertConfiguration setRoutingType(final ComponentConfigurationRoutingType routingType) {
       this.routingType = routingType;
       return this;
    }

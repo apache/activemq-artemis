@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.ha.BackupPolicy;
@@ -62,6 +64,7 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,7 +114,9 @@ public class FailoverTest extends FailoverTestBase {
    public void testTimeoutOnFailover() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 500;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 500L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
@@ -174,13 +179,15 @@ public class FailoverTest extends FailoverTestBase {
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test(timeout = 120000)
    public void testTimeoutOnFailoverConsume() throws Exception {
-      locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(100).setAckBatchSize(0);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setRetryInterval(10).setAckBatchSize(0);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
-      final ClientSession session = createSession(sf1, true, true);
+      final ClientSession session = createSession(sf1, true, false);
 
       session.createQueue(FailoverTestBase.ADDRESS, RoutingType.MULTICAST, FailoverTestBase.ADDRESS, null, true);
 
@@ -204,13 +211,21 @@ public class FailoverTest extends FailoverTestBase {
 
          @Override
          public void onMessage(ClientMessage message) {
+
+            System.out.println("Received " + message);
             Integer counter = message.getIntProperty("counter");
             received.put(counter, message);
             try {
                log.debug("acking message = id = " + message.getMessageID() + ", counter = " +
                             message.getIntProperty("counter"));
                message.acknowledge();
+               session.commit();
             } catch (ActiveMQException e) {
+               try {
+                  session.rollback();
+               } catch (Exception e2) {
+                  e.printStackTrace();
+               }
                e.printStackTrace();
                return;
             }
@@ -218,7 +233,7 @@ public class FailoverTest extends FailoverTestBase {
             if (counter.equals(10)) {
                latch.countDown();
             }
-            if (received.size() == 500) {
+            if (received.size() == 100) {
                endLatch.countDown();
             }
          }
@@ -227,17 +242,18 @@ public class FailoverTest extends FailoverTestBase {
       latch.await(10, TimeUnit.SECONDS);
       log.info("crashing session");
       crash(session);
-      endLatch.await(60, TimeUnit.SECONDS);
-      Assert.assertTrue("received only " + received.size(), received.size() == 500);
+      Assert.assertTrue(endLatch.await(60, TimeUnit.SECONDS));
 
       session.close();
    }
 
    @Test(timeout = 120000)
    public void testTimeoutOnFailoverConsumeBlocked() throws Exception {
-      locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setConsumerWindowSize(0).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setAckBatchSize(0);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setConsumerWindowSize(0).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setAckBatchSize(0);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
@@ -328,9 +344,11 @@ public class FailoverTest extends FailoverTestBase {
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test(timeout = 120000)
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
-      locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
@@ -397,11 +415,12 @@ public class FailoverTest extends FailoverTestBase {
    public void testTimeoutOnFailoverTransactionCommitTimeoutCommunication() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(500);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 6000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
       final ClientSession session = createSession(sf1, false, false, false);
-
 
       session.createQueue(FailoverTestBase.ADDRESS, RoutingType.MULTICAST, FailoverTestBase.ADDRESS, null, true);
 
@@ -454,7 +473,7 @@ public class FailoverTest extends FailoverTestBase {
          expected.printStackTrace();
       }
 
-      Thread.sleep(2000);
+      Thread.sleep(1000);
 
       m = null;
       for (int i = 0; i < 500; i++) {
@@ -474,7 +493,9 @@ public class FailoverTest extends FailoverTestBase {
    public void testTimeoutOnFailoverTransactionRollback() throws Exception {
       locator.setCallTimeout(2000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 1000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
@@ -513,7 +534,7 @@ public class FailoverTest extends FailoverTestBase {
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
       session.start();
 
-      ClientMessage m = consumer.receive(1000);
+      ClientMessage m = consumer.receiveImmediate();
       Assert.assertNull(m);
 
    }
@@ -599,6 +620,148 @@ public class FailoverTest extends FailoverTestBase {
       Assert.assertEquals(0, sf.numConnections());
    }
 
+   @Test(timeout = 60000)
+   public void testFailBothRestartLive() throws Exception {
+      ServerLocator locator = getServerLocator();
+
+      locator.setReconnectAttempts(-1).setRetryInterval(10);
+
+      sf = (ClientSessionFactoryInternal)locator.createSessionFactory();
+
+      ClientSession session = createSession(sf, true, true);
+
+      session.createQueue(FailoverTestBase.ADDRESS, RoutingType.MULTICAST, FailoverTestBase.ADDRESS, null, true);
+
+      ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+
+      sendMessagesSomeDurable(session, producer);
+
+      crash(session);
+
+      ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
+
+      session.start();
+
+      receiveDurableMessages(consumer);
+
+      backupServer.getServer().fail(true);
+
+      liveServer.start();
+
+      consumer.close();
+
+      producer.close();
+
+      producer = session.createProducer(FailoverTestBase.ADDRESS);
+
+      sendMessagesSomeDurable(session, producer);
+
+      sf.close();
+      Assert.assertEquals(0, sf.numSessions());
+      Assert.assertEquals(0, sf.numConnections());
+   }
+
+   @Test(timeout = 10000)
+   public void testFailLiveTooSoon() throws Exception {
+      ServerLocator locator = getServerLocator();
+
+      locator.setReconnectAttempts(-1);
+      locator.setRetryInterval(10);
+
+      sf = (ClientSessionFactoryInternal)locator.createSessionFactory();
+
+      waitForBackupConfig(sf);
+
+      TransportConfiguration initialLive = getFieldFromSF(sf, "currentConnectorConfig");
+      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConfig");
+
+      System.out.println("initlive: " + initialLive);
+      System.out.println("initback: " + initialBackup);
+
+      TransportConfiguration last = getFieldFromSF(sf, "connectorConfig");
+      TransportConfiguration current = getFieldFromSF(sf, "currentConnectorConfig");
+
+      System.out.println("now last: " + last);
+      System.out.println("now current: " + current);
+      assertTrue(current.equals(initialLive));
+
+      ClientSession session = createSession(sf, true, true);
+
+      session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, true);
+
+      //crash 1
+      crash();
+
+      //make sure failover is ok
+      createSession(sf, true, true).close();
+
+      last = getFieldFromSF(sf, "connectorConfig");
+      current = getFieldFromSF(sf, "currentConnectorConfig");
+
+      System.out.println("now after live crashed last: " + last);
+      System.out.println("now current: " + current);
+
+      assertTrue(current.equals(initialBackup));
+
+      //fail back
+      beforeRestart(liveServer);
+      adaptLiveConfigForReplicatedFailBack(liveServer);
+      liveServer.getServer().start();
+
+      Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
+      Wait.assertTrue(backupServer::isStarted);
+      liveServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
+      Assert.assertTrue(backupServer.isStarted());
+
+      //make sure failover is ok
+      createSession(sf, true, true).close();
+
+      last = getFieldFromSF(sf, "connectorConfig");
+      current = getFieldFromSF(sf, "currentConnectorConfig");
+
+      System.out.println("now after live back again last: " + last);
+      System.out.println("now current: " + current);
+
+      //cannot use equals here because the config's name (uuid) changes
+      //after failover
+      assertTrue(current.isSameParams(initialLive));
+
+      //now manually corrupt the backup in sf
+      setSFFieldValue(sf, "backupConfig", null);
+
+      //crash 2
+      crash();
+
+      beforeRestart(backupServer);
+      createSession(sf, true, true).close();
+
+      sf.close();
+      Assert.assertEquals(0, sf.numSessions());
+      Assert.assertEquals(0, sf.numConnections());
+   }
+
+   protected void waitForBackupConfig(ClientSessionFactoryInternal sf) throws NoSuchFieldException, IllegalAccessException, InterruptedException {
+      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConfig");
+      int cnt = 50;
+      while (initialBackup == null && cnt > 0) {
+         cnt--;
+         Thread.sleep(200);
+         initialBackup = getFieldFromSF(sf, "backupConfig");
+      }
+   }
+
+   protected void setSFFieldValue(ClientSessionFactoryInternal sf, String tcName, Object value) throws NoSuchFieldException, IllegalAccessException {
+      Field tcField = ClientSessionFactoryImpl.class.getDeclaredField(tcName);
+      tcField.setAccessible(true);
+      tcField.set(sf, value);
+   }
+
+   protected TransportConfiguration getFieldFromSF(ClientSessionFactoryInternal sf, String tcName) throws NoSuchFieldException, IllegalAccessException {
+      Field tcField = ClientSessionFactoryImpl.class.getDeclaredField(tcName);
+      tcField.setAccessible(true);
+      return (TransportConfiguration) tcField.get(sf);
+   }
+
    /**
     * Basic fail-back test.
     *
@@ -613,13 +776,10 @@ public class FailoverTest extends FailoverTestBase {
       }
 
       simpleFailover(haPolicy instanceof ReplicaPolicy, doFailBack);
-      tearDown();
-      setUp();
    }
 
    @Test(timeout = 120000)
    public void testFailBackLiveRestartsBackupIsGone() throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -672,7 +832,6 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testWithoutUsingTheBackup() throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -723,7 +882,6 @@ public class FailoverTest extends FailoverTestBase {
     * @throws Exception
     */
    private void simpleFailover(boolean isReplicated, boolean doFailBack) throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -868,7 +1026,7 @@ public class FailoverTest extends FailoverTestBase {
    // https://jira.jboss.org/jira/browse/HORNETQ-285
    @Test(timeout = 120000)
    public void testFailoverOnInitialConnection() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
@@ -1492,7 +1650,7 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testCreateNewFactoryAfterFailover() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
       ClientSession session = sendAndConsume(sf, true);
@@ -1644,7 +1802,7 @@ public class FailoverTest extends FailoverTestBase {
             message = repeatMessage;
             repeatMessage = null;
          } else {
-            message = consumer.receive(1000);
+            message = consumer.receive(50);
          }
 
          if (message != null) {
@@ -1761,7 +1919,8 @@ public class FailoverTest extends FailoverTestBase {
       createClientSessionFactory();
 
       // Add an interceptor to delay the send method so we can get time to cause failover before it returns
-      liveServer.getServer().getRemotingService().addIncomingInterceptor(new DelayInterceptor());
+      DelayInterceptor interceptor = new DelayInterceptor();
+      liveServer.getServer().getRemotingService().addIncomingInterceptor(interceptor);
 
       final ClientSession session = createSession(sf, true, true, 0);
 
@@ -1790,6 +1949,11 @@ public class FailoverTest extends FailoverTestBase {
       Sender sender = new Sender();
 
       sender.start();
+
+      //if server crash too early,
+      //sender will directly send to backup. so
+      //need some waiting here.
+      assertTrue(interceptor.await());
 
       crash(session);
 
@@ -2028,7 +2192,6 @@ public class FailoverTest extends FailoverTestBase {
       if (!(backupServer.getServer().getHAPolicy() instanceof SharedStoreSlavePolicy)) {
          return;
       }
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
 
       ClientSession session = sendAndConsume(sf, true);
@@ -2058,7 +2221,6 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testLiveAndBackupLiveComesBack() throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -2090,7 +2252,6 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testLiveAndBackupLiveComesBackNewFactory() throws Exception {
-      locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -2139,7 +2300,7 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testLiveAndBackupBackupComesBackNewFactory() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 

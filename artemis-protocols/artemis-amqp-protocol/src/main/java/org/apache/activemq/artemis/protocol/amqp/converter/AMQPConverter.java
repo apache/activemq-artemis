@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 
@@ -33,12 +35,12 @@ public class AMQPConverter implements MessageConverter<AMQPMessage> {
    }
 
    @Override
-   public AMQPMessage fromCore(ICoreMessage coreMessage) throws Exception {
-      return CoreAmqpConverter.fromCore(coreMessage);
+   public AMQPMessage fromCore(ICoreMessage coreMessage, StorageManager storageManager) throws Exception {
+      return CoreAmqpConverter.fromCore(coreMessage, storageManager);
    }
 
    @Override
-   public ICoreMessage toCore(AMQPMessage messageSource) throws Exception {
-      return AmqpCoreConverter.toCore(messageSource);
+   public ICoreMessage toCore(AMQPMessage messageSource, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
+      return AmqpCoreConverter.toCore(messageSource, coreMessageObjectPools);
    }
 }

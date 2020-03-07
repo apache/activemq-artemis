@@ -48,7 +48,6 @@ import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -131,9 +130,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
     * however we need the guard to synchronize multiple step operations during topology updates.
     */
    private final Object recordsGuard = new Object();
-   private final Map<String, MessageFlowRecord> records = new ConcurrentHashMap<>();
 
-   private final Map<String, MessageFlowRecord> disconnectedRecords = new ConcurrentHashMap<>();
+   private final Map<String, MessageFlowRecord> records = new ConcurrentHashMap<>();
 
    private final ScheduledExecutorService scheduledExecutor;
 
@@ -441,7 +439,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       if (managementService != null) {
          TypedProperties props = new TypedProperties();
          props.putSimpleStringProperty(new SimpleString("name"), name);
-         Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED, props);
+         //nodeID can be null if there's only a backup
+         SimpleString nodeId = nodeManager.getNodeId();
+         Notification notification = new Notification(nodeId == null ? null : nodeId.toString(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED, props);
          managementService.sendNotification(notification);
       }
       executor.execute(new Runnable() {
@@ -542,7 +542,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    @Override
    public String getNodeID() {
-      return nodeManager.getNodeId().toString();
+      return nodeManager == null ? null : (nodeManager.getNodeId() == null ? null : nodeManager.getNodeId().toString());
    }
 
    @Override
@@ -710,7 +710,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
                // New node - create a new flow record
 
-               final SimpleString queueName = new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
+               final SimpleString queueName = getSfQueueName(nodeID);
 
                Binding queueBinding = postOffice.getBinding(queueName);
 
@@ -741,6 +741,10 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
    }
 
+   public SimpleString getSfQueueName(String nodeID) {
+      return new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
+   }
+
    @Override
    public synchronized void informClusterOfBackup() {
       String nodeID = server.getNodeID().toString();
@@ -748,6 +752,26 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       TopologyMemberImpl localMember = new TopologyMemberImpl(nodeID, null, null, null, connector);
 
       topology.updateAsLive(nodeID, localMember);
+   }
+
+
+   @Override
+   public ClusterConnectionMetrics getMetrics() {
+      long messagesPendingAcknowledgement = 0;
+      long messagesAcknowledged = 0;
+      for (MessageFlowRecord record : records.values()) {
+         final BridgeMetrics metrics = record.getBridge() != null ? record.getBridge().getMetrics() : null;
+         messagesPendingAcknowledgement += metrics != null ? metrics.getMessagesPendingAcknowledgement() : 0;
+         messagesAcknowledged += metrics != null ? metrics.getMessagesAcknowledged() : 0;
+      }
+
+      return new ClusterConnectionMetrics(messagesPendingAcknowledgement, messagesAcknowledged);
+   }
+
+   @Override
+   public BridgeMetrics getBridgeMetrics(String nodeId) {
+      final MessageFlowRecord record = records.get(nodeId);
+      return record != null && record.getBridge() != null ? record.getBridge().getMetrics() : null;
    }
 
    private void createNewRecord(final long eventUID,
@@ -777,7 +801,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       targetLocator.setInitialConnectAttempts(0);
       targetLocator.setClientFailureCheckPeriod(clientFailureCheckPeriod);
       targetLocator.setConnectionTTL(connectionTTL);
-      targetLocator.setInitialConnectAttempts(0);
 
       targetLocator.setConfirmationWindowSize(confirmationWindowSize);
       targetLocator.setBlockOnDurableSend(!useDuplicateDetection);
@@ -788,8 +811,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       targetLocator.setRetryIntervalMultiplier(retryIntervalMultiplier);
       targetLocator.setMinLargeMessageSize(minLargeMessageSize);
 
-      // No producer flow control on the bridges, as we don't want to lock the queues
-      targetLocator.setProducerWindowSize(-1);
+      // No producer flow control on the bridges by default, as we don't want to lock the queues
+      targetLocator.setProducerWindowSize(this.producerWindowSize);
 
       targetLocator.setAfterConnectionInternalListener(this);
 
@@ -1060,6 +1083,10 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                doUnProposalReceived(message);
                break;
             }
+            case SESSION_CREATED: {
+               doSessionCreated(message);
+               break;
+            }
             default: {
                throw ActiveMQMessageBundle.BUNDLE.invalidType(ntype);
             }
@@ -1220,7 +1247,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             return;
          }
 
-         RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), queueAddress, clusterName, routingName, queueID, filterString, queue, bridge.getName(), distance + 1);
+         RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), queueAddress, clusterName, routingName, queueID, filterString, queue, bridge.getName(), distance + 1, messageLoadBalancingType);
 
          if (logger.isTraceEnabled()) {
             logger.trace("Adding binding " + clusterName + " into " + ClusterConnectionImpl.this);
@@ -1233,9 +1260,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          } catch (Exception ignore) {
          }
 
-         Bindings theBindings = postOffice.getBindingsForAddress(queueAddress);
-
-         theBindings.setMessageLoadBalancingType(messageLoadBalancingType);
+         try {
+            postOffice.updateMessageLoadBalancingTypeForAddress(queueAddress, messageLoadBalancingType);
+         } catch (Exception e) {
+            if (logger.isTraceEnabled()) {
+               logger.trace(e.getLocalizedMessage(), e);
+            }
+         }
 
       }
 
@@ -1256,10 +1287,11 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          RemoteQueueBinding binding = bindings.remove(clusterName);
 
          if (binding == null) {
-            throw new IllegalStateException("Cannot find binding for queue " + clusterName);
+            logger.warn("Cannot remove binding, because cannot find binding for queue " + clusterName);
+            return;
          }
 
-         postOffice.removeBinding(binding.getUniqueName(), null, false);
+         postOffice.removeBinding(binding.getUniqueName(), null, true);
       }
 
       private synchronized void resetBinding(final SimpleString clusterName) throws Exception {
@@ -1278,6 +1310,19 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
 
          binding.disconnect();
+      }
+
+      private synchronized void doSessionCreated(final ClientMessage message) throws Exception {
+         if (logger.isTraceEnabled()) {
+            logger.trace(ClusterConnectionImpl.this + " session created " + message);
+         }
+         TypedProperties props = new TypedProperties();
+         props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, message.getSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME));
+         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
+         props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, message.getSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID));
+         props.putSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME, message.getSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME));
+         props.putIntProperty(ManagementHelper.HDR_DISTANCE, message.getIntProperty(ManagementHelper.HDR_DISTANCE) + 1);
+         managementService.sendNotification(new Notification(null, CoreNotificationType.SESSION_CREATED, props));
       }
 
       private synchronized void doConsumerCreated(final ClientMessage message) throws Exception {

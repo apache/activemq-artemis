@@ -18,4 +18,4 @@
 
 # This script will validate the distribution works with folders with spaces on Linux machines
 
-./validate-instalation.sh with\ spaces\ And\ Weird\ %26\ Characters
+./validate-instalation.sh with\ spaces\ And\ Weird\ %26\ Characters\ Čeština\ 漢字\ водка\ 昨夜のコ\ ﷹ‬ﷸ‬

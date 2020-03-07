@@ -88,6 +88,11 @@ public class DivertControlUsingCoreTest extends DivertControlTest {
             return (Boolean) proxy.retrieveAttributeValue("exclusive");
          }
 
+         @Override
+         public boolean isRetroactiveResource() {
+            return (Boolean) proxy.retrieveAttributeValue("retroactiveResource");
+         }
+
       };
    }
 

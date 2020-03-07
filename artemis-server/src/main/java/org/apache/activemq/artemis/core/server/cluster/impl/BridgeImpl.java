@@ -31,6 +31,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RefCountMessage;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -41,6 +44,8 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerFlowCallback;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
@@ -48,15 +53,16 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
-import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -70,7 +76,7 @@ import org.jboss.logging.Logger;
  * A Core BridgeImpl
  */
 
-public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowledgementHandler, ReadyListener {
+public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowledgementHandler, ReadyListener, ClientProducerFlowCallback {
    // Constants -----------------------------------------------------
 
    private static final Logger logger = Logger.getLogger(BridgeImpl.class);
@@ -91,7 +97,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private final SimpleString name;
 
-   private final Queue queue;
+   protected final Queue queue;
 
    private final Filter filter;
 
@@ -119,6 +125,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private final long maxRetryInterval;
 
+   private boolean blockedOnFlowControl;
+
    /**
     * Used when there's a scheduled reconnection
     */
@@ -128,6 +136,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    // on cases where sub-classes need a consumer
    protected volatile ClientSessionInternal sessionConsumer;
+
+
+   // this will happen if a disconnect happened
+   // upon reconnection we need to send the nodeUP back into the topology
+   protected volatile boolean disconnectedAndDown = false;
 
    protected String targetNodeID;
 
@@ -155,6 +168,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private ActiveMQServer server;
 
+   private final BridgeMetrics metrics = new BridgeMetrics();
+
+   private final ComponentConfigurationRoutingType routingType;
+
    public BridgeImpl(final ServerLocatorInternal serverLocator,
                      final int initialConnectAttempts,
                      final int reconnectAttempts,
@@ -173,7 +190,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                      final boolean useDuplicateDetection,
                      final String user,
                      final String password,
-                     final ActiveMQServer server) {
+                     final ActiveMQServer server,
+                     final ComponentConfigurationRoutingType routingType) {
 
       this.sequentialID = server.getStorageManager().generateID();
 
@@ -214,6 +232,13 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       this.password = password;
 
       this.server = server;
+
+      this.routingType = routingType;
+   }
+
+   /** For tests mainly */
+   public boolean isBlockedOnFlowControl() {
+      return blockedOnFlowControl;
    }
 
    public static final byte[] getDuplicateBytes(final UUID nodeUUID, final long messageID) {
@@ -251,6 +276,20 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    @Override
    public void setNotificationService(final NotificationService notificationService) {
       this.notificationService = notificationService;
+   }
+
+   @Override
+   public void onCreditsFlow(boolean blocked, ClientProducerCredits producerCredits) {
+      this.blockedOnFlowControl = blocked;
+      if (!blocked) {
+         queue.deliverAsync();
+      }
+   }
+
+   @Override
+   public void onCreditsFail(ClientProducerCredits producerCredits) {
+      ActiveMQServerLogger.LOGGER.bridgeAddressFull("" + producerCredits.getAddress(), "" + this.getName());
+      disconnect();
    }
 
    @Override
@@ -316,7 +355,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          refqueue = ref.getQueue();
 
          try {
-            refqueue.cancel(ref, timeBase);
+            refqueue.cancel(ref, timeBase, false);
          } catch (Exception e) {
             // There isn't much we can do besides log an error
             ActiveMQServerLogger.LOGGER.errorCancellingRefOnBridge(e, ref);
@@ -495,6 +534,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                }
                ref.getQueue().acknowledge(ref);
                pendingAcks.countDown();
+               metrics.incrementMessagesAcknowledged();
+
+               if (server.hasBrokerBridgePlugins()) {
+                  server.callBrokerBridgePlugins(plugin -> plugin.afterAcknowledgeBridge(this, ref));
+               }
             } else {
                if (logger.isTraceEnabled()) {
                   logger.trace("BridgeImpl::sendAcknowledged bridge " + this + " could not find reference for message " + message);
@@ -506,18 +550,44 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
-   protected boolean isPlainCoreBridge() {
-      return true;
+   /* Hook for processing message before forwarding */
+   protected Message beforeForward(Message message, final SimpleString forwardingAddress) {
+      message = message.copy();
+      ((RefCountMessage)message).setParentRef((RefCountMessage)message);
+
+      return beforeForwardingNoCopy(message, forwardingAddress);
    }
 
-   /* Hook for processing message before forwarding */
-   protected Message beforeForward(final Message message) {
+   /** ClusterConnectionBridge already makes a copy of the message.
+    * So I needed I hook where the message is not copied. */
+   protected Message beforeForwardingNoCopy(Message message, SimpleString forwardingAddress) {
       if (useDuplicateDetection) {
          // We keep our own DuplicateID for the Bridge, so bouncing back and forth will work fine
          byte[] bytes = getDuplicateBytes(nodeUUID, message.getMessageID());
 
          message.putExtraBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID, bytes);
       }
+
+      if (forwardingAddress != null) {
+         // for AMQP messages this modification will be transient
+         message.setAddress(forwardingAddress);
+      }
+
+      switch (routingType) {
+         case ANYCAST:
+            message.setRoutingType(RoutingType.ANYCAST);
+            break;
+         case MULTICAST:
+            message.setRoutingType(RoutingType.MULTICAST);
+            break;
+         case STRIP:
+            message.setRoutingType(null);
+            break;
+         case PASS:
+            break;
+      }
+
+      message.messageChanged();
 
       if (transformer != null) {
          final Message transformedMessage = transformer.transform(message);
@@ -540,6 +610,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       queue.deliverAsync();
    }
 
+
    @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
       if (filter != null && !filter.match(ref.getMessage())) {
@@ -551,6 +622,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             if (logger.isDebugEnabled()) {
                logger.debug(this + "::Ignoring reference on bridge as it is set to inactive ref=" + ref);
             }
+            return HandleStatus.BUSY;
+         }
+
+         if (blockedOnFlowControl) {
             return HandleStatus.BUSY;
          }
 
@@ -568,8 +643,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             refs.put(ref.getMessage().getMessageID(), ref);
          }
 
-         final Message message = beforeForward(ref.getMessage());
-
          final SimpleString dest;
 
          if (forwardingAddress != null) {
@@ -579,16 +652,34 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             dest = ref.getMessage().getAddressSimpleString();
          }
 
+         final Message message = beforeForward(ref.getMessage(), dest);
+
          pendingAcks.countUp();
 
          try {
+            if (server.hasBrokerBridgePlugins()) {
+               server.callBrokerBridgePlugins(plugin -> plugin.beforeDeliverBridge(this, ref));
+            }
+
+            final HandleStatus status;
             if (message.isLargeMessage()) {
                deliveringLargeMessage = true;
-               deliverLargeMessage(dest, ref, (LargeServerMessage) message);
-               return HandleStatus.HANDLED;
+               deliverLargeMessage(dest, ref, (LargeServerMessage) message, ref.getMessage());
+               status = HandleStatus.HANDLED;
             } else {
-               return deliverStandardMessage(dest, ref, message);
+               status = deliverStandardMessage(dest, ref, message, ref.getMessage());
             }
+
+            //Only increment messages pending acknowledgement if handled by bridge
+            if (status == HandleStatus.HANDLED) {
+               metrics.incrementMessagesPendingAcknowledgement();
+            }
+
+            if (server.hasBrokerBridgePlugins()) {
+               server.callBrokerBridgePlugins(plugin -> plugin.afterDeliverBridge(this, ref, status));
+            }
+
+            return status;
          } catch (Exception e) {
             // If an exception happened, we must count down immediately
             pendingAcks.countDown();
@@ -634,28 +725,33 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
 
       if (scaleDownTargetNodeID != null && !scaleDownTargetNodeID.equals(nodeUUID.toString())) {
-         synchronized (this) {
-            try {
-               logger.debug("Moving " + queue.getMessageCount() + " messages from " + queue.getName() + " to " + scaleDownTargetNodeID);
-               ((QueueImpl) queue).moveReferencesBetweenSnFQueues(SimpleString.toSimpleString(scaleDownTargetNodeID));
-
-               // stop the bridge from trying to reconnect and clean up all the bindings
-               fail(true);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-            }
-         }
+         scaleDown(scaleDownTargetNodeID);
       } else if (scaleDownTargetNodeID != null) {
          // the disconnected node is scaling down to me, no need to reconnect to it
          logger.debug("Received scaleDownTargetNodeID: " + scaleDownTargetNodeID + "; cancelling reconnect.");
-         fail(true);
+         fail(true, true);
       } else {
          logger.debug("Received invalid scaleDownTargetNodeID: " + scaleDownTargetNodeID);
 
-         fail(me.getType() == ActiveMQExceptionType.DISCONNECTED);
+         fail(me.getType() == ActiveMQExceptionType.DISCONNECTED, false);
       }
 
       tryScheduleRetryReconnect(me.getType());
+   }
+
+   protected void scaleDown(String scaleDownTargetNodeID) {
+      synchronized (this) {
+         try {
+            logger.debug("Moving " + queue.getMessageCount() + " messages from " + queue.getName() + " to " + scaleDownTargetNodeID);
+            ((QueueImpl) queue).moveReferencesBetweenSnFQueues(SimpleString.toSimpleString(scaleDownTargetNodeID));
+
+            // stop the bridge from trying to reconnect and clean up all the bindings
+            fail(true, true);
+
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         }
+      }
    }
 
    protected void tryScheduleRetryReconnect(final ActiveMQExceptionType type) {
@@ -670,12 +766,13 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private void deliverLargeMessage(final SimpleString dest,
                                     final MessageReference ref,
-                                    final LargeServerMessage message) {
+                                    final LargeServerMessage message,
+                                    final Message originalMessage) {
       executor.execute(new Runnable() {
          @Override
          public void run() {
             try {
-               producer.send(dest, message);
+               producer.send(dest, message.toMessage());
 
                // as soon as we are done sending the large message
                // we unset the delivery flag and we will call the deliveryAsync on the queue
@@ -700,7 +797,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
     * @param message
     * @return
     */
-   private HandleStatus deliverStandardMessage(SimpleString dest, final MessageReference ref, Message message) {
+   private HandleStatus deliverStandardMessage(SimpleString dest, final MessageReference ref, Message message, Message originalMessage) {
       // if we failover during send then there is a chance that the
       // that this will throw a disconnect, we need to remove the message
       // from the acks so it will get resent, duplicate detection will cope
@@ -721,12 +818,14 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             refs.remove(message.getMessageID());
 
             // The delivering count should also be decreased as to avoid inconsistencies
-            ((QueueImpl) ref.getQueue()).decDelivering();
+            ((QueueImpl) ref.getQueue()).decDelivering(ref);
          }
 
          connectionFailed(e, false);
 
          return HandleStatus.BUSY;
+      } finally {
+         originalMessage.usageDown();
       }
 
       return HandleStatus.HANDLED;
@@ -739,6 +838,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
     */
    public TopologyMember getTargetNodeFromTopology() {
       return this.targetNode;
+   }
+
+   @Override
+   public BridgeMetrics getMetrics() {
+      return this.metrics;
    }
 
    @Override
@@ -771,9 +875,13 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       return transformer;
    }
 
-   protected void fail(final boolean permanently) {
+   protected void fail(final boolean permanently, boolean scaleDown) {
       logger.debug(this + "\n\t::fail being called, permanently=" + permanently);
-
+      //we need to make sure we remove the node from the topology so any incoming quorum requests are voted correctly
+      if (targetNodeID != null) {
+         this.disconnectedAndDown = true;
+         serverLocator.notifyNodeDown(System.currentTimeMillis(), targetNodeID);
+      }
       if (queue != null) {
          try {
             if (logger.isTraceEnabled()) {
@@ -793,6 +901,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    /* Hook for doing extra stuff after connection */
    protected void afterConnect() throws Exception {
+      if (disconnectedAndDown && targetNodeID != null && targetNode != null) {
+         serverLocator.notifyNodeUp(System.currentTimeMillis(), targetNodeID, targetNode.getBackupGroupName(), targetNode.getScaleDownGroupName(),
+                                    new Pair<>(targetNode.getLive(), targetNode.getBackup()), false);
+         disconnectedAndDown = false;
+      }
       retryCount = 0;
       reconnectAttemptsInUse = reconnectAttempts;
       if (futureScheduledReconnection != null) {
@@ -818,7 +931,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       return csf;
    }
 
-   private ClientSessionFactoryInternal reconnectOnOriginalNode() throws Exception {
+   protected ClientSessionFactoryInternal reconnectOnOriginalNode() throws Exception {
       String targetNodeIdUse = targetNodeID;
       TopologyMember nodeUse = targetNode;
       if (targetNodeIdUse != null && nodeUse != null) {
@@ -872,6 +985,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                }
                // Session is pre-acknowledge
                session = (ClientSessionInternal) csf.createSession(user, password, false, true, true, true, 1);
+               session.getProducerCreditManager().setCallback(this);
                sessionConsumer = (ClientSessionInternal) csf.createSession(user, password, false, true, true, true, 1);
             }
 
@@ -896,6 +1010,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                }
             }
 
+            // need to reset blockedOnFlowControl after creating a new producer
+            // otherwise in case the bridge was blocked before a previous failure
+            // this would never resume
+            blockedOnFlowControl = false;
             producer = session.createProducer();
             session.addFailureListener(BridgeImpl.this);
 
@@ -910,10 +1028,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
             ActiveMQServerLogger.LOGGER.bridgeConnected(this);
 
-            // We only do this on plain core bridges
-            if (isPlainCoreBridge()) {
-               serverLocator.addClusterTopologyListener(new TopologyListener());
-            }
+            serverLocator.addClusterTopologyListener(new TopologyListener());
 
             keepConnecting = false;
             return;
@@ -928,10 +1043,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                scheduleRetryConnectFixedTimeout(this.retryInterval);
                return;
             } else {
+               ActiveMQServerLogger.LOGGER.errorConnectingBridgeRetry(this);
                if (logger.isDebugEnabled()) {
-                  logger.debug("Bridge " + this + " is unable to connect to destination. Retrying", e);
+                  logger.debug("Underlying bridge connection failure", e);
                }
-
                scheduleRetryConnect();
             }
          } catch (ActiveMQInterruptedException | InterruptedException e) {
@@ -945,7 +1060,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                } catch (Throwable ignored) {
                }
             }
-            fail(false);
+            fail(false, false);
             scheduleRetryConnect();
          }
       }
@@ -964,7 +1079,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       if (reconnectAttemptsInUse >= 0 && retryCount > reconnectAttemptsInUse) {
          ActiveMQServerLogger.LOGGER.bridgeAbortStart(name, retryCount, reconnectAttempts);
-         fail(true);
+         fail(true, false);
          return;
       }
 
@@ -986,6 +1101,28 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       scheduleRetryConnectFixedTimeout(timeout);
    }
+
+
+   // To be called by the topology update
+   // This logic will be updated on the cluster connection
+   protected void nodeUP(TopologyMember member, boolean last) {
+      if (member != null) {
+         ClientSessionInternal sessionToUse = session;
+         RemotingConnection connectionToUse = sessionToUse != null ? sessionToUse.getConnection() : null;
+         if (this.targetNodeID != null && this.targetNodeID.equals(member.getNodeId())) {
+            // this could be an update of the topology say after a backup started
+            BridgeImpl.this.targetNode = member;
+         } else {
+            // we don't need synchronization here, but we need to make sure we won't get a NPE on races
+            if (connectionToUse != null && member.isMember(connectionToUse)) {
+               this.targetNode = member;
+               this.targetNodeID = member.getNodeId();
+            }
+         }
+      }
+
+   }
+
 
    // Inner classes -------------------------------------------------
 
@@ -1136,20 +1273,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       // ClusterListener
       @Override
       public void nodeUP(TopologyMember member, boolean last) {
-         ClientSessionInternal sessionToUse = session;
-         RemotingConnection connectionToUse = sessionToUse != null ? sessionToUse.getConnection() : null;
-
-         if (member != null && BridgeImpl.this.targetNodeID != null && BridgeImpl.this.targetNodeID.equals(member.getNodeId())) {
-            // this could be an update of the topology say after a backup started
-            BridgeImpl.this.targetNode = member;
-         } else {
-            // we don't need synchronization here, but we need to make sure we won't get a NPE on races
-            if (connectionToUse != null && member.isMember(connectionToUse)) {
-               BridgeImpl.this.targetNode = member;
-               BridgeImpl.this.targetNodeID = member.getNodeId();
-            }
-         }
-
+         BridgeImpl.this.nodeUP(member, last);
       }
 
       @Override

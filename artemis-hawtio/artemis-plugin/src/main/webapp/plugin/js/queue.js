@@ -102,7 +102,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 if (selection && jolokia && entries) {
                     var domain = selection.domain;
                     var name = entries["Destination"] || entries["destinationName"] || selection.title;
-                    name = name.replace(/['"]+/g, '');
+                    name = ARTEMISService.artemisConsole.ownUnescape(name);
                     ARTEMIS.log.info(name);
                     var operation;
                     if (isQueue) {
@@ -119,21 +119,21 @@ var ARTEMIS = (function(ARTEMIS) {
         $scope.purgeDestination = function () {
             var selection = workspace.selection;
             var entries = selection.entries;
-            var mbean = getBrokerMBean(jolokia);
+            var mbean = selection.objectName;
             if (mbean) {
                 if (selection && jolokia && entries) {
                     var name = entries["Destination"] || entries["destinationName"] || selection.title;
                     name = name.unescapeHTML();
                     var operation = "purge()";
                     $scope.message = "Purged queue " + name;
-                    ARTEMISService.artemisConsole.purgeQueue(mbean, jolokia, name, onSuccess(deleteSuccess));
+                    ARTEMISService.artemisConsole.purgeQueue(mbean, jolokia, onSuccess(deleteSuccess));
                 }
             }
         };
         $scope.name = function () {
             var selection = workspace.selection;
             if (selection) {
-                return selection.title;
+                return ARTEMISService.artemisConsole.ownUnescape(selection.title);
             }
             return null;
         };
