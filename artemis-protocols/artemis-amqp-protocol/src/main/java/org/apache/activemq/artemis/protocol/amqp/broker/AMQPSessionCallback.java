@@ -744,6 +744,10 @@ public class AMQPSessionCallback implements SessionCallback {
       return this.transactionHandler;
    }
 
+   public String getUsername() {
+      return serverSession.getUsername();
+   }
+
 
    class AddressQueryCache<T> {
       SimpleString address;

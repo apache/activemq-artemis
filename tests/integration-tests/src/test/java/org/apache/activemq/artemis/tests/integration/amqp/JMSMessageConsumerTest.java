@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Random;
 import java.util.UUID;
@@ -40,6 +42,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -47,12 +50,33 @@ import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.policy.JmsDefaultPrefetchPolicy;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
    protected static final Logger LOG = LoggerFactory.getLogger(JMSMessageConsumerTest.class);
+
+   @Parameterized.Parameters(name = "{index}: amqpUseCoreSubscriptionNaming={0}, withTopics{1}")
+   public static Collection<Object[]> parameters() {
+      return Arrays.asList(new Object[][] {
+         {true, true}, {true, false}, {false, true}, {false, false}
+      });
+   }
+
+   @Parameterized.Parameter(0)
+   public boolean amqpUseCoreSubscriptionNaming;
+
+   @Parameterized.Parameter(1)
+   public boolean withTopics;
+
+   @Override
+   protected void addConfiguration(ActiveMQServer server) {
+      server.getConfiguration().setAmqpUseCoreSubscriptionNaming(amqpUseCoreSubscriptionNaming);
+   }
 
    @Override
    protected String getConfiguredProtocols() {
@@ -92,12 +116,20 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         javax.jms.Queue queue1 = session1.createQueue(getQueueName());
-         javax.jms.Queue queue2 = session2.createQueue(getQueueName());
+         Destination destination1;
+         Destination destination2;
 
-         final MessageConsumer consumer2 = session2.createConsumer(queue2);
+         if (withTopics) {
+            destination1 = session1.createTopic(getTopicName());
+            destination2 = session2.createTopic(getTopicName());
+         } else {
+            destination1 = session1.createQueue(getQueueName());
+            destination2 = session2.createQueue(getQueueName());
+         }
 
-         MessageProducer producer = session1.createProducer(queue1);
+         final MessageConsumer consumer2 = session2.createConsumer(destination2);
+
+         MessageProducer producer = session1.createProducer(destination1);
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
          connection1.start();
 

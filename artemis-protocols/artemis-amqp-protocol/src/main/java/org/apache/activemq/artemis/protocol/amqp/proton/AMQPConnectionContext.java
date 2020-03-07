@@ -248,6 +248,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       return handler.getConnection().getRemoteContainer();
    }
 
+   public String getRemoteHostname() {
+      return handler.getConnection().getRemoteHostname();
+   }
+
    public String getPubSubPrefix() {
       return null;
    }

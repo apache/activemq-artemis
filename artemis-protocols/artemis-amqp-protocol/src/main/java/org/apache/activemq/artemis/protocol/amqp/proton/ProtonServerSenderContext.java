@@ -318,7 +318,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       } else if (source.getDynamic()) {
          // if dynamic we have to create the node (queue) and set the address on the target, the
          // node is temporary and  will be deleted on closing of the session
-         queue = SimpleString.toSimpleString(java.util.UUID.randomUUID().toString());
+         queue = createTemporaryQueueName();
          tempQueueName = queue;
          try {
             sessionSPI.createTemporaryQueue(queue, RoutingType.ANYCAST);
@@ -455,7 +455,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                      sessionSPI.createSharedVolatileQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
                   }
                } else {
-                  queue = SimpleString.toSimpleString(java.util.UUID.randomUUID().toString());
+                  queue = createTemporaryQueueName();
                   tempQueueName = queue;
                   try {
                      sessionSPI.createTemporaryQueue(addressToUse, queue, RoutingType.MULTICAST, simpleStringSelector);
@@ -1015,6 +1015,26 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
          }
          return SimpleString.toSimpleString(queue);
+      }
+   }
+
+   private SimpleString createTemporaryQueueName() {
+      if (connection.isUseCoreSubscriptionNaming()) {
+         String clientId = getClientId();
+
+         if (clientId == null) {
+            clientId = connection.getRemoteHostname();
+            if (sessionSPI.getUsername() != null && clientId != null) {
+               clientId = sessionSPI.getUsername() + "." + clientId;
+            } else if (sessionSPI.getUsername() != null) {
+               clientId = sessionSPI.getUsername();
+            }
+         }
+
+         return ActiveMQDestination.createQueueNameForSubscription(
+            false, clientId, java.util.UUID.randomUUID().toString());
+      } else {
+         return SimpleString.toSimpleString(java.util.UUID.randomUUID().toString());
       }
    }
 

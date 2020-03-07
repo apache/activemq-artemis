@@ -44,6 +44,7 @@ import javax.jms.TopicSubscriber;
 import javax.jms.TransactionInProgressException;
 import javax.transaction.xa.XAResource;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -834,7 +835,21 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                   throw new RuntimeException("Subscription name cannot be null for durable topic consumer");
                // Non durable sub
 
-               queueName = ActiveMQDestination.createQueueNameForSubscription(false, connection.getClientID(), UUID.randomUUID().toString());
+               String clientId = connection.getClientID();
+
+               if (clientId == null) {
+                  try {
+                     clientId = InetAddress.getLocalHost().getHostName();
+                  } catch (Exception ignore) {
+                  }
+                  if (connection.getUsername() != null && clientId != null) {
+                     clientId = connection.getUsername() + "." + clientId;
+                  } else if (connection.getUsername() != null) {
+                     clientId = connection.getUsername();
+                  }
+               }
+
+               queueName = ActiveMQDestination.createQueueNameForSubscription(false, clientId, UUID.randomUUID().toString());
 
                createTemporaryQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, response);
 

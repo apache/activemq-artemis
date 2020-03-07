@@ -563,6 +563,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return uid;
    }
 
+   public String getUsername() {
+      return this.username;
+   }
+
    public void removeSession(final ActiveMQSession session) {
       sessions.remove(session);
    }
