@@ -30,6 +30,8 @@ import org.apache.activemq.artemis.rest.HttpHeaderProperty;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.jboss.resteasy.client.ClientRequest;
 
+import static org.apache.activemq.artemis.rest.HttpHeaderProperty.MESSAGE_PROPERTY_DISCRIMINATOR;
+
 public class HttpMessageHelper {
 
    public static final String POSTED_AS_HTTP_MESSAGE = "postedAsHttpMessage";
@@ -37,6 +39,10 @@ public class HttpMessageHelper {
    public static boolean isTransferableHttpHeader(String key) {
       String lowerKey = key.toLowerCase();
       return lowerKey.toLowerCase().startsWith("content") || lowerKey.toLowerCase().equals("link");
+   }
+
+   public static boolean isMessageProperty( String key) {
+      return key.toLowerCase().startsWith( MESSAGE_PROPERTY_DISCRIMINATOR );
    }
 
    public static void buildMessage(ClientMessage message,
@@ -95,7 +101,7 @@ public class HttpMessageHelper {
       MultivaluedMap<String, String> hdrs = headers.getRequestHeaders();
       for (Entry<String, List<String>> entry : hdrs.entrySet()) {
          String key = entry.getKey();
-         if (isTransferableHttpHeader(key)) {
+         if (isTransferableHttpHeader(key) || isMessageProperty( key )) {
             List<String> vals = entry.getValue();
             String value = concatenateHeaderValue(vals);
             message.putStringProperty(HttpHeaderProperty.toPropertyName(key), value);
