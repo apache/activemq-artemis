@@ -1356,7 +1356,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    //read individual lines from byteStream
-   private ArrayList<String> getOutputLines(TestActionContext context, boolean errorOutput) throws IOException {
+   public static ArrayList<String> getOutputLines(TestActionContext context, boolean errorOutput) throws IOException {
       byte[] bytes;
 
       if (errorOutput) {

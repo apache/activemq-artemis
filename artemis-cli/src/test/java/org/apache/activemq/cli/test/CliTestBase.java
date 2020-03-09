@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.cli.test;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
+import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -87,7 +89,7 @@ public class CliTestBase {
       File rootDirectory = new File(temporaryFolder.getRoot(), "broker");
       setupAuth(rootDirectory);
       Run.setEmbedded(true);
-      Artemis.main("create", rootDirectory.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login");
+      Artemis.main("create", rootDirectory.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login", "--disable-persistence");
       System.setProperty("artemis.instance", rootDirectory.getAbsolutePath());
       Artemis.internalExecute("run");
    }
@@ -110,16 +112,18 @@ public class CliTestBase {
       return new ActiveMQConnectionFactory("tcp://localhost:" + String.valueOf(serverPort));
    }
 
-   protected void createQueue(String routingTypeOption, String address, String queueName) throws Exception {
-      Artemis.main("queue", "create",
-              "--user", "admin",
-              "--password", "admin",
-              "--address", address,
-              "--name", queueName,
-              routingTypeOption,
-              "--durable",
-              "--preserve-on-no-consumers",
-              "--auto-create-address");
+   protected void createQueue(RoutingType routingType, String address, String queueName) throws Exception {
+      new CreateQueue()
+         .setAddress(address)
+         .setName(queueName)
+         .setAnycast(RoutingType.ANYCAST.equals(routingType))
+         .setMulticast(RoutingType.MULTICAST.equals(routingType))
+         .setDurable(true)
+         .setPreserveOnNoConsumers(true)
+         .setAutoCreateAddress(true)
+         .setUser("admin")
+         .setPassword("admin")
+         .execute(new TestActionContext());
    }
 
    void closeConnection(ActiveMQConnectionFactory cf, Connection connection) throws Exception {
