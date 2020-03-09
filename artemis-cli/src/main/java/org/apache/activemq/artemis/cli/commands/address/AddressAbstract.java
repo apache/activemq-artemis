@@ -38,8 +38,9 @@ public abstract class AddressAbstract extends AbstractAction {
    private Boolean noMulticast;
 
 
-   public void setName(String name) {
+   public AbstractAction setName(String name) {
       this.name = name;
+      return this;
    }
 
    public String getName(boolean requireInput) {

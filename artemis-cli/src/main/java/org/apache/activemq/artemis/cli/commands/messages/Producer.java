@@ -59,7 +59,79 @@ public class Producer extends DestAbstract {
    String msgGroupID = null;
 
    @Option(name = "--data", description = "Messages will be read form the specified file, other message options will be ignored.")
-   String fileName = null;
+   String file = null;
+
+   public boolean isNonpersistent() {
+      return nonpersistent;
+   }
+
+   public Producer setNonpersistent(boolean nonpersistent) {
+      this.nonpersistent = nonpersistent;
+      return this;
+   }
+
+   public int getMessageSize() {
+      return messageSize;
+   }
+
+   public Producer setMessageSize(int messageSize) {
+      this.messageSize = messageSize;
+      return this;
+   }
+
+   public String getMessage() {
+      return message;
+   }
+
+   public Producer setMessage(String message) {
+      this.message = message;
+      return this;
+   }
+
+   public int getTextMessageSize() {
+      return textMessageSize;
+   }
+
+   public Producer setTextMessageSize(int textMessageSize) {
+      this.textMessageSize = textMessageSize;
+      return this;
+   }
+
+   public int getObjectSize() {
+      return objectSize;
+   }
+
+   public Producer setObjectSize(int objectSize) {
+      this.objectSize = objectSize;
+      return this;
+   }
+
+   public long getMsgTTL() {
+      return msgTTL;
+   }
+
+   public Producer setMsgTTL(long msgTTL) {
+      this.msgTTL = msgTTL;
+      return this;
+   }
+
+   public String getMsgGroupID() {
+      return msgGroupID;
+   }
+
+   public Producer setMsgGroupID(String msgGroupID) {
+      this.msgGroupID = msgGroupID;
+      return this;
+   }
+
+   public String getFile() {
+      return file;
+   }
+
+   public Producer setFile(String file) {
+      this.file = file;
+      return this;
+   }
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -70,7 +142,7 @@ public class Producer extends DestAbstract {
       try (Connection connection = factory.createConnection()) {
 
          // If we are reading from file, we process messages sequentially to guarantee ordering.  i.e. no thread creation.
-         if (fileName != null) {
+         if (file != null) {
             Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
             Destination dest = getDestination(session);
 
@@ -87,7 +159,7 @@ public class Producer extends DestAbstract {
 
                InputStream in;
                try {
-                  in = new FileInputStream(fileName);
+                  in = new FileInputStream(file);
                } catch (Exception e) {
                   System.err.println("Error: Unable to open file for reading\n" + e.getMessage());
                   return null;

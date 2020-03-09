@@ -70,28 +70,34 @@ public class StatQueue extends AbstractAction {
    private int maxRows = 50;
 
    //easier for testing
-   public void setQueueName(String queueName) {
+   public StatQueue setQueueName(String queueName) {
       this.queueName = queueName;
+      return this;
    }
 
-   public void setOperationName(String operationName) {
+   public StatQueue setOperationName(String operationName) {
       this.operationName = operationName;
+      return this;
    }
 
-   public void setFieldName(String fieldName) {
+   public StatQueue setFieldName(String fieldName) {
       this.fieldName = fieldName;
+      return this;
    }
 
-   public void setValue(String value) {
+   public StatQueue setValue(String value) {
       this.value = value;
+      return this;
    }
 
-   public void setMaxRows(int maxRows) {
+   public StatQueue setMaxRows(int maxRows) {
       this.maxRows = maxRows;
+      return this;
    }
 
-   public void setverbose(boolean verbose) {
+   public StatQueue setverbose(boolean verbose) {
       this.verbose = verbose;
+      return this;
    }
 
    @Override
