@@ -632,9 +632,14 @@ public final class OpenWireMessageConverter {
          ByteSequence midSeq = new ByteSequence(midBytes);
          mid = (MessageId) marshaller.unmarshal(midSeq);
       } else {
-         //JMSMessageID should be started with "ID:"
-         String midd = "ID:" + UUIDGenerator.getInstance().generateStringUUID() + ":-1:-1:-1:-1";
-         mid = new MessageId(midd);
+         final SimpleString connectionId = (SimpleString) coreMessage.getObjectProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
+         if (connectionId != null) {
+            mid = new MessageId("ID:" + connectionId.toString() + ":-1:-1:-1", coreMessage.getMessageID());
+         } else {
+            //JMSMessageID should be started with "ID:"
+            String midd = "ID:" + UUIDGenerator.getInstance().generateStringUUID() + ":-1:-1:-1:-1";
+            mid = new MessageId(midd);
+         }
       }
 
       amqMsg.setMessageId(mid);
