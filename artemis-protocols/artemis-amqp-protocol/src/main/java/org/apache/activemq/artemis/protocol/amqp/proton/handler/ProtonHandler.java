@@ -174,9 +174,6 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       sasl.setListener(this);
    }
 
-
-
-   /** When processing large messages, we require to flush bytes every processing */
    public void instantFlush() {
       this.flushInstantly = true;
       // This will perform event handling, and at some point the flushBytes will be called
