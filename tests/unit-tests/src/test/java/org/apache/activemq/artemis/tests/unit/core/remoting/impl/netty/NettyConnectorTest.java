@@ -17,6 +17,9 @@
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +28,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.proxy.Socks5ProxyHandler;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -42,6 +44,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -399,13 +402,14 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
    public void testSocksProxyHandlerAdded() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      InetAddress address = getNonLoopbackAddress();
+      Assume.assumeTrue("Cannot find non-loopback address", address != null);
+
+      BufferHandler handler = (connectionID, buffer) -> {
       };
       Map<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.HOST_PROP_NAME, InetAddress.getLocalHost().getHostAddress());
+
+      params.put(TransportConstants.HOST_PROP_NAME, address.getHostAddress());
       params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
 
@@ -439,6 +443,27 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       connector.close();
       Assert.assertFalse(connector.isStarted());
+   }
+
+   private InetAddress getNonLoopbackAddress() throws SocketException {
+      Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
+      InetAddress addr = null;
+      for (; n.hasMoreElements(); ) {
+         NetworkInterface e = n.nextElement();
+         Enumeration<InetAddress> a = e.getInetAddresses();
+         boolean found = false;
+         for (; a.hasMoreElements(); ) {
+            addr = a.nextElement();
+            if (!addr.isLoopbackAddress()) {
+               found = true;
+               break;
+            }
+         }
+         if (found) {
+            break;
+         }
+      }
+      return addr;
    }
 
    @Test
