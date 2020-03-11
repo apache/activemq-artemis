@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
-import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -529,11 +528,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222023, value = "problem cleaning page address {0}", format = Message.Format.MESSAGE_FORMAT)
    void problemCleaningPageAddress(@Cause Exception e, SimpleString address);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222024, value = "Could not complete operations on IO context {0}",
-      format = Message.Format.MESSAGE_FORMAT)
-   void problemCompletingOperations(OperationContext e);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222025, value = "Problem cleaning page subscription counter", format = Message.Format.MESSAGE_FORMAT)

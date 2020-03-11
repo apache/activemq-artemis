@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.NonExistentPage;
@@ -36,7 +37,9 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl;
 import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
@@ -424,83 +427,91 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    @Override
    public void cleanup() {
 
-      logger.tracef("performing page cleanup %s", this);
+      // this will clear the operation context in case there's one
+      OperationContext originalContextBeforeCleanup = OperationContextImpl.getContext();
 
-      ArrayList<Page> depagedPages = new ArrayList<>();
+      try {
+         OperationContextImpl.setContext(null);
 
-      while (true) {
-         if (pagingStore.lock(100)) {
-            break;
+         // This is just to make sure we create one
+         storageManager.getContext();
+
+         logger.tracef("performing page cleanup %s", this);
+
+         ArrayList<Page> depagedPages = new ArrayList<>();
+
+         while (true) {
+            if (pagingStore.lock(100)) {
+               break;
+            }
+            if (!pagingStore.isStarted())
+               return;
          }
-         if (!pagingStore.isStarted())
-            return;
-      }
 
-      logger.tracef("%s locked", this);
+         logger.tracef("%s locked", this);
 
-      synchronized (this) {
-         try {
-            if (!pagingStore.isStarted()) {
-               return;
-            }
-
-            if (pagingStore.getNumberOfPages() == 0) {
-               return;
-            }
-
-            ArrayList<PageSubscription> cursorList = cloneSubscriptions();
-
-            long minPage = checkMinPage(cursorList);
-            deliverIfNecessary(cursorList, minPage);
-
-            logger.debugf("Asserting cleanup for address %s, firstPage=%d", pagingStore.getAddress(), minPage);
-
-            // if the current page is being written...
-            // on that case we need to move to verify it in a different way
-            if (minPage == pagingStore.getCurrentWritingPage() && pagingStore.getCurrentPage().getNumberOfMessages() > 0) {
-               boolean complete = checkPageCompletion(cursorList, minPage);
-
+         synchronized (this) {
+            try {
                if (!pagingStore.isStarted()) {
                   return;
                }
 
-               // All the pages on the cursor are complete.. so we will cleanup everything and store a bookmark
-               if (complete) {
+               if (pagingStore.getNumberOfPages() == 0) {
+                  return;
+               }
 
-                  cleanupComplete(cursorList);
-               }
-            }
+               ArrayList<PageSubscription> cursorList = cloneSubscriptions();
 
-            for (long i = pagingStore.getFirstPage(); i < minPage; i++) {
-               if (!checkPageCompletion(cursorList, i)) {
-                  break;
-               }
-               Page page = pagingStore.depage();
-               if (page == null) {
-                  break;
-               }
-               depagedPages.add(page);
-            }
+               long minPage = checkMinPage(cursorList);
+               deliverIfNecessary(cursorList, minPage);
 
-            if (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && pagingStore.getCurrentPage().getNumberOfMessages() == 0) {
-               pagingStore.stopPaging();
-            } else {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() +
-                                  " as numberOfPages == " +
-                                  pagingStore.getNumberOfPages() +
-                                  " and currentPage.numberOfMessages = " +
-                                  pagingStore.getCurrentPage().getNumberOfMessages());
+               logger.debugf("Asserting cleanup for address %s, firstPage=%d", pagingStore.getAddress(), minPage);
+
+               // if the current page is being written...
+               // on that case we need to move to verify it in a different way
+               if (minPage == pagingStore.getCurrentWritingPage() && pagingStore.getCurrentPage().getNumberOfMessages() > 0) {
+                  boolean complete = checkPageCompletion(cursorList, minPage);
+
+                  if (!pagingStore.isStarted()) {
+                     return;
+                  }
+
+                  // All the pages on the cursor are complete.. so we will cleanup everything and store a bookmark
+                  if (complete) {
+
+                     cleanupComplete(cursorList);
+                  }
                }
+
+               for (long i = pagingStore.getFirstPage(); i < minPage; i++) {
+                  if (!checkPageCompletion(cursorList, i)) {
+                     break;
+                  }
+                  Page page = pagingStore.depage();
+                  if (page == null) {
+                     break;
+                  }
+                  depagedPages.add(page);
+               }
+
+               if (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && pagingStore.getCurrentPage().getNumberOfMessages() == 0) {
+                  pagingStore.stopPaging();
+               } else {
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() + " as numberOfPages == " + pagingStore.getNumberOfPages() + " and currentPage.numberOfMessages = " + pagingStore.getCurrentPage().getNumberOfMessages());
+                  }
+               }
+            } catch (Exception ex) {
+               ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
+               return;
+            } finally {
+               pagingStore.unlock();
             }
-         } catch (Exception ex) {
-            ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
-            return;
-         } finally {
-            pagingStore.unlock();
          }
+         finishCleanup(depagedPages);
+      } finally {
+         OperationContextImpl.setContext(originalContextBeforeCleanup);
       }
-      finishCleanup(depagedPages);
 
    }
 
@@ -516,6 +527,23 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       Page currentPage = pagingStore.getCurrentPage();
 
       storeBookmark(cursorList, currentPage);
+
+      // notice this will be using the OperationContext started by cleanup
+      storageManager.afterCompleteOperations(new IOCallback() {
+         @Override
+         public void done() {
+
+            for (PageSubscription cursor : cursorList) {
+               cursor.enableAutoCleanup();
+            }
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+
+         }
+      });
+
 
       pagingStore.stopPaging();
    }
@@ -612,26 +640,15 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    /**
+    * This method will store the last known position for paging right before we stopped paging.
     * @param cursorList
     * @param currentPage
     * @throws Exception
     */
    protected void storeBookmark(ArrayList<PageSubscription> cursorList, Page currentPage) throws Exception {
-      try {
-         // First step: Move every cursor to the next bookmarked page (that was just created)
-         for (PageSubscription cursor : cursorList) {
-            cursor.confirmPosition(new PagePositionImpl(currentPage.getPageId(), -1));
-         }
-
-         // we just need to make sure the storage is done..
-         // if the thread pool is full, we will just log it once instead of looping
-         if (!storageManager.waitOnOperations(5000)) {
-            ActiveMQServerLogger.LOGGER.problemCompletingOperations(storageManager.getContext());
-         }
-      } finally {
-         for (PageSubscription cursor : cursorList) {
-            cursor.enableAutoCleanup();
-         }
+      // Move every cursor to the next bookmarked page
+      for (PageSubscription cursor : cursorList) {
+         cursor.confirmPosition(new PagePositionImpl(currentPage.getPageId(), -1));
       }
    }
 
