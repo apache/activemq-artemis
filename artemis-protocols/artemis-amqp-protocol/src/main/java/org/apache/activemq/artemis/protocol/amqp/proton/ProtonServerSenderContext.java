@@ -1024,7 +1024,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    public void reportDrained() {
       connection.requireInHandler();
       sender.drained();
-      connection.flush();
+      connection.instantFlush();
    }
 
    public AMQPSessionContext getSessionContext() {
