@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageCache;
 import org.apache.activemq.artemis.core.paging.impl.Page;
@@ -26,7 +29,6 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static java.util.Collections.emptyList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -45,11 +47,15 @@ public class PageCursorProviderImplTest {
       final PageCursorProviderImpl pageCursorProvider = new PageCursorProviderImpl(pagingStore, storageManager, artemisExecutor, 2);
       when(pagingStore.getCurrentWritingPage()).thenReturn(pages);
       when(pagingStore.checkPageFileExists(anyInt())).thenReturn(true);
-      final Page firstPage = mock(Page.class);
-      when(firstPage.getPageId()).thenReturn(1);
+      SequentialFileFactory sequentialFileFactory = mock(SequentialFileFactory.class);
+      SequentialFile firstPageFile = mock(SequentialFile.class);
+      when(firstPageFile.size()).thenReturn(0L);
+      Page firstPage = new Page(new SimpleString("StorageManager"), storageManager, sequentialFileFactory, firstPageFile, 1);
       when(pagingStore.createPage(1)).thenReturn(firstPage);
-      final Page secondPage = mock(Page.class);
-      when(secondPage.getPageId()).thenReturn(2);
+      SequentialFile secondPageFile = mock(SequentialFile.class);
+      when(secondPageFile.size()).thenReturn(0L);
+      when(secondPageFile.isOpen()).thenReturn(true);
+      Page secondPage = new Page(new SimpleString("StorageManager"), storageManager, sequentialFileFactory, secondPageFile, 2);
       when(pagingStore.createPage(2)).thenReturn(secondPage);
       final CountDownLatch finishFirstPageRead = new CountDownLatch(1);
       final Thread concurrentRead = new Thread(() -> {
@@ -61,10 +67,19 @@ public class PageCursorProviderImplTest {
          }
       });
       try {
-         when(firstPage.read(storageManager)).then(invocationOnMock -> {
-            concurrentRead.start();
-            finishFirstPageRead.await();
-            return emptyList();
+         when(firstPageFile.isOpen()).then(invocationOnMock -> {
+            boolean pageReading = false;
+            for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+               if (element.getClassName().compareTo(Page.class.getName()) == 0 && element.getMethodName().compareTo("read") == 0) {
+                  pageReading = true;
+                  break;
+               }
+            }
+            if (pageReading) {
+               concurrentRead.start();
+               finishFirstPageRead.await();
+            }
+            return true;
          });
          Assert.assertNotNull(pageCursorProvider.getPageCache(1));
       } finally {
