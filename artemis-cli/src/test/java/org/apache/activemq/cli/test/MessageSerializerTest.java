@@ -30,20 +30,24 @@ import javax.jms.TopicSubscriber;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.cli.Artemis;
+import org.apache.activemq.artemis.cli.commands.address.CreateAddress;
+import org.apache.activemq.artemis.cli.commands.messages.Consumer;
+import org.apache.activemq.artemis.cli.commands.messages.Producer;
+import org.apache.activemq.artemis.cli.commands.queue.StatQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.cli.test.ArtemisTest.getOutputLines;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -78,17 +82,6 @@ public class MessageSerializerTest extends CliTestBase {
       return temporaryFolder.newFile("messages.xml");
    }
 
-   private List<Message> generateTextMessages(Session session, String address) throws Exception {
-      List<Message> messages = new ArrayList<>(TEST_MESSAGE_COUNT);
-      for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
-         messages.add(session.createTextMessage(RandomUtil.randomString()));
-      }
-
-      sendMessages(session, address, messages);
-
-      return messages;
-   }
-
    private List<Message> generateTextMessages(Session session, Destination destination) throws Exception {
       List<Message> messages = new ArrayList<>(TEST_MESSAGE_COUNT);
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
@@ -101,17 +94,38 @@ public class MessageSerializerTest extends CliTestBase {
    }
 
    private void checkSentMessages(Session session, List<Message> messages, String address) throws Exception {
-      List<Message> recieved = consumeMessages(session, address, TEST_MESSAGE_COUNT, CompositeAddress.isFullyQualified(address));
+      checkSentMessages(session, messages, address, null);
+   }
+
+   private void checkSentMessages(Session session, List<Message> messages, String address, String key) throws Exception {
+      List<Message> received = consumeMessages(session, address, TEST_MESSAGE_COUNT, CompositeAddress.isFullyQualified(address));
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
-         assertEquals(((TextMessage) messages.get(i)).getText(), ((TextMessage) recieved.get(i)).getText());
+         Message m = messages.get(i);
+         if (m instanceof TextMessage) {
+            assertEquals(((TextMessage) m).getText(), ((TextMessage) received.get(i)).getText());
+         } else if (m instanceof ObjectMessage) {
+            assertEquals(((ObjectMessage) m).getObject(), ((ObjectMessage) received.get(i)).getObject());
+         } else if (m instanceof MapMessage) {
+            assertEquals(((MapMessage) m).getString(key), ((MapMessage) received.get(i)).getString(key));
+         }
       }
    }
 
-   private void sendMessages(Session session, String address, List<Message> messages) throws Exception {
-      MessageProducer producer = session.createProducer(getDestination(address));
-      for (Message m : messages) {
-         producer.send(m);
+   private boolean verifyMessageCount(String address, int messageCount) throws Exception {
+      TestActionContext context = new TestActionContext();
+      new StatQueue()
+         .setQueueName(address)
+         .setUser("admin")
+         .setPassword("admin")
+         .execute(context);
+      int currentMessageCount;
+      try {
+         // parse the value for MESSAGE_COUNT from the output
+         currentMessageCount = Integer.parseInt(getOutputLines(context, false).get(1).split("\\|")[4].trim());
+      } catch (Exception e) {
+         currentMessageCount = 0;
       }
+      return (messageCount == currentMessageCount);
    }
 
    private void sendMessages(Session session, Destination destination, List<Message> messages) throws Exception {
@@ -125,35 +139,35 @@ public class MessageSerializerTest extends CliTestBase {
       exportMessages(address, TEST_MESSAGE_COUNT, false, "test-client", output);
    }
 
-   private void exportMessages(String address, int noMessages, boolean durable, String clientId, File output) throws Exception {
-      List<String> args = new ArrayList<>(Arrays.asList("consumer",
-                                                        "--user", "admin",
-                                                        "--password", "admin",
-                                                        "--destination", address,
-                                                        "--message-count", Integer.toString(noMessages),
-                                                        "--data", output.getAbsolutePath(),
-                                                        "--clientID", clientId));
-      if (durable) {
-         args.add("--durable");
-      }
-
-      Artemis.main(args.toArray(new String[0]));
+   private void exportMessages(String address, int messageCount, boolean durable, String clientId, File output) throws Exception {
+      new Consumer()
+         .setFile(output.getAbsolutePath())
+         .setDurable(durable)
+         .setDestination(address)
+         .setMessageCount(messageCount)
+         .setUser("admin")
+         .setPassword("admin")
+         .setClientID(clientId)
+         .execute(new TestActionContext());
    }
 
    private void importMessages(String address, File input) throws Exception {
-      Artemis.main("producer",
-              "--user", "admin",
-              "--password", "admin",
-              "--destination", address,
-              "--data", input.getAbsolutePath());
+      new Producer()
+         .setFile(input.getAbsolutePath())
+         .setDestination(address)
+         .setUser("admin")
+         .setPassword("admin")
+         .execute(new TestActionContext());
    }
 
    private void createBothTypeAddress(String address) throws Exception {
-      Artemis.main("address", "create",
-              "--user", "admin",
-              "--password", "admin",
-              "--name", address,
-              "--anycast", "--multicast");
+      new CreateAddress()
+         .setAnycast(true)
+         .setMulticast(true)
+         .setName(address)
+         .setUser("admin")
+         .setPassword("admin")
+         .execute(new TestActionContext());
    }
 
    @Test
@@ -163,18 +177,15 @@ public class MessageSerializerTest extends CliTestBase {
 
       Session session = createSession(connection);
 
-      List<Message> messages = generateTextMessages(session, address);
+      List<Message> sent = generateTextMessages(session, getDestination(address));
 
       exportMessages(address, file);
 
-      // Ensure there's nothing left to consume
-      MessageConsumer consumer = session.createConsumer(getDestination(address));
-      assertNull(consumer.receive(1000));
-      consumer.close();
+      Wait.assertTrue(() -> verifyMessageCount(address, 0), 2000, 100);
 
       importMessages(address, file);
-
-      checkSentMessages(session, messages, address);
+      Wait.assertTrue(() -> verifyMessageCount(address, TEST_MESSAGE_COUNT), 2000, 100);
+      checkSentMessages(session, sent, address);
    }
 
    @Test
@@ -190,19 +201,14 @@ public class MessageSerializerTest extends CliTestBase {
          sent.add(session.createObjectMessage(UUID.randomUUID()));
       }
 
-      sendMessages(session, address, sent);
+      sendMessages(session, getDestination(address), sent);
       exportMessages(address, file);
 
-      // Ensure there's nothing left to consume
-      MessageConsumer consumer = session.createConsumer(getDestination(address));
-      assertNull(consumer.receive(1000));
-      consumer.close();
+      Wait.assertTrue(() -> verifyMessageCount(address, 0), 2000, 100);
 
       importMessages(address, file);
-      List<Message> received = consumeMessages(session, address, TEST_MESSAGE_COUNT, false);
-      for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
-         assertEquals(((ObjectMessage) sent.get(i)).getObject(), ((ObjectMessage) received.get(i)).getObject());
-      }
+      Wait.assertTrue(() -> verifyMessageCount(address, TEST_MESSAGE_COUNT), 2000, 100);
+      checkSentMessages(session, sent, address);
    }
 
    @Test
@@ -220,19 +226,14 @@ public class MessageSerializerTest extends CliTestBase {
          sent.add(m);
       }
 
-      sendMessages(session, address, sent);
+      sendMessages(session, getDestination(address), sent);
       exportMessages(address, file);
 
-      // Ensure there's nothing left to consume
-      MessageConsumer consumer = session.createConsumer(getDestination(address));
-      assertNull(consumer.receive(1000));
-      consumer.close();
+      Wait.assertTrue(() -> verifyMessageCount(address, 0), 2000, 100);
 
       importMessages(address, file);
-      List<Message> received = consumeMessages(session, address, TEST_MESSAGE_COUNT, false);
-      for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
-         assertEquals(((MapMessage) sent.get(i)).getString(key), ((MapMessage) received.get(i)).getString(key));
-      }
+      Wait.assertTrue(() -> verifyMessageCount(address, TEST_MESSAGE_COUNT), 2000, 100);
+      checkSentMessages(session, sent, address, key);
    }
 
    @Test
@@ -251,8 +252,8 @@ public class MessageSerializerTest extends CliTestBase {
       String queue1Name = "queue1";
       String queue2Name = "queue2";
 
-      createQueue("--" + routingType.toString().toLowerCase(), address, queue1Name);
-      createQueue("--" + routingType.toString().toLowerCase(), address, queue2Name);
+      createQueue(routingType, address, queue1Name);
+      createQueue(routingType, address, queue2Name);
 
       try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616"); Connection connection = cf.createConnection("admin", "admin");) {
 
@@ -265,11 +266,12 @@ public class MessageSerializerTest extends CliTestBase {
          MessageConsumer consumer1 = session.createConsumer(queue1);
          MessageConsumer consumer2 = session.createConsumer(queue2);
 
-         Artemis.main("producer",
-                 "--user", "admin",
-                 "--password", "admin",
-                 "--destination", (routingType == RoutingType.ANYCAST ? ActiveMQDestination.QUEUE_QUALIFIED_PREFIX : ActiveMQDestination.TOPIC_QUALIFIED_PREFIX) + CompositeAddress.toFullyQualified(address, queue1Name),
-                 "--message-count", "5");
+         new Producer()
+            .setDestination((routingType == RoutingType.ANYCAST ? ActiveMQDestination.QUEUE_QUALIFIED_PREFIX : ActiveMQDestination.TOPIC_QUALIFIED_PREFIX) + CompositeAddress.toFullyQualified(address, queue1Name))
+            .setMessageCount(5)
+            .setUser("admin")
+            .setPassword("admin")
+            .execute(new TestActionContext());
 
          assertNull(consumer2.receive(1000));
          assertNotNull(consumer1.receive(1000));
@@ -285,7 +287,7 @@ public class MessageSerializerTest extends CliTestBase {
 
       File file = createMessageFile();
 
-      createQueue("--multicast", addr, queue);
+      createQueue(RoutingType.MULTICAST, addr, queue);
 
       Session session = createSession(connection);
 
@@ -308,12 +310,12 @@ public class MessageSerializerTest extends CliTestBase {
 
       File file = createMessageFile();
 
-      createQueue("--multicast", mAddress, queueM1Name);
-      createQueue("--multicast", mAddress, queueM2Name);
+      createQueue(RoutingType.MULTICAST, mAddress, queueM1Name);
+      createQueue(RoutingType.MULTICAST, mAddress, queueM2Name);
 
       Session session = createSession(connection);
 
-      List<Message> messages = generateTextMessages(session, aAddress);
+      List<Message> messages = generateTextMessages(session, getDestination(aAddress));
 
       exportMessages(aAddress, file);
       importMessages(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + mAddress, file);
@@ -333,12 +335,12 @@ public class MessageSerializerTest extends CliTestBase {
 
       File file = createMessageFile();
 
-      createQueue("--multicast", mAddress, queueM1Name);
-      createQueue("--multicast", mAddress, queueM2Name);
+      createQueue(RoutingType.MULTICAST, mAddress, queueM1Name);
+      createQueue(RoutingType.MULTICAST, mAddress, queueM2Name);
 
       Session session = createSession(connection);
 
-      List<Message> messages = generateTextMessages(session, aAddress);
+      List<Message> messages = generateTextMessages(session, getDestination(aAddress));
 
       exportMessages(aAddress, file);
       importMessages(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + fqqnMulticast1, file);
@@ -380,12 +382,12 @@ public class MessageSerializerTest extends CliTestBase {
 
       connection.setClientID(clientId);
       createBothTypeAddress(address);
-      createQueue("--anycast", address, address);
+      createQueue(RoutingType.ANYCAST, address, address);
       Session session = createSession(connection);
 
       TopicSubscriber subscriber = session.createDurableSubscriber(session.createTopic(address), "test-subscriber");
 
-      List<Message> messages = generateTextMessages(session, address);
+      List<Message> messages = generateTextMessages(session, getDestination(address));
 
       exportMessages(address, file);
 

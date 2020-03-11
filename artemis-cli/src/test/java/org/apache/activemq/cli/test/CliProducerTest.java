@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.cli.test;
 
-import org.apache.activemq.artemis.cli.Artemis;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.After;
@@ -54,22 +55,17 @@ public class CliProducerTest extends CliTestBase {
    }
 
    private void produceMessages(String address, String message, int msgCount) throws Exception {
-      Artemis.main("producer",
-              "--user", "admin",
-              "--password", "admin",
-              "--destination", address,
-              "--message", message,
-              "--message-count", String.valueOf(msgCount)
-      );
+      new Producer()
+         .setMessage(message)
+         .setMessageCount(msgCount)
+         .setDestination(address)
+         .setUser("admin")
+         .setPassword("admin")
+         .execute(new TestActionContext());
    }
 
    private void produceMessages(String address, int msgCount) throws Exception {
-      Artemis.main("producer",
-              "--user", "admin",
-              "--password", "admin",
-              "--destination", address,
-              "--message-count", String.valueOf(msgCount)
-      );
+      produceMessages(address, null, msgCount);
    }
 
    private void checkSentMessages(Session session, String address, String messageBody) throws Exception {
@@ -98,7 +94,7 @@ public class CliProducerTest extends CliTestBase {
       String queue = "queue";
       String fqqn = address + "::" + queue;
 
-      createQueue("--multicast", address, queue);
+      createQueue(RoutingType.MULTICAST, address, queue);
       Session session = createSession(connection);
 
       produceMessages("topic://" + address, TEST_MESSAGE_COUNT);
@@ -113,7 +109,7 @@ public class CliProducerTest extends CliTestBase {
       String fqqn = address + "::" + queue;
       String messageBody = new StringGenerator().generateRandomString(20);
 
-      createQueue("--multicast", address, queue);
+      createQueue(RoutingType.MULTICAST, address, queue);
       Session session = createSession(connection);
 
       produceMessages("topic://" + address, messageBody, TEST_MESSAGE_COUNT);

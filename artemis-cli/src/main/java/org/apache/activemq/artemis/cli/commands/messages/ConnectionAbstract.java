@@ -48,24 +48,27 @@ public class ConnectionAbstract extends InputAbstract {
       return user;
    }
 
-   public void setUser(String user) {
+   public ConnectionAbstract setUser(String user) {
       this.user = user;
+      return this;
    }
 
    public String getPassword() {
       return password;
    }
 
-   public void setPassword(String password) {
+   public ConnectionAbstract setPassword(String password) {
       this.password = password;
+      return this;
    }
 
    public String getClientID() {
       return clientID;
    }
 
-   public void setClientID(String clientID) {
+   public ConnectionAbstract setClientID(String clientID) {
       this.clientID = clientID;
+      return this;
    }
 
    public String getProtocol() {
