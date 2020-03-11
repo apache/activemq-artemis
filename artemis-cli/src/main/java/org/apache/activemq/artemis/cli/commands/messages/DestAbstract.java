@@ -79,4 +79,58 @@ public class DestAbstract extends ConnectionAbstract {
          return destination;
       }
    }
+
+   public String getDestination() {
+      return destination;
+   }
+
+   public DestAbstract setDestination(String destination) {
+      this.destination = destination;
+      return this;
+   }
+
+   public int getMessageCount() {
+      return messageCount;
+   }
+
+   public DestAbstract setMessageCount(int messageCount) {
+      this.messageCount = messageCount;
+      return this;
+   }
+
+   public int getSleep() {
+      return sleep;
+   }
+
+   public DestAbstract setSleep(int sleep) {
+      this.sleep = sleep;
+      return this;
+   }
+
+   public int getTxBatchSize() {
+      return txBatchSize;
+   }
+
+   public DestAbstract setTxBatchSize(int txBatchSize) {
+      this.txBatchSize = txBatchSize;
+      return this;
+   }
+
+   public int getThreads() {
+      return threads;
+   }
+
+   public DestAbstract setThreads(int threads) {
+      this.threads = threads;
+      return this;
+   }
+
+   public String getSerializer() {
+      return serializer;
+   }
+
+   public DestAbstract setSerializer(String serializer) {
+      this.serializer = serializer;
+      return this;
+   }
 }

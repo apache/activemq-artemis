@@ -140,4 +140,49 @@ public class Consumer extends DestAbstract {
          messageSerializer.write(message);
       }
    }
+
+   public boolean isDurable() {
+      return durable;
+   }
+
+   public Consumer setDurable(boolean durable) {
+      this.durable = durable;
+      return this;
+   }
+
+   public boolean isBreakOnNull() {
+      return breakOnNull;
+   }
+
+   public Consumer setBreakOnNull(boolean breakOnNull) {
+      this.breakOnNull = breakOnNull;
+      return this;
+   }
+
+   public int getReceiveTimeout() {
+      return receiveTimeout;
+   }
+
+   public Consumer setReceiveTimeout(int receiveTimeout) {
+      this.receiveTimeout = receiveTimeout;
+      return this;
+   }
+
+   public String getFilter() {
+      return filter;
+   }
+
+   public Consumer setFilter(String filter) {
+      this.filter = filter;
+      return this;
+   }
+
+   public String getFile() {
+      return file;
+   }
+
+   public Consumer setFile(String file) {
+      this.file = file;
+      return this;
+   }
 }

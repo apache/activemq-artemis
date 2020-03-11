@@ -203,12 +203,14 @@ public class QueueAbstract extends AbstractAction {
       this.purgeOnNoConsumers = purgeOnNoConsumers;
    }
 
-   public void setAddress(String address) {
+   public QueueAbstract setAddress(String address) {
       this.address = address;
+      return this;
    }
 
-   public void setName(String name) {
+   public QueueAbstract setName(String name) {
       this.name = name;
+      return this;
    }
 
    public String getName() {
