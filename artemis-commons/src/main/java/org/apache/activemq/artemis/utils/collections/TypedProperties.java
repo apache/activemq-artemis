@@ -446,21 +446,17 @@ public class TypedProperties {
    }
 
    public synchronized void decode(final ByteBuf buffer,
-                                   final TypedPropertiesDecoderPools keyValuePools,
-                                   boolean replaceExisting) {
+                                   final TypedPropertiesDecoderPools keyValuePools) {
       byte b = buffer.readByte();
       if (b == DataConstants.NULL) {
-         if (replaceExisting) {
-            properties = null;
-            size = 0;
-         }
+         properties = null;
+         size = 0;
       } else {
          int numHeaders = buffer.readInt();
-         if (replaceExisting || properties == null) {
-            //optimize the case of no collisions to avoid any resize (it doubles the map size!!!) when load factor is reached
-            properties = new HashMap<>(numHeaders, 1.0f);
-         }
-         size = properties.size();
+
+         //optimize the case of no collisions to avoid any resize (it doubles the map size!!!) when load factor is reached
+         properties = new HashMap<>(numHeaders, 1.0f);
+         size = 0;
 
          for (int i = 0; i < numHeaders; i++) {
             final SimpleString key = SimpleString.readSimpleString(buffer, keyValuePools == null ? null : keyValuePools.getPropertyKeysPool());
@@ -531,10 +527,6 @@ public class TypedProperties {
             }
          }
       }
-   }
-
-   public synchronized void decode(final ByteBuf buffer, final TypedPropertiesDecoderPools keyValuePools) {
-      decode(buffer, keyValuePools, true);
    }
 
    public void decode(final ByteBuf buffer) {

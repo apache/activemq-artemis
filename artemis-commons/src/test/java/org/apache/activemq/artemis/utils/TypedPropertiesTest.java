@@ -32,6 +32,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import static org.apache.activemq.artemis.utils.collections.TypedProperties.searchProperty;
+import static org.hamcrest.Matchers.greaterThan;
 
 public class TypedPropertiesTest {
 
@@ -96,7 +97,11 @@ public class TypedPropertiesTest {
       Assert.assertTrue(props.containsProperty(key));
       Assert.assertNotNull(props.getProperty(key));
 
+      Assert.assertThat(props.getEncodeSize(), greaterThan(0));
+
       props.clear();
+
+      Assert.assertEquals(1, props.getEncodeSize());
 
       Assert.assertFalse(props.containsProperty(key));
       Assert.assertNull(props.getProperty(key));
