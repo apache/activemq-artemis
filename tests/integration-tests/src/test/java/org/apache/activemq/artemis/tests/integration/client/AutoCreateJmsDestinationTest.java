@@ -49,7 +49,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
@@ -100,11 +102,77 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
    }
 
    @Test
+   public void testAutoCreateOnSendToFQQN() throws Exception {
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      String queueName = RandomUtil.randomString();
+      String addressName = RandomUtil.randomString();
+
+      javax.jms.Queue queue = ActiveMQJMSClient.createQueue(CompositeAddress.toFullyQualified(addressName, queueName));
+
+      MessageProducer producer = session.createProducer(queue);
+
+      final int numMessages = 100;
+
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage mess = session.createTextMessage("msg" + i);
+         producer.send(mess);
+      }
+
+      producer.close();
+
+      MessageConsumer messageConsumer = session.createConsumer(queue);
+      connection.start();
+
+      for (int i = 0; i < numMessages; i++) {
+         Message m = messageConsumer.receive(5000);
+         Assert.assertNotNull(m);
+      }
+
+      // make sure the JMX control was created for the address and queue
+      assertNotNull(server.getManagementService().getResource(ADDRESS + addressName));
+      assertNotNull(server.getManagementService().getResource(QUEUE + queueName));
+
+      connection.close();
+   }
+
+   @Test
    public void testAutoCreateOnSendToQueueAnonymousProducer() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       javax.jms.Queue queue = ActiveMQJMSClient.createQueue(QUEUE_NAME);
+
+      MessageProducer producer = session.createProducer(null);
+
+      final int numMessages = 100;
+
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage mess = session.createTextMessage("msg" + i);
+         producer.send(queue, mess);
+      }
+
+      producer.close();
+
+      MessageConsumer messageConsumer = session.createConsumer(queue);
+      connection.start();
+
+      for (int i = 0; i < numMessages; i++) {
+         Message m = messageConsumer.receive(5000);
+         Assert.assertNotNull(m);
+      }
+
+      connection.close();
+   }
+
+   @Test
+   public void testAutoCreateOnSendToFQQNAnonymousProducer() throws Exception {
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      String queueName = RandomUtil.randomString();
+      String addressName = RandomUtil.randomString();
+
+      javax.jms.Queue queue = ActiveMQJMSClient.createQueue(CompositeAddress.toFullyQualified(addressName, queueName));
 
       MessageProducer producer = session.createProducer(null);
 
@@ -182,6 +250,28 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Assert.assertNull(m);
 
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(QUEUE_NAME)).getBindable();
+      Assert.assertEquals(0, q.getMessageCount());
+      Assert.assertEquals(0, q.getMessagesAdded());
+      connection.close();
+   }
+
+   @Test
+   public void testAutoCreateOnConsumeFromFQQN() throws Exception {
+      Connection connection = null;
+      connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      String queueName = RandomUtil.randomString();
+      String addressName = RandomUtil.randomString();
+
+      javax.jms.Queue queue = ActiveMQJMSClient.createQueue(CompositeAddress.toFullyQualified(addressName, queueName));
+
+      MessageConsumer messageConsumer = session.createConsumer(queue);
+      connection.start();
+
+      Message m = messageConsumer.receive(500);
+      Assert.assertNull(m);
+
+      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
       Assert.assertEquals(0, q.getMessageCount());
       Assert.assertEquals(0, q.getMessagesAdded());
       connection.close();
