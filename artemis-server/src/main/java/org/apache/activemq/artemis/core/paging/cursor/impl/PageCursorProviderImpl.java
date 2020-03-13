@@ -562,7 +562,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             synchronized (softCache) {
                long pageId = (long) depagedPage.getPageId();
                softCache.remove(pageId);
-               numberOfMessages.remove(pageId);
+               if (numberOfMessages != null) {
+                  numberOfMessages.remove(pageId);
+               }
             }
             onDeletePage(depagedPage);
          }
