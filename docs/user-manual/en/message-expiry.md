@@ -28,18 +28,8 @@ JMS MessageProducer allows to set a TimeToLive for the messages it sent:
 producer.setTimeToLive(5000);
 ```
 
-Expired messages which are consumed from an expiry address have the following
-properties:
-
-- `_AMQ_ORIG_ADDRESS`
-
-  a String property containing the *original address* of the expired
-  message
-
-- `_AMQ_ORIG_QUEUE`
-
-  a String property containing the *original queue* of the expired
-  message
+Expired messages get [breadcrumb properties](breadcrumbs.md) plus this additional
+property:
 
 - `_AMQ_ACTUAL_EXPIRY`
 
@@ -123,16 +113,15 @@ an `address-setting` to configure the `expiry-address` much less
 the actual `address` and `queue` to hold the expired messages.
 
 The solution to this problem is to set the `auto-create-expiry-resources`
-`address-setting` to `true` (it's `false` by default) so that the
-broker will create the `address` and `queue` to deal with the
-expired messages automatically. The `address` created will be the
-one defined by the `expiry-address`. A `MULTICAST` `queue` will be
-created on that `address`. It will be named by the `address` to which
-the message was originally sent, and it will have a filter defined using
-the aforementioned `_AMQ_ORIG_ADDRESS` property so that it will only
-receive messages sent to the relevant `address`. The `queue` name can be
-configured with a prefix and suffix. See the relevant settings in the
-table below:
+`address-setting` to `true` (it's `false` by default) so that the broker will
+create the `address` and `queue` to deal with the expired messages
+automatically. The `address` created will be the one defined by the
+`expiry-address`. A `MULTICAST` `queue` will be created on that `address`.
+It will be named by the `address` to which the message was previously sent, and
+it will have a filter defined using the breadcrumb property `_AMQ_ORIG_ADDRESS`
+so that it will only receive messages sent to the relevant `address`. The
+`queue` name can be configured with a prefix and suffix. See the relevant
+settings in the table below:
 
 `address-setting`|default
 ---|---

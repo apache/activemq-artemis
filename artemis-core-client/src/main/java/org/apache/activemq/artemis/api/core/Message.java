@@ -463,28 +463,38 @@ public interface Message {
    }
 
    default void referenceOriginalMessage(final Message original, String originalQueue) {
-      Object queueOnMessage = original.getBrokerProperty(Message.HDR_ORIGINAL_QUEUE);
+      Object originalQueueOnMessage = original.getBrokerProperty(Message.HDR_ORIGINAL_QUEUE);
 
-      if (queueOnMessage != null) {
-         setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, queueOnMessage);
-      } else if (originalQueue != null) {
-         setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
+      if (originalQueueOnMessage != null) {
+         setBreadcrumb(Message.HDR_ORIGINAL_QUEUE, originalQueueOnMessage);
       }
+
+      setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
 
       Object originalID = original.getBrokerProperty(Message.HDR_ORIG_MESSAGE_ID);
 
       if (originalID != null) {
-         setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getBrokerProperty(Message.HDR_ORIGINAL_ADDRESS));
+         setBreadcrumb(Message.HDR_ORIGINAL_ADDRESS, original.getBrokerProperty(Message.HDR_ORIGINAL_ADDRESS));
 
-         setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, originalID);
-      } else {
-         setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getAddress());
-
-         setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, original.getMessageID());
+         setBreadcrumb(Message.HDR_ORIG_MESSAGE_ID, originalID);
       }
+
+      setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getAddress());
+
+      setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, original.getMessageID());
 
       // reset expiry
       setExpiration(0);
+   }
+
+   default void setBreadcrumb(SimpleString headerName, Object headerValue) {
+      final String separator = "_";
+      Integer index = 0;
+      while (getBrokerProperty(headerName.concat(separator).concat(index.toString())) != null) {
+         index++;
+      }
+
+      setBrokerProperty(headerName.concat(separator).concat(index.toString()), headerValue);
    }
 
    /**

@@ -75,6 +75,7 @@
 * [Spring Integration](spring-integration.md)
 * [CDI Integration](cdi-integration.md)
 * [Intercepting Operations](intercepting-operations.md)
+* [Breadcrumb Message Properties](breadcrumbs.md)
 * [Data Tools](data-tools.md)
 * [Maven Plugin](maven-plugin.md)
 * [Unit Testing](unit-testing.md)
