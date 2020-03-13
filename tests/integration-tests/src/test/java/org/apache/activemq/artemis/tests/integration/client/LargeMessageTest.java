@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
@@ -61,7 +62,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LargeMessageTest extends LargeMessageTestBase {
-
 
    private static final Logger log = Logger.getLogger(LargeMessageTest.class);
 
@@ -209,6 +209,62 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.start();
 
       ClientConsumer consumer = session.createConsumer(ADDRESS);
+      ClientMessage msg1 = consumer.receive(1000);
+      msg1.acknowledge();
+      session.commit();
+      Assert.assertNotNull(msg1);
+
+      consumer.close();
+
+      try {
+         msg1.getBodyBuffer().readByte();
+         Assert.fail("Exception was expected");
+      } catch (final Exception ignored) {
+         // empty on purpose
+      }
+
+      session.close();
+
+      validateNoFilesOnLargeDir();
+   }
+
+   @Test
+   public void testDivertAndExpire() throws Exception {
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final String DIVERTED = "diverted";
+
+      ClientSession session = null;
+
+      ActiveMQServer server = createServer(true, isNetty(), storeType);
+      server.getConfiguration().setMessageExpiryScanPeriod(100);
+
+      server.start();
+
+      server.createQueue(new QueueConfiguration(DIVERTED));
+
+      server.getAddressSettingsRepository().addMatch(DIVERTED, new AddressSettings().setExpiryDelay(250L).setExpiryAddress(SimpleString.toSimpleString(DIVERTED + "Expiry")).setAutoCreateExpiryResources(true));
+
+      server.deployDivert(new DivertConfiguration().setName("myDivert").setAddress(ADDRESS.toString()).setForwardingAddress(DIVERTED).setExclusive(true));
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      session = addClientSession(sf.createSession(false, false, false));
+
+      session.createQueue(new QueueConfiguration(ADDRESS).setDurable(false).setTemporary(true));
+
+      ClientProducer producer = session.createProducer(ADDRESS);
+
+      Message clientFile = createLargeClientMessageStreaming(session, messageSize, true);
+
+      producer.send(clientFile);
+
+      session.commit();
+
+      session.start();
+
+      Wait.waitFor(() -> server.locateQueue(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX + DIVERTED) != null, 1000, 100);
+
+      ClientConsumer consumer = session.createConsumer(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX + DIVERTED);
       ClientMessage msg1 = consumer.receive(1000);
       msg1.acknowledge();
       session.commit();
