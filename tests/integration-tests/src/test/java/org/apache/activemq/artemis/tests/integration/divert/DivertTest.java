@@ -485,7 +485,7 @@ public class DivertTest extends ActiveMQTestBase {
          instanceLog.debug("Received message " + message);
          assertNotNull(message);
 
-         if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("divert1")) {
+         if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue1")) {
             countOriginal1++;
          } else if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue2")) {
             countOriginal2++;
@@ -1464,5 +1464,39 @@ public class DivertTest extends ActiveMQTestBase {
 
       server.destroyDivert(SimpleString.toSimpleString(DIVERT));
       assertNull(serviceRegistry.getDivertTransformer(DIVERT, null));
+   }
+
+   @Test
+   public void testProperties() throws Exception {
+      final String testAddress = "testAddress";
+      final SimpleString queue = SimpleString.toSimpleString("queue");
+      final int COUNT = 25;
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
+      server.start();
+
+      server.createQueue(new QueueConfiguration(queue).setAddress(testAddress + (COUNT)).setRoutingType(RoutingType.ANYCAST));
+      for (int i = 0; i < COUNT; i++) {
+         server.deployDivert(new DivertConfiguration()
+                                .setName("divert" + i)
+                                .setAddress(testAddress + i)
+                                .setForwardingAddress(testAddress + (i + 1)));
+      }
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(false, true, true);
+      session.start();
+
+      ClientProducer producer = session.createProducer(new SimpleString(testAddress + "0"));
+      ClientConsumer consumer1 = session.createConsumer(queue);
+      ClientMessage message = session.createMessage(false);
+      producer.send(message);
+
+      message = consumer1.receive(DivertTest.TIMEOUT);
+      Assert.assertNotNull(message);
+      message.acknowledge();
+      Assert.assertEquals("testAddress" + COUNT, message.getAddress());
+      Assert.assertEquals("testAddress" + (COUNT - 1), message.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
    }
 }

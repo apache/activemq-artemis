@@ -70,6 +70,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
@@ -3477,7 +3478,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             ref.acknowledge(tx, AckReason.KILLED, null);
          } else {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
-            move(tx, deadLetterAddress, null, ref, false, AckReason.KILLED, null);
+            RoutingStatus status = move(tx, deadLetterAddress, null, ref, false, AckReason.KILLED, null);
+
+            // this shouldn't happen, but in case it does it's better to log a message than just drop the message silently
+            if (status.equals(RoutingStatus.NO_BINDINGS) && server.getAddressSettingsRepository().getMatch(getAddress().toString()).isAutoCreateDeadLetterResources()) {
+               ActiveMQServerLogger.LOGGER.noMatchingBindingsOnDLAWithAutoCreateDLAResources(deadLetterAddress, ref.toString());
+            }
             return true;
          }
       } else {
@@ -3511,7 +3517,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   private void move(final Transaction originalTX,
+   private RoutingStatus move(final Transaction originalTX,
                      final SimpleString address,
                      final Binding binding,
                      final MessageReference ref,
@@ -3531,13 +3537,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       copyMessage.setAddress(address);
 
-      postOffice.route(copyMessage, tx, false, rejectDuplicate, binding);
+      RoutingStatus routingStatus = postOffice.route(copyMessage, tx, false, rejectDuplicate, binding);
 
       acknowledge(tx, ref, reason, consumer);
 
       if (originalTX == null) {
          tx.commit();
       }
+
+      return routingStatus;
    }
 
    /*
