@@ -137,17 +137,11 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
 
 
          // Redo the selection
-         receiverDLQ = session.createReceiver(getDeadLetterAddress(), "\"m." + AMQPMessageSupport.HDR_ORIGINAL_ADDRESS_ANNOTATION + "\"='" + getQueueName() + "'");
+         receiverDLQ = session.createReceiver(getDeadLetterAddress(), "\"m." + AMQPMessageSupport.HDR_ORIGINAL_ADDRESS_ANNOTATION + "\"='" + getExpiryQueue() + "'");
          receiverDLQ.flow(1);
          received = receiverDLQ.receive(5, TimeUnit.SECONDS);
          Assert.assertNotNull(received);
          received.accept();
-
-         /** When moving to DLQ, the original headers shoudln't be touched. */
-         for (Map.Entry<String, Object> entry : annotations.entrySet()) {
-            log.debug("Checking " + entry.getKey() + " = " + entry.getValue());
-            Assert.assertEquals(entry.getKey() + " should be = " + entry.getValue(), entry.getValue(), received.getMessageAnnotation(entry.getKey()));
-         }
 
          assertEquals(0, received.getTimeToLive());
          assertNotNull(received);

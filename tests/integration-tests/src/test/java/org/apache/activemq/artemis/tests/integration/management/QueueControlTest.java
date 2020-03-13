@@ -1685,6 +1685,47 @@ public class QueueControlTest extends ManagementTestBase {
       session.deleteQueue(queue);
    }
 
+   @Test
+   public void testCopiedMessageProperties() throws Exception {
+      final String testAddress = "testAddress";
+      final SimpleString queue = SimpleString.toSimpleString("queue");
+      final int COUNT = 5;
+
+      for (int i = 0; i < COUNT; i++) {
+         server.createQueue(new QueueConfiguration(queue.concat(Integer.toString(i))).setAddress(testAddress + i).setRoutingType(RoutingType.ANYCAST));
+      }
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(false, true, true);
+      session.start();
+
+      ClientProducer producer = session.createProducer(new SimpleString(testAddress + "0"));
+      ClientMessage message = session.createMessage(durable);
+      producer.send(message);
+      producer.close();
+
+      for (int i = 0; i < COUNT - 1; i++) {
+         QueueControl queueControl = createManagementControl(SimpleString.toSimpleString(testAddress + i), queue.concat(Integer.toString(i)), RoutingType.ANYCAST);
+         QueueControl otherQueueControl = createManagementControl(SimpleString.toSimpleString(testAddress + (i + 1)), queue.concat(Integer.toString(i + 1)), RoutingType.ANYCAST);
+         assertMessageMetrics(queueControl, 1, durable);
+         assertMessageMetrics(otherQueueControl, 0, durable);
+
+         int moved = queueControl.moveMessages(null, queue.concat(Integer.toString(i + 1)).toString());
+         Assert.assertEquals(1, moved);
+         assertMessageMetrics(queueControl, 0, durable);
+         assertMessageMetrics(otherQueueControl, 1, durable);
+      }
+
+      ClientConsumer consumer1 = session.createConsumer(queue.concat(Integer.toString(COUNT - 1)));
+      message = consumer1.receive(1000);
+      Assert.assertNotNull(message);
+      message.acknowledge();
+      System.out.println(message);
+      Assert.assertEquals(testAddress + (COUNT - 1), message.getAddress());
+      Assert.assertEquals(testAddress + (COUNT - 2), message.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+   }
+
    /**
     * <ol>
     * <li>send 2 message to queue</li>

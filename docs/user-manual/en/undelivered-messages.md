@@ -165,18 +165,7 @@ set of addresses (see [Understanding the Wildcard Syntax](wildcard-syntax.md)).
 
 ### Dead Letter Properties
 
-Dead letter messages which are consumed from a dead letter address have
-the following properties:
-
-- `_AMQ_ORIG_ADDRESS`
-
-  a String property containing the *original address* of the dead
-  letter message
-
-- `_AMQ_ORIG_QUEUE`
-
-  a String property containing the *original queue* of the dead letter
-  message
+Dead letter messages get [special properties](copied-message-properties.md).
 
 ### Automatically Creating Dead Letter Resources
 
@@ -194,21 +183,20 @@ an `address-setting` to configure the `dead-letter-address` much less
 the actual `address` and `queue` to hold the undelivered messages.
 
 The solution to this problem is to set the `auto-create-dead-letter-resources`
-`address-setting` to `true` (it's `false` by default) so that the
-broker will create the `address` and `queue` to deal with the
-undelivered messages automatically. The `address` created will be the
-one defined by the `dead-letter-address`. A `MULTICAST` `queue` will be
-created on that `address`. It will be named by the `address` to which
-the message was originally sent, and it will have a filter defined using
-the aforementioned `_AMQ_ORIG_ADDRESS` property so that it will only
-receive messages sent to the relevant `address`. The `queue` name can be
-configured with a prefix and suffix. See the relevant settings in the
-table below:
+`address-setting` to `true` (it's `false` by default) so that the broker will
+create the `address` and `queue` to deal with the undelivered messages
+automatically. The `address` created will be the one defined by the
+`dead-letter-address`. A `MULTICAST` `queue` will be created on that `address`.
+It will be named by the `address` to which the message was previously sent, and
+it will have a filter defined using the property `_AMQ_ORIG_ADDRESS` so that it
+ will only receive messages sent to the relevant `address`. The `queue` name
+ can be configured with a prefix and suffix. See the relevant settings in the
+ table below:
 
 `address-setting`|default
 ---|---
 `dead-letter-queue-prefix`|`DLQ.`
-`dead-letter-queue-suffix`|`` (empty string)
+`dead-letter-queue-suffix`|(empty string)
 
 Here is an example configuration:
 
