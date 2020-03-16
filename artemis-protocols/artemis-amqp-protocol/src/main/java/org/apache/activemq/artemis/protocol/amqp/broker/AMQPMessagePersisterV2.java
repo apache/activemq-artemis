@@ -17,8 +17,11 @@
 
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -72,25 +75,36 @@ public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
    }
 
    @Override
-   public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pool) {
-      AMQPMessage message = (AMQPMessage) super.decode(buffer, record, pool);
-      int size = buffer.readInt();
-
-      if (size != 0) {
-         // message::setAddress could have populated extra properties
-         // hence, we can safely replace the value on the properties
-         // if it has been encoded differently in the rest of the buffer
-         TypedProperties existingExtraProperties = message.getExtraProperties();
-         TypedProperties extraProperties = existingExtraProperties;
-         if (existingExtraProperties == null) {
-            extraProperties = new TypedProperties(Message.INTERNAL_PROPERTY_NAMES_PREDICATE);
-         }
-         extraProperties.decode(buffer.byteBuf(), pool != null ? pool.getPropertiesDecoderPools() : null, existingExtraProperties == null);
-         if (extraProperties != existingExtraProperties) {
-            message.setExtraProperties(extraProperties);
-         }
+   public Message decode(ActiveMQBuffer buffer, Message ignore, CoreMessageObjectPools pool) {
+      // IMPORTANT:
+      // This is a sightly modified copy of the AMQPMessagePersister::decode body
+      // to save extraProperties to be created twice: this would kill GC during journal loading
+      long id = buffer.readLong();
+      long format = buffer.readLong();
+      // this instance is being used only if there are no extraProperties or just for debugging purposes:
+      // on journal loading pool shouldn't be null so it shouldn't create any garbage.
+      final SimpleString address;
+      if (pool == null) {
+         address = buffer.readNullableSimpleString();
+      } else {
+         address = SimpleString.readNullableSimpleString(buffer.byteBuf(), pool.getAddressDecoderPool());
       }
-      return message;
+      AMQPStandardMessage record = new AMQPStandardMessage(format);
+      record.reloadPersistence(buffer, pool);
+      record.setMessageID(id);
+      // END of AMQPMessagePersister::decode body copy
+      int size = buffer.readInt();
+      if (size != 0) {
+         final TypedProperties extraProperties = record.createExtraProperties();
+         extraProperties.decode(buffer.byteBuf(), pool != null ? pool.getPropertiesDecoderPools() : null);
+         assert Objects.equals(address, extraProperties.getSimpleStringProperty(AMQPMessage.ADDRESS_PROPERTY)) :
+            "AMQPMessage address and extraProperties address should match";
+      } else if (address != null) {
+         // this shouldn't really happen: this code path has been preserved
+         // because of the behaviour before "ARTEMIS-2617 Improve AMQP Journal loading"
+         record.setAddress(address);
+      }
+      return record;
    }
 
 }
