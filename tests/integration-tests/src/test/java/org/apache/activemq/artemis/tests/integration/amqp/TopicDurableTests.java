@@ -30,19 +30,17 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Test;
 
@@ -119,7 +117,7 @@ public class TopicDurableTests extends JMSClientTestSupport {
 
 
    @Test
-   public void testSharedNonDurableSubscription() throws JMSException, NamingException, InterruptedException, ExecutionException, TimeoutException {
+   public void testSharedNonDurableSubscription() throws Exception {
       int iterations = 10;
       for (int i = 0; i < iterations; i++) {
          System.out.println("testSharedNonDurableSubscription; iteration: " + i);
@@ -176,6 +174,9 @@ public class TopicDurableTests extends JMSClientTestSupport {
          connection1.close();
          connection2.close();
          //TEAR-DOWN-E
+
+         // ensure the topic is auto-deleted before continuing to the next iteration
+         Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString("jmsTopic")) == null, 2000, 100);
       }
    }
 
