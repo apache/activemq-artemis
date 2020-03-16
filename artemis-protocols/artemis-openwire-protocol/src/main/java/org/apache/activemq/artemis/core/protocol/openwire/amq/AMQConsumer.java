@@ -304,7 +304,7 @@ public class AMQConsumer {
 
       List<MessageReference> ackList = serverConsumer.getDeliveringReferencesBasedOnProtocol(removeReferences, first, last);
 
-      if (ack.isIndividualAck() || ack.isStandardAck() || ack.isPoisonAck()) {
+      if (removeReferences && (ack.isIndividualAck() || ack.isStandardAck() || ack.isPoisonAck())) {
          acquireCredit(ackList.size());
       } else {
          acquireCredit(ack.getMessageCount());
