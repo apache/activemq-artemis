@@ -48,4 +48,11 @@ public interface PagedMessage extends EncodingSupport {
     * @throws ActiveMQException
     */
    long getPersistentSize() throws ActiveMQException;
+
+   /** This returns how much the PagedMessage used, or it's going to use
+    *  from storage.
+    *  We can't calculate the encodeSize as some persisters don't guarantee to re-store the data
+    *  at the same amount of bytes it used. In some cases it may need to add headers in AMQP
+    *  or extra data that may affect the outcome of getEncodeSize() */
+   int getStoredSize();
 }
