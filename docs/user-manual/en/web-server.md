@@ -26,6 +26,7 @@ The `web` element has the following attributes:
 - `path` The name of the subdirectory in which to find the web application
   archives (i.e. WAR files). This is a subdirectory of the broker's home or
   instance directory.
+- `customizer` The name of customizer class to load.
 - `clientAuth` Whether or not clients should present an SSL certificate when
   they connect. Only applicable when using `https`.
 - `passwordCodec` The custom coded to use for unmasking the `keystorePassword`

@@ -68,6 +68,16 @@ public class WebServerComponent implements ExternalComponent {
       server = new Server();
       String scheme = uri.getScheme();
 
+      HttpConfiguration httpConfiguration = new HttpConfiguration();
+
+      if (webServerConfig.customizer != null) {
+         try {
+            httpConfiguration.addCustomizer((HttpConfiguration.Customizer) Class.forName(webServerConfig.customizer).getConstructor().newInstance());
+         } catch (Throwable t) {
+            ActiveMQWebLogger.LOGGER.customizerNotLoaded(webServerConfig.customizer, t);
+         }
+      }
+
       if ("https".equals(scheme)) {
          SslContextFactory.Server sslFactory = new SslContextFactory.Server();
          sslFactory.setKeyStorePath(webServerConfig.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : webServerConfig.keyStorePath);
@@ -96,17 +106,15 @@ public class WebServerComponent implements ExternalComponent {
 
          SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
 
-         HttpConfiguration https = new HttpConfiguration();
-         https.addCustomizer(new SecureRequestCustomizer());
-         https.setSendServerVersion(false);
-         HttpConnectionFactory httpFactory = new HttpConnectionFactory(https);
+         httpConfiguration.addCustomizer(new SecureRequestCustomizer());
+         httpConfiguration.setSendServerVersion(false);
+         HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
 
          connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
 
       } else {
-         HttpConfiguration configuration = new HttpConfiguration();
-         configuration.setSendServerVersion(false);
-         ConnectionFactory connectionFactory = new HttpConnectionFactory(configuration);
+         httpConfiguration.setSendServerVersion(false);
+         ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);
          connector = new ServerConnector(server, connectionFactory);
       }
       connector.setPort(uri.getPort());
