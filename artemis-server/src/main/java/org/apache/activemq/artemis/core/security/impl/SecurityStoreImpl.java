@@ -152,14 +152,14 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                TypedProperties props = new TypedProperties();
                props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
                props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
-               props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection.getRemoteAddress()));
+               props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection == null ? "null" : connection.getRemoteAddress()));
 
                Notification notification = new Notification(null, CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION, props);
 
                notificationService.sendNotification(notification);
             }
 
-            Exception e = ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection.getRemoteAddress(), user, certSubjectDN);
+            Exception e = ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection == null ? "null" : connection.getRemoteAddress(), user, certSubjectDN);
 
             ActiveMQServerLogger.LOGGER.securityProblemWhileAuthenticating(e.getMessage());
 
