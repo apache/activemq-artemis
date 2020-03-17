@@ -22,7 +22,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
-import org.apache.activemq.artemis.utils.algo.KMPNeedle;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
@@ -67,7 +66,7 @@ final class AMQPMessageSymbolSearch {
                   constructor.skipValue();
                   final int end = data.position();
                   for (int i = 0, count = needles.length; i < count; i++) {
-                     final int foundIndex = needles[i].searchInto(ReadableBuffer::get, data, end, start);
+                     final int foundIndex = needles[i].searchInto(data, start, end);
                      if (foundIndex != -1) {
                         return true;
                      }
