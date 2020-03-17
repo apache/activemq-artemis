@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -94,6 +95,36 @@ public class PageReaderTest extends ActiveMQTestBase {
       assertEquals(pagedMessage.getMessage().getMessageID(), 1);
       assertEquals(pagedMessages[1].getMessage().getMessageID(), 1);
       pageReader.close();
+   }
+
+
+   @Test
+   public void testForceInvalidPosition() throws Exception {
+
+      AssertionLoggerHandler.startCapture();
+      try {
+         recreateDirectory(getTestDir());
+         int num = 2;
+         int[] offsets = createPage(num);
+         PageReader pageReader = getPageReader();
+
+         PagedMessage[] pagedMessages = pageReader.getMessages();
+         assertEquals(pagedMessages.length, num);
+
+         PagePosition pagePosition = new PagePositionImpl(10, 0, 50);
+         PagedMessage firstPagedMessage = pageReader.getMessage(pagePosition);
+         assertEquals("Message 0 has a wrong encodeSize", pagedMessages[0].getEncodeSize(), firstPagedMessage.getEncodeSize());
+         PagePosition nextPagePosition = new PagePositionImpl(10, 1, 5000);
+         PagedMessage pagedMessage = pageReader.getMessage(nextPagePosition);
+         assertNotNull(pagedMessage);
+         assertEquals(pagedMessage.getMessage().getMessageID(), 1);
+         assertEquals(pagedMessages[1].getMessage().getMessageID(), 1);
+         pageReader.close();
+         Assert.assertTrue("Logging did not throw warn expected", AssertionLoggerHandler.findText("AMQ222288"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+         AssertionLoggerHandler.clear();
+      }
    }
 
    @Test
