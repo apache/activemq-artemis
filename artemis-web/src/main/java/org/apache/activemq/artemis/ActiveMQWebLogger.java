@@ -58,4 +58,8 @@ public interface ActiveMQWebLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 241004, value = "Artemis Console available at {0}", format = Message.Format.MESSAGE_FORMAT)
    void consoleAvailable(String bind);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 244005, value = "Web customizer {0} not loaded: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void customizerNotLoaded(String customizer, Throwable t);
 }
