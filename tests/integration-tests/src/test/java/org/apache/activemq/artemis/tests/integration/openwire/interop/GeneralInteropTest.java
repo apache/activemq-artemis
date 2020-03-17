@@ -235,7 +235,8 @@ public class GeneralInteropTest extends BasicOpenWireTest {
             }
          }
 
-         Wait.assertEquals(0, queueControl::getDeliveringCount);
+         Wait.assertEquals(1L, () -> queueControl.getMessagesAcknowledged(), 3000, 100);
+         Wait.assertEquals(prefetchSize, () -> queueControl.getDeliveringCount(), 3000, 100);
 
          message = consumer.receive(5000);
          assertNotNull(message);
@@ -243,7 +244,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          assertEquals(text + 1, ((TextMessage)message).getText());
          message.acknowledge();
 
-         Wait.assertEquals(1L, () -> queueControl.getMessagesAcknowledged(), 3000, 100);
+         Wait.assertEquals(2L, () -> queueControl.getMessagesAcknowledged(), 3000, 100);
          Wait.assertEquals(prefetchSize, () -> queueControl.getDeliveringCount(), 30000, 100);
       } finally {
          connection.close();
