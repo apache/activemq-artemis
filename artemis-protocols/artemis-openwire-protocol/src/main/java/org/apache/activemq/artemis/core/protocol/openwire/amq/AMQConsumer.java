@@ -68,6 +68,7 @@ public class AMQConsumer {
 
    private int prefetchSize;
    private final AtomicInteger currentWindow;
+   private final AtomicInteger deliveredAcks;
    private long messagePullSequence = 0;
    private final AtomicReference<MessagePullHandler> messagePullHandler = new AtomicReference<>(null);
    //internal means we don't expose
@@ -87,6 +88,7 @@ public class AMQConsumer {
       this.scheduledPool = scheduledPool;
       this.prefetchSize = info.getPrefetchSize();
       this.currentWindow = new AtomicInteger(prefetchSize);
+      this.deliveredAcks = new AtomicInteger(0);
       if (prefetchSize == 0) {
          messagePullHandler.set(new MessagePullHandler());
       }
@@ -228,7 +230,7 @@ public class AMQConsumer {
       return info.getConsumerId();
    }
 
-   public void acquireCredit(int n) throws Exception {
+   public void acquireCredit(int n) {
       if (messagePullHandler.get() != null) {
          //don't acquire any credits when the pull handler controls it!!
          return;
@@ -240,7 +242,6 @@ public class AMQConsumer {
       if (promptDelivery) {
          serverConsumer.promptDelivery();
       }
-
    }
 
    public int handleDeliver(MessageReference reference, ICoreMessage message, int deliveryCount) {
@@ -305,8 +306,20 @@ public class AMQConsumer {
       List<MessageReference> ackList = serverConsumer.getDeliveringReferencesBasedOnProtocol(removeReferences, first, last);
 
       if (removeReferences && (ack.isIndividualAck() || ack.isStandardAck() || ack.isPoisonAck())) {
-         acquireCredit(ackList.size());
+         this.deliveredAcks.getAndUpdate(deliveredAcks -> {
+            if (deliveredAcks >= ackList.size()) {
+               return deliveredAcks - ackList.size();
+            }
+
+            acquireCredit(ackList.size() - deliveredAcks);
+
+            return 0;
+         });
       } else {
+         if (ack.isDeliveredAck()) {
+            this.deliveredAcks.addAndGet(ack.getMessageCount());
+         }
+
          acquireCredit(ack.getMessageCount());
       }
 
