@@ -198,7 +198,7 @@ public final class Page implements Comparable<Page> {
                   final int endPosition = readFileBuffer.position() + encodedSize;
                   //this check must be performed upfront decoding
                   if (readFileBuffer.remaining() >= (encodedSize + 1) && readFileBuffer.get(endPosition) == Page.END_BYTE) {
-                     final PagedMessageImpl msg = new PagedMessageImpl(storageManager);
+                     final PagedMessageImpl msg = new PagedMessageImpl(encodedSize, storageManager);
                      readFileBufferWrapper.setIndex(readFileBuffer.position(), endPosition);
                      msg.decode(readFileBufferWrapper);
                      readFileBuffer.position(endPosition + 1);
@@ -363,7 +363,7 @@ public final class Page implements Comparable<Page> {
                      final int endPosition = fileBuffer.position() + encodedSize;
                      //this check must be performed upfront decoding
                      if (fileBuffer.remaining() >= (encodedSize + 1) && fileBuffer.get(endPosition) == Page.END_BYTE) {
-                        final PagedMessageImpl msg = new PagedMessageImpl(storageManager);
+                        final PagedMessageImpl msg = new PagedMessageImpl(encodedSize, storageManager);
                         fileBufferWrapper.setIndex(fileBuffer.position(), endPosition);
                         msg.decode(fileBufferWrapper);
                         fileBuffer.position(endPosition + 1);

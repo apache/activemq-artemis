@@ -19,9 +19,14 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.net.URI;
 import java.util.LinkedList;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.After;
 
 /**
@@ -131,4 +136,16 @@ public class AmqpTestSupport extends ActiveMQTestBase {
    public AmqpClient createAmqpClient(URI brokerURI, String username, String password) throws Exception {
       return new AmqpClient(brokerURI, username, password);
    }
+
+   public static AMQPStandardMessage encodeAndDecodeMessage(int messageFormat, MessageImpl message, int expectedSize) {
+      ByteBuf nettyBuffer = Unpooled.buffer(expectedSize);
+
+      message.encode(new NettyWritable(nettyBuffer));
+      byte[] bytes = new byte[nettyBuffer.writerIndex()];
+      nettyBuffer.readBytes(bytes);
+
+      return new AMQPStandardMessage(messageFormat, bytes, null);
+   }
+
+
 }
