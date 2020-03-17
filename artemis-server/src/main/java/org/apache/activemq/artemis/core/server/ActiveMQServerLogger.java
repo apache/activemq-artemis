@@ -1664,6 +1664,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void federationBindingsLookupError(@Cause Throwable e, SimpleString address);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222288, value = "Page {0}, message {1} could not be found on offset {2}, with starting message {3}. This represents a logic error or inconsistency on the data, and the system will try once again from the beggining of the page file.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void pageLookupError(int pageNr, int messageNr, int offset, int startNr);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
