@@ -172,11 +172,21 @@ public class AMQPMessageTest {
       } catch (NullPointerException npe) {
       }
 
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.NOT_SCANNED, message.messageDataScanned());
+
       // Now reload from encoded data
       message.reloadPersistence(encoded, null);
 
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.messageDataScanned());
+
       assertTrue(message.hasScheduledDeliveryTime());
+
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.messageDataScanned());
+
       message.getHeader();
+
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, message.messageDataScanned());
+
       assertTrue(message.hasScheduledDeliveryTime());
    }
 
@@ -195,11 +205,21 @@ public class AMQPMessageTest {
       } catch (NullPointerException npe) {
       }
 
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.NOT_SCANNED, message.messageDataScanned());
+
       // Now reload from encoded data
       message.reloadPersistence(encoded, null);
 
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.messageDataScanned());
+
       assertTrue(message.hasScheduledDeliveryTime());
+
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.messageDataScanned());
+
       message.getHeader();
+
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, message.messageDataScanned());
+
       assertTrue(message.hasScheduledDeliveryTime());
    }
 
@@ -215,11 +235,21 @@ public class AMQPMessageTest {
       } catch (NullPointerException npe) {
       }
 
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.NOT_SCANNED, message.messageDataScanned());
+
       // Now reload from encoded data
       message.reloadPersistence(encoded, null);
 
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.messageDataScanned());
+
       assertFalse(message.hasScheduledDeliveryTime());
+
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.messageDataScanned());
+
       message.getHeader();
+
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, message.messageDataScanned());
+
       assertFalse(message.hasScheduledDeliveryTime());
    }
 
