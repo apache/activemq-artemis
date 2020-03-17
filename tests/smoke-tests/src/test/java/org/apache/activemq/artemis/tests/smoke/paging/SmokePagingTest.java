@@ -32,7 +32,6 @@ public class SmokePagingTest extends SmokeTestBase {
    @Before
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
-      disableCheckThread();
       startServer(SERVER_NAME_0, 0, 30000);
    }
 
