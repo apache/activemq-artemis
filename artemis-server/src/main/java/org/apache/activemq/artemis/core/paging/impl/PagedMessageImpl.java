@@ -47,6 +47,8 @@ public class PagedMessageImpl implements PagedMessage {
 
    private long transactionID = 0;
 
+   private final int storedSize;
+
    private volatile StorageManager storageManager;
 
    public PagedMessageImpl(final Message message, final long[] queueIDs, final long transactionID) {
@@ -57,10 +59,22 @@ public class PagedMessageImpl implements PagedMessage {
    public PagedMessageImpl(final Message message, final long[] queueIDs) {
       this.queueIDs = queueIDs;
       this.message = message;
+      this.storedSize = 0;
    }
 
-   public PagedMessageImpl(StorageManager storageManager) {
+   public PagedMessageImpl(int storedSize, StorageManager storageManager) {
       this.storageManager = storageManager;
+      this.storedSize = storedSize;
+   }
+
+
+   @Override
+   public int getStoredSize() {
+      if (storedSize <= 0) {
+         return getEncodeSize();
+      } else {
+         return storedSize;
+      }
    }
 
    @Override

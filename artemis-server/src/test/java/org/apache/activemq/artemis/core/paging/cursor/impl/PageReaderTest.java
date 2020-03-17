@@ -58,7 +58,7 @@ public class PageReaderTest extends ActiveMQTestBase {
             PagePosition pagePosition = new PagePositionImpl(10, i);
             pagedMessage = pageReader.getMessage(pagePosition);
          } else {
-            int nextFileOffset = pagedMessage == null ? -1 : offsets[i - 1] + pagedMessage.getEncodeSize() + Page.SIZE_RECORD;
+            int nextFileOffset = pagedMessage == null ? -1 : offsets[i - 1] + pagedMessage.getStoredSize() + Page.SIZE_RECORD;
             PagePositionAndFileOffset startPosition = new PagePositionAndFileOffset(nextFileOffset, new PagePositionImpl(10, i - 1));
             PagePosition pagePosition = startPosition.nextPagePostion();
             assertEquals("Message " + i + " has wrong offset", offsets[i], pagePosition.getFileOffset());
@@ -85,7 +85,7 @@ public class PageReaderTest extends ActiveMQTestBase {
       PagePosition pagePosition = new PagePositionImpl(10, 0);
       PagedMessage firstPagedMessage = pageReader.getMessage(pagePosition);
       assertEquals("Message 0 has a wrong encodeSize", pagedMessages[0].getEncodeSize(), firstPagedMessage.getEncodeSize());
-      int nextFileOffset = offsets[0] + firstPagedMessage.getEncodeSize() + Page.SIZE_RECORD;
+      int nextFileOffset = offsets[0] + firstPagedMessage.getStoredSize() + Page.SIZE_RECORD;
       PagePositionAndFileOffset startPosition = new PagePositionAndFileOffset(nextFileOffset, new PagePositionImpl(10, 0));
       PagePosition nextPagePosition = startPosition.nextPagePostion();
       assertEquals("Message 1 has a wrong offset", offsets[1], nextPagePosition.getFileOffset());
@@ -147,7 +147,10 @@ public class PageReaderTest extends ActiveMQTestBase {
       for (int i = 0; i < num; i++) {
          Message msg = createMessage(simpleDestination, i, content);
          offsets[i] = (int)page.getFile().position();
-         page.write(new PagedMessageImpl(msg, new long[0]));
+         PagedMessageImpl pgdMessage = new PagedMessageImpl(msg, new long[0]);
+         long expectedPosition = pgdMessage.getEncodeSize() + Page.SIZE_RECORD + page.getFile().position();
+         page.write(pgdMessage);
+         Assert.assertEquals(page.getFile().position(), expectedPosition);
 
          Assert.assertEquals(i + 1, page.getNumberOfMessages());
       }
