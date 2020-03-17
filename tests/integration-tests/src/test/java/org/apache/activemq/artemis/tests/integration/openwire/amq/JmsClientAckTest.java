@@ -23,7 +23,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
+import java.util.ArrayList;
+
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Test;
 
 /**
@@ -128,6 +133,72 @@ public class JmsClientAckTest extends BasicOpenWireTest {
       msg = consumer.receive(2000);
       assertNotNull(msg);
       msg.acknowledge();
+
+      session.close();
+   }
+
+   /**
+    * Tests if acknowledged messages are being consumed.
+    *
+    * @throws JMSException
+    */
+   @Test
+   public void testAckedMessageDeliveringWithPrefetch() throws Exception {
+      final int prefetchSize = 10;
+      final int messageCount = 5 * prefetchSize;
+      connection.getPrefetchPolicy().setAll(prefetchSize);
+      connection.start();
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      Queue queue = session.createQueue(getQueueName());
+      QueueControl queueControl = (QueueControl)server.getManagementService().
+         getResource(ResourceNames.QUEUE + queueName);
+      MessageProducer producer = session.createProducer(queue);
+      for (int i = 0; i < messageCount; i++) {
+         producer.send(session.createTextMessage("MSG" + i));
+      }
+
+      // Consume the messages...
+      Message msg;
+      MessageConsumer consumer = session.createConsumer(queue);
+
+      Wait.assertEquals(0L, () -> queueControl.getMessagesAcknowledged(), 3000, 100);
+      Wait.assertEquals(prefetchSize, () -> queueControl.getDeliveringCount(), 3000, 100);
+
+      ArrayList<Message> messages = new ArrayList<>();
+      for (int i = 0; i < prefetchSize; i++) {
+         msg = consumer.receive(1000);
+         assertNotNull(msg);
+         messages.add(msg);
+      }
+
+      Wait.assertEquals(0L, () -> queueControl.getMessagesAcknowledged(), 3000, 100);
+      Wait.assertEquals(2 * prefetchSize, () -> queueControl.getDeliveringCount(), 3000, 100);
+
+      for (int i = 0; i < prefetchSize; i++) {
+         msg = messages.get(i);
+         msg.acknowledge();
+      }
+
+      Wait.assertEquals((long) prefetchSize, () -> queueControl.getMessagesAcknowledged(), 3000, 100);
+      Wait.assertEquals(prefetchSize, () -> queueControl.getDeliveringCount(), 3000, 100);
+
+      for (int i = 0; i < messageCount - prefetchSize; i++) {
+         msg = consumer.receive(1000);
+         assertNotNull(msg);
+         msg.acknowledge();
+      }
+
+      Wait.assertEquals((long)messageCount, () -> queueControl.getMessagesAcknowledged(), 3000, 100);
+      Wait.assertEquals(0, () -> queueControl.getDeliveringCount(), 3000, 100);
+
+      // Reset the session.
+      session.close();
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+      // Attempt to Consume the message...
+      consumer = session.createConsumer(queue);
+      msg = consumer.receiveNoWait();
+      assertNull(msg);
 
       session.close();
    }
