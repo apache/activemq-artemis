@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -122,11 +121,49 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    protected static final int VALUE_NOT_PRESENT = -1;
 
+   /**
+    * This has been made public just for testing purposes: it's not stable
+    * and developers shouldn't rely on this for developing purposes.
+    */
+   public enum MessageDataScanningStatus {
+      NOT_SCANNED(0), RELOAD_PERSISTENCE(1), SCANNED(2);
+
+      private static final MessageDataScanningStatus[] STATES;
+
+      static {
+         // this prevent codes to be assigned with the wrong order
+         // and ensure valueOf to work fine
+         final MessageDataScanningStatus[] states = values();
+         STATES = new MessageDataScanningStatus[states.length];
+         for (final MessageDataScanningStatus state : states) {
+            final int code = state.code;
+            if (STATES[code] != null) {
+               throw new AssertionError("code already in use: " + code);
+            }
+            STATES[code] = state;
+         }
+      }
+
+      final byte code;
+
+      MessageDataScanningStatus(int code) {
+         assert code >= 0 && code <= Byte.MAX_VALUE;
+         this.code = (byte) code;
+      }
+
+      static MessageDataScanningStatus valueOf(int code) {
+         checkCode(code);
+         return STATES[code];
+      }
+
+      private static void checkCode(int code) {
+         if (code < 0 || code > (STATES.length - 1)) {
+            throw new IllegalArgumentException("invalid status code: " + code);
+         }
+      }
+   }
    // Buffer and state for the data backing this message.
-   protected static final byte NOT_SCANNED = 0;
-   protected static final byte RELOAD_PERSISTENCE = 1;
-   protected static final byte SCANNED = 2;
-   protected byte messageDataScanned;
+   protected byte messageDataScanned = MessageDataScanningStatus.NOT_SCANNED.code;
 
    // Marks the message as needed to be re-encoded to update the backing buffer
    protected boolean modified;
@@ -189,6 +226,15 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected AMQPMessage(long messageFormat) {
       this.messageFormat = messageFormat;
       this.coreMessageObjectPools = null;
+   }
+
+   /**
+    * Similarly to {@link MessageDataScanningStatus}, this method is made available only for testing
+    * purposes to check the message data scanning status.<br>
+    * Its access is not thread-safe and it shouldn't return {@code null}.
+    */
+   public final MessageDataScanningStatus messageDataScanned() {
+      return MessageDataScanningStatus.valueOf(messageDataScanned);
    }
 
    /** This will return application properties without attempting to decode it.
@@ -448,7 +494,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    // re-encode should be done to update the backing data with the in memory elements.
 
    protected synchronized void ensureMessageDataScanned() {
-      final byte state = messageDataScanned;
+      final MessageDataScanningStatus state = MessageDataScanningStatus.valueOf(messageDataScanned);
       switch (state) {
          case NOT_SCANNED:
             scanMessageData();
@@ -459,10 +505,6 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          case SCANNED:
             // NO-OP
             break;
-         default:
-            throw new IllegalStateException("invalid messageDataScanned state: expected within " +
-                                               Arrays.toString(new byte[]{NOT_SCANNED, SCANNED, RELOAD_PERSISTENCE}) +
-                                               " but " + messageDataScanned);
       }
    }
 
@@ -509,7 +551,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       TLSEncode.getDecoder().setBuffer(new NettyReadable(buf));
 
       try {
-         messageDataScanned = SCANNED;
+         messageDataScanned = MessageDataScanningStatus.SCANNED.code;
 
          headerPosition = buf.readInt();
          encodedHeaderSize = buf.readInt();
@@ -553,7 +595,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    protected synchronized void scanMessageData() {
-      this.messageDataScanned = SCANNED;
+      this.messageDataScanned = MessageDataScanningStatus.SCANNED.code;
       DecoderImpl decoder = TLSEncode.getDecoder();
       decoder.setBuffer(getData().rewind());
 
@@ -791,9 +833,9 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    public abstract void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools);
 
    protected synchronized void lazyScanAfterReloadPersistence() {
-      assert messageDataScanned == RELOAD_PERSISTENCE;
+      assert messageDataScanned == MessageDataScanningStatus.RELOAD_PERSISTENCE.code;
       scanMessageData();
-      messageDataScanned = SCANNED;
+      messageDataScanned = MessageDataScanningStatus.SCANNED.code;
       modified = false;
 
       // Message state should reflect that is came from persistent storage which
@@ -1164,7 +1206,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    private boolean anyMessageAnnotations(Symbol[] symbols, KMPNeedle[] symbolNeedles) {
       assert symbols.length == symbolNeedles.length;
       final int count = symbols.length;
-      if (messageDataScanned == SCANNED) {
+      if (messageDataScanned == MessageDataScanningStatus.SCANNED.code) {
          final MessageAnnotations messageAnnotations = this.messageAnnotations;
          if (messageAnnotations == null) {
             return false;

@@ -162,14 +162,7 @@ public class AMQPStandardMessage extends AMQPMessage {
       // Message state is now that the underlying buffer is loaded, but the contents not yet scanned
       resetMessageData();
       modified = false;
-      messageDataScanned = RELOAD_PERSISTENCE;
-      // can happen when moved to a durable location.  We must re-encode here to
-      // avoid a subsequent redelivery from suddenly appearing with a durable header
-      // tag when the initial delivery did not.
-      if (!isDurable()) {
-         setDurable(true);
-         reencode();
-      }
+      messageDataScanned = MessageDataScanningStatus.RELOAD_PERSISTENCE.code;
    }
 
    @Override
@@ -207,7 +200,7 @@ public class AMQPStandardMessage extends AMQPMessage {
    @Override
    protected synchronized void encodeMessage() {
       this.modified = false;
-      this.messageDataScanned = NOT_SCANNED;
+      this.messageDataScanned = MessageDataScanningStatus.NOT_SCANNED.code;
       int estimated = Math.max(1500, data != null ? data.capacity() + 1000 : 0);
       ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(estimated);
       EncoderImpl encoder = TLSEncode.getEncoder();
