@@ -56,7 +56,7 @@ public class ReplicationPageWriteMessage extends PacketImpl {
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       pageNumber = buffer.readInt();
-      pagedMessage = new PagedMessageImpl(null);
+      pagedMessage = new PagedMessageImpl(0, null);
       pagedMessage.decode(buffer);
    }
 
