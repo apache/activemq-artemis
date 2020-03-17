@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.SoftValueLongObjectHashMap;
+import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.jboss.logging.Logger;
@@ -423,6 +424,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    @Override
    public void cleanup() {
+      logger.info("Cleaning up page on " + pagingStore.getAddress());
 
       logger.tracef("performing page cleanup %s", this);
 
@@ -506,6 +508,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    // Protected as a way to inject testing
    protected void cleanupComplete(ArrayList<PageSubscription> cursorList) throws Exception {
+      logger.info("page completion happening");
       if (logger.isDebugEnabled()) {
          logger.debug("Address " + pagingStore.getAddress() +
                          " is leaving page mode as all messages are consumed and acknowledged from the page store");
@@ -628,6 +631,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          // we just need to make sure the storage is done..
          // if the thread pool is full, we will just log it once instead of looping
          if (!storageManager.waitOnOperations(5000)) {
+            String dump = ThreadDumpUtil.threadDump("Page completion issue");
+            logger.warn(dump);
             ActiveMQServerLogger.LOGGER.problemCompletingOperations(storageManager.getContext());
          }
       } finally {
