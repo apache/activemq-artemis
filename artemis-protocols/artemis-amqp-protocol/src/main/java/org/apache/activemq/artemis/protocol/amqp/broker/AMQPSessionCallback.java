@@ -264,7 +264,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                         SimpleString queueName,
                                         SimpleString filter) throws Exception {
       try {
-         serverSession.createQueue(address, queueName, routingType, filter, false, true, -1, false, false);
+         serverSession.createSharedQueue(address, queueName, routingType, filter, true, -1, false, false, false);
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
       }
@@ -275,7 +275,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                          SimpleString queueName,
                                          SimpleString filter) throws Exception {
       try {
-         serverSession.createQueue(address, queueName, routingType, filter, false, false, -1, true, true);
+         serverSession.createSharedQueue(address, queueName, routingType, filter, false, -1, false, false, false);
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
       } catch (ActiveMQQueueExistsException e) {
