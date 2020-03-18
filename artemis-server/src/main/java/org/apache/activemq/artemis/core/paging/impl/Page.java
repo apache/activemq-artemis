@@ -126,6 +126,11 @@ public final class Page implements Comparable<Page> {
       try {
          if (readFileBuffer == null) {
             readProcessedBytes = startOffset;
+
+            if (startOffset > fileSize) {
+               return readMessage(0, 0, targetMessageNumber);
+            }
+
             file.position(readProcessedBytes);
             readFileBuffer = fileFactory.allocateDirectBuffer(Math.min(fileSize - readProcessedBytes, MIN_CHUNK_SIZE));
             //the wrapper is reused to avoid unnecessary allocations
@@ -225,7 +230,14 @@ public final class Page implements Comparable<Page> {
          throw e;
       }
       resetReadMessageStatus();
-      throw new RuntimeException("target message no." + targetMessageNumber + " not found from start offset " + startOffset + " and start message number " + startMessageNumber);
+
+      ActiveMQServerLogger.LOGGER.pageLookupError(this.pageId, targetMessageNumber, startOffset, startMessageNumber);
+
+      if (startOffset > 0) {
+         return readMessage(0, 0, targetMessageNumber);
+      } else {
+         return null;
+      }
    }
 
    public synchronized List<PagedMessage> read() throws Exception {
