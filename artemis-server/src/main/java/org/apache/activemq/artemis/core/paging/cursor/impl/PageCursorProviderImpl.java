@@ -424,7 +424,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    @Override
    public void cleanup() {
-      logger.info("Cleaning up page on " + pagingStore.getAddress());
 
       logger.tracef("performing page cleanup %s", this);
 
@@ -508,7 +507,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    // Protected as a way to inject testing
    protected void cleanupComplete(ArrayList<PageSubscription> cursorList) throws Exception {
-      logger.info("page completion happening");
       if (logger.isDebugEnabled()) {
          logger.debug("Address " + pagingStore.getAddress() +
                          " is leaving page mode as all messages are consumed and acknowledged from the page store");
