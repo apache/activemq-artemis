@@ -47,6 +47,9 @@ public class WebServerDTO extends ComponentDTO {
    @XmlAttribute
    public String trustStorePath;
 
+   @XmlAttribute
+   public String customizer;
+
    @XmlElementRef
    public List<AppDTO> apps;
 
