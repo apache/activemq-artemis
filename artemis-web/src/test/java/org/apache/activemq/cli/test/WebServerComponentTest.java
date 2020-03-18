@@ -84,9 +84,21 @@ public class WebServerComponentTest extends Assert {
 
    @Test
    public void simpleServer() throws Exception {
+      internalSimpleServer(false);
+   }
+
+   @Test
+   public void simpleServerWithCustomizer() throws Exception {
+      internalSimpleServer(true);
+   }
+
+   private void internalSimpleServer(boolean useCustomizer) throws Exception {
       WebServerDTO webServerDTO = new WebServerDTO();
       webServerDTO.bind = "http://localhost:0";
       webServerDTO.path = "webapps";
+      if (useCustomizer) {
+         webServerDTO.customizer = TestCustomizer.class.getName();
+      }
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
@@ -113,6 +125,9 @@ public class WebServerComponentTest extends Assert {
       // Send the HTTP request.
       ch.writeAndFlush(request);
       assertTrue(latch.await(5, TimeUnit.SECONDS));
+      if (useCustomizer) {
+         assertEquals(1, TestCustomizer.count);
+      }
       assertEquals(clientHandler.body, "12345");
       assertNull(clientHandler.serverHeader);
       // Wait for the server to close the connection.
