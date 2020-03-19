@@ -165,4 +165,10 @@ public interface AddressControl {
    @Attribute(desc = "whether this address is used for a retroactive address")
    boolean isRetroactiveResource();
 
+   @Attribute(desc = "the size of the duplicate ID cache for this address")
+   long getCurrentDuplicateIdCacheSize();
+
+   @Attribute(desc = "clear the duplicate ID cache for this address both from memory and from the journal")
+   boolean clearDuplicateIdCache() throws Exception;
+
 }
