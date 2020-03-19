@@ -935,49 +935,49 @@ public class LoggingResultSet implements ResultSet {
 
    @Override
    public void updateRef(int columnIndex, Ref x) throws SQLException {
-      logger.logf(level, "%s.updateRef(%s, %s) = %s", resultSetID, columnIndex, x);
+      logger.logf(level, "%s.updateRef(%s, %s)", resultSetID, columnIndex, x);
       resultSet.updateRef(columnIndex, x);
    }
 
    @Override
    public void updateRef(String columnLabel, Ref x) throws SQLException {
-      logger.logf(level, "%s.updateRef(%s, %s) = %s", resultSetID, columnLabel, x);
+      logger.logf(level, "%s.updateRef(%s, %s)", resultSetID, columnLabel, x);
       resultSet.updateRef(columnLabel, x);
    }
 
    @Override
    public void updateBlob(int columnIndex, Blob x) throws SQLException {
-      logger.logf(level, "%s.updateBlob(%s, %s) = %s", resultSetID, columnIndex, x);
+      logger.logf(level, "%s.updateBlob(%s, %s)", resultSetID, columnIndex, x);
       resultSet.updateBlob(columnIndex, x);
    }
 
    @Override
    public void updateBlob(String columnLabel, Blob x) throws SQLException {
-      logger.logf(level, "%s.updateBlob(%s, %s) = %s", resultSetID, columnLabel, x);
+      logger.logf(level, "%s.updateBlob(%s, %s)", resultSetID, columnLabel, x);
       resultSet.updateBlob(columnLabel, x);
    }
 
    @Override
    public void updateClob(int columnIndex, Clob x) throws SQLException {
-      logger.logf(level, "%s.updateClob(%s, %s) = %s", resultSetID, columnIndex, x);
+      logger.logf(level, "%s.updateClob(%s, %s)", resultSetID, columnIndex, x);
       resultSet.updateClob(columnIndex, x);
    }
 
    @Override
    public void updateClob(String columnLabel, Clob x) throws SQLException {
-      logger.logf(level, "%s.updateClob(%s, %s) = %s", resultSetID, columnLabel, x);
+      logger.logf(level, "%s.updateClob(%s, %s)", resultSetID, columnLabel, x);
       resultSet.updateClob(columnLabel, x);
    }
 
    @Override
    public void updateArray(int columnIndex, Array x) throws SQLException {
-      logger.logf(level, "%s.updateArray(%s, %s) = %s", resultSetID, columnIndex, x);
+      logger.logf(level, "%s.updateArray(%s, %s)", resultSetID, columnIndex, x);
       resultSet.updateArray(columnIndex, x);
    }
 
    @Override
    public void updateArray(String columnLabel, Array x) throws SQLException {
-      logger.logf(level, "%s.updateArray(%s, %s) = %s", resultSetID, columnLabel, x);
+      logger.logf(level, "%s.updateArray(%s, %s)", resultSetID, columnLabel, x);
       resultSet.updateArray(columnLabel, x);
    }
 
@@ -997,13 +997,13 @@ public class LoggingResultSet implements ResultSet {
 
    @Override
    public void updateRowId(int columnIndex, RowId x) throws SQLException {
-      logger.logf(level, "%s.updateRowId(%s, %s) = %s", resultSetID, columnIndex, x);
+      logger.logf(level, "%s.updateRowId(%s, %s)", resultSetID, columnIndex, x);
       resultSet.updateRowId(columnIndex, x);
    }
 
    @Override
    public void updateRowId(String columnLabel, RowId x) throws SQLException {
-      logger.logf(level, "%s.updateRowId(%s, %s) = %s", resultSetID, columnLabel, x);
+      logger.logf(level, "%s.updateRowId(%s, %s)", resultSetID, columnLabel, x);
       resultSet.updateRowId(columnLabel, x);
    }
 
@@ -1023,25 +1023,25 @@ public class LoggingResultSet implements ResultSet {
 
    @Override
    public void updateNString(int columnIndex, String x) throws SQLException {
-      logger.logf(level, "%s.updateNString(%s, %s) = %s", resultSetID, columnIndex, x);
+      logger.logf(level, "%s.updateNString(%s, %s)", resultSetID, columnIndex, x);
       resultSet.updateNString(columnIndex, x);
    }
 
    @Override
    public void updateNString(String columnLabel, String x) throws SQLException {
-      logger.logf(level, "%s.updateNString(%s, %s) = %s", resultSetID, columnLabel, x);
+      logger.logf(level, "%s.updateNString(%s, %s)", resultSetID, columnLabel, x);
       resultSet.updateNString(columnLabel, x);
    }
 
    @Override
    public void updateNClob(int columnIndex, NClob x) throws SQLException {
-      logger.logf(level, "%s.updateNClob(%s, %s) = %s", resultSetID, columnIndex, x);
+      logger.logf(level, "%s.updateNClob(%s, %s)", resultSetID, columnIndex, x);
       resultSet.updateNClob(columnIndex, x);
    }
 
    @Override
    public void updateNClob(String columnLabel, NClob x) throws SQLException {
-      logger.logf(level, "%s.updateNClob(%s, %s) = %s", resultSetID, columnLabel, x);
+      logger.logf(level, "%s.updateNClob(%s, %s)", resultSetID, columnLabel, x);
       resultSet.updateNClob(columnLabel, x);
    }
 
@@ -1075,13 +1075,13 @@ public class LoggingResultSet implements ResultSet {
 
    @Override
    public void updateSQLXML(int columnIndex, SQLXML x) throws SQLException {
-      logger.logf(level, "%s.updateSQLXML(%s, %s) = %s", resultSetID, columnIndex, x);
+      logger.logf(level, "%s.updateSQLXML(%s, %s)", resultSetID, columnIndex, x);
       resultSet.updateSQLXML(columnIndex, x);
    }
 
    @Override
    public void updateSQLXML(String columnLabel, SQLXML x) throws SQLException {
-      logger.logf(level, "%s.updateSQLXML(%s, %s) = %s", resultSetID, columnLabel, x);
+      logger.logf(level, "%s.updateSQLXML(%s, %s)", resultSetID, columnLabel, x);
       resultSet.updateSQLXML(columnLabel, x);
    }
 
@@ -1297,7 +1297,7 @@ public class LoggingResultSet implements ResultSet {
 
    @Override
    public void updateObject(int columnIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-      logger.logf(level, "%s.updateObject(%s, %s, %s, %s) = %s", resultSetID, columnIndex, x, targetSqlType, scaleOrLength);
+      logger.logf(level, "%s.updateObject(%s, %s, %s, %s)", resultSetID, columnIndex, x, targetSqlType, scaleOrLength);
       resultSet.updateObject(columnIndex, x, targetSqlType);
    }
 
@@ -1306,19 +1306,19 @@ public class LoggingResultSet implements ResultSet {
                             Object x,
                             SQLType targetSqlType,
                             int scaleOrLength) throws SQLException {
-      logger.logf(level, "%s.updateObject(%s, %s, %s, %s) = %s", resultSetID, columnLabel, x, targetSqlType, scaleOrLength);
+      logger.logf(level, "%s.updateObject(%s, %s, %s, %s)", resultSetID, columnLabel, x, targetSqlType, scaleOrLength);
       resultSet.updateObject(columnLabel, x, targetSqlType, scaleOrLength);
    }
 
    @Override
    public void updateObject(int columnIndex, Object x, SQLType targetSqlType) throws SQLException {
-      logger.logf(level, "%s.updateObject(%s, %s, %s) = %s", resultSetID, columnIndex, x, targetSqlType);
+      logger.logf(level, "%s.updateObject(%s, %s, %s)", resultSetID, columnIndex, x, targetSqlType);
       resultSet.updateObject(columnIndex, x, targetSqlType);
    }
 
    @Override
    public void updateObject(String columnLabel, Object x, SQLType targetSqlType) throws SQLException {
-      logger.logf(level, "%s.updateObject(%s, %s, %s) = %s", resultSetID, columnLabel, x, targetSqlType);
+      logger.logf(level, "%s.updateObject(%s, %s, %s)", resultSetID, columnLabel, x, targetSqlType);
       resultSet.updateObject(columnLabel, x, targetSqlType);
    }
 
