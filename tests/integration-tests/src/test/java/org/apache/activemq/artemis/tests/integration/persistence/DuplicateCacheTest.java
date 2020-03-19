@@ -95,6 +95,8 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
       Assert.assertTrue(latch.await(1, TimeUnit.MINUTES));
 
       Assert.assertFalse(cache.contains(id));
+
+      cache.clear();
    }
 
    @Test
@@ -119,5 +121,6 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
          cache.addToCache(bytes, null);
       }
 
+      cache.clear();
    }
 }
