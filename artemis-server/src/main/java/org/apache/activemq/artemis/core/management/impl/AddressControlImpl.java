@@ -35,11 +35,14 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -425,6 +428,41 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          AuditLogger.isRetroactiveResource(this.addressInfo);
       }
       return ResourceNames.isRetroactiveResource(server.getInternalNamingPrefix(), addressInfo.getName());
+   }
+
+   @Override
+   public long getCurrentDuplicateIdCacheSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getCurrentDuplicateIdCacheSize(this.addressInfo);
+      }
+      DuplicateIDCache cache = ((PostOfficeImpl)server.getPostOffice()).getDuplicateIDCaches().get(addressInfo.getName());
+      try {
+         if (cache != null) {
+            return cache.getMap().size();
+         }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.debug("Failed to get duplicate ID cache size", e);
+      }
+
+      return 0;
+   }
+
+   @Override
+   public boolean clearDuplicateIdCache() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.clearDuplicateIdCache(this.addressInfo);
+      }
+      DuplicateIDCache cache = ((PostOfficeImpl)server.getPostOffice()).getDuplicateIDCaches().get(addressInfo.getName());
+      try {
+         if (cache != null) {
+            cache.clear();
+            return true;
+         }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.debug("Failed to clear duplicate ID cache", e);
+      }
+
+      return false;
    }
 
    // Package protected ---------------------------------------------

@@ -2324,4 +2324,21 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601508, value = "User {0} is getting group first key on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getGroupFirstKey(String user, Object source, Object... args);
+
+   static void getCurrentDuplicateIdCacheSize(Object source) {
+      LOGGER.getCurrentDuplicateIdCacheSize(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601509, value = "User {0} is getting currentDuplicateIdCacheSize property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getCurrentDuplicateIdCacheSize(String user, Object source, Object... args);
+
+
+   static void clearDuplicateIdCache(Object source) {
+      LOGGER.clearDuplicateIdCache(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601510, value = "User {0} is clearing duplicate ID cache on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void clearDuplicateIdCache(String user, Object source, Object... args);
 }
