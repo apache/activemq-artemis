@@ -16,9 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.paging;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
@@ -30,8 +33,22 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class AmqpPagingTest extends AmqpClientTestSupport {
+
+   @Parameterized.Parameters(name = "durability={0}")
+   public static Collection getParams() {
+      return Arrays.asList(new Object[][]{{Boolean.TRUE}, {Boolean.FALSE}, {null}});
+   }
+
+   private final Boolean durable;
+
+   public AmqpPagingTest(Boolean durable) {
+      this.durable = durable;
+   }
 
    @Override
    protected void addConfiguration(ActiveMQServer server) {
@@ -64,13 +81,18 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
       for (int i = 0; i < MSG_COUNT; i++) {
          AmqpMessage message = new AmqpMessage();
          message.setText(data);
+         if (durable != null) {
+            message.setDurable(durable);
+         }
          sender.send(message);
       }
+      Assert.assertTrue(server.getPagingManager().getPageStore(SimpleString.toSimpleString(getQueueName())).isPaging());
       sender.close();
       receiver.flow(MSG_COUNT);
       for (int i = 0; i < MSG_COUNT; i++) {
          AmqpMessage receive = receiver.receive(10, TimeUnit.SECONDS);
          assertNotNull("Not received anything after " + i + " receive", receive);
+         Assert.assertEquals(durable == null ? false : durable.booleanValue(), receive.isDurable());
          receive.accept();
       }
       receiver.close();
