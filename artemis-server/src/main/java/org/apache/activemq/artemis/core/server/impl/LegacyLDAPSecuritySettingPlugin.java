@@ -317,10 +317,10 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       try {
          if (logger.isDebugEnabled()) {
             logger.debug(new StringBuilder().append("Performing LDAP search: ").append(destinationBase)
-                                            .append("\tfilter: ").append(filter)
-                                            .append("\tcontrols:")
-                                            .append("\t\treturningAttributes: ").append(roleAttribute)
-                                            .append("\t\tsearchScope: SUBTREE_SCOPE"));
+                                            .append("\n\tfilter: ").append(filter)
+                                            .append("\n\tcontrols:")
+                                            .append("\n\t\treturningAttributes: ").append(roleAttribute)
+                                            .append("\n\t\tsearchScope: SUBTREE_SCOPE"));
          }
          NamingEnumeration<SearchResult> searchResults = context.search(destinationBase, filter, searchControls);
          while (searchResults.hasMore()) {
@@ -359,7 +359,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       if (logger.isDebugEnabled()) {
          logMessage.append("LDAP search result: ").append(searchResultLdapName);
       }
-      // we can count on the RNDs being in order from right to left
+      // we can count on the RDNs being in order from right to left
       Rdn rdn = rdns.get(rdns.size() - 3);
       String rawDestinationType = rdn.getValue().toString();
       String destinationType = "unknown";
@@ -369,23 +369,23 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          destinationType = "topic";
       }
       if (logger.isDebugEnabled()) {
-         logMessage.append("\tDestination type: ").append(destinationType);
+         logMessage.append("\n\tDestination type: ").append(destinationType);
       }
 
       rdn = rdns.get(rdns.size() - 2);
       if (logger.isDebugEnabled()) {
-         logMessage.append("\tDestination name: ").append(rdn.getValue());
+         logMessage.append("\n\tDestination name: ").append(rdn.getValue());
       }
       String destination = rdn.getValue().toString();
 
       rdn = rdns.get(rdns.size() - 1);
       if (logger.isDebugEnabled()) {
-         logMessage.append("\tPermission type: ").append(rdn.getValue());
+         logMessage.append("\n\tPermission type: ").append(rdn.getValue());
       }
       String permissionType = rdn.getValue().toString();
 
       if (logger.isDebugEnabled()) {
-         logMessage.append("\tAttributes: ").append(attrs);
+         logMessage.append("\n\tAttributes: ").append(attrs);
       }
       Attribute attr = attrs.get(roleAttribute);
       NamingEnumeration<?> e = attr.getAll();
@@ -403,7 +403,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          rdn = ldapname.getRdn(ldapname.size() - 1);
          String roleName = rdn.getValue().toString();
          if (logger.isDebugEnabled()) {
-            logMessage.append("\tRole name: ").append(roleName);
+            logMessage.append("\n\tRole name: ").append(roleName);
          }
          Role role = new Role(roleName,
                               permissionType.equalsIgnoreCase(writePermissionValue), // send
@@ -454,6 +454,9 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
     * @param namingEvent the new entry event that occurred
     */
    public void objectAdded(NamingEvent namingEvent) {
+      if (logger.isDebugEnabled()) {
+         logger.debug("objectAdded:\n\told binding: " + namingEvent.getOldBinding() + "\n\tnew binding: " + namingEvent.getNewBinding());
+      }
       Map<String, Set<Role>> newRoles = new HashMap<>();
 
       try {
@@ -475,45 +478,57 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
     * @param namingEvent the removed entry event that occurred
     */
    public void objectRemoved(NamingEvent namingEvent) {
+      if (logger.isDebugEnabled()) {
+         logger.debug("objectRemoved:\n\told binding: " + namingEvent.getOldBinding() + "\n\tnew binding: " + namingEvent.getNewBinding());
+      }
+
       try {
          LdapName ldapName = new LdapName(namingEvent.getOldBinding().getName());
-         String match = null;
-         for (Rdn rdn : ldapName.getRdns()) {
-            if (rdn.getType().equals("uid")) {
-               match = rdn.getValue().toString();
+         List<Rdn> rdns = ldapName.getRdns();
+         if (rdns.size() < 3) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("Skipping old binding name \"" + namingEvent.getOldBinding().getName() + "\" with " + rdns.size() + " RDNs.");
             }
+            return;
          }
 
-         Set<Role> roles = securityRepository.getMatch(match);
+         String match = rdns.get(rdns.size() - 2).getValue().toString();
+         if (logger.isDebugEnabled()) {
+            logger.debug("Destination name: " + match);
+         }
 
-         List<Role> rolesToRemove = new ArrayList<>();
+         if (match != null) {
+            Set<Role> roles = securityRepository.getMatch(match);
 
-         for (Rdn rdn : ldapName.getRdns()) {
-            if (rdn.getValue().equals(writePermissionValue)) {
-               logger.debug("Removing write permission");
-               for (Role role : roles) {
-                  if (role.isSend()) {
-                     rolesToRemove.add(role);
+            List<Role> rolesToRemove = new ArrayList<>();
+
+            for (Rdn rdn : ldapName.getRdns()) {
+               if (rdn.getValue().equals(writePermissionValue)) {
+                  logger.debug("Removing write permission from " + match);
+                  for (Role role : roles) {
+                     if (role.isSend()) {
+                        rolesToRemove.add(role);
+                     }
+                  }
+               } else if (rdn.getValue().equals(readPermissionValue)) {
+                  logger.debug("Removing read permission from " + match);
+                  for (Role role : roles) {
+                     if (role.isConsume()) {
+                        rolesToRemove.add(role);
+                     }
+                  }
+               } else if (rdn.getValue().equals(adminPermissionValue)) {
+                  logger.debug("Removing admin permission from " + match);
+                  for (Role role : roles) {
+                     if (role.isCreateDurableQueue() || role.isCreateNonDurableQueue() || role.isDeleteDurableQueue() || role.isDeleteNonDurableQueue()) {
+                        rolesToRemove.add(role);
+                     }
                   }
                }
-            } else if (rdn.getValue().equals(readPermissionValue)) {
-               logger.debug("Removing read permission");
-               for (Role role : roles) {
-                  if (role.isConsume()) {
-                     rolesToRemove.add(role);
-                  }
-               }
-            } else if (rdn.getValue().equals(adminPermissionValue)) {
-               logger.debug("Removing admin permission");
-               for (Role role : roles) {
-                  if (role.isCreateDurableQueue() || role.isCreateNonDurableQueue() || role.isDeleteDurableQueue() || role.isDeleteNonDurableQueue()) {
-                     rolesToRemove.add(role);
-                  }
-               }
-            }
 
-            for (Role roleToRemove : rolesToRemove) {
-               roles.remove(roleToRemove);
+               for (Role roleToRemove : rolesToRemove) {
+                  roles.remove(roleToRemove);
+               }
             }
          }
       } catch (NamingException e) {
@@ -534,6 +549,9 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
     * @param namingEvent the changed entry event that occurred
     */
    public void objectChanged(NamingEvent namingEvent) {
+      if (logger.isDebugEnabled()) {
+         logger.debug("objectChanged:\n\told binding: " + namingEvent.getOldBinding() + "\n\tnew binding: " + namingEvent.getNewBinding());
+      }
       objectRemoved(namingEvent);
       objectAdded(namingEvent);
    }
