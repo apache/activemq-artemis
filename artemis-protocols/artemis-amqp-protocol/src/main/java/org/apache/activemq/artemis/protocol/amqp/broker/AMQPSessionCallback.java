@@ -265,6 +265,8 @@ public class AMQPSessionCallback implements SessionCallback {
                                         SimpleString filter) throws Exception {
       try {
          serverSession.createSharedQueue(address, queueName, routingType, filter, true, -1, false, false, false);
+      } catch (ActiveMQQueueExistsException alreadyExists) {
+         // nothing to be done.. just ignore it. if you have many consumers all doing the same another one probably already done it
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
       }
