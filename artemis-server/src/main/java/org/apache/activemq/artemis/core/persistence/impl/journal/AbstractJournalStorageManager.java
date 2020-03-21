@@ -1030,7 +1030,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                         if (pageTX == null) {
                            ActiveMQServerLogger.LOGGER.journalCannotFindPageTX(pageUpdate.pageTX);
                         } else {
-                           if (!pageTX.onUpdate(pageUpdate.recods, null, null)) {
+                           if (!pageTX.onUpdate(pageUpdate.records, null, null)) {
                               invalidPGTx = pageTX;
                            }
                         }
