@@ -836,15 +836,6 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       scanMessageData();
       messageDataScanned = MessageDataScanningStatus.SCANNED.code;
       modified = false;
-
-      // Message state should reflect that is came from persistent storage which
-      // can happen when moved to a durable location.  We must re-encode here to
-      // avoid a subsequent redelivery from suddenly appearing with a durable header
-      // tag when the initial delivery did not.
-      if (!isDurable()) {
-         setDurable(true);
-         reencode();
-      }
    }
 
    @Override
