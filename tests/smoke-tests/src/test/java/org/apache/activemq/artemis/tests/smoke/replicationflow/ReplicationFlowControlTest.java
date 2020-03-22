@@ -35,7 +35,6 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ReplicationFlowControlTest extends SmokeTestBase {
@@ -80,7 +79,6 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
       internalTest(false);
    }
 
-   @Ignore // need to fix this before I can let it running
    @Test
    public void testPageWhileSyncFailover() throws Exception {
       internalTest(true);

@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.utils.actors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -69,9 +70,7 @@ public class OrderedExecutorSanityTest {
          executor.shutdownNow();
          Assert.assertEquals("There are no remaining tasks to be executed", 0, executor.remaining());
          //from now on new tasks won't be executed
-         final CountDownLatch afterDeatchExecution = new CountDownLatch(1);
-         executor.execute(afterDeatchExecution::countDown);
-         Assert.assertFalse("After shutdownNow no new tasks can be executed", afterDeatchExecution.await(100, TimeUnit.MILLISECONDS));
+         executor.execute(() -> System.out.println("this will never happen"));
          //to avoid memory leaks the executor must take care of the new submitted tasks immediatly
          Assert.assertEquals("Any new task submitted after death must be collected", 0, executor.remaining());
       } finally {
@@ -82,11 +81,11 @@ public class OrderedExecutorSanityTest {
 
 
    @Test
-   public void shutdownNowOnDelegateExecutor() throws InterruptedException {
+   public void shutdownNowOnDelegateExecutor() throws Exception {
       final ExecutorService executorService = Executors.newSingleThreadExecutor();
       try {
          final OrderedExecutor executor = new OrderedExecutor(executorService);
-         final CountDownLatch latch = new CountDownLatch(1);
+         final CyclicBarrier latch = new CyclicBarrier(2);
          final AtomicInteger numberOfTasks = new AtomicInteger(0);
          final CountDownLatch ran = new CountDownLatch(1);
 
@@ -105,9 +104,47 @@ public class OrderedExecutorSanityTest {
             executor.execute(() -> System.out.println("Dont worry, this will never happen"));
          }
 
-         latch.countDown();
+         latch.await();
          ran.await(1, TimeUnit.SECONDS);
          Assert.assertEquals(100, numberOfTasks.get());
+
+         Assert.assertEquals(ProcessorBase.STATE_FORCED_SHUTDOWN, executor.status());
+         Assert.assertEquals(0, executor.remaining());
+      } finally {
+         executorService.shutdown();
+      }
+   }
+
+   @Test
+   public void shutdownNowWithBlocked() throws Exception {
+      final ExecutorService executorService = Executors.newSingleThreadExecutor();
+      try {
+         final OrderedExecutor executor = new OrderedExecutor(executorService);
+         final CyclicBarrier latch = new CyclicBarrier(2);
+         final CyclicBarrier secondlatch = new CyclicBarrier(2);
+         final CountDownLatch ran = new CountDownLatch(1);
+
+         executor.execute(() -> {
+            try {
+               latch.await(1, TimeUnit.MINUTES);
+               secondlatch.await(1, TimeUnit.MINUTES);
+               ran.countDown();
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+         });
+
+
+         for (int i = 0; i < 100; i++) {
+            executor.execute(() -> System.out.println("Dont worry, this will never happen"));
+         }
+
+         latch.await();
+         try {
+            Assert.assertEquals(100, executor.shutdownNow());
+         } finally {
+            secondlatch.await();
+         }
 
          Assert.assertEquals(ProcessorBase.STATE_FORCED_SHUTDOWN, executor.status());
          Assert.assertEquals(0, executor.remaining());

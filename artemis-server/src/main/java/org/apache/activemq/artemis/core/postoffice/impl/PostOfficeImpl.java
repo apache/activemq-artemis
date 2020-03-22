@@ -886,8 +886,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
 
          if (deleteData && addressManager.getBindingsForRoutingAddress(binding.getAddress()) == null) {
-            pagingManager.deletePageStore(binding.getAddress());
-
             deleteDuplicateCache(binding.getAddress());
          }
 
