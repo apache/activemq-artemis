@@ -61,7 +61,6 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.IDGenerator;
-import org.apache.activemq.artemis.utils.RunnableEx;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -142,7 +141,18 @@ public class AMQPSessionCallback implements SessionCallback {
       return transportConnection.isWritable(callback) && senderContext.getSender().getLocalState() != EndpointState.CLOSED;
    }
 
-   public void withinContext(RunnableEx run) throws Exception {
+   public void withinSessionExecutor(Runnable run) {
+      sessionExecutor.execute(() -> {
+         try {
+            withinContext(run);
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+      });
+
+   }
+
+   public void withinContext(Runnable run) throws Exception {
       OperationContext context = recoverContext();
       try {
          run.run();
@@ -438,18 +448,6 @@ public class AMQPSessionCallback implements SessionCallback {
       return new AMQPStandardMessage(delivery.getMessageFormat(), data, null, coreMessageObjectPools);
    }
 
-   public void serverSend(final ProtonServerReceiverContext context,
-                          final Transaction transaction,
-                          final Receiver receiver,
-                          final Delivery delivery,
-                          SimpleString address,
-                          int messageFormat,
-                          ReadableBuffer data,
-                          RoutingContext routingContext) throws Exception {
-      AMQPStandardMessage message = new AMQPStandardMessage(messageFormat, data, null, coreMessageObjectPools);
-      serverSend(context, transaction, receiver, delivery, address, routingContext, message);
-   }
-
    public void serverSend(ProtonServerReceiverContext context,
                           Transaction transaction,
                           Receiver receiver,
@@ -491,7 +489,9 @@ public class AMQPSessionCallback implements SessionCallback {
                throw e;
             }
          } else {
-            serverSend(context, transaction, message, delivery, receiver, routingContext);
+            message.setConnectionID(receiver.getSession().getConnection().getRemoteContainer());
+            // We need to transfer IO execution to a different thread otherwise we may deadlock netty loop
+            sessionExecutor.execute(() -> inSessionSend(context, transaction, message, delivery, receiver, routingContext));
          }
       } finally {
          resetContext(oldcontext);
@@ -523,46 +523,58 @@ public class AMQPSessionCallback implements SessionCallback {
 
    }
 
-   private void serverSend(final ProtonServerReceiverContext context,
+   private void inSessionSend(final ProtonServerReceiverContext context,
                            final Transaction transaction,
                            final Message message,
                            final Delivery delivery,
                            final Receiver receiver,
-                           final RoutingContext routingContext) throws Exception {
-      message.setConnectionID(receiver.getSession().getConnection().getRemoteContainer());
-      if (invokeIncoming((AMQPMessage) message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection()) == null) {
-         serverSession.send(transaction, message, directDeliver, false, routingContext);
+                           final RoutingContext routingContext) {
+      OperationContext oldContext = recoverContext();
+      try {
+         if (invokeIncoming((AMQPMessage) message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection()) == null) {
+            serverSession.send(transaction, message, directDeliver, false, routingContext);
 
-         afterIO(new IOCallback() {
-            @Override
-            public void done() {
-               connection.runLater(() -> {
-                  if (delivery.getRemoteState() instanceof TransactionalState) {
-                     TransactionalState txAccepted = new TransactionalState();
-                     txAccepted.setOutcome(Accepted.getInstance());
-                     txAccepted.setTxnId(((TransactionalState) delivery.getRemoteState()).getTxnId());
+            afterIO(new IOCallback() {
+               @Override
+               public void done() {
+                  connection.runLater(() -> {
+                     if (delivery.getRemoteState() instanceof TransactionalState) {
+                        TransactionalState txAccepted = new TransactionalState();
+                        txAccepted.setOutcome(Accepted.getInstance());
+                        txAccepted.setTxnId(((TransactionalState) delivery.getRemoteState()).getTxnId());
 
-                     delivery.disposition(txAccepted);
-                  } else {
-                     delivery.disposition(Accepted.getInstance());
-                  }
-                  delivery.settle();
-                  context.flow();
-                  connection.flush();
-               });
-            }
+                        delivery.disposition(txAccepted);
+                     } else {
+                        delivery.disposition(Accepted.getInstance());
+                     }
+                     delivery.settle();
+                     context.flow();
+                     connection.instantFlush();
+                  });
+               }
 
-            @Override
-            public void onError(int errorCode, String errorMessage) {
-               connection.runNow(() -> {
-                  receiver.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, errorCode + ":" + errorMessage));
-                  connection.flush();
-               });
-            }
-         });
-      } else {
-         rejectMessage(delivery, Symbol.valueOf("failed"), "Interceptor rejected message");
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+                  sendError(errorCode, errorMessage, receiver);
+               }
+            });
+         } else {
+            rejectMessage(delivery, Symbol.valueOf("failed"), "Interceptor rejected message");
+         }
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+         context.deliveryFailed(delivery, receiver, e);
+      } finally {
+         resetContext(oldContext);
       }
+
+   }
+
+   private void sendError(int errorCode, String errorMessage, Receiver receiver) {
+      connection.runNow(() -> {
+         receiver.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, errorCode + ":" + errorMessage));
+         connection.flush();
+      });
    }
 
    /** Will execute a Runnable on an Address when there's space in memory*/

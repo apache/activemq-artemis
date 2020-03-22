@@ -132,6 +132,12 @@ public class ProtonServerReceiverContextTest {
          runnable.run();
          return null;
       }).when(mockConnContext).runLater(any(Runnable.class));
+
+      doAnswer((Answer<Void>) invocation -> {
+         Runnable runnable = invocation.getArgument(0);
+         runnable.run();
+         return null;
+      }).when(mockConnContext).runNow(any(Runnable.class));
       ProtonProtocolManager mockProtocolManager = mock(ProtonProtocolManager.class);
       when(mockProtocolManager.isUseModifiedForTransientDeliveryErrors()).thenReturn(true);
       when(mockConnContext.getProtocolManager()).thenReturn(mockProtocolManager);

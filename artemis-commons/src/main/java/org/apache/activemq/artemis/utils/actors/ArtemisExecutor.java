@@ -46,7 +46,7 @@ public interface ArtemisExecutor extends Executor {
     * @param onPendingTask it will be called for each pending task found
     * @return the number of pending tasks that won't be executed
     */
-   default int shutdownNow(Consumer<? super Runnable> onPendingTask) {
+   default int shutdownNow(Consumer<? super Runnable> onPendingTask, int timeout, TimeUnit unit) {
       return 0;
    }
 
@@ -73,7 +73,7 @@ public interface ArtemisExecutor extends Executor {
     */
    default int shutdownNow() {
       return shutdownNow(t -> {
-      });
+      }, 1, TimeUnit.SECONDS);
    }
 
 
