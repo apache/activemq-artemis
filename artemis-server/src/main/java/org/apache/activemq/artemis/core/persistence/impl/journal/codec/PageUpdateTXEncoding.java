@@ -27,11 +27,11 @@ public class PageUpdateTXEncoding implements EncodingSupport {
 
    public long pageTX;
 
-   public int recods;
+   public int records;
 
    @Override
    public String toString() {
-      return "PageUpdateTXEncoding [pageTX=" + pageTX + ", recods=" + recods + "]";
+      return "PageUpdateTXEncoding [pageTX=" + pageTX + ", records=" + records + "]";
    }
 
    public PageUpdateTXEncoding() {
@@ -39,19 +39,19 @@ public class PageUpdateTXEncoding implements EncodingSupport {
 
    public PageUpdateTXEncoding(final long pageTX, final int records) {
       this.pageTX = pageTX;
-      this.recods = records;
+      this.records = records;
    }
 
    @Override
    public void decode(ActiveMQBuffer buffer) {
       this.pageTX = buffer.readLong();
-      this.recods = buffer.readInt();
+      this.records = buffer.readInt();
    }
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
       buffer.writeLong(pageTX);
-      buffer.writeInt(recods);
+      buffer.writeInt(records);
    }
 
    @Override
