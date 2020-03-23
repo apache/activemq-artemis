@@ -1657,6 +1657,7 @@
                   <exclude>**/org.apache.activemq.artemis.cfg</exclude>
                   <exclude>**/nb-configuration.xml</exclude>
                   <exclude>**/nbactions-tests.xml</exclude>
+                  <exclude>**/.vscode/settings.json</exclude>
                   <!-- activemq5 unit tests exclude -->
                   <exclude>**/*.data</exclude>
                   <exclude>**/*.bin</exclude>
