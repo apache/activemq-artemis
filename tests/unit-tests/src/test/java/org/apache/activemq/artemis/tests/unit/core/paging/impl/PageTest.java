@@ -150,7 +150,7 @@ public class PageTest extends ActiveMQTestBase {
       file.open();
       page = new Page(new SimpleString("something"), storageManager, factory, file, 10);
 
-      List<PagedMessage> msgs = page.read(storageManager);
+      List<PagedMessage> msgs = page.read(storageManager, largeMessages);
 
       Assert.assertEquals(numberOfElements, msgs.size());
 
@@ -162,6 +162,12 @@ public class PageTest extends ActiveMQTestBase {
          Assert.assertEquals(largeMessages, pagedMessage.getMessage().isLargeMessage());
          Assert.assertEquals(startMessageID + i, pagedMessage.getMessage().getMessageID());
          Assert.assertEquals(largeMessages ? 1 : 0, pagedMessage.getMessage().getUsage());
+      }
+
+      if (!largeMessages) {
+         Page tmpPage = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+         Assert.assertEquals(0, tmpPage.read(storageManager, true).size());
+         Assert.assertEquals(numberOfElements, tmpPage.getNumberOfMessages());
       }
 
       Assert.assertTrue(page.delete(msgs.toArray(new PagedMessage[msgs.size()])));
