@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import java.io.IOException;
+import static org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageSupport.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -252,15 +253,12 @@ public class AMQConsumer {
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
          //handleDeliver is performed by an executor (see JBPAPP-6030): any AMQConsumer can share the session.wireFormat()
-         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, session.wireFormat(), this);
+         dispatch = OpenWireMessageConverter.getInstance().createMessageDispatch(reference, message, session.wireFormat(), this);
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);
          currentWindow.decrementAndGet();
          return size;
-      } catch (IOException e) {
-         ActiveMQServerLogger.LOGGER.warn("Error during message dispatch", e);
-         return 0;
       } catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.warn("Error during message dispatch", t);
          return 0;
@@ -333,7 +331,7 @@ public class AMQConsumer {
             for (MessageReference ref : ackList) {
                Throwable poisonCause = ack.getPoisonCause();
                if (poisonCause != null) {
-                  ref.getMessage().putStringProperty(OpenWireMessageConverter.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, new SimpleString(poisonCause.toString()));
+                  ref.getMessage().putStringProperty(AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, new SimpleString(poisonCause.toString()));
                }
                ref.getQueue().sendToDeadLetterAddress(transaction, ref);
             }
