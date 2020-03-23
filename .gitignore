@@ -4,6 +4,7 @@
 **/bin
 **/obj
 .idea/
+.vscode/
 ratReport.txt
 **/server.lock
 **/data
