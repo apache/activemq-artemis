@@ -178,8 +178,8 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
 
       DirContext ctx = getContext();
       BasicAttributes basicAttributes = new BasicAttributes();
-      basicAttributes.put("uniquemember", "uid=role2");
-      ctx.modifyAttributes("cn=write,uid=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system", DirContext.REPLACE_ATTRIBUTE, basicAttributes);
+      basicAttributes.put("uniquemember", "cn=role2");
+      ctx.modifyAttributes("cn=write,cn=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system", DirContext.REPLACE_ATTRIBUTE, basicAttributes);
       ctx.close();
 
       producer2.send(name, session.createMessage(true));
@@ -217,8 +217,8 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
 
       DirContext ctx = getContext();
       BasicAttributes basicAttributes = new BasicAttributes();
-      basicAttributes.put("uniquemember", "uid=role2");
-      ctx.modifyAttributes("cn=read,uid=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system", DirContext.REPLACE_ATTRIBUTE, basicAttributes);
+      basicAttributes.put("uniquemember", "cn=role2");
+      ctx.modifyAttributes("cn=read,cn=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system", DirContext.REPLACE_ATTRIBUTE, basicAttributes);
       ctx.close();
 
       consumer2 = session2.createConsumer(queue);
@@ -254,17 +254,17 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
 
       DirContext ctx = getContext();
       BasicAttributes basicAttributes = new BasicAttributes();
-      basicAttributes.put("uniquemember", "uid=role1");
+      basicAttributes.put("uniquemember", "cn=role1");
       Attribute objclass = new BasicAttribute("objectclass");
       objclass.add("top");
       objclass.add("groupOfUniqueNames");
       basicAttributes.put(objclass);
-      ctx.bind("cn=read,uid=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system", null, basicAttributes);
+      ctx.bind("cn=read,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system", null, basicAttributes);
 
       consumer = session.createConsumer(queue);
       consumer.receiveImmediate();
 
-      ctx.unbind("cn=read,uid=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system");
+      ctx.unbind("cn=read,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system");
       ctx.close();
 
       try {
@@ -296,16 +296,16 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
 
       DirContext ctx = getContext();
       BasicAttributes basicAttributes = new BasicAttributes();
-      basicAttributes.put("uniquemember", "uid=role1");
+      basicAttributes.put("uniquemember", "cn=role1");
       Attribute objclass = new BasicAttribute("objectclass");
       objclass.add("top");
       objclass.add("groupOfUniqueNames");
       basicAttributes.put(objclass);
-      ctx.bind("cn=write,uid=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system", null, basicAttributes);
+      ctx.bind("cn=write,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system", null, basicAttributes);
 
       producer.send(session.createMessage(true));
 
-      ctx.unbind("cn=write,uid=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system");
+      ctx.unbind("cn=write,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system");
       ctx.close();
 
       try {
@@ -314,6 +314,70 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       } catch (ActiveMQException e) {
          // ok
       }
+
+      cf.close();
+   }
+
+   @Test
+   public void testNewUserAndRole() throws Exception {
+      server.getConfiguration().setSecurityInvalidationInterval(0);
+      server.start();
+      String queue = "queue1";
+      server.createQueue(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, SimpleString.toSimpleString(queue), null, false, false);
+      ClientSessionFactory cf = locator.createSessionFactory();
+
+      // authentication should fail
+      try {
+         cf.createSession("third", "secret", false, true, true, false, 0);
+         Assert.fail("Creating a session here should fail due to the original security data.");
+      } catch (ActiveMQException e) {
+         Assert.assertTrue(e.getMessage().contains("229031")); // authentication exception
+      }
+
+      { // add new user
+         DirContext ctx = getContext();
+         BasicAttributes basicAttributes = new BasicAttributes();
+         basicAttributes.put("userPassword", "secret");
+         Attribute objclass = new BasicAttribute("objectclass");
+         objclass.add("top");
+         objclass.add("simpleSecurityObject");
+         objclass.add("account");
+         basicAttributes.put(objclass);
+         ctx.bind("uid=third,ou=system", null, basicAttributes);
+      }
+
+      { // add new role
+         DirContext ctx = getContext();
+         BasicAttributes basicAttributes = new BasicAttributes();
+         basicAttributes.put("member", "uid=third,ou=system");
+         Attribute objclass = new BasicAttribute("objectclass");
+         objclass.add("top");
+         objclass.add("groupOfNames");
+         basicAttributes.put(objclass);
+         ctx.bind("cn=role3,ou=system", null, basicAttributes);
+      }
+
+      // authentication should succeed now, but authorization for sending should still fail
+      try {
+         ClientSession session = cf.createSession("third", "secret", false, true, true, false, 0);
+         ClientProducer producer = session.createProducer(SimpleString.toSimpleString(queue));
+         producer.send(session.createMessage(true));
+         Assert.fail("Producing here should fail due to the original security data.");
+      } catch (ActiveMQException e) {
+         Assert.assertTrue(e.getMessage().contains("229032")); // authorization exception
+      }
+
+      { // add write/send permission for new role to existing "queue1"
+         DirContext ctx = getContext();
+         BasicAttributes basicAttributes = new BasicAttributes();
+         basicAttributes.put("uniquemember", "cn=role3");
+         ctx.modifyAttributes("cn=write,cn=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system", DirContext.ADD_ATTRIBUTE, basicAttributes);
+         ctx.close();
+      }
+
+      ClientSession session = cf.createSession("third", "secret", false, true, true, false, 0);
+      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(queue));
+      producer.send(session.createMessage(true));
 
       cf.close();
    }
