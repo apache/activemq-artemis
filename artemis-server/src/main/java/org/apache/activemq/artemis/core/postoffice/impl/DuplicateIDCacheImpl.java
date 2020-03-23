@@ -301,7 +301,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
    public void clear() throws Exception {
       logger.debug("DuplicateIDCacheImpl(" + this.address + ")::clear removing duplicate ID data");
       synchronized (this) {
-         if (ids.size() > 0) {
+         if (ids.size() > 0 && persist) {
             long tx = storageManager.generateID();
             for (Pair<ByteArrayHolder, Long> id : ids) {
                storageManager.deleteDuplicateIDTransactional(tx, id.getB());
