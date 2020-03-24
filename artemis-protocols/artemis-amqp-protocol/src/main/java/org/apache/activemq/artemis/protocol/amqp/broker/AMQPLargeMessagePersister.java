@@ -34,11 +34,6 @@ import static org.apache.activemq.artemis.core.persistence.PersisterIDs.AMQPLarg
 public class AMQPLargeMessagePersister extends MessagePersister {
    private static final Logger log = Logger.getLogger(AMQPLargeMessagePersister.class);
 
-   // We need to save the encoder ahead of time
-   // as we need to know the exact size of the Encoding
-   // so we store the savedBuffer on the getEncodeSize before we actually store it
-   private static final ThreadLocal<ByteBuf> savedBuffer = new ThreadLocal<>();
-
    public static final byte ID = AMQPLargeMessagePersister_ID;
 
    public static AMQPLargeMessagePersister theInstance;
@@ -72,14 +67,12 @@ public class AMQPLargeMessagePersister extends MessagePersister {
    }
 
    private ByteBuf getSavedEncodeBuffer(Message record) {
-      ByteBuf buf = savedBuffer.get();
-      if (buf == null) {
-         AMQPLargeMessage largeMessage = (AMQPLargeMessage)record;
-         buf = PooledByteBufAllocator.DEFAULT.buffer(largeMessage.getEstimateSavedEncode());
-         largeMessage.saveEncoding(buf);
-         savedBuffer.set(buf);
+      AMQPLargeMessage largeMessage = (AMQPLargeMessage)record;
+      if (largeMessage.temporaryBuffer == null) {
+         largeMessage.temporaryBuffer = PooledByteBufAllocator.DEFAULT.buffer(largeMessage.getEstimateSavedEncode());
+         largeMessage.saveEncoding(largeMessage.temporaryBuffer);
       }
-      return buf;
+      return largeMessage.temporaryBuffer;
    }
 
    /**
@@ -89,7 +82,7 @@ public class AMQPLargeMessagePersister extends MessagePersister {
    public void encode(ActiveMQBuffer buffer, Message record) {
       super.encode(buffer, record);
 
-      AMQPMessage msgEncode = (AMQPMessage) record;
+      AMQPLargeMessage msgEncode = (AMQPLargeMessage) record;
 
       buffer.writeLong(record.getMessageID());
       buffer.writeBoolean(record.isDurable());
@@ -106,8 +99,7 @@ public class AMQPLargeMessagePersister extends MessagePersister {
       ByteBuf savedEncodeBuffer = getSavedEncodeBuffer(record);
       buffer.writeBytes(savedEncodeBuffer, 0, savedEncodeBuffer.writerIndex());
       savedEncodeBuffer.release();
-
-      savedBuffer.set(null);
+      msgEncode.temporaryBuffer = null;
    }
 
    @Override

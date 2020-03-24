@@ -53,28 +53,30 @@ import org.junit.runners.Parameterized;
  */
 @RunWith(value = Parameterized.class)
 public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
+
    private String smallFrameAcceptor = new String("tcp://localhost:" + (AMQP_PORT + 8));
 
    int frameSize;
+   int minLargeMessageSize;
 
-
-
-   @Parameterized.Parameters(name = "frameSize = {0}")
-   public static Iterable<? extends Object> persistenceEnabled() {
+   @Parameterized.Parameters(name = "frameSize = {0}, minLargeMessage = {1}")
+   public static Iterable<? extends Object> testParameters() {
       // The reason I use two frames sizes here
       // is because a message that wasn't broken into frames
       // but still beyond 50K, should still be considered large when storing
-      return Arrays.asList(new Object[][]{{512}, {1024 * 1024}});
+      return Arrays.asList(new Object[][]{{512, 50000}, {1024 * 1024, 50000},
+         // we disable large message for at least one parameter to compare results between large and non large messages
+         {1024 * 1024, 50000000}});
    }
 
-   public SimpleStreamingLargeMessageTest(int frameSize) {
+   public SimpleStreamingLargeMessageTest(int frameSize, int minLargeMessageSize) {
       this.frameSize = frameSize;
+      this.minLargeMessageSize = minLargeMessageSize;
    }
-
 
    @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
-      server.getConfiguration().addAcceptorConfiguration("flow", smallFrameAcceptor + "?protocols=AMQP;useEpoll=false;maxFrameSize=" + frameSize + ";amqpMinLargeMessageSize=50000");
+      server.getConfiguration().addAcceptorConfiguration("flow", smallFrameAcceptor + "?protocols=AMQP;useEpoll=false;maxFrameSize=" + frameSize + ";amqpMinLargeMessageSize=" + minLargeMessageSize);
    }
 
    @Test(timeout = 60000)
@@ -143,17 +145,16 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          for (int i = 0; i < 10; i++) {
             AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
             Assert.assertNotNull(msgReceived);
-            Data body = (Data)msgReceived.getWrappedMessage().getBody();
+            Data body = (Data) msgReceived.getWrappedMessage().getBody();
             byte[] bodyArray = body.getValue().getArray();
             for (int bI = 0; bI < size; bI++) {
-               Assert.assertEquals((byte)'z', bodyArray[bI]);
+               Assert.assertEquals((byte) 'z', bodyArray[bI]);
             }
             msgReceived.accept(true);
          }
 
          receiver.flow(1);
          Assert.assertNull(receiver.receiveNoWait());
-
 
          receiver.close();
 
@@ -181,7 +182,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
 
    @Test
    public void testSendWithPropertiesNonPersistent() throws Exception {
-      testSendWithPropertiesAndFilter(true, true);
+      testSendWithPropertiesAndFilter(false, false);
 
    }
 
@@ -209,6 +210,8 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
             AmqpMessage message = new AmqpMessage();
             message.setDurable(persistent);
             boolean odd = (m % 2 == 0);
+            message.setApplicationProperty("i", m);
+            message.setApplicationProperty("oddString", odd ? "odd" : "even");
             message.setApplicationProperty("odd", odd);
             if (odd) {
                message.setApplicationProperty("oddID", oddID++);
@@ -245,14 +248,14 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          AmqpReceiver receiver = session.createReceiver(getQueueName(), "odd=true");
          receiver.flow(10);
          for (int i = 0; i < 5; i++) {
-            System.out.println("Receiving " + i);
             AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
             Assert.assertNotNull(msgReceived);
-            System.out.println("Received " + msgReceived);
-            Data body = (Data)msgReceived.getWrappedMessage().getBody();
+            Assert.assertTrue((boolean)msgReceived.getApplicationProperty("odd"));
+            Assert.assertEquals(i, (int)msgReceived.getApplicationProperty("oddID"));
+            Data body = (Data) msgReceived.getWrappedMessage().getBody();
             byte[] bodyArray = body.getValue().getArray();
             for (int bI = 0; bI < size; bI++) {
-               Assert.assertEquals((byte)'z', bodyArray[bI]);
+               Assert.assertEquals((byte) 'z', bodyArray[bI]);
             }
             msgReceived.accept(true);
          }
@@ -260,9 +263,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(1);
          Assert.assertNull(receiver.receiveNoWait());
 
-
          receiver.close();
-
          connection.close();
 
          validateNoFilesOnLargeDir(getLargeMessagesDir(), 5);
@@ -272,7 +273,6 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
       }
 
    }
-
 
    @Test
    public void testJMSPersistentTX() throws Exception {
