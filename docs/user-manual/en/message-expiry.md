@@ -146,11 +146,6 @@ The reaper thread can be configured with the following properties in
   How often the queues will be scanned to detect expired messages (in
   milliseconds, default is 30000ms, set to `-1` to disable the reaper thread)
 
-- `message-expiry-thread-priority`
-
-  The reaper thread priority (it must be between 1 and 10, 10 being the highest
-  priority, default is 3)
-
 ## Example
 
 See the [Message Expiration Example](examples.md#message-expiration) which

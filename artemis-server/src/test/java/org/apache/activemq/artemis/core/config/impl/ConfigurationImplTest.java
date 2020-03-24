@@ -57,7 +57,6 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultWildcardRoutingEnabled(), conf.isWildcardRoutingEnabled());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeout(), conf.getTransactionTimeout());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryScanPeriod(), conf.getMessageExpiryScanPeriod()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(), conf.getMessageExpiryThreadPriority()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(), conf.getTransactionTimeoutScanPeriod()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), conf.getManagementNotificationAddress()); // OK
@@ -162,10 +161,6 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          s = RandomUtil.randomString();
          conf.setManagementAddress(new SimpleString(s));
          Assert.assertEquals(s, conf.getManagementAddress().toString());
-
-         i = RandomUtil.randomInt();
-         conf.setMessageExpiryThreadPriority(i);
-         Assert.assertEquals(i, conf.getMessageExpiryThreadPriority());
 
          l = RandomUtil.randomLong();
          conf.setMessageExpiryScanPeriod(l);
@@ -364,10 +359,6 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       s = RandomUtil.randomString();
       conf.setManagementAddress(new SimpleString(s));
       Assert.assertEquals(s, conf.getManagementAddress().toString());
-
-      i = RandomUtil.randomInt();
-      conf.setMessageExpiryThreadPriority(i);
-      Assert.assertEquals(i, conf.getMessageExpiryThreadPriority());
 
       l = RandomUtil.randomLong();
       conf.setMessageExpiryScanPeriod(l);

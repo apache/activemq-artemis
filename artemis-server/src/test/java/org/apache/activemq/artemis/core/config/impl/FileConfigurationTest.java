@@ -114,7 +114,6 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(98765, conf.getTransactionTimeout());
       Assert.assertEquals(56789, conf.getTransactionTimeoutScanPeriod());
       Assert.assertEquals(10111213, conf.getMessageExpiryScanPeriod());
-      Assert.assertEquals(8, conf.getMessageExpiryThreadPriority());
       Assert.assertEquals(25000, conf.getAddressQueueScanPeriod());
       Assert.assertEquals(127, conf.getIDCacheSize());
       Assert.assertEquals(true, conf.isPersistIDCache());
