@@ -179,6 +179,19 @@ public class JDBCJournalTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testCleanupTxRecords4TransactionalRecords() throws Exception {
+      // add committed transactional record e.g. paging
+      journal.appendAddRecordTransactional(152, 154, (byte) 13, new byte[0]);
+      journal.appendCommitRecord(152, true);
+      assertEquals(2, journal.getNumberOfRecords());
+
+      // delete transactional record in new transaction e.g. depaging
+      journal.appendDeleteRecordTransactional(236, 154);
+      journal.appendCommitRecord(236, true);
+      assertEquals(0, journal.getNumberOfRecords());
+   }
+
+   @Test
    public void testCallbacks() throws Exception {
       final int noRecords = 10;
       final CountDownLatch done = new CountDownLatch(noRecords);
