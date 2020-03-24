@@ -232,6 +232,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
                   holder = transactions.get(record.getTxId());
                   for (RecordInfo info : holder.recordsToDelete) {
                      deletedRecords.add(record.getId());
+                     deletedRecords.add(info.id);
                      deleteJournalRecords.setLong(1, info.id);
                      deleteJournalRecords.addBatch();
                   }
