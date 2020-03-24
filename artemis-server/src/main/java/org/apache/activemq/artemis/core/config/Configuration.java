@@ -981,11 +981,13 @@ public interface Configuration {
     * Returns the priority of the thread used to scan message expiration. <br>
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY}.
     */
+   @Deprecated
    int getMessageExpiryThreadPriority();
 
    /**
     * Sets the priority of the thread used to scan message expiration.
     */
+   @Deprecated
    Configuration setMessageExpiryThreadPriority(int messageExpiryThreadPriority);
 
    /**

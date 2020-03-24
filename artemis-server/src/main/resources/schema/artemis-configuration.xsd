@@ -331,7 +331,7 @@
          <xsd:element name="message-expiry-thread-priority" type="xsd:int" default="3" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  the priority of the thread expiring messages
+                  DEPRECATED: the priority of the thread expiring messages
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
