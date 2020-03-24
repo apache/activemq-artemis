@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 
 import org.jboss.logging.Logger;
@@ -99,45 +98,26 @@ public abstract class ProcessorBase<T> extends HandlerBase {
       }
    }
 
-   /**
-    * It will wait the current execution (if there is one) to finish
-    * but will not complete any further executions
-    */
-   public int shutdownNow(Consumer<? super T> onPendingItem) {
+   /** It will shutdown the executor however it will not wait for finishing tasks*/
+   public int shutdownNow(Consumer<? super T> onPendingItem, int timeout, TimeUnit unit) {
       //alert anyone that has been requested (at least) an immediate shutdown
       requestedForcedShutdown = true;
       requestedShutdown = true;
 
-      if (inHandler()) {
-         stateUpdater.set(this, STATE_FORCED_SHUTDOWN);
-      } else {
-         //it could take a very long time depending on the current executing task
-         do {
-            //alert the ExecutorTask (if is running) to just drain the current backlog of tasks
-            final int startState = stateUpdater.get(this);
-            if (startState == STATE_FORCED_SHUTDOWN) {
-               //another thread has completed a forced shutdown: let it to manage the tasks cleanup
-               break;
-            }
-            if (startState == STATE_RUNNING) {
-               //wait 100 ms to avoid burning CPU while waiting and
-               //give other threads a chance to make progress
-               LockSupport.parkNanos(100_000_000L);
-            }
-         }
-         while (!stateUpdater.compareAndSet(this, STATE_NOT_RUNNING, STATE_FORCED_SHUTDOWN));
-         //this could happen just one time: the forced shutdown state is the last one and
-         //can be set by just one caller.
-         //As noted on the execute method there is a small chance that some tasks would be enqueued
+      if (!inHandler()) {
+         // We don't have an option where we could do an immediate timeout
+         // I just need to make one roundtrip to make sure there's no pending tasks on the loop
+         // for that I ellected one second
+         flush(timeout, unit);
       }
+
+      stateUpdater.set(this, STATE_FORCED_SHUTDOWN);
       int pendingItems = 0;
-      //there is a small chance that execute() could race with this cleanup: the lock allow an all-or-nothing behaviour between them
-      synchronized (tasks) {
-         T item;
-         while ((item = tasks.poll()) != null) {
-            onPendingItem.accept(item);
-            pendingItems++;
-         }
+
+      T item;
+      while ((item = tasks.poll()) != null) {
+         onPendingItem.accept(item);
+         pendingItems++;
       }
       return pendingItems;
    }
@@ -184,6 +164,7 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    protected void task(T command) {
       if (requestedShutdown) {
          logAddOnShutdown();
+         return;
       }
       //The shutdown process could finish right after the above check: shutdownNow can drain the remaining tasks
       tasks.add(command);
@@ -203,11 +184,6 @@ public abstract class ProcessorBase<T> extends HandlerBase {
       if (state == STATE_NOT_RUNNING) {
          //startPoller could be deleted but is maintained because is inherited
          delegate.execute(task);
-      } else if (state == STATE_FORCED_SHUTDOWN) {
-         //help the GC by draining any task just submitted: it helps to cover the case of a shutdownNow finished before tasks.add
-         synchronized (tasks) {
-            tasks.clear();
-         }
       }
    }
 

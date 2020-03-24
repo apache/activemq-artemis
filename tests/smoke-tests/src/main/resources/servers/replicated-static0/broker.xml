@@ -18,7 +18,7 @@ specific language governing permissions and limitations
 under the License.
 --><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
 
-   
+
 
    <core xmlns="urn:activemq:core">
 
@@ -65,13 +65,18 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="exampleQueue">
-            <permission roles="guest" type="createDurableQueue"/>
-            <permission roles="guest" type="deleteDurableQueue"/>
-            <permission roles="guest" type="createNonDurableQueue"/>
-            <permission roles="guest" type="deleteNonDurableQueue"/>
-            <permission roles="guest" type="consume"/>
-            <permission roles="guest" type="send"/>
+         <security-setting match="#">
+            <permission type="createNonDurableQueue" roles="amq, guest"/>
+            <permission type="deleteNonDurableQueue" roles="amq, guest"/>
+            <permission type="createDurableQueue" roles="amq, guest"/>
+            <permission type="deleteDurableQueue" roles="amq, guest"/>
+            <permission type="createAddress" roles="amq, guest"/>
+            <permission type="deleteAddress" roles="amq, guest"/>
+            <permission type="consume" roles="amq, guest"/>
+            <permission type="browse" roles="amq, guest"/>
+            <permission type="send" roles="amq, guest"/>
+            <!-- we need this otherwise ./artemis data imp wouldn't work -->
+            <permission type="manage" roles="amq"/>
          </security-setting>
       </security-settings>
       <address-settings>
@@ -95,8 +100,8 @@ under the License.
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
             <!-- with -1 only the global-max-size is in use for limiting -->
-            <max-size-bytes>200MB</max-size-bytes>
-            <page-size-bytes>100MB</page-size-bytes>
+            <max-size-bytes>10MB</max-size-bytes>
+            <page-size-bytes>1MB</page-size-bytes>
 
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
@@ -107,7 +112,11 @@ under the License.
          </address-setting>
       </address-settings>
 
-   <addresses>
+      <addresses>
+         <address name="exampleTopic">
+            <multicast>
+            </multicast>
+         </address>
          <address name="exampleQueue">
             <anycast>
                <queue name="exampleQueue"/>
