@@ -363,7 +363,9 @@ public class PagingStoreImpl implements PagingStore {
          cursorProvider.stop();
 
          final List<Runnable> pendingTasks = new ArrayList<>();
-         final int pendingTasksWhileShuttingDown = executor.shutdownNow(pendingTasks::add);
+
+         // TODO we could have a parameter to use this
+         final int pendingTasksWhileShuttingDown = executor.shutdownNow(pendingTasks::add, 30, TimeUnit.SECONDS);
          if (pendingTasksWhileShuttingDown > 0) {
             logger.tracef("Try executing %d pending tasks on stop", pendingTasksWhileShuttingDown);
             for (Runnable pendingTask : pendingTasks) {

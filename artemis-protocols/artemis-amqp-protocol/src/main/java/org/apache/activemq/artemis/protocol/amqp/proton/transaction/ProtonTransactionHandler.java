@@ -145,24 +145,43 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             };
 
             if (discharge.getFail()) {
-               sessionSPI.withinContext(() -> tx.rollback());
-               sessionSPI.afterIO(ioAction);
+               sessionSPI.withinSessionExecutor(() -> {
+                  try {
+                     tx.rollback();
+                     sessionSPI.afterIO(ioAction);
+                  } catch (Throwable e) {
+                     txError(delivery, e);
+                  }
+               });
             } else {
-               sessionSPI.withinContext(() -> tx.commit());
-               sessionSPI.afterIO(ioAction);
+               sessionSPI.withinSessionExecutor(() -> {
+                  try {
+                     tx.commit();
+                     sessionSPI.afterIO(ioAction);
+                  } catch (Throwable e) {
+                     txError(delivery, e);
+                  }
+               });
             }
          }
       } catch (ActiveMQAMQPException amqpE) {
-         log.warn(amqpE.getMessage(), amqpE);
-         delivery.settle();
-         delivery.disposition(createRejected(amqpE.getAmqpError(), amqpE.getMessage()));
-         connection.flush();
+         txError(delivery, amqpE);
       } catch (Throwable e) {
-         log.warn(e.getMessage(), e);
-         delivery.settle();
-         delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
-         connection.flush();
+         txError(delivery, e);
       }
+   }
+
+   private void txError(Delivery delivery, Throwable e) {
+      log.warn(e.getMessage(), e);
+      connection.runNow(() -> {
+         delivery.settle();
+         if (e instanceof ActiveMQAMQPException) {
+            delivery.disposition(createRejected(((ActiveMQAMQPException) e).getAmqpError(), e.getMessage()));
+         } else {
+            delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
+         }
+         connection.flush();
+      });
    }
 
    @Override

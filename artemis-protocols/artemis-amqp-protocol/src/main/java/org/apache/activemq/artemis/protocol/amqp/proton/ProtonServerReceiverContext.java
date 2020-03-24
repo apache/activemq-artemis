@@ -360,17 +360,22 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          sessionSPI.serverSend(this, tx, receiver, delivery, address, routingContext, message);
       } catch (Exception e) {
          log.warn(e.getMessage(), e);
+
+         deliveryFailed(delivery, receiver, e);
+
+      }
+   }
+
+   public void deliveryFailed(Delivery delivery, Receiver receiver, Exception e) {
+      connection.runNow(() -> {
          DeliveryState deliveryState = determineDeliveryState(((Source) receiver.getSource()),
                                                               useModified,
                                                               e);
-         connection.runLater(() -> {
-            delivery.disposition(deliveryState);
-            delivery.settle();
-            flow();
-            connection.flush();
-         });
-
-      }
+         delivery.disposition(deliveryState);
+         delivery.settle();
+         flow();
+         connection.flush();
+      });
    }
 
    private DeliveryState determineDeliveryState(final Source source, final boolean useModified, final Exception e) {
