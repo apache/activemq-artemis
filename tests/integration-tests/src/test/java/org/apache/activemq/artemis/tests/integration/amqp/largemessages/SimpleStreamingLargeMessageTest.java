@@ -181,7 +181,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
 
    @Test
    public void testSendWithPropertiesNonPersistent() throws Exception {
-      testSendWithPropertiesAndFilter(true, false);
+      testSendWithPropertiesAndFilter(true, true);
 
    }
 
@@ -204,10 +204,16 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          assertEquals(0, queueView.getMessageCount());
 
          session.begin();
+         int oddID = 0;
          for (int m = 0; m < 10; m++) {
             AmqpMessage message = new AmqpMessage();
             message.setDurable(persistent);
-            message.setApplicationProperty("odd", (m % 2 == 0));
+            boolean odd = (m % 2 == 0);
+            message.setApplicationProperty("odd", odd);
+            if (odd) {
+               message.setApplicationProperty("oddID", oddID++);
+            }
+
             byte[] bytes = new byte[size];
             for (int i = 0; i < bytes.length; i++) {
                bytes[i] = (byte) 'z';
@@ -285,7 +291,6 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
 
       jmsTest(persistent, tx);
    }
-
 
    @Test
    public void testJMSNonPersistentTX() throws Exception {
