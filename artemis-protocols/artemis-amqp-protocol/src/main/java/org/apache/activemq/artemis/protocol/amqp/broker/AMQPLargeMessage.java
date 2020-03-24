@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.nio.ByteBuffer;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -74,6 +75,12 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          }
       }
    }
+
+   /**
+    * AMQPLargeMessagePersister will save the buffer here.
+    * */
+   volatile ByteBuf temporaryBuffer;
+
    private final LargeBody largeBody;
    /**
     * We control durability on a separate property here, as we need to know if it's durable ahead of the header parsing.
