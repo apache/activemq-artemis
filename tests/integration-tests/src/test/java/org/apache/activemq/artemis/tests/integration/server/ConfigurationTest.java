@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.server;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -27,6 +28,7 @@ import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Test;
 
 public class ConfigurationTest extends ActiveMQTestBase {
@@ -39,6 +41,22 @@ public class ConfigurationTest extends ActiveMQTestBase {
          assertEquals(mytopic_1.getBindings().size(), 0);
          Bindings mytopic_2 = server.getPostOffice().getBindingsForAddress(new SimpleString("mytopic_2"));
          assertEquals(mytopic_2.getBindings().size(), 3);
+      } finally {
+         try {
+            server.stop();
+         } catch (Exception e) {
+         }
+      }
+   }
+
+   @Test
+   public void testQueueWithoutAddressName() throws Exception {
+      final SimpleString QUEUE_NAME = RandomUtil.randomSimpleString();
+      ActiveMQServer server = createServer(false, createDefaultInVMConfig());
+      try {
+         server.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setName(QUEUE_NAME.toString()));
+         server.start();
+         assertTrue(server.getAddressInfo(QUEUE_NAME) != null);
       } finally {
          try {
             server.stop();
