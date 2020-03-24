@@ -75,17 +75,25 @@ public class JournalAddRecordTX extends JournalInternalRecord {
 
       buffer.writeLong(id);
 
-      buffer.writeInt(persister.getEncodeSize(record));
+      int persisterEncodeSize = persister.getEncodeSize(record);
+      int encodeSize = getInternalEncodeSize(persisterEncodeSize);
+
+      buffer.writeInt(persisterEncodeSize);
 
       buffer.writeByte(recordType);
 
       persister.encode(buffer, record);
 
-      buffer.writeInt(getEncodeSize());
+      // AMQP Persister may save encoding between getEcodeSize and .encode(). After encode it may release the encoding
+      buffer.writeInt(encodeSize);
    }
 
    @Override
    public int getEncodeSize() {
-      return JournalImpl.SIZE_ADD_RECORD_TX + persister.getEncodeSize(record) + 1;
+      return getInternalEncodeSize(persister.getEncodeSize(record));
+   }
+
+   private int getInternalEncodeSize(int persisterEncodeSize) {
+      return JournalImpl.SIZE_ADD_RECORD_TX + persisterEncodeSize + 1;
    }
 }
