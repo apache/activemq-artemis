@@ -228,6 +228,7 @@ public final class ActiveMQDefaultConfiguration {
    private static long DEFAULT_ADDRESS_QUEUE_SCAN_PERIOD = 30000;
 
    // the priority of the thread expiring messages
+   @Deprecated
    private static int DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY = 3;
 
    // the size of the cache for pre-creating message ID's
@@ -817,6 +818,7 @@ public final class ActiveMQDefaultConfiguration {
    /**
     * the priority of the thread expiring messages
     */
+   @Deprecated
    public static int getDefaultMessageExpiryThreadPriority() {
       return DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY;
    }

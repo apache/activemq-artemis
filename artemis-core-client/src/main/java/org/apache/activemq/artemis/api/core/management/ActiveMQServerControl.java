@@ -366,6 +366,7 @@ public interface ActiveMQServerControl {
     * Returns the priority of the thread used to scan message expiration.
     */
    @Attribute(desc = "Priority of the thread used to scan message expiration")
+   @Deprecated
    long getMessageExpiryThreadPriority();
 
    /**
