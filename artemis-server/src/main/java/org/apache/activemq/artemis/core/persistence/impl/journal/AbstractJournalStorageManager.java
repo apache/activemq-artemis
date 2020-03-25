@@ -135,18 +135,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    protected static final int CRITICAL_STOP_2 = 2;
 
 
-   public static ThreadLocal<StorageManager> storageManagerThreadLocal = new ThreadLocal<>();
-
-   /** Persisters may need to access this on reloading of the journal,
-    *  for large message processing */
-   public static void setupThreadLocal(StorageManager manager) {
-      storageManagerThreadLocal.set(manager);
-   }
-
-   public static StorageManager getThreadLocal() {
-      return storageManagerThreadLocal.get();
-   }
-
    private static final Logger logger = Logger.getLogger(AbstractJournalStorageManager.class);
 
    public enum JournalContent {
@@ -857,7 +845,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       Map<Long, Message> messages = new HashMap<>();
       readLock();
-      setupThreadLocal(this);
       try {
 
          JournalLoadInformation info = messageJournal.load(records, preparedTransactions, new LargeMessageTXFailureCallback(this));
@@ -935,15 +922,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                   case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
 
-                     Message message = MessagePersister.getInstance().decode(buff, null, pools);
-
-                     /* if (message instanceof LargeServerMessage) {
-                        try {
-                           ((LargeServerMessage) message).finishParse();
-                        } catch (Exception e) {
-                           logger.warn(e.getMessage(), e);
-                        }
-                     } */
+                     Message message = decodeMessage(pools, buff);
 
                      messages.put(record.id, message);
 
@@ -1240,9 +1219,12 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          return info;
       } finally {
          readUnLock();
-         // need to clear it, otherwise we may have a permanent leak
-         setupThreadLocal(null);
       }
+   }
+
+   private Message decodeMessage(CoreMessageObjectPools pools, ActiveMQBuffer buff) {
+      Message message = MessagePersister.getInstance().decode(buff, null, pools, this);
+      return message;
    }
 
    public void checkInvalidPageTransactions(PagingManager pagingManager,
@@ -1795,7 +1777,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   if (pools == null) {
                      pools = new CoreMessageObjectPools();
                   }
-                  Message message = MessagePersister.getInstance().decode(buff, null, pools);
+                  Message message = decodeMessage(pools, buff);
 
                   messages.put(record.id, message);
 

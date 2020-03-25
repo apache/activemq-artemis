@@ -64,5 +64,7 @@ public interface LargeServerMessage extends ReplicatedLargeMessage {
 
    LargeBody getLargeBody();
 
+   void setStorageManager(StorageManager storageManager);
+
    void finishParse() throws Exception;
 }

@@ -126,7 +126,7 @@ public class ClusterControllerTest extends ClusterTestBase {
    @Test
    public void controlWithDifferentConnector() throws Exception {
       try (ServerLocatorImpl locator = (ServerLocatorImpl) createInVMNonHALocator()) {
-         locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator));
+         locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator, servers[0].getStorageManager()));
          ClusterController controller = new ClusterController(getServer(0), getServer(0).getScheduledPool());
          ClusterControl clusterControl = controller.connectToNodeInCluster((ClientSessionFactoryInternal) locator.createSessionFactory());
          clusterControl.authorize();
@@ -136,7 +136,7 @@ public class ClusterControllerTest extends ClusterTestBase {
    @Test
    public void controlWithDifferentPassword() throws Exception {
       try (ServerLocatorImpl locator = (ServerLocatorImpl) createInVMNonHALocator()) {
-         locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator));
+         locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator, servers[0].getStorageManager()));
          ClusterController controller = new ClusterController(getServer(1), getServer(1).getScheduledPool());
          ClusterControl clusterControl = controller.connectToNodeInCluster((ClientSessionFactoryInternal) locator.createSessionFactory());
          try {

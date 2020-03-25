@@ -359,6 +359,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       LargeMessagePersister.getInstance().decode(buff, largeMessage, null);
 
+      largeMessage.setStorageManager(this);
+
       if (largeMessage.toMessage().containsProperty(Message.HDR_ORIG_MESSAGE_ID)) {
          // for compatibility: couple with old behaviour, copying the old file to avoid message loss
          long originalMessageID = largeMessage.toMessage().getLongProperty(Message.HDR_ORIG_MESSAGE_ID);

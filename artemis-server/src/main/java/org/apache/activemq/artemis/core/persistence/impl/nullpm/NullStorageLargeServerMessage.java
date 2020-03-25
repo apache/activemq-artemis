@@ -71,6 +71,11 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
    }
 
    @Override
+   public void setStorageManager(StorageManager storageManager) {
+
+   }
+
+   @Override
    public synchronized void addBytes(ActiveMQBuffer bytes) {
       final int readableBytes = bytes.readableBytes();
       if (buffer == null) {

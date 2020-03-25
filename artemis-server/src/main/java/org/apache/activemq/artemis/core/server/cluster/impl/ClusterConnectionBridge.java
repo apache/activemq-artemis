@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -79,6 +80,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
    private final long targetNodeEventUID;
 
+   private final StorageManager storageManager;
+
    private final ServerLocatorInternal discoveryLocator;
 
    private final String storeAndForwardPrefix;
@@ -111,7 +114,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                   final SimpleString managementNotificationAddress,
                                   final MessageFlowRecord flowRecord,
                                   final TransportConfiguration connector,
-                                  final String storeAndForwardPrefix) {
+                                  final String storeAndForwardPrefix,
+                                  final StorageManager storageManager) {
       super(targetLocator, initialConnectAttempts, reconnectAttempts, 0, // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
             retryInterval, retryMultiplier, maxRetryInterval, nodeUUID, name, queue, executor, filterString, forwardingAddress, scheduledExecutor, transformer, useDuplicateDetection, user, password, server, ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType()));
 
@@ -134,11 +138,13 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
 
       this.storeAndForwardPrefix = storeAndForwardPrefix;
+
+      this.storageManager = storageManager;
    }
 
    @Override
    protected ClientSessionFactoryInternal createSessionFactory() throws Exception {
-      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator));
+      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator, storageManager));
       ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) serverLocator.createSessionFactory(targetNodeID);
       //if it is null then its possible the broker was removed after a disconnect so lets try the original connectors
       if (factory == null) {
