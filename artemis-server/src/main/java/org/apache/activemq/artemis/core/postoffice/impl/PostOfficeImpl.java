@@ -1689,7 +1689,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       String uid = UUIDGenerator.getInstance().generateStringUUID();
 
       message.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, new SimpleString(type.toString()));
-      message.putLongProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
+
+      long timestamp = System.currentTimeMillis();
+      message.putLongProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP, timestamp);
+      message.setTimestamp(timestamp);
 
       message.putStringProperty(new SimpleString("foobar"), new SimpleString(uid));
 
