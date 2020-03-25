@@ -66,7 +66,7 @@ public class MqttClientService implements MqttCallback {
       final MqttConnectOptions options = new MqttConnectOptions();
       options.setAutomaticReconnect(true);
       options.setCleanSession(false);
-      options.setMaxInflight(10);
+      options.setMaxInflight(1000);
       options.setServerURIs(new String[] {serverURI});
       options.setMqttVersion(MQTT_VERSION_3_1_1);
 
