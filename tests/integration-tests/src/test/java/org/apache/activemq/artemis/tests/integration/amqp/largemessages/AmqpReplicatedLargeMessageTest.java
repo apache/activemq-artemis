@@ -75,7 +75,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
    }
 
 
-   @Test
+   @Test(timeout = 60_000)
    public void testSimpleSend() throws Exception {
       try {
 
