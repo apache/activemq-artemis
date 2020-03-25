@@ -125,6 +125,8 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          }
          session.commit();
 
+         AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server);
+
          if (restartServer) {
             connection.close();
             server.stop();
@@ -230,6 +232,8 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
             }
          }
 
+         AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server);
+
          if (restartServer) {
             connection.close();
             server.stop();
@@ -267,6 +271,79 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          connection.close();
 
          validateNoFilesOnLargeDir(getLargeMessagesDir(), 5);
+      } catch (Exception e) {
+         e.printStackTrace();
+         throw e;
+      }
+
+   }
+
+
+   @Test
+   public void testSingleMessage() throws Exception {
+      try {
+
+         int size = 100 * 1024;
+         AmqpClient client = createAmqpClient(new URI(smallFrameAcceptor));
+         AmqpConnection connection = client.createConnection();
+         addConnection(connection);
+         connection.setMaxFrameSize(2 * 1024);
+         connection.connect();
+
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createSender(getQueueName());
+
+         Queue queueView = getProxyToQueue(getQueueName());
+         assertNotNull(queueView);
+         assertEquals(0, queueView.getMessageCount());
+
+         session.begin();
+         int oddID = 0;
+         for (int m = 0; m < 1; m++) {
+            AmqpMessage message = new AmqpMessage();
+            message.setDurable(true);
+            boolean odd = (m % 2 == 0);
+            message.setApplicationProperty("i", m);
+            message.setApplicationProperty("oddString", odd ? "odd" : "even");
+            message.setApplicationProperty("odd", odd);
+            if (odd) {
+               message.setApplicationProperty("oddID", oddID++);
+            }
+
+            byte[] bytes = new byte[size];
+            for (int i = 0; i < bytes.length; i++) {
+               bytes[i] = (byte) 'z';
+            }
+
+            message.setBytes(bytes);
+            sender.send(message);
+         }
+
+         session.commit();
+
+         AmqpReceiver receiver = session.createReceiver(getQueueName());
+         receiver.flow(1);
+         for (int i = 0; i < 1; i++) {
+            AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
+            Assert.assertNotNull(msgReceived);
+            Assert.assertTrue((boolean)msgReceived.getApplicationProperty("odd"));
+            Assert.assertEquals(i, (int)msgReceived.getApplicationProperty("oddID"));
+            Data body = (Data) msgReceived.getWrappedMessage().getBody();
+            byte[] bodyArray = body.getValue().getArray();
+            for (int bI = 0; bI < size; bI++) {
+               Assert.assertEquals((byte) 'z', bodyArray[bI]);
+            }
+            msgReceived.accept(true);
+         }
+
+         receiver.flow(1);
+         Assert.assertNull(receiver.receiveNoWait());
+
+         receiver.close();
+         connection.close();
+
+         validateNoFilesOnLargeDir(getLargeMessagesDir(), 0);
       } catch (Exception e) {
          e.printStackTrace();
          throw e;
