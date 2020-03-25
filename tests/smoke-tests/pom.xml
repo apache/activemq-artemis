@@ -147,6 +147,10 @@
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <instance>${basedir}/target/replicated-static0</instance>
                      <configuration>${basedir}/target/classes/servers/replicated-static0</configuration>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-ea</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>
@@ -160,6 +164,10 @@
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <instance>${basedir}/target/replicated-static1</instance>
                      <configuration>${basedir}/target/classes/servers/replicated-static1</configuration>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-ea</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>

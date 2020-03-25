@@ -17,12 +17,13 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class ReplicationPageWriteMessage extends PacketImpl {
+public class ReplicationPageWriteMessage extends PacketImpl implements MessagePacketI {
 
    private int pageNumber;
 
@@ -81,6 +82,17 @@ public class ReplicationPageWriteMessage extends PacketImpl {
       result = prime * result + pageNumber;
       result = prime * result + ((pagedMessage == null) ? 0 : pagedMessage.hashCode());
       return result;
+   }
+
+   @Override
+   public Message getMessage() {
+      return pagedMessage.getMessage();
+   }
+
+   @Override
+   public ReplicationPageWriteMessage replaceMessage(Message message) {
+      // nothing to be done
+      return this;
    }
 
    @Override

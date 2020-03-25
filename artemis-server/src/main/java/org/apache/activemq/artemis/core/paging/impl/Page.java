@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -381,6 +382,7 @@ public final class Page implements Comparable<Page> {
                         fileBuffer.position(endPosition + 1);
                         assert fileBuffer.get(endPosition) == Page.END_BYTE : "decoding cannot change end byte";
                         msg.initMessage(storage);
+                        assert msg.getMessage() instanceof LargeServerMessage && ((LargeServerMessage)msg.getMessage()).getStorageManager() != null || !(msg.getMessage() instanceof LargeServerMessage);
                         if (logger.isTraceEnabled()) {
                            logger.tracef("Reading message %s on pageId=%d for address=%s", msg, pageId, storeName);
                         }
