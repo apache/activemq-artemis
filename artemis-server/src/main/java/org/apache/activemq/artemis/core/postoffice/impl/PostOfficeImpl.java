@@ -1686,12 +1686,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       message.setAddress(queueName);
 
-      String uid = UUIDGenerator.getInstance().generateStringUUID();
-
       message.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, new SimpleString(type.toString()));
       message.putLongProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
-
-      message.putStringProperty(new SimpleString("foobar"), new SimpleString(uid));
 
       return message;
    }
