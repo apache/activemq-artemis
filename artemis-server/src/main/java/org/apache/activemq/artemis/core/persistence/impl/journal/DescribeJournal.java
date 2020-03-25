@@ -569,7 +569,7 @@ public final class DescribeJournal {
             return "ADD-MESSAGE is not supported any longer, use export/import";
          }
          case ADD_MESSAGE_PROTOCOL: {
-            Message message = MessagePersister.getInstance().decode(buffer, null, null);
+            Message message = MessagePersister.getInstance().decode(buffer, null, null, storageManager);
             return new MessageDescribe(message);
          }
          case ADD_REF: {

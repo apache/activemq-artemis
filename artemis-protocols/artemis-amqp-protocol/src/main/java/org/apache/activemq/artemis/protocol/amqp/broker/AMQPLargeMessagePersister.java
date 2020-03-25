@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
-import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -116,7 +115,7 @@ public class AMQPLargeMessagePersister extends MessagePersister {
          properties = null;
       }
 
-      AMQPLargeMessage largeMessage = new AMQPLargeMessage(id, format, properties, null, AbstractJournalStorageManager.getThreadLocal());
+      AMQPLargeMessage largeMessage = new AMQPLargeMessage(id, format, properties, null, null);
 
       largeMessage.setFileDurable(durable);
       if (address != null) {
