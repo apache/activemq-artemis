@@ -85,6 +85,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
+      long start = System.currentTimeMillis();
       try {
          sf.createSession();
          Assert.fail("authentication must fail and a notification of security violation must be sent");
@@ -96,6 +97,9 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       Assert.assertEquals(null, notifications[0].getObjectProperty(ManagementHelper.HDR_USER));
       Assert.assertEquals("CN=Bad Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
       Assert.assertTrue(notifications[0].getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
+      Assert.assertTrue(notifications[0].getTimestamp() >= start);
+      Assert.assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
+      Assert.assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
    }
 
    @Test
@@ -123,6 +127,8 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       guestSession.createQueue(address, RoutingType.ANYCAST, queue, true);
       SSLSecurityNotificationTest.flush(notifConsumer);
+
+      long start = System.currentTimeMillis();
       guestSession.createConsumer(queue);
 
       ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
@@ -131,6 +137,9 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       Assert.assertEquals("first", notifications[0].getObjectProperty(ManagementHelper.HDR_VALIDATED_USER).toString());
       Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
       Assert.assertEquals("CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
+      Assert.assertTrue(notifications[0].getTimestamp() >= start);
+      Assert.assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
+      Assert.assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
 
       guestSession.close();
    }

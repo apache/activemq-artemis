@@ -1687,7 +1687,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       message.setAddress(queueName);
 
       message.putStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE, new SimpleString(type.toString()));
-      message.putLongProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
+
+      long timestamp = System.currentTimeMillis();
+      message.putLongProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP, timestamp);
+      message.setTimestamp(timestamp);
 
       return message;
    }
