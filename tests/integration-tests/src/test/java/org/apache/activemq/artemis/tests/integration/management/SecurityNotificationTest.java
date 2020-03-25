@@ -74,6 +74,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
 
+      long start = System.currentTimeMillis();
       try {
          sf.createSession(unknownUser, RandomUtil.randomString(), false, true, true, false, 1);
          Assert.fail("authentication must fail and a notification of security violation must be sent");
@@ -85,6 +86,9 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       Assert.assertEquals(unknownUser, notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
       Assert.assertEquals("unavailable", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
       Assert.assertEquals("invm:0", notifications[0].getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString());
+      Assert.assertTrue(notifications[0].getTimestamp() >= start);
+      Assert.assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
+      Assert.assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
    }
 
    @Test
@@ -106,6 +110,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
 
+      long start = System.currentTimeMillis();
       try {
          guestSession.createQueue(address, queue, true);
          Assert.fail("session creation must fail and a notification of security violation must be sent");
@@ -125,6 +130,9 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       Assert.assertEquals("guest", notifications[i].getObjectProperty(ManagementHelper.HDR_USER).toString());
       Assert.assertEquals(address.toString(), notifications[i].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
       Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.toString(), notifications[i].getObjectProperty(ManagementHelper.HDR_CHECK_TYPE).toString());
+      Assert.assertTrue(notifications[i].getTimestamp() >= start);
+      Assert.assertTrue((long) notifications[i].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
+      Assert.assertEquals(notifications[i].getTimestamp(), (long) notifications[i].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
 
       guestSession.close();
    }
@@ -147,6 +155,8 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
 
       guestSession.createQueue(address, RoutingType.ANYCAST, queue, true);
       SecurityNotificationTest.flush(notifConsumer);
+
+      long start = System.currentTimeMillis();
       guestSession.createConsumer(queue);
 
       ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
@@ -155,6 +165,9 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       Assert.assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_VALIDATED_USER).toString());
       Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
       Assert.assertEquals(SimpleString.toSimpleString("unavailable"), notifications[0].getSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN));
+      Assert.assertTrue(notifications[0].getTimestamp() >= start);
+      Assert.assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
+      Assert.assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
 
       guestSession.close();
    }
