@@ -1029,6 +1029,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   tx.checkErrorCondition();
                }
                JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, persister, record);
+               // we need to calculate the encodeSize here, as it may use caches that are eliminated once the record is written
+               int encodeSize = addRecord.getEncodeSize();
                JournalFile usedFile = appendRecord(addRecord, false, false, tx, null);
 
                if (logger.isTraceEnabled()) {
@@ -1042,7 +1044,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                   usedFile);
                }
 
-               tx.addPositive(usedFile, id, addRecord.getEncodeSize());
+               tx.addPositive(usedFile, id, encodeSize);
             } catch (Throwable e) {
                logger.error("appendAddRecordTransactional:" + e, e);
                setErrorCondition(null, tx, e);

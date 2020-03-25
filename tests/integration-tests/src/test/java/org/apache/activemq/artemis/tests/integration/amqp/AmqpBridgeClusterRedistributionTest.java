@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.integration.amqp.largemessages.AMQPLargeMessagesTestUtil;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.After;
 import org.junit.Before;
@@ -180,12 +181,18 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
 
          sendMessages("uswest.Provider.AMC.Agent.DIVERTED.CustomNotification", 1, RoutingType.ANYCAST, true);
 
+         AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server0);
+         AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server1);
+
          ClientMessage message = consumer.receive(5000);
          assertNotNull(message);
 
          message = consumer.receiveImmediate();
          assertNull(message);
       }
+
+      AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server0);
+      AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server1);
    }
 
    @Test
@@ -196,12 +203,18 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
 
          sendMessages("uswest.Provider.AMC.Agent.DIVERTED.CustomNotification", 1, RoutingType.ANYCAST, true);
 
+         AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server0);
+         AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server1);
+
          ClientMessage message = consumer.receive(5000);
          assertNotNull(message);
 
          message = consumer.receiveImmediate();
          assertNull(message);
       }
+
+      AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server0);
+      AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server1);
    }
 
    protected void setupClusterConnection(final String name,
