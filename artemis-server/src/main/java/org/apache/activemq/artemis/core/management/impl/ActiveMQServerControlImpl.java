@@ -3773,6 +3773,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public long getMessageExpiryThreadPriority() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getMessageExpiryThreadPriority(this.server);
