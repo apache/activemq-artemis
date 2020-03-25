@@ -98,7 +98,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
          assertEquals(0, queueView.getMessageCount());
 
          session.begin();
-         for (int m = 0; m < 10; m++) {
+         for (int m = 0; m < 100; m++) {
             AmqpMessage message = new AmqpMessage();
             message.setDurable(true);
             message.setApplicationProperty("i", "m " + m);
@@ -111,6 +111,8 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
             sender.send(message);
          }
          session.commit();
+
+         AMQPLargeMessagesTestUtil.validateAllTemporaryBuffers(server);
 
          if (crashServer) {
             connection.close();
@@ -129,11 +131,11 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
          }
 
          queueView = server.locateQueue(getQueueName());
-         Wait.assertEquals(10, queueView::getMessageCount);
+         Wait.assertEquals(100, queueView::getMessageCount);
 
          AmqpReceiver receiver = session.createReceiver(getQueueName().toString());
-         receiver.flow(10);
-         for (int i = 0; i < 10; i++) {
+         receiver.flow(100);
+         for (int i = 0; i < 100; i++) {
             AmqpMessage msgReceived = receiver.receive(10, TimeUnit.SECONDS);
             Assert.assertNotNull(msgReceived);
             Data body = (Data)msgReceived.getWrappedMessage().getBody();

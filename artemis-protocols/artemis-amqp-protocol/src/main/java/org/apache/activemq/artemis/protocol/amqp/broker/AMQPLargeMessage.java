@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -79,7 +80,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    /**
     * AMQPLargeMessagePersister will save the buffer here.
     * */
-   volatile ByteBuf temporaryBuffer;
+   private ByteBuf temporaryBuffer;
 
    private final LargeBody largeBody;
    /**
@@ -124,6 +125,41 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       largeBody.releaseResources(false);
       parsingData.freeDirectBuffer();
       parsingData = null;
+   }
+
+   public void releaseEncodedBuffer() {
+      internalReleaseBuffer(1);
+   }
+
+   /** {@link #getSavedEncodeBuffer()} will retain two counters from the buffer, one meant for the call,
+    * and one that must be released only after encoding.
+    *
+    * This method is meant to be called when the buffer is actually encoded on the journal, meaning both refs are gone.
+    * and the actual buffer can be released.
+    */
+   public void releaseEncodedBufferAfterWrite() {
+      internalReleaseBuffer(2);
+   }
+
+   private synchronized void internalReleaseBuffer(int releases) {
+      for (int i = 0; i < releases; i++) {
+         if (temporaryBuffer != null && temporaryBuffer.release()) {
+            temporaryBuffer = null;
+         }
+      }
+   }
+
+   /** This is used on test assertions to make sure the buffers are released corrected */
+   public ByteBuf inspectTemporaryBuffer() {
+      return temporaryBuffer;
+   }
+
+   public synchronized ByteBuf getSavedEncodeBuffer() {
+      if (temporaryBuffer == null) {
+         temporaryBuffer = PooledByteBufAllocator.DEFAULT.buffer(getEstimateSavedEncode());
+         saveEncoding(temporaryBuffer);
+      }
+      return temporaryBuffer.retain(1);
    }
 
    @Override
