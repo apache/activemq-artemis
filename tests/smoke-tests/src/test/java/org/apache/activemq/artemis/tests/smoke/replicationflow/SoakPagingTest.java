@@ -90,8 +90,9 @@ public class SoakPagingTest extends SmokeTestBase {
          Thread.sleep(15000);
 
          System.exit(consumed.get());
-      } catch (Exception e) {
+      } catch (Throwable e) {
          e.printStackTrace();
+         System.exit(-1);
       }
 
    }
