@@ -115,6 +115,11 @@ public class SoakPagingTest extends SmokeTestBase {
 
    public void produce(ConnectionFactory factory) {
       try {
+
+         StringBuffer bufferlarge = new StringBuffer();
+         while (bufferlarge.length() < 110000) {
+            bufferlarge.append("asdflkajdhsf akljsdfh akljsdfh alksjdfh alkdjsf ");
+         }
          Connection connection = factory.createConnection("admin", "admin");
 
          connection.start();
@@ -125,7 +130,13 @@ public class SoakPagingTest extends SmokeTestBase {
 
          int i = 0;
          while (true) {
-            Message message = session.createTextMessage("fkjdslkfjdskljf;lkdsjf;kdsajf;lkjdf;kdsajf;kjdsa;flkjdsa;lfkjdsa;flkj;dsakjf;dsajf;askjd;fkj;dsajflaskfja;fdlkajs;lfdkja;kfj;dsakfj;akdsjf;dsakjf;akfj;lakdsjf;lkasjdf;ksajf;kjdsa;fkj;adskjf;akdsjf;kja;sdkfj;akdsjf;akjdsf;adskjf;akdsjf;askfj;aksjfkdjafndmnfmdsnfjadshfjdsalkfjads;fkjdsa;kfja;skfj;akjfd;akjfd;ksaj;fkja;kfj;dsakjf;dsakjf;dksjf;akdsjf;kdsajf");
+
+            Message message;
+            if (i % 100 == 0) {
+               message = session.createTextMessage(bufferlarge.toString());
+            } else {
+               message = session.createTextMessage("fkjdslkfjdskljf;lkdsjf;kdsajf;lkjdf;kdsajf;kjdsa;flkjdsa;lfkjdsa;flkj;dsakjf;dsajf;askjd;fkj;dsajflaskfja;fdlkajs;lfdkja;kfj;dsakfj;akdsjf;dsakjf;akfj;lakdsjf;lkasjdf;ksajf;kjdsa;fkj;adskjf;akdsjf;kja;sdkfj;akdsjf;akjdsf;adskjf;akdsjf;askfj;aksjfkdjafndmnfmdsnfjadshfjdsalkfjads;fkjdsa;kfja;skfj;akjfd;akjfd;ksaj;fkja;kfj;dsakjf;dsakjf;dksjf;akdsjf;kdsajf");
+            }
 
             messageProducer.send(message);
             produced.incrementAndGet();

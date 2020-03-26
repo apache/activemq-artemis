@@ -24,6 +24,8 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.Persister;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.persistence.PersisterIDs.MAX_PERSISTERS;
@@ -105,11 +107,20 @@ public class MessagePersister implements Persister<Message> {
 
    @Override
    public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pools) {
+      return decode(buffer, record, pools, null);
+   }
+
+
+   public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pools, StorageManager storageManager) {
       byte protocol = buffer.readByte();
       Persister<Message> persister = getPersister(protocol);
       if (persister == null) {
          throw new NullPointerException("couldn't find factory for type=" + protocol);
       }
-      return persister.decode(buffer, record, pools);
+      Message message = persister.decode(buffer, record, pools);
+      if (message instanceof LargeServerMessage) {
+         ((LargeServerMessage) message).setStorageManager(storageManager);
+      }
+      return message;
    }
 }

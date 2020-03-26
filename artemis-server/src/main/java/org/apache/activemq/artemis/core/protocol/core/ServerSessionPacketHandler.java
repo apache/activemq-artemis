@@ -1031,6 +1031,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             }
 
             LargeServerMessage message = currentLargeMessage;
+            currentLargeMessage.setStorageManager(storageManager);
             currentLargeMessage = null;
             session.doSend(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage)message.toMessage(), storageManager), null, false, false);
          }

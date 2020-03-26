@@ -44,7 +44,7 @@ public class LargeBody {
 
    private long pendingRecordID = NO_PENDING_ID;
 
-   final StorageManager storageManager;
+   StorageManager storageManager;
 
    private long messageID = -1;
 
@@ -67,6 +67,10 @@ public class LargeBody {
 
    public StorageManager getStorageManager() {
       return storageManager;
+   }
+
+   public void setStorageManager(StorageManager storageManager) {
+      this.storageManager = storageManager;
    }
 
    public ByteBuffer map() throws Exception {

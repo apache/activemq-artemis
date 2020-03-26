@@ -91,7 +91,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    private volatile AmqpReadableBuffer parsingData;
 
-   private final StorageManager storageManager;
+   private StorageManager storageManager;
 
    public AMQPLargeMessage(long id,
                            long messageFormat,
@@ -181,6 +181,12 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    @Override
    public StorageManager getStorageManager() {
       return largeBody.getStorageManager();
+   }
+
+   @Override
+   public void setStorageManager(StorageManager storageManager) {
+      largeBody.setStorageManager(storageManager);
+      this.storageManager = storageManager;
    }
 
    @Override

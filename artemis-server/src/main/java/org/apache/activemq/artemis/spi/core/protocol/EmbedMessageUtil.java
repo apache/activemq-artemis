@@ -25,7 +25,6 @@ import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.jboss.logging.Logger;
@@ -95,18 +94,16 @@ public class EmbedMessageUtil {
    }
 
    private static Message readEncoded(ICoreMessage message, StorageManager storageManager, ActiveMQBuffer buffer) {
-
-
-      AbstractJournalStorageManager.setupThreadLocal(storageManager);
       try {
-         Message returnMessage = MessagePersister.getInstance().decode(buffer, null, null);
+         Message returnMessage = MessagePersister.getInstance().decode(buffer, null, null, storageManager);
+         if (returnMessage instanceof LargeServerMessage) {
+            ((LargeServerMessage)returnMessage).setStorageManager(storageManager);
+         }
          returnMessage.setMessageID(message.getMessageID());
          return returnMessage;
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
          return message;
-      } finally {
-         AbstractJournalStorageManager.setupThreadLocal(null);
       }
    }
 
