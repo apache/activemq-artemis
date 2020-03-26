@@ -17,7 +17,9 @@
 package org.apache.activemq.artemis.core.protocol;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -28,6 +30,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupResp
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.FederationDownstreamConnectMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePacketI;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
@@ -55,6 +58,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSen
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_1X;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_V2;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST_RESPONSE;
@@ -87,6 +91,13 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 public class ServerPacketDecoder extends ClientPacketDecoder {
 
    private static final long serialVersionUID = 3348673114388400766L;
+
+   private final StorageManager storageManager;
+
+   public ServerPacketDecoder(StorageManager storageManager) {
+      assert storageManager != null;
+      this.storageManager = storageManager;
+   }
 
    private SessionSendMessage decodeSessionSendMessage(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final SessionSendMessage sendMessage;
@@ -264,6 +275,14 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
       }
 
       packet.decode(in);
+
+      if (packet instanceof MessagePacketI) {
+         Message message = ((MessagePacketI)packet).getMessage();
+         if (message instanceof LargeServerMessage) {
+            assert storageManager != null;
+            ((LargeServerMessage) message).setStorageManager(storageManager);
+         }
+      }
 
       return packet;
    }

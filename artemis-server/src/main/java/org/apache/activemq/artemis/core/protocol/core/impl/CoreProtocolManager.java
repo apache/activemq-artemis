@@ -127,7 +127,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
       Executor connectionExecutor = server.getExecutorFactory().getExecutor();
 
-      final CoreRemotingConnection rc = new RemotingConnectionImpl(new ServerPacketDecoder(),
+      final CoreRemotingConnection rc = new RemotingConnectionImpl(new ServerPacketDecoder(server.getStorageManager()),
                                                                    connection, incomingInterceptors, outgoingInterceptors, server.getNodeID(),
                                                                    connectionExecutor);
 

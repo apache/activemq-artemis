@@ -100,7 +100,6 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public void onDelivery(Consumer<? super MessageReference> onDelivery) {
-      assert this.onDelivery == null;
       this.onDelivery = onDelivery;
    }
 
