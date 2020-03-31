@@ -742,6 +742,26 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public long getDiskStoreUsage() {
+            try {
+               return (Long) proxy.invokeOperation("getDiskStoreUsage");
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+            return 0;
+         }
+
+         @Override
+         public int getDiskStoreUsagePercentage() {
+            try {
+               return (Integer) proxy.invokeOperation(Integer.TYPE, "getDiskUseStorePercentage");
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+            return 0;
+         }
+
+         @Override
          public boolean freezeReplication() {
 
             return false;
