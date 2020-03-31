@@ -27,7 +27,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException
 public interface ActiveMQServerControl {
    String CONNECTION_COUNT_DESCRIPTION = "Number of clients connected to this server";
    String TOTAL_CONNECTION_COUNT_DESCRIPTION = "Number of clients which have connected to this server since it was started";
-   String ADDRESS_MEMORY_USAGE_DESCRIPTION = "Memory used by all the addresses on broker for in-memory messages";
+   String ADDRESS_MEMORY_USAGE_DESCRIPTION = "Bytes used by all the addresses on broker for in-memory messages";
+   String DISK_STORE_USAGE_DESCRIPTION = "Memory used by the disk store";
 
    /**
     * Returns this server's version.
@@ -443,10 +444,22 @@ public interface ActiveMQServerControl {
    long getAddressMemoryUsage();
 
    /**
+    * Returns the bytes used by the disk store
+    */
+   @Attribute(desc = DISK_STORE_USAGE_DESCRIPTION)
+   long getDiskStoreUsage();
+
+   /**
     * Returns the memory used by all the addresses on broker as a percentage of global maximum limit
     */
    @Attribute(desc = "Memory used by all the addresses on broker as a percentage of global maximum limit")
    int getAddressMemoryUsagePercentage();
+
+   /**
+    * Returns the storage used by disk store
+    */
+   @Attribute(desc = "Memory used by the disk store")
+   int getDiskStoreUsagePercentage();
 
    // Operations ----------------------------------------------------
    @Operation(desc = "Isolate the broker", impact = MBeanOperationInfo.ACTION)
