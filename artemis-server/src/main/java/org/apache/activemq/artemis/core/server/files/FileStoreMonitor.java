@@ -136,6 +136,10 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
    }
 
    public static double calculateUsage(long usableSpace, long totalSpace) {
+
+      if (totalSpace == 0) {
+         return 0.0;
+      }
       return 1.0 - (double) usableSpace / (double) totalSpace;
    }
 
