@@ -116,13 +116,14 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       assertThat(artemisMetrics, containsInAnyOrder(
               // artemis.(un)routed.message.count is present twice, because of activemq.notifications address
-              new Metric("artemis.address.memory.usage", "Memory used by all the addresses on broker for in-memory messages", 0.0),
+              new Metric("artemis.address.memory.usage", "Bytes used by all the addresses on broker for in-memory messages", 0.0),
               new Metric("artemis.connection.count", "Number of clients connected to this server", 1.0),
               new Metric("artemis.consumer.count", "number of consumers consuming messages from this queue", 0.0),
               new Metric("artemis.delivering.durable.message.count", "number of durable messages that this queue is currently delivering to its consumers", 0.0),
               new Metric("artemis.delivering.durable.persistent.size", "persistent size of durable messages that this queue is currently delivering to its consumers", 0.0),
               new Metric("artemis.delivering.message.count", "number of messages that this queue is currently delivering to its consumers", 0.0),
               new Metric("artemis.delivering.persistent_size", "persistent size of messages that this queue is currently delivering to its consumers", 0.0),
+              new Metric("artemis.disk.store.usage", "Memory used by the disk store", 0.0),
               new Metric("artemis.durable.message.count", "number of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
               new Metric("artemis.durable.persistent.size", "persistent size of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
               new Metric("artemis.message.count", "number of messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
