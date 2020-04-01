@@ -58,7 +58,7 @@ public class EmbedMessageUtil {
             largeServerMessage.setParentRef((RefCountMessage)source);
             return (ICoreMessage) largeServerMessage.toMessage();
          } else {
-            Persister persister = source.getPersister();
+            Persister<Message> persister = source.getPersister();
 
             CoreMessage message = new CoreMessage(source.getMessageID(), persister.getEncodeSize(source) + signature.length + CoreMessage.BODY_OFFSET).setType(Message.EMBEDDED_TYPE);
             message.setDurable(source.isDurable());

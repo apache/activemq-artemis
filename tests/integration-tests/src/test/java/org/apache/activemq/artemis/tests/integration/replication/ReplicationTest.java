@@ -622,58 +622,58 @@ public final class ReplicationTest extends ActiveMQTestBase {
    static final class FakeJournal implements Journal {
 
       @Override
-      public void appendAddRecord(long id,
-                                  byte recordType,
-                                  Persister persister,
-                                  Object record,
-                                  boolean sync) throws Exception {
+      public <T> void appendAddRecord(long id,
+                                      byte recordType,
+                                      Persister<T> persister,
+                                      T record,
+                                      boolean sync) throws Exception {
 
       }
 
       @Override
-      public void appendAddRecord(long id,
-                                  byte recordType,
-                                  Persister persister,
-                                  Object record,
-                                  boolean sync,
-                                  IOCompletion completionCallback) throws Exception {
+      public <T> void appendAddRecord(long id,
+                                      byte recordType,
+                                      Persister<T> persister,
+                                      T record,
+                                      boolean sync,
+                                      IOCompletion completionCallback) throws Exception {
 
       }
 
       @Override
-      public void appendUpdateRecord(long id,
-                                     byte recordType,
-                                     Persister persister,
-                                     Object record,
-                                     boolean sync) throws Exception {
+      public <T> void appendUpdateRecord(long id,
+                                         byte recordType,
+                                         Persister<T> persister,
+                                         T record,
+                                         boolean sync) throws Exception {
 
       }
 
       @Override
-      public void appendUpdateRecord(long id,
-                                     byte recordType,
-                                     Persister persister,
-                                     Object record,
-                                     boolean sync,
-                                     IOCompletion callback) throws Exception {
+      public <T> void appendUpdateRecord(long id,
+                                         byte recordType,
+                                         Persister<T> persister,
+                                         T record,
+                                         boolean sync,
+                                         IOCompletion callback) throws Exception {
 
       }
 
       @Override
-      public void appendAddRecordTransactional(long txID,
-                                               long id,
-                                               byte recordType,
-                                               Persister persister,
-                                               Object record) throws Exception {
+      public <T> void appendAddRecordTransactional(long txID,
+                                                   long id,
+                                                   byte recordType,
+                                                   Persister<T> persister,
+                                                   T record) throws Exception {
 
       }
 
       @Override
-      public void appendUpdateRecordTransactional(long txID,
-                                                  long id,
-                                                  byte recordType,
-                                                  Persister persister,
-                                                  Object record) throws Exception {
+      public <T> void appendUpdateRecordTransactional(long txID,
+                                                      long id,
+                                                      byte recordType,
+                                                      Persister<T> persister,
+                                                      T record) throws Exception {
 
       }
 

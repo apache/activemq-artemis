@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.persistence;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
-public interface Persister<T extends Object> {
+public interface Persister<T> {
 
 
    /** This is to be used to store the protocol-id on Messages.

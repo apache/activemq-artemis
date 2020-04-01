@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public final class ReplicationAddMessage extends PacketImpl {
+public final class ReplicationAddMessage<T> extends PacketImpl {
 
    private long id;
 
@@ -37,9 +37,9 @@ public final class ReplicationAddMessage extends PacketImpl {
 
    private byte journalRecordType;
 
-   private Persister persister;
+   private Persister<T> persister;
 
-   private Object encodingData;
+   private T encodingData;
 
    private byte[] recordData;
 
@@ -51,8 +51,8 @@ public final class ReplicationAddMessage extends PacketImpl {
                                 final ADD_OPERATION_TYPE operation,
                                 final long id,
                                 final byte journalRecordType,
-                                final Persister persister,
-                                final Object encodingData) {
+                                final Persister<T> persister,
+                                final T encodingData) {
       this();
       this.journalID = journalID;
       this.operation = operation;

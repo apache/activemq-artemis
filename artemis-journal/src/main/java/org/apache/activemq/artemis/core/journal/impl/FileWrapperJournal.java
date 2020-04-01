@@ -89,13 +89,13 @@ public final class FileWrapperJournal extends JournalBase {
    // ------------------------
 
    @Override
-   public void appendAddRecord(long id,
-                               byte recordType,
-                               Persister persister,
-                               Object record,
-                               boolean sync,
-                               IOCompletion callback) throws Exception {
-      JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
+   public <T> void appendAddRecord(long id,
+                                   byte recordType,
+                                   Persister<T> persister,
+                                   T record,
+                                   boolean sync,
+                                   IOCompletion callback) throws Exception {
+      JournalInternalRecord addRecord = new JournalAddRecord<>(true, id, recordType, persister, record);
 
       writeRecord(addRecord, false, -1, false, callback);
    }
@@ -179,33 +179,33 @@ public final class FileWrapperJournal extends JournalBase {
    }
 
    @Override
-   public void appendAddRecordTransactional(long txID,
-                                            long id,
-                                            byte recordType,
-                                            Persister persister,
-                                            Object record) throws Exception {
-      JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, persister, record);
+   public <T> void appendAddRecordTransactional(long txID,
+                                                long id,
+                                                byte recordType,
+                                                Persister<T> persister,
+                                                T record) throws Exception {
+      JournalInternalRecord addRecord = new JournalAddRecordTX<>(true, txID, id, recordType, persister, record);
       writeRecord(addRecord, false, txID, false, null);
    }
 
    @Override
-   public void appendUpdateRecord(long id,
-                                  byte recordType,
-                                  Persister persister,
-                                  Object record,
-                                  boolean sync,
-                                  IOCompletion callback) throws Exception {
-      JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
+   public <T> void appendUpdateRecord(long id,
+                                      byte recordType,
+                                      Persister<T> persister,
+                                      T record,
+                                      boolean sync,
+                                      IOCompletion callback) throws Exception {
+      JournalInternalRecord updateRecord = new JournalAddRecord<>(false, id, recordType, persister, record);
       writeRecord(updateRecord, false, -1, false, callback);
    }
 
    @Override
-   public void appendUpdateRecordTransactional(long txID,
-                                               long id,
-                                               byte recordType,
-                                               Persister persister,
-                                               Object record) throws Exception {
-      JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, txID, id, recordType, persister, record);
+   public <T> void appendUpdateRecordTransactional(long txID,
+                                                   long id,
+                                                   byte recordType,
+                                                   Persister<T> persister,
+                                                   T record) throws Exception {
+      JournalInternalRecord updateRecordTX = new JournalAddRecordTX<>(false, txID, id, recordType, persister, record);
       writeRecord(updateRecordTX, false, txID, false, null);
    }
 

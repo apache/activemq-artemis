@@ -222,7 +222,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          logger.trace("Read Record " + info);
       }
       if (containsRecord(info.id)) {
-         JournalInternalRecord addRecord = new JournalAddRecord(true, info.id, info.getUserRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
+         JournalInternalRecord addRecord = new JournalAddRecord<>(true, info.id, info.getUserRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
          addRecord.setCompactCount((short) (info.compactCount + 1));
 
          checkSize(addRecord.getEncodeSize(), info.compactCount);
@@ -241,7 +241,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (pendingTransactions.get(transactionID) != null || containsRecord(info.id)) {
          JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
 
-         JournalInternalRecord record = new JournalAddRecordTX(true, transactionID, info.id, info.getUserRecordType(), EncoderPersister.getInstance(),new ByteArrayEncoding(info.data));
+         JournalInternalRecord record = new JournalAddRecordTX<>(true, transactionID, info.id, info.getUserRecordType(), EncoderPersister.getInstance(),new ByteArrayEncoding(info.data));
 
          record.setCompactCount((short) (info.compactCount + 1));
 
@@ -371,7 +371,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
 
       if (containsRecord(info.id)) {
-         JournalInternalRecord updateRecord = new JournalAddRecord(false, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
+         JournalInternalRecord updateRecord = new JournalAddRecord<>(false, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
 
          updateRecord.setCompactCount((short) (info.compactCount + 1));
 
@@ -398,7 +398,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (pendingTransactions.get(transactionID) != null || containsRecord(info.id)) {
          JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
 
-         JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, transactionID, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
+         JournalInternalRecord updateRecordTX = new JournalAddRecordTX<>(false, transactionID, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
 
          updateRecordTX.setCompactCount((short) (info.compactCount + 1));
 

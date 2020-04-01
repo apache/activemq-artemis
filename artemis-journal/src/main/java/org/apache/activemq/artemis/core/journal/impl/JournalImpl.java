@@ -814,12 +814,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    // ----------------------------------------------------------------
 
    @Override
-   public void appendAddRecord(final long id,
-                               final byte recordType,
-                               final Persister persister,
-                               final Object record,
-                               final boolean sync,
-                               final IOCompletion callback) throws Exception {
+   public <T> void appendAddRecord(final long id,
+                                   final byte recordType,
+                                   final Persister<T> persister,
+                                   final T record,
+                                   final boolean sync,
+                                   final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
       lineUpContext(callback);
       pendingRecords.add(id);
@@ -832,7 +832,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
       final long maxRecordSize = getMaxRecordSize();
-      final JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
+      final JournalInternalRecord addRecord = new JournalAddRecord<>(true, id, recordType, persister, record);
       final int addRecordEncodeSize = addRecord.getEncodeSize();
 
       if (addRecordEncodeSize > maxRecordSize) {
@@ -876,12 +876,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    @Override
-   public void appendUpdateRecord(final long id,
-                                  final byte recordType,
-                                  final Persister persister,
-                                  final Object record,
-                                  final boolean sync,
-                                  final IOCompletion callback) throws Exception {
+   public <T> void appendUpdateRecord(final long id,
+                                      final byte recordType,
+                                      final Persister<T> persister,
+                                      final T record,
+                                      final boolean sync,
+                                      final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
       lineUpContext(callback);
       checkKnownRecordID(id);
@@ -900,7 +900,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             journalLock.readLock().lock();
             try {
                JournalRecord jrnRecord = records.get(id);
-               JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
+               JournalInternalRecord updateRecord = new JournalAddRecord<>(false, id, recordType, persister, record);
                JournalFile usedFile = appendRecord(updateRecord, false, sync, null, callback);
 
                if (logger.isTraceEnabled()) {
@@ -1000,11 +1000,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    @Override
-   public void appendAddRecordTransactional(final long txID,
-                                            final long id,
-                                            final byte recordType,
-                                            final Persister persister,
-                                            final Object record) throws Exception {
+   public <T> void appendAddRecordTransactional(final long txID,
+                                                final long id,
+                                                final byte recordType,
+                                                final Persister<T> persister,
+                                                final T record) throws Exception {
       checkJournalIsLoaded();
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendAddRecordTransactional:txID=" + txID +
@@ -1028,7 +1028,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                if (tx != null) {
                   tx.checkErrorCondition();
                }
-               JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, persister, record);
+               JournalInternalRecord addRecord = new JournalAddRecordTX<>(true, txID, id, recordType, persister, record);
                // we need to calculate the encodeSize here, as it may use caches that are eliminated once the record is written
                int encodeSize = addRecord.getEncodeSize();
                JournalFile usedFile = appendRecord(addRecord, false, false, tx, null);
@@ -1094,11 +1094,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    @Override
-   public void appendUpdateRecordTransactional(final long txID,
-                                               final long id,
-                                               final byte recordType,
-                                               final Persister persister,
-                                               final Object record) throws Exception {
+   public <T> void appendUpdateRecordTransactional(final long txID,
+                                                   final long id,
+                                                   final byte recordType,
+                                                   final Persister<T> persister,
+                                                   final T record) throws Exception {
       if ( logger.isTraceEnabled() ) {
          logger.trace( "scheduling appendUpdateRecordTransactional::txID=" + txID +
                           ",id=" +
@@ -1122,7 +1122,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             try {
                tx.checkErrorCondition();
 
-               JournalInternalRecord updateRecordTX = new JournalAddRecordTX( false, txID, id, recordType, persister, record );
+               JournalInternalRecord updateRecordTX = new JournalAddRecordTX<>( false, txID, id, recordType, persister, record );
                JournalFile usedFile = appendRecord( updateRecordTX, false, false, tx, null );
 
                if ( logger.isTraceEnabled() ) {

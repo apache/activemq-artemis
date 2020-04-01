@@ -447,7 +447,11 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public void appendAddRecord(long id, byte recordType, Persister persister, Object record, boolean sync) throws Exception {
+   public <T> void appendAddRecord(long id,
+                                   byte recordType,
+                                   Persister<T> persister,
+                                   T record,
+                                   boolean sync) throws Exception {
       JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(persister, record);
@@ -457,17 +461,16 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          logger.trace("appendAddRecord (encoding) " + r + " with record = " + record);
       }
 
-
       appendRecord(r);
    }
 
    @Override
-   public void appendAddRecord(long id,
-                               byte recordType,
-                               Persister persister,
-                               Object record,
-                               boolean sync,
-                               IOCompletion completionCallback) throws Exception {
+   public <T> void appendAddRecord(long id,
+                                   byte recordType,
+                                   Persister<T> persister,
+                                   T record,
+                                   boolean sync,
+                                   IOCompletion completionCallback) throws Exception {
       checkStatus(completionCallback);
 
       JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD, seq.incrementAndGet());
@@ -502,7 +505,11 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public void appendUpdateRecord(long id, byte recordType, Persister persister, Object record, boolean sync) throws Exception {
+   public <T> void appendUpdateRecord(long id,
+                                      byte recordType,
+                                      Persister<T> persister,
+                                      T record,
+                                      boolean sync) throws Exception {
       JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(persister, record);
@@ -517,12 +524,12 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public void appendUpdateRecord(long id,
-                                  byte recordType,
-                                  Persister persister,
-                                  Object record,
-                                  boolean sync,
-                                  IOCompletion completionCallback) throws Exception {
+   public <T> void appendUpdateRecord(long id,
+                                      byte recordType,
+                                      Persister<T> persister,
+                                      T record,
+                                      boolean sync,
+                                      IOCompletion completionCallback) throws Exception {
       checkStatus(completionCallback);
 
       JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD, seq.incrementAndGet());
@@ -587,11 +594,11 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public void appendAddRecordTransactional(long txID,
-                                            long id,
-                                            byte recordType,
-                                            Persister persister,
-                                            Object record) throws Exception {
+   public <T> void appendAddRecordTransactional(long txID,
+                                                long id,
+                                                byte recordType,
+                                                Persister<T> persister,
+                                                T record) throws Exception {
       JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD_TX, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(persister, record);
@@ -623,11 +630,11 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public void appendUpdateRecordTransactional(long txID,
-                                               long id,
-                                               byte recordType,
-                                               Persister persister,
-                                               Object record) throws Exception {
+   public <T> void appendUpdateRecordTransactional(long txID,
+                                                   long id,
+                                                   byte recordType,
+                                                   Persister<T> persister,
+                                                   T record) throws Exception {
       JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD_TX, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(persister, record);

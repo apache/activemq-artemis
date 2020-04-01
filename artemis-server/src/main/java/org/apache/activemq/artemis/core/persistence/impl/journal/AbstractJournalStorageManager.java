@@ -361,7 +361,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          // appropriate
 
          if (message.isLargeMessage() && message instanceof LargeServerMessageImpl) {
-            messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), message, false, getContext(false));
+            messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), (LargeServerMessageImpl) message, false, getContext(false));
          } else {
             messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_MESSAGE_PROTOCOL, message.getPersister(), message, false, getContext(false));
          }
@@ -483,7 +483,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       try {
          if (message.isLargeMessage() && message instanceof LargeServerMessageImpl) {
             // this is a core large message
-            messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), message);
+            messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), (LargeServerMessageImpl) message);
          } else {
             messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_MESSAGE_PROTOCOL, message.getPersister(), message);
          }

@@ -20,15 +20,15 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 
-public class JournalAddRecordTX extends JournalInternalRecord {
+public class JournalAddRecordTX<T> extends JournalInternalRecord {
 
    private final long txID;
 
    private final long id;
 
-   protected final Persister persister;
+   protected final Persister<T> persister;
 
-   protected final Object record;
+   protected final T record;
 
    private final byte recordType;
 
@@ -43,8 +43,8 @@ public class JournalAddRecordTX extends JournalInternalRecord {
                              final long txID,
                              final long id,
                              final byte recordType,
-                             final Persister persister,
-                             Object record) {
+                             final Persister<T> persister,
+                             T record) {
 
       this.txID = txID;
 
