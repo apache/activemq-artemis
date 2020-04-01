@@ -506,9 +506,10 @@ public final class Page implements Comparable<Page> {
       List<Long> largeMessageIds = new ArrayList<>();
       if (messages != null) {
          for (PagedMessage msg : messages) {
-            // this will trigger large message delete
-            msg.getMessage().usageDown();
             if ((msg.getMessage()).isLargeMessage()) {
+               // this will trigger large message delete: no need to do it
+               // for non-large messages!
+               msg.getMessage().usageDown();
                largeMessageIds.add(msg.getMessage().getMessageID());
             }
          }
