@@ -49,7 +49,7 @@ public class PagedMessageImpl implements PagedMessage {
 
    private final int storedSize;
 
-   private volatile StorageManager storageManager;
+   private final StorageManager storageManager;
 
    public PagedMessageImpl(final Message message, final long[] queueIDs, final long transactionID) {
       this(message, queueIDs);
@@ -57,6 +57,7 @@ public class PagedMessageImpl implements PagedMessage {
    }
 
    public PagedMessageImpl(final Message message, final long[] queueIDs) {
+      this.storageManager = null;
       this.queueIDs = queueIDs;
       this.message = message;
       this.storedSize = 0;
@@ -135,7 +136,11 @@ public class PagedMessageImpl implements PagedMessage {
          }
       } else {
          this.message = MessagePersister.getInstance().decode(buffer, null, null, storageManager);
+         if (message.isLargeMessage()) {
+            message.usageUp();
+         }
       }
+
 
       int queueIDsSize = buffer.readInt();
 
