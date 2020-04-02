@@ -1137,15 +1137,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, activation.getClass().getName());
       }
 
-      stopComponent(pagingManager);
-
-      if (storageManager != null)
-         try {
-            storageManager.stop(criticalIOError, failoverOnServerShutdown);
-         } catch (Throwable t) {
-            ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, storageManager.getClass().getName());
-         }
-
       // We stop remotingService before otherwise we may lock the system in case of a critical IO
       // error shutdown
       if (remotingService != null)
@@ -1153,6 +1144,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             remotingService.stop(criticalIOError);
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, remotingService.getClass().getName());
+         }
+
+      // Stop the pagingManager after the remoting service to allow the acceptors that need to send notifications to complete
+      stopComponent(pagingManager);
+
+      if (storageManager != null)
+         try {
+            storageManager.stop(criticalIOError, failoverOnServerShutdown);
+         } catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, storageManager.getClass().getName());
          }
 
       // Stop the management service after the remoting service to ensure all acceptors are deregistered with JMX
@@ -1164,6 +1165,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
 
       stopComponent(managementService);
+
       unregisterMeters();
       stopComponent(resourceManager);
       stopComponent(postOffice);
