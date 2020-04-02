@@ -32,6 +32,8 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 
 public class MQTTSessionState {
 
+   public static final MQTTSessionState DEFAULT = new MQTTSessionState(null);
+
    private String clientId;
 
    private final ConcurrentMap<String, MqttTopicSubscription> subscriptions = new ConcurrentHashMap<>();

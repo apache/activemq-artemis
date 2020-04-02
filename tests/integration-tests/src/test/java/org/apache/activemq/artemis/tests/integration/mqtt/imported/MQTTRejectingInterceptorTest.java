@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
+import java.util.concurrent.CountDownLatch;
+
+import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -60,5 +63,41 @@ public class MQTTRejectingInterceptorTest extends MQTTTestSupport {
 
       subscribeProvider.disconnect();
       publishProvider.disconnect();
+   }
+
+   @Test(timeout = 60000)
+   public void testRejectedMqttConnectMessage() throws Exception {
+      CountDownLatch publishThreadReady = new CountDownLatch(1);
+
+      server.getRemotingService().addIncomingInterceptor((MQTTInterceptor) (packet, connection) -> {
+         if (packet.getClass() == MqttConnectMessage.class) {
+            return false;
+         } else {
+            return true;
+         }
+      });
+
+      Thread publishThread = new Thread(() -> {
+         MQTTClientProvider publishProvider = getMQTTClientProvider();
+
+         publishThreadReady.countDown();
+
+         try {
+            initializeConnection(publishProvider);
+            publishProvider.disconnect();
+            fail("The connection should be rejected!");
+         } catch (Exception ignore) {
+         }
+      });
+
+      publishThread.start();
+
+      publishThreadReady.await();
+
+      publishThread.join(3000);
+
+      if (publishThread.isAlive()) {
+         fail("The connection is stuck!");
+      }
    }
 }
