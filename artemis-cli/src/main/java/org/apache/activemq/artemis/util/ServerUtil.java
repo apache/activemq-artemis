@@ -109,7 +109,7 @@ public class ServerUtil {
          System.out.println("**********************************");
          System.out.println("Killing server " + server);
          System.out.println("**********************************");
-         server.destroy();
+         server.destroyForcibly();
          server.waitFor();
          Thread.sleep(1000);
       }
