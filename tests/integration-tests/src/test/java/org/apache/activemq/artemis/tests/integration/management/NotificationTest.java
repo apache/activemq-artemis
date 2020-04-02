@@ -87,7 +87,7 @@ public class NotificationTest extends ActiveMQTestBase {
       Assert.assertEquals(BINDING_ADDED.toString(), notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
       Assert.assertEquals(queue.toString(), notifications[1].getObjectProperty(ManagementHelper.HDR_ROUTING_NAME).toString());
       Assert.assertEquals(address.toString(), notifications[1].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
-      Assert.assertTrue(notifications[1].getTimestamp() > start);
+      Assert.assertTrue(notifications[1].getTimestamp() >= start);
       Assert.assertTrue((long) notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
       Assert.assertEquals(notifications[1].getTimestamp(), (long) notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
 
@@ -473,7 +473,7 @@ public class NotificationTest extends ActiveMQTestBase {
    private static void flush(final ClientConsumer notifConsumer) throws ActiveMQException {
       ClientMessage message = null;
       do {
-         message = notifConsumer.receive(500);
+         message = notifConsumer.receiveImmediate();
       }
       while (message != null);
    }
