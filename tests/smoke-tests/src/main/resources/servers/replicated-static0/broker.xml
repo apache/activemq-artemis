@@ -117,6 +117,11 @@ under the License.
             <multicast>
             </multicast>
          </address>
+         <address name="DLQ">
+            <anycast>
+               <queue name="DLQ"/>
+            </anycast>
+         </address>
          <address name="exampleQueue">
             <anycast>
                <queue name="exampleQueue"/>
