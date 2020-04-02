@@ -2996,9 +2996,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             builder.register(BrokerMetricNames.CONNECTION_COUNT, this, metrics -> Double.valueOf(getConnectionCount()), ActiveMQServerControl.CONNECTION_COUNT_DESCRIPTION);
             builder.register(BrokerMetricNames.TOTAL_CONNECTION_COUNT, this, metrics -> Double.valueOf(getTotalConnectionCount()), ActiveMQServerControl.TOTAL_CONNECTION_COUNT_DESCRIPTION);
             builder.register(BrokerMetricNames.ADDRESS_MEMORY_USAGE, this, metrics -> Double.valueOf(getPagingManager().getGlobalSize()), ActiveMQServerControl.ADDRESS_MEMORY_USAGE_DESCRIPTION);
-            builder.register(BrokerMetricNames.DISK_STORE_USAGE, this, metrics -> Double.valueOf(getPagingManager().getDiskTotalSpace() - getPagingManager().getDiskUsableSpace()), ActiveMQServerControl.DISK_STORE_USAGE_DESCRIPTION);
+            builder.register(BrokerMetricNames.DISK_STORE_USAGE, this, metrics -> Double.valueOf(calculateDiskStoreUsage()), ActiveMQServerControl.DISK_STORE_USAGE_DESCRIPTION);
          });
       }
+   }
+
+   private double calculateDiskStoreUsage() {
+      long usableSpace = getPagingManager().getDiskUsableSpace();
+      long totalSpace = getPagingManager().getDiskTotalSpace();
+
+      return FileStoreMonitor.calculateUsage(usableSpace, totalSpace);
    }
 
    private void unregisterMeters() {
