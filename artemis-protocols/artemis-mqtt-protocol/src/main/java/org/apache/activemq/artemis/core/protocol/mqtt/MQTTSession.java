@@ -77,6 +77,8 @@ public class MQTTSession {
       subscriptionManager = new MQTTSubscriptionManager(this);
       retainMessageManager = new MQTTRetainMessageManager(this);
 
+      state = MQTTSessionState.DEFAULT;
+
       log.debug("SESSION CREATED: " + id);
    }
 
