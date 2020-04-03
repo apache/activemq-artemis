@@ -136,8 +136,8 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
          try {
             for (CriticalComponent component : components) {
 
-               if (component.isExpired(timeoutNanoSeconds)) {
-                  fireAction(component);
+               if (component.checkExpiration(timeoutNanoSeconds, true)) {
+                  fireActions(component);
                   // no need to keep running if there's already a component failed
                   return;
                }
@@ -149,7 +149,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
       }
    }
 
-   private void fireAction(CriticalComponent component) {
+   private void fireActions(CriticalComponent component) {
       for (CriticalAction action : actions) {
          try {
             action.run(component);
@@ -157,14 +157,11 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
             logger.warn(e.getMessage(), e);
          }
       }
-
-      actions.clear();
    }
 
    @Override
    public void start() {
       scheduledComponent.start();
-
    }
 
    @Override
