@@ -290,7 +290,7 @@ public class NotificationTest extends ActiveMQTestBase {
       Assert.assertNotNull(notifications[1].getObjectProperty(ManagementHelper.HDR_CONNECTION_NAME));
       Assert.assertNotNull(notifications[1].getObjectProperty(ManagementHelper.HDR_SESSION_NAME));
       Assert.assertEquals(SimpleString.toSimpleString("myUser"), notifications[1].getObjectProperty(ManagementHelper.HDR_USER));
-      Assert.assertTrue(notifications[1].getTimestamp() > start);
+      Assert.assertTrue(notifications[1].getTimestamp() >= start);
       Assert.assertTrue((long) notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
       Assert.assertEquals(notifications[1].getTimestamp(), (long) notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
 
@@ -314,7 +314,7 @@ public class NotificationTest extends ActiveMQTestBase {
       Assert.assertEquals(CONNECTION_DESTROYED.toString(), notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
       Assert.assertNotNull(notifications[1].getObjectProperty(ManagementHelper.HDR_CONNECTION_NAME));
       Assert.assertEquals(connectionId, notifications[1].getObjectProperty(ManagementHelper.HDR_CONNECTION_NAME).toString());
-      Assert.assertTrue(notifications[1].getTimestamp() > start);
+      Assert.assertTrue(notifications[1].getTimestamp() >= start);
       Assert.assertTrue((long) notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
       Assert.assertEquals(notifications[1].getTimestamp(), (long) notifications[1].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
    }
@@ -383,8 +383,7 @@ public class NotificationTest extends ActiveMQTestBase {
 
       long start = System.currentTimeMillis();
       producer.send(msg);
-      Thread.sleep(500);
-      consumer.receive(500);
+      Assert.assertNull(consumer.receiveImmediate());
 
       ClientMessage[] notifications = NotificationTest.consumeMessages(1, notifConsumer);
       Assert.assertEquals(MESSAGE_EXPIRED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
@@ -422,7 +421,6 @@ public class NotificationTest extends ActiveMQTestBase {
 
       long start = System.currentTimeMillis();
       producer.send(msg);
-      Thread.sleep(500);
 
       ClientMessage[] notifications = NotificationTest.consumeMessages(1, notifConsumer, 5000);
       Assert.assertEquals(MESSAGE_EXPIRED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
@@ -433,8 +431,6 @@ public class NotificationTest extends ActiveMQTestBase {
       Assert.assertTrue(notifications[0].getTimestamp() >= start);
       Assert.assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
       Assert.assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
-
-      session.deleteQueue(queue);
    }
 
    // Package protected ---------------------------------------------
