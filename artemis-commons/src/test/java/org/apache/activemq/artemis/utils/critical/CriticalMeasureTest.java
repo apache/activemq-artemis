@@ -30,7 +30,7 @@ public class CriticalMeasureTest {
       long time = System.nanoTime();
       CriticalMeasure.TIME_ENTER_UPDATER.set(measure, time - TimeUnit.MINUTES.toNanos(5));
       CriticalMeasure.TIME_LEFT_UPDATER.set(measure, time);
-      Assert.assertFalse(measure.isExpired(TimeUnit.SECONDS.toNanos(30)));
+      Assert.assertFalse(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
    }
 
    @Test
@@ -41,7 +41,7 @@ public class CriticalMeasureTest {
       long time = System.nanoTime();
       CriticalMeasure.TIME_ENTER_UPDATER.set(measure, time - TimeUnit.MINUTES.toNanos(5));
       measure.leaveCritical();
-      Assert.assertFalse(measure.isExpired(TimeUnit.SECONDS.toNanos(30)));
+      Assert.assertFalse(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
    }
 
    @Test
@@ -53,7 +53,7 @@ public class CriticalMeasureTest {
       measure.enterCritical();
       CriticalMeasure.TIME_ENTER_UPDATER.set(measure, time - TimeUnit.MINUTES.toNanos(5));
       CriticalMeasure.TIME_LEFT_UPDATER.set(measure, time - TimeUnit.MINUTES.toNanos(10));
-      Assert.assertTrue(measure.isExpired(TimeUnit.SECONDS.toNanos(30)));
+      Assert.assertTrue(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
       measure.leaveCritical();
    }
 }

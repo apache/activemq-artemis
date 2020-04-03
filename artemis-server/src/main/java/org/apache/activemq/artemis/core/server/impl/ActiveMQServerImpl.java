@@ -1265,6 +1265,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       try {
+         this.analyzer.clear();
          this.analyzer.stop();
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
