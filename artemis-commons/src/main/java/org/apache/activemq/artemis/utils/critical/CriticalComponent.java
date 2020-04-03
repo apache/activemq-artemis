@@ -49,9 +49,10 @@ public interface CriticalComponent {
    }
 
    /**
-    * Is this Component expired at a given timeout.. on any of its paths.
-    * @param timeout
+    * Check if the component is expired at a given timeout.. on any of its paths.
+    * @param timeout - the timeout to check if the component is expired
+    * @param reset - true to reset the component timer if it is expired
     * @return -1 if it's ok, or the number of the path it failed
     */
-   boolean isExpired(long timeout);
+   boolean checkExpiration(long timeout, boolean reset);
 }

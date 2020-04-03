@@ -54,7 +54,7 @@ public class CriticalSimpleTest extends ActiveMQTestBase {
 
          server.getCriticalAnalyzer().add(new CriticalComponent() {
             @Override
-            public boolean isExpired(long timeout) {
+            public boolean checkExpiration(long timeout, boolean reset) {
                return true;
             }
          });
@@ -83,7 +83,7 @@ public class CriticalSimpleTest extends ActiveMQTestBase {
       try {
          server.getCriticalAnalyzer().add(new CriticalComponent() {
             @Override
-            public boolean isExpired(long timeout) {
+            public boolean checkExpiration(long timeout, boolean reset) {
                return true;
             }
          });
