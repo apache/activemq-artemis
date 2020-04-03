@@ -572,7 +572,11 @@ public class NullStorageManager implements StorageManager {
        * <p>
        * The reasoning is that exposing the lock is more explicit and therefore `less bad`.
        */
-      return store.page(msg, tx, listCtx, null);
+      if (store != null) {
+         return store.page(msg, tx, listCtx, null);
+      } else {
+         return false;
+      }
    }
 
    @Override
