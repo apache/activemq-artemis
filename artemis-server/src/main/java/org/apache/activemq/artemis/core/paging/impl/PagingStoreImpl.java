@@ -791,7 +791,7 @@ public class PagingStoreImpl implements PagingStore {
                        final ReadLock managerLock) throws Exception {
 
       if (!running) {
-         throw new IllegalStateException("PagingStore(" + getStoreName() + ") not initialized");
+         return false;
       }
 
       boolean full = isFull();
