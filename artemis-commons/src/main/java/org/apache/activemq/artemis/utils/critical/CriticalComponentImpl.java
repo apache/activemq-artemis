@@ -62,9 +62,9 @@ public class CriticalComponentImpl implements CriticalComponent {
    }
 
    @Override
-   public boolean isExpired(long timeout) {
+   public boolean checkExpiration(long timeout, boolean reset) {
       for (int i = 0; i < measures.length; i++) {
-         if (measures[i].isExpired(timeout)) {
+         if (measures[i].checkExpiration(timeout, reset)) {
             return true;
          }
       }
