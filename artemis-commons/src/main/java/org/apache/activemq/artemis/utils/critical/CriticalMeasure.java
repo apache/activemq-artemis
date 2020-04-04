@@ -64,7 +64,7 @@ public class CriticalMeasure {
          CriticalAnalyzer analyzer = component != null ? component.getCriticalAnalyzer() : null;
          if (analyzer != null) {
             long nanoTimeout = analyzer.getTimeoutNanoSeconds();
-            if (isExpired(nanoTimeout)) {
+            if (checkExpiration(nanoTimeout, false)) {
                logger.trace("Path " + id + " on component " + getComponentName() + " is taking too long, leaving at", new Exception("entered"));
                logger.trace("Path " + id + " on component " + getComponentName() + " is taking too long, entered at", traceEnter);
             }
@@ -83,7 +83,8 @@ public class CriticalMeasure {
       }
    }
 
-   public boolean isExpired(long timeout) {
+   public boolean checkExpiration(long timeout, boolean reset) {
+      long time = System.nanoTime();
       final long timeLeft = TIME_LEFT_UPDATER.get(this);
       final long timeEnter = TIME_ENTER_UPDATER.get(this);
       //due to how System::nanoTime works is better to use differences to prevent numerical overflow while comparing
@@ -91,12 +92,17 @@ public class CriticalMeasure {
          boolean expired = System.nanoTime() - timeEnter > timeout;
 
          if (expired) {
+            Exception lastTraceEnter = this.traceEnter;
 
-            Exception thistraceEnter = this.traceEnter;
-            if (thistraceEnter != null) {
-               logger.warn("Component " + getComponentName() + " is expired on path " + id, thistraceEnter);
+            if (lastTraceEnter != null) {
+               logger.warn("Component " + getComponentName() + " is expired on path " + id, lastTraceEnter);
             } else {
                logger.warn("Component " + getComponentName() + " is expired on path " + id);
+            }
+
+            if (reset) {
+               TIME_LEFT_UPDATER.lazySet(this, time);
+               TIME_ENTER_UPDATER.lazySet(this, time);
             }
          }
          return expired;

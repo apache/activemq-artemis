@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.utils.critical;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.junit.After;
 import org.junit.Assert;
@@ -45,7 +46,7 @@ public class CriticalAnalyzerTest {
       analyzer = new CriticalAnalyzerImpl().setTimeout(100, TimeUnit.MILLISECONDS).setCheckTime(50, TimeUnit.MILLISECONDS);
       analyzer.add(new CriticalComponent() {
          @Override
-         public boolean isExpired(long timeout) {
+         public boolean checkExpiration(long timeout, boolean reset) {
             return true;
          }
       });
@@ -66,7 +67,15 @@ public class CriticalAnalyzerTest {
 
    @Test
    public void testActionOnImpl() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+
       analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
+
+      analyzer.addAction((CriticalComponent comp) -> {
+         System.out.println("component " + comp + " received");
+         latch.countDown();
+      });
+
       CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
       analyzer.add(component);
 
@@ -74,14 +83,8 @@ public class CriticalAnalyzerTest {
       component.leaveCritical(0);
       component.enterCritical(1);
 
-      CountDownLatch latch = new CountDownLatch(1);
 
       analyzer.start();
-
-      analyzer.addAction((CriticalComponent comp) -> {
-         System.out.println("component " + comp + " received");
-         latch.countDown();
-      });
 
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
 
@@ -93,7 +96,7 @@ public class CriticalAnalyzerTest {
       analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
       CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
       component.enterCritical(0);
-      Assert.assertFalse(component.isExpired(TimeUnit.MINUTES.toNanos(1)));
+      Assert.assertFalse(component.checkExpiration(TimeUnit.MINUTES.toNanos(1), false));
       analyzer.stop();
 
    }
@@ -104,32 +107,62 @@ public class CriticalAnalyzerTest {
       CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
       component.enterCritical(0);
       Thread.sleep(50);
-      Assert.assertTrue(component.isExpired(0));
+      Assert.assertTrue(component.checkExpiration(0, false));
       analyzer.stop();
 
    }
 
    @Test
    public void testNegative() throws Exception {
-      analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
-      CriticalComponent component = new CriticalComponentImpl(analyzer, 1);
-      analyzer.add(component);
-
-      component.enterCritical(0);
-      component.leaveCritical(0);
-
       CountDownLatch latch = new CountDownLatch(1);
 
-      analyzer.start();
+      analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
 
       analyzer.addAction((CriticalComponent comp) -> {
          System.out.println("component " + comp + " received");
          latch.countDown();
       });
 
+      CriticalComponent component = new CriticalComponentImpl(analyzer, 1);
+      analyzer.add(component);
+
+      component.enterCritical(0);
+      component.leaveCritical(0);
+
+      analyzer.start();
+
       Assert.assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
 
       analyzer.stop();
    }
 
+   @Test
+   public void testPositive() throws Exception {
+      ReusableLatch latch = new ReusableLatch(1);
+
+      analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
+
+      analyzer.addAction((CriticalComponent comp) -> {
+         System.out.println("component " + comp + " received");
+         latch.countDown();
+      });
+
+      CriticalComponent component = new CriticalComponentImpl(analyzer, 1);
+      analyzer.add(component);
+
+      component.enterCritical(0);
+      Thread.sleep(50);
+
+      analyzer.start();
+
+      Assert.assertTrue(latch.await(100, TimeUnit.MILLISECONDS));
+
+      component.leaveCritical(0);
+
+      latch.setCount(1);
+
+      Assert.assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
+
+      analyzer.stop();
+   }
 }
