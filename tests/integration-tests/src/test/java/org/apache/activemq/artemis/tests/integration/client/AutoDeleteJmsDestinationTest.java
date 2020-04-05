@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -72,6 +73,9 @@ public class AutoDeleteJmsDestinationTest extends JMSTestBase {
       Assert.assertNotNull(m);
 
       connection.close();
+
+      SimpleString qname = new SimpleString("test");
+      Wait.waitFor(() -> server.getPostOffice().getBinding(qname) == null);
 
       // ensure the queue was removed
       Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("test")));
@@ -152,8 +156,10 @@ public class AutoDeleteJmsDestinationTest extends JMSTestBase {
 
       connection.close();
 
+      SimpleString qName = new SimpleString("test");
+      Wait.waitFor(() -> server.locateQueue(qName) == null);
       // ensure the topic was removed
-      Assert.assertNull(server.locateQueue(new SimpleString("test")));
+      Assert.assertNull(server.locateQueue(qName));
 
       // make sure the JMX control was removed for the JMS topic
       assertNull(server.getManagementService().getResource("jtest"));
