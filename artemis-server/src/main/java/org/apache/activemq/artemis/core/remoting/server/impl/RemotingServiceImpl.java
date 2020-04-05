@@ -308,7 +308,12 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    public synchronized void startAcceptors() throws Exception {
       if (isStarted()) {
          for (Acceptor a : acceptors.values()) {
-            a.start();
+            try {
+               a.start();
+            } catch (Throwable t) {
+               ActiveMQServerLogger.LOGGER.errorStartingAcceptor(a.getName(), a.getConfiguration());
+               throw t;
+            }
          }
       }
    }
