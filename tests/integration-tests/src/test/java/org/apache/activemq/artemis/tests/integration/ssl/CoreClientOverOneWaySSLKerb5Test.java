@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.ssl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -95,7 +96,7 @@ public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
       try {
          sf = createSessionFactory(locator);
          ClientSession session = sf.createSession(false, true, true);
-         session.createQueue(CoreClientOverOneWaySSLKerb5Test.QUEUE, RoutingType.ANYCAST, CoreClientOverOneWaySSLKerb5Test.QUEUE);
+         session.createQueue(new QueueConfiguration(CoreClientOverOneWaySSLKerb5Test.QUEUE).setRoutingType(RoutingType.ANYCAST));
          ClientProducer producer = session.createProducer(CoreClientOverOneWaySSLKerb5Test.QUEUE);
 
          final String text = RandomUtil.randomString();

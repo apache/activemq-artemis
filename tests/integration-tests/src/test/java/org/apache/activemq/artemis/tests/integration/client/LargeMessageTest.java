@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -118,7 +119,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(false, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -191,7 +192,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session = addClientSession(sf.createSession(false, false, false));
 
-      session.createTemporaryQueue(ADDRESS, ADDRESS);
+      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -287,7 +288,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -347,7 +348,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session = addClientSession(sf.createSession(!transacted, !transacted, 0));
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -403,8 +404,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(ADDRESS, ADDRESS, true);
-      session.createQueue(ADDRESS, ADDRESS.concat("-2"), true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(new QueueConfiguration(ADDRESS.concat("-2")).setAddress(ADDRESS));
 
       SimpleString ADDRESS_DLA = ADDRESS.concat("-dla");
 
@@ -412,7 +413,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
-      session.createQueue(ADDRESS_DLA, ADDRESS_DLA, true);
+      session.createQueue(new QueueConfiguration(ADDRESS_DLA));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -507,7 +508,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(false, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -575,10 +576,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(false, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
-      session.createQueue(ADDRESS_DLA, ADDRESS_DLA, true);
-      session.createQueue(ADDRESS_EXPIRY, ADDRESS_EXPIRY, true);
+      session.createQueue(new QueueConfiguration(ADDRESS_DLA));
+      session.createQueue(new QueueConfiguration(ADDRESS_EXPIRY));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -683,10 +684,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(false, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
-      session.createQueue(ADDRESS_DLA, ADDRESS_DLA, true);
-      session.createQueue(ADDRESS_EXPIRY, ADDRESS_EXPIRY, true);
+      session.createQueue(new QueueConfiguration(ADDRESS_DLA));
+      session.createQueue(new QueueConfiguration(ADDRESS_EXPIRY));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -789,9 +790,9 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session = sf.createSession(false, false, false);
 
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
-         session.createQueue(ADDRESS_EXPIRY, ADDRESS_EXPIRY, true);
+         session.createQueue(new QueueConfiguration(ADDRESS_EXPIRY));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -881,7 +882,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session = sf.createSession(true, true, 0);
 
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -950,11 +951,11 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session = sf.createSession(false, false, false);
 
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          SimpleString ADDRESS2 = ADDRESS.concat("-2");
 
-         session.createQueue(ADDRESS2, ADDRESS2, true);
+         session.createQueue(new QueueConfiguration(ADDRESS2));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -1025,7 +1026,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session = sf.createSession(false, false, false);
 
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -1347,8 +1348,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(ADDRESS, queue[0], null, true);
-      session.createQueue(ADDRESS, queue[1], null, true);
+      session.createQueue(new QueueConfiguration(queue[0]).setAddress(ADDRESS));
+      session.createQueue(new QueueConfiguration(queue[1]).setAddress(ADDRESS));
 
       int numberOfBytes = 400000;
 
@@ -1414,8 +1415,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(ADDRESS, queue[0], null, true);
-      session.createQueue(ADDRESS, queue[1], null, true);
+      session.createQueue(new QueueConfiguration(queue[0]).setAddress(ADDRESS));
+      session.createQueue(new QueueConfiguration(queue[1]).setAddress(ADDRESS));
 
       int numberOfBytes = 400000;
 
@@ -1480,7 +1481,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(isXA, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       Xid xid = null;
 
@@ -1544,7 +1545,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
          session.start(xid, XAResource.TMNOFLAGS);
       }
 
-      session.createQueue(ADDRESS, ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       int numberOfBytes = 200000;
 
@@ -1642,7 +1643,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session = sf.createSession(null, null, false, false, false, false, 0);
 
-         session.createQueue(ADDRESS, ADDRESS, null, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -1720,7 +1721,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session = sf.createSession(null, null, false, false, false, false, 0);
 
-         session.createQueue(ADDRESS, ADDRESS, null, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -1807,8 +1808,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(ADDRESS, ADDRESS.concat("-0"), null, true);
-      session.createQueue(ADDRESS, ADDRESS.concat("-1"), null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS.concat("-0")).setAddress(ADDRESS));
+      session.createQueue(new QueueConfiguration(ADDRESS.concat("-1")).setAddress(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -1934,8 +1935,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ADDRESS, ADDRESS.concat("-0"), null, true);
-      session.createQueue(ADDRESS, ADDRESS.concat("-1"), null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS.concat("-0")).setAddress(ADDRESS));
+      session.createQueue(new QueueConfiguration(ADDRESS.concat("-1")).setAddress(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
       int msgId = 0;
@@ -2031,7 +2032,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session = sf.createSession(null, null, false, true, true, false, 0);
 
-         session.createQueue(ADDRESS, ADDRESS, null, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientMessage clientFile = session.createMessage(true);
          clientFile.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(SIZE));
@@ -2098,7 +2099,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session = sf.createSession(null, null, false, true, true, false, 0);
 
-         session.createQueue(ADDRESS, ADDRESS, null, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientMessage clientFile = session.createMessage(true);
          clientFile.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(SIZE));
@@ -2164,7 +2165,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session = sf.createSession(null, null, false, true, true, false, 0);
 
-         session.createQueue(ADDRESS, ADDRESS, null, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -2242,7 +2243,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(ADDRESS, ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -2334,7 +2335,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       fileMessage.releaseResources(false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer prod = session.createProducer(ADDRESS);
 
@@ -2401,7 +2402,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(ADDRESS, ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -2499,7 +2500,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       fileMessage.releaseResources(false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
 

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -102,7 +103,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
       server = createServer(true, createDefaultInVMConfig(), 10024, 200024, settings);
       server.start();
 
-      pagedServerQueue = (QueueImpl) server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
+      pagedServerQueue = (QueueImpl) server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
    }
 

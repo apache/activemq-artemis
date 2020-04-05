@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -410,7 +411,7 @@ public class ReconnectTest extends ActiveMQTestBase {
       SimpleString addressName1 = new SimpleString("my_address_one");
 
       server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
-      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, true, false);
+      server.createQueue(new QueueConfiguration(queueName1).setAddress(addressName1).setRoutingType(RoutingType.ANYCAST));
       ClientConsumer clientConsumer1 = session.createConsumer(queueName1);
       ClientConsumer clientConsumer2 = session.createConsumer(queueName1);
       clientConsumer1.close();

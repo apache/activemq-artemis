@@ -25,6 +25,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -55,7 +56,6 @@ public class JMSLVQTest extends JMSClientTestSupport {
       server.getAddressSettingsRepository().addMatch(NORMAL_QUEUE_NAME, new AddressSettings());
       server.getAddressSettingsRepository().addMatch(LVQ_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true));
       server.getAddressSettingsRepository().addMatch(LVQ_CUSTOM_KEY_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true).setDefaultLastValueKey(SimpleString.toSimpleString(CUSTOM_KEY)));
-
    }
 
    @Override
@@ -64,16 +64,16 @@ public class JMSLVQTest extends JMSClientTestSupport {
 
       //Add Standard Queue
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(NORMAL_QUEUE_NAME), RoutingType.ANYCAST, SimpleString.toSimpleString(NORMAL_QUEUE_NAME), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
 
       //Add LVQ using Default Message.HDR_LAST_VALUE_NAME
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(LVQ_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(LVQ_QUEUE_NAME), RoutingType.ANYCAST, SimpleString.toSimpleString(LVQ_QUEUE_NAME), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add LVQ using Custom Key
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(LVQ_CUSTOM_KEY_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(LVQ_CUSTOM_KEY_QUEUE_NAME), RoutingType.ANYCAST, SimpleString.toSimpleString(LVQ_CUSTOM_KEY_QUEUE_NAME), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(LVQ_CUSTOM_KEY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
    }
 
 

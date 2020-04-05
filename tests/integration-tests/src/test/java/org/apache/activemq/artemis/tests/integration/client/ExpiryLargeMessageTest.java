@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 import java.io.File;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -75,11 +76,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.start();
 
-      server.createQueue(EXPIRY, RoutingType.ANYCAST, EXPIRY, null, true, false);
+      server.createQueue(new QueueConfiguration(EXPIRY).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(DLQ, RoutingType.ANYCAST, DLQ, null, true, false);
+      server.createQueue(new QueueConfiguration(DLQ).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(MY_QUEUE, RoutingType.ANYCAST, MY_QUEUE, null, true, false);
+      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -253,11 +254,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.start();
 
-      server.createQueue(EXPIRY, RoutingType.ANYCAST, EXPIRY, null, true, false);
+      server.createQueue(new QueueConfiguration(EXPIRY).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(DLQ, RoutingType.ANYCAST, DLQ, null, true, false);
+      server.createQueue(new QueueConfiguration(DLQ).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(MY_QUEUE, RoutingType.ANYCAST, MY_QUEUE, null, true, false);
+      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ServerLocator locator = createInVMNonHALocator();
 

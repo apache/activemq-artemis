@@ -16,7 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.management.RuntimeMBeanException;
+import java.lang.management.ManagementFactory;
+import java.util.HashMap;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
@@ -26,12 +34,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.RuntimeMBeanException;
-import java.lang.management.ManagementFactory;
-import java.util.HashMap;
 
 @RunWith(BMUnitRunner.class)
 public class ManagementExceptionHandlingTest extends ActiveMQTestBase {
@@ -67,7 +69,7 @@ public class ManagementExceptionHandlingTest extends ActiveMQTestBase {
                    action = "throw new org.apache.activemq.artemis.api.core.ActiveMQException(\"gotcha\")")})
    public void testActiveMQServerControl() throws Exception {
       try {
-         server.getActiveMQServerControl().createQueue("some.address", "ANYCAST", "some.queue", "filter", true, -1, false, true);
+         server.getActiveMQServerControl().createQueue(new QueueConfiguration("some.queue").setAddress("some.address").setRoutingType(RoutingType.ANYCAST).toJSON());
          fail("test should have gotten an exception!");
       } catch (ActiveMQException e) {
          fail("Wrong exception got!");

@@ -20,6 +20,7 @@ import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TO
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -76,7 +77,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
       server.addAddressInfo(addressInfo);
-      server.createQueue(address, RoutingType.MULTICAST, SimpleString.toSimpleString("myClientId.mySub:shared-volatile"), null, true, false, -1, false, false);
+      server.createQueue(new QueueConfiguration("myClientId.mySub:shared-volatile").setAddress(address).setAutoCreateAddress(false));
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect("myClientId"));

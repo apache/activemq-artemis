@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.stress.journal;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -26,7 +27,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
          ClientSession session = sf.createSession(true, true);
 
          try {
-            session.createQueue("slow-queue", RoutingType.MULTICAST, "slow-queue");
+            session.createQueue(new QueueConfiguration("slow-queue"));
          } catch (Exception ignored) {
          }
 
@@ -112,7 +112,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
       ClientProducer prod2 = sessionSend.createProducer("slow-queue");
 
       try {
-         sessionSend.createQueue("Queue", "Queue", true);
+         sessionSend.createQueue(new QueueConfiguration("Queue"));
       } catch (Exception ignored) {
       }
 

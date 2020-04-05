@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -48,7 +49,7 @@ public class NewDeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dla).setSendToDLAOnNoRoute(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(dla, dlq, null, false);
+      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
       ClientProducer producer = clientSession.createProducer(address);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();

@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -67,7 +68,7 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
    @Test(timeout = 120000)
    public void testLotsOfCloseOpenConsumer() throws Exception {
 
-      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastAddress, null, true, false);
+      server.createQueue(new QueueConfiguration(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       AtomicInteger errors = new AtomicInteger(0);
       AtomicBoolean runnning = new AtomicBoolean(true);

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.karaf.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -71,7 +72,7 @@ public class ArtemisCoreClientFeatureIT {
          // send message
          String textMessage = "Hello";
          message.getBodyBuffer().writeString(textMessage);
-         session.createQueue(queueName, RoutingType.ANYCAST, queueName, true);
+         session.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
          producer.send(message);
 
          // assert

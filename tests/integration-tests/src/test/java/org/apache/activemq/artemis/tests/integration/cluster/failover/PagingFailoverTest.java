@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.HashMap;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -91,7 +92,7 @@ public class PagingFailoverTest extends FailoverTestBase {
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = addClientSession(sf.createSession(!transacted, !transacted, 0));
 
-      session.createQueue(PagingFailoverTest.ADDRESS, PagingFailoverTest.ADDRESS, true);
+      session.createQueue(new QueueConfiguration(PagingFailoverTest.ADDRESS));
 
       ClientProducer prod = session.createProducer(PagingFailoverTest.ADDRESS);
 
@@ -167,7 +168,7 @@ public class PagingFailoverTest extends FailoverTestBase {
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = sf.createSession(false, false, 0);
 
-      session.createQueue(PagingFailoverTest.ADDRESS, PagingFailoverTest.ADDRESS, true);
+      session.createQueue(new QueueConfiguration(PagingFailoverTest.ADDRESS));
 
       ClientProducer prod = session.createProducer(PagingFailoverTest.ADDRESS);
 

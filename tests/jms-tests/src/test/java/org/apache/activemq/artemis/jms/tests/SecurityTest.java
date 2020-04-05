@@ -36,6 +36,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -195,7 +196,7 @@ public class SecurityTest extends JMSTestCase {
    public void testLoginValidUserAndPasswordButNotAuthorisedToSend() throws Exception {
       SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection("guest", "guest");
@@ -220,7 +221,7 @@ public class SecurityTest extends JMSTestCase {
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistent() throws Exception {
       SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);
@@ -266,7 +267,7 @@ public class SecurityTest extends JMSTestCase {
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistentJMS2() throws Exception {
       SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);
@@ -312,7 +313,7 @@ public class SecurityTest extends JMSTestCase {
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendLargeNonPersistent() throws Exception {
       SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);

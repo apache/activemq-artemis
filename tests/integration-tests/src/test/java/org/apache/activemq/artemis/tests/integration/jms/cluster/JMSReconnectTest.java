@@ -31,6 +31,7 @@ import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -101,7 +102,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       SimpleString jmsQueueName = new SimpleString("myqueue");
 
-      coreSession.createQueue(jmsQueueName, RoutingType.ANYCAST, jmsQueueName, null, true);
+      coreSession.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = sess.createQueue("myqueue");
 
@@ -179,7 +180,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
       Destination dest;
 
       if (nonDurableSub) {
-         coreSession.createQueue("mytopic", "blahblah", null, false);
+         coreSession.createQueue(new QueueConfiguration("blahblah").setAddress("mytopic").setDurable(false));
 
          dest = ActiveMQJMSClient.createTopic("mytopic");
       } else {
@@ -242,7 +243,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      coreSession.createQueue("mytopic", "blahblah", null, false);
+      coreSession.createQueue(new QueueConfiguration("blahblah").setAddress("mytopic").setDurable(false));
 
       Topic topic = ActiveMQJMSClient.createTopic("mytopic");
 

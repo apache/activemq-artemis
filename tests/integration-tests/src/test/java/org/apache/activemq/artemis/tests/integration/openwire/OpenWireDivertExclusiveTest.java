@@ -24,6 +24,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -57,10 +58,10 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      coreSession.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
-      coreSession.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
-      coreSession.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName3, null, false);
-      coreSession.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
+      coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setDurable(false));
+      coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
+      coreSession.createQueue(new QueueConfiguration(queueName3).setAddress(testAddress).setDurable(false));
+      coreSession.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress).setDurable(false));
 
       ClientProducer producer = coreSession.createProducer(new SimpleString(testAddress));
 
@@ -124,8 +125,8 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
       final SimpleString queueName1 = new SimpleString("queue1");
       final SimpleString queueName2 = new SimpleString("queue2");
 
-      coreSession.createQueue(new SimpleString(forwardAddress), RoutingType.ANYCAST, queueName1, null, false);
-      coreSession.createQueue(new SimpleString(testAddress), RoutingType.ANYCAST, queueName2, null, false);
+      coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       coreSession.close();
 
       factory = new ActiveMQConnectionFactory(urlString);

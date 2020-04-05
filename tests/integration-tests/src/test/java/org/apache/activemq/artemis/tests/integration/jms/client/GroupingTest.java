@@ -31,6 +31,7 @@ import javax.jms.TextMessage;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -314,8 +315,7 @@ public class GroupingTest extends JMSTestBase {
 
       String testQueueName = getName() + "_bucket_group";
 
-      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, false, 2, false, null, false, 0, 0, false, 0, 0, true);
-
+      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(2));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -396,7 +396,7 @@ public class GroupingTest extends JMSTestBase {
       Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
       String testQueueName = getName() + "_group_rebalance";
 
-      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, true, -1, false, null, false, 0, 0, false, 0, 0, true);
+      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -528,7 +528,7 @@ public class GroupingTest extends JMSTestBase {
       Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
       String testQueueName = getName() + "_group_first_key";
 
-      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, true, -1, SimpleString.toSimpleString(customFirstGroupKey), false, null, false, 0, 0, false, 0, 0, true);
+      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupFirstKey(customFirstGroupKey));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -624,7 +624,7 @@ public class GroupingTest extends JMSTestBase {
       Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
       String testQueueName = getName() + "_group_disable";
 
-      server.createQueue(SimpleString.toSimpleString(testQueueName), RoutingType.ANYCAST, SimpleString.toSimpleString(testQueueName), null, null, true, false, false, false, false, -1, false, false, false, 0, false, null, false, 0, 0, false, 0, 0, true);
+      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(0));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -714,6 +714,7 @@ public class GroupingTest extends JMSTestBase {
 
          ActiveMQDestination a = (ActiveMQDestination) queue;
          assertEquals(Integer.valueOf(4), a.getQueueAttributes().getGroupBuckets());
+         assertEquals(Integer.valueOf(4), a.getQueueConfiguration().getGroupBuckets());
 
          MessageProducer producer = session.createProducer(queue);
 
@@ -742,6 +743,7 @@ public class GroupingTest extends JMSTestBase {
 
          ActiveMQDestination a = (ActiveMQDestination) queue;
          assertTrue(a.getQueueAttributes().getGroupRebalance());
+         assertTrue(a.getQueueConfiguration().isGroupRebalance());
 
          MessageProducer producer = session.createProducer(queue);
 

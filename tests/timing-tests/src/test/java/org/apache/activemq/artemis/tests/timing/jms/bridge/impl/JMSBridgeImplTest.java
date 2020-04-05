@@ -44,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -701,8 +702,8 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
-      server.createQueue(SimpleString.toSimpleString(JMSBridgeImplTest.SOURCE), RoutingType.ANYCAST, SimpleString.toSimpleString(JMSBridgeImplTest.SOURCE), null, true, false);
-      server.createQueue(SimpleString.toSimpleString(JMSBridgeImplTest.TARGET), RoutingType.ANYCAST, SimpleString.toSimpleString(JMSBridgeImplTest.TARGET), null, true, false);
+      server.createQueue(new QueueConfiguration(JMSBridgeImplTest.SOURCE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(JMSBridgeImplTest.TARGET).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Test

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.server;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -766,6 +767,6 @@ public class LVQTest extends ActiveMQTestBase {
       clientSession = addClientSession(sf.createSession(false, true, true));
       clientSessionTxReceives = addClientSession(sf.createSession(false, true, false));
       clientSessionTxSends = addClientSession(sf.createSession(false, false, true));
-      clientSession.createQueue(address, qName1, null, true);
+      clientSession.createQueue(new QueueConfiguration(qName1).setAddress(address));
    }
 }

@@ -37,8 +37,8 @@ import java.util.Set;
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
@@ -125,7 +125,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       if (index == 1) {
          server = server1;
       }
-      assertTrue("queue '/queue/" + queueName + "' created", server.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false) != null);
+      assertTrue("queue '/queue/" + queueName + "' created", server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST)) != null);
    }
 
    @Override

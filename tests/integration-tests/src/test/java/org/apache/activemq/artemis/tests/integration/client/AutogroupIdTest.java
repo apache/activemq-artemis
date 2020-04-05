@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -78,7 +79,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(groupTestQ, groupTestQ, null, false);
+      session.createQueue(new QueueConfiguration(groupTestQ).setDurable(false));
 
       ClientProducer producer = session.createProducer(groupTestQ);
 
@@ -121,7 +122,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(groupTestQ, groupTestQ, null, false);
+      session.createQueue(new QueueConfiguration(groupTestQ).setDurable(false));
 
       ClientProducer producer = session.createProducer(groupTestQ);
       ClientProducer producer2 = session.createProducer(groupTestQ);
@@ -167,7 +168,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(groupTestQ, groupTestQ, null, false);
+      session.createQueue(new QueueConfiguration(groupTestQ).setDurable(false));
 
       ClientProducer producer = session.createProducer(groupTestQ);
 

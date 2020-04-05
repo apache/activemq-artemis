@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.replication;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -58,7 +59,7 @@ public class ReplicationOrderTest extends FailoverTestBase {
          session = csf.createSession(true, true);
       }
       addClientSession(session);
-      session.createQueue(address, queue, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
       ClientProducer producer = session.createProducer(address);
       boolean durable = false;
       for (int i = 0; i < ReplicationOrderTest.NUM; i++) {

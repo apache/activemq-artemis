@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -53,7 +54,7 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateConsumer() throws Exception {
-      clientSession.createQueue(queueName, queueName, false);
+      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName);
       Assert.assertNotNull(consumer);
    }
@@ -72,14 +73,14 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateConsumerWithFilter() throws Exception {
-      clientSession.createQueue(queueName, queueName, false);
+      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName, "foo=bar");
       Assert.assertNotNull(consumer);
    }
 
    @Test
    public void testCreateConsumerWithInvalidFilter() throws Exception {
-      clientSession.createQueue(queueName, queueName, false);
+      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
       try {
          clientSession.createConsumer(queueName, "this is not valid filter");
          Assert.fail("should throw exception");
@@ -92,14 +93,14 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateConsumerWithBrowseOnly() throws Exception {
-      clientSession.createQueue(queueName, queueName, false);
+      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName, null, true);
       Assert.assertNotNull(consumer);
    }
 
    @Test
    public void testCreateConsumerWithOverrides() throws Exception {
-      clientSession.createQueue(queueName, queueName, false);
+      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName, null, 100, 100, false);
       Assert.assertNotNull(consumer);
    }

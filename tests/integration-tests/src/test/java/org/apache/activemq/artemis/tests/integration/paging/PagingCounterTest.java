@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.paging;
 
 import javax.transaction.xa.Xid;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -81,7 +82,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       try {
          server.addAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
-         Queue queue = server.createQueue(new SimpleString("A1"), RoutingType.ANYCAST, new SimpleString("A1"), null, true, false);
+         Queue queue = server.createQueue(new QueueConfiguration(new SimpleString("A1")).setRoutingType(RoutingType.ANYCAST));
 
          PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -113,7 +114,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       try {
          server.addAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
-         Queue queue = server.createQueue(new SimpleString("A1"), RoutingType.ANYCAST, new SimpleString("A1"), null, true, false);
+         Queue queue = server.createQueue(new QueueConfiguration(new SimpleString("A1")).setRoutingType(RoutingType.ANYCAST));
 
          PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -173,7 +174,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
       try {
 
          server.addAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
-         Queue queue = server.createQueue(new SimpleString("A1"), RoutingType.ANYCAST, new SimpleString("A1"), null, true, false);
+         Queue queue = server.createQueue(new QueueConfiguration(new SimpleString("A1")).setRoutingType(RoutingType.ANYCAST));
 
          PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -230,7 +231,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
    @Test
    public void testRestartCounter() throws Exception {
       server.addAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
-      Queue queue = server.createQueue(new SimpleString("A1"), RoutingType.ANYCAST, new SimpleString("A1"), null, true, false);
+      Queue queue = server.createQueue(new QueueConfiguration(new SimpleString("A1")).setRoutingType(RoutingType.ANYCAST));
 
       PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -285,7 +286,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
    public void testPrepareCounter() throws Exception {
       Xid xid = newXID();
 
-      Queue queue = server.createQueue(new SimpleString("A1"), RoutingType.ANYCAST, new SimpleString("A1"), null, true, false);
+      Queue queue = server.createQueue(new QueueConfiguration(new SimpleString("A1")).setRoutingType(RoutingType.ANYCAST));
 
       PageSubscriptionCounter counter = locateCounter(queue);
 

@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -99,7 +100,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(PagingSendTest.ADDRESS, PagingSendTest.ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(PagingSendTest.ADDRESS));
 
       ClientProducer producer = session.createProducer(PagingSendTest.ADDRESS);
 
@@ -143,7 +144,7 @@ public class PagingSendTest extends ActiveMQTestBase {
 
       ClientSession sessionConsumer = sf.createSession(true, true, 0);
 
-      sessionConsumer.createQueue(PagingSendTest.ADDRESS, PagingSendTest.ADDRESS, null, true);
+      sessionConsumer.createQueue(new QueueConfiguration(PagingSendTest.ADDRESS));
 
       final ClientSession sessionProducer = sf.createSession(false, false);
       final ClientProducer producer = sessionProducer.createProducer(PagingSendTest.ADDRESS);
@@ -219,7 +220,7 @@ public class PagingSendTest extends ActiveMQTestBase {
 
       // Create a queue
       SimpleString queueAddr = new SimpleString("testQueue");
-      session.createQueue(queueAddr, queueAddr, null, true);
+      session.createQueue(new QueueConfiguration(queueAddr));
 
       // Set up paging on the queue address
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024)
@@ -253,7 +254,7 @@ public class PagingSendTest extends ActiveMQTestBase {
 
       // Create a queue
       SimpleString queueAddr = new SimpleString("testQueue");
-      session.createQueue(queueAddr, queueAddr, null, true);
+      session.createQueue(new QueueConfiguration(queueAddr));
 
       // Set up paging on the queue address
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024)

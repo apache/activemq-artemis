@@ -19,9 +19,9 @@ package org.apache.activemq.artemis.tests.integration.stomp;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
@@ -69,9 +69,7 @@ public class StompWebSocketTest extends StompTestBase {
          .addAcceptorConfiguration(stompTransport)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
          .setPersistenceEnabled(isPersistenceEnabled())
-         .addQueueConfiguration(new CoreQueueConfiguration()
-                                   .setAddress(getQueueName())
-                                   .setName(getQueueName())
+         .addQueueConfiguration(new QueueConfiguration(getQueueName())
                                    .setDurable(false));
 
       server = addServer(ActiveMQServers.newActiveMQServer(config));

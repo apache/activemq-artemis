@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.server;
 
 import javax.jms.JMSContext;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -129,7 +130,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
       for (int i = 0; i < ITERATIONS; i++) {
          SimpleString address = RandomUtil.randomSimpleString();
          SimpleString queue = RandomUtil.randomSimpleString();
-         server.createQueue(address, routingType, queue, null, true, false);
+         server.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(routingType));
          ServerLocator locator = createInVMNonHALocator();
          ClientSessionFactory cf = createSessionFactory(locator);
          ClientSession s = addClientSession(cf.createSession(true, false));
@@ -196,7 +197,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
    }
 
    private void triggerDlaDelivery() throws Exception {
-      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, true, false);
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = addClientSession(sessionFactory.createSession(true, false));

@@ -77,7 +77,7 @@ public class StompWithRejectingInterceptorTest extends StompTestBase {
       @Override
       public boolean intercept(StompFrame stompFrame, RemotingConnection connection) {
          interceptedFrames.add(stompFrame);
-         if (stompFrame.getCommand() == Stomp.Commands.SEND) {
+         if (stompFrame.getCommand().equals(Stomp.Commands.SEND)) {
             return false;
          }
          return true;

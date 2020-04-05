@@ -16,11 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.management;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Session;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.advisory.ConsumerEventSource;
 import org.apache.activemq.advisory.ProducerEventSource;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -35,15 +45,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Session;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
 
 @RunWith(Parameterized.class)
 public class OpenWireManagementTest extends OpenWireTestBase {
@@ -104,10 +105,9 @@ public class OpenWireManagementTest extends OpenWireTestBase {
 
    @Test
    public void testHiddenInternalAddress() throws Exception {
-      server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, null, true, false, -1, false, true);
-      server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, null, true, false, -1, false, true);
-      server.createQueue(queueName3, RoutingType.ANYCAST, queueName3, null, true, false, -1, false, true);
-
+      server.createQueue(new QueueConfiguration(queueName1).setRoutingType(RoutingType.ANYCAST).setAutoCreateAddress(true));
+      server.createQueue(new QueueConfiguration(queueName2).setRoutingType(RoutingType.ANYCAST).setAutoCreateAddress(true));
+      server.createQueue(new QueueConfiguration(queueName3).setRoutingType(RoutingType.ANYCAST).setAutoCreateAddress(true));
 
       String[] addresses = serverControl.getAddressNames();
       assertEquals(4, addresses.length);
@@ -149,8 +149,7 @@ public class OpenWireManagementTest extends OpenWireTestBase {
 
    @Test
    public void testHiddenInternalQueue() throws Exception {
-
-      server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(queueName1).setRoutingType(RoutingType.ANYCAST));
 
       String[] queues = serverControl.getQueueNames();
       assertEquals(1, queues.length);

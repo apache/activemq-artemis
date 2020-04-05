@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.tests.integration.stomp;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
@@ -71,7 +71,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 
       try {
          String address = "testLargeMessageAddress";
-         server.createQueue(SimpleString.toSimpleString(address), RoutingType.ANYCAST, SimpleString.toSimpleString(address), null, true, false);
+         server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
 
          // STOMP default is UTF-8 == 1 byte per char.
          int largeMessageStringSize = 10 * 1024 * 1024; // 10MB

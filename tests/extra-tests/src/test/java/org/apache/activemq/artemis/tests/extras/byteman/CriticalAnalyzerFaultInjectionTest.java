@@ -22,6 +22,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -52,7 +53,7 @@ public class CriticalAnalyzerFaultInjectionTest extends JMSTestBase {
    public void setUp() throws Exception {
       super.setUp();
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
-      server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
+      server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
       conn = nettyCf.createConnection();
    }
 

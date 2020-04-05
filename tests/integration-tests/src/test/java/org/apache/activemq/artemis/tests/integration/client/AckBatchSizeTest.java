@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -69,7 +70,7 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
 
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(addressA, queueA, false);
+      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = (ClientMessage)sendSession.createMessage(false).setAddress(addressA);
@@ -111,7 +112,7 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       int numMessages = 100;
 
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(addressA, queueA, false);
+      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));

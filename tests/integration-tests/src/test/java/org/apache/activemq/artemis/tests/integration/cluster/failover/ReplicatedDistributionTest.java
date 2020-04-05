@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -200,8 +201,8 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
       sessionOne = sfs[1].createSession(true, true);
       sessionThree = sfs[3].createSession(false, false);
 
-      sessionOne.createQueue(ReplicatedDistributionTest.ADDRESS, ReplicatedDistributionTest.ADDRESS, true);
-      sessionThree.createQueue(ReplicatedDistributionTest.ADDRESS, ReplicatedDistributionTest.ADDRESS, true);
+      sessionOne.createQueue(new QueueConfiguration(ReplicatedDistributionTest.ADDRESS));
+      sessionThree.createQueue(new QueueConfiguration(ReplicatedDistributionTest.ADDRESS));
 
       consThree = sessionThree.createConsumer(ReplicatedDistributionTest.ADDRESS);
 

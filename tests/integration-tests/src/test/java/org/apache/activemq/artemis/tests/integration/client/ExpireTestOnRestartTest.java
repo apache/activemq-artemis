@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -57,8 +58,8 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(true, true);
 
-      session.createQueue("test", "test", true);
-      session.createQueue("exp", "exp", true);
+      session.createQueue(new QueueConfiguration("test"));
+      session.createQueue(new QueueConfiguration("exp"));
       ClientProducer prod = session.createProducer("test");
 
       for (int i = 0; i < 10; i++) {

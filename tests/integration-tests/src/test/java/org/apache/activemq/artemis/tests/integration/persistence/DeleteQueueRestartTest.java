@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -67,7 +68,7 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase {
 
       final ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(DeleteQueueRestartTest.ADDRESS, DeleteQueueRestartTest.ADDRESS, true);
+      session.createQueue(new QueueConfiguration(DeleteQueueRestartTest.ADDRESS));
 
       ClientProducer prod = session.createProducer(DeleteQueueRestartTest.ADDRESS);
 

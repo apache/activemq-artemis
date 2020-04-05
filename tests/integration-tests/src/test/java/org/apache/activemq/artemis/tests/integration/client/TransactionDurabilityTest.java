@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -65,9 +66,9 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
 
       ClientSession session2 = addClientSession(sf.createSession(false, false, false));
 
-      session1.createQueue(testAddress, queue1, null, true);
+      session1.createQueue(new QueueConfiguration(queue1).setAddress(testAddress));
 
-      session1.createQueue(testAddress, queue2, null, true);
+      session1.createQueue(new QueueConfiguration(queue2).setAddress(testAddress));
 
       ClientProducer producer = session1.createProducer(testAddress);
 

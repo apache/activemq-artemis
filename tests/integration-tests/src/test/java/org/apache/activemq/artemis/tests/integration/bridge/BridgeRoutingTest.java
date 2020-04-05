@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.bridge;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -131,8 +132,8 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
       SimpleString source = SimpleString.toSimpleString("source");
       SimpleString destination = SimpleString.toSimpleString("destination");
 
-      server0.createQueue(source, sourceRoutingType, source, null, true, false);
-      server1.createQueue(destination, destinationRoutingType, destination, null, true, false);
+      server0.createQueue(new QueueConfiguration(source).setRoutingType(sourceRoutingType));
+      server1.createQueue(new QueueConfiguration(destination).setRoutingType(destinationRoutingType));
 
       server0.deployBridge(new BridgeConfiguration()
                               .setRoutingType(bridgeRoutingType)

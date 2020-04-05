@@ -32,6 +32,7 @@ import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -832,8 +833,7 @@ public class JmsConsumerTest extends JMSTestBase {
       //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
       //inside the WildcardAddressManager manager when the binding is created)
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST,
-            SimpleString.toSimpleString(queue1), null, false, false);
+      server.createQueue(new QueueConfiguration(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       //create addresses for both topics
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
@@ -866,8 +866,7 @@ public class JmsConsumerTest extends JMSTestBase {
       //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
       //inside the WildcardAddressManager manager when the binding is created)
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST,
-            SimpleString.toSimpleString(queue1), null, false, false);
+      server.createQueue(new QueueConfiguration(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       //create addresses for both topics
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));

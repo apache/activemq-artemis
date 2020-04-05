@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -53,7 +53,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
-      session.createQueue(address, RoutingType.MULTICAST, queue, null, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       Assert.assertEquals(0, server.locateQueue(queue).getMessagesExpired());
 
@@ -75,7 +75,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, RoutingType.MULTICAST, queue, null, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       Assert.assertEquals(0, server.locateQueue(queue).getMessagesExpired());
 

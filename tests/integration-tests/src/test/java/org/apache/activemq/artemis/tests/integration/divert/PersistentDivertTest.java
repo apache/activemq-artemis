@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -81,13 +82,13 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, true);
+      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1));
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, true);
+      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2));
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, true);
+      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3));
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, true);
+      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress));
 
       session.start();
 
@@ -236,13 +237,13 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, true);
+      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1));
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, true);
+      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2));
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, true);
+      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3));
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, true);
+      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress));
 
       ClientProducer producer = session.createProducer(new SimpleString(testAddress));
 
