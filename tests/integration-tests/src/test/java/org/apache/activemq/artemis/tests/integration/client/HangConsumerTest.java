@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -43,6 +44,8 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -54,7 +57,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRec
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.QueueFactoryImpl;
@@ -206,39 +208,32 @@ public class HangConsumerTest extends ActiveMQTestBase {
       class MyQueueWithBlocking extends QueueImpl {
 
          /**
-          * @param id
-          * @param address
-          * @param name
-          * @param filter
+          * @param queueConfiguration
           * @param pageSubscription
-          * @param durable
-          * @param temporary
           * @param scheduledExecutor
           * @param postOffice
           * @param storageManager
           * @param addressSettingsRepository
           * @param executor
           */
-         MyQueueWithBlocking(final long id,
-                             final SimpleString address,
-                             final SimpleString name,
-                             final Filter filter,
-                             final SimpleString user,
+         MyQueueWithBlocking(final QueueConfiguration queueConfiguration,
+                             final PagingStore pagingStore,
                              final PageSubscription pageSubscription,
-                             final boolean durable,
-                             final boolean temporary,
-                             final boolean autoCreated,
-                             final RoutingType deliveryMode,
-                             final Integer maxConsumers,
-                             final Boolean purgeOnNoConsumers,
                              final ScheduledExecutorService scheduledExecutor,
                              final PostOffice postOffice,
                              final StorageManager storageManager,
                              final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                              final ArtemisExecutor executor, final ActiveMQServer server) {
-            super(id, address, name, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, user, durable, temporary, autoCreated, deliveryMode,
-                  maxConsumers, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager,
-                  addressSettingsRepository, executor, server, null);
+            super(queueConfiguration,
+                  pagingStore,
+                  pageSubscription,
+                  scheduledExecutor,
+                  postOffice,
+                  storageManager,
+                  addressSettingsRepository,
+                  executor,
+                  server,
+                  null);
          }
 
          @Override
@@ -269,34 +264,13 @@ public class HangConsumerTest extends ActiveMQTestBase {
          }
 
          @Override
-         public Queue createQueueWith(final QueueConfig config) {
-            queue = new MyQueueWithBlocking(config.id(), config.address(), config.name(), config.filter(),
-                                            config.user(), config.pageSubscription(), config.isDurable(),
-                                            config.isTemporary(), config.isAutoCreated(), config.deliveryMode(),
-                                            config.maxConsumers(), config.isPurgeOnNoConsumers(), scheduledExecutor,
+         public Queue createQueueWith(final QueueConfiguration config, PagingManager pagingManager) {
+            PageSubscription pageSubscription = getPageSubscription(config, pagingManager);
+            queue = new MyQueueWithBlocking(config, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor,
                                             postOffice, storageManager, addressSettingsRepository,
                                             executorFactory.getExecutor(), server);
             return queue;
          }
-
-         @Deprecated
-         @Override
-         public Queue createQueue(final long persistenceID,
-                                  final SimpleString address,
-                                  final SimpleString name,
-                                  final Filter filter,
-                                  final PageSubscription pageSubscription,
-                                  final SimpleString user,
-                                  final boolean durable,
-                                  final boolean temporary,
-                                  final boolean autoCreated) {
-            queue = new MyQueueWithBlocking(persistenceID, address, name, filter, user, pageSubscription, durable,
-                                            temporary, autoCreated, RoutingType.MULTICAST, null, null,
-                                            scheduledExecutor, postOffice, storageManager, addressSettingsRepository,
-                                            executorFactory.getExecutor(), server);
-            return queue;
-         }
-
       }
 
       LocalFactory queueFactory =

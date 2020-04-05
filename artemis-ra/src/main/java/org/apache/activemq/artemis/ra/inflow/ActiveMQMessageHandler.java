@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
@@ -123,7 +124,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          QueueQuery subResponse = session.queueQuery(queueName);
 
          if (!subResponse.isExists()) {
-            session.createQueue(activation.getAddress(), queueName, selectorString, true);
+            session.createQueue(new QueueConfiguration(queueName).setAddress(activation.getAddress()).setFilterString(selectorString));
          } else {
             // The check for already exists should be done only at the first session
             // As a deployed MDB could set up multiple instances in order to process messages in parallel.
@@ -148,7 +149,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                session.deleteQueue(queueName);
 
                // Create the new one
-               session.createQueue(activation.getAddress(), queueName, selectorString, true);
+               session.createQueue(new QueueConfiguration(queueName).setAddress(activation.getAddress()).setFilterString(selectorString));
             }
          }
          consumer = (ClientConsumerInternal) session.createConsumer(queueName, null, false);
@@ -157,7 +158,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          if (activation.isTopic()) {
             if (activation.getTopicTemporaryQueue() == null) {
                tempQueueName = new SimpleString(UUID.randomUUID().toString());
-               session.createTemporaryQueue(activation.getAddress(), tempQueueName, selectorString);
+               session.createQueue(new QueueConfiguration(tempQueueName).setAddress(activation.getAddress()).setFilterString(selectorString).setDurable(false).setTemporary(true));
                activation.setTopicTemporaryQueue(tempQueueName);
             } else {
                tempQueueName = activation.getTopicTemporaryQueue();
@@ -165,7 +166,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                if (!queueQuery.isExists()) {
                   // this is because we could be using remote servers (in cluster maybe)
                   // and the queue wasn't created on that node yet.
-                  session.createTemporaryQueue(activation.getAddress(), tempQueueName, selectorString);
+                  session.createQueue(new QueueConfiguration(tempQueueName).setAddress(activation.getAddress()).setFilterString(selectorString).setDurable(false).setTemporary(true));
                }
             }
          } else {

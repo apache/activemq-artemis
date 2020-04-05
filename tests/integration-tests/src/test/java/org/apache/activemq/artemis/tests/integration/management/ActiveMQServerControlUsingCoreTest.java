@@ -126,6 +126,21 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String createQueue(String queueConfiguration) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", queueConfiguration);
+         }
+
+         @Override
+         public String createQueue(String queueConfiguration, boolean ignoreIfExists) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", queueConfiguration, ignoreIfExists);
+         }
+
+         @Override
+         public String updateQueue(String queueConfiguration) throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", queueConfiguration);
+         }
+
+         @Override
          public String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
                                    @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
                                    @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,

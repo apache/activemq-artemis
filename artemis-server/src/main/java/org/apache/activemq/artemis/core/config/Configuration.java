@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerFederationPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
@@ -463,14 +464,27 @@ public interface Configuration {
    /**
     * Returns the queues configured for this server.
     */
+   @Deprecated
    List<CoreQueueConfiguration> getQueueConfigurations();
+
+
+   List<QueueConfiguration> getQueueConfigs();
 
    /**
     * Sets the queues configured for this server.
     */
+   @Deprecated
    Configuration setQueueConfigurations(List<CoreQueueConfiguration> configs);
 
+   /**
+    * Sets the queues configured for this server.
+    */
+   Configuration setQueueConfigs(List<QueueConfiguration> configs);
+
+   @Deprecated
    Configuration addQueueConfiguration(CoreQueueConfiguration config);
+
+   Configuration addQueueConfiguration(QueueConfiguration config);
 
    /**
     * Returns the addresses configured for this server.

@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.ParameterisedAddress;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -331,10 +332,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
     */
    private SimpleString simpleAddress;
 
-   /**
-    * Queue parameters;
-    */
-   private QueueAttributes queueAttributes;
+   private QueueConfiguration queueConfiguration;
 
    /**
     * Needed for serialization backwards compatibility.
@@ -419,11 +417,11 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
          ParameterisedAddress parameteredAddress = new ParameterisedAddress(address);
          this.simpleAddress = parameteredAddress.getAddress();
          this.address = parameteredAddress.getAddress().toString();
-         this.queueAttributes = parameteredAddress.getQueueAttributes();
+         this.queueConfiguration = parameteredAddress.getQueueConfiguration();
       } else {
          this.simpleAddress = address;
          this.address = address.toString();
-         this.queueAttributes = null;
+         this.queueConfiguration = null;
       }
    }
 
@@ -473,8 +471,13 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       return simpleAddress;
    }
 
+   @Deprecated
    public QueueAttributes getQueueAttributes() {
-      return queueAttributes;
+      return QueueAttributes.fromQueueConfiguration(queueConfiguration);
+   }
+
+   public QueueConfiguration getQueueConfiguration() {
+      return queueConfiguration;
    }
 
    public String getName() {

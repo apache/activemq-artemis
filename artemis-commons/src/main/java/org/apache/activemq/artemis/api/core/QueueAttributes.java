@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
 
+@Deprecated
 public class QueueAttributes implements Serializable {
 
    public static final String ROUTING_TYPE = "routing-type";
@@ -103,6 +104,56 @@ public class QueueAttributes implements Serializable {
          } else if (key.equals(RING_SIZE)) {
             setRingSize(Long.valueOf(value));
          }
+      }
+   }
+
+   public QueueConfiguration toQueueConfiguration() {
+      return new QueueConfiguration("")
+         .setDurable(this.getDurable())
+         .setRoutingType(this.getRoutingType())
+         .setExclusive(this.getExclusive())
+         .setRingSize(this.getRingSize())
+         .setGroupRebalance(this.getGroupRebalance())
+         .setNonDestructive(this.getNonDestructive())
+         .setLastValue(this.getLastValue())
+         .setFilterString(this.getFilterString())
+         .setMaxConsumers(this.getMaxConsumers())
+         .setPurgeOnNoConsumers(this.getPurgeOnNoConsumers())
+         .setConsumersBeforeDispatch(this.getConsumersBeforeDispatch())
+         .setDelayBeforeDispatch(this.getDelayBeforeDispatch())
+         .setGroupBuckets(this.getGroupBuckets())
+         .setGroupFirstKey(this.getGroupFirstKey())
+         .setLastValueKey(this.getLastValueKey())
+         .setConsumerPriority(this.getConsumerPriority())
+         .setAutoDelete(this.getAutoDelete())
+         .setAutoDeleteMessageCount(this.getAutoDeleteMessageCount())
+         .setAutoDeleteDelay(this.getAutoDeleteDelay());
+   }
+
+   public static QueueAttributes fromQueueConfiguration(QueueConfiguration queueConfiguration) {
+      if (queueConfiguration == null) {
+         return null;
+      } else {
+         return new QueueAttributes()
+            .setDurable(queueConfiguration.isDurable())
+            .setRoutingType(queueConfiguration.getRoutingType())
+            .setExclusive(queueConfiguration.isExclusive())
+            .setRingSize(queueConfiguration.getRingSize())
+            .setGroupRebalance(queueConfiguration.isGroupRebalance())
+            .setNonDestructive(queueConfiguration.isNonDestructive())
+            .setLastValue(queueConfiguration.isLastValue())
+            .setFilterString(queueConfiguration.getFilterString())
+            .setMaxConsumers(queueConfiguration.getMaxConsumers())
+            .setPurgeOnNoConsumers(queueConfiguration.isPurgeOnNoConsumers())
+            .setConsumersBeforeDispatch(queueConfiguration.getConsumersBeforeDispatch())
+            .setDelayBeforeDispatch(queueConfiguration.getDelayBeforeDispatch())
+            .setGroupBuckets(queueConfiguration.getGroupBuckets())
+            .setGroupFirstKey(queueConfiguration.getGroupFirstKey())
+            .setLastValueKey(queueConfiguration.getLastValueKey())
+            .setConsumerPriority(queueConfiguration.getConsumerPriority())
+            .setAutoDelete(queueConfiguration.isAutoDelete())
+            .setAutoDeleteDelay(queueConfiguration.getAutoDeleteDelay())
+            .setAutoDeleteMessageCount(queueConfiguration.getAutoDeleteMessageCount());
       }
    }
 

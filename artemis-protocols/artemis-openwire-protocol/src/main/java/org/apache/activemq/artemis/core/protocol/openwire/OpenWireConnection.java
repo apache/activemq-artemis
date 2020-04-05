@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -817,19 +818,19 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       SimpleString qName = SimpleString.toSimpleString(dest.getPhysicalName());
       if (server.locateQueue(qName) == null) {
          AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(dest.getPhysicalName());
-         AddressInfo addressInfo = new AddressInfo(qName, dest.isTopic() ? RoutingType.MULTICAST : RoutingType.ANYCAST);
-         if (AdvisorySupport.isAdvisoryTopic(dest) && protocolManager.isSuppressInternalManagementObjects()) {
-            addressInfo.setInternal(true);
-         }
          if (dest.isQueue() && (addressSettings.isAutoCreateQueues() || dest.isTemporary())) {
             try {
-               internalSession.createQueue(addressInfo, qName, null, dest.isTemporary(), !dest.isTemporary(), !dest.isTemporary());
+               internalSession.createQueue(new QueueConfiguration(qName).setRoutingType(RoutingType.ANYCAST).setDurable(!dest.isTemporary()).setTemporary(dest.isTemporary()).setAutoCreated(!dest.isTemporary()));
                created = true;
             } catch (ActiveMQQueueExistsException exists) {
                // The queue may have been created by another thread in the mean time.  Catch and do nothing.
             }
          } else if (dest.isTopic() && (addressSettings.isAutoCreateAddresses() || dest.isTemporary())) {
             try {
+               AddressInfo addressInfo = new AddressInfo(qName, RoutingType.MULTICAST);
+               if (AdvisorySupport.isAdvisoryTopic(dest) && protocolManager.isSuppressInternalManagementObjects()) {
+                  addressInfo.setInternal(true);
+               }
                if (internalSession.getAddress(addressInfo.getName()) == null) {
                   internalSession.createAddress(addressInfo, !dest.isTemporary());
                   created = true;

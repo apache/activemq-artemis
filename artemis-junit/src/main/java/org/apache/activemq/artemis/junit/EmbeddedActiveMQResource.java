@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -358,11 +359,9 @@ public class EmbeddedActiveMQResource extends ExternalResource {
    }
 
    public Queue createQueue(SimpleString address, SimpleString name) {
-      SimpleString filter = null;
-      boolean temporary = false;
       Queue queue = null;
       try {
-         queue = server.getActiveMQServer().createQueue(address, RoutingType.MULTICAST, name, filter, isUseDurableQueue(), temporary, server.getActiveMQServer().getAddressSettingsRepository().getMatch(address.toString()).getDefaultMaxConsumers(), server.getActiveMQServer().getAddressSettingsRepository().getMatch(address.toString()).isDefaultPurgeOnNoConsumers(), true);
+         queue = server.getActiveMQServer().createQueue(new QueueConfiguration(name).setAddress(address).setDurable(isUseDurableQueue()));
       } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create queue: queueName = %s, name = %s", address.toString(), name.toString()), ex);
       }
@@ -379,9 +378,8 @@ public class EmbeddedActiveMQResource extends ExternalResource {
    }
 
    public void createSharedQueue(SimpleString address, SimpleString name, SimpleString user) {
-      SimpleString filter = null;
       try {
-         server.getActiveMQServer().createSharedQueue(address, RoutingType.MULTICAST, name, filter, user, isUseDurableQueue());
+         server.getActiveMQServer().createSharedQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.MULTICAST).setDurable(isUseDurableQueue()).setUser(user));
       } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create shared queue: queueName = %s, name = %s, user = %s", address.toString(), name.toString(), user.toString()), ex);
       }

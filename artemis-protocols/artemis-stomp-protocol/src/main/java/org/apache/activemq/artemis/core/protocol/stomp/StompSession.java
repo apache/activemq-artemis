@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -267,14 +268,14 @@ public class StompSession implements SessionCallback {
             queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
             if (manager.getServer().locateQueue(queueName) == null) {
                try {
-                  session.createQueue(address, queueName, selectorSimple, false, true);
+                  session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selectorSimple));
                } catch (ActiveMQQueueExistsException e) {
                   // ignore; can be caused by concurrent durable subscribers
                }
             }
          } else {
             queueName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-            session.createQueue(address, queueName, selectorSimple, true, false);
+            session.createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selectorSimple).setDurable(false).setTemporary(true));
          }
       }
       final ServerConsumer consumer = session.createConsumer(consumerID, queueName, multicast ? null : selectorSimple, false, false, 0);

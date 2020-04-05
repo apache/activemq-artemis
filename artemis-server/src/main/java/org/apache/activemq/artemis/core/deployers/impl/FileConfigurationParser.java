@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -50,7 +51,6 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
@@ -826,15 +826,15 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       NodeList elements = e.getElementsByTagName("queues");
       if (elements.getLength() != 0) {
          Element node = (Element) elements.item(0);
-         config.setQueueConfigurations(parseQueueConfigurations(node, ActiveMQDefaultConfiguration.DEFAULT_ROUTING_TYPE));
+         config.setQueueConfigs(parseQueueConfigurations(node, ActiveMQDefaultConfiguration.DEFAULT_ROUTING_TYPE));
       }
    }
 
-   private List<CoreQueueConfiguration> parseQueueConfigurations(final Element node, RoutingType routingType) {
-      List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
+   private List<QueueConfiguration> parseQueueConfigurations(final Element node, RoutingType routingType) {
+      List<QueueConfiguration> queueConfigurations = new ArrayList<>();
       NodeList list = node.getElementsByTagName("queue");
       for (int i = 0; i < list.getLength(); i++) {
-         CoreQueueConfiguration queueConfig = parseQueueConfiguration(list.item(i));
+         QueueConfiguration queueConfig = parseQueueConfiguration(list.item(i));
          queueConfig.setRoutingType(routingType);
          queueConfigurations.add(queueConfig);
       }
@@ -1235,7 +1235,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return resourceLimitSettings;
    }
 
-   protected CoreQueueConfiguration parseQueueConfiguration(final Node node) {
+   protected QueueConfiguration parseQueueConfiguration(final Node node) {
       String name = getAttributeValue(node, "name");
       String address = null;
       String filterString = null;
@@ -1300,9 +1300,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      return new CoreQueueConfiguration()
+      return new QueueConfiguration(name)
               .setAddress(address)
-              .setName(name)
               .setFilterString(filterString)
               .setDurable(durable)
               .setMaxConsumers(maxConsumers)
@@ -1326,7 +1325,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       String name = getAttributeValue(node, "name");
       addressConfiguration.setName(name);
 
-      List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
+      List<QueueConfiguration> queueConfigurations = new ArrayList<>();
       NodeList children = node.getChildNodes();
       for (int j = 0; j < children.getLength(); j++) {
          Node child = children.item(j);
@@ -1339,11 +1338,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      for (CoreQueueConfiguration coreQueueConfiguration : queueConfigurations) {
-         coreQueueConfiguration.setAddress(name);
+      for (QueueConfiguration queueConfiguration : queueConfigurations) {
+         queueConfiguration.setAddress(name);
       }
 
-      addressConfiguration.setQueueConfigurations(queueConfigurations);
+      addressConfiguration.setQueueConfigs(queueConfigurations);
       return addressConfiguration;
    }
 

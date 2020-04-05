@@ -31,6 +31,7 @@ import java.util.TreeSet;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -453,7 +454,7 @@ public class ScaleDownHandler {
                                                               RoutingType routingType) throws Exception {
       long queueID = getQueueID(session, queue.getName());
       if (queueID == -1) {
-         session.createQueue(addressName, routingType, queue.getName(), queue.getFilter() == null ? null : queue.getFilter().getFilterString(), queue.isDurable());
+         session.createQueue(new QueueConfiguration(queue.getName()).setAddress(addressName).setRoutingType(routingType).setFilterString(queue.getFilter() == null ? null : queue.getFilter().getFilterString()).setDurable(queue.isDurable()));
          logger.debug("Failed to get queue ID, creating queue [addressName=" + addressName + ", queueName=" + queue.getName() + ", routingType=" + queue.getRoutingType() + ", filter=" + (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()) + ", durable=" + queue.isDurable() + "]");
          queueID = getQueueID(session, queue.getName());
       }

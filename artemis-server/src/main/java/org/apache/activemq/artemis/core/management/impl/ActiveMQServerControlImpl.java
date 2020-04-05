@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -935,10 +936,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       checkStarted();
 
-      SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
       clearIO();
       try {
-         server.createQueue(SimpleString.toSimpleString(address), server.getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType(), new SimpleString(name), filter, durable, false);
+         server.createQueue(new QueueConfiguration(name)
+                            .setName(name)
+                            .setFilterString(filterStr)
+                            .setDurable(durable));
       } finally {
          blockOnIO();
       }
@@ -1179,10 +1182,84 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), SimpleString.toSimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, SimpleString.toSimpleString(groupFirstKey), lastValue, SimpleString.toSimpleString(lastValueKey), nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
+         final Queue queue = server.createQueue(new QueueConfiguration(name)
+                                                   .setAddress(address)
+                                                   .setRoutingType(RoutingType.valueOf(routingType.toUpperCase()))
+                                                   .setFilterString(filter)
+                                                   .setDurable(durable)
+                                                   .setMaxConsumers(maxConsumers)
+                                                   .setPurgeOnNoConsumers(purgeOnNoConsumers)
+                                                   .setExclusive(exclusive)
+                                                   .setGroupRebalance(groupRebalance)
+                                                   .setGroupBuckets(groupBuckets)
+                                                   .setGroupFirstKey(groupFirstKey)
+                                                   .setLastValue(lastValue)
+                                                   .setLastValueKey(lastValueKey)
+                                                   .setNonDestructive(nonDestructive)
+                                                   .setConsumersBeforeDispatch(consumersBeforeDispatch)
+                                                   .setDelayBeforeDispatch(delayBeforeDispatch)
+                                                   .setAutoDelete(autoDelete)
+                                                   .setAutoDeleteDelay(autoDeleteDelay)
+                                                   .setAutoDeleteMessageCount(autoDeleteMessageCount)
+                                                   .setAutoCreateAddress(autoCreateAddress)
+                                                   .setRingSize(ringSize));
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String createQueue(String queueConfigurationAsJson) throws Exception {
+      return createQueue(queueConfigurationAsJson, false);
+   }
+
+   @Override
+   public String createQueue(String queueConfigurationAsJson, boolean ignoreIfExists) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createQueue(this.server, null, queueConfigurationAsJson, ignoreIfExists);
+      }
+      checkStarted();
+
+      clearIO();
+
+      try {
+         // when the QueueConfiguration is passed through createQueue all of its defaults get set which we return to the caller
+         QueueConfiguration queueConfiguration = QueueConfiguration.fromJSON(queueConfigurationAsJson);
+         if (queueConfiguration == null) {
+            throw ActiveMQMessageBundle.BUNDLE.failedToParseJson(queueConfigurationAsJson);
+         }
+         server.createQueue(queueConfiguration, ignoreIfExists);
+         return queueConfiguration.toJSON();
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String updateQueue(String queueConfigurationAsJson) throws Exception {
+
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.updateQueue(this.server, queueConfigurationAsJson);
+      }
+      checkStarted();
+
+      clearIO();
+
+      try {
+         QueueConfiguration queueConfiguration = QueueConfiguration.fromJSON(queueConfigurationAsJson);
+         if (queueConfiguration == null) {
+            throw ActiveMQMessageBundle.BUNDLE.failedToParseJson(queueConfigurationAsJson);
+         }
+         final Queue queue = server.updateQueue(queueConfiguration);
+         if (queue == null) {
+            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueConfiguration.getName());
+         }
+         return server.locateQueue(queueConfiguration.getName()).getQueueConfiguration().toJSON();
       } finally {
          blockOnIO();
       }

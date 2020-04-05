@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -67,9 +68,9 @@ public class QueueDestinationsResource {
             ClientSession.QueueQuery query = session.queueQuery(new SimpleString(queueName));
             if (!query.isExists()) {
                if (queue.getSelector() != null) {
-                  session.createQueue(queueName, queueName, queue.getSelector(), queue.isDurable());
+                  session.createQueue(new QueueConfiguration(queueName).setFilterString(queue.getSelector()).setDurable(queue.isDurable()));
                } else {
-                  session.createQueue(queueName, queueName, queue.isDurable());
+                  session.createQueue(new QueueConfiguration(queueName).setDurable(queue.isDurable()));
                }
 
             } else {

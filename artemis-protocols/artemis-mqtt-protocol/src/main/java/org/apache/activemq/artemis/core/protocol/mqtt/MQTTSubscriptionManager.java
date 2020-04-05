@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.FilterConstants;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -121,7 +122,7 @@ public class MQTTSubscriptionManager {
    private Queue findOrCreateQueue(BindingQueryResult bindingQueryResult, AddressInfo addressInfo, SimpleString queue, int qos) throws Exception {
 
       if (addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST)) {
-         return session.getServerSession().createQueue(addressInfo.getName(), queue, RoutingType.MULTICAST, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, false);
+         return session.getServerSession().createQueue(new QueueConfiguration(queue).setAddress(addressInfo.getName()).setFilterString(managementFilter).setDurable(MQTTUtil.DURABLE_MESSAGES && qos >= 0));
       }
 
       if (addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST)) {
@@ -137,7 +138,7 @@ public class MQTTSubscriptionManager {
             return session.getServer().locateQueue(name);
          } else {
             try {
-               return session.getServerSession().createQueue(addressInfo.getName(), addressInfo.getName(), RoutingType.ANYCAST, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, false);
+               return session.getServerSession().createQueue(new QueueConfiguration(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST).setFilterString(managementFilter).setDurable(MQTTUtil.DURABLE_MESSAGES && qos >= 0));
             } catch (ActiveMQQueueExistsException e) {
                return session.getServer().locateQueue(addressInfo.getName());
             }

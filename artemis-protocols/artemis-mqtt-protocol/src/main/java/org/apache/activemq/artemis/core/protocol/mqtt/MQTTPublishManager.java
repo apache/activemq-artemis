@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -101,7 +102,9 @@ public class MQTTPublishManager {
    private void createManagementQueue() throws Exception {
       Queue q = session.getServer().locateQueue(managementAddress);
       if (q == null) {
-         session.getServer().createQueue(managementAddress, RoutingType.ANYCAST, managementAddress, null, MQTTUtil.DURABLE_MESSAGES, false);
+         session.getServer().createQueue(new QueueConfiguration(managementAddress)
+                                            .setRoutingType(RoutingType.ANYCAST)
+                                            .setDurable(MQTTUtil.DURABLE_MESSAGES));
       }
    }
 

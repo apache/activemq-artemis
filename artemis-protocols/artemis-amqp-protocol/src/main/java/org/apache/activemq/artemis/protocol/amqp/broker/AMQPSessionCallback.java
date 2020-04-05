@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -252,7 +253,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                     RoutingType routingType,
                                     SimpleString filter) throws Exception {
       try {
-         serverSession.createQueue(address, queueName, routingType, filter, true, false);
+         serverSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter).setTemporary(true).setDurable(false));
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(se.getMessage());
       }
@@ -263,7 +264,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                           SimpleString queueName,
                                           SimpleString filter) throws Exception {
       try {
-         serverSession.createQueue(address, queueName, routingType, filter, false, true, 1, false, false);
+         serverSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter).setMaxConsumers(1));
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
       }
@@ -274,7 +275,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                         SimpleString queueName,
                                         SimpleString filter) throws Exception {
       try {
-         serverSession.createSharedQueue(address, queueName, routingType, filter, true, -1, false, false, false);
+         serverSession.createSharedQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
       } catch (ActiveMQQueueExistsException alreadyExists) {
          // nothing to be done.. just ignore it. if you have many consumers all doing the same another one probably already done it
       } catch (ActiveMQSecurityException se) {
@@ -287,7 +288,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                          SimpleString queueName,
                                          SimpleString filter) throws Exception {
       try {
-         serverSession.createSharedQueue(address, queueName, routingType, filter, false, -1, false, false, false);
+         serverSession.createSharedQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter).setDurable(false));
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
       } catch (ActiveMQQueueExistsException e) {
@@ -300,7 +301,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
       if (!queueQueryResult.isExists() && queueQueryResult.isAutoCreateQueues() && autoCreate) {
          try {
-            serverSession.createQueue(queueName, queueName, routingType, null, false, true, true);
+            serverSession.createQueue(new QueueConfiguration(queueName).setRoutingType(routingType).setAutoCreated(true));
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
@@ -342,7 +343,7 @@ public class AMQPSessionCallback implements SessionCallback {
          if (manager.getServer().locateQueue(unPrefixedAddress) == null) {
             if (addressSettings.isAutoCreateQueues()) {
                try {
-                  serverSession.createQueue(address, address, routingType, null, false, true, true);
+                  serverSession.createQueue(new QueueConfiguration(address).setRoutingType(routingType).setAutoCreated(true));
                } catch (ActiveMQQueueExistsException e) {
                   // The queue may have been created by another thread in the mean time.  Catch and do nothing.
                }

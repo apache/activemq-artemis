@@ -506,6 +506,7 @@ public interface ActiveMQServerControl {
     * @param name        name of the queue
     * @param routingType The routing type used for this address, MULTICAST or ANYCAST
     */
+   @Deprecated
    @Operation(desc = "Create a queue with the specified address", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -540,6 +541,7 @@ public interface ActiveMQServerControl {
     * @param durable     whether the queue is durable
     * @param routingType The routing type used for this address, MULTICAST or ANYCAST
     */
+   @Deprecated
    @Operation(desc = "Create a queue with the specified address, name and durability", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -558,6 +560,7 @@ public interface ActiveMQServerControl {
     * @param filter  of the queue
     * @param durable whether the queue is durable
     */
+   @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -577,6 +580,7 @@ public interface ActiveMQServerControl {
     * @param durable     whether the queue is durable
     * @param routingType The routing type used for this address, MULTICAST or ANYCAST
     */
+   @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -606,6 +610,7 @@ public interface ActiveMQServerControl {
     * @return a textual summary of the queue
     * @throws Exception
     */
+   @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -647,6 +652,7 @@ public interface ActiveMQServerControl {
     * @return a textual summary of the queue
     * @throws Exception
     */
+   @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -690,6 +696,7 @@ public interface ActiveMQServerControl {
     * @return a textual summary of the queue
     * @throws Exception
     */
+   @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -735,6 +742,7 @@ public interface ActiveMQServerControl {
     * @return a textual summary of the queue
     * @throws Exception
     */
+   @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -776,6 +784,7 @@ public interface ActiveMQServerControl {
     * @return a textual summary of the queue
     * @throws Exception
     */
+   @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -785,7 +794,42 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
                       @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean purgeOnNoConsumers,
                       @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
+   /**
+    * Create a queue.
+    * <br>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exists.
+    *
+    * @param queueConfiguration the configuration of the queue in JSON format
+    * @return the configuration of the created queue in JSON format
+    * @throws Exception
+    */
+   @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
+   String createQueue(@Parameter(name = "queueConfiguration", desc = "the configuration of the queue in JSON format") String queueConfiguration) throws Exception;
 
+   /**
+    * Create a queue.
+    * <br>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exists and {@code ignoreIfExists} is {@code false}.
+    *
+    * @param queueConfiguration the configuration of the queue in JSON format
+    * @param ignoreIfExists     whether or not to simply return without an exception if the queue exists
+    * @return the configuration of the created queue in JSON format
+    * @throws Exception
+    */
+   @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
+   String createQueue(@Parameter(name = "queueConfiguration", desc = "the configuration of the queue in JSON format") String queueConfiguration,
+                      @Parameter(name = "ignoreIfExists", desc = "whether or not to try to create the queue if it exists already") boolean ignoreIfExists) throws Exception;
+
+
+   /**
+    * Update a queue.
+    *
+    * @param queueConfiguration the configuration of the queue in JSON format
+    * @return the configuration of the created queue in JSON format
+    * @throws Exception
+    */
+   @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
+   String updateQueue(@Parameter(name = "queueConfiguration", desc = "the configuration of the queue in JSON format") String queueConfiguration) throws Exception;
 
    /**
     * Update a queue.
@@ -835,6 +879,7 @@ public interface ActiveMQServerControl {
     * @return
     * @throws Exception
     */
+   @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
    String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -861,6 +906,7 @@ public interface ActiveMQServerControl {
     * @return
     * @throws Exception
     */
+   @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
    String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -894,6 +940,7 @@ public interface ActiveMQServerControl {
     * @return
     * @throws Exception
     */
+   @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
    String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -929,6 +976,7 @@ public interface ActiveMQServerControl {
     * @return
     * @throws Exception
     */
+   @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
    String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -956,6 +1004,7 @@ public interface ActiveMQServerControl {
     * @param name    name of the queue
     * @param filter  of the queue
     */
+   @Deprecated
    @Operation(desc = "Deploy a queue", impact = MBeanOperationInfo.ACTION)
    void deployQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -973,6 +1022,7 @@ public interface ActiveMQServerControl {
     * @param filter  of the queue
     * @param durable whether the queue is durable
     */
+   @Deprecated
    @Operation(desc = "Deploy a queue", impact = MBeanOperationInfo.ACTION)
    void deployQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
