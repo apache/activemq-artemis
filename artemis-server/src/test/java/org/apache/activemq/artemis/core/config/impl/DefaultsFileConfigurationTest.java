@@ -62,7 +62,7 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest {
 
       Assert.assertEquals(Collections.emptyList(), conf.getClusterConfigurations());
 
-      Assert.assertEquals(Collections.emptyList(), conf.getQueueConfigurations());
+      Assert.assertEquals(Collections.emptyList(), conf.getQueueConfigs());
 
       Assert.assertEquals(Collections.emptyList(), conf.getAddressConfigurations());
 

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.paging;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -242,7 +243,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
                ClientSessionFactory factory = locator.createSessionFactory();
                ClientSession session = factory.createSession();
 
-               session.createQueue("new-queue", RoutingType.ANYCAST, "new-queue");
+               session.createQueue(new QueueConfiguration("new-queue").setRoutingType(RoutingType.ANYCAST));
 
                System.out.println("created queue");
 
@@ -286,8 +287,8 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
       ClientSession session = factory.createSession();
 
-      session.createQueue("myAddress", "DeadConsumer", true);
-      session.createQueue("myAddress", "cons2", true);
+      session.createQueue(new QueueConfiguration("DeadConsumer").setAddress("myAddress"));
+      session.createQueue(new QueueConfiguration("cons2").setAddress("myAddress"));
 
       startBackupInProcess();
 

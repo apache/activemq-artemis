@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.rest.test;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -68,7 +69,7 @@ public class RawAckTest {
 
       SimpleString addr = SimpleString.toSimpleString("testQueue");
       activeMQServer.addAddressInfo(new AddressInfo(addr, RoutingType.MULTICAST));
-      activeMQServer.createQueue(addr, RoutingType.MULTICAST, addr, null, false, false);
+      activeMQServer.createQueue(new QueueConfiguration(addr).setDurable(false));
       session = sessionFactory.createSession(true, true);
       producer = session.createProducer(addr);
       session.start();

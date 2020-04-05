@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -75,7 +76,7 @@ public class AddressControlTest extends ManagementTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, false);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
 
       AddressControl addressControl = createManagementControl(address);
 
@@ -102,14 +103,14 @@ public class AddressControlTest extends ManagementTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString anotherQueue = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       AddressControl addressControl = createManagementControl(address);
       String[] queueNames = addressControl.getQueueNames();
       Assert.assertEquals(1, queueNames.length);
       Assert.assertEquals(queue.toString(), queueNames[0]);
 
-      session.createQueue(address, anotherQueue, false);
+      session.createQueue(new QueueConfiguration(anotherQueue).setAddress(address).setDurable(false));
       queueNames = addressControl.getQueueNames();
       Assert.assertEquals(2, queueNames.length);
 
@@ -128,7 +129,7 @@ public class AddressControlTest extends ManagementTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       String divertName = RandomUtil.randomString();
 
-      session.createQueue(address, queue, false);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
 
       AddressControl addressControl = createManagementControl(address);
       String[] bindingNames = addressControl.getBindingNames();
@@ -153,7 +154,7 @@ public class AddressControlTest extends ManagementTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       Role role = new Role(RandomUtil.randomString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean());
 
-      session.createQueue(address, queue, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       AddressControl addressControl = createManagementControl(address);
       Object[] roles = addressControl.getRoles();
@@ -184,7 +185,7 @@ public class AddressControlTest extends ManagementTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       Role role = new Role(RandomUtil.randomString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean());
 
-      session.createQueue(address, queue, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       AddressControl addressControl = createManagementControl(address);
       String jsonString = addressControl.getRolesAsJSON();
@@ -232,7 +233,7 @@ public class AddressControlTest extends ManagementTestBase {
 
       session = sf2.createSession(false, true, false);
       session.start();
-      session.createQueue(address, address, true);
+      session.createQueue(new QueueConfiguration(address));
 
       QueueImpl serverQueue = (QueueImpl) server.locateQueue(address);
 
@@ -278,7 +279,7 @@ public class AddressControlTest extends ManagementTestBase {
    @Test
    public void testGetNumberOfBytesPerPage() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
-      session.createQueue(address, address, true);
+      session.createQueue(new QueueConfiguration(address));
 
       AddressControl addressControl = createManagementControl(address);
       Assert.assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressControl.getNumberOfBytesPerPage());
@@ -295,7 +296,7 @@ public class AddressControlTest extends ManagementTestBase {
       ClientSessionFactory sf2 = createSessionFactory(locator2);
 
       session = sf2.createSession(false, true, false);
-      session.createQueue(address, address, true);
+      session.createQueue(new QueueConfiguration(address));
       Assert.assertEquals(1024, addressControl.getNumberOfBytesPerPage());
    }
 
@@ -345,11 +346,11 @@ public class AddressControlTest extends ManagementTestBase {
       producer.send(session.createMessage(false));
       assertEquals(0, addressControl.getMessageCount());
 
-      session.createQueue(address, RoutingType.ANYCAST, address);
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 1, 2000, 100));
 
-      session.createQueue(address, RoutingType.ANYCAST, address.concat('2'));
+      session.createQueue(new QueueConfiguration(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 2, 2000, 100));
    }
@@ -367,12 +368,12 @@ public class AddressControlTest extends ManagementTestBase {
       assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 0, 2000, 100));
       assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
 
-      session.createQueue(address, RoutingType.ANYCAST, address);
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 1, 2000, 100));
       assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
 
-      session.createQueue(address, RoutingType.ANYCAST, address.concat('2'));
+      session.createQueue(new QueueConfiguration(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 2, 2000, 100));
       assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
@@ -391,7 +392,7 @@ public class AddressControlTest extends ManagementTestBase {
 
       AddressControl addressControl = createManagementControl(address);
       Assert.assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(address, RoutingType.ANYCAST, address);
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
       Assert.assertEquals(1, addressControl.getQueueNames().length);
       addressControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
 
@@ -413,7 +414,7 @@ public class AddressControlTest extends ManagementTestBase {
 
       AddressControl addressControl = createManagementControl(address);
       Assert.assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(address, RoutingType.ANYCAST, address);
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
       Assert.assertEquals(1, addressControl.getQueueNames().length);
       Map<String, String> headers = new HashMap<>();
       headers.put("myProp1", "myValue1");

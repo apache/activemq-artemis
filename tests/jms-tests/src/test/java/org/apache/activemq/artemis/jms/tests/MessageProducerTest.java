@@ -34,6 +34,7 @@ import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -712,7 +713,7 @@ public class MessageProducerTest extends JMSTestCase {
       EnumSet<RoutingType> supportedRoutingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
 
       servers.get(0).getActiveMQServer().addAddressInfo(new AddressInfo(addr, supportedRoutingTypes));
-      servers.get(0).getActiveMQServer().createQueue(addr, RoutingType.ANYCAST, addr, null, false, false);
+      servers.get(0).getActiveMQServer().createQueue(new QueueConfiguration(addr).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       Connection pconn = createConnection();
       pconn.start();

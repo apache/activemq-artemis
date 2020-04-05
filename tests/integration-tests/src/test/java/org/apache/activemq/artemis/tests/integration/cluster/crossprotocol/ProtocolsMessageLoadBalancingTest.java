@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -100,8 +101,9 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
    }
 
    private void createQueue(SimpleString queueName) throws Exception {
-      servers[0].createQueue(queueName, RoutingType.ANYCAST, queueName, (SimpleString) null, (SimpleString) null, true, false, false, false, false, -1, false, false, false, true);
-      servers[1].createQueue(queueName, RoutingType.ANYCAST, queueName, (SimpleString) null, (SimpleString) null, true, false, false, false, false, -1, false, false, false, true);
+      QueueConfiguration queueConfiguration = new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST);
+      servers[0].createQueue(queueConfiguration);
+      servers[1].createQueue(queueConfiguration);
    }
 
    protected boolean isNetty() {

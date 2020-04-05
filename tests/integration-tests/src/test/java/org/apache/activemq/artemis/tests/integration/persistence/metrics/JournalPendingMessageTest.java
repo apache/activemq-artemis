@@ -30,6 +30,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicSession;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -62,9 +63,7 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
       server.getPostOffice()
             .addAddressInfo(new AddressInfo(SimpleString.toSimpleString(defaultQueueName), RoutingType.ANYCAST));
 
-      server.createQueue(SimpleString.toSimpleString(defaultQueueName), RoutingType.ANYCAST,
-            SimpleString.toSimpleString(defaultQueueName), null, true, false);
-
+      server.createQueue(new QueueConfiguration(defaultQueueName).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Override

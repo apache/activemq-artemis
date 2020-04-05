@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -126,7 +127,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, true);
 
-      server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
+      server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       session.close();
 
@@ -940,10 +941,10 @@ public class ConsumerTest extends ActiveMQTestBase {
 
          sessions.add(session);
 
-         session.createQueue(QUEUE, QUEUE.concat("" + i), null, true);
+         session.createQueue(new QueueConfiguration(QUEUE.concat("" + i)).setAddress(QUEUE).setDurable(true));
 
          if (i == 0) {
-            session.createQueue(QUEUE_RESPONSE, QUEUE_RESPONSE);
+            session.createQueue(new QueueConfiguration(QUEUE_RESPONSE));
          }
 
          ClientConsumer consumer = session.createConsumer(QUEUE.concat("" + i));

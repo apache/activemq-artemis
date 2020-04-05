@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -127,7 +128,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       SimpleString jmsQueueName = new SimpleString("myqueue");
 
-      coreSession.createQueue(jmsQueueName, RoutingType.ANYCAST, jmsQueueName, null, true);
+      coreSession.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = sess.createQueue("myqueue");
 
@@ -202,7 +203,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       SimpleString jmsQueueName = new SimpleString("myqueue");
 
-      coreSessionLive.createQueue(jmsQueueName, RoutingType.ANYCAST, jmsQueueName, null, true);
+      coreSessionLive.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = sessLive.createQueue("myqueue");
 

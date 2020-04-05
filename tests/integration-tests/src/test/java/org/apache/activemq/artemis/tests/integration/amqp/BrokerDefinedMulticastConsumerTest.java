@@ -21,6 +21,7 @@ import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TO
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -42,7 +43,7 @@ public class BrokerDefinedMulticastConsumerTest extends AmqpClientTestSupport  {
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressSameName() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
-      server.createQueue(address, RoutingType.MULTICAST, address, null, true, false);
+      server.createQueue(new QueueConfiguration(address));
 
       sendMessages(address.toString(), 1);
 
@@ -87,7 +88,7 @@ public class BrokerDefinedMulticastConsumerTest extends AmqpClientTestSupport  {
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
       addressInfo.getRoutingTypes().add(RoutingType.ANYCAST);
       server.addAddressInfo(addressInfo);
-      server.createQueue(address, RoutingType.MULTICAST, address, null, true, false);
+      server.createQueue(new QueueConfiguration(address));
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

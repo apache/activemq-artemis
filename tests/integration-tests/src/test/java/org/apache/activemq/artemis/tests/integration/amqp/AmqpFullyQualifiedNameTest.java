@@ -26,6 +26,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -95,8 +96,8 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       String queue1 = "q1";
       String queue2 = "q2";
 
-      server.createQueue(SimpleString.toSimpleString(address1), RoutingType.ANYCAST, SimpleString.toSimpleString(queue1), null, true, false, -1, false, true);
-      server.createQueue(SimpleString.toSimpleString(address2), RoutingType.ANYCAST, SimpleString.toSimpleString(queue2), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(queue1).setAddress(address1).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(queue2).setAddress(address2).setRoutingType(RoutingType.ANYCAST));
 
       Exception e = null;
 
@@ -127,8 +128,8 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       String queue1 = "q1";
       String queue2 = "q2";
 
-      server.createQueue(SimpleString.toSimpleString(address1), RoutingType.MULTICAST, SimpleString.toSimpleString(queue1), null, true, false, -1, false, true);
-      server.createQueue(SimpleString.toSimpleString(address2), RoutingType.MULTICAST, SimpleString.toSimpleString(queue2), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(queue1).setAddress(address1));
+      server.createQueue(new QueueConfiguration(queue2).setAddress(address2));
 
       Exception e = null;
 
@@ -156,7 +157,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    public void testTopic() throws Exception {
 
       SimpleString queueName = new SimpleString("someAddress");
-      server.createQueue(multicastAddress, RoutingType.MULTICAST, queueName, null, false, false);
+      server.createQueue(new QueueConfiguration(queueName).setAddress(multicastAddress).setDurable(false));
       Connection connection = createConnection(false);
 
       try {
@@ -204,8 +205,8 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
       SimpleString queueName1 = new SimpleString("sub.queue1");
       SimpleString queueName2 = new SimpleString("sub.queue2");
-      server.createQueue(multicastAddress, RoutingType.MULTICAST, queueName1, null, false, false);
-      server.createQueue(multicastAddress, RoutingType.MULTICAST, queueName2, null, false, false);
+      server.createQueue(new QueueConfiguration(queueName1).setAddress(multicastAddress).setDurable(false));
+      server.createQueue(new QueueConfiguration(queueName2).setAddress(multicastAddress).setDurable(false));
       Connection connection = createConnection(false);
 
       try {
@@ -313,7 +314,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
     */
    @Test
    public void testQueueSpecial() throws Exception {
-      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ1, null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       Connection connection = createConnection();
       Exception expectedException = null;

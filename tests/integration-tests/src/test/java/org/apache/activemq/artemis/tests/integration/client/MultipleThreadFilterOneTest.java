@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -135,7 +136,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
          locator = createNonHALocator(isNetty);
          factory = locator.createSessionFactory();
          consumerSession = factory.createSession(false, false);
-         consumerSession.createQueue(ADDRESS, "Q" + nr, "prodNR=" + nr, true);
+         consumerSession.createQueue(new QueueConfiguration("Q" + nr).setAddress(ADDRESS).setFilterString("prodNR=" + nr));
          consumer = consumerSession.createConsumer("Q" + nr);
          consumerSession.start();
          this.nr = nr;

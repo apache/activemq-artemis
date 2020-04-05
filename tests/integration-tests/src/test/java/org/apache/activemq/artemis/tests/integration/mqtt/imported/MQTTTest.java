@@ -37,11 +37,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
@@ -1027,7 +1027,7 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Test(timeout = 60 * 1000)
    public void testClientConnectionFailureSendsWillMessage() throws Exception {
-      getServer().createQueue(SimpleString.toSimpleString("will"), RoutingType.MULTICAST, SimpleString.toSimpleString("will"), null, true, false);
+      getServer().createQueue(new QueueConfiguration("will"));
 
       MQTT mqtt = createMQTTConnection("1", false);
       mqtt.setKeepAlive((short) 1);
@@ -1053,7 +1053,7 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Test(timeout = 60 * 1000)
    public void testWillMessageIsRetained() throws Exception {
-      getServer().createQueue(SimpleString.toSimpleString("will"), RoutingType.MULTICAST, SimpleString.toSimpleString("will"), null, true, false);
+      getServer().createQueue(new QueueConfiguration("will"));
 
       MQTT mqtt = createMQTTConnection("1", false);
       mqtt.setKeepAlive((short) 1);
@@ -1746,7 +1746,7 @@ public class MQTTTest extends MQTTTestSupport {
          SimpleString coreAddress = new SimpleString("foo.bar");
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
-         getServer().createQueue(coreAddress, RoutingType.MULTICAST, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false, true);
+         getServer().createQueue(new QueueConfiguration(new SimpleString(clientId + "." + coreAddress)).setAddress(coreAddress).setRoutingType(RoutingType.MULTICAST).setDurable(false).setTemporary(true).setMaxConsumers(0));
 
          MQTT mqtt = createMQTTConnection();
          mqtt.setClientId(clientId);
@@ -1900,15 +1900,12 @@ public class MQTTTest extends MQTTTestSupport {
    public void testBrokerRestartAfterSubHashWithConfigurationQueues() throws Exception {
 
       // Add some pre configured queues
-      CoreQueueConfiguration coreQueueConfiguration = new CoreQueueConfiguration();
-      coreQueueConfiguration.setName("DLQ");
-      coreQueueConfiguration.setRoutingType(RoutingType.ANYCAST);
-      coreQueueConfiguration.setAddress("DLA");
-
       CoreAddressConfiguration coreAddressConfiguration = new CoreAddressConfiguration();
       coreAddressConfiguration.setName("DLA");
       coreAddressConfiguration.addRoutingType(RoutingType.ANYCAST);
-      coreAddressConfiguration.addQueueConfiguration(coreQueueConfiguration);
+      coreAddressConfiguration.addQueueConfiguration(new QueueConfiguration("DLQ")
+                                                        .setAddress("DLA")
+                                                        .setRoutingType(RoutingType.ANYCAST));
 
       getServer().getConfiguration().getAddressConfigurations().add(coreAddressConfiguration);
 

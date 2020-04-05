@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.HashMap;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -70,7 +70,7 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
       createSessionFactory();
       ClientSession session = createSession(sf, true, true);
 
-      session.createQueue(FailoverTestBase.ADDRESS, RoutingType.MULTICAST, FailoverTestBase.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 

@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import io.micrometer.core.instrument.Measurement;
 import io.micrometer.core.instrument.Meter;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -99,7 +100,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
-      session.createQueue(addressName, RoutingType.ANYCAST, queueName, null, true);
+      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
 
       Map<Meter.Id, Double> metrics = getMetrics();
       List<Metric> artemisMetrics = metrics.entrySet().stream()
@@ -150,7 +151,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
 
-      session.createQueue(addressName, RoutingType.ANYCAST, queueName, null, true);
+      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer(addressName);
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString(data);

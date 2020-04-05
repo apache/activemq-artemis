@@ -17,18 +17,18 @@
 
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSContext;
 import javax.jms.Message;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -48,8 +48,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.ANYCAST)
-         .addQueueConfiguration(new CoreQueueConfiguration()
-                                   .setName("myQueue")
+         .addQueueConfiguration(new QueueConfiguration("myQueue")
                                    .setAddress("myAddress")
                                    .setRoutingType(RoutingType.ANYCAST));
       addressConfigurations.add(addressConfiguration);
@@ -69,8 +68,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.MULTICAST)
-         .addQueueConfiguration(new CoreQueueConfiguration()
-                                   .setName("myQueue")
+         .addQueueConfiguration(new QueueConfiguration("myQueue")
                                    .setAddress("myAddress")
                                    .setRoutingType(RoutingType.MULTICAST));
       addressConfigurations.clear();
@@ -101,8 +99,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.ANYCAST)
-         .addQueueConfiguration(new CoreQueueConfiguration()
-                                   .setName("myQueue")
+         .addQueueConfiguration(new QueueConfiguration("myQueue")
                                    .setAddress("myAddress")
                                    .setFilterString(filter1)
                                    .setRoutingType(RoutingType.ANYCAST));
@@ -123,8 +120,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.ANYCAST)
-         .addQueueConfiguration(new CoreQueueConfiguration()
-                                   .setName("myQueue")
+         .addQueueConfiguration(new QueueConfiguration("myQueue")
                                    .setAddress("myAddress")
                                    .setFilterString(filter2)
                                    .setRoutingType(RoutingType.ANYCAST));

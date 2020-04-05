@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.persistence;
 
 import java.io.StringReader;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -81,7 +82,7 @@ public class ExportFormatTest extends ActiveMQTestBase {
 
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, false, false);
-      session.createQueue("A1", "A1", true);
+      session.createQueue(new QueueConfiguration("A1"));
 
       ClientProducer producer = session.createProducer("A1");
       for (int i = 0; i < 5; i++) {

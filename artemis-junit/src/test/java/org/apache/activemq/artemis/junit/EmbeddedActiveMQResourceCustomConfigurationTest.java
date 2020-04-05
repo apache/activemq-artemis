@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.junit;
 
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.After;
@@ -37,7 +37,7 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
    static final String TEST_QUEUE = "test.queue";
    static final String TEST_ADDRESS = "test.address";
 
-   CoreQueueConfiguration queueConfiguration = new CoreQueueConfiguration().setAddress(TEST_ADDRESS).setName(TEST_QUEUE);
+   QueueConfiguration queueConfiguration = new QueueConfiguration(TEST_QUEUE).setAddress(TEST_ADDRESS);
    Configuration customConfiguration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(true).addQueueConfiguration(queueConfiguration);
 
    private EmbeddedActiveMQResource server = new EmbeddedActiveMQResource(customConfiguration);

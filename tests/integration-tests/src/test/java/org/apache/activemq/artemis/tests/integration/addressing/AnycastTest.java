@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.addressing;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -66,8 +67,8 @@ public class AnycastTest extends ActiveMQTestBase {
    @Test
    public void testTxCommitReceive() throws Exception {
 
-      Queue q1 = server.createQueue(baseAddress, RoutingType.ANYCAST, baseAddress.concat(".1"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
-      Queue q2 = server.createQueue(baseAddress, RoutingType.ANYCAST, baseAddress.concat(".2"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
+      Queue q1 = server.createQueue(new QueueConfiguration(baseAddress.concat(".1")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q2 = server.createQueue(new QueueConfiguration(baseAddress.concat(".2")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
 
       ClientSession session = sessionFactory.createSession(false, false);
       session.start();
@@ -113,8 +114,8 @@ public class AnycastTest extends ActiveMQTestBase {
    @Test
    public void testTxRollbackReceive() throws Exception {
 
-      Queue q1 = server.createQueue(baseAddress, RoutingType.ANYCAST, baseAddress.concat(".1"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
-      Queue q2 = server.createQueue(baseAddress, RoutingType.ANYCAST, baseAddress.concat(".2"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
+      Queue q1 = server.createQueue(new QueueConfiguration(baseAddress.concat(".1")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q2 = server.createQueue(new QueueConfiguration(baseAddress.concat(".2")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
 
       ClientSession session = sessionFactory.createSession(false, false);
       session.start();

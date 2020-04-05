@@ -21,6 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -419,7 +420,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(factory.createSession(false, false, false));
       try {
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
       } catch (ActiveMQException expected) {
          // in case of restart
       }

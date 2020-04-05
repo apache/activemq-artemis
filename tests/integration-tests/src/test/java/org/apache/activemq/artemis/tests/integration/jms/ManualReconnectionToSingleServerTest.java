@@ -31,10 +31,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -136,7 +136,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
       Configuration configuration = new ConfigurationImpl();
 
-      configuration.getQueueConfigurations().add(new CoreQueueConfiguration().setName(QUEUE_NAME));
+      configuration.getQueueConfigs().add(new QueueConfiguration(QUEUE_NAME));
 
       ArrayList<TransportConfiguration> configs = new ArrayList<>();
       configs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));

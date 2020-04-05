@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -127,7 +128,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
       // then we create a client as normal
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
-      session.createQueue(atestq, atestq, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
       ClientProducer producer = session.createProducer(atestq);
       ClientMessage message = createDurableMessage(session, "m1");
       long time = System.currentTimeMillis();
@@ -162,8 +163,8 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
       // then we create a client as normal
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
-      session.createQueue(atestq, atestq, null, true);
-      session.createQueue(atestq, atestq2, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
+      session.createQueue(new QueueConfiguration(atestq2).setAddress(atestq));
       ClientProducer producer = session.createProducer(atestq);
       ClientMessage message = createDurableMessage(session, "m1");
       producer.send(message);
@@ -214,8 +215,8 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
       // then we create a client as normal
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
-      session.createQueue(atestq, atestq, null, true);
-      session.createQueue(atestq, atestq2, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
+      session.createQueue(new QueueConfiguration(atestq2).setAddress(atestq));
       ClientProducer producer = session.createProducer(atestq);
       ClientMessage message = createDurableMessage(session, "m1");
       producer.send(message);
@@ -275,7 +276,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
       // then we create a client as normal
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
-      session.createQueue(atestq, atestq, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
       ClientProducer producer = session.createProducer(atestq);
       ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString("testINVMCoreClient");
@@ -318,7 +319,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
-      session.createQueue(atestq, atestq, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
       ClientProducer producer = session.createProducer(atestq);
       ClientMessage m1 = createDurableMessage(session, "m1");
       ClientMessage m2 = createDurableMessage(session, "m2");
@@ -396,7 +397,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
-      session.createQueue(atestq, atestq, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
       ClientProducer producer = session.createProducer(atestq);
       ClientMessage m1 = createDurableMessage(session, "m1");
       ClientMessage m2 = createDurableMessage(session, "m2");
@@ -476,7 +477,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
-      session.createQueue(atestq, atestq, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
       ClientProducer producer = session.createProducer(atestq);
       long time = System.currentTimeMillis();
       time += 1000;
@@ -512,7 +513,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
-      session.createQueue(atestq, atestq, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
       ClientProducer producer = session.createProducer(atestq);
       ClientMessage m1 = createDurableMessage(session, "m1");
       ClientMessage m2 = createDurableMessage(session, "m2");
@@ -584,7 +585,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(true, false, false);
-      session.createQueue(atestq, atestq, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
       session.start(xid, XAResource.TMNOFLAGS);
       ClientProducer producer = session.createProducer(atestq);
       ClientMessage message = createDurableMessage(session, "testINVMCoreClient");
@@ -635,7 +636,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(true, false, false);
-      session.createQueue(atestq, atestq, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
 
       ClientProducer producer = session.createProducer(atestq);
 
@@ -711,7 +712,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(atestq, atestq, true);
+      session.createQueue(new QueueConfiguration(atestq));
 
       ClientProducer producer = session.createProducer(atestq);
       for (int i = 0; i < 100; i++) {
@@ -808,7 +809,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(tx, false, false);
-      session.createQueue(atestq, atestq, null, true);
+      session.createQueue(new QueueConfiguration(atestq));
       ClientProducer producer = session.createProducer(atestq);
       ClientConsumer consumer = session.createConsumer(atestq);
 

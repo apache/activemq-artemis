@@ -30,6 +30,7 @@ import javax.management.remote.JMXServiceURL;
 import com.google.common.collect.ImmutableMap;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
@@ -85,7 +86,7 @@ public class JmxServerControlTest extends SmokeTestBase {
          String addressName = "test_list_consumers_address";
          String queueName = "test_list_consumers_queue";
          activeMQServerControl.createAddress(addressName, RoutingType.ANYCAST.name());
-         activeMQServerControl.createQueue(addressName, queueName, RoutingType.ANYCAST.name());
+         activeMQServerControl.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).toJSON());
          String uri = "tcp://localhost:61616";
          try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null)) {
             MessageConsumer consumer = cf.createConnection().createSession(true, Session.SESSION_TRANSACTED).createConsumer(new ActiveMQQueue(queueName));

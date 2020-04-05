@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -165,8 +166,8 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, true, 0);
 
-      session.createQueue("queue", "queue1", true);
-      session.createQueue("queue", "queue2", true);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("queue"));
+      session.createQueue(new QueueConfiguration("queue2").setAddress("queue"));
 
       ClientProducer prod = session.createProducer("queue");
 

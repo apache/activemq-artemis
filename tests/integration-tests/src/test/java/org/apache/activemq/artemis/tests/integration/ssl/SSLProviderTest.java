@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -67,7 +68,7 @@ public class SSLProviderTest extends SSLTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator(uri.toString()));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE);
+      session.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
 
       ClientMessage message = createTextMessage(session, text);

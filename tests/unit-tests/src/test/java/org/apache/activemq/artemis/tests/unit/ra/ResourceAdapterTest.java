@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -436,7 +437,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          ClientSessionFactory factory = createSessionFactory(locator);
          ClientSession session = factory.createSession(false, false, false);
          ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-         session.createQueue(queue.getSimpleAddress(), queue.getSimpleAddress(), true);
+         session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
          session.close();
 
          ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -27,7 +28,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.tests.integration.cluster.util.MultiServerTestBase;
@@ -56,8 +56,8 @@ public class BridgeFailoverTest extends MultiServerTestBase {
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
       for (ActiveMQServer server : servers) {
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(ORIGINAL_QUEUE).setName(ORIGINAL_QUEUE));
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(TARGET_QUEUE).setName(TARGET_QUEUE));
+         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(ORIGINAL_QUEUE));
+         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE));
       }
 
       startServers();
@@ -124,8 +124,8 @@ public class BridgeFailoverTest extends MultiServerTestBase {
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
       for (ActiveMQServer server : servers) {
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(ORIGINAL_QUEUE).setName(ORIGINAL_QUEUE));
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(TARGET_QUEUE).setName(TARGET_QUEUE));
+         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(ORIGINAL_QUEUE));
+         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE));
       }
 
       startServers();
@@ -227,8 +227,8 @@ public class BridgeFailoverTest extends MultiServerTestBase {
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
       for (ActiveMQServer server : servers) {
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(ORIGINAL_QUEUE).setName(ORIGINAL_QUEUE));
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(TARGET_QUEUE).setName(TARGET_QUEUE));
+         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(ORIGINAL_QUEUE));
+         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE));
       }
 
       startBackups(0, 1, 3, 4);

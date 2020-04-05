@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.soak.client;
 
 import java.util.HashMap;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -75,7 +76,7 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession();
 
-      session.createQueue(SimpleSendReceiveSoakTest.ADDRESS, SimpleSendReceiveSoakTest.ADDRESS, true);
+      session.createQueue(new QueueConfiguration(SimpleSendReceiveSoakTest.ADDRESS));
 
       session.close();
    }

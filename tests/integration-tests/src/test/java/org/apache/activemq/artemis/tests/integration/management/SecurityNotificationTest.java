@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -112,7 +113,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
 
       long start = System.currentTimeMillis();
       try {
-         guestSession.createQueue(address, queue, true);
+         guestSession.createQueue(new QueueConfiguration(queue).setAddress(address));
          Assert.fail("session creation must fail and a notification of security violation must be sent");
       } catch (Exception e) {
       }
@@ -153,7 +154,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
 
-      guestSession.createQueue(address, RoutingType.ANYCAST, queue, true);
+      guestSession.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       SecurityNotificationTest.flush(notifConsumer);
 
       long start = System.currentTimeMillis();
@@ -204,7 +205,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       adminSession = sf.createSession("admin", "admin", false, true, true, false, 1);
       adminSession.start();
 
-      adminSession.createTemporaryQueue(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue);
+      adminSession.createQueue(new QueueConfiguration(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false).setTemporary(true));
 
       notifConsumer = adminSession.createConsumer(notifQueue);
    }

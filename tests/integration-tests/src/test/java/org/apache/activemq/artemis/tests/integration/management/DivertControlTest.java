@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -73,13 +73,13 @@ public class DivertControlTest extends ManagementTestBase {
    @Test
    public void testRetroactiveResourceAttribute() throws Exception {
       String address = RandomUtil.randomString();
-      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
-      CoreQueueConfiguration forwardQueueConfig = new CoreQueueConfiguration().setAddress(address).setName(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration queueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration forwardQueueConfig = new QueueConfiguration(RandomUtil.randomString()).setAddress(address).setDurable(false);
 
       divertConfig = new DivertConfiguration()
          .setName(ResourceNames.getRetroactiveResourceDivertName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), SimpleString.toSimpleString(address)).toString())
-         .setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress())
-         .setForwardingAddress(forwardQueueConfig.getAddress())
+         .setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress().toString())
+         .setForwardingAddress(forwardQueueConfig.getAddress().toString())
          .setExclusive(RandomUtil.randomBoolean())
          .setTransformerConfiguration(new TransformerConfiguration(AddHeadersTransformer.class.getName()));
 
@@ -101,15 +101,25 @@ public class DivertControlTest extends ManagementTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
-      CoreQueueConfiguration forwardQueueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration queueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration forwardQueueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
 
-      divertConfig = new DivertConfiguration().setName(RandomUtil.randomString()).setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress()).setForwardingAddress(forwardQueueConfig.getAddress()).setExclusive(RandomUtil.randomBoolean()).
-         setTransformerConfiguration(new TransformerConfiguration(AddHeadersTransformer.class.getName()));
+      divertConfig = new DivertConfiguration()
+         .setName(RandomUtil.randomString())
+         .setRoutingName(RandomUtil.randomString())
+         .setAddress(queueConfig.getAddress().toString())
+         .setForwardingAddress(forwardQueueConfig.getAddress().toString())
+         .setExclusive(RandomUtil.randomBoolean())
+         .setTransformerConfiguration(new TransformerConfiguration(AddHeadersTransformer.class.getName()));
 
       TransportConfiguration connectorConfig = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
-      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true).addQueueConfiguration(queueConfig).addQueueConfiguration(forwardQueueConfig).addDivertConfiguration(divertConfig).addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
+      Configuration config = createDefaultInVMConfig()
+         .setJMXManagementEnabled(true)
+         .addQueueConfiguration(queueConfig)
+         .addQueueConfiguration(forwardQueueConfig)
+         .addDivertConfiguration(divertConfig)
+         .addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
 
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false));
       server.start();

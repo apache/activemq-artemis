@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -115,7 +116,7 @@ public class AuditLoggerTest extends ManagementTestBase {
       final AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
 
       Assert.assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(address, RoutingType.ANYCAST, address);
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
       Assert.assertEquals(1, addressControl.getQueueNames().length);
       String uniqueStr = Base64.encodeBytes(UUID.randomUUID().toString().getBytes());
       addressControl.sendMessage(null, Message.BYTES_TYPE, uniqueStr, false, null, null);
@@ -133,7 +134,7 @@ public class AuditLoggerTest extends ManagementTestBase {
 
       Assert.assertEquals(1, addressControl.getQueueNames().length);
 
-      session.createQueue(address, RoutingType.ANYCAST, address);
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       Wait.waitFor(() -> addressControl2.getQueueNames().length == 1);
 
       try {
@@ -169,7 +170,7 @@ public class AuditLoggerTest extends ManagementTestBase {
       final AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
 
       Assert.assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(address, RoutingType.ANYCAST, address);
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
       Assert.assertEquals(1, addressControl.getQueueNames().length);
       String uniqueStr = Base64.encodeBytes(UUID.randomUUID().toString().getBytes());
       addressControl.sendMessage(null, Message.BYTES_TYPE, uniqueStr, false, null, null);

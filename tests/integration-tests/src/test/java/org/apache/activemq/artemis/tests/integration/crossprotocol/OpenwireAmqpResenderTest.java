@@ -25,6 +25,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -62,11 +63,9 @@ public class OpenwireAmqpResenderTest extends ActiveMQTestBase {
       serverConfig.setSecurityEnabled(false);
       server.start();
 
-      SimpleString coreQueueZero = new SimpleString(QUEUE_ZERO_NAME);
-      server.createQueue(coreQueueZero, RoutingType.ANYCAST, coreQueueZero, null, false, false);
+      server.createQueue(new QueueConfiguration(QUEUE_ZERO_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
-      SimpleString coreQueueOne = new SimpleString(QUEUE_ONE_NAME);
-      server.createQueue(coreQueueOne, RoutingType.ANYCAST, coreQueueOne, null, false, false);
+      server.createQueue(new QueueConfiguration(QUEUE_ONE_NAME).setRoutingType(RoutingType.ANYCAST).setDurable(false));
    }
 
    @Override

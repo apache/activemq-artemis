@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -119,7 +120,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession sess = csf.createSession();
-      sess.createQueue("flowcontrol", RoutingType.ANYCAST, "flowcontrol", true);
+      sess.createQueue(new QueueConfiguration("flowcontrol").setRoutingType(RoutingType.ANYCAST));
       sess.close();
 
       int i = 0;
@@ -231,7 +232,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession sess = csf.createSession();
-      sess.createQueue("flowcontrol", RoutingType.ANYCAST, "flowcontrol", true);
+      sess.createQueue(new QueueConfiguration("flowcontrol").setRoutingType(RoutingType.ANYCAST));
 
       PagingStore store = liveServer.getPagingManager().getPageStore(SimpleString.toSimpleString("flowcontrol"));
       store.startPaging();

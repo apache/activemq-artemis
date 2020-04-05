@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -192,7 +193,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
    private void createDestination(final ClientSessionFactory factory, final SimpleString adr) throws ActiveMQException {
       {
          ClientSession session = factory.createSession(false, false, false);
-         session.createQueue(adr, adr, null, true);
+         session.createQueue(new QueueConfiguration(adr));
          session.close();
       }
    }

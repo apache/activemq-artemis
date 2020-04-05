@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -69,7 +70,7 @@ public class String64KLimitTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, false);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientConsumer consumer = session.createConsumer(queue);
@@ -133,7 +134,7 @@ public class String64KLimitTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, false);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientConsumer consumer = session.createConsumer(queue);

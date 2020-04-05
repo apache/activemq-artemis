@@ -67,10 +67,13 @@ public class ConsumerPriorityTest extends JMSTestBase {
 
          ActiveMQDestination b = (ActiveMQDestination) queue1;
          assertEquals(3, b.getQueueAttributes().getConsumerPriority().intValue());
+         assertEquals(3, b.getQueueConfiguration().getConsumerPriority().intValue());
          ActiveMQDestination c = (ActiveMQDestination) queue2;
          assertEquals(2, c.getQueueAttributes().getConsumerPriority().intValue());
+         assertEquals(2, c.getQueueConfiguration().getConsumerPriority().intValue());
          ActiveMQDestination d = (ActiveMQDestination) queue3;
          assertEquals(1, d.getQueueAttributes().getConsumerPriority().intValue());
+         assertEquals(1, d.getQueueConfiguration().getConsumerPriority().intValue());
 
          MessageProducer producer = session.createProducer(queue);
 

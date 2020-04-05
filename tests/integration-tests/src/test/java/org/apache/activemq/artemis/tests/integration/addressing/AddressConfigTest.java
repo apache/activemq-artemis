@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.integration.addressing;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -44,7 +45,7 @@ public class AddressConfigTest extends ActiveMQTestBase {
 
    @Test
    public void persistAddressConfigTest() throws Exception {
-      server.createQueue(SimpleString.toSimpleString("myAddress"), RoutingType.MULTICAST, SimpleString.toSimpleString("myQueue"), null, true, false);
+      server.createQueue(new QueueConfiguration("myQueue").setAddress("myAddress"));
       server.stop();
       server.start();
       AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString("myAddress"));

@@ -60,6 +60,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -1063,7 +1064,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       Connection exConn = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
+      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -1105,7 +1106,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       Connection exConn = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
+      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -1142,7 +1143,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       Connection openConn = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
+      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
 
@@ -1182,7 +1183,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       Connection conn1 = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
+      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -249,7 +250,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
 
          queueName = UUIDGenerator.getInstance().generateStringUUID();
 
-         session.createQueue(dest, RoutingType.ANYCAST, queueName);
+         session.createQueue(new QueueConfiguration(queueName).setAddress(dest).setRoutingType(RoutingType.ANYCAST));
 
          consumer = session.createConsumer(queueName);
 

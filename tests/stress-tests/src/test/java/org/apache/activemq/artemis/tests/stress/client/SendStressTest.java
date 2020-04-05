@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.stress.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -23,7 +24,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -68,7 +68,7 @@ public class SendStressTest extends ActiveMQTestBase {
 
          session = sf.createSession(false, false);
 
-         session.createQueue("address", RoutingType.MULTICAST, "queue");
+         session.createQueue(new QueueConfiguration("queue").setAddress("address"));
 
          ClientProducer producer = session.createProducer("address");
 

@@ -16,22 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.interop;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.amqp.JMSClientTestSupport;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.JmsTopic;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
 
 public class AmqpCoreTest extends JMSClientTestSupport {
 
@@ -55,9 +55,9 @@ public class AmqpCoreTest extends JMSClientTestSupport {
       try {
          Session session = coreJmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          ClientSession coreSession = ((ActiveMQSession) session).getCoreSession();
-         coreSession.createQueue("exampleQueueAddress", RoutingType.MULTICAST, "exampleQueue1");
-         coreSession.createQueue("exampleQueueAddress", RoutingType.MULTICAST, "exampleQueue2");
-         coreSession.createQueue("exampleQueueAddress", RoutingType.MULTICAST, "exampleQueue3");
+         coreSession.createQueue(new QueueConfiguration("exampleQueue1").setAddress("exampleQueueAddress"));
+         coreSession.createQueue(new QueueConfiguration("exampleQueue2").setAddress("exampleQueueAddress"));
+         coreSession.createQueue(new QueueConfiguration("exampleQueue3").setAddress("exampleQueueAddress"));
 
          ClientConsumer consumer1 = coreSession.createConsumer("exampleQueue1");
          CoreMessageHandler handler1 = new CoreMessageHandler(1);

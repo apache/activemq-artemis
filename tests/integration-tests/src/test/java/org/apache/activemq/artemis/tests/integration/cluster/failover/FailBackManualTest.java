@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -128,7 +129,7 @@ public class FailBackManualTest extends FailoverTestBase {
       ClientSession session = sf.createSession(false, true, true);
 
       if (createQueue) {
-         session.createQueue(ADDRESS, ADDRESS, null, false);
+         session.createQueue(new QueueConfiguration(ADDRESS).setDurable(false));
       }
 
       ClientProducer producer = session.createProducer(ADDRESS);

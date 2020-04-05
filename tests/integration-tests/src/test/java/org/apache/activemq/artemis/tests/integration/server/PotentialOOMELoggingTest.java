@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.server;
 
 import java.util.UUID;
 
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
@@ -43,7 +43,7 @@ public class PotentialOOMELoggingTest extends ActiveMQTestBase {
     */ public void testBlockLogging() throws Exception {
       ActiveMQServer server = createServer(false, createDefaultInVMConfig());
       for (int i = 0; i < 10000; i++) {
-         server.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setAddress(UUID.randomUUID().toString()).setName(UUID.randomUUID().toString()));
+         server.getConfiguration().addQueueConfiguration(new QueueConfiguration(UUID.randomUUID().toString()));
       }
       server.getConfiguration().setGlobalMaxSize(-1);
       server.getConfiguration().getAddressesSettings().put("#", new AddressSettings().setMaxSizeBytes(10485760 * 10));

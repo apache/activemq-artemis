@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -1084,7 +1085,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       String queueName = "TestQueueName";
       String address = "TestAddress";
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(address), RoutingType.ANYCAST));
-      server.createQueue(new SimpleString(address), RoutingType.ANYCAST, new SimpleString(queueName), null, true, false);
+      server.createQueue(new QueueConfiguration(new SimpleString(queueName)).setAddress(new SimpleString(address)).setRoutingType(RoutingType.ANYCAST));
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

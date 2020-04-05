@@ -112,7 +112,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testHangOnDelivery() throws Exception {
-      queue = server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
+      queue = server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
       try {
 
          ClientSessionFactory factory = locator.createSessionFactory();
@@ -273,15 +273,13 @@ public class HangConsumerTest extends ActiveMQTestBase {
          }
       }
 
-      LocalFactory queueFactory =
-               new LocalFactory(server.getExecutorFactory(), server.getScheduledPool(),
-                                server.getAddressSettingsRepository(), server.getStorageManager(), server);
+      LocalFactory queueFactory = new LocalFactory(server.getExecutorFactory(), server.getScheduledPool(), server.getAddressSettingsRepository(), server.getStorageManager(), server);
 
       queueFactory.setPostOffice(server.getPostOffice());
 
       ((ActiveMQServerImpl) server).replaceQueueFactory(queueFactory);
 
-      queue = server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
+      queue = server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       blocked.acquire();
 
@@ -309,7 +307,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       Assert.assertTrue(latchDelete.await(10, TimeUnit.SECONDS));
 
       try {
-         server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
+         server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
       } catch (Exception expected) {
       }
 
@@ -337,7 +335,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
     */
    @Test
    public void testForceDuplicationOnBindings() throws Exception {
-      queue = server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
+      queue = server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
@@ -371,7 +369,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
    // An exception during delivery shouldn't make the message disappear
    @Test
    public void testExceptionWhileDelivering() throws Exception {
-      queue = server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
+      queue = server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       HangInterceptor hangInt = new HangInterceptor();
       try {
@@ -425,7 +423,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       try {
          for (int i = 0; i < 5; i++) {
             if (server.locateQueue(SimpleString.toSimpleString("tt")) == null) {
-               server.createQueue(SimpleString.toSimpleString("tt"), RoutingType.ANYCAST, SimpleString.toSimpleString("tt"), SimpleString.toSimpleString(Filter.GENERIC_IGNORED_FILTER), true, false);
+               server.createQueue(new QueueConfiguration("tt").setRoutingType(RoutingType.ANYCAST).setFilterString(Filter.GENERIC_IGNORED_FILTER));
             }
 
             server.stop();

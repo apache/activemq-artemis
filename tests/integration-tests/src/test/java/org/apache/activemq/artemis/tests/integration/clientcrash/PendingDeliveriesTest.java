@@ -25,6 +25,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -42,7 +43,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
    @Before
    public void createQueue() throws Exception {
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("queue1"), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString("queue1"), RoutingType.ANYCAST, SimpleString.toSimpleString("queue1"), null, true, false);
+      server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST));
    }
 
    @After

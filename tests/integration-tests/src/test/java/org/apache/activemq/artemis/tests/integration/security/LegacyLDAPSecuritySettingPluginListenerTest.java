@@ -34,6 +34,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -164,7 +165,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       String name = "queue1";
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
       ClientSession session2 = cf.createSession("second", "secret", false, true, true, false, 0);
-      session.createQueue(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name));
+      session.createQueue(new QueueConfiguration(name));
       ClientProducer producer = session.createProducer();
       ClientProducer producer2 = session2.createProducer();
       producer.send(name, session.createMessage(true));
@@ -202,7 +203,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       String queue = "queue1";
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
       ClientSession session2 = cf.createSession("second", "secret", false, true, true, false, 0);
-      session.createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue));
+      session.createQueue(new QueueConfiguration(queue));
       ClientConsumer consumer = session.createConsumer(queue);
       consumer.receiveImmediate();
       consumer.close();
@@ -240,7 +241,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue2";
-      server.createQueue(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, SimpleString.toSimpleString(queue), null, false, false);
+      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
       ClientConsumer consumer;
@@ -282,7 +283,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue2";
-      server.createQueue(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, SimpleString.toSimpleString(queue), null, false, false);
+      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
       ClientProducer producer = session.createProducer(SimpleString.toSimpleString(queue));
@@ -323,7 +324,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue1";
-      server.createQueue(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, SimpleString.toSimpleString(queue), null, false, false);
+      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientSessionFactory cf = locator.createSessionFactory();
 
       // authentication should fail

@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -213,7 +214,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
       final String queueName = "testqueue";
 
       for (int i = 0; i < numConsumers; i++) {
-         session.createQueue(address, new SimpleString(queueName + i), null, false);
+         session.createQueue(new QueueConfiguration(new SimpleString(queueName + i)).setAddress(address).setDurable(false));
       }
 
       final byte[] bytes = RandomUtil.randomBytes(messageSize);
@@ -326,7 +327,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       final SimpleString queueName = new SimpleString("testqueue");
 
-      session.createQueue(address, queueName, null, false);
+      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
 
@@ -414,11 +415,11 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true, true);
 
-      session.createQueue("address", "queue1", null, false);
-      session.createQueue("address", "queue2", null, false);
-      session.createQueue("address", "queue3", null, false);
-      session.createQueue("address", "queue4", null, false);
-      session.createQueue("address", "queue5", null, false);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
+      session.createQueue(new QueueConfiguration("queue2").setAddress("address").setDurable(false));
+      session.createQueue(new QueueConfiguration("queue3").setAddress("address").setDurable(false));
+      session.createQueue(new QueueConfiguration("queue4").setAddress("address").setDurable(false));
+      session.createQueue(new QueueConfiguration("queue5").setAddress("address").setDurable(false));
 
       ClientConsumer consumer1 = session.createConsumer("queue1");
       ClientConsumer consumer2 = session.createConsumer("queue2");
@@ -476,7 +477,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true, true);
 
-      session.createQueue("address", "queue1", null, false);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
       ClientProducerCredits credits = null;
 
@@ -506,7 +507,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true, true);
 
-      session.createQueue("address", "queue1", null, false);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
       ClientProducerCredits credits = null;
 
@@ -539,7 +540,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true, true);
 
-      session.createQueue("address", "queue1", null, false);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
       ClientProducerCredits credits = null;
 
@@ -569,7 +570,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true, true);
 
-      session.createQueue("address", "queue1", null, false);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
       ClientProducerCredits credits = null;
 
@@ -602,7 +603,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true, true);
 
-      session.createQueue("address", "queue1", null, false);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
       ClientProducerCredits credits = null;
 
@@ -656,7 +657,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true, true);
 
-      session.createQueue("address", "queue1", null, false);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
       for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE; i++) {
          ClientProducer prod = session.createProducer((String) null);
@@ -679,7 +680,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true, true);
 
-      session.createQueue("address", "queue1", null, false);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
       for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE; i++) {
          ClientProducer prod = session.createProducer((String) null);
@@ -720,7 +721,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true, true);
 
-      session.createQueue("address", "queue1", null, false);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
       ClientProducer prod1 = session.createProducer("address");
       Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());

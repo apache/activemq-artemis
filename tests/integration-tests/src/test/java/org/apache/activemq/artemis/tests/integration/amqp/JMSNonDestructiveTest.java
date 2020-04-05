@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
@@ -86,19 +87,19 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
 
       //Add Non Destructive Queue
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME), RoutingType.ANYCAST, SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add Non Destructive Expiry Queue
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME), RoutingType.ANYCAST, SimpleString.toSimpleString(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add Non Destructive Last Value Queue
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NON_DESTRUCTIVE_LVQ_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(NON_DESTRUCTIVE_LVQ_QUEUE_NAME), RoutingType.ANYCAST, SimpleString.toSimpleString(NON_DESTRUCTIVE_LVQ_QUEUE_NAME), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add  Non Destructive Last Value Queue for Tombstone Test
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME), RoutingType.ANYCAST, SimpleString.toSimpleString(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
    }
 

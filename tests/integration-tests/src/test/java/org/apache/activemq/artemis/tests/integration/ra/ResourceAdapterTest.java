@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
@@ -57,7 +58,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-      session.createQueue(queue.getSimpleAddress(), queue.getSimpleAddress(), true);
+      session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
       session.close();
 
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
@@ -110,7 +111,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       final String prefix = "jms.queue.";
       final String destinationName = "test";
       final SimpleString prefixedDestinationName = SimpleString.toSimpleString(prefix + destinationName);
-      server.createQueue(prefixedDestinationName, RoutingType.ANYCAST, prefixedDestinationName, null, false, false);
+      server.createQueue(new QueueConfiguration(prefixedDestinationName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ra.start(new BootstrapContext());
@@ -803,7 +804,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-      session.createQueue(queue.getSimpleAddress(), queue.getSimpleAddress(), true);
+      session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
       session.close();
 
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();

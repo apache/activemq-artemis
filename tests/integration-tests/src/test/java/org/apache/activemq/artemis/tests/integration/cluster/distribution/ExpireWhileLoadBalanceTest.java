@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -75,7 +76,7 @@ public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
 
       for (int i = 0; i <= 2; i++) {
          createQueue(i, "queues.testaddress", "queue0", null, true);
-         getServer(i).createQueue(expiryQueue, RoutingType.ANYCAST, expiryQueue, null, true, false);
+         getServer(i).createQueue(new QueueConfiguration(expiryQueue).setRoutingType(RoutingType.ANYCAST));
          getServer(i).getAddressSettingsRepository().addMatch("#", as);
 
       }

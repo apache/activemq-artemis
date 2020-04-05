@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -227,20 +228,20 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       // Default Queue
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST, SimpleString.toSimpleString(getQueueName()), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST));
 
       // Default DLQ
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getDeadLetterAddress()), RoutingType.ANYCAST));
-      server.createQueue(SimpleString.toSimpleString(getDeadLetterAddress()), RoutingType.ANYCAST, SimpleString.toSimpleString(getDeadLetterAddress()), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(getDeadLetterAddress()).setRoutingType(RoutingType.ANYCAST));
 
       // Default Topic
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getTopicName()), RoutingType.MULTICAST));
-      server.createQueue(SimpleString.toSimpleString(getTopicName()), RoutingType.MULTICAST, SimpleString.toSimpleString(getTopicName()), null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(getTopicName()));
 
       // Additional Test Queues
       for (int i = 0; i < getPrecreatedQueueSize(); ++i) {
          server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName(i)), RoutingType.ANYCAST));
-         server.createQueue(SimpleString.toSimpleString(getQueueName(i)), RoutingType.ANYCAST, SimpleString.toSimpleString(getQueueName(i)), null, true, false, -1, false, true);
+         server.createQueue(new QueueConfiguration(getQueueName(i)).setRoutingType(RoutingType.ANYCAST));
       }
    }
 

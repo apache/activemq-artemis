@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.replication;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -122,7 +123,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
 
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession sess = csf.createSession();
-      sess.createQueue("slow", RoutingType.ANYCAST, "slow", true);
+      sess.createQueue(new QueueConfiguration("slow").setRoutingType(RoutingType.ANYCAST));
       sess.close();
 
       // let's write some messages

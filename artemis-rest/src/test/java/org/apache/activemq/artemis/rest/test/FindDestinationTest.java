@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.rest.test;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -32,7 +33,7 @@ public class FindDestinationTest extends MessageTestBase {
    public void testFindQueue() throws Exception {
       String testName = "testFindQueue";
       server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString(testName), RoutingType.MULTICAST));
-      server.getActiveMQServer().createQueue(new SimpleString(testName), RoutingType.MULTICAST, new SimpleString(testName), null, false, false);
+      server.getActiveMQServer().createQueue(new QueueConfiguration(testName).setDurable(false));
 
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/queues/" + testName));
 
@@ -63,7 +64,9 @@ public class FindDestinationTest extends MessageTestBase {
    @Test
    public void testFindTopic() throws Exception {
       server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString("testTopic"), RoutingType.MULTICAST));
-      server.getActiveMQServer().createQueue(new SimpleString("testTopic"), RoutingType.MULTICAST, new SimpleString("testTopic"), null, false, false);
+      server.getActiveMQServer().createQueue(new QueueConfiguration("testTopic")
+                                                .setRoutingType(RoutingType.MULTICAST)
+                                                .setDurable(false));
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/topics/testTopic"));
 
       ClientResponse<?> response = request.head();

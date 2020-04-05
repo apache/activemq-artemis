@@ -21,6 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -113,7 +114,7 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
       ServerLocator locator = createInVMNonHALocator().setGroupID("grp1");
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = addClientSession(sessionFactory.createSession(false, true, true));
-      clientSession.createQueue(qName, qName, null, false);
+      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
    }
 
    private static class DummyMessageHandler implements MessageHandler {

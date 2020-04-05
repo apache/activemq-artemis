@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -81,7 +82,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, true, true);
 
       if (createQueue) {
-         session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, false);
+         session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS).setDurable(false));
       }
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);

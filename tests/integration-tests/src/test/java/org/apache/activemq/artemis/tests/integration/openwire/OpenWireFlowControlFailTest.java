@@ -26,6 +26,7 @@ import javax.jms.TextMessage;
 import java.util.Map;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -52,7 +53,7 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
 
       AddressInfo addressInfo = new AddressInfo(SimpleString.toSimpleString("Test"), RoutingType.ANYCAST);
       server.addAddressInfo(addressInfo);
-      server.createQueue(addressInfo.getName(), RoutingType.ANYCAST, addressInfo.getName(), null, true, false);
+      server.createQueue(new QueueConfiguration(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST));
 
       StringBuffer textBody = new StringBuffer();
       for (int i = 0; i < 10; i++) {

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -90,11 +91,11 @@ public class ClientSoakTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession();
 
-      session.createQueue(ClientSoakTest.ADDRESS, ClientSoakTest.ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ClientSoakTest.ADDRESS));
 
-      session.createQueue(ClientSoakTest.DIVERTED_AD1, ClientSoakTest.DIVERTED_AD1, true);
+      session.createQueue(new QueueConfiguration(ClientSoakTest.DIVERTED_AD1));
 
-      session.createQueue(ClientSoakTest.DIVERTED_AD2, ClientSoakTest.DIVERTED_AD2, true);
+      session.createQueue(new QueueConfiguration(ClientSoakTest.DIVERTED_AD2));
 
       session.close();
 

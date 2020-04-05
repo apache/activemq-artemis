@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.security;
 
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -61,7 +62,7 @@ public class JMSXUserIDPluginTest extends ActiveMQTestBase {
 
       server.registerBrokerPlugin(plugin);
       server.start();
-      server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
+      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Test

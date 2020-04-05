@@ -117,7 +117,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(false, true, true);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -158,7 +158,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       final ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -220,7 +220,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       SimpleString jmsAddress = new SimpleString("Test");
 
-      server.createQueue(jmsAddress, RoutingType.ANYCAST, jmsAddress, null, true, false);
+      server.createQueue(new QueueConfiguration(jmsAddress).setRoutingType(RoutingType.ANYCAST));
 
       final AtomicInteger unexpectedErrors = new AtomicInteger(0);
       final AtomicInteger expectedErrors = new AtomicInteger(0);
@@ -280,7 +280,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(false, true, true);
 
-      session.createQueue(ADDRESS, ADDRESS, false);
+      session.createQueue(new QueueConfiguration(ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -339,7 +339,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(false, true, true);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       server.getPagingManager().getPageStore(ADDRESS).startPaging();
 
@@ -417,7 +417,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       Xid xid1 = newXID();
       Xid xid2 = newXID();
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -612,7 +612,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(false, true, true);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -669,7 +669,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       session = sf.createSession(false, true, true);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 

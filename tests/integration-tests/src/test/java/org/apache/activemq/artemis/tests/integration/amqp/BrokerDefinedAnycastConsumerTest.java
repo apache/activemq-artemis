@@ -21,6 +21,7 @@ import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TO
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -48,7 +49,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressSameName() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
-      server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
+      server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
 
       sendMessages(address.toString(), 1);
 
@@ -69,8 +70,8 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressSameNameMultipleQueues() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
-      server.createQueue(address, RoutingType.ANYCAST, queue1, null, true, false);
-      server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
+      server.createQueue(new QueueConfiguration(queue1).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
 
       sendMessages(address.toString(), 2);
 
@@ -91,7 +92,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressDifferentName() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
-      server.createQueue(address, RoutingType.ANYCAST, queue1, null, true, false);
+      server.createQueue(new QueueConfiguration(queue1).setAddress(address).setRoutingType(RoutingType.ANYCAST));
 
       sendMessages(address.toString(), 1);
 
@@ -112,8 +113,8 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressDifferentNameMultipleQueues() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
-      server.createQueue(address, RoutingType.ANYCAST, queue1, null, true, false);
-      server.createQueue(address, RoutingType.ANYCAST, queue2, null, true, false);
+      server.createQueue(new QueueConfiguration(queue1).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(queue2).setAddress(address).setRoutingType(RoutingType.ANYCAST));
 
       sendMessages(address.toString(), 1);
 
@@ -134,7 +135,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
    @Test(timeout = 60000)
    public void testConsumeFromSingleQualifiedQueueOnAddressSameName() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
-      server.createQueue(address, RoutingType.ANYCAST, queue1, null, true, false);
+      server.createQueue(new QueueConfiguration(queue1).setAddress(address).setRoutingType(RoutingType.ANYCAST));
 
       sendMessages(address.toString(), 1);
 
@@ -215,7 +216,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
       addressInfo.getRoutingTypes().add(RoutingType.ANYCAST);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
       server.addAddressInfo(addressInfo);
-      server.createQueue(address, RoutingType.MULTICAST, address, null, true, false);
+      server.createQueue(new QueueConfiguration(address));
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

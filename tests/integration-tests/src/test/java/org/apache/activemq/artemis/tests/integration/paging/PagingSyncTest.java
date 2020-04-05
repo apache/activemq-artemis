@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -72,7 +73,7 @@ public class PagingSyncTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false, false);
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
+      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 

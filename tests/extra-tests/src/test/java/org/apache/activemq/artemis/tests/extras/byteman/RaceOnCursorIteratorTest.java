@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -103,7 +104,7 @@ public class RaceOnCursorIteratorTest extends ActiveMQTestBase {
 
       session = sf.createSession(false, true, true);
 
-      session.createQueue(ADDRESS, ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       queue = server.locateQueue(ADDRESS);
       queue.getPageSubscription().getPagingStore().startPaging();
