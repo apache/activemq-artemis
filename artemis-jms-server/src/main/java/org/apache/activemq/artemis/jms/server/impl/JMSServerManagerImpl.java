@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -1079,8 +1080,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
          server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueName)).addRoutingType(RoutingType.ANYCAST));
 
-         AddressSettings as = server.getAddressSettingsRepository().getMatch(queueName);
-         server.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(coreFilterString), null, durable, false, true, false, false, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isAutoCreateAddresses());
+         server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setFilterString(coreFilterString).setDurable(durable), true);
 
          // create the JMS queue with the logical name jmsQueueName and keeps queueName for its *core* queue name
          queues.put(queueName, ActiveMQDestination.createQueue(queueName, jmsQueueName));

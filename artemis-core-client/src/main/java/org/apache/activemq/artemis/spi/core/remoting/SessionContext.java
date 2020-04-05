@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -179,6 +180,7 @@ public abstract class SessionContext {
     * @param lastValue
     * @throws ActiveMQException
     */
+   @Deprecated
    public abstract void createSharedQueue(SimpleString address,
                                           SimpleString queueName,
                                           RoutingType routingType,
@@ -198,20 +200,25 @@ public abstract class SessionContext {
     * @param queueAttributes
     * @throws ActiveMQException
     */
+   @Deprecated
    public abstract void createSharedQueue(SimpleString address,
                                           SimpleString queueName,
                                           QueueAttributes queueAttributes) throws ActiveMQException;
 
+   @Deprecated
    public abstract void createSharedQueue(SimpleString address,
                                           SimpleString queueName,
                                           RoutingType routingType,
                                           SimpleString filterString,
                                           boolean durable) throws ActiveMQException;
 
+   @Deprecated
    public abstract void createSharedQueue(SimpleString address,
                                    SimpleString queueName,
                                    SimpleString filterString,
                                    boolean durable) throws ActiveMQException;
+
+   public abstract void createSharedQueue(QueueConfiguration queueConfiguration) throws ActiveMQException;
 
    public abstract void deleteQueue(SimpleString queueName) throws ActiveMQException;
 
@@ -256,6 +263,8 @@ public abstract class SessionContext {
                                     boolean temp,
                                     boolean autoCreated,
                                     QueueAttributes queueAttributes) throws ActiveMQException;
+
+   public abstract void createQueue(QueueConfiguration queueConfiguration) throws ActiveMQException;
 
    public abstract ClientSession.QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;
 

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -31,7 +32,6 @@ import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -362,11 +362,10 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * @throws ActiveMQException
     */
    @Override
-   public void beforeCreateQueue(QueueConfig queueConfig) throws ActiveMQException {
+   public void beforeCreateQueue(QueueConfiguration queueConfig) throws ActiveMQException {
       if (logAll || logInternalEvents) {
          LoggingActiveMQServerPluginLogger.LOGGER.beforeCreateQueue(queueConfig);
       }
-
    }
 
    /**

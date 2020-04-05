@@ -41,6 +41,7 @@ import java.util.TreeSet;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -415,7 +416,7 @@ public final class XmlDataImporter extends ActionAbstract {
          ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
 
          if (!queueQuery.isExists()) {
-            session.createQueue(address, routingType, queueName, filter, true);
+            session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
             if (logger.isDebugEnabled()) {
                logger.debug("Binding queue(name=" + queueName + ", address=" + address + ", filter=" + filter + ")");
             }
@@ -457,7 +458,7 @@ public final class XmlDataImporter extends ActionAbstract {
       ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
 
       if (!queueQuery.isExists()) {
-         session.createQueue(address, RoutingType.valueOf(routingType), queueName, filter, true);
+         session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(RoutingType.valueOf(routingType)).setFilterString(filter));
          if (logger.isDebugEnabled()) {
             logger.debug("Binding queue(name=" + queueName + ", address=" + address + ", filter=" + filter + ")");
          }

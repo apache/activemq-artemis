@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
@@ -78,6 +79,11 @@ public class FakePostOffice implements PostOffice {
                                    SimpleString user,
                                    Boolean configurationManaged,
                                    Long ringSize) throws Exception {
+      return null;
+   }
+
+   @Override
+   public QueueBinding updateQueue(QueueConfiguration queueConfiguration) throws Exception {
       return null;
    }
 

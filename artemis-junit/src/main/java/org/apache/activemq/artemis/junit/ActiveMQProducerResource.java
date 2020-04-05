@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.junit;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -123,7 +124,7 @@ public class ActiveMQProducerResource extends AbstractActiveMQClientResource {
       try {
          if (!session.addressQuery(address).isExists() && autoCreateQueue) {
             log.warn("{}: queue does not exist - creating queue: address = {}, name = {}", this.getClass().getSimpleName(), address.toString(), address.toString());
-            session.createQueue(address, address);
+            session.createQueue(new QueueConfiguration(address));
          }
          producer = session.createProducer(address);
       } catch (ActiveMQException amqEx) {

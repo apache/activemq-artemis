@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 
 public class CoreAddressConfiguration implements Serializable {
@@ -29,7 +30,7 @@ public class CoreAddressConfiguration implements Serializable {
 
    private EnumSet<RoutingType> routingTypes = EnumSet.noneOf(RoutingType.class);
 
-   private List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
+   private List<QueueConfiguration> queueConfigurations = new ArrayList<>();
 
    public CoreAddressConfiguration() {
    }
@@ -52,17 +53,39 @@ public class CoreAddressConfiguration implements Serializable {
       return this;
    }
 
-   public CoreAddressConfiguration setQueueConfigurations(List<CoreQueueConfiguration> queueConfigurations) {
+   @Deprecated
+   public CoreAddressConfiguration setQueueConfigurations(List<CoreQueueConfiguration> coreQueueConfigurations) {
+      for (CoreQueueConfiguration coreQueueConfiguration : coreQueueConfigurations) {
+         queueConfigurations.add(coreQueueConfiguration.toQueueConfiguration());
+      }
+      return this;
+   }
+
+   public CoreAddressConfiguration setQueueConfigs(List<QueueConfiguration> queueConfigurations) {
       this.queueConfigurations = queueConfigurations;
       return this;
    }
 
    public CoreAddressConfiguration addQueueConfiguration(CoreQueueConfiguration queueConfiguration) {
+      this.queueConfigurations.add(queueConfiguration.toQueueConfiguration());
+      return this;
+   }
+
+   public CoreAddressConfiguration addQueueConfiguration(QueueConfiguration queueConfiguration) {
       this.queueConfigurations.add(queueConfiguration);
       return this;
    }
 
+   @Deprecated
    public List<CoreQueueConfiguration> getQueueConfigurations() {
+      List<CoreQueueConfiguration> result = new ArrayList<>();
+      for (QueueConfiguration queueConfiguration : queueConfigurations) {
+         result.add(CoreQueueConfiguration.fromQueueConfiguration(queueConfiguration));
+      }
+      return result;
+   }
+
+   public List<QueueConfiguration> getQueueConfigs() {
       return queueConfigurations;
    }
 

@@ -43,23 +43,39 @@ public class ParameterisedAddress {
    }
 
    private final SimpleString address;
-   private final QueueAttributes queueAttributes;
+   private final QueueConfiguration queueConfiguration;
 
    public SimpleString getAddress() {
       return address;
    }
 
+   @Deprecated
    public QueueAttributes getQueueAttributes() {
-      return queueAttributes;
+      return QueueAttributes.fromQueueConfiguration(queueConfiguration);
    }
 
+   public QueueConfiguration getQueueConfiguration() {
+      return queueConfiguration;
+   }
+
+   @Deprecated
    public ParameterisedAddress(SimpleString address, QueueAttributes queueAttributes) {
       this.address = address;
-      this.queueAttributes = queueAttributes;
+      this.queueConfiguration = queueAttributes.toQueueConfiguration();
    }
 
+   public ParameterisedAddress(SimpleString address, QueueConfiguration queueConfiguration) {
+      this.address = address;
+      this.queueConfiguration = queueConfiguration;
+   }
+
+   @Deprecated
    public ParameterisedAddress(String address, QueueAttributes queueAttributes) {
-      this(SimpleString.toSimpleString(address), queueAttributes);
+      this(SimpleString.toSimpleString(address), queueAttributes.toQueueConfiguration());
+   }
+
+   public ParameterisedAddress(String address, QueueConfiguration queueConfiguration) {
+      this(SimpleString.toSimpleString(address), queueConfiguration);
    }
 
    public ParameterisedAddress(SimpleString address) {
@@ -70,21 +86,21 @@ public class ParameterisedAddress {
       int index = address.indexOf('?');
       if (index == -1) {
          this.address = SimpleString.toSimpleString(address);
-         this.queueAttributes = null;
+         this.queueConfiguration = null;
       } else {
          this.address = SimpleString.toSimpleString(address.substring(0, index));
-         QueueAttributes queueAttributes = new QueueAttributes();
+         QueueConfiguration queueConfiguration = new QueueConfiguration(address);
          try {
-            parseQuery(address).forEach(queueAttributes::set);
+            parseQuery(address).forEach(queueConfiguration::set);
          } catch (URISyntaxException use) {
             throw new IllegalArgumentException("Malformed parameters in address " + address);
          }
-         this.queueAttributes = queueAttributes;
+         this.queueConfiguration = queueConfiguration;
       }
    }
 
    public boolean isParameterised() {
-      return this.queueAttributes != null;
+      return this.queueConfiguration != null;
    }
 
    public static boolean isParameterised(String address) {

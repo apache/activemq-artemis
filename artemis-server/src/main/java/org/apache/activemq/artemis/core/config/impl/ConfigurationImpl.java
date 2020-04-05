@@ -43,6 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -161,7 +162,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected List<FederationConfiguration> federationConfigurations = new ArrayList<>();
 
-   private List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
+   @Deprecated
+   // this can eventually be replaced with List<QueueConfiguration>, but to keep existing semantics it must stay as is for now
+   private List<CoreQueueConfiguration> coreQueueConfigurations = new ArrayList<>();
 
    private List<CoreAddressConfiguration> addressConfigurations = new ArrayList<>();
 
@@ -716,20 +719,48 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   @Deprecated
    @Override
    public List<CoreQueueConfiguration> getQueueConfigurations() {
-      return queueConfigurations;
+      return coreQueueConfigurations;
    }
 
    @Override
-   public ConfigurationImpl setQueueConfigurations(final List<CoreQueueConfiguration> configs) {
-      queueConfigurations = configs;
+   /**
+    * Note: modifying the returned {@code List} will not impact the underlying {@code List}.
+    */
+   public List<QueueConfiguration> getQueueConfigs() {
+      List<QueueConfiguration> result = new ArrayList<>();
+      for (CoreQueueConfiguration coreQueueConfiguration : coreQueueConfigurations) {
+         result.add(coreQueueConfiguration.toQueueConfiguration());
+      }
+      return result;
+   }
+
+   @Deprecated
+   @Override
+   public ConfigurationImpl setQueueConfigurations(final List<CoreQueueConfiguration> coreQueueConfigurations) {
+      this.coreQueueConfigurations = coreQueueConfigurations;
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl setQueueConfigs(final List<QueueConfiguration> configs) {
+      for (QueueConfiguration queueConfiguration : configs) {
+         coreQueueConfigurations.add(CoreQueueConfiguration.fromQueueConfiguration(queueConfiguration));
+      }
       return this;
    }
 
    @Override
    public ConfigurationImpl addQueueConfiguration(final CoreQueueConfiguration config) {
-      queueConfigurations.add(config);
+      coreQueueConfigurations.add(config);
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl addQueueConfiguration(final QueueConfiguration config) {
+      coreQueueConfigurations.add(CoreQueueConfiguration.fromQueueConfiguration(config));
       return this;
    }
 
@@ -1873,7 +1904,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + (persistDeliveryCountBeforeDelivery ? 1231 : 1237);
       result = prime * result + (persistIDCache ? 1231 : 1237);
       result = prime * result + (persistenceEnabled ? 1231 : 1237);
-      result = prime * result + ((queueConfigurations == null) ? 0 : queueConfigurations.hashCode());
+//      result = prime * result + ((queueConfigurations == null) ? 0 : queueConfigurations.hashCode());
       result = prime * result + scheduledThreadPoolMaxSize;
       result = prime * result + (securityEnabled ? 1231 : 1237);
       result = prime * result + (populateValidatedUser ? 1231 : 1237);
@@ -2087,11 +2118,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
          return false;
       if (persistenceEnabled != other.persistenceEnabled)
          return false;
-      if (queueConfigurations == null) {
-         if (other.queueConfigurations != null)
-            return false;
-      } else if (!queueConfigurations.equals(other.queueConfigurations))
-         return false;
+//      if (queueConfigurations == null) {
+//         if (other.queueConfigurations != null)
+//            return false;
+//      } else if (!queueConfigurations.equals(other.queueConfigurations))
+//         return false;
       if (scheduledThreadPoolMaxSize != other.scheduledThreadPoolMaxSize)
          return false;
       if (securityEnabled != other.securityEnabled)

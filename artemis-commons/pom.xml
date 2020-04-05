@@ -77,6 +77,10 @@
          <artifactId>commons-beanutils</artifactId>
       </dependency>
       <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-json_1.0_spec</artifactId>
+      </dependency>
+      <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
          <scope>test</scope>

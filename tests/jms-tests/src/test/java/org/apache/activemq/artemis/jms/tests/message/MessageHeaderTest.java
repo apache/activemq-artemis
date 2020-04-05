@@ -40,6 +40,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -1455,6 +1456,16 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       public void createAddress(SimpleString address,
                                 RoutingType routingType,
                                 boolean autoCreated) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void createQueue(QueueConfiguration queueConfiguration) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void createSharedQueue(QueueConfiguration queueConfiguration) throws ActiveMQException {
 
       }
 

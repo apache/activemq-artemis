@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.core.client;
 
 import java.util.UUID;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 
@@ -51,7 +52,7 @@ public final class ClientRequestor implements AutoCloseable {
 
       requestProducer = queueSession.createProducer(requestAddress);
       replyQueue = new SimpleString(requestAddress + "." + UUID.randomUUID().toString());
-      queueSession.createTemporaryQueue(replyQueue, replyQueue);
+      queueSession.createQueue(new QueueConfiguration(replyQueue).setDurable(false).setTemporary(true));
       replyConsumer = queueSession.createConsumer(replyQueue);
    }
 
