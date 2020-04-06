@@ -676,4 +676,21 @@ public interface QueueControl {
    @Attribute(desc = "Get the ring size")
    long getRingSize();
 
+   /**
+    * Returns whether the groups of this queue are automatically rebalanced.
+    */
+   @Attribute(desc = "whether the groups of this queue are automatically rebalanced")
+   boolean isGroupRebalance();
+
+   /**
+    * Will return the group buckets.
+    */
+   @Attribute(desc = "Get the group buckets")
+   int getGroupBuckets();
+
+   /**
+    * Will return the header key to notify a consumer of a group change.
+    */
+   @Attribute(desc = "Get the header key to notify a consumer of a group change")
+   String getGroupFirstKey();
 }

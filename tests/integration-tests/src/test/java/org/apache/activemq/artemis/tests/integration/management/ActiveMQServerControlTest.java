@@ -372,9 +372,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
       Assert.assertEquals(false, queueControl.isTemporary());
       Assert.assertEquals(exclusive, queueControl.isExclusive());
-//      Assert.assertEquals(groupRebalance, queueControl.getGroupRebalance());
-//      Assert.assertEquals(groupBuckets, queueControl.getGroupBuckets());
-//      Assert.assertEquals(groupFirstKey, queueControl.getGroupFirstKey());
+      Assert.assertEquals(groupRebalance, queueControl.isGroupRebalance());
+      Assert.assertEquals(groupBuckets, queueControl.getGroupBuckets());
+      Assert.assertEquals(groupFirstKey, queueControl.getGroupFirstKey());
       Assert.assertEquals(lastValue, queueControl.isLastValue());
 //      Assert.assertEquals(lastValueKey, queueControl.getLastValueKey());
 //      Assert.assertEquals(nonDestructive, queueControl.isNonDestructive());
@@ -2096,7 +2096,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // as for what we expect it's either true or false through management, we are not testing for directDeliver here, just
       // if management works.
       Assert.assertTrue(resultDirectDeliver.equals("true") || resultDirectDeliver.equals("false"));
-
+      Assert.assertEquals("exclusive", "false", array.getJsonObject(0).getString("exclusive"));
+      Assert.assertEquals("lastValue", "false", array.getJsonObject(0).getString("lastValue"));
+      Assert.assertEquals("scheduledCount", "0", array.getJsonObject(0).getString("scheduledCount"));
+      Assert.assertEquals("groupRebalance", "false", array.getJsonObject(0).getString("groupRebalance"));
+      Assert.assertEquals("groupBuckets", "-1", array.getJsonObject(0).getString("groupBuckets"));
+      Assert.assertEquals("groupFirstKey", "", array.getJsonObject(0).getString("groupFirstKey"));
    }
 
    @Test
