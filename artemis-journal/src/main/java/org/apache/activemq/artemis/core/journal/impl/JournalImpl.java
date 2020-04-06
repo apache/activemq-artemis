@@ -884,7 +884,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                   final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
       lineUpContext(callback);
-      checkKnownRecordID(id);
+      checkKnownRecordID(id, true);
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendUpdateRecord::id=" + id +
@@ -892,8 +892,47 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                          recordType);
       }
 
-      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
+      internalAppendUpdateRecord(id, recordType, persister, record, sync, callback);
+   }
 
+
+   @Override
+   public boolean tryAppendUpdateRecord(final long id,
+                                  final byte recordType,
+                                  final Persister persister,
+                                  final Object record,
+                                  final boolean sync,
+                                  final IOCompletion callback) throws Exception {
+      checkJournalIsLoaded();
+      lineUpContext(callback);
+
+      if (!checkKnownRecordID(id, false)) {
+         if (callback != null) {
+            callback.done();
+         }
+         return false;
+      }
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("scheduling appendUpdateRecord::id=" + id +
+                         ", userRecordType=" +
+                         recordType);
+      }
+
+
+      internalAppendUpdateRecord(id, recordType, persister, record, sync, callback);
+
+      return true;
+   }
+
+
+   private void internalAppendUpdateRecord(long id,
+                                           byte recordType,
+                                           Persister persister,
+                                           Object record,
+                                           boolean sync,
+                                           IOCompletion callback) throws InterruptedException, java.util.concurrent.ExecutionException {
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
@@ -946,8 +985,37 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       checkJournalIsLoaded();
       lineUpContext(callback);
-      checkKnownRecordID(id);
+      checkKnownRecordID(id, true);
 
+      internalAppendDeleteRecord(id, sync, callback);
+      return;
+   }
+
+
+   @Override
+   public boolean tryAppendDeleteRecord(final long id, final boolean sync, final IOCompletion callback) throws Exception {
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("scheduling appendDeleteRecord::id=" + id);
+      }
+
+
+      checkJournalIsLoaded();
+      lineUpContext(callback);
+      if (!checkKnownRecordID(id, false)) {
+         if (callback != null) {
+            callback.done();
+         }
+         return false;
+      }
+
+      internalAppendDeleteRecord(id, sync, callback);
+      return true;
+   }
+
+   private void internalAppendDeleteRecord(long id,
+                                           boolean sync,
+                                           IOCompletion callback) throws InterruptedException, java.util.concurrent.ExecutionException {
       final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
          @Override
@@ -1055,9 +1123,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       });
    }
 
-   private void checkKnownRecordID(final long id) throws Exception {
+   private boolean checkKnownRecordID(final long id, boolean strict) throws Exception {
       if (records.containsKey(id) || pendingRecords.contains(id) || (compactor != null && compactor.containsRecord(id))) {
-         return;
+         return true;
       }
 
       final SimpleFuture<Boolean> known = new SimpleFutureImpl<>();
@@ -1079,7 +1147,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       });
 
       if (!known.get()) {
-         throw new IllegalStateException("Cannot find add info " + id + " on compactor or current records");
+         if (strict) {
+            throw new IllegalStateException("Cannot find add info " + id + " on compactor or current records");
+         }
+         return false;
+      } else {
+         return true;
       }
    }
 

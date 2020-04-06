@@ -425,25 +425,25 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public void deleteMessage(final long messageID) throws Exception {
+   public boolean deleteMessage(final long messageID) throws Exception {
       readLock();
       try {
          // Messages are deleted on postACK, one after another.
          // If these deletes are synchronized, we would build up messages on the Executor
          // increasing chances of losing deletes.
          // The StorageManager should verify messages without references
-         messageJournal.appendDeleteRecord(messageID, false, getContext(false));
+         return messageJournal.tryAppendDeleteRecord(messageID, false, getContext(false));
       } finally {
          readUnLock();
       }
    }
 
    @Override
-   public void updateScheduledDeliveryTime(final MessageReference ref) throws Exception {
+   public boolean updateScheduledDeliveryTime(final MessageReference ref) throws Exception {
       ScheduledDeliveryEncoding encoding = new ScheduledDeliveryEncoding(ref.getScheduledDeliveryTime(), ref.getQueue().getID());
       readLock();
       try {
-         messageJournal.appendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME, encoding, syncNonTransactional, getContext(syncNonTransactional));
+         return messageJournal.tryAppendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME, encoding, syncNonTransactional, getContext(syncNonTransactional));
       } finally {
          readUnLock();
       }
@@ -725,11 +725,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    // Other operations
 
    @Override
-   public void updateDeliveryCount(final MessageReference ref) throws Exception {
+   public boolean updateDeliveryCount(final MessageReference ref) throws Exception {
       // no need to store if it's the same value
       // otherwise the journal will get OME in case of lots of redeliveries
       if (ref.getDeliveryCount() == ref.getPersistedCount()) {
-         return;
+         return true;
       }
 
       ref.setPersistedCount(ref.getDeliveryCount());
@@ -737,7 +737,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       readLock();
       try {
-         messageJournal.appendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.UPDATE_DELIVERY_COUNT, updateInfo, syncNonTransactional, getContext(syncNonTransactional));
+         return messageJournal.tryAppendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.UPDATE_DELIVERY_COUNT, updateInfo, syncNonTransactional, getContext(syncNonTransactional));
       } finally {
          readUnLock();
       }

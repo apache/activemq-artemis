@@ -41,6 +41,10 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class SoakPagingTest extends SmokeTestBase {
 
+   public static final int LAG_CONSUMER_TIME = 1000;
+   public static final int TIME_RUNNING = 4000;
+   public static final int CLIENT_KILLS = 2;
+
    String protocol;
    String consumerType;
    boolean transaction;
@@ -86,12 +90,13 @@ public class SoakPagingTest extends SmokeTestBase {
 
    private static ConnectionFactory createConnectionFactory(String protocol, String uri) {
       if (protocol.toUpperCase().equals("OPENWIRE")) {
-         return new org.apache.activemq.ActiveMQConnectionFactory(uri);
+         return new org.apache.activemq.ActiveMQConnectionFactory("failover:(" + uri + ")");
       } else if (protocol.toUpperCase().equals("AMQP")) {
 
          if (uri.startsWith("tcp://")) {
             // replacing tcp:// by amqp://
             uri = "amqp" + uri.substring(3);
+
          }
          return new JmsConnectionFactory(uri);
       } else if (protocol.toUpperCase().equals("CORE") || protocol.toUpperCase().equals("ARTEMIS")) {
@@ -158,24 +163,13 @@ public class SoakPagingTest extends SmokeTestBase {
    @Test
    public void testPagingReplication() throws Throwable {
 
-      Process queueProcess = null;
-      if (consumerType.equals("queue")) {
-         queueProcess = SpawnedVMSupport.spawnVM(SoakPagingTest.class.getName(), protocol, consumerType, "45000", "" + transaction);
-      }
+      server1 = startServer(SERVER_NAME_1, 0, 30000);
 
-      for (int i = 0; i < 3; i++) {
-         Process process = SpawnedVMSupport.spawnVM(SoakPagingTest.class.getName(), protocol, consumerType, "15000", "" + transaction);
-
-         if (i == 0) {
-            server1 = startServer(SERVER_NAME_1, 0, 30000);
-         }
+      for (int i = 0; i < CLIENT_KILLS; i++) {
+         Process process = SpawnedVMSupport.spawnVM(SoakPagingTest.class.getName(), protocol, consumerType, "" + TIME_RUNNING, "" + transaction);
 
          int result = process.waitFor();
          Assert.assertTrue(result > 0);
-      }
-
-      if (queueProcess != null) {
-         Assert.assertTrue(queueProcess.waitFor() > 0);
       }
    }
 
@@ -261,7 +255,8 @@ public class SoakPagingTest extends SmokeTestBase {
             messageConsumer = session.createConsumer(address);
          }
 
-         Thread.sleep(5000);
+         if (LAG_CONSUMER_TIME > 0) Thread.sleep(LAG_CONSUMER_TIME);
+
          connection.start();
 
          int i = 0;

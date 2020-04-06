@@ -2689,6 +2689,22 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
    }
 
    @Test
+   public void testTryIsolation2() throws Exception {
+      setup(10, 10 * 1024, true);
+      createJournal();
+      startJournal();
+      load();
+      addTx(1, 1, 2, 3);
+
+      Assert.assertFalse(tryUpdate(1));
+
+      stopJournal();
+      createJournal();
+      startJournal();
+      loadAndCheck();
+   }
+
+   @Test
    public void testIsolation3() throws Exception {
       setup(10, 10 * 1024, true);
       createJournal();
@@ -2701,6 +2717,22 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       } catch (IllegalStateException e) {
          // Ok
       }
+
+      stopJournal();
+      createJournal();
+      startJournal();
+      loadAndCheck();
+   }
+
+   @Test
+   public void testTryDelete() throws Exception {
+      setup(10, 10 * 1024, true);
+      createJournal();
+      startJournal();
+      load();
+      addTx(1, 1, 2, 3);
+
+      Assert.assertFalse(tryDelete(1));
 
       stopJournal();
       createJournal();
