@@ -91,6 +91,21 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isGroupRebalance() {
+            return (Boolean) proxy.retrieveAttributeValue("groupRebalance");
+         }
+
+         @Override
+         public int getGroupBuckets() {
+            return (Integer) proxy.retrieveAttributeValue("groupBuckets", Integer.class);
+         }
+
+         @Override
+         public String getGroupFirstKey() {
+            return (String) proxy.retrieveAttributeValue("groupFirstKey");
+         }
+
+         @Override
          public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception {
             return (Boolean) proxy.invokeOperation("changeMessagePriority", messageID, newPriority);
          }

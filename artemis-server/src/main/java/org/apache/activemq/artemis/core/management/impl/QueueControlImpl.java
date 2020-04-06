@@ -1687,6 +1687,53 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    }
 
+   @Override
+   public boolean isGroupRebalance() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isGroupRebalance(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isGroupRebalance();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getGroupBuckets() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getGroupBuckets(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getMaxConsumers();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String getGroupFirstKey() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getMaxConsumers(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         SimpleString groupFirstKey = queue.getGroupFirstKey();
+
+         return groupFirstKey != null ? groupFirstKey.toString() : null;
+      } finally {
+         blockOnIO();
+      }
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
