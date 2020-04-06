@@ -385,6 +385,20 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
       journal.debugWait();
    }
 
+   protected boolean tryUpdate(final long  argument) throws Exception {
+      byte[] updateRecord = generateRecord(recordLength);
+
+      beforeJournalOperation();
+
+      boolean result = journal.tryAppendUpdateRecord(argument, (byte) 0, updateRecord, sync);
+
+      if (result) {
+         records.add(new RecordInfo(argument, (byte) 0, updateRecord, true, (short) 0));
+      }
+
+      return result;
+   }
+
    protected void update(final long... arguments) throws Exception {
       for (long element : arguments) {
          byte[] updateRecord = generateRecord(recordLength);
@@ -409,6 +423,20 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
       }
 
       journal.debugWait();
+   }
+
+   protected boolean tryDelete(final long argument) throws Exception {
+      beforeJournalOperation();
+
+      boolean result = journal.tryAppendDeleteRecord(argument, sync);
+
+      if (result) {
+         removeRecordsForID(argument);
+      }
+
+      journal.debugWait();
+
+      return result;
    }
 
    protected void addTx(final long txID, final long... arguments) throws Exception {

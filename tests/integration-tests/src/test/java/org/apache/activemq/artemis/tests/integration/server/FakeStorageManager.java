@@ -39,8 +39,9 @@ public class FakeStorageManager extends NullStorageManager {
    }
 
    @Override
-   public void deleteMessage(final long messageID) throws Exception {
+   public boolean deleteMessage(final long messageID) throws Exception {
       messageIds.remove(messageID);
+      return true;
    }
 
    @Override

@@ -3093,7 +3093,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public Pair<Boolean, Boolean> checkRedelivery(final MessageReference reference,
                                   final long timeBase,
                                   final boolean ignoreRedeliveryDelay) throws Exception {
-      Message message = reference.getMessage();
 
       if (internalQueue) {
          if (logger.isTraceEnabled()) {
@@ -3104,7 +3103,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (!internalQueue && reference.isDurable() && isDurable() && !reference.isPaged()) {
-         storageManager.updateDeliveryCount(reference);
+         if (!storageManager.updateDeliveryCount(reference)) {
+            return new Pair<>(false, false);
+         }
       }
 
       AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
@@ -3739,7 +3740,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // as we can't delete each messaging with sync=true while adding messages transactionally.
             // There is a startup check to remove non referenced messages case these deletes fail
             try {
-               storageManager.deleteMessage(message.getMessageID());
+               if (!storageManager.deleteMessage(message.getMessageID())) {
+                  ActiveMQServerLogger.LOGGER.errorRemovingMessage(new Exception(), message.getMessageID());
+               }
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorRemovingMessage(e, message.getMessageID());
             }

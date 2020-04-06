@@ -1048,6 +1048,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    public void removeDestination(ActiveMQDestination dest) throws Exception {
       if (dest.isQueue()) {
+
+         if (!dest.isTemporary()) {
+            // this should not really happen,
+            // so I'm not creating a Logger for this
+            logger.warn("OpenWire client sending a queue remove towards " + dest.getPhysicalName());
+         }
          try {
             server.destroyQueue(new SimpleString(dest.getPhysicalName()), getRemotingConnection());
          } catch (ActiveMQNonExistentQueueException neq) {

@@ -95,9 +95,9 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
    protected JournalStorageManager createJournalStorageManager(Configuration configuration) {
       return new JournalStorageManager(configuration, EmptyCriticalAnalyzer.getInstance(), execFactory, execFactory) {
          @Override
-         public void deleteMessage(final long messageID) throws Exception {
+         public boolean deleteMessage(final long messageID) throws Exception {
             deletedMessage.add(messageID);
-            super.deleteMessage(messageID);
+            return super.deleteMessage(messageID);
          }
       };
    }

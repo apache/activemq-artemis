@@ -71,10 +71,18 @@ abstract class JournalBase implements Journal {
 
    @Override
    public void appendUpdateRecord(final long id,
-                                  final byte recordType,
-                                  final byte[] record,
-                                  final boolean sync) throws Exception {
+                                     final byte recordType,
+                                     final byte[] record,
+                                     final boolean sync) throws Exception {
       appendUpdateRecord(id, recordType, new ByteArrayEncoding(record), sync);
+   }
+
+   @Override
+   public boolean tryAppendUpdateRecord(final long id,
+                                     final byte recordType,
+                                     final byte[] record,
+                                     final boolean sync) throws Exception {
+      return tryAppendUpdateRecord(id, recordType, new ByteArrayEncoding(record), sync);
    }
 
    @Override
@@ -137,6 +145,23 @@ abstract class JournalBase implements Journal {
    }
 
    @Override
+   public boolean tryAppendUpdateRecord(final long id,
+                                     final byte recordType,
+                                     final Persister persister,
+                                     final Object record,
+                                     final boolean sync) throws Exception {
+      SyncIOCompletion callback = getSyncCallback(sync);
+
+      boolean append = tryAppendUpdateRecord(id, recordType, persister, record, sync, callback);
+
+      if (callback != null) {
+         callback.waitCompletion();
+      }
+
+      return append;
+   }
+
+   @Override
    public void appendRollbackRecord(final long txID, final boolean sync) throws Exception {
       SyncIOCompletion syncCompletion = getSyncCallback(sync);
 
@@ -159,6 +184,18 @@ abstract class JournalBase implements Journal {
       }
    }
 
+   @Override
+   public boolean tryAppendDeleteRecord(final long id, final boolean sync) throws Exception {
+      SyncIOCompletion callback = getSyncCallback(sync);
+
+      boolean result = tryAppendDeleteRecord(id, sync, callback);
+
+      if (callback != null) {
+         callback.waitCompletion();
+      }
+
+      return result;
+   }
    abstract void scheduleReclaim();
 
    protected SyncIOCompletion getSyncCallback(final boolean sync) {

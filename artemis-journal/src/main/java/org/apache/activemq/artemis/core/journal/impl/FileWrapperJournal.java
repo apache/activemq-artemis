@@ -172,6 +172,13 @@ public final class FileWrapperJournal extends JournalBase {
       writeRecord(deleteRecord, false, -1, false, callback);
    }
 
+
+   @Override
+   public boolean tryAppendDeleteRecord(long id, boolean sync, IOCompletion callback) throws Exception {
+      appendDeleteRecord(id, sync, callback);
+      return true;
+   }
+
    @Override
    public void appendDeleteRecordTransactional(long txID, long id, EncodingSupport record) throws Exception {
       JournalInternalRecord deleteRecordTX = new JournalDeleteRecordTX(txID, id, record);
@@ -197,6 +204,18 @@ public final class FileWrapperJournal extends JournalBase {
                                   IOCompletion callback) throws Exception {
       JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
       writeRecord(updateRecord, false, -1, false, callback);
+   }
+
+   @Override
+   public boolean tryAppendUpdateRecord(long id,
+                                     byte recordType,
+                                     Persister persister,
+                                     Object record,
+                                     boolean sync,
+                                     IOCompletion callback) throws Exception {
+      JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
+      writeRecord(updateRecord, false, -1, false, callback);
+      return true;
    }
 
    @Override
