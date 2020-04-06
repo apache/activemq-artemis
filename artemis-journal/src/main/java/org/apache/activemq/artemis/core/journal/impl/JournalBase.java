@@ -43,7 +43,11 @@ abstract class JournalBase implements Journal {
    }
 
    @Override
-   public void appendAddRecord(long id, byte recordType, Persister persister, Object record, boolean sync) throws Exception {
+   public <T> void appendAddRecord(long id,
+                                   byte recordType,
+                                   Persister<T> persister,
+                                   T record,
+                                   boolean sync) throws Exception {
       SyncIOCompletion callback = getSyncCallback(sync);
 
       appendAddRecord(id, recordType, persister, record, sync, callback);
@@ -122,11 +126,11 @@ abstract class JournalBase implements Journal {
    }
 
    @Override
-   public void appendUpdateRecord(final long id,
-                                  final byte recordType,
-                                  final Persister persister,
-                                  final Object record,
-                                  final boolean sync) throws Exception {
+   public <T> void appendUpdateRecord(final long id,
+                                      final byte recordType,
+                                      final Persister<T> persister,
+                                      final T record,
+                                      final boolean sync) throws Exception {
       SyncIOCompletion callback = getSyncCallback(sync);
 
       appendUpdateRecord(id, recordType, persister, record, sync, callback);

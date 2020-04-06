@@ -59,7 +59,7 @@ public class MessagePersister implements Persister<Message> {
       if (messagePersisters == null || messagePersisters.length == 0) {
          logger.debug("Cannot find persister for " + manager);
       } else {
-         for (Persister p : messagePersisters) {
+         for (Persister<Message> p : messagePersisters) {
             registerPersister(p);
          }
       }
@@ -71,7 +71,7 @@ public class MessagePersister implements Persister<Message> {
       }
    }
 
-   public static Persister getPersister(byte id) {
+   public static Persister<Message> getPersister(byte id) {
       if (id == 0 || id > MAX_PERSISTERS) {
          return null;
       }

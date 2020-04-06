@@ -131,7 +131,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
             }
          }
 
-         JournalInternalRecord controlRecord = new JournalAddRecord(true, 1, (byte) 0, EncoderPersister.getInstance(), new ByteArrayEncoding(filesToRename.toByteBuffer().array()));
+         JournalInternalRecord controlRecord = new JournalAddRecord<>(true, 1, (byte) 0, EncoderPersister.getInstance(), new ByteArrayEncoding(filesToRename.toByteBuffer().array()));
 
          ActiveMQBuffer renameBuffer = ActiveMQBuffers.dynamicBuffer(filesToRename.writerIndex());
 

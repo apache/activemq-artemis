@@ -240,7 +240,7 @@ class JDBCJournalRecord {
       this.record = record;
    }
 
-   public void setRecord(Persister persister, Object record) {
+   public <T> void setRecord(Persister<T> persister, T record) {
       this.variableSize = persister.getEncodeSize(record);
 
       ActiveMQBuffer encodedBuffer = ActiveMQBuffers.fixedBuffer(variableSize);

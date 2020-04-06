@@ -85,11 +85,11 @@ public class ReplicatedJournal implements Journal {
    }
 
    @Override
-   public void appendAddRecord(final long id,
-                               final byte recordType,
-                               Persister persister,
-                               final Object record,
-                               final boolean sync) throws Exception {
+   public <T> void appendAddRecord(final long id,
+                                   final byte recordType,
+                                   Persister<T> persister,
+                                   final T record,
+                                   final boolean sync) throws Exception {
       if (log.isTraceEnabled()) {
          log.trace("Append record id = " + id + " recordType = " + recordType);
       }
@@ -106,12 +106,12 @@ public class ReplicatedJournal implements Journal {
     * @see org.apache.activemq.artemis.core.journal.Journal#appendAddRecord(long, byte, org.apache.activemq.artemis.core.journal.EncodingSupport, boolean)
     */
    @Override
-   public void appendAddRecord(final long id,
-                               final byte recordType,
-                               Persister persister,
-                               final Object record,
-                               final boolean sync,
-                               final IOCompletion completionCallback) throws Exception {
+   public <T> void appendAddRecord(final long id,
+                                   final byte recordType,
+                                   Persister<T> persister,
+                                   final T record,
+                                   final boolean sync,
+                                   final IOCompletion completionCallback) throws Exception {
       if (log.isTraceEnabled()) {
          log.trace("Append record id = " + id + " recordType = " + recordType);
       }
@@ -144,11 +144,11 @@ public class ReplicatedJournal implements Journal {
     * @see org.apache.activemq.artemis.core.journal.Journal#appendAddRecordTransactional(long, long, byte, org.apache.activemq.artemis.core.journal.EncodingSupport)
     */
    @Override
-   public void appendAddRecordTransactional(final long txID,
-                                            final long id,
-                                            final byte recordType,
-                                            final Persister persister,
-                                            final Object record) throws Exception {
+   public <T> void appendAddRecordTransactional(final long txID,
+                                                final long id,
+                                                final byte recordType,
+                                                final Persister<T> persister,
+                                                final T record) throws Exception {
       if (log.isTraceEnabled()) {
          log.trace("Append record txID=" + id + " recordType = " + recordType);
       }
@@ -354,11 +354,11 @@ public class ReplicatedJournal implements Journal {
     * @see org.apache.activemq.artemis.core.journal.Journal#appendUpdateRecord(long, byte, org.apache.activemq.artemis.core.journal.EncodingSupport, boolean)
     */
    @Override
-   public void appendUpdateRecord(final long id,
-                                  final byte recordType,
-                                  final Persister persister,
-                                  final Object record,
-                                  final boolean sync) throws Exception {
+   public <T> void appendUpdateRecord(final long id,
+                                      final byte recordType,
+                                      final Persister<T> persister,
+                                      final T record,
+                                      final boolean sync) throws Exception {
       if (log.isTraceEnabled()) {
          log.trace("AppendUpdateRecord id = " + id + " , recordType = " + recordType);
       }
@@ -367,12 +367,12 @@ public class ReplicatedJournal implements Journal {
    }
 
    @Override
-   public void appendUpdateRecord(final long id,
-                                  final byte journalRecordType,
-                                  final Persister persister,
-                                  final Object record,
-                                  final boolean sync,
-                                  final IOCompletion completionCallback) throws Exception {
+   public <T> void appendUpdateRecord(final long id,
+                                      final byte journalRecordType,
+                                      final Persister<T> persister,
+                                      final T record,
+                                      final boolean sync,
+                                      final IOCompletion completionCallback) throws Exception {
       if (log.isTraceEnabled()) {
          log.trace("AppendUpdateRecord id = " + id + " , recordType = " + journalRecordType);
       }
@@ -405,11 +405,11 @@ public class ReplicatedJournal implements Journal {
     * @see org.apache.activemq.artemis.core.journal.Journal#appendUpdateRecordTransactional(long, long, byte, org.apache.activemq.artemis.core.journal.EncodingSupport)
     */
    @Override
-   public void appendUpdateRecordTransactional(final long txID,
-                                               final long id,
-                                               final byte recordType,
-                                               final Persister persister,
-                                               final Object record) throws Exception {
+   public <T> void appendUpdateRecordTransactional(final long txID,
+                                                   final long id,
+                                                   final byte recordType,
+                                                   final Persister<T> persister,
+                                                   final T record) throws Exception {
       if (log.isTraceEnabled()) {
          log.trace("AppendUpdateRecord txid=" + txID + " id = " + id + " , recordType = " + recordType);
       }
