@@ -63,7 +63,10 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add("deliverDeliver", toString(q.isDirectDeliver()))
          .add("exclusive", toString(queue.isExclusive()))
          .add("lastValue", toString(queue.isLastValue()))
-         .add("scheduledCount", toString(queue.getScheduledCount()));
+         .add("scheduledCount", toString(queue.getScheduledCount()))
+         .add("groupRebalance", toString(queue.isGroupRebalance()))
+         .add("groupBuckets", toString(queue.getGroupBuckets()))
+         .add("groupFirstKey", toString(queue.getGroupFirstKey()));
       return obj;
    }
 
@@ -117,6 +120,12 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
             return q.isLastValue();
          case "scheduledCount":
             return q.getScheduledCount();
+         case "groupRebalance":
+            return queue.isGroupRebalance();
+         case "groupBuckets":
+            return queue.getGroupBuckets();
+         case "groupFirstKey":
+            return queue.getGroupFirstKey();
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }

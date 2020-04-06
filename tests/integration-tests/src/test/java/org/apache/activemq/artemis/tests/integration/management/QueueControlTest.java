@@ -123,6 +123,21 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testGroupAttributes() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, RoutingType.MULTICAST, queue);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertFalse(queueControl.isGroupRebalance());
+      Assert.assertEquals(-1, queueControl.getGroupBuckets());
+      Assert.assertEquals(null, queueControl.getGroupFirstKey());
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testRetroactiveResourceAttribute() throws Exception {
       SimpleString baseAddress = RandomUtil.randomSimpleString();
       String internalNamingPrefix = server.getInternalNamingPrefix();

@@ -2300,4 +2300,28 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601505, value = "User {0} is getting disk store usage percentage on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getDiskStoreUsagePercentage(String user, Object source, Object... args);
+
+   static void isGroupRebalance(Object source) {
+      LOGGER.isGroupRebalance(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601506, value = "User {0} is getting group rebalance property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void isGroupRebalance(String user, Object source, Object... args);
+
+   static void getGroupBuckets(Object source) {
+      LOGGER.getGroupBuckets(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601507, value = "User {0} is getting group buckets on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getGroupBuckets(String user, Object source, Object... args);
+
+   static void getGroupFirstKey(Object source) {
+      LOGGER.getGroupFirstKey(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601508, value = "User {0} is getting group first key on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getGroupFirstKey(String user, Object source, Object... args);
 }
