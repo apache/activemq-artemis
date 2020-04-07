@@ -76,9 +76,11 @@ related JIRA or an email to the [dev list](http://activemq.apache.org/mailing-li
 
    <a name="commitMessageDetails"></a> When you commit your changes you will need to supply a commit message. We follow the
     50/72 git commit message format. An ActiveMQ Artemis commit message should be formatted in the following manner:
-                                                                        
-   1. Add the ARTEMIS JIRA (if one exists) followed by a brief description of the change in the first line. This line
-      should be limited to 50 characters.
+    
+   1. Add the first line with the summary, using maximum 50 characters. Start the summary with the jira key (ARTEMIS-XXX)
+      followed by a brief description of the change. Use the prefix `NO-JIRA` only for a very small insignificant change,
+      like a typo or a small doc fix. Bug fixes, features or any code change, really should be accompanied by a jira,
+      so they can clearly be reported in the release notes.
    1. Insert a single blank line after the first line.
    1. Provide a detailed description of the change in the following lines, breaking paragraphs where needed. These lines
       should be wrapped at 72 characters.
