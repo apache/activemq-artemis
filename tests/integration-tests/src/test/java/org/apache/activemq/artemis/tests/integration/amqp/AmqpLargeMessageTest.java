@@ -87,10 +87,6 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @Override
-   protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
-   }
-
-   @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
       server.getConfiguration().addAcceptorConfiguration("tcp", "tcp://localhost:61616");
    }
