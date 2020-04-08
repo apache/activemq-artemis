@@ -208,16 +208,16 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
       connection2.setContainerId(getTestName() + "-Client:2");
 
       connection1.connect();
-      assertEquals(1, server.getConnectionCount());
+      Wait.assertEquals(1, server::getConnectionCount);
 
       connection2.connect();
-      assertEquals(2, server.getConnectionCount());
+      Wait.assertEquals(2, server::getConnectionCount);
 
       connection1.close();
-      assertEquals(1, server.getConnectionCount());
+      Wait.assertEquals(1, server::getConnectionCount);
 
       connection2.close();
-      assertEquals(0, server.getConnectionCount());
+      Wait.assertEquals(0, server::getConnectionCount);
    }
 
    @Test(timeout = 60000)

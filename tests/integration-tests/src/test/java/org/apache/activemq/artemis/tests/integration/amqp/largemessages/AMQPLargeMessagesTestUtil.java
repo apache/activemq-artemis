@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import java.util.NoSuchElementException;
+
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -41,7 +43,14 @@ public class AMQPLargeMessagesTestUtil {
    public static void validateTemporaryBuffers(Queue serverQueue) {
       LinkedListIterator<MessageReference> totalIterator = serverQueue.browserIterator();
       while (totalIterator.hasNext()) {
-         MessageReference ref = totalIterator.next();
+         MessageReference ref;
+         try {
+            ref = totalIterator.next();
+         } catch (NoSuchElementException e) {
+            // that's fine, it means the iterator got to the end of the list
+            // and something else removed it
+            break;
+         }
          if (ref.getMessage() instanceof AMQPLargeMessage) {
             AMQPLargeMessage amqpLargeMessage = (AMQPLargeMessage) ref.getMessage();
             // Using a Wait.waitFor here as we may have something working with the buffer in parallel
