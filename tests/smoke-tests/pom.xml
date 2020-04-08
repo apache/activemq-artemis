@@ -307,6 +307,88 @@
                      </args>
                   </configuration>
                </execution>
+               <!-- START JmxReplicatedMultipleFailbackTest -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-replicated-failback-master1</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/replicated-failback-master1</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/replicated-failback-master1</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-replicated-failback-master2</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/replicated-failback-master2</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/replicated-failback-master2</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-replicated-failback-master3</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/replicated-failback-master3</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/replicated-failback-master3</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-replicated-failback-slave1</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/replicated-failback-slave1</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/replicated-failback-slave1</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <!-- END JmxReplicatedMultipleFailbackTest -->
                <execution>
                   <phase>test-compile</phase>
                   <id>create-paging</id>
