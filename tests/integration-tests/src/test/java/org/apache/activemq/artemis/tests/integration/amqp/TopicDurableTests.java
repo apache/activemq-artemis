@@ -39,7 +39,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Test;
@@ -47,12 +46,6 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 
 public class TopicDurableTests extends JMSClientTestSupport {
-
-   @Override
-   protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
-      // do not create unnecessary queues
-   }
-
 
    @Test
    public void testMessageDurableSubscription() throws Exception {
