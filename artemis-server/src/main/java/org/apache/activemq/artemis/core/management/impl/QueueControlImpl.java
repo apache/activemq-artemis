@@ -1711,7 +1711,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         return queue.getMaxConsumers();
+         return queue.getGroupBuckets();
       } finally {
          blockOnIO();
       }
@@ -1720,7 +1720,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    @Override
    public String getGroupFirstKey() {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.getMaxConsumers(queue);
+         AuditLogger.getGroupFirstKey(queue);
       }
       checkStarted();
 
