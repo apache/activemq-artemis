@@ -18,14 +18,15 @@
 package org.apache.activemq.artemis.tests.smoke.common;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.junit.After;
 
 public class SmokeTestBase extends ActiveMQTestBase {
-   ArrayList<Process> processes = new ArrayList();
+   Set<Process> processes = new HashSet<>();
 
    public static final String basedir = System.getProperty("basedir");
 
@@ -38,13 +39,23 @@ public class SmokeTestBase extends ActiveMQTestBase {
             e.printStackTrace();
          }
       }
+      processes.clear();
    }
 
-   public String getServerLocation(String serverName) {
+   public void killServer(Process process) {
+      processes.remove(process);
+      try {
+         ServerUtil.killServer(process);
+      } catch (Throwable e) {
+         e.printStackTrace();
+      }
+   }
+
+   public static String getServerLocation(String serverName) {
       return basedir + "/target/" + serverName;
    }
 
-   public void cleanupData(String serverName) {
+   public static void cleanupData(String serverName) {
       String location = getServerLocation(serverName);
       deleteDirectory(new File(location, "data"));
    }
