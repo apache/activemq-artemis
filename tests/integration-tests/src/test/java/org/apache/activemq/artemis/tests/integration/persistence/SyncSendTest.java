@@ -37,9 +37,12 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -105,6 +108,8 @@ public class SyncSendTest extends ActiveMQTestBase {
          server.getConfiguration().setJournalType(JournalType.NIO);
       }
 
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false));
+
       server.getConfiguration().setJournalSyncTransactional(true).setJournalSyncNonTransactional(true).setJournalDatasync(true);
       server.start();
    }
@@ -161,6 +166,8 @@ public class SyncSendTest extends ActiveMQTestBase {
 
       long recordTime = getTimePerSync();
 
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST));
+
       server.createQueue(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST, SimpleString.toSimpleString("queue"), null, true, false);
 
       ConnectionFactory factory = newCF();
@@ -170,11 +177,7 @@ public class SyncSendTest extends ActiveMQTestBase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          Queue queue;
-         if (protocol.equals("amqp")) {
-            queue = session.createQueue("jms.queue.queue");
-         } else {
-            queue = session.createQueue("queue");
-         }
+         queue = session.createQueue("queue");
          MessageProducer producer = session.createProducer(queue);
 
          long start = System.nanoTime();
@@ -215,10 +218,13 @@ public class SyncSendTest extends ActiveMQTestBase {
          if (!protocol.equals("amqp") && (end - start) < recordTime) {
             Assert.fail("Messages are being acked too fast! Faster than the disk would be able to sync!");
          }
+
+         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString("queue"));
+         Wait.assertEquals(0, serverQueue::getMessageCount);
+         Wait.assertEquals(0, serverQueue::getDeliveringCount);
       } finally {
          connection.close();
       }
-
    }
 
    // this will set ack as synchronous, to make sure we make proper measures against the sync on disk
