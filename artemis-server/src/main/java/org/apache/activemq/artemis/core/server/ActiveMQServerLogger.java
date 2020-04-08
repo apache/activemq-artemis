@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
+import org.apache.activemq.artemis.core.server.cluster.qourum.ServerConnectVote;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
@@ -80,6 +81,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 223000, value = "Received Interrupt Exception whilst waiting for component to shutdown: {0}", format = Message.Format.MESSAGE_FORMAT)
    void interruptWhilstStoppingComponent(String componentClassName);
+
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 223001, value = "Ignored quorum vote due to quorum reached or vote casted: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void ignoredQuorumVote(ServerConnectVote vote);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221000, value = "{0} Message Broker is starting with configuration {1}", format = Message.Format.MESSAGE_FORMAT)
@@ -2041,7 +2046,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 224098, value = "Received a vote saying the backup is live with connector: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void qourumBackupIsLive(String liveConnector);
+   void quorumBackupIsLive(String liveConnector);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224099, value = "Message with ID {0} has a header too large. More information available on debug level for class {1}",
