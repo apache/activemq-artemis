@@ -2069,4 +2069,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 224103, value = "unable to undeploy queue {0} : reason {1}", format = Message.Format.MESSAGE_FORMAT)
    void unableToUndeployQueue(SimpleString queueName, String reason);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224104, value = "Error starting the Acceptor {0} {1}", format = Message.Format.MESSAGE_FORMAT)
+   void errorStartingAcceptor(String name, Object configuration);
 }
