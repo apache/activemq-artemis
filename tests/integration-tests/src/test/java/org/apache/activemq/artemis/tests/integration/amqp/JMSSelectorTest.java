@@ -131,7 +131,7 @@ public class JMSSelectorTest extends JMSClientTestSupport {
          TextMessage msg = (TextMessage) consumer.receive(1000);
          assertNotNull(msg);
          assertEquals("how are you", msg.getText());
-         assertNull(consumer.receive(1000));
+         assertNull(consumer.receiveNoWait());
          consumer.close();
       }
    }
