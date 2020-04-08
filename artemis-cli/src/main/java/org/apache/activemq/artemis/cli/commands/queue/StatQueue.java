@@ -54,6 +54,8 @@ public class StatQueue extends AbstractAction {
       CONTAINS, EQUALS, GREATER_THAN, LESS_THAN
    }
 
+   public static final int DEFAULT_MAX_ROWS = 50;
+
    @Option(name = "--queueName", description = "display queue stats for queue(s) with names containing this string.")
    private String queueName;
 
@@ -67,7 +69,7 @@ public class StatQueue extends AbstractAction {
    private String value;
 
    @Option(name = "--maxRows", description = "max number of queues displayed. Default is 50.")
-   private int maxRows = 50;
+   private int maxRows = DEFAULT_MAX_ROWS;
 
    //easier for testing
    public StatQueue setQueueName(String queueName) {
@@ -114,11 +116,11 @@ public class StatQueue extends AbstractAction {
          context.out.println("filter is '" + filter + "'");
          context.out.println("maxRows='" + maxRows + "'");
       }
-      printStats(context, filter, maxRows);
+      printStats(context, filter);
       return null;
    }
 
-   private void printStats(final ActionContext context, final String filter, int maxRows) throws Exception {
+   private void printStats(final ActionContext context, final String filter) throws Exception {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
@@ -151,10 +153,15 @@ public class StatQueue extends AbstractAction {
       }
 
       JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(result);
-      JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
+      int count = queuesAsJsonObject.getInt("count");
+      JsonArray array = queuesAsJsonObject.getJsonArray("data");
 
       for (int i = 0; i < array.size(); i++) {
          printQueueStats(array.getJsonObject(i));
+      }
+
+      if (count > maxRows) {
+         context.out.println(String.format("WARNING: the displayed queues are %d/%d, set maxRows to display more queues.", maxRows, count));
       }
    }
 
