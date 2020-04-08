@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -233,7 +234,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       }
       receiver.close();
 
-      assertEquals(0, queueView.getMessageCount());
+      Wait.assertEquals(0, queueView::getMessageCount);
 
       connection.close();
    }
