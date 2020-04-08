@@ -50,6 +50,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
    private ServerLocator locator;
    private final ClusterController clusterController;
    private final StorageManager storageManager;
+   private final Configuration configuration;
 
    public BackupRecoveryJournalLoader(PostOffice postOffice,
                                       PagingManager pagingManager,
@@ -68,6 +69,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
       this.locator = locator;
       this.clusterController = clusterController;
       this.storageManager = storageManager;
+      this.configuration = configuration;
    }
 
    @Override
@@ -89,11 +91,11 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
    public void postLoad(Journal messageJournal,
                         ResourceManager resourceManager,
                         Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
-      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(pagingManager, postOffice, nodeManager, clusterController, parentServer.getStorageManager());
+      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(pagingManager, postOffice, nodeManager, clusterController, parentServer != null ? parentServer.getStorageManager() : storageManager);
       locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator, storageManager));
 
       try (ClientSessionFactory sessionFactory = locator.createSessionFactory()) {
-         scaleDownHandler.scaleDown(sessionFactory, resourceManager, duplicateIDMap, parentServer.getConfiguration().getManagementAddress(), parentServer.getNodeID());
+         scaleDownHandler.scaleDown(sessionFactory, resourceManager, duplicateIDMap, parentServer != null ? parentServer.getConfiguration().getManagementAddress() : configuration.getManagementAddress(), parentServer != null ? parentServer.getNodeID() : null);
       }
    }
 
