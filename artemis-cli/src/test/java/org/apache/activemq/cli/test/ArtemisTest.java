@@ -1243,8 +1243,8 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setMaxRows(1);
          statQueue.execute(context);
          lines = getOutputLines(context, false);
-         // Header line + 1 queue only
-         Assert.assertEquals("rows returned by maxRows=1", 2, lines.size());
+         // Header line + 1 queue only + warning line
+         Assert.assertEquals("rows returned by maxRows=1", 3, lines.size());
 
       } finally {
          stopServer();
@@ -1348,6 +1348,87 @@ public class ArtemisTest extends CliTestBase {
          // 1 error line
          Assert.assertEquals("stderr for --field set BUT no --operation", 1, lines.size());
          Assert.assertTrue("OPERATION incorrect error message", lines.get(0).contains("'--operation' must be set when '--field' is specified "));
+
+      } finally {
+         stopServer();
+      }
+
+   }
+
+   @Test
+   public void testQstatWarnings() throws Exception {
+
+      File instanceQstat = new File(temporaryFolder.getRoot(), "instanceQStat");
+      setupAuth(instanceQstat);
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceQstat.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", instanceQstat.getAbsolutePath());
+      Artemis.internalExecute("run");
+
+      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616"); Connection connection = cf.createConnection("admin", "admin");) {
+
+         TestActionContext context;
+         StatQueue statQueue;
+         ArrayList<String> lines;
+
+         //set up some queues with messages and consumers
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         connection.start();
+         for (int i = 0; i < StatQueue.DEFAULT_MAX_ROWS; i++) {
+            sendMessages(session, "Test" + i, 1);
+         }
+
+         //check all queues containing "Test" are displayed
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setQueueName("Test");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + DEFAULT_MAX_ROWS queues + warning line
+         Assert.assertEquals("rows returned using queueName=Test", 1 + StatQueue.DEFAULT_MAX_ROWS, lines.size());
+         Assert.assertFalse(lines.get(lines.size() - 1).startsWith("WARNING"));
+
+         //check all queues containing "Test" are displayed
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setQueueName("Test");
+         statQueue.setMaxRows(StatQueue.DEFAULT_MAX_ROWS);
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + DEFAULT_MAX_ROWS queues
+         Assert.assertEquals("rows returned using queueName=Test", 1 + StatQueue.DEFAULT_MAX_ROWS, lines.size());
+         Assert.assertFalse(lines.get(lines.size() - 1).startsWith("WARNING"));
+
+         sendMessages(session, "Test" + StatQueue.DEFAULT_MAX_ROWS, 1);
+
+         //check all queues containing "Test" are displayed
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setQueueName("Test");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + DEFAULT_MAX_ROWS queues + warning line
+         Assert.assertEquals("rows returned using queueName=Test", 1 + StatQueue.DEFAULT_MAX_ROWS + 1, lines.size());
+         Assert.assertTrue(lines.get(lines.size() - 1).startsWith("WARNING"));
+
+         //check all queues containing "Test" are displayed
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setQueueName("Test");
+         statQueue.setMaxRows(StatQueue.DEFAULT_MAX_ROWS);
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + DEFAULT_MAX_ROWS queues + warning line
+         Assert.assertEquals("rows returned using queueName=Test", 1 + StatQueue.DEFAULT_MAX_ROWS + 1, lines.size());
+         Assert.assertTrue(lines.get(lines.size() - 1).startsWith("WARNING"));
 
       } finally {
          stopServer();
