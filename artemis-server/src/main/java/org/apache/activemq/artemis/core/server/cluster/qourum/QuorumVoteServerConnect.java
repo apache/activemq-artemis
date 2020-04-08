@@ -29,18 +29,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boolean> {
 
    public static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LiveFailoverQuorumVote");
-   private final CountDownLatch latch;
+   // this flag mark the end of the vote
+   private final CountDownLatch voteCompleted;
    private final String targetNodeId;
    private final String liveConnector;
-
    private int votesNeeded;
 
-   private int total = 0;
-
-   private boolean decision = false;
-
    // Is this the live requesting to stay live, or a backup requesting to become live.
-   private boolean requestToStayLive = false;
+   private final boolean requestToStayLive;
 
    /**
     * live nodes | remaining nodes |  majority   | votes needed
@@ -65,9 +61,9 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
       }
       //votes needed could be say 2.5 so we add 1 in this case
       votesNeeded = (int) majority;
-      latch = new CountDownLatch(votesNeeded);
+      voteCompleted = new CountDownLatch(1);
       if (votesNeeded == 0) {
-         decision = true;
+         voteCompleted.countDown();
       }
       this.requestToStayLive = requestToStayLive;
    }
@@ -108,42 +104,46 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
     */
    @Override
    public synchronized void vote(ServerConnectVote vote) {
-      if (decision)
+      if (voteCompleted.getCount() == 0) {
+         ActiveMQServerLogger.LOGGER.ignoredQuorumVote(vote);
          return;
-      if (!requestToStayLive && vote.getVote()) {
-         total++;
-         latch.countDown();
-         if (total >= votesNeeded) {
-            decision = true;
-         }//do the opposite, if it says there is a node connected it means the backup has come live
-      } else if (requestToStayLive && vote.getVote()) {
-         total++;
-         latch.countDown();
-         if (liveConnector != null && !liveConnector.equals(vote.getTransportConfiguration())) {
-            ActiveMQServerLogger.LOGGER.qourumBackupIsLive(liveConnector);
-            return;
-         }
-         if (total >= votesNeeded) {
-            decision = true;
+      }
+      if (vote.getVote()) {
+         if (!requestToStayLive) {
+            acceptPositiveVote();
+         } else if (liveConnector.equals(vote.getTransportConfiguration())) {
+            acceptPositiveVote();
+         } else {
+            ActiveMQServerLogger.LOGGER.quorumBackupIsLive(vote.getTransportConfiguration());
          }
       }
    }
 
-   @Override
-   public void allVotesCast(Topology voteTopology) {
-      while (latch.getCount() > 0) {
-         latch.countDown();
+   private synchronized void acceptPositiveVote() {
+      if (voteCompleted.getCount() == 0) {
+         throw new IllegalStateException("Cannot accept any new positive vote if the vote is completed or the decision is already taken");
+      }
+      votesNeeded--;
+      if (votesNeeded == 0) {
+         voteCompleted.countDown();
       }
    }
 
    @Override
-   public Boolean getDecision() {
-      return decision;
+   public synchronized void allVotesCast(Topology voteTopology) {
+      if (voteCompleted.getCount() > 0) {
+         voteCompleted.countDown();
+      }
+   }
+
+   @Override
+   public synchronized Boolean getDecision() {
+      return votesNeeded == 0;
    }
 
    public void await(int latchTimeout, TimeUnit unit) throws InterruptedException {
       ActiveMQServerLogger.LOGGER.waitingForQuorumVoteResults(latchTimeout, unit.toString().toLowerCase());
-      if (latch.await(latchTimeout, unit))
+      if (voteCompleted.await(latchTimeout, unit))
          ActiveMQServerLogger.LOGGER.receivedAllQuorumVotes();
       else
          ActiveMQServerLogger.LOGGER.timeoutWaitingForQuorumVoteResponses();
