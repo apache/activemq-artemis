@@ -112,9 +112,6 @@ public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
          Assert.assertNotNull("got validated user", m.getValidatedUserID());
          Assert.assertTrue("krb id in validated user", m.getValidatedUserID().contains(CLIENT_PRINCIPAL));
 
-      } catch (Exception e) {
-         e.printStackTrace();
-         Assert.fail();
       } finally {
          if (sf != null) {
             sf.close();
