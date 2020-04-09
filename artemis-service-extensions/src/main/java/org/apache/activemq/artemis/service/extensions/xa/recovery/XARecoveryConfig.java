@@ -60,6 +60,16 @@ public class XARecoveryConfig {
                            final String password,
                            final Map<String, String> properties,
                            final ClientProtocolManagerFactory clientProtocolManager) {
+      this(ha, transportConfiguration, username, password, properties, clientProtocolManager, null);
+   }
+
+   public XARecoveryConfig(final boolean ha,
+                           final TransportConfiguration[] transportConfiguration,
+                           final String username,
+                           final String password,
+                           final Map<String, String> properties,
+                           final ClientProtocolManagerFactory clientProtocolManager,
+                           ServerLocatorConfig locatorConfig) {
       TransportConfiguration[] newTransportConfiguration = new TransportConfiguration[transportConfiguration.length];
       for (int i = 0; i < transportConfiguration.length; i++) {
          if (clientProtocolManager != null) {
@@ -76,6 +86,7 @@ public class XARecoveryConfig {
       this.ha = ha;
       this.properties = properties == null ? new HashMap<>() : properties;
       this.clientProtocolManager = clientProtocolManager;
+      this.locatorConfig = locatorConfig;
    }
 
    public XARecoveryConfig(final boolean ha,
@@ -185,6 +196,10 @@ public class XARecoveryConfig {
       }
 
       return serverLocator;
+   }
+
+   public ServerLocatorConfig getLocatorConfig() {
+      return locatorConfig;
    }
 
    @Override
