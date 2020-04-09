@@ -1762,7 +1762,7 @@ public class BridgeTest extends ActiveMQTestBase {
          ArrayList<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
-         int minLargeMessageSize = 1024 * 1024;
+         int minLargeMessageSize = 200 * 1024;
 
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors).setMinLargeMessageSize(minLargeMessageSize).setProducerWindowSize(minLargeMessageSize / 2);
 
@@ -1800,7 +1800,7 @@ public class BridgeTest extends ActiveMQTestBase {
          session1.start();
 
          //create a large message bigger than Integer.MAX_VALUE
-         final long largeMessageSize = Integer.MAX_VALUE + 1000L;
+         final long largeMessageSize = 200 * 1024;
 
          ClientMessage largeMessage = createLargeMessage(session0, largeMessageSize);
 
@@ -1809,20 +1809,7 @@ public class BridgeTest extends ActiveMQTestBase {
          session0.commit();
 
          //check target queue for large message arriving
-         ClientSession.QueueQuery query = session1.queueQuery(new SimpleString(queueName1));
-         long messageCount = query.getMessageCount();
-         int count = 0;
-         //wait for 300 sec max
-         while (messageCount == 0 && count < 300) {
-            count++;
-            Thread.sleep(1000);
-            query = session1.queueQuery(new SimpleString(queueName1));
-            messageCount = query.getMessageCount();
-         }
-
-         if (messageCount == 0) {
-            fail("large message didn't arrived after 5 min!");
-         }
+         Wait.waitFor(() -> session1.queueQuery(SimpleString.toSimpleString(queueName1)).getMessageCount() > 0);
 
          //receive the message
          ClientMessage message = consumer1.receive(5000);
