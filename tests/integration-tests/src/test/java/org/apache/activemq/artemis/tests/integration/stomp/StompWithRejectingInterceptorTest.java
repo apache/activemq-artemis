@@ -56,7 +56,7 @@ public class StompWithRejectingInterceptorTest extends StompTestBase {
       conn.sendFrame(frame);
       conn.disconnect();
 
-      assertTrue(Wait.waitFor(() -> IncomingStompFrameRejectInterceptor.interceptedFrames.size() == 3, 2000, 50));
+      assertTrue(Wait.waitFor(() -> IncomingStompFrameRejectInterceptor.interceptedFrames.size() == 3, 10000, 50));
 
       List<String> incomingCommands = new ArrayList<>(4);
       incomingCommands.add("CONNECT");
