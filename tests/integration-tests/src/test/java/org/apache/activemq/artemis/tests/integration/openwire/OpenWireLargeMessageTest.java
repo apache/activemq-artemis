@@ -75,7 +75,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
       addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
       addressSettingsMap.put(lmDropAddress.toString(),
                              new AddressSettings()
-                                .setMaxSizeBytes(15 * 1024 * 1024)
+                                .setMaxSizeBytes(100 * 1024)
                                 .setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP)
                                 .setMessageCounterHistoryDayLimit(10)
                                 .setRedeliveryDelay(0)
