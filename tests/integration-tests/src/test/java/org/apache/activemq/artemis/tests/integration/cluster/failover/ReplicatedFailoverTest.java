@@ -55,18 +55,6 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
    };
 
-
-   /* @Test
-   public void testLoop() throws Throwable {
-
-      for (int i = 0; i < 100; i++) {
-         System.err.println("#Test " + i);
-         testReplicatedFailback();
-         tearDown();
-         setUp();
-      }
-   } */
-
    protected void beforeWaitForRemoteBackupSynchronization() {
    }
 
