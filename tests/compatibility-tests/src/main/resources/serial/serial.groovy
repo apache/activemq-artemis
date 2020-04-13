@@ -30,10 +30,11 @@ if (method.equals("write")) {
     cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false");
     queue = new ActiveMQQueue("queue");
     topic = new ActiveMQTopic("topic")
-    if (version.equals("ARTEMIS-SNAPSHOT")) {
-        destination = new ActiveMQDestination("address", "name", ActiveMQDestination.TYPE.DESTINATION, null)
-    } else if (version.equals("ARTEMIS-155")) {
+
+    if (version.equals("ARTEMIS-155")) {
         destination = new ActiveMQDestination("address", "name", false, true, null)
+    } else {
+        destination = new ActiveMQDestination("address", "name", ActiveMQDestination.TYPE.DESTINATION, null)
     }
 
     ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));

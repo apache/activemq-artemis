@@ -47,12 +47,11 @@ if (method.equals("write")) {
     topic = new ActiveMQTopic("topic")
     temporary = ActiveMQDestination.createTemporaryQueue("whatever")
     temporaryTopic = ActiveMQDestination.createTemporaryTopic("whatever")
-    if (version.equals("ARTEMIS-SNAPSHOT")) {
-        destination = new ActiveMQDestination("address", "name", ActiveMQDestination.TYPE.DESTINATION, null)
-    } else if (version.equals("ARTEMIS-155")) {
+    if (version.equals("ARTEMIS-155")) {
         destination = new ActiveMQDestination("address", "name", false, true, null)
+    } else {
+        destination = new ActiveMQDestination("address", "name", ActiveMQDestination.TYPE.DESTINATION, null)
     }
-
     Marshaller marshaller = factory.createMarshaller(configuration)
     FileOutputStream fileOutputStream = new FileOutputStream(file)
     marshaller.start(Marshalling.createByteOutput(fileOutputStream));

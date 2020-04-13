@@ -387,9 +387,6 @@
                   </goals>
                   <id>2_10_0-check</id>
                   <configuration>
-                     <!-- At the time I'm writing this 2.10.0 is not released yet
-                          This could be removed the day 2.10.0 is released.
-                          I am adding this now to make sure we will run tests on 2.10.0 when it is released -->
                      <optional>true</optional>
                      <libListWithDeps>
                         <arg>org.apache.activemq:artemis-jms-server:2.10.0</arg>
@@ -399,6 +396,7 @@
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.10.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.10.0</arg>
                         <arg>org.codehaus.groovy:groovy-all:${groovy.version}</arg>
+                        <arg>org.jboss.marshalling:jboss-marshalling-river:2.0.2.Final</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
