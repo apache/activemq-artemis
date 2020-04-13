@@ -63,6 +63,9 @@
 		<configfile finalname="etc/org.apache.activemq.artemis.cfg">mvn:org.apache.activemq/artemis-features/${pom.version}/cfg</configfile>
 		<configfile finalname="etc/artemis.xml">mvn:org.apache.activemq/artemis-features/${pom.version}/xml/artemis</configfile>
 
+		<!-- this is here because commons-configuration2 requires the package javax.mail.internet from version 2.7 -->
+		<bundle dependency="true">mvn:javax.mail/mail/1.4.7</bundle>
+
 		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo.jms.2.spec.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons.config.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-text/1.6</bundle>
