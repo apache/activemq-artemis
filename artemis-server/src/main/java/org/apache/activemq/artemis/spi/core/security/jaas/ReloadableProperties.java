@@ -137,7 +137,14 @@ public class ReloadableProperties {
    }
 
    private boolean hasModificationAfter(long reloadTime) {
-      return key.file.lastModified() > reloadTime;
+      /**
+       * A bug in JDK 8/9 (i.e. https://bugs.openjdk.java.net/browse/JDK-8177809) causes java.io.File.lastModified() to
+       * lose resolution past 1 second. Because of this, the value returned by java.io.File.lastModified() can appear to
+       * be smaller than it actually is which can cause the broker to miss reloading the properties if the modification
+       * happens close to another "reload" event (e.g. initial loading). In order to *not* miss file modifications that
+       * need to be reloaded we artificially inflate the value returned by java.io.File.lastModified() by 1 second.
+       */
+      return key.file.lastModified() + 1000 > reloadTime;
    }
 
    private boolean looksLikeRegexp(String str) {
