@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -120,6 +121,7 @@ public interface ServerSession extends SecurityAuth {
     */
    void resetTX(Transaction transaction);
 
+   @Deprecated
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      RoutingType routingType,
@@ -127,6 +129,7 @@ public interface ServerSession extends SecurityAuth {
                      boolean temporary,
                      boolean durable) throws Exception;
 
+   @Deprecated
    Queue createQueue(AddressInfo address,
                      SimpleString name,
                      SimpleString filterString,
@@ -144,12 +147,14 @@ public interface ServerSession extends SecurityAuth {
     * @return
     * @throws Exception
     */
+   @Deprecated
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      SimpleString filterString,
                      boolean temporary,
                      boolean durable) throws Exception;
 
+   @Deprecated
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      RoutingType routingType,
@@ -160,6 +165,7 @@ public interface ServerSession extends SecurityAuth {
                      boolean purgeOnNoConsumers,
                      boolean autoCreated) throws Exception;
 
+   @Deprecated
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      RoutingType routingType,
@@ -172,6 +178,7 @@ public interface ServerSession extends SecurityAuth {
                      Boolean lastValue,
                      boolean autoCreated) throws Exception;
 
+   @Deprecated
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      RoutingType routingType,
@@ -193,6 +200,7 @@ public interface ServerSession extends SecurityAuth {
                      Long autoDeleteMessageCount,
                      boolean autoCreated) throws Exception;
 
+   @Deprecated
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      RoutingType routingType,
@@ -215,6 +223,7 @@ public interface ServerSession extends SecurityAuth {
                      Long autoDeleteMessageCount,
                      boolean autoCreated) throws Exception;
 
+   @Deprecated
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      RoutingType routingType,
@@ -238,6 +247,7 @@ public interface ServerSession extends SecurityAuth {
                      boolean autoCreated,
                      Long ringSize) throws Exception;
 
+   @Deprecated
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      RoutingType routingType,
@@ -246,6 +256,7 @@ public interface ServerSession extends SecurityAuth {
                      boolean durable,
                      boolean autoCreated) throws Exception;
 
+   @Deprecated
    Queue createQueue(AddressInfo addressInfo,
                      SimpleString name,
                      SimpleString filterString,
@@ -253,6 +264,7 @@ public interface ServerSession extends SecurityAuth {
                      boolean durable,
                      boolean autoCreated) throws Exception;
 
+   @Deprecated
    Queue createQueue(AddressInfo addressInfo,
                      SimpleString name,
                      SimpleString filterString,
@@ -261,6 +273,22 @@ public interface ServerSession extends SecurityAuth {
                      Boolean exclusive,
                      Boolean lastValue,
                      boolean autoCreated) throws Exception;
+
+   /**
+    * This method invokes {@link ActiveMQServer#createQueue(QueueConfiguration)} with a few client-specific additions:
+    * <p><ul>
+    * <li>set the routing type based on the prefixes configured on the acceptor used by the client
+    * <li>strip any prefixes from the address & queue names (if applicable)
+    * <li>check authorization based on the client's credentials
+    * <li>enforce queue creation resource limit
+    * <li>set up callbacks to clean up temporary queues once the client disconnects
+    * </ul>
+    *
+    * @param queueConfiguration the configuration to use when creating the queue
+    * @return the {@code Queue} instance that was created
+    * @throws Exception
+    */
+   Queue createQueue(QueueConfiguration queueConfiguration) throws Exception;
 
    AddressInfo createAddress(SimpleString address,
                              EnumSet<RoutingType> routingTypes,
@@ -367,6 +395,7 @@ public interface ServerSession extends SecurityAuth {
 
    boolean isClosed();
 
+   @Deprecated
    void createSharedQueue(SimpleString address,
                      SimpleString name,
                      RoutingType routingType,
@@ -377,6 +406,7 @@ public interface ServerSession extends SecurityAuth {
                      Boolean exclusive,
                      Boolean lastValue) throws Exception;
 
+   @Deprecated
    void createSharedQueue(SimpleString address,
                           SimpleString name,
                           RoutingType routingType,
@@ -396,6 +426,7 @@ public interface ServerSession extends SecurityAuth {
                           Long autoDeleteDelay,
                           Long autoDeleteMessageCount) throws Exception;
 
+   @Deprecated
    void createSharedQueue(SimpleString address,
                           SimpleString name,
                           RoutingType routingType,
@@ -416,16 +447,20 @@ public interface ServerSession extends SecurityAuth {
                           Long autoDeleteDelay,
                           Long autoDeleteMessageCount) throws Exception;
 
+   @Deprecated
    void createSharedQueue(SimpleString address,
                           SimpleString name,
                           RoutingType routingType,
                           boolean durable,
                           SimpleString filterString) throws Exception;
 
+   @Deprecated
    void createSharedQueue(SimpleString address,
                           SimpleString name,
                           boolean durable,
                           SimpleString filterString) throws Exception;
+
+   void createSharedQueue(QueueConfiguration queueConfiguration) throws Exception;
 
    List<MessageReference> getInTXMessagesForConsumer(long consumerId);
 
@@ -467,6 +502,8 @@ public interface ServerSession extends SecurityAuth {
     *         name and the {@code org.apache.activemq.artemis.api.core.RoutingType} corresponding to the that prefix.
     */
    AddressInfo getAddressAndRoutingType(AddressInfo addressInfo);
+
+   RoutingType getRoutingTypeFromPrefix(SimpleString address, RoutingType defaultRoutingType);
 
    /**
     * Get the canonical (i.e. non-prefixed) address and the corresponding routing-type.

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -44,7 +45,7 @@ public class ConsumerRoundRobinTest extends ActiveMQTestBase {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = addClientSession(cf.createSession(false, true, true));
-      session.createQueue(addressA, queueA, false);
+      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
 
       ClientConsumer[] consumers = new ClientConsumer[5];
       // start the session before we create the consumers, this is because start is non blocking and we have to

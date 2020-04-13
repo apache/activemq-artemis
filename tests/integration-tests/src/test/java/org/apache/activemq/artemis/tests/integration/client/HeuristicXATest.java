@@ -21,6 +21,7 @@ import javax.management.MBeanServerFactory;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -94,7 +95,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       session.start(xid, XAResource.TMNOFLAGS);
 
@@ -167,7 +168,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       session.start(xid, XAResource.TMNOFLAGS);
 
@@ -245,7 +246,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       session.start(xid, XAResource.TMNOFLAGS);
 
@@ -348,7 +349,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, false, false);
 
-      session.createQueue(ADDRESS, ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       session.start(xid, XAResource.TMNOFLAGS);
 

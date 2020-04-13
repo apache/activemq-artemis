@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -136,7 +137,7 @@ public class SendAckFailTest extends SpawnedTestBase {
 
             ClientSession session = sf.createSession();
             session.createAddress(SimpleString.toSimpleString("T1"), RoutingType.ANYCAST, true);
-            session.createQueue(SimpleString.toSimpleString("T1"), RoutingType.ANYCAST, SimpleString.toSimpleString("T1"), true);
+            session.createQueue(new QueueConfiguration("T1").setRoutingType(RoutingType.ANYCAST));
 
             ClientProducer producer = session.createProducer("T1");
 

@@ -25,6 +25,7 @@ import javax.jms.TextMessage;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -52,7 +53,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
       SimpleString ssQueue = new SimpleString(queue);
 
       server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
-      server.createQueue(ssQueue, RoutingType.ANYCAST, ssQueue, null, true, false, 1, true, false);
+      server.createQueue(new QueueConfiguration(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 
       AmqpClient client = createAmqpClient();
       connection = addConnection(client.connect());
@@ -107,7 +108,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
       String queue = "purgeQueue";
       SimpleString ssQueue = new SimpleString(queue);
       server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
-      server.createQueue(ssQueue, RoutingType.ANYCAST, ssQueue, null, true, false, 1, true, false);
+      server.createQueue(new QueueConfiguration(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:5672");
       Connection connection = cf.createConnection();

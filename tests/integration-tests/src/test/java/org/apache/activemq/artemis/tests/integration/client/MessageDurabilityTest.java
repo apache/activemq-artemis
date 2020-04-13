@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -59,7 +60,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, !durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(!durable));
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(!durable));
@@ -83,7 +84,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(!durable));
@@ -105,7 +106,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(durable));
@@ -130,7 +131,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       final SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, !durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(!durable));
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(durable));
@@ -157,7 +158,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       final SimpleString queue = RandomUtil.randomSimpleString();
 
-      session.createTemporaryQueue(address, queue);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(durable));

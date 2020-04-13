@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.QueueAttributes;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -290,16 +290,17 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
 
    private void createRemoteQueue(ClientSession clientSession, FederatedConsumerKey key) throws ActiveMQException {
       if (!clientSession.queueQuery(key.getQueueName()).isExists()) {
-         QueueAttributes queueAttributes = new QueueAttributes()
-               .setRoutingType(key.getRoutingType())
-               .setFilterString(key.getQueueFilterString())
-               .setDurable(true)
-               .setAutoDelete(config.getAutoDelete() == null ? true : config.getAutoDelete())
-               .setAutoDeleteDelay(config.getAutoDeleteDelay() == null ? TimeUnit.HOURS.toMillis(1) : config.getAutoDeleteDelay())
-               .setAutoDeleteMessageCount(config.getAutoDeleteMessageCount() == null ? -1 : config.getAutoDeleteMessageCount())
-               .setMaxConsumers(-1)
-               .setPurgeOnNoConsumers(false);
-         clientSession.createQueue(key.getAddress(), key.getQueueName(), false, queueAttributes);
+         clientSession.createQueue(new QueueConfiguration(key.getQueueName())
+                                      .setAddress(key.getAddress())
+                                      .setRoutingType(key.getRoutingType())
+                                      .setFilterString(key.getQueueFilterString())
+                                      .setDurable(true)
+                                      .setAutoDelete(config.getAutoDelete() == null ? true : config.getAutoDelete())
+                                      .setAutoDeleteDelay(config.getAutoDeleteDelay() == null ? TimeUnit.HOURS.toMillis(1) : config.getAutoDeleteDelay())
+                                      .setAutoDeleteMessageCount(config.getAutoDeleteMessageCount() == null ? -1 : config.getAutoDeleteMessageCount())
+                                      .setMaxConsumers(-1)
+                                      .setPurgeOnNoConsumers(false)
+                                      .setAutoCreated(false));
       }
    }
 

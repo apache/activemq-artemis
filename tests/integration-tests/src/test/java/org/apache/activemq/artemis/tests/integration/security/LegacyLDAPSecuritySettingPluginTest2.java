@@ -30,7 +30,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -167,7 +167,7 @@ public class LegacyLDAPSecuritySettingPluginTest2 extends AbstractLdapTestUnit {
 
       try {
          ClientSession session = cf.createSession("admin", "secret", false, true, true, false, 0);
-         session.createQueue(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name));
+         session.createQueue(new QueueConfiguration(name));
          ClientProducer producer = session.createProducer();
          producer.send(name, session.createMessage(false));
          session.close();

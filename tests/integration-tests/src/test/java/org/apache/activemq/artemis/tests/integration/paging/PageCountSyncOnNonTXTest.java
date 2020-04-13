@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.paging;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -92,7 +93,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
 
          ClientSessionFactory factory = locator.createSessionFactory();
          ClientSession session = factory.createSession(true, true);
-         session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+         session.createQueue(new QueueConfiguration(QUEUE_NAME));
          ClientProducer producer = session.createProducer(QUEUE_NAME);
          ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
          session.start();

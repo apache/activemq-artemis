@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -46,7 +47,6 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.files.FileMoveManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
@@ -364,7 +364,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
 
    protected void createProducerSendSomeMessages() throws ActiveMQException {
       session = addClientSession(sessionFactory.createSession(true, true));
-      session.createQueue(ADDRESS, RoutingType.MULTICAST, ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
       if (producer != null)
          producer.close();
       producer = addClientProducer(session.createProducer(ADDRESS));

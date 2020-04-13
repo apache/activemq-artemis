@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.remoting;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -93,7 +94,7 @@ public class DirectDeliverTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession();
 
-      session.createQueue(foo, RoutingType.ANYCAST, foo);
+      session.createQueue(new QueueConfiguration(foo).setRoutingType(RoutingType.ANYCAST));
 
       Binding binding = server.getPostOffice().getBinding(new SimpleString(foo));
 

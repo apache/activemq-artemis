@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNullRefException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
@@ -55,6 +56,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.PriorityAware;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
@@ -358,6 +360,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return str.toString();
    }
 
+   @Deprecated
    public QueueImpl(final long id,
                      final SimpleString address,
                      final SimpleString name,
@@ -376,6 +379,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this(id, address, name, filter, null, null, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
+   @Deprecated
    public QueueImpl(final long id,
                     final SimpleString address,
                     final SimpleString name,
@@ -396,6 +400,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, RoutingType.MULTICAST, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
+   @Deprecated
    public QueueImpl(final long id,
                      final SimpleString address,
                      final SimpleString name,
@@ -419,6 +424,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, null, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
+   @Deprecated
    public QueueImpl(final long id,
                      final SimpleString address,
                      final SimpleString name,
@@ -443,6 +449,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, null, null, false, null, null, purgeOnNoConsumers, null, null, null, false, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
+   @Deprecated
    public QueueImpl(final long id,
                     final SimpleString address,
                     final SimpleString name,
@@ -476,6 +483,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, null, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
+   @Deprecated
    public QueueImpl(final long id,
                     final SimpleString address,
                     final SimpleString name,
@@ -510,6 +518,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this(id, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
+   @Deprecated
    public QueueImpl(final long id,
                     final SimpleString address,
                     final SimpleString name,
@@ -542,57 +551,106 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
+      this(new QueueConfiguration(name)
+              .setId(id)
+              .setAddress(address)
+              .setFilterString(filter == null ? null : filter.getFilterString())
+              .setUser(user)
+              .setDurable(durable)
+              .setTemporary(temporary)
+              .setAutoCreated(autoCreated)
+              .setRoutingType(routingType)
+              .setMaxConsumers(maxConsumers)
+              .setExclusive(exclusive)
+              .setGroupRebalance(groupRebalance)
+              .setGroupBuckets(groupBuckets)
+              .setGroupFirstKey(groupFirstKey)
+              .setNonDestructive(nonDestructive)
+              .setConsumersBeforeDispatch(consumersBeforeDispatch)
+              .setDelayBeforeDispatch(delayBeforeDispatch)
+              .setPurgeOnNoConsumers(purgeOnNoConsumers)
+              .setAutoDelete(autoDelete)
+              .setAutoDeleteDelay(autoDeleteDelay)
+              .setAutoDeleteMessageCount(autoDeleteMessageCount)
+              .setConfigurationManaged(configurationManaged)
+              .setRingSize(ringSize),
+           pagingStore,
+           pageSubscription,
+           scheduledExecutor,
+           postOffice,
+           storageManager,
+           addressSettingsRepository,
+           executor,
+           server,
+           factory);
+      this.filter = filter;
+   }
+
+   public QueueImpl(final QueueConfiguration queueConfiguration,
+                    final PagingStore pagingStore,
+                    final PageSubscription pageSubscription,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final ArtemisExecutor executor,
+                    final ActiveMQServer server,
+                    final QueueFactory factory) {
       super(server == null ? EmptyCriticalAnalyzer.getInstance() : server.getCriticalAnalyzer(), CRITICAL_PATHS);
 
-      this.id = id;
+      this.id = queueConfiguration.getId();
 
-      this.address = address;
+      this.address = queueConfiguration.getAddress();
 
       this.addressInfo = postOffice == null ? null : postOffice.getAddressInfo(address);
 
-      this.routingType = routingType;
+      this.routingType = queueConfiguration.getRoutingType();
 
-      this.name = name;
+      this.name = queueConfiguration.getName();
 
-      this.filter = filter;
+      try {
+         this.filter = filter == null ? FilterImpl.createFilter(queueConfiguration.getFilterString()) : filter;
+      } catch (ActiveMQException e) {
+         throw new RuntimeException(e);
+      }
 
       this.pagingStore = pagingStore;
 
       this.pageSubscription = pageSubscription;
 
-      this.propertyDurable = durable;
+      this.propertyDurable = queueConfiguration.isDurable();
 
-      this.temporary = temporary;
+      this.temporary = queueConfiguration.isTemporary();
 
-      this.autoCreated = autoCreated;
+      this.autoCreated = queueConfiguration.isAutoCreated();
 
-      this.maxConsumers = maxConsumers == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : maxConsumers;
+      this.maxConsumers = queueConfiguration.getMaxConsumers() == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : queueConfiguration.getMaxConsumers();
 
-      this.exclusive = exclusive == null ? ActiveMQDefaultConfiguration.getDefaultExclusive() : exclusive;
+      this.exclusive = queueConfiguration.isExclusive() == null ? ActiveMQDefaultConfiguration.getDefaultExclusive() : queueConfiguration.isExclusive();
 
-      this.nonDestructive = nonDestructive == null ? ActiveMQDefaultConfiguration.getDefaultNonDestructive() : nonDestructive;
+      this.nonDestructive = queueConfiguration.isNonDestructive() == null ? ActiveMQDefaultConfiguration.getDefaultNonDestructive() : queueConfiguration.isNonDestructive();
 
-      this.purgeOnNoConsumers = purgeOnNoConsumers == null ? ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers() : purgeOnNoConsumers;
+      this.purgeOnNoConsumers = queueConfiguration.isPurgeOnNoConsumers() == null ? ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers() : queueConfiguration.isPurgeOnNoConsumers();
 
-      this.consumersBeforeDispatch = consumersBeforeDispatch == null ? ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch() : consumersBeforeDispatch;
+      this.consumersBeforeDispatch = queueConfiguration.getConsumersBeforeDispatch() == null ? ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch() : queueConfiguration.getConsumersBeforeDispatch();
 
-      this.delayBeforeDispatch = delayBeforeDispatch == null ? ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch() : delayBeforeDispatch;
+      this.delayBeforeDispatch = queueConfiguration.getDelayBeforeDispatch() == null ? ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch() : queueConfiguration.getDelayBeforeDispatch();
 
-      this.groupRebalance = groupRebalance == null ? ActiveMQDefaultConfiguration.getDefaultGroupRebalance() : groupRebalance;
+      this.groupRebalance = queueConfiguration.isGroupRebalance() == null ? ActiveMQDefaultConfiguration.getDefaultGroupRebalance() : queueConfiguration.isGroupRebalance();
 
-      this.groupBuckets = groupBuckets == null ? ActiveMQDefaultConfiguration.getDefaultGroupBuckets() : groupBuckets;
+      this.groupBuckets = queueConfiguration.getGroupBuckets() == null ? ActiveMQDefaultConfiguration.getDefaultGroupBuckets() : queueConfiguration.getGroupBuckets();
 
       this.groups = groupMap(this.groupBuckets);
 
-      this.groupFirstKey = groupFirstKey == null ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() : groupFirstKey;
+      this.groupFirstKey = queueConfiguration.getGroupFirstKey() == null ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() : queueConfiguration.getGroupFirstKey();
 
-      this.autoDelete = autoDelete == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated) : autoDelete;
+      this.autoDelete = queueConfiguration.isAutoDelete() == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated) : queueConfiguration.isAutoDelete();
 
-      this.autoDeleteDelay = autoDeleteDelay == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay() : autoDeleteDelay;
+      this.autoDeleteDelay = queueConfiguration.getAutoDeleteDelay() == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay() : queueConfiguration.getAutoDeleteDelay();
 
-      this.autoDeleteMessageCount = autoDeleteMessageCount == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount() : autoDeleteMessageCount;
+      this.autoDeleteMessageCount = queueConfiguration.getAutoDeleteMessageCount() == null ? ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount() : queueConfiguration.getAutoDeleteMessageCount();
 
-      this.configurationManaged = configurationManaged;
+      this.configurationManaged = queueConfiguration.isConfigurationManaged();
 
       this.postOffice = postOffice;
 
@@ -622,7 +680,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.executor = executor;
 
-      this.user = user;
+      this.user = queueConfiguration.getUser();
 
       this.factory = factory;
 
@@ -631,7 +689,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          this.pause(false);
       }
 
-      this.ringSize = ringSize == null ? ActiveMQDefaultConfiguration.getDefaultRingSize() : ringSize;
+      this.ringSize = queueConfiguration.getRingSize() == null ? ActiveMQDefaultConfiguration.getDefaultRingSize() : queueConfiguration.getRingSize();
    }
 
    // Bindable implementation -------------------------------------------------------------------------------------
@@ -3437,7 +3495,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (addressSettings.getDeadLetterAddress() != null && addressSettings.getDeadLetterAddress().length() != 0) {
             SimpleString dlqName = addressSettings.getDeadLetterQueuePrefix().concat(getAddress()).concat(addressSettings.getDeadLetterQueueSuffix());
             SimpleString dlqFilter = new SimpleString(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
-            server.createQueue(addressSettings.getDeadLetterAddress(), RoutingType.MULTICAST, dlqName, dlqFilter, null, true, false, true, false, true, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), true);
+            server.createQueue(new QueueConfiguration(dlqName).setAddress(addressSettings.getDeadLetterAddress()).setFilterString(dlqFilter).setAutoCreated(true).setAutoCreateAddress(true), true);
          }
       }
    }
@@ -3448,7 +3506,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (addressSettings.getExpiryAddress() != null && addressSettings.getExpiryAddress().length() != 0) {
             SimpleString expiryQueueName = addressSettings.getExpiryQueuePrefix().concat(getAddress()).concat(addressSettings.getExpiryQueueSuffix());
             SimpleString expiryFilter = new SimpleString(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
-            server.createQueue(addressSettings.getExpiryAddress(), RoutingType.MULTICAST, expiryQueueName, expiryFilter, null, true, false, true, false, true, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isDefaultExclusiveQueue(), addressSettings.isDefaultLastValueQueue(), true);
+            server.createQueue(new QueueConfiguration(expiryQueueName).setAddress(addressSettings.getExpiryAddress()).setFilterString(expiryFilter).setAutoCreated(true).setAutoCreateAddress(true), true);
          }
       }
    }
@@ -3862,6 +3920,37 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       } else {
          return new BucketMessageGroups<>(groupBuckets);
       }
+   }
+
+   @Override
+   public QueueConfiguration getQueueConfiguration() {
+      return new QueueConfiguration(name)
+         .setAddress(address)
+         .setId(id)
+         .setRoutingType(routingType)
+         .setFilterString(filter.getFilterString())
+         .setDurable(isDurable())
+         .setUser(user)
+         .setMaxConsumers(maxConsumers)
+         .setExclusive(exclusive)
+         .setGroupRebalance(groupRebalance)
+         .setGroupBuckets(groupBuckets)
+         .setGroupFirstKey(groupFirstKey)
+         .setLastValue(false)
+         .setLastValue(null)
+         .setNonDestructive(nonDestructive)
+         .setPurgeOnNoConsumers(purgeOnNoConsumers)
+         .setConsumersBeforeDispatch(consumersBeforeDispatch)
+         .setDelayBeforeDispatch(delayBeforeDispatch)
+         .setAutoDelete(autoDelete)
+         .setAutoDeleteDelay(autoDeleteDelay)
+         .setAutoDeleteMessageCount(autoDeleteMessageCount)
+         .setRingSize(ringSize)
+         .setConfigurationManaged(configurationManaged)
+         .setTemporary(temporary)
+         .setInternal(internalQueue)
+         .setTransient(refCountForConsumers instanceof TransientQueueManagerImpl)
+         .setAutoCreated(autoCreated);
    }
 
    // Inner classes

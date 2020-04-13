@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -284,7 +285,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
 
       session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(address, queue, false);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
    }
 
 }

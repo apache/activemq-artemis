@@ -29,6 +29,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -47,7 +48,7 @@ public class ExclusiveTest extends JMSTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, null, true, false, false, false, false, -1, false, true, false,true);
+      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
    }
 
 
@@ -159,6 +160,7 @@ public class ExclusiveTest extends JMSTestBase {
 
          ActiveMQDestination a = (ActiveMQDestination) queue;
          assertTrue(a.getQueueAttributes().getExclusive());
+         assertTrue(a.getQueueConfiguration().isExclusive());
 
          MessageProducer producer = session.createProducer(queue);
 

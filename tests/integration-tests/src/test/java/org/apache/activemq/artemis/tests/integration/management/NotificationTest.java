@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -80,7 +81,7 @@ public class NotificationTest extends ActiveMQTestBase {
       NotificationTest.flush(notifConsumer);
 
       long start = System.currentTimeMillis();
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
 
       //the first message received will be for the address creation
       ClientMessage[] notifications = NotificationTest.consumeMessages(2, notifConsumer);
@@ -108,7 +109,7 @@ public class NotificationTest extends ActiveMQTestBase {
       NotificationTest.flush(notifConsumer);
 
       long start = System.currentTimeMillis();
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
 
       ClientMessage[] notifications = NotificationTest.consumeMessages(1, notifConsumer);
       Assert.assertEquals(BINDING_ADDED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
@@ -133,7 +134,7 @@ public class NotificationTest extends ActiveMQTestBase {
          queue + "' AND " + ManagementHelper.HDR_ADDRESS + " <> '" + address + "'");
       NotificationTest.flush(notifConsumer);
 
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
 
       NotificationTest.consumeMessages(0, notifConsumer);
 
@@ -146,7 +147,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
 
       NotificationTest.flush(notifConsumer);
 
@@ -174,7 +175,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
 
       NotificationTest.flush(notifConsumer);
 
@@ -211,7 +212,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      mySession.createQueue(address, queue, durable);
+      mySession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
       ClientConsumer consumer = mySession.createConsumer(queue);
       SimpleString sessionName = SimpleString.toSimpleString(((ClientSessionInternal) mySession).getName());
 
@@ -330,7 +331,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
 
       ClientConsumer consumer = mySession.createConsumer(queue);
       ClientProducer producer = mySession.createProducer(address);
@@ -370,7 +371,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
 
       ClientConsumer consumer = mySession.createConsumer(queue);
       ClientProducer producer = mySession.createProducer(address);
@@ -410,7 +411,7 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      session.createQueue(address, queue, durable);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = mySession.createProducer(address);
 
       NotificationTest.flush(notifConsumer);
@@ -459,7 +460,7 @@ public class NotificationTest extends ActiveMQTestBase {
 
       notifQueue = RandomUtil.randomSimpleString();
 
-      session.createQueue(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue, null, false);
+      session.createQueue(new QueueConfiguration(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
 
       notifConsumer = session.createConsumer(notifQueue);
    }

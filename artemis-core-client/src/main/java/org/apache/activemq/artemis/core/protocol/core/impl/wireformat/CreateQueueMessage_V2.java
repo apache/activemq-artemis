@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.BufferHelper;
@@ -58,6 +59,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
 
    private Long ringSize;
 
+   @Deprecated
    public CreateQueueMessage_V2(final SimpleString address,
                                 final SimpleString queueName,
                                 final boolean temporary,
@@ -88,6 +90,35 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          queueAttributes.getAutoDeleteDelay(),
          queueAttributes.getAutoDeleteMessageCount(),
          queueAttributes.getRingSize()
+      );
+   }
+
+   public CreateQueueMessage_V2(final QueueConfiguration queueConfiguration,
+                                final boolean requiresResponse) {
+      this(
+         queueConfiguration.getAddress(),
+         queueConfiguration.getName(),
+         queueConfiguration.getRoutingType(),
+         queueConfiguration.getFilterString(),
+         queueConfiguration.isDurable(),
+         queueConfiguration.isTemporary(),
+         queueConfiguration.getMaxConsumers(),
+         queueConfiguration.isPurgeOnNoConsumers(),
+         queueConfiguration.isAutoCreated(),
+         requiresResponse,
+         queueConfiguration.isExclusive(),
+         queueConfiguration.isGroupRebalance(),
+         queueConfiguration.getGroupBuckets(),
+         queueConfiguration.getGroupFirstKey(),
+         queueConfiguration.isLastValue(),
+         queueConfiguration.getLastValueKey(),
+         queueConfiguration.isNonDestructive(),
+         queueConfiguration.getConsumersBeforeDispatch(),
+         queueConfiguration.getDelayBeforeDispatch(),
+         queueConfiguration.isAutoDelete(),
+         queueConfiguration.getAutoDeleteDelay(),
+         queueConfiguration.getAutoDeleteMessageCount(),
+         queueConfiguration.getRingSize()
       );
    }
 
@@ -146,6 +177,31 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
    }
 
    // Public --------------------------------------------------------
+
+   public QueueConfiguration toQueueConfiguration() {
+      return new QueueConfiguration(queueName)
+         .setAddress(address)
+         .setDurable(durable)
+         .setRoutingType(routingType)
+         .setExclusive(exclusive)
+         .setGroupRebalance(groupRebalance)
+         .setNonDestructive(nonDestructive)
+         .setLastValue(lastValue)
+         .setFilterString(filterString)
+         .setMaxConsumers(maxConsumers)
+         .setPurgeOnNoConsumers(purgeOnNoConsumers)
+         .setConsumersBeforeDispatch(consumersBeforeDispatch)
+         .setDelayBeforeDispatch(delayBeforeDispatch)
+         .setGroupBuckets(groupBuckets)
+         .setGroupFirstKey(groupFirstKey)
+         .setLastValueKey(lastValueKey)
+         .setAutoDelete(autoDelete)
+         .setAutoDeleteDelay(autoDeleteDelay)
+         .setAutoDeleteMessageCount(autoDeleteMessageCount)
+         .setTemporary(temporary)
+         .setAutoCreated(autoCreated)
+         .setRingSize(ringSize);
+   }
 
    @Override
    public String toString() {

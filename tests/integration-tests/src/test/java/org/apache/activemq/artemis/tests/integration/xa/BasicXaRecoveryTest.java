@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -265,7 +266,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       addSettings();
 
-      clientSession.createQueue(pageQueue, pageQueue, null, true);
+      clientSession.createQueue(new QueueConfiguration(pageQueue));
 
       clientSession.start(xid, XAResource.TMNOFLAGS);
 
@@ -342,7 +343,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       addSettings();
 
-      clientSession.createQueue(pageQueue, pageQueue, null, true);
+      clientSession.createQueue(new QueueConfiguration(pageQueue));
 
       clientSession.start(xid, XAResource.TMNOFLAGS);
 
@@ -991,7 +992,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
       ClientProducer clientProducer2 = clientSession2.createProducer(atestq);
       SimpleString anewtestq = new SimpleString("anewtestq");
-      clientSession.createQueue(anewtestq, anewtestq, null, true);
+      clientSession.createQueue(new QueueConfiguration(anewtestq));
       ClientProducer clientProducer3 = clientSession2.createProducer(anewtestq);
       clientProducer2.send(m1);
       clientProducer2.send(m2);
@@ -1077,7 +1078,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
       ClientProducer clientProducer2 = clientSession2.createProducer(atestq);
       SimpleString anewtestq = new SimpleString("anewtestq");
-      clientSession.createQueue(anewtestq, anewtestq, null, true);
+      clientSession.createQueue(new QueueConfiguration(anewtestq));
       ClientProducer clientProducer3 = clientSession2.createProducer(anewtestq);
       clientProducer2.send(m1);
       clientProducer2.send(m2);
@@ -1213,7 +1214,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(true, false, commitACKs);
       if (createQueue) {
-         clientSession.createQueue(atestq, atestq, null, true);
+         clientSession.createQueue(new QueueConfiguration(atestq));
       }
       clientProducer = clientSession.createProducer(atestq);
       clientConsumer = clientSession.createConsumer(atestq);

@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 
@@ -273,6 +274,66 @@ public interface ClientSession extends XAResource, AutoCloseable {
    // Queue Operations ----------------------------------------------
 
    /**
+    * This method creates a queue based on the {@link QueueConfiguration} input. See {@link QueueConfiguration} for more
+    * details on configuration specifics.
+    * <p>
+    * Some static defaults will be enforced for properties which are not set on the {@code QueueConfiguration}:
+    * <p><ul>
+    * <li>{@code transient} : {@code false}
+    * <li>{@code temporary} : {@code false}
+    * <li>{@code durable} : {@code true}
+    * <li>{@code autoCreated} : {@code false}
+    * <li>{@code internal} : {@code false}
+    * <li>{@code configurationManaged} : {@code false}
+    * <li>{@code maxConsumers} : {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#getDefaultMaxQueueConsumers()}
+    * <li>{@code purgeOnNoConsumers} : {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#getDefaultPurgeOnNoConsumers()}
+    * </ul><p>
+    * Some dynamic defaults will be enforced via address-settings for the corresponding unset properties:
+    * <p><ul>
+    * <li>{@code exclusive}
+    * <li>{@code groupRebalance}
+    * <li>{@code groupBuckets}
+    * <li>{@code groupFirstKey}
+    * <li>{@code lastValue}
+    * <li>{@code lastValueKey}
+    * <li>{@code nonDestructive}
+    * <li>{@code consumersBeforeDispatch}
+    * <li>{@code delayBeforeDispatch}
+    * <li>{@code ringSize}
+    * <li>{@code routingType}
+    * <li>{@code autoCreateAddress}
+    * <li>{@code autoDelete} (only set if queue was auto-created)
+    * <li>{@code autoDeleteDelay}
+    * <li>{@code autoDeleteMessageCount}
+    * </ul><p>
+    *
+    * @param queueConfiguration the configuration to use when creating the queue
+    * @return the {@code Queue} instance that was created
+    * @throws Exception
+    */
+   void createQueue(QueueConfiguration queueConfiguration) throws ActiveMQException;
+
+   /**
+    * This method is essentially the same as {@link #createQueue(QueueConfiguration)} with a few key exceptions.
+    * <p>
+    * If {@code durable} is {@code true} then:
+    * <p><ul>
+    * <li>{@code transient} will be forced to {@code false}
+    * <li>{@code temporary} will be forced to {@code false}
+    * </ul><p>
+    * If {@code durable} is {@code false} then:
+    * <p><ul>
+    * <li>{@code transient} will be forced to {@code true}
+    * <li>{@code temporary} will be forced to {@code true}
+    * </ul><p>
+    * In all instances {@code autoCreated} will be forced to {@code false} and {@code autoCreatedAddress} will be forced
+    * to {@code true}.
+    *
+    * @see #createQueue(QueueConfiguration)
+    */
+   void createSharedQueue(QueueConfiguration queueConfiguration) throws ActiveMQException;
+
+   /**
     * Creates a <em>non-temporary</em> queue.
     *
     * @param address   the queue will be bound to this address
@@ -457,6 +518,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
@@ -470,6 +532,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
@@ -484,6 +547,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                           boolean durable) throws ActiveMQException;
 
@@ -501,6 +565,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param lastValue    if the queue is last value queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                           boolean durable, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException;
 
@@ -512,6 +577,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueAttributes attributes for the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createSharedQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException;
 
 
@@ -524,6 +590,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, boolean durable) throws ActiveMQException;
 
    /**
@@ -534,6 +601,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException;
 
    /**
@@ -544,6 +612,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException;
 
    /**
@@ -556,6 +625,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                     boolean durable) throws ActiveMQException;
 
@@ -569,6 +639,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable) throws ActiveMQException;
 
    /**
@@ -582,6 +653,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param autoCreated whether to mark this queue as autoCreated or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                     boolean durable, boolean autoCreated) throws ActiveMQException;
 
@@ -598,6 +670,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
     * @throws ActiveMQException
     */
+   @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                     boolean durable, boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers) throws ActiveMQException;
 
@@ -616,6 +689,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param lastValue whether the queue should be lastValue
     * @throws ActiveMQException
     */
+   @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                     boolean durable, boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException;
 
@@ -628,6 +702,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueAttributes attributes for the queue
     * @throws ActiveMQException
     */
+   @Deprecated
    void createQueue(SimpleString address, SimpleString queueName, boolean autoCreated, QueueAttributes queueAttributes) throws ActiveMQException;
 
    /**
@@ -641,6 +716,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param autoCreated whether to mark this queue as autoCreated or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable, boolean autoCreated) throws ActiveMQException;
 
    /**
@@ -656,6 +732,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
     * @throws ActiveMQException
     */
+   @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable, boolean autoCreated,
                            int maxConsumers, boolean purgeOnNoConsumers) throws ActiveMQException;
 
@@ -674,6 +751,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param lastValue whether the queue should be lastValue
     * @throws ActiveMQException
     */
+   @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable, boolean autoCreated,
                     int maxConsumers, boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException;
 
@@ -685,6 +763,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException;
 
    /**
@@ -695,6 +774,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException;
 
    /**
@@ -710,6 +790,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param lastValue    if the queue is last value queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter, int maxConsumers,
                              boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException;
 
@@ -721,6 +802,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueAttributes attributes for the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException;
 
    /**
@@ -732,6 +814,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter) throws ActiveMQException;
 
    /**
@@ -743,6 +826,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(String address, RoutingType routingType, String queueName, String filter) throws ActiveMQException;
 
    /**

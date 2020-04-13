@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -53,7 +54,7 @@ public class TransactionalSendTest extends ActiveMQTestBase {
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, false, false);
-      session.createQueue(addressA, queueA, false);
+      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = session.createProducer(addressA);
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
@@ -79,7 +80,7 @@ public class TransactionalSendTest extends ActiveMQTestBase {
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, false, false);
-      session.createQueue(addressA, queueA, false);
+      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = session.createProducer(addressA);
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {

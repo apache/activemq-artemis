@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQTransactionOutcomeUnknownExc
 import org.apache.activemq.artemis.api.core.ActiveMQTransactionRolledBackException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -147,7 +148,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                ClientSession createSession = sf.createSession(true, true);
 
-               createSession.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, (SimpleString) null, true);
+               createSession.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS).setAddress(FailoverTestBase.ADDRESS));
 
                RemotingConnection conn = ((ClientSessionInternal) createSession).getConnection();
 

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -33,7 +34,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
@@ -108,15 +108,15 @@ public class BridgeStartTest extends ActiveMQTestBase {
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
+         QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+         List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
-         server0.getConfiguration().setQueueConfigurations(queueConfigs0);
+         server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
+         QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+         List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
-         server1.getConfiguration().setQueueConfigurations(queueConfigs1);
+         server1.getConfiguration().setQueueConfigs(queueConfigs1);
 
          server1.start();
          waitForServerToStart(server1);
@@ -252,15 +252,15 @@ public class BridgeStartTest extends ActiveMQTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
+      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
-      server0.getConfiguration().setQueueConfigurations(queueConfigs0);
+      server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-      CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
+      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+      List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
-      server1.getConfiguration().setQueueConfigurations(queueConfigs1);
+      server1.getConfiguration().setQueueConfigs(queueConfigs1);
       ServerLocator locator = null;
       try {
          // Don't start server 1 yet
@@ -437,15 +437,15 @@ public class BridgeStartTest extends ActiveMQTestBase {
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
+         QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+         List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
-         server0.getConfiguration().setQueueConfigurations(queueConfigs0);
+         server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
+         QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+         List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
-         server1.getConfiguration().setQueueConfigurations(queueConfigs1);
+         server1.getConfiguration().setQueueConfigs(queueConfigs1);
 
          // Don't start server 1 yet
 
@@ -567,15 +567,15 @@ public class BridgeStartTest extends ActiveMQTestBase {
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
+         QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+         List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
-         server0.getConfiguration().setQueueConfigurations(queueConfigs0);
+         server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
+         QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+         List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
-         server1.getConfiguration().setQueueConfigurations(queueConfigs1);
+         server1.getConfiguration().setQueueConfigs(queueConfigs1);
 
          server1.start();
          waitForServerToStart(server1);

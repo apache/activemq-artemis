@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.stress.paging;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -62,7 +63,7 @@ public class PageStressTest extends ActiveMQTestBase {
 
       SimpleString address = new SimpleString("page-adr");
 
-      session.createQueue(address, address, null, true);
+      session.createQueue(new QueueConfiguration(address));
 
       ClientProducer prod = session.createProducer(address);
 
@@ -149,8 +150,8 @@ public class PageStressTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("page-adr");
       SimpleString[] queue = new SimpleString[]{new SimpleString("queue1"), new SimpleString("queue2")};
 
-      session.createQueue(address, queue[0], null, true);
-      session.createQueue(address, queue[1], null, true);
+      session.createQueue(new QueueConfiguration(queue[0]).setAddress(address));
+      session.createQueue(new QueueConfiguration(queue[1]).setAddress(address));
 
       ClientProducer prod = session.createProducer(address);
 

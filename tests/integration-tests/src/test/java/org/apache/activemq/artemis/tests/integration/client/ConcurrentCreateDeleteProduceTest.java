@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -75,7 +76,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
       ClientProducer producer = session.createProducer(ADDRESS);
 
       // just to make it page forever
-      Queue serverQueue = server.createQueue(ADDRESS, RoutingType.ANYCAST, SimpleString.toSimpleString("everPage"), null, true, false);
+      Queue serverQueue = server.createQueue(new QueueConfiguration("everPage").setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
       serverQueue.getPageSubscription().getPagingStore().startPaging();
 
       Consumer[] consumers = new Consumer[10];
@@ -120,7 +121,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 
             for (int i = 0; i < 100 && running; i++) {
                SimpleString queueName = ADDRESS.concat("_" + sequence.incrementAndGet());
-               session.createQueue(ADDRESS, queueName, true);
+               session.createQueue(new QueueConfiguration(queueName).setAddress(ADDRESS));
                ClientConsumer consumer = session.createConsumer(queueName);
                while (running) {
                   ClientMessage msg = consumer.receive(500);

@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -53,10 +54,10 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(QUEUE, QUEUE, null, true);
+      session.createQueue(new QueueConfiguration(QUEUE));
 
       try {
-         session.createQueue(QUEUE, QUEUE, null, true);
+         session.createQueue(new QueueConfiguration(QUEUE));
          fail("Expected exception, queue already exists");
       } catch (ActiveMQQueueExistsException qee) {
          //ok
@@ -127,7 +128,7 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
             ClientSessionFactory sf = createSessionFactory(locator);
             session = sf.createSession(false, true, true);
             final SimpleString QUEUE = new SimpleString(queueName);
-            session.createQueue(QUEUE, QUEUE, null, true);
+            session.createQueue(new QueueConfiguration(QUEUE));
             queuesCreated.incrementAndGet();
          } catch (ActiveMQQueueExistsException qne) {
             failedAttempts.incrementAndGet();

@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.integration.openwire.OpenWireTestBase;
@@ -79,7 +80,7 @@ public class MessageIDMultiProtocolTest extends OpenWireTestBase {
    public void setupQueue() throws Exception {
       Wait.assertTrue(server::isStarted);
       Wait.assertTrue(server::isActive);
-      this.server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false, -1, false, true);
+      this.server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
    }
 
 

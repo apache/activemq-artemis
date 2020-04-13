@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -161,7 +162,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
             session.start(xid, XAResource.TMNOFLAGS);
          }
 
-         session.createQueue(ADDRESS, ADDRESS, null, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 

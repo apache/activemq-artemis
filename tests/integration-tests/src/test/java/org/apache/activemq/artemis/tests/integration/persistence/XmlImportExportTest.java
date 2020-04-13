@@ -32,6 +32,7 @@ import java.util.EnumSet;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -99,7 +100,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testMessageProperties() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
+      session.createQueue(new QueueConfiguration(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -210,7 +211,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
+      session.createQueue(new QueueConfiguration(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -278,7 +279,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
+      session.createQueue(new QueueConfiguration(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
       ClientMessage msg = session.createMessage(Message.TEXT_TYPE, true);
@@ -323,7 +324,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
+      session.createQueue(new QueueConfiguration(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
       ClientMessage msg = session.createMessage(Message.BYTES_TYPE, true);
@@ -366,7 +367,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
+      session.createQueue(new QueueConfiguration(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -412,8 +413,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testBindingAttributes() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue("addressName1", RoutingType.MULTICAST, "queueName1", true);
-      session.createQueue("addressName1", RoutingType.MULTICAST, "queueName2", "bob", true);
+      session.createQueue(new QueueConfiguration("queueName1").setAddress("addressName1"));
+      session.createQueue(new QueueConfiguration("queueName2").setAddress("addressName1").setFilterString("bob"));
 
       session.close();
       locator.close();
@@ -470,7 +471,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.releaseResources(false);
 
-      session.createQueue("A", RoutingType.MULTICAST, "A", true);
+      session.createQueue(new QueueConfiguration("A"));
 
       ClientProducer prod = session.createProducer("A");
 
@@ -542,7 +543,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.releaseResources(false);
 
-      session.createQueue("A", RoutingType.MULTICAST, "A", true);
+      session.createQueue(new QueueConfiguration("A"));
 
       ClientProducer prod = session.createProducer("A");
 
@@ -613,7 +614,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory("vm://0", "test");
       Connection c = cf.createConnection();
       Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      server.createQueue(SimpleString.toSimpleString("A"), RoutingType.ANYCAST, SimpleString.toSimpleString("A"), null, true, false);
+      server.createQueue(new QueueConfiguration("A").setRoutingType(RoutingType.ANYCAST));
       MessageProducer p = s.createProducer(ActiveMQJMSClient.createQueue("A"));
       p.setDeliveryMode(DeliveryMode.PERSISTENT);
       StringBuilder stringBuilder = new StringBuilder();
@@ -662,8 +663,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testPartialQueue() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue("myAddress", RoutingType.MULTICAST, "myQueue1", true);
-      session.createQueue("myAddress", RoutingType.MULTICAST, "myQueue2", true);
+      session.createQueue(new QueueConfiguration("myQueue1").setAddress("myAddress"));
+      session.createQueue(new QueueConfiguration("myQueue2").setAddress("myAddress"));
 
       ClientProducer producer = session.createProducer("myAddress");
 
@@ -729,8 +730,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(MY_ADDRESS, RoutingType.MULTICAST, MY_QUEUE, true);
-      session.createQueue(MY_ADDRESS, RoutingType.MULTICAST, MY_QUEUE2, true);
+      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
+      session.createQueue(new QueueConfiguration(MY_QUEUE2).setAddress(MY_ADDRESS));
 
       ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -799,7 +800,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(MY_ADDRESS, RoutingType.MULTICAST, MY_QUEUE, true);
+      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
 
       ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -862,7 +863,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(MY_ADDRESS, RoutingType.MULTICAST, MY_QUEUE, true);
+      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
 
       ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -941,7 +942,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testTransactional() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
+      session.createQueue(new QueueConfiguration(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -986,7 +987,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
+      session.createQueue(new QueueConfiguration(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -1037,7 +1038,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
+      session.createQueue(new QueueConfiguration(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -1096,8 +1097,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       session.createAddress(myAddress, routingTypes, false);
 
-      session.createQueue(myAddress.toString(), RoutingType.MULTICAST, "myQueue1", true);
-      session.createQueue(myAddress.toString(), RoutingType.MULTICAST, "myQueue2", true);
+      session.createQueue(new QueueConfiguration("myQueue1").setAddress(myAddress));
+      session.createQueue(new QueueConfiguration("myQueue2").setAddress(myAddress));
 
       locator.close();
       server.stop();

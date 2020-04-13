@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.extras.byteman;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -66,7 +67,7 @@ public class RaceOnClosingConsumerWhileReconnecting extends ActiveMQTestBase {
       SimpleString addressName1 = new SimpleString("my_address_one");
 
       server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
-      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, true, false);
+      server.createQueue(new QueueConfiguration(queueName1).setAddress(addressName1).setRoutingType(RoutingType.ANYCAST));
 
       final long retryInterval = 500;
       final double retryMultiplier = 1d;

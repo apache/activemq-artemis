@@ -29,6 +29,7 @@ import java.util.Hashtable;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -44,7 +45,6 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -178,15 +178,15 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
-      server.createQueue(ADDRESS, RoutingType.MULTICAST, DURABLE_QUEUE, null, true, false);
-      server.createQueue(ADDRESS, RoutingType.MULTICAST, NON_DURABLE_QUEUE, null, false, false);
+      server.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
+      server.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
 
       // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
          // ignore
@@ -202,7 +202,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
 
       // CREATE_NON_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
+         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
          // ignore
@@ -270,7 +270,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
 
       // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
       } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception here");
@@ -286,7 +286,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
 
       // CREATE_NON_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
+         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
       } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
@@ -298,7 +298,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
          Assert.fail("should not throw exception here");
       }
 
-      session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+      session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
 
       // PRODUCE
       try {

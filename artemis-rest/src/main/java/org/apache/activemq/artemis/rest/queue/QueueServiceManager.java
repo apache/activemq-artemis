@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.rest.queue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -86,11 +87,11 @@ public class QueueServiceManager extends DestinationServiceManager {
          ClientSession.AddressQuery query = session.addressQuery(SimpleString.toSimpleString(queueName));
          if (!query.isExists()) {
             session.createAddress(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, true);
-            session.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), queueDeployment.isDurableSend());
+            session.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setDurable(queueDeployment.isDurableSend()));
          } else {
             ClientSession.QueueQuery qquery = session.queueQuery(SimpleString.toSimpleString(queueName));
             if (!qquery.isExists()) {
-               session.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), queueDeployment.isDurableSend());
+               session.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setDurable(queueDeployment.isDurableSend()));
             }
          }
       }

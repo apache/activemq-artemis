@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -64,7 +65,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
       backupServer.start();
 
       liveServer.getServer().addAddressInfo(new AddressInfo(getQueueName(), RoutingType.ANYCAST));
-      liveServer.getServer().createQueue(getQueueName(), RoutingType.ANYCAST, getQueueName(), null, true, false, -1, false, true);
+      liveServer.getServer().createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST));
 
 
       waitForRemoteBackupSynchronization(backupServer.getServer());

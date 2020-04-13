@@ -32,12 +32,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
@@ -166,9 +166,7 @@ public class SyncSendTest extends ActiveMQTestBase {
 
       long recordTime = getTimePerSync();
 
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST));
-
-      server.createQueue(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST, SimpleString.toSimpleString("queue"), null, true, false);
+      server.createQueue(new QueueConfiguration("queue").setRoutingType(RoutingType.ANYCAST).setAutoCreateAddress(true));
 
       ConnectionFactory factory = newCF();
 

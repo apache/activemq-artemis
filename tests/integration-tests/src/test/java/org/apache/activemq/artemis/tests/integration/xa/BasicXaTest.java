@@ -27,6 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -108,7 +109,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       clientSession = addClientSession(sessionFactory.createSession(true, false, false));
 
-      clientSession.createQueue(atestq, atestq, null, true);
+      clientSession.createQueue(new QueueConfiguration(atestq));
    }
 
    @Test
@@ -120,7 +121,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(factory.createSession(true, false, false));
 
-      session.createQueue("Test", RoutingType.ANYCAST, "Test");
+      session.createQueue(new QueueConfiguration("Test").setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer("Test");
 
@@ -141,7 +142,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(factory.createSession(false, true, true));
 
-      session.createQueue("Test", RoutingType.ANYCAST, "Test");
+      session.createQueue(new QueueConfiguration("Test").setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer("Test");
 
@@ -719,8 +720,8 @@ public class BasicXaTest extends ActiveMQTestBase {
       SimpleString ADDRESS1 = new SimpleString("Address-1");
       SimpleString ADDRESS2 = new SimpleString("Address-2");
 
-      clientSession.createQueue(ADDRESS1, ADDRESS1, true);
-      clientSession.createQueue(ADDRESS2, ADDRESS2, true);
+      clientSession.createQueue(new QueueConfiguration(ADDRESS1));
+      clientSession.createQueue(new QueueConfiguration(ADDRESS2));
 
       Xid xid = newXID();
 
@@ -800,9 +801,9 @@ public class BasicXaTest extends ActiveMQTestBase {
 
          if (createQueues) {
             for (int i = 0; i < NUMBER_OF_QUEUES; i++) {
-               session.createQueue(ADDRESS, ADDRESS.concat(Integer.toString(i)), true);
+               session.createQueue(new QueueConfiguration(ADDRESS.concat(Integer.toString(i))).setAddress(ADDRESS));
                if (isJoinSession) {
-                  clientSession.createQueue(ADDRESS.concat("-join"), ADDRESS.concat("-join." + i), true);
+                  clientSession.createQueue(new QueueConfiguration(ADDRESS.concat("-join." + i)).setAddress(ADDRESS.concat("-join")).setDurable(true));
                }
 
             }

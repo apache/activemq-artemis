@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -90,7 +91,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(MY_ADDRESS, MY_QUEUE, true);
+      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
 
       final ClientProducer producer = session.createProducer(MY_ADDRESS);
 

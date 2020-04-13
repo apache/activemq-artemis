@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.server.plugin;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -36,6 +37,17 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
     */
    default void beforeCreateQueue(QueueConfig queueConfig) throws ActiveMQException {
 
+   }
+
+   /**
+    * Before a queue is created
+    *
+    * @param queueConfig
+    * @throws ActiveMQException
+    */
+   default void beforeCreateQueue(QueueConfiguration queueConfig) throws ActiveMQException {
+      //by default call the old method for backwards compatibility
+      beforeCreateQueue(QueueConfig.fromQueueConfiguration(queueConfig));
    }
 
    /**

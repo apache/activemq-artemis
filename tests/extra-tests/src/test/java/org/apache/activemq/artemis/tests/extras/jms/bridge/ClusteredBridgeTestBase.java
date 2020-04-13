@@ -27,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -173,7 +173,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
       }
 
       public void createQueue(String queueName) throws Exception {
-         liveNode.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), null, true, false);
+         liveNode.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
       }
 
       public ConnectionFactoryFactory getConnectionFactoryFactory() {

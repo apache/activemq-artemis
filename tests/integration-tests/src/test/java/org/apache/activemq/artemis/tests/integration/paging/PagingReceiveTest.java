@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -105,7 +106,7 @@ public class PagingReceiveTest extends ActiveMQTestBase {
       server = internalCreateServer();
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
+      Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
       queue.getPageSubscription().getPagingStore().startPaging();
 
       for (int i = 0; i < 10; i++) {

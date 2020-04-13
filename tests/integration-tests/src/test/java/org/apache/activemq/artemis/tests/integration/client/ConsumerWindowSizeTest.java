@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -104,7 +105,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, false, false);
-      session.createQueue("testWindow", "testWindow", true);
+      session.createQueue(new QueueConfiguration("testWindow"));
       session.close();
 
       int numConsumers = 5;
@@ -156,7 +157,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          ClientSessionFactory sf = createSessionFactory(locator);
          ClientSession session = sf.createSession(false, false, false);
-         session.createQueue("testReceive", "testReceive", true);
+         session.createQueue(new QueueConfiguration("testReceive"));
          session.close();
 
          ClientSession sessionProd = sf.createSession(false, false);
@@ -203,7 +204,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, false, false);
-      session.createQueue("testWindow", "testWindow", true);
+      session.createQueue(new QueueConfiguration("testWindow"));
       session.close();
 
       int numConsumers = 5;
@@ -255,7 +256,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, false, false);
-      session.createQueue("testWindow", "testWindow", true);
+      session.createQueue(new QueueConfiguration("testWindow"));
       session.close();
 
       int numConsumers = 5;
@@ -310,7 +311,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       {
          ClientSession session = sf.createSession(false, false, false);
-         session.createQueue("testWindow", "testWindow", true);
+         session.createQueue(new QueueConfiguration("testWindow"));
          session.close();
       }
 
@@ -389,7 +390,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       {
          ClientSession session = sf.createSession(false, false, false);
-         session.createQueue("testWindow", "testWindow", true);
+         session.createQueue(new QueueConfiguration("testWindow"));
          session.close();
       }
 
@@ -445,7 +446,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession receiveSession = cf.createSession(false, true, true);
-      sendSession.createQueue(addressA, queueA, false);
+      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
       ClientConsumer receivingConsumer = receiveSession.createConsumer(queueA);
 
       ClientSession session = cf.createSession(false, true, true);
@@ -496,7 +497,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          SimpleString ADDRESS = addressA;
 
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          sessionB = sf.createSession(false, true, true);
          sessionB.start();
@@ -577,7 +578,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          SimpleString ADDRESS = addressA;
 
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          sessionB = sf.createSession(false, true, true);
          sessionB.start();
@@ -695,7 +696,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          SimpleString ADDRESS = new SimpleString("some-queue");
 
-         session1.createQueue(ADDRESS, ADDRESS, true);
+         session1.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientConsumerInternal cons1 = (ClientConsumerInternal) session1.createConsumer(ADDRESS);
 
@@ -842,7 +843,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          SimpleString ADDRESS = new SimpleString("some-queue");
 
-         session1.createQueue(ADDRESS, ADDRESS, true);
+         session1.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientConsumerInternal cons1 = (ClientConsumerInternal) session1.createConsumer(ADDRESS);
 
@@ -943,7 +944,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          SimpleString ADDRESS = new SimpleString("some-queue");
 
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -1016,7 +1017,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          SimpleString ADDRESS = new SimpleString("some-queue");
 
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          sessionB = sf.createSession(false, true, true);
          sessionB.start();
@@ -1158,7 +1159,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          SimpleString ADDRESS = new SimpleString("some-queue");
 
-         session.createQueue(ADDRESS, ADDRESS, true);
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
          sessionB = sf.createSession(false, true, true);
          sessionB.start();
@@ -1305,7 +1306,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          SimpleString ADDRESS = new SimpleString("some-queue");
 
-         sessionA.createQueue(ADDRESS, ADDRESS, true);
+         sessionA.createQueue(new QueueConfiguration(ADDRESS));
 
          sessionB = sf.createSession(false, true, true);
 
@@ -1397,7 +1398,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       ActiveMQServer messagingService = createServer(false, isNetty());
 
       messagingService.start();
-      messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
+      messagingService.createQueue(new QueueConfiguration(queueA).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
@@ -1419,7 +1420,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             .getAddressesSettings().put(queueA.toString(), settings);
 
       messagingService.start();
-      messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
+      messagingService.createQueue(new QueueConfiguration(queueA).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
@@ -1441,7 +1442,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             .getAddressesSettings().put(addressA.toString(), settings);
 
       messagingService.start();
-      messagingService.createQueue(addressA, RoutingType.ANYCAST, queueA, null, true, false);
+      messagingService.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
@@ -1468,7 +1469,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          .getAddressesSettings().put("#", settings);
 
       messagingService.start();
-      messagingService.createQueue(queueA, RoutingType.ANYCAST, queueA, null, true, false);
+      messagingService.createQueue(new QueueConfiguration(queueA).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);

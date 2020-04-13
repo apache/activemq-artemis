@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.scheduling;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -75,7 +76,7 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
 
       // Session for creating the queue
       ClientSession session = sessionFactory.createSession(false, false, false);
-      session.createQueue(queueName, queueName, null, true);
+      session.createQueue(new QueueConfiguration(queueName));
       session.close();
 
       // Session for sending the message

@@ -25,12 +25,12 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
@@ -108,7 +108,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
       TransportConfiguration connectorConfig_1 = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, acceptorParams_1);
       TransportConfiguration connectorConfig_0 = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY);
 
-      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration queueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
       List<String> connectorInfos = new ArrayList<>();
       connectorInfos.add("netty");
 
@@ -116,7 +116,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
 
       DiscoveryGroupConfiguration discoveryGroupConfig = new DiscoveryGroupConfiguration().setName(discoveryName).setRefreshTimeout(0).setDiscoveryInitialWaitTimeout(0).setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(groupPort));
 
-      clusterConnectionConfig_0 = new ClusterConnectionConfiguration().setName(clusterName).setAddress(queueConfig.getAddress()).setConnectorName("netty").setRetryInterval(1000).setDuplicateDetection(false).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setMaxHops(1).setConfirmationWindowSize(1024).setDiscoveryGroupName(discoveryName);
+      clusterConnectionConfig_0 = new ClusterConnectionConfiguration().setName(clusterName).setAddress(queueConfig.getAddress().toString()).setConnectorName("netty").setRetryInterval(1000).setDuplicateDetection(false).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setMaxHops(1).setConfirmationWindowSize(1024).setDiscoveryGroupName(discoveryName);
 
       Configuration conf_1 = createBasicConfig().addClusterConfiguration(clusterConnectionConfig_0).addAcceptorConfiguration(acceptorConfig_1).addConnectorConfiguration("netty", connectorConfig_1).addQueueConfiguration(queueConfig).addDiscoveryGroupConfiguration(discoveryName, discoveryGroupConfig).addBroadcastGroupConfiguration(broadcastGroupConfig);
 

@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -74,7 +75,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ReattachTest.ADDRESS, ReattachTest.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
 
       final int numIterations = 10;
 
@@ -165,7 +166,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ReattachTest.ADDRESS, ReattachTest.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -201,7 +202,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ReattachTest.ADDRESS, ReattachTest.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -303,7 +304,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       session2.addFailureListener(listener);
 
-      session.createQueue(ReattachTest.ADDRESS, ReattachTest.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -384,7 +385,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ReattachTest.ADDRESS, ReattachTest.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -657,7 +658,7 @@ public class ReattachTest extends ActiveMQTestBase {
       t.start();
 
       for (int i = 0; i < 10; i++) {
-         session.createQueue("address", RoutingType.ANYCAST, "queue" + i);
+         session.createQueue(new QueueConfiguration("queue" + i).setAddress("address").setRoutingType(RoutingType.ANYCAST));
       }
 
       //
@@ -698,7 +699,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ReattachTest.ADDRESS, ReattachTest.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -757,7 +758,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ReattachTest.ADDRESS, ReattachTest.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -836,7 +837,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ReattachTest.ADDRESS, ReattachTest.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 
@@ -905,7 +906,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ReattachTest.ADDRESS, ReattachTest.ADDRESS, null, false);
+      session.createQueue(new QueueConfiguration(ReattachTest.ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ReattachTest.ADDRESS);
 

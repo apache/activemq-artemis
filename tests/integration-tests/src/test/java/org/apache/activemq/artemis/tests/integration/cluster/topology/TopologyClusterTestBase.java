@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -35,7 +36,6 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -151,7 +151,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
    protected ClientSession checkSessionOrReconnect(ClientSession session, ServerLocator locator) throws Exception {
       try {
          String rand = RandomUtil.randomString();
-         session.createQueue(rand, RoutingType.MULTICAST, rand);
+         session.createQueue(new QueueConfiguration(rand));
          session.deleteQueue(rand);
          return session;
       } catch (ActiveMQObjectClosedException oce) {
@@ -361,7 +361,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       ServerLocator locator = createNonHALocator(isNetty());
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(config.getClusterUser(), ActiveMQTestBase.CLUSTER_PASSWORD, false, true, true, false, 1);
-      session.createQueue(address, address, true);
+      session.createQueue(new QueueConfiguration(address));
       ClientProducer producer = session.createProducer(address);
       sendMessages(session, producer, 100);
       ClientConsumer consumer = session.createConsumer(address);

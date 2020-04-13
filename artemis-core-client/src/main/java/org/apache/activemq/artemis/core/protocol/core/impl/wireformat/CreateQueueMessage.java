@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -33,6 +34,10 @@ public class CreateQueueMessage extends PacketImpl {
    protected boolean temporary;
 
    protected boolean requiresResponse;
+
+   public CreateQueueMessage(final QueueConfiguration queueConfiguration, boolean requiresResponse) {
+      this(queueConfiguration.getAddress(), queueConfiguration.getName(), queueConfiguration.getFilterString(), queueConfiguration.isDurable(), queueConfiguration.isTemporary(), requiresResponse);
+   }
 
    public CreateQueueMessage(final SimpleString address,
                              final SimpleString queueName,

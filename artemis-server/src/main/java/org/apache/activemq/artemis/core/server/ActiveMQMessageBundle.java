@@ -482,4 +482,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229228, value = "{0} must be less than or equal to 1 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException lessThanOrEqualToOne(String name, Number val);
+
+   @Message(id = 229229, value = "Failed to parse JSON queue configuration: {0}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException failedToParseJson(String json);
 }

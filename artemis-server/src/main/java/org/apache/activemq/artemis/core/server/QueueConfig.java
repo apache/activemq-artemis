@@ -17,14 +17,18 @@
 package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.FilterUtils;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 
+@Deprecated
 public final class QueueConfig {
 
    private final long id;
@@ -55,6 +59,7 @@ public final class QueueConfig {
    private final long autoDeleteMessageCount;
    private final long ringSize;
 
+   @Deprecated
    public static final class Builder {
 
       private final long id;
@@ -364,6 +369,36 @@ public final class QueueConfig {
       this.autoDeleteMessageCount = autoDeleteMessageCount;
       this.ringSize = ringSize;
       this.configurationManaged = configurationManaged;
+   }
+
+   public static QueueConfig fromQueueConfiguration(QueueConfiguration queueConfiguration) throws ActiveMQException {
+      return new QueueConfig(queueConfiguration.getId() == null ? 0 : queueConfiguration.getId(),
+                             queueConfiguration.getAddress(),
+                             queueConfiguration.getName(),
+                             queueConfiguration.getFilterString() == null ? null : FilterImpl.createFilter(queueConfiguration.getFilterString()),
+                             null,
+                             null,
+                             queueConfiguration.getUser(),
+                             queueConfiguration.isDurable(),
+                             queueConfiguration.isTemporary(),
+                             queueConfiguration.isAutoCreated(),
+                             queueConfiguration.getRoutingType(),
+                             queueConfiguration.getMaxConsumers(),
+                             queueConfiguration.isExclusive(),
+                             queueConfiguration.isLastValue(),
+                             queueConfiguration.getLastValueKey(),
+                             queueConfiguration.isNonDestructive(),
+                             queueConfiguration.getConsumersBeforeDispatch(),
+                             queueConfiguration.getDelayBeforeDispatch(),
+                             queueConfiguration.isPurgeOnNoConsumers(),
+                             queueConfiguration.isGroupRebalance(),
+                             queueConfiguration.getGroupBuckets(),
+                             queueConfiguration.getGroupFirstKey(),
+                             queueConfiguration.isAutoDelete(),
+                             queueConfiguration.getAutoDeleteDelay(),
+                             queueConfiguration.getAutoDeleteMessageCount(),
+                             queueConfiguration.getRingSize(),
+                             queueConfiguration.isConfigurationManaged());
    }
 
    public long id() {

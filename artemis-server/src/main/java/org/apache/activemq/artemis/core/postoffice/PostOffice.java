@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -65,6 +66,7 @@ public interface PostOffice extends ActiveMQComponent {
 
    AddressInfo updateAddressInfo(SimpleString addressName, EnumSet<RoutingType> routingTypes) throws Exception;
 
+   @Deprecated
    QueueBinding updateQueue(SimpleString name,
                             RoutingType routingType,
                             Filter filter,
@@ -80,6 +82,7 @@ public interface PostOffice extends ActiveMQComponent {
                             SimpleString user,
                             Boolean configurationManaged) throws Exception;
 
+   @Deprecated
    QueueBinding updateQueue(SimpleString name,
                             RoutingType routingType,
                             Filter filter,
@@ -95,6 +98,8 @@ public interface PostOffice extends ActiveMQComponent {
                             SimpleString user,
                             Boolean configurationManaged,
                             Long ringSize) throws Exception;
+
+   QueueBinding updateQueue(QueueConfiguration queueConfiguration) throws Exception;
 
    List<Queue> listQueuesForAddress(SimpleString address) throws Exception;
 

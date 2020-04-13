@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -84,7 +85,7 @@ public class ScaleDownDirectTest extends ClusterTestBase {
 
       ClientSession session = sf.createSession(true, true);
 
-      session.createQueue("ad1", "queue1", true);
+      session.createQueue(new QueueConfiguration("queue1").setAddress("ad1"));
 
       ClientProducer producer = session.createProducer("ad1");
 
@@ -100,7 +101,7 @@ public class ScaleDownDirectTest extends ClusterTestBase {
          producer.send(message);
       }
 
-      session.createQueue("ad1", "queue2", true);
+      session.createQueue(new QueueConfiguration("queue2").setAddress("ad1"));
 
       for (int i = numberOfMessages; i < (numberOfMessages * 2); i++) {
          ClientMessage message = session.createMessage(true);

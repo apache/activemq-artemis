@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -264,7 +265,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    createPermissiveManagementNotificationToFilter() +
                                                    ")");
 
-         sessionConsumer.createTemporaryQueue(managementNotificationAddress, notifQueueName, filter);
+         sessionConsumer.createQueue(new QueueConfiguration(notifQueueName).setAddress(managementNotificationAddress).setFilterString(filter).setDurable(false).setTemporary(true));
 
          notifConsumer = sessionConsumer.createConsumer(notifQueueName);
 

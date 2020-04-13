@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -55,7 +56,7 @@ public class MessageCounterTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, false, false, 0);
 
-      session.createQueue(QUEUE, QUEUE, null, false);
+      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 

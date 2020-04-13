@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.scheduling;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -69,7 +70,7 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(qName, qName, null, true);
+      session.createQueue(new QueueConfiguration(qName));
       session.close();
 
       ClientSession session1 = sessionFactory.createSession(false, true, true);
@@ -137,7 +138,7 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(qName, qName, null, true);
+      session.createQueue(new QueueConfiguration(qName));
       session.close();
 
       ClientSession session1 = sessionFactory.createSession(false, true, true);
@@ -191,7 +192,7 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(qName, qName, null, true);
+      session.createQueue(new QueueConfiguration(qName));
       session.close();
 
       ClientSession session1 = sessionFactory.createSession(false, true, true);

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.message.impl;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -54,7 +55,7 @@ public class MessagePropertyTest extends ActiveMQTestBase {
 
       String filter = null;
       session.createAddress(SimpleString.toSimpleString(ADDRESS), RoutingType.MULTICAST, false);
-      session.createQueue(ADDRESS, RoutingType.MULTICAST, ADDRESS, filter, true);
+      session.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.MULTICAST).setFilterString(filter));
       ClientProducer producer = session.createProducer(ADDRESS);
 
       for (int i = 0; i < numMessages; i++) {

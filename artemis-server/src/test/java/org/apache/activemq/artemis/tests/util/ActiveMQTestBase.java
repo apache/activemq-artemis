@@ -66,6 +66,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -1580,7 +1581,7 @@ public abstract class ActiveMQTestBase extends Assert {
       ClientSessionFactory sf = locator.createSessionFactory();
       ClientSession session = sf.createSession();
       try {
-         session.createQueue(address, queue);
+         session.createQueue(new QueueConfiguration(queue).setAddress(address));
       } finally {
          session.close();
          closeSessionFactory(sf);

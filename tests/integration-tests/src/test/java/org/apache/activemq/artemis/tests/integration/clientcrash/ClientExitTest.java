@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -101,7 +102,7 @@ public class ClientExitTest extends ClientTestBase {
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
-      session.createQueue(ClientExitTest.QUEUE, ClientExitTest.QUEUE, null, false);
+      session.createQueue(new QueueConfiguration(ClientExitTest.QUEUE).setDurable(false));
       consumer = session.createConsumer(ClientExitTest.QUEUE);
       session.start();
    }

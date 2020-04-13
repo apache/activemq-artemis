@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -56,7 +57,7 @@ public class DurableQueueTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false));
@@ -76,7 +77,7 @@ public class DurableQueueTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(true));
@@ -108,7 +109,7 @@ public class DurableQueueTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       session.close();
 
@@ -123,7 +124,7 @@ public class DurableQueueTest extends ActiveMQTestBase {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
-      session.createQueue(address, queue, true);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       session.close();
 

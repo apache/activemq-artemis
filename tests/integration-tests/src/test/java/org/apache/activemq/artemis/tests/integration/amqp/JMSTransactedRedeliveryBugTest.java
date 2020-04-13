@@ -25,6 +25,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -50,9 +51,9 @@ public class JMSTransactedRedeliveryBugTest extends JMSClientTestSupport {
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       super.createAddressAndQueues(server);
       server.addAddressInfo(new AddressInfo(INITIAL_QUEUE_SS, RoutingType.ANYCAST));
-      server.createQueue(INITIAL_QUEUE_SS, RoutingType.ANYCAST, INITIAL_QUEUE_SS, null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(INITIAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
       server.addAddressInfo(new AddressInfo(FINAL_QUEUE_SS, RoutingType.ANYCAST));
-      server.createQueue(FINAL_QUEUE_SS, RoutingType.ANYCAST, FINAL_QUEUE_SS, null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(FINAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Override

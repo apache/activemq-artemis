@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -118,7 +119,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
          sf2 = (ClientSessionFactoryInternal) locator.createSessionFactory(backupServer.getServer().getNodeID().toString());
 
          ClientSession session2 = createSession(sf2, false, false);
-         session2.createQueue(ADDRESS, ADDRESS, null, true);
+         session2.createQueue(new QueueConfiguration(ADDRESS));
          addSessionFactory(sf2);
       }
 
@@ -146,7 +147,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
          sf2 = (ClientSessionFactoryInternal) locator.createSessionFactory(backupServer.getServer().getNodeID().toString());
 
          ClientSession session2 = createSession(sf2, false, false);
-         session2.createQueue(ADDRESS, ADDRESS, null, true);
+         session2.createQueue(new QueueConfiguration(ADDRESS));
          addSessionFactory(sf2);
       }
       return sf;
@@ -172,7 +173,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
          sf2 = (ClientSessionFactoryInternal) locator.createSessionFactory(backupServer.getServer().getNodeID().toString());
          addSessionFactory(sf2);
          ClientSession session2 = createSession(sf2, false, false);
-         session2.createQueue(ADDRESS, ADDRESS, null, true);
+         session2.createQueue(new QueueConfiguration(ADDRESS));
       }
    }
 
@@ -190,7 +191,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
 
       ClientSession session = createSession(sf, true, true);
 
-      session.createQueue(ADDRESS, ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -227,7 +228,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
 
       ClientSession session = createSession(sf);
 
-      //session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+      //session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 

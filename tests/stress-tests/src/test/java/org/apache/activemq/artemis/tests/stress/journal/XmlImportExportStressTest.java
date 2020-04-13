@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -48,7 +49,7 @@ public class XmlImportExportStressTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
 
-      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+      session.createQueue(new QueueConfiguration(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
