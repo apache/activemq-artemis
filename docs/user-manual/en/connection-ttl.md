@@ -95,7 +95,7 @@ closing it down. If the server doesn't receive any packets on a connection
 for the connection TTL time, then it will automatically close all the
 sessions on the server that relate to that connection.
 
-The connection TTL is configured on the URI using the `connectionTtl`
+The connection TTL is configured on the URI using the `connectionTTL`
 parameter.
 
 The default value for connection ttl on an "unreliable" connection (e.g.
