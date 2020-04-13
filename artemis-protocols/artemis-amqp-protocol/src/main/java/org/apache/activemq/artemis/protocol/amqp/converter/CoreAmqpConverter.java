@@ -512,9 +512,9 @@ public class CoreAmqpConverter {
                   body = new AmqpValue(s.toString());
                }
             }
-         } catch (Throwable ignored) {
-            logger.debug("Exception ignored during conversion", ignored.getMessage(), ignored);
-            body = new AmqpValue("Conversion to AMQP error!");
+         } catch (Throwable e) {
+            logger.debug("Exception ignored during conversion", e.getMessage(), e);
+            body = new AmqpValue("Conversion to AMQP error: " + e.getMessage());
          }
       }
 
