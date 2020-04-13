@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -52,7 +53,7 @@ public class AmqpDeliveryAnnotationsTest extends AmqpClientTestSupport {
       receiver.flow(1);
 
       Queue queue = getProxyToQueue(getQueueName());
-      assertEquals(1, queue.getMessageCount());
+      Wait.assertEquals(1L, queue::getMessageCount, 5000L, 25L);
 
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(received);
