@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -254,7 +255,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          if (coreQ == null) {
             coreQ = new SimpleString(qname);
             try {
-               this.server.createQueue(coreQ, RoutingType.MULTICAST, coreQ, null, false, false);
+               this.server.createQueue(new QueueConfiguration(coreQ).setDurable(false));
                testQueues.put(qname, coreQ);
             } catch (ActiveMQQueueExistsException e) {
                //ignore

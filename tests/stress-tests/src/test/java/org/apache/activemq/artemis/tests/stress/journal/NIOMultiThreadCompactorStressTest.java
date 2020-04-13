@@ -25,6 +25,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -258,7 +259,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
    private void addBogusData(final int nmessages, final String queue) throws ActiveMQException {
       ClientSession session = sf.createSession(false, false);
       try {
-         session.createQueue(queue, queue, true);
+         session.createQueue(new QueueConfiguration(queue));
       } catch (Exception ignored) {
       }
 
@@ -314,7 +315,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       ClientSession sess = sf.createSession();
 
       try {
-         sess.createQueue(ADDRESS, QUEUE, true);
+         sess.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS));
       } catch (Exception ignored) {
       }
 

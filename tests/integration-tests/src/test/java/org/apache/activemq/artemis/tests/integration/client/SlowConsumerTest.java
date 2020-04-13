@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -109,7 +110,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       server.getAddressSettingsRepository().addMatch(QUEUE.toString(), addressSettings);
 
-      server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false).getPageSubscription().getPagingStore().startPaging();
+      server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST)).getPageSubscription().getPagingStore().startPaging();
 
       locator = createFactory(isNetty);
    }
@@ -244,7 +245,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       SimpleString notifQueue = RandomUtil.randomSimpleString();
 
-      session.createQueue(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue, null, false);
+      session.createQueue(new QueueConfiguration(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
 
       ClientConsumer notifConsumer = session.createConsumer(notifQueue.toString(), ManagementHelper.HDR_NOTIFICATION_TYPE + "='" + CoreNotificationType.CONSUMER_SLOW + "'");
 
@@ -393,9 +394,9 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = addClientSession(sf.createSession(false, true, true, false));
-      session.createQueue(addressAB, queueName1, null, false);
-      session.createQueue(addressAC, queueName2, null, false);
-      session.createQueue(address, queueName, null, false);
+      session.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
+      session.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
+      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
       ClientProducer producer = session.createProducer(addressAB);
       ClientProducer producer2 = session.createProducer(addressAC);
 

@@ -19,8 +19,10 @@ package org.apache.activemq.artemis.core.config;
 import java.io.Serializable;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 
+@Deprecated
 public class CoreQueueConfiguration implements Serializable {
 
    private static final long serialVersionUID = 650404974977490254L;
@@ -122,6 +124,49 @@ public class CoreQueueConfiguration implements Serializable {
 
    public Long getRingSize() {
       return ringSize;
+   }
+
+   public QueueConfiguration toQueueConfiguration() {
+      return new QueueConfiguration(this.getName())
+         .setAddress(this.getAddress())
+         .setDurable(this.isDurable())
+         .setRoutingType(this.getRoutingType())
+         .setExclusive(this.isExclusive())
+         .setRingSize(this.getRingSize())
+         .setGroupRebalance(this.isGroupRebalance())
+         .setNonDestructive(this.isNonDestructive())
+         .setLastValue(this.isLastValue())
+         .setFilterString(this.getFilterString())
+         .setMaxConsumers(this.getMaxConsumers())
+         .setPurgeOnNoConsumers(this.getPurgeOnNoConsumers())
+         .setConsumersBeforeDispatch(this.getConsumersBeforeDispatch())
+         .setDelayBeforeDispatch(this.getDelayBeforeDispatch())
+         .setGroupBuckets(this.getGroupBuckets())
+         .setGroupFirstKey(this.getGroupFirstKey())
+         .setUser(this.getUser())
+         .setLastValueKey(this.getLastValueKey());
+   }
+
+   public static CoreQueueConfiguration fromQueueConfiguration(QueueConfiguration queueConfiguration) {
+      return new CoreQueueConfiguration()
+         .setAddress(queueConfiguration.getAddress() != null ? queueConfiguration.getAddress().toString() : null)
+         .setName(queueConfiguration.getName() != null ? queueConfiguration.getName().toString() : null)
+         .setFilterString(queueConfiguration.getFilterString() != null ? queueConfiguration.getFilterString().toString() : null)
+         .setDurable(queueConfiguration.isDurable() != null ? queueConfiguration.isDurable() : true)
+         .setUser(queueConfiguration.getUser() != null ? queueConfiguration.getUser().toString() : null)
+         .setExclusive(queueConfiguration.isExclusive())
+         .setGroupRebalance(queueConfiguration.isGroupRebalance())
+         .setGroupBuckets(queueConfiguration.getGroupBuckets())
+         .setGroupFirstKey(queueConfiguration.getGroupFirstKey() != null ? queueConfiguration.getGroupFirstKey().toString() : null)
+         .setLastValue(queueConfiguration.isLastValue())
+         .setLastValueKey(queueConfiguration.getLastValueKey() != null ? queueConfiguration.getLastValueKey().toString() : null)
+         .setNonDestructive(queueConfiguration.isNonDestructive())
+         .setMaxConsumers(queueConfiguration.getMaxConsumers())
+         .setConsumersBeforeDispatch(queueConfiguration.getConsumersBeforeDispatch())
+         .setDelayBeforeDispatch(queueConfiguration.getDelayBeforeDispatch())
+         .setRingSize(queueConfiguration.getRingSize() != null ? queueConfiguration.getRingSize() : ActiveMQDefaultConfiguration.getDefaultRingSize())
+         .setPurgeOnNoConsumers(queueConfiguration.isPurgeOnNoConsumers() != null ? queueConfiguration.isPurgeOnNoConsumers() : ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers())
+         .setRoutingType(queueConfiguration.getRoutingType() != null ? queueConfiguration.getRoutingType() : ActiveMQDefaultConfiguration.getDefaultRoutingType());
    }
 
    /**

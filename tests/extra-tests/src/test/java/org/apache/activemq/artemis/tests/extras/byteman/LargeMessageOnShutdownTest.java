@@ -20,7 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -52,7 +52,7 @@ public class LargeMessageOnShutdownTest extends ActiveMQTestBase {
 
       server = createServer(true, createDefaultNettyConfig());
       startServer();
-      server.createQueue(queueName, RoutingType.MULTICAST, queueName, null, true, false);
+      server.createQueue(new QueueConfiguration(queueName));
    }
 
    @After

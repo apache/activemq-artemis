@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -154,7 +155,7 @@ public class LiveCrashOnBackupSyncTest extends ActiveMQTestBase {
       locator.setConnectionTTL(60_000L);
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession session = csf.createSession();
-      session.createQueue("LiveCrashTestQueue", RoutingType.ANYCAST, "LiveCrashTestQueue", true);
+      session.createQueue(new QueueConfiguration("LiveCrashTestQueue").setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer("LiveCrashTestQueue");
       ClientMessage msgs = session.createMessage(true);
       msgs.getBodyBuffer().writeBytes(buffer);

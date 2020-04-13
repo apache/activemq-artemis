@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.junit;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -81,7 +82,7 @@ public class ActiveMQDynamicProducerResource extends ActiveMQProducerResource {
       try {
          if (address != null && !session.addressQuery(address).isExists() && autoCreateQueue) {
             log.warn("queue does not exist - creating queue: address = {}, name = {}", address.toString(), address.toString());
-            session.createQueue(address, address);
+            session.createQueue(new QueueConfiguration(address));
          }
          producer = session.createProducer((SimpleString) null);
       } catch (ActiveMQException amqEx) {
@@ -116,7 +117,7 @@ public class ActiveMQDynamicProducerResource extends ActiveMQProducerResource {
       try {
          if (autoCreateQueue && !session.addressQuery(targetAddress).isExists()) {
             log.warn("queue does not exist - creating queue: address = {}, name = {}", address.toString(), address.toString());
-            session.createQueue(targetAddress, targetAddress);
+            session.createQueue(new QueueConfiguration(targetAddress));
          }
       } catch (ActiveMQException amqEx) {
          throw new ActiveMQClientResourceException(String.format("Queue creation failed for queue: address = %s, name = %s", address.toString(), address.toString()));

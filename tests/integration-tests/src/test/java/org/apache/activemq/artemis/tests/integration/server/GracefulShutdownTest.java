@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.server;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -65,7 +66,7 @@ public class GracefulShutdownTest extends ActiveMQTestBase {
       }
 
       // confirm we can still do work on the original connection even though the server is stopping
-      session.createQueue("testAddress", RoutingType.ANYCAST, "testQueue");
+      session.createQueue(new QueueConfiguration("testQueue").setAddress("testAddress").setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer("testAddress");
       producer.send(session.createMessage(true));
       session.start();

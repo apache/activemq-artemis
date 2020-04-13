@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -118,10 +119,10 @@ public class AmqpBridgeApplicationPropertiesTest extends AmqpClientTestSupport {
       server0.start();
       server1.start();
 
-      server0.createQueue(customNotificationQueue, RoutingType.ANYCAST, customNotificationQueue, null, true, false);
-      server0.createQueue(frameworkNotificationsQueue, RoutingType.ANYCAST, frameworkNotificationsQueue, null, true, false);
-      server1.createQueue(bridgeNotificationsQueue, RoutingType.ANYCAST, bridgeNotificationsQueue, null, true, false);
-      server1.createQueue(notificationsQueue, RoutingType.MULTICAST, notificationsQueue, null, true, false);
+      server0.createQueue(new QueueConfiguration(customNotificationQueue).setRoutingType(RoutingType.ANYCAST));
+      server0.createQueue(new QueueConfiguration(frameworkNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
+      server1.createQueue(new QueueConfiguration(bridgeNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
+      server1.createQueue(new QueueConfiguration(notificationsQueue));
 
       server0.deployBridge(new BridgeConfiguration().setName("notifications-bridge").setQueueName(frameworkNotificationsQueue.toString()).setForwardingAddress(bridgeNotificationsQueue.toString()).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("notification-broker")).setTransformerConfiguration(new TransformerConfiguration(BridgeApplicationPropertiesTransformer.class.getName())));
    }

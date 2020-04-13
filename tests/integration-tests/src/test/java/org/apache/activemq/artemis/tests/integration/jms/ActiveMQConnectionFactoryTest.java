@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -244,7 +245,8 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
    private void testDeserializationOptions(boolean useJndi, boolean useBrowser) throws Exception {
       String qname = "SerialTestQueue";
       SimpleString qaddr = new SimpleString(qname);
-      liveService.createQueue(qaddr, RoutingType.ANYCAST, qaddr, null, true, false);
+      liveService.createQueue(new QueueConfiguration(qaddr)
+                                 .setRoutingType(RoutingType.ANYCAST));
 
       //default ok
       String blackList = null;
@@ -317,7 +319,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
       String qname = "SerialTestQueue";
       SimpleString qaddr = new SimpleString(qname);
-      liveService.createQueue(qaddr, RoutingType.ANYCAST, qaddr, null, true, false);
+      liveService.createQueue(new QueueConfiguration(qaddr).setRoutingType(RoutingType.ANYCAST));
 
       try {
          String blackList = null;

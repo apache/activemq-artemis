@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -167,7 +168,7 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
 
             ClientSession session = createSession(sf, true, true);
 
-            session.createQueue(ADDRESS, ADDRESS, null, true);
+            session.createQueue(new QueueConfiguration(ADDRESS));
 
             crash(liveServer, backupServer, session);
 

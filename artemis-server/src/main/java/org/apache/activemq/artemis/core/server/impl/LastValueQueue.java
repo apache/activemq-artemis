@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -57,6 +58,7 @@ public class LastValueQueue extends QueueImpl {
    private final Map<SimpleString, HolderReference> map = new ConcurrentHashMap<>();
    private final SimpleString lastValueKey;
 
+   @Deprecated
    public LastValueQueue(final long persistenceID,
                          final SimpleString address,
                          final SimpleString name,
@@ -89,8 +91,52 @@ public class LastValueQueue extends QueueImpl {
                          final ArtemisExecutor executor,
                          final ActiveMQServer server,
                          final QueueFactory factory) {
-      super(persistenceID, address, name, filter, pagingStore, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, autoDelete, autoDeleteDelay, autoDeleteMessageCount, configurationManaged, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
-      this.lastValueKey = lastValueKey;
+      this(new QueueConfiguration(name)
+              .setId(persistenceID)
+              .setAddress(address)
+              .setFilterString(filter.getFilterString())
+              .setUser(user)
+              .setDurable(durable)
+              .setTemporary(temporary)
+              .setAutoCreated(autoCreated)
+              .setRoutingType(routingType)
+              .setMaxConsumers(maxConsumers)
+              .setExclusive(exclusive)
+              .setGroupRebalance(groupRebalance)
+              .setGroupBuckets(groupBuckets)
+              .setGroupFirstKey(groupFirstKey)
+              .setNonDestructive(nonDestructive)
+              .setConsumersBeforeDispatch(consumersBeforeDispatch)
+              .setDelayBeforeDispatch(delayBeforeDispatch)
+              .setPurgeOnNoConsumers(purgeOnNoConsumers)
+              .setAutoDelete(autoDelete)
+              .setAutoDeleteDelay(autoDeleteDelay)
+              .setAutoDeleteMessageCount(autoDeleteMessageCount)
+              .setConfigurationManaged(configurationManaged)
+              .setLastValueKey(lastValueKey),
+           pagingStore,
+           pageSubscription,
+           scheduledExecutor,
+           postOffice,
+           storageManager,
+           addressSettingsRepository,
+           executor,
+           server,
+           factory);
+   }
+
+   public LastValueQueue(final QueueConfiguration queueConfiguration,
+                         final PagingStore pagingStore,
+                         final PageSubscription pageSubscription,
+                         final ScheduledExecutorService scheduledExecutor,
+                         final PostOffice postOffice,
+                         final StorageManager storageManager,
+                         final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                         final ArtemisExecutor executor,
+                         final ActiveMQServer server,
+                         final QueueFactory factory) {
+      super(queueConfiguration, pagingStore, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
+      this.lastValueKey = queueConfiguration.getLastValueKey();
    }
 
    @Override
@@ -163,6 +209,11 @@ public class LastValueQueue extends QueueImpl {
    @Override
    public boolean allowsReferenceCallback() {
       return false;
+   }
+
+   @Override
+   public QueueConfiguration getQueueConfiguration() {
+      return super.getQueueConfiguration().setLastValue(true);
    }
 
    private void replaceLVQMessage(MessageReference ref, HolderReference hr) {

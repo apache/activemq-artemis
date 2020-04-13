@@ -31,6 +31,7 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
@@ -57,7 +58,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
    @Test(timeout = 60000)
    public void testAddressControlSendMessage() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
-      server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
+      server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
 
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mBeanServer);
       Assert.assertEquals(1, addressControl.getQueueNames().length);
@@ -87,7 +88,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
    @Test(timeout = 60000)
    public void testAddressControlSendMessageWithText() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
-      server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
+      server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
 
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mBeanServer);
       Assert.assertEquals(1, addressControl.getQueueNames().length);

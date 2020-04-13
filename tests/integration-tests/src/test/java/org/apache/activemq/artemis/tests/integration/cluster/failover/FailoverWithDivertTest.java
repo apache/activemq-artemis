@@ -16,7 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -28,15 +33,10 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class FailoverWithDivertTest extends FailoverTestBase {
 
@@ -78,10 +78,7 @@ public class FailoverWithDivertTest extends FailoverTestBase {
       CoreAddressConfiguration addrCfg = new CoreAddressConfiguration();
       addrCfg.setName(address);
       addrCfg.addRoutingType(RoutingType.ANYCAST);
-      CoreQueueConfiguration qConfig = new CoreQueueConfiguration();
-      qConfig.setName(name);
-      qConfig.setAddress(address);
-      addrCfg.addQueueConfiguration(qConfig);
+      addrCfg.addQueueConfiguration(new QueueConfiguration(name).setAddress(address));
       addrConfigs.add(addrCfg);
    }
 

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -64,7 +65,7 @@ public class SecurityOpenWireTest extends BasicOpenWireTest {
 
       server.getSecurityRepository().addMatch("denyQ", roles);
       SimpleString denyQ = new SimpleString("denyQ");
-      server.createQueue(denyQ, RoutingType.ANYCAST, denyQ, null, true, false);
+      server.createQueue(new QueueConfiguration(denyQ).setRoutingType(RoutingType.ANYCAST));
       try (Connection connection = factory.createConnection("denyQ", "denyQ")) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue("denyQ");

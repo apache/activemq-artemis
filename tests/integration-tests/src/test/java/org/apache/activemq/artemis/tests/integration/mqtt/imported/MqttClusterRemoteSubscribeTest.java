@@ -17,9 +17,10 @@
 package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
 import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
 import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
@@ -1313,11 +1314,7 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       CoreAddressConfiguration coreAddressConfiguration = new CoreAddressConfiguration();
       coreAddressConfiguration.addRoutingType(RoutingType.ANYCAST);
       coreAddressConfiguration.setName(TOPIC);
-      CoreQueueConfiguration coreQueueConfiguration = new CoreQueueConfiguration();
-      coreQueueConfiguration.setName(TOPIC);
-      coreQueueConfiguration.setAddress(TOPIC);
-      coreQueueConfiguration.setRoutingType(RoutingType.ANYCAST);
-      coreAddressConfiguration.addQueueConfiguration(coreQueueConfiguration);
+      coreAddressConfiguration.addQueueConfiguration(new QueueConfiguration(TOPIC).setRoutingType(RoutingType.ANYCAST));
       return coreAddressConfiguration;
    }
 

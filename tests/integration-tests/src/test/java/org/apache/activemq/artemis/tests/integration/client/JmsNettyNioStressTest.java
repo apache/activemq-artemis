@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -147,8 +148,8 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
 
       Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
       Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
-      session.createQueue("queue", RoutingType.ANYCAST, "queue");
-      session.createQueue("queue2", RoutingType.ANYCAST, "queue2");
+      session.createQueue(new QueueConfiguration("queue").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(new QueueConfiguration("queue2").setRoutingType(RoutingType.ANYCAST));
       Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
       Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
       session.commit();

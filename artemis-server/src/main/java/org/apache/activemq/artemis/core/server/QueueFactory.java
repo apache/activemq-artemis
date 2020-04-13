@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 
@@ -29,7 +31,10 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
  */
 public interface QueueFactory {
 
+   @Deprecated
    Queue createQueueWith(QueueConfig config) throws Exception;
+
+   Queue createQueueWith(QueueConfiguration config, PagingManager pagingManager) throws Exception;
 
    /**
     * @deprecated Replaced by {@link #createQueueWith}

@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -119,7 +120,7 @@ public class GlobalPagingTest extends PagingTest {
 
       final ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
 
       final ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -231,7 +232,7 @@ public class GlobalPagingTest extends PagingTest {
 
             if (server.locateQueue(managementAddress) == null) {
 
-               session.createQueue(managementAddress, managementAddress, null, true);
+               session.createQueue(new QueueConfiguration(managementAddress));
             }
 
             final Queue managementQueue = server.locateQueue(managementAddress);
@@ -244,7 +245,7 @@ public class GlobalPagingTest extends PagingTest {
 
             if (server.locateQueue(address) == null) {
 
-               session.createQueue(address, address, null, true);
+               session.createQueue(new QueueConfiguration(address));
             }
 
             final CountDownLatch startSendMessages = new CountDownLatch(1);
@@ -317,19 +318,19 @@ public class GlobalPagingTest extends PagingTest {
 
             if (server.locateQueue(managementAddress) == null) {
 
-               session.createQueue(managementAddress, managementAddress, null, true);
+               session.createQueue(new QueueConfiguration(managementAddress));
             }
 
             final SimpleString address = SimpleString.toSimpleString("queue");
 
             if (server.locateQueue(address) == null) {
 
-               session.createQueue(address, address, null, true);
+               session.createQueue(new QueueConfiguration(address));
             }
 
             try (ClientProducer requestProducer = session.createProducer(managementAddress)) {
                final SimpleString replyQueue = new SimpleString(managementAddress + "." + UUID.randomUUID().toString());
-               session.createTemporaryQueue(replyQueue, ActiveMQDefaultConfiguration.getDefaultRoutingType(), replyQueue);
+               session.createQueue(new QueueConfiguration(replyQueue).setRoutingType(ActiveMQDefaultConfiguration.getDefaultRoutingType()).setDurable(false).setTemporary(true));
                int id = 1000;
                try (ClientConsumer consumer = session.createConsumer(replyQueue)) {
                   final Queue queue = server.locateQueue(replyQueue);

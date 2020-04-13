@@ -35,6 +35,7 @@ import org.apache.activemq.ActiveMQSslConnectionFactory;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -131,7 +132,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       try {
          ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
-         server.createQueue(SimpleString.toSimpleString("address"), RoutingType.ANYCAST, SimpleString.toSimpleString("queue"), null, true, false);
+         server.createQueue(new QueueConfiguration("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST));
          ClientProducer producer = session.createProducer("address");
          producer.send(session.createMessage(true));
          session.commit();
@@ -288,7 +289,7 @@ public class SecurityTest extends ActiveMQTestBase {
          //Add a test queue and topic to the server
          SimpleString address = SimpleString.toSimpleString("test.queue");
          server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
-         server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
+         server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
 
          SimpleString address2 = SimpleString.toSimpleString("test.topic");
          server.addAddressInfo(new AddressInfo(address2, RoutingType.MULTICAST));
@@ -433,15 +434,15 @@ public class SecurityTest extends ActiveMQTestBase {
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(ADDRESS, RoutingType.ANYCAST, DURABLE_QUEUE, null, true, false);
-      server.createQueue(ADDRESS, RoutingType.ANYCAST, NON_DURABLE_QUEUE, null, false, false);
+      server.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = addClientSession(cf.createSession("first", "secret", false, true, true, false, 0));
 
       // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
          assertTrue(e.getMessage().contains("User: first does not have permission='CREATE_DURABLE_QUEUE' for queue durableQueue on address address"));
@@ -457,7 +458,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       // CREATE_NON_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
+         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
          assertTrue(e.getMessage().contains("User: first does not have permission='CREATE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address address"));
@@ -522,8 +523,8 @@ public class SecurityTest extends ActiveMQTestBase {
       server.getConfiguration().putSecurityRoles(ADDRESS.concat(".").concat(QUEUE_B).toString(), bRoles);
       server.start();
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(ADDRESS, RoutingType.ANYCAST, QUEUE_A, null, true, false);
-      server.createQueue(ADDRESS, RoutingType.ANYCAST, QUEUE_B, null, true, false);
+      server.createQueue(new QueueConfiguration(QUEUE_A).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(QUEUE_B).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession aSession = addClientSession(cf.createSession("a", "a", false, true, true, false, 0));
@@ -597,14 +598,14 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(ADDRESS, RoutingType.ANYCAST, DURABLE_QUEUE, null, true, false);
-      server.createQueue(ADDRESS, RoutingType.ANYCAST, NON_DURABLE_QUEUE, null, false, false);
+      server.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       ClientSession session = addClientSession(cf.createSession());
 
       // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
          // ignore
@@ -620,7 +621,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       // CREATE_NON_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
+         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
          // ignore
@@ -687,7 +688,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
       } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
@@ -701,7 +702,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       // CREATE_NON_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
+         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
       } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
@@ -713,7 +714,7 @@ public class SecurityTest extends ActiveMQTestBase {
          Assert.fail("should not throw exception here");
       }
 
-      session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+      session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
 
       // PRODUCE
       try {
@@ -791,7 +792,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
       } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
@@ -805,7 +806,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       // CREATE_NON_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
+         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
       } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
@@ -817,7 +818,7 @@ public class SecurityTest extends ActiveMQTestBase {
          Assert.fail("should not throw exception here");
       }
 
-      session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+      session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
 
       // PRODUCE
       try {
@@ -868,7 +869,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
       } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception here");
@@ -883,7 +884,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       // CREATE_NON_DURABLE_QUEUE
       try {
-         session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
+         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
       } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
@@ -895,7 +896,7 @@ public class SecurityTest extends ActiveMQTestBase {
          Assert.fail("should not throw exception here");
       }
 
-      session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+      session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
 
       // PRODUCE
       try {
@@ -1013,7 +1014,7 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       session.close();
    }
 
@@ -1033,7 +1034,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       try {
-         session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+         session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
          Assert.fail("should throw exception");
       } catch (ActiveMQSecurityException se) {
          //ok
@@ -1057,7 +1058,7 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       session.deleteQueue(SecurityTest.queueA);
       session.close();
    }
@@ -1076,7 +1077,7 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       try {
          session.deleteQueue(SecurityTest.queueA);
          Assert.fail("should throw exception");
@@ -1103,7 +1104,7 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA).setDurable(false));
       session.close();
    }
 
@@ -1123,7 +1124,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       try {
-         session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
+         session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA).setDurable(false));
          Assert.fail("should throw exception");
       } catch (ActiveMQSecurityException se) {
          //ok
@@ -1147,7 +1148,7 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA).setDurable(false));
       session.deleteQueue(SecurityTest.queueA);
       session.close();
    }
@@ -1166,7 +1167,7 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA).setDurable(false));
       try {
          session.deleteQueue(SecurityTest.queueA);
          Assert.fail("should throw exception");
@@ -1206,7 +1207,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
 
-      session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
 
       ClientProducer cp = session.createProducer(SecurityTest.addressA);
 
@@ -1257,7 +1258,7 @@ public class SecurityTest extends ActiveMQTestBase {
       locator.setBlockOnNonDurableSend(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       ClientProducer cp = session.createProducer(SecurityTest.addressA);
       try {
          cp.send(session.createMessage(false));
@@ -1284,7 +1285,7 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       ClientProducer cp = session.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
       session.close();
@@ -1313,7 +1314,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession senSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      senSession.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      senSession.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       ClientProducer cp = senSession.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
       session.createConsumer(SecurityTest.queueA);
@@ -1341,7 +1342,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession senSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      senSession.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      senSession.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       ClientProducer cp = senSession.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
       try {
@@ -1378,7 +1379,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession senSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      senSession.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      senSession.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       ClientProducer cp = senSession.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
       try {
@@ -1427,7 +1428,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession senSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      senSession.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      senSession.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       ClientProducer cp = senSession.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
       try {
@@ -1487,7 +1488,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       ClientSession senSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      senSession.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
+      senSession.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
       ClientProducer cp = senSession.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
       try {
@@ -1584,7 +1585,7 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(configuration.getManagementAddress().toString(), SecurityTest.queueA, true);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(configuration.getManagementAddress().toString()));
       ClientProducer cp = session.createProducer(configuration.getManagementAddress());
       cp.send(session.createMessage(false));
       try {
@@ -1613,7 +1614,7 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      session.createQueue(configuration.getManagementAddress().toString(), SecurityTest.queueA, true);
+      session.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(configuration.getManagementAddress().toString()));
       ClientProducer cp = session.createProducer(configuration.getManagementAddress());
       cp.send(session.createMessage(false));
       session.close();
@@ -1669,11 +1670,11 @@ public class SecurityTest extends ActiveMQTestBase {
 
       ClientSession adminSession = factory.createSession("all", "all", false, true, true, false, -1);
       String genericQueueName = "genericQueue";
-      adminSession.createQueue(genericQueueName, genericQueueName, false);
+      adminSession.createQueue(new QueueConfiguration(genericQueueName).setDurable(false));
       String eurQueueName = "news.europe.europeQueue";
-      adminSession.createQueue(eurQueueName, eurQueueName, false);
+      adminSession.createQueue(new QueueConfiguration(eurQueueName).setDurable(false));
       String usQueueName = "news.us.usQueue";
-      adminSession.createQueue(usQueueName, usQueueName, false);
+      adminSession.createQueue(new QueueConfiguration(usQueueName).setDurable(false));
       // Step 4. Try to create a JMS Connection without user/password. It will fail.
       try {
          factory.createSession(false, true, true);
@@ -1798,11 +1799,11 @@ public class SecurityTest extends ActiveMQTestBase {
 
       ClientSession adminSession = factory.createSession("all", "all", false, true, true, false, -1);
       String genericQueueName = "genericQueue";
-      adminSession.createQueue(genericQueueName, genericQueueName, false);
+      adminSession.createQueue(new QueueConfiguration(genericQueueName).setDurable(false));
       String eurQueueName = "news.europe.europeQueue";
-      adminSession.createQueue(eurQueueName, eurQueueName, false);
+      adminSession.createQueue(new QueueConfiguration(eurQueueName).setDurable(false));
       String usQueueName = "news.us.usQueue";
-      adminSession.createQueue(usQueueName, usQueueName, false);
+      adminSession.createQueue(new QueueConfiguration(usQueueName).setDurable(false));
       // Step 4. Try to create a JMS Connection without user/password. It will fail.
       try {
          factory.createSession(false, true, true);
@@ -1910,7 +1911,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSession adminSession = factory.createSession("all", "frobnicate", false, true, true, false, -1);
 
       final String queueName = "test.queue";
-      adminSession.createQueue(queueName, queueName, false);
+      adminSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
 
       // Wrong user name
       try {
@@ -2010,10 +2011,10 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSession adminSession = factory.createSession("all", "frobnicate", false, true, true, false, -1);
 
       final String queueName = "test.queue";
-      adminSession.createQueue(queueName, queueName, false);
+      adminSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
 
       final String otherQueueName = "other.queue";
-      adminSession.createQueue(otherQueueName, otherQueueName, false);
+      adminSession.createQueue(new QueueConfiguration(otherQueueName).setDurable(false));
 
       // Wrong user name
       try {
@@ -2144,10 +2145,10 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSession adminSession = factory.createSession("all", "frobnicate", false, true, true, false, -1);
 
       final String queueName = "test.queue";
-      adminSession.createQueue(queueName, queueName, false);
+      adminSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
 
       final String otherQueueName = "other.queue";
-      adminSession.createQueue(otherQueueName, otherQueueName, false);
+      adminSession.createQueue(new QueueConfiguration(otherQueueName).setDurable(false));
 
       // Wrong user name
       try {

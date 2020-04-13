@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.soak.client;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -73,7 +74,7 @@ public class ClientNonDivertedSoakTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession();
 
-      session.createQueue(ClientNonDivertedSoakTest.ADDRESS, ClientNonDivertedSoakTest.ADDRESS, true);
+      session.createQueue(new QueueConfiguration(ClientNonDivertedSoakTest.ADDRESS));
 
       session.close();
 

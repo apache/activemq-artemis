@@ -21,10 +21,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.deployers.Deployable;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -176,9 +176,7 @@ public class LegacyJMSConfiguration implements Deployable {
       configuration.addAddressConfiguration(new CoreAddressConfiguration()
                                                .setName(queueName)
                                                .addRoutingType(RoutingType.ANYCAST)
-                                               .addQueueConfiguration(new CoreQueueConfiguration()
-                                                                         .setAddress(queueName)
-                                                                         .setName(queueName)
+                                               .addQueueConfiguration(new QueueConfiguration(queueName)
                                                                          .setFilterString(selectorString)
                                                                          .setDurable(durable)
                                                                          .setRoutingType(RoutingType.ANYCAST)));

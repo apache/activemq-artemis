@@ -28,6 +28,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.UUID;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -79,8 +80,8 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
    public void setupQueue() throws Exception {
       Wait.assertTrue(server::isStarted);
       Wait.assertTrue(server::isActive);
-      this.server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false, -1, false, true);
-      this.server.createQueue(replyQueue, RoutingType.ANYCAST, replyQueue, null, true, false, -1, false, true);
+      this.server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(new QueueConfiguration(replyQueue).setRoutingType(RoutingType.ANYCAST));
       AddressInfo info = new AddressInfo(topicName, RoutingType.MULTICAST);
       this.server.addAddressInfo(info);
    }

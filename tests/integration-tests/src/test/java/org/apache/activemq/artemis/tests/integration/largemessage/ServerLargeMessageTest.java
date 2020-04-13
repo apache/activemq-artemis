@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -117,7 +118,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
 
          fileMessage.releaseResources(false);
 
-         session.createQueue("A", RoutingType.ANYCAST, "A");
+         session.createQueue(new QueueConfiguration("A").setRoutingType(RoutingType.ANYCAST));
 
          ClientProducer prod = session.createProducer("A");
 
@@ -172,7 +173,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
          ClientMessage clientMessage = session.createMessage(false);
          clientMessage.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE));
 
-         session.createQueue("A", RoutingType.ANYCAST, "A");
+         session.createQueue(new QueueConfiguration("A").setRoutingType(RoutingType.ANYCAST));
 
          ClientProducer prod = session.createProducer("A");
          prod.send(clientMessage);

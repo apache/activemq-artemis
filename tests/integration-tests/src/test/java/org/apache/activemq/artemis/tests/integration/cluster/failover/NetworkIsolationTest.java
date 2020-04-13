@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -108,7 +109,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
          ClientSession session = createSession(sf, false, true, true);
 
-         session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+         session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
 
          Assert.assertFalse(backupServer.getServer().getNetworkHealthCheck().check());
 

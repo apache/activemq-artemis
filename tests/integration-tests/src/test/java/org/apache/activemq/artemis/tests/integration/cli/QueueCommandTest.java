@@ -22,6 +22,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
@@ -249,7 +250,7 @@ public class QueueCommandTest extends JMSTestBase {
       final boolean oldPurgeOnNoConsumers = false;
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
       server.addAddressInfo(addressInfo);
-      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldPurgeOnNoConsumers, false);
+      server.createQueue(new QueueConfiguration(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
 
       final int newMaxConsumers = 1;
       final RoutingType newRoutingType = RoutingType.ANYCAST;
@@ -282,7 +283,7 @@ public class QueueCommandTest extends JMSTestBase {
       final Set<RoutingType> supportedRoutingTypes = EnumSet.of(oldRoutingType);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.copyOf(supportedRoutingTypes));
       server.addAddressInfo(addressInfo);
-      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldPurgeOnNoConsumers, false);
+      server.createQueue(new QueueConfiguration(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
 
       final RoutingType newRoutingType = RoutingType.ANYCAST;
       final UpdateQueue updateQueue = new UpdateQueue();
@@ -311,7 +312,7 @@ public class QueueCommandTest extends JMSTestBase {
       final boolean oldPurgeOnNoConsumers = false;
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, oldRoutingType);
       server.addAddressInfo(addressInfo);
-      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldPurgeOnNoConsumers, false);
+      server.createQueue(new QueueConfiguration(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
 
       server.locateQueue(queueNameString).addConsumer(new DummyServerConsumer());
       server.locateQueue(queueNameString).addConsumer(new DummyServerConsumer());

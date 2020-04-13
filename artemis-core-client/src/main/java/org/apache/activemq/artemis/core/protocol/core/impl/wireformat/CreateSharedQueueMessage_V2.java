@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.BufferHelper;
@@ -38,6 +39,31 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
    private Boolean autoDelete;
    private Long autoDeleteDelay;
    private Long autoDeleteMessageCount;
+
+   public CreateSharedQueueMessage_V2(final QueueConfiguration queueConfiguration, boolean requiresResponse) {
+      this(
+         queueConfiguration.getAddress(),
+         queueConfiguration.getName(),
+         queueConfiguration.getRoutingType(),
+         queueConfiguration.getFilterString(),
+         queueConfiguration.isDurable(),
+         queueConfiguration.getMaxConsumers(),
+         queueConfiguration.isPurgeOnNoConsumers(),
+         queueConfiguration.isExclusive(),
+         queueConfiguration.isGroupRebalance(),
+         queueConfiguration.getGroupBuckets(),
+         queueConfiguration.getGroupFirstKey(),
+         queueConfiguration.isLastValue(),
+         queueConfiguration.getLastValueKey(),
+         queueConfiguration.isNonDestructive(),
+         queueConfiguration.getConsumersBeforeDispatch(),
+         queueConfiguration.getDelayBeforeDispatch(),
+         queueConfiguration.isAutoDelete(),
+         queueConfiguration.getAutoDeleteDelay(),
+         queueConfiguration.getAutoDeleteMessageCount(),
+         requiresResponse
+      );
+   }
 
    public CreateSharedQueueMessage_V2(final SimpleString address,
                                       final SimpleString queueName,
@@ -207,6 +233,28 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       this.autoDeleteMessageCount = autoDeleteMessageCount;
    }
 
+   public QueueConfiguration toQueueConfiguration() {
+      return new QueueConfiguration(queueName)
+         .setAddress(address)
+         .setDurable(durable)
+         .setRoutingType(routingType)
+         .setExclusive(exclusive)
+         .setGroupRebalance(groupRebalance)
+         .setNonDestructive(nonDestructive)
+         .setLastValue(lastValue)
+         .setFilterString(filterString)
+         .setMaxConsumers(maxConsumers)
+         .setPurgeOnNoConsumers(purgeOnNoConsumers)
+         .setConsumersBeforeDispatch(consumersBeforeDispatch)
+         .setDelayBeforeDispatch(delayBeforeDispatch)
+         .setGroupBuckets(groupBuckets)
+         .setGroupFirstKey(groupFirstKey)
+         .setLastValueKey(lastValueKey)
+         .setAutoDelete(autoDelete)
+         .setAutoDeleteDelay(autoDeleteDelay)
+         .setAutoDeleteMessageCount(autoDeleteMessageCount);
+   }
+
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
@@ -240,7 +288,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       buffer.writeSimpleString(queueName);
       buffer.writeNullableSimpleString(filterString);
       buffer.writeBoolean(durable);
-      buffer.writeByte(routingType.getType());
+      buffer.writeByte(routingType == null ? -1 : routingType.getType());
       buffer.writeBoolean(requiresResponse);
       BufferHelper.writeNullableInteger(buffer, maxConsumers);
       BufferHelper.writeNullableBoolean(buffer, purgeOnNoConsumers);

@@ -21,6 +21,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -55,7 +56,7 @@ public class TwoWaysRemoveAddressTest extends ActiveMQTestBase {
 
                for (int i = 0; i < retries; i++) {
                   logger.debug("Removed queue on thread 1 ::" + i);
-                  server.createQueue(SimpleString.toSimpleString("address_1_" + i), RoutingType.ANYCAST, SimpleString.toSimpleString("queueName_1_" + i), null, true, false);
+                  server.createQueue(new QueueConfiguration("queueName_1_" + i).setAddress("address_1_" + i).setRoutingType(RoutingType.ANYCAST));
                   server.destroyQueue(SimpleString.toSimpleString("queueName_1_" + i));
                }
             } catch (Throwable e) {
@@ -74,7 +75,7 @@ public class TwoWaysRemoveAddressTest extends ActiveMQTestBase {
 
                for (int i = 0; i < retries; i++) {
                   logger.debug("Removed queue on thread 2 ::" + i);
-                  server.createQueue(SimpleString.toSimpleString("address_2_" + i), RoutingType.ANYCAST, SimpleString.toSimpleString("queueName_2_" + i), null, true, false);
+                  server.createQueue(new QueueConfiguration("queueName_2_" + i).setAddress("address_2_" + i).setRoutingType(RoutingType.ANYCAST));
                   server.removeAddressInfo(SimpleString.toSimpleString("address_2_" + i), null, true);
                }
             } catch (Throwable e) {

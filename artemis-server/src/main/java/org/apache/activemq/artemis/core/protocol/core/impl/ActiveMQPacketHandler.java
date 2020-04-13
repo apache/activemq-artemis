@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -247,7 +248,11 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
    private void handleCreateQueue(final CreateQueueMessage request) {
       try {
-         server.createQueue(request.getAddress(), null, request.getQueueName(), request.getFilterString(), request.isDurable(), request.isTemporary());
+         server.createQueue(new QueueConfiguration(request.getQueueName())
+                               .setAddress(request.getAddress())
+                               .setFilterString(request.getFilterString())
+                               .setDurable(request.isDurable())
+                               .setTemporary(request.isTemporary()));
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.failedToHandleCreateQueue(e);
       }

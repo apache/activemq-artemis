@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -76,11 +77,7 @@ public class PushSubscriptionsResource {
       try {
          session = sessionFactory.createSession();
 
-         if (durable) {
-            session.createQueue(destination, subscriptionName, true);
-         } else {
-            session.createTemporaryQueue(destination, subscriptionName);
-         }
+         session.createQueue(new QueueConfiguration(subscriptionName).setAddress(destination).setDurable(durable).setTemporary(!durable));
          return session;
       } catch (ActiveMQException e) {
          throw new RuntimeException(e);

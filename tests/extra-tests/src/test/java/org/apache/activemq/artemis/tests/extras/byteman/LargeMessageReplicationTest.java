@@ -16,7 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -28,7 +36,6 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
@@ -38,13 +45,6 @@ import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 @RunWith(BMUnitRunner.class)
 public class LargeMessageReplicationTest extends FailoverTestBase {
@@ -94,10 +94,7 @@ public class LargeMessageReplicationTest extends FailoverTestBase {
       CoreAddressConfiguration addrCfg = new CoreAddressConfiguration();
       addrCfg.setName(address);
       addrCfg.addRoutingType(RoutingType.ANYCAST);
-      CoreQueueConfiguration qConfig = new CoreQueueConfiguration();
-      qConfig.setName(name);
-      qConfig.setAddress(address);
-      addrCfg.addQueueConfiguration(qConfig);
+      addrCfg.addQueueConfiguration(new QueueConfiguration(name).setAddress(address));
       addrConfigs.add(addrCfg);
    }
 

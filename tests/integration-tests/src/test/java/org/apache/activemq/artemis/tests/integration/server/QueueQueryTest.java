@@ -20,6 +20,7 @@ import javax.jms.JMSContext;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -48,7 +49,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
    public void testQueueQueryDefaultsOnStaticQueue() throws Exception {
       SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      server.createQueue(addressName, RoutingType.MULTICAST, queueName, null, true, false);
+      server.createQueue(new QueueConfiguration(queueName).setAddress(addressName));
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertTrue(queueQueryResult.isExists());
       assertEquals(RoutingType.MULTICAST, queueQueryResult.getRoutingType());
@@ -73,10 +74,13 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryOnStaticQueueWithFQQN() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+//      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+//      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      SimpleString queueName = SimpleString.toSimpleString("myQueue");
       SimpleString fqqn = addressName.concat("::").concat(queueName);
-      server.createQueue(fqqn, RoutingType.MULTICAST, fqqn, null, true, false);
+//      server.createQueue(fqqn, RoutingType.MULTICAST, fqqn, null, true, false);
+      server.createQueue(new QueueConfiguration(fqqn));
       QueueQueryResult queueQueryResult = server.queueQuery(fqqn);
       assertEquals(queueName, queueQueryResult.getName());
       assertEquals(addressName, queueQueryResult.getAddress());
@@ -102,7 +106,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
          .setDefaultLastValueKey(lastValueKey)
          .setDefaultExclusiveQueue(true)
          .setDefaultNonDestructive(true));
-      server.createQueue(addressName, RoutingType.ANYCAST, queueName, filter, false, true);
+      server.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString(filter).setDurable(false).setTemporary(true));
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertTrue(queueQueryResult.isExists());
       assertEquals(RoutingType.ANYCAST, queueQueryResult.getRoutingType());

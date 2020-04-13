@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -62,12 +63,12 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testMixedQueues() throws Exception {
-      server.createQueue(mixedAddress, RoutingType.MULTICAST, multicastQ1, null, true, false, -1, false, true);
-      server.createQueue(mixedAddress, RoutingType.MULTICAST, multicastQ2, null, true, false, -1, false, true);
-      server.createQueue(mixedAddress, RoutingType.MULTICAST, multicastQ3, null, true, false, -1, false, true);
-      server.createQueue(mixedAddress, RoutingType.ANYCAST, anycastQ1, null, true, false, -1, false, true);
-      server.createQueue(mixedAddress, RoutingType.ANYCAST, anycastQ2, null, true, false, -1, false, true);
-      server.createQueue(mixedAddress, RoutingType.ANYCAST, anycastQ3, null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(multicastQ1).setAddress(mixedAddress));
+      server.createQueue(new QueueConfiguration(multicastQ2).setAddress(mixedAddress));
+      server.createQueue(new QueueConfiguration(multicastQ3).setAddress(mixedAddress));
+      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(anycastQ2).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(anycastQ3).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -132,9 +133,9 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testMulticastQueues() throws Exception {
-      server.createQueue(multicastAddress, RoutingType.MULTICAST, multicastQ1, null, true, false, -1, false, true);
-      server.createQueue(multicastAddress, RoutingType.MULTICAST, multicastQ2, null, true, false, -1, false, true);
-      server.createQueue(multicastAddress, RoutingType.MULTICAST, multicastQ3, null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(multicastQ1).setAddress(multicastAddress));
+      server.createQueue(new QueueConfiguration(multicastQ2).setAddress(multicastAddress));
+      server.createQueue(new QueueConfiguration(multicastQ3).setAddress(multicastAddress));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -173,9 +174,9 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testAnycastQueues() throws Exception {
-      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ1, null, true, false, -1, false, true);
-      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ2, null, true, false, -1, false, true);
-      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ3, null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -234,7 +235,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testSpecialCase() throws Exception {
-      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ1, null, true, false, -1, false, true);
+      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();

@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -74,7 +75,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
 
       assertTrue("Expected a failure on setting ACK Handler", failed);
 
-      session.createQueue(address, queueName, false);
+      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
    }
 
    @Test
@@ -105,7 +106,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession(null, null, false, true, true, false, 1);
 
-      session.createQueue(address, queueName, false);
+      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
 
       ClientProducer prod = session.createProducer(address);
 
@@ -137,7 +138,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession(null, null, false, true, true, false, 1);
 
-      session.createQueue(address, queueName, false);
+      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
 
       ClientProducer prod = session.createProducer(address);
 

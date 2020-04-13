@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -48,7 +48,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queue = new SimpleString("test.queue");
 
-      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, 10, true, true);
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertTrue(queueBinding1.getQueue().isPurgeOnNoConsumers());
@@ -70,7 +70,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queue = new SimpleString("test.queue");
 
-      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, false, true, true);
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertTrue(queueBinding1.getQueue().isLastValue());
@@ -92,7 +92,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queue = new SimpleString("test.queue");
 
-      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, true, true);
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertTrue(queueBinding1.getQueue().isExclusive());
@@ -115,7 +115,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queue = new SimpleString("test.queue");
 
-      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, false, -1, true, null, false, consumersBeforeDispatch, -1, false, 0, 0, true);
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setConsumersBeforeDispatch(consumersBeforeDispatch));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertEquals(consumersBeforeDispatch, queueBinding1.getQueue().getConsumersBeforeDispatch());
@@ -138,7 +138,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queue = new SimpleString("test.queue");
 
-      server.createQueue(address, RoutingType.MULTICAST, queue, null, null, true, false, false, false,false, 10, true, true, false, -1, true, null, false,0, delayBeforeDispatch, false, 0, 0, true);
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setMaxConsumers(10).setPurgeOnNoConsumers(true).setExclusive(true).setDelayBeforeDispatch(delayBeforeDispatch));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertEquals(delayBeforeDispatch, queueBinding1.getQueue().getDelayBeforeDispatch());
@@ -161,7 +161,7 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queue = new SimpleString("test.queue");
 
-      server.createQueue(address, RoutingType.MULTICAST, queue, null, SimpleString.toSimpleString("bob"), true, false, false, 10, true, true);
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setUser("bob").setMaxConsumers(10).setPurgeOnNoConsumers(true));
 
       QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertEquals(SimpleString.toSimpleString("bob"), queueBinding1.getQueue().getUser());

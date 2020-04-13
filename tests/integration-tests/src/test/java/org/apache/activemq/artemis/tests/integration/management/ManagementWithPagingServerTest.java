@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -61,7 +62,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session1.createQueue(address, queue, null, true);
+      session1.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 
@@ -113,7 +114,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session1.createQueue(address, queue, null, true);
+      session1.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 
@@ -167,7 +168,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
-      session1.createQueue(address, queue, null, true);
+      session1.createQueue(new QueueConfiguration(queue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 

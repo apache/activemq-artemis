@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -299,6 +300,23 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    @Override
+   public void createQueue(QueueConfiguration queueConfiguration) throws ActiveMQException {
+      internalCreateQueue(queueConfiguration);
+   }
+
+   @Override
+   public void createSharedQueue(QueueConfiguration queueConfiguration) throws ActiveMQException {
+      checkClosed();
+
+      startCall();
+      try {
+         sessionContext.createSharedQueue(queueConfiguration);
+      } finally {
+         endCall();
+      }
+   }
+
+   @Override
    public void createQueue(final SimpleString address,
                            final SimpleString queueName,
                            final SimpleString filterString,
@@ -363,6 +381,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    /** New Queue API **/
 
 
+   @Deprecated
    @Override
    public void createQueue(final SimpleString address,
                            final RoutingType routingType,
@@ -394,6 +413,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
 
+   @Deprecated
    @Override
    public void createQueue(final SimpleString address, final RoutingType routingType, final SimpleString queueName, final SimpleString filterString,
                            final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers) throws ActiveMQException {
@@ -409,6 +429,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                   .setPurgeOnNoConsumers(purgeOnNoConsumers));
    }
 
+   @Deprecated
    @Override
    public void createQueue(final SimpleString address, final RoutingType routingType, final SimpleString queueName, final SimpleString filterString,
                            final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers, final Boolean exclusive, final Boolean lastValue) throws ActiveMQException {
@@ -426,6 +447,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                   .setLastValue(lastValue));
    }
 
+   @Deprecated
    @Override
    public void createQueue(final SimpleString address, final SimpleString queueName, final boolean autoCreated, final QueueAttributes queueAttributes) throws ActiveMQException {
       internalCreateQueue(address,
@@ -435,6 +457,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
               queueAttributes);
    }
 
+   @Deprecated
    @Override
    public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
                            final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers) throws ActiveMQException {
@@ -477,6 +500,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       createTemporaryQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName));
    }
 
+   @Deprecated
    @Override
    public void createTemporaryQueue(final SimpleString address,
                                     final RoutingType routingType,
@@ -500,6 +524,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                   .setLastValue(lastValue));
    }
 
+   @Deprecated
    @Override
    public void createTemporaryQueue(final SimpleString address,
                                     final SimpleString queueName,
@@ -511,6 +536,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
               queueAttributes);
    }
 
+   @Deprecated
    @Override
    public void createTemporaryQueue(final SimpleString address,
                                     final RoutingType routingType,
@@ -533,6 +559,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     * @param durable      whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    @Override
    public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException {
       internalCreateQueue(address,
@@ -595,6 +622,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     * @param lastValue    if the queue is last value queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    @Override
    public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                                  boolean durable, Integer maxConsumers, Boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
@@ -617,16 +645,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     * @param queueAttributes attributes for the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    @Override
    public void createSharedQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException {
-      checkClosed();
-
-      startCall();
-      try {
-         sessionContext.createSharedQueue(address, queueName, queueAttributes);
-      } finally {
-         endCall();
-      }
+      createSharedQueue(queueAttributes.toQueueConfiguration().setName(queueName).setAddress(address));
    }
 
    /**
@@ -651,6 +673,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     * @param queueName    the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    @Override
    public void createQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException {
       internalCreateQueue(SimpleString.toSimpleString(address),
@@ -673,6 +696,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     * @param queueName    the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    @Override
    public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException {
       internalCreateQueue(address,
@@ -697,6 +721,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     * @param durable      whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    @Override
    public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                            boolean durable) throws ActiveMQException {
@@ -1992,24 +2017,25 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return producer;
    }
 
+   @Deprecated
    private void internalCreateQueue(final SimpleString address,
                                     final SimpleString queueName,
                                     final boolean temp,
                                     final boolean autoCreated,
                                     final QueueAttributes queueAttributes) throws ActiveMQException {
+      internalCreateQueue(queueAttributes.toQueueConfiguration().setName(queueName).setAddress(address).setTemporary(temp).setAutoCreated(autoCreated));
+   }
+
+   private void internalCreateQueue(final QueueConfiguration queueConfiguration) throws ActiveMQException {
       checkClosed();
 
-      if (queueAttributes.getDurable() && temp) {
+      if (queueConfiguration.isDurable() && queueConfiguration.isTemporary()) {
          throw ActiveMQClientMessageBundle.BUNDLE.queueMisConfigured();
       }
 
       startCall();
       try {
-         sessionContext.createQueue(address,
-                                    queueName,
-                                    temp,
-                                    autoCreated,
-                                    queueAttributes);
+         sessionContext.createQueue(queueConfiguration);
       } finally {
          endCall();
       }

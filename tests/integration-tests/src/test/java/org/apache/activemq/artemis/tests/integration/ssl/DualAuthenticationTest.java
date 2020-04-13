@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -90,7 +91,7 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
       ServerLocator producerLocator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory producerSessionFactory = createSessionFactory(producerLocator);
       ClientSession producerSession = producerSessionFactory.createSession(false, true, true);
-      producerSession.createQueue(DualAuthenticationTest.QUEUE, DualAuthenticationTest.QUEUE, false);
+      producerSession.createQueue(new QueueConfiguration(DualAuthenticationTest.QUEUE).setDurable(false));
       ClientProducer producer = producerSession.createProducer(DualAuthenticationTest.QUEUE);
 
       ClientMessage message = createTextMessage(producerSession, text);

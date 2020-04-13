@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -61,7 +62,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       RemotingConnectionImpl remotingConnection = (RemotingConnectionImpl) sf.getConnection();
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(QUEUE, QUEUE, null, false);
+      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -151,7 +152,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       RemotingConnectionImpl remotingConnection = (RemotingConnectionImpl) sf.getConnection();
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(QUEUE, QUEUE, null, false);
+      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
 
       final int numMessages = 10000;
 

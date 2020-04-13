@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -54,7 +55,7 @@ public class AutoDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testAutoDeleteAutoCreatedQueueOnLastConsumerClose() throws Exception {
       // auto-delete-queues defaults to true
-      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, false, false, true, 1, false, true);
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.locateQueue(queueA));
       cf.createSession().createConsumer(queueA).close();
       Wait.assertTrue(() -> server.locateQueue(queueA) == null);
@@ -63,7 +64,7 @@ public class AutoDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testAutoDeleteAutoCreatedQueueOnLastMessageRemovedWithoutConsumer() throws Exception {
       // auto-delete-queues defaults to true
-      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, false, false, true, 1, false, true);
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.locateQueue(queueA));
       ClientSession session = cf.createSession();
       ClientProducer producer = session.createProducer(addressA);
@@ -76,7 +77,7 @@ public class AutoDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testAutoDeleteAutoCreatedQueueOnLastMessageExpired() throws Exception {
       // auto-delete-queues defaults to true
-      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, false, false, true, 1, false, true);
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.locateQueue(queueA));
       ClientSession session = cf.createSession();
       ClientProducer producer = session.createProducer(addressA);
@@ -87,7 +88,7 @@ public class AutoDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testNegativeAutoDeleteAutoCreatedQueue() throws Exception {
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoDeleteQueues(false));
-      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, false, false, true, 1, false, true);
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.locateQueue(queueA));
       cf.createSession().createConsumer(queueA).close();
       assertNotNull(server.locateQueue(queueA));
@@ -96,7 +97,7 @@ public class AutoDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testNegativeAutoDeleteAutoCreatedQueue2() throws Exception {
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings());
-      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, false, false, true, 1, false, true);
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.locateQueue(queueA));
       assertFalse(Wait.waitFor(() -> server.locateQueue(queueA) == null, 5000, 100));
    }

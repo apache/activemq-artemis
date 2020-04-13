@@ -22,7 +22,10 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
 
    // Constants -----------------------------------------------------
@@ -32,6 +35,10 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
+
+   public ActiveMQServerControlUsingCoreTest(boolean legacyCreateQueue) {
+      super(legacyCreateQueue);
+   }
 
    // Public --------------------------------------------------------
 
@@ -123,6 +130,21 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                    boolean purgeOnNoConsumers,
                                    boolean autoCreateAddress) throws Exception {
             return (String) proxy.invokeOperation("createQueue", address, routingType, name, filterStr, durable, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
+         }
+
+         @Override
+         public String createQueue(String queueConfiguration) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", queueConfiguration);
+         }
+
+         @Override
+         public String createQueue(String queueConfiguration, boolean ignoreIfExists) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", queueConfiguration, ignoreIfExists);
+         }
+
+         @Override
+         public String updateQueue(String queueConfiguration) throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", queueConfiguration);
          }
 
          @Override

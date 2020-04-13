@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -125,7 +126,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
 
-      guestSession.createQueue(address, RoutingType.ANYCAST, queue, true);
+      guestSession.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       SSLSecurityNotificationTest.flush(notifConsumer);
 
       long start = System.currentTimeMillis();
@@ -182,7 +183,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       adminSession = sf.createSession(true, true, 1);
       adminSession.start();
 
-      adminSession.createTemporaryQueue(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue);
+      adminSession.createQueue(new QueueConfiguration(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false).setTemporary(true));
 
       notifConsumer = adminSession.createConsumer(notifQueue);
    }

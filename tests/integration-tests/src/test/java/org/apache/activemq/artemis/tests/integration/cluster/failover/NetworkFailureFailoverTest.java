@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -219,7 +220,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       ClientSession sessionProducer = createSession(sfProducer, true, true, 0);
 
-      sessionProducer.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+      sessionProducer.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
 
       ClientProducer producer = sessionProducer.createProducer(FailoverTestBase.ADDRESS);
 
@@ -351,7 +352,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       ClientSession sessionProducer = createSession(sfProducer, true, true, 0);
 
-      sessionProducer.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+      sessionProducer.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
 
       ClientProducer producer = sessionProducer.createProducer(FailoverTestBase.ADDRESS);
 
@@ -633,7 +634,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final ClientSession sessionProducer = createSession(sfProducer, true, true, 0);
 
-      sessionProducer.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+      sessionProducer.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
 
       final ClientProducer producer = sessionProducer.createProducer(FailoverTestBase.ADDRESS);
 

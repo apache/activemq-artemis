@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
@@ -50,7 +51,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       final SimpleString user = new SimpleString("newUser");
 
-      Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, user, null, true, false);
+      Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST).setUser(user));
 
       long originalID = queue.getID();
 
@@ -64,7 +65,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
          prod.send(session.createTextMessage("message " + i));
       }
 
-      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, 1, false, false, null);
+      server.updateQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setExclusive(false));
 
       conn.close();
       factory.close();
@@ -118,7 +119,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
 
-      Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, null, true, false);
+      Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       long originalID = queue.getID();
 
@@ -132,7 +133,19 @@ public class UpdateQueueTest extends ActiveMQTestBase {
          prod.send(session.createTextMessage("message " + i));
       }
 
-      server.updateQueue(ADDRESS.toString(), RoutingType.ANYCAST, null, 1, false, true, true, 5, "gfk", true, 1, 10L, "newUser", 180L);
+      server.updateQueue(new QueueConfiguration(ADDRESS.toString())
+                            .setRoutingType(RoutingType.ANYCAST)
+                            .setMaxConsumers(1)
+                            .setPurgeOnNoConsumers(false)
+                            .setExclusive(true)
+                            .setGroupRebalance(true)
+                            .setGroupBuckets(5)
+                            .setGroupFirstKey("gfk")
+                            .setNonDestructive(true)
+                            .setConsumersBeforeDispatch(1)
+                            .setDelayBeforeDispatch(10L)
+                            .setUser("newUser")
+                            .setRingSize(180L));
 
       conn.close();
       factory.close();

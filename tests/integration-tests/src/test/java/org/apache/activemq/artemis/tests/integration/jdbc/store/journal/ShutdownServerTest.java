@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -60,7 +61,7 @@ public class ShutdownServerTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, false);
 
-      session.createQueue(QUEUE, QUEUE, null, true);
+      session.createQueue(new QueueConfiguration(QUEUE));
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
 

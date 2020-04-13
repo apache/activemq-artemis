@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -293,7 +294,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       final ClientSession session = sf.createSession();
       final ClientSession session2 = sf.createSession();
-      session.createQueue(ADDRESS, ADDRESS, null, true);
+      session.createQueue(new QueueConfiguration(ADDRESS));
 
       final ClientProducer producer = session.createProducer(ADDRESS);
 

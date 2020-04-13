@@ -19,9 +19,11 @@ package org.apache.activemq.artemis.tests.integration.stomp;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -92,8 +94,8 @@ public class FQQNStompTest extends StompTestBase {
       final SimpleString q1Name = SimpleString.toSimpleString("q1");
       final SimpleString q2Name = SimpleString.toSimpleString("q2");
 
-      Queue q1 = server.createQueue(myAddress, RoutingType.MULTICAST, q1Name, null, true, false);
-      Queue q2 = server.createQueue(myAddress, RoutingType.MULTICAST, q2Name, null, true, false);
+      Queue q1 = server.createQueue(new QueueConfiguration(q1Name).setAddress(myAddress));
+      Queue q2 = server.createQueue(new QueueConfiguration(q2Name).setAddress(myAddress));
 
       sendJmsMessage("Hello World!", ActiveMQJMSClient.createTopic(myAddress.toString()));
       assertTrue(Wait.waitFor(() -> q1.getMessageCount() == 1, 2000, 100));
@@ -116,8 +118,8 @@ public class FQQNStompTest extends StompTestBase {
       final SimpleString q1Name = SimpleString.toSimpleString("q1");
       final SimpleString q2Name = SimpleString.toSimpleString("q2");
 
-      Queue q1 = server.createQueue(myAddress, RoutingType.MULTICAST, q1Name, null, true, false);
-      Queue q2 = server.createQueue(myAddress, RoutingType.MULTICAST, q2Name, null, true, false);
+      Queue q1 = server.createQueue(new QueueConfiguration(q1Name).setAddress(myAddress));
+      Queue q2 = server.createQueue(new QueueConfiguration(q2Name).setAddress(myAddress));
 
       conn.connect(defUser, defPass);
       send(conn, myAddress + "\\c\\c" + q1Name, null, "Hello World!");
@@ -141,8 +143,8 @@ public class FQQNStompTest extends StompTestBase {
       final SimpleString q1Name = SimpleString.toSimpleString("q1");
       final SimpleString q2Name = SimpleString.toSimpleString("q2");
 
-      Queue q1 = server.createQueue(myAddress, RoutingType.ANYCAST, q1Name, null, true, false);
-      Queue q2 = server.createQueue(myAddress, RoutingType.ANYCAST, q2Name, null, true, false);
+      Queue q1 = server.createQueue(new QueueConfiguration(q1Name).setAddress(myAddress).setRoutingType(RoutingType.ANYCAST));
+      Queue q2 = server.createQueue(new QueueConfiguration(q2Name).setAddress(myAddress).setRoutingType(RoutingType.ANYCAST));
 
       conn.connect(defUser, defPass);
       send(conn, myAddress.toString(), null, "Hello World!", false, RoutingType.ANYCAST);
@@ -189,9 +191,7 @@ public class FQQNStompTest extends StompTestBase {
       //queue::
       frame = subscribeQueue(conn, "sub-01", getQueueName() + "\\c\\c");
       assertNotNull(frame);
-      assertEquals("ERROR", frame.getCommand());
-      assertTrue(frame.getBody().contains(getQueueName()));
-      assertTrue(frame.getBody().contains("Invalid"));
+      assertEquals(Stomp.Responses.ERROR, frame.getCommand());
       conn.closeTransport();
 
       //need reconnect because stomp disconnect on error
@@ -200,7 +200,8 @@ public class FQQNStompTest extends StompTestBase {
 
       //:: will subscribe to no queue so no message received.
       frame = subscribeQueue(conn, "sub-01", "\\c\\c");
-      assertTrue(frame.getBody().contains("Invalid queue name: ::"));
+      assertNotNull(frame);
+      assertEquals(Stomp.Responses.ERROR, frame.getCommand());
    }
 
 }

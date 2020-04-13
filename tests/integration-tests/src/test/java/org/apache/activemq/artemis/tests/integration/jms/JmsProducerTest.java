@@ -28,6 +28,7 @@ import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -96,7 +97,7 @@ public class JmsProducerTest extends JMSTestBase {
 
    @Test
    public void multipleSendsUsingSetters() throws Exception {
-      server.createQueue(SimpleString.toSimpleString("q1"), RoutingType.ANYCAST, SimpleString.toSimpleString("q1"), null, true, false);
+      server.createQueue(new QueueConfiguration("q1").setRoutingType(RoutingType.ANYCAST));
 
       Queue q1 = context.createQueue("q1");
 

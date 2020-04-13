@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -244,12 +245,12 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
       ClientSession sess = sf.createSession();
 
       try {
-         sess.createQueue(LargeJournalStressTest.AD1, LargeJournalStressTest.Q1, true);
+         sess.createQueue(new QueueConfiguration(LargeJournalStressTest.Q1).setAddress(LargeJournalStressTest.AD1));
       } catch (Exception ignored) {
       }
 
       try {
-         sess.createQueue(LargeJournalStressTest.AD2, LargeJournalStressTest.Q2, true);
+         sess.createQueue(new QueueConfiguration(LargeJournalStressTest.Q2).setAddress(LargeJournalStressTest.AD2));
       } catch (Exception ignored) {
       }
 

@@ -27,6 +27,7 @@ import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQXAConnectionFactory;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -61,7 +62,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
       serverConfig.setSecurityEnabled(false);
       server.start();
       coreQueue = new SimpleString(queueName);
-      server.createQueue(coreQueue, RoutingType.ANYCAST, coreQueue, null, false, false);
+      server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       qpidfactory = new JmsConnectionFactory("amqp://localhost:61616");
    }
 

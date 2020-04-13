@@ -65,6 +65,7 @@ public class LVQTest extends JMSTestBase {
 
          ActiveMQDestination a = (ActiveMQDestination) queue;
          assertTrue(a.getQueueAttributes().getLastValue());
+         assertTrue(a.getQueueConfiguration().isLastValue());
 
          MessageProducer producer = session.createProducer(queue);
          MessageConsumer consumer1 = session.createConsumer(queue);
@@ -107,6 +108,7 @@ public class LVQTest extends JMSTestBase {
 
          ActiveMQDestination a = (ActiveMQDestination) topic;
          assertTrue(a.getQueueAttributes().getLastValue());
+         assertTrue(a.getQueueConfiguration().isLastValue());
 
          MessageProducer producer = session.createProducer(topic);
          MessageConsumer consumer1 = session.createConsumer(topic);
@@ -159,6 +161,7 @@ public class LVQTest extends JMSTestBase {
 
          ActiveMQDestination a = (ActiveMQDestination) queue;
          assertEquals("reuters_code", a.getQueueAttributes().getLastValueKey().toString());
+         assertEquals("reuters_code", a.getQueueConfiguration().getLastValueKey().toString());
 
          MessageProducer producer = session.createProducer(queue);
          MessageConsumer consumer1 = session.createConsumer(queue);
@@ -201,6 +204,7 @@ public class LVQTest extends JMSTestBase {
 
          ActiveMQDestination a = (ActiveMQDestination) topic;
          assertEquals("reuters_code", a.getQueueAttributes().getLastValueKey().toString());
+         assertEquals("reuters_code", a.getQueueConfiguration().getLastValueKey().toString());
 
          MessageProducer producer = session.createProducer(topic);
          MessageConsumer consumer1 = session.createConsumer(topic);

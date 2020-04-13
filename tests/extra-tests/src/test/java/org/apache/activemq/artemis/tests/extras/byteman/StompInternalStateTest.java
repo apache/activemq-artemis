@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -64,7 +65,7 @@ public class StompInternalStateTest extends ActiveMQTestBase {
          ServerLocator locator = createNettyNonHALocator();
          ClientSessionFactory factory = createSessionFactory(locator);
          session = factory.createSession();
-         session.createTemporaryQueue(STOMP_QUEUE_NAME, STOMP_QUEUE_NAME);
+         session.createQueue(new QueueConfiguration(STOMP_QUEUE_NAME).setDurable(false).setTemporary(true));
          session.deleteQueue(STOMP_QUEUE_NAME);
 
          assertNull(resultTestStompProtocolManagerLeak);

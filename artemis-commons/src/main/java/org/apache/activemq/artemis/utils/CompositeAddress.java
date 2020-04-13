@@ -34,6 +34,10 @@ public class CompositeAddress {
       return address == null ? false : address.contains(SEPARATOR);
    }
 
+   public static boolean isFullyQualified(SimpleString address) {
+      return address == null ? false : isFullyQualified(address.toString());
+   }
+
    public static SimpleString extractQueueName(SimpleString name) {
       if (name == null) {
          return null;

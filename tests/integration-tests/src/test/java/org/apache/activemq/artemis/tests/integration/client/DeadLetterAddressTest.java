@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import com.sun.management.UnixOperatingSystemMXBean;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -63,8 +64,8 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(dla, dlq, null, false);
-      clientSession.createQueue(adName, qName, null, false);
+      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(qName).setAddress(adName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(adName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
@@ -102,8 +103,8 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(dla, dlq, null, false);
-      clientSession.createQueue(adName, qName, null, false);
+      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(qName).setAddress(adName).setDurable(false));
       for (int i = 0; i < 10; i++) {
          ClientProducer producer = clientSession.createProducer(adName);
          ClientMessage clientFile = clientSession.createMessage(true);
@@ -132,8 +133,8 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       //SimpleString dlq = new SimpleString("DLQ1");
-      //clientSession.createQueue(dla, dlq, null, false);
-      clientSession.createQueue(qName, qName, null, false);
+      //clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
@@ -158,8 +159,8 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(dla, dlq, null, false);
-      clientSession.createQueue(qName, qName, null, false);
+      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
@@ -193,8 +194,8 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(dla, dlq, null, false);
-      clientSession.createQueue(qName, qName, null, false);
+      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
@@ -243,9 +244,9 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
       SimpleString dlq2 = new SimpleString("DLQ2");
-      clientSession.createQueue(dla, dlq, null, false);
-      clientSession.createQueue(dla, dlq2, null, false);
-      clientSession.createQueue(qName, qName, null, false);
+      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(dlq2).setAddress(dla).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
@@ -278,7 +279,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       SimpleString qName = new SimpleString("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      clientSession.createQueue(qName, qName, null, false);
+      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
@@ -303,8 +304,8 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(MAX_DELIVERIES).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(dla, dlq, null, false);
-      clientSession.createQueue(qName, qName, null, false);
+      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession sendSession = sessionFactory.createSession(false, true, true);
@@ -382,8 +383,8 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(deliveryAttempt).setDeadLetterAddress(deadLetterAddress);
       server.getAddressSettingsRepository().setDefault(addressSettings);
 
-      clientSession.createQueue(address, queue, false);
-      clientSession.createQueue(deadLetterAddress, deadLetterQueue, false);
+      clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(deadLetterQueue).setAddress(deadLetterAddress).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -421,8 +422,8 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(deliveryAttempt).setDeadLetterAddress(deadLetterAddress);
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
-      clientSession.createQueue(address, queue, false);
-      clientSession.createQueue(deadLetterAddress, deadLetterQueue, false);
+      clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(deadLetterQueue).setAddress(deadLetterAddress).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -464,9 +465,9 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       AddressSettings specificAddressSettings = new AddressSettings().setMaxDeliveryAttempts(specificeDeliveryAttempt).setDeadLetterAddress(specificDeadLetterAddress);
       server.getAddressSettingsRepository().addMatch(address.toString(), specificAddressSettings);
 
-      clientSession.createQueue(address, queue, false);
-      clientSession.createQueue(defaultDeadLetterAddress, defaultDeadLetterQueue, false);
-      clientSession.createQueue(specificDeadLetterAddress, specificDeadLetterQueue, false);
+      clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(defaultDeadLetterQueue).setAddress(defaultDeadLetterAddress).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(specificDeadLetterQueue).setAddress(specificDeadLetterAddress).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");

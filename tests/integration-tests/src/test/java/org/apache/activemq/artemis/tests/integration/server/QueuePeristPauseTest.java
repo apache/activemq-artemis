@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.server;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -32,10 +33,7 @@ public class QueuePeristPauseTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(true, false);
       server.start();
 
-      Queue queue = server.createQueue(SimpleString.toSimpleString("q1"),
-                                       RoutingType.ANYCAST,
-                                       SimpleString.toSimpleString("q1"),
-                                       null, true, false);
+      Queue queue = server.createQueue(new QueueConfiguration("q1").setRoutingType(RoutingType.ANYCAST));
 
       queue.pause(true);
 

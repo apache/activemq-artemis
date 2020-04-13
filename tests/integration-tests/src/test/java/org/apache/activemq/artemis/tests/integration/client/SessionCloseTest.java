@@ -21,6 +21,7 @@ import javax.transaction.xa.XAResource;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -79,14 +80,14 @@ public class SessionCloseTest extends ActiveMQTestBase {
       ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
          @Override
          public void run() throws ActiveMQException {
-            session.createQueue(RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString(), RandomUtil.randomBoolean());
+            session.createQueue(new QueueConfiguration(RandomUtil.randomSimpleString()).setDurable(RandomUtil.randomBoolean()));
          }
       });
 
       ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
          @Override
          public void run() throws ActiveMQException {
-            session.createTemporaryQueue(RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString());
+            session.createQueue(new QueueConfiguration(RandomUtil.randomSimpleString()).setAddress(RandomUtil.randomSimpleString()).setDurable(false).setTemporary(true));
          }
       });
 
@@ -209,7 +210,7 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(address, queue, false);
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientConsumer consumer = session.createConsumer(queue);

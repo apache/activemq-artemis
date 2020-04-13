@@ -18,9 +18,9 @@ package org.apache.activemq.artemis.tests.extras.byteman;
 
 import java.util.UUID;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
@@ -40,7 +40,7 @@ public class QueueDeploymentFailedTest extends ActiveMQTestBase {
    public void testQueueDeploymentFailure() throws Exception {
       ActiveMQServer server = createServer(false, createDefaultNettyConfig());
       String address = UUID.randomUUID().toString();
-      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(address).addRoutingType(RoutingType.ANYCAST).addQueueConfiguration(new CoreQueueConfiguration().setName(UUID.randomUUID().toString()).setRoutingType(RoutingType.ANYCAST).setAddress(address)));
+      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(address).addRoutingType(RoutingType.ANYCAST).addQueueConfiguration(new QueueConfiguration(UUID.randomUUID().toString()).setRoutingType(RoutingType.ANYCAST).setAddress(address)));
       server.start();
       assertTrue(server.getRemotingService().isStarted());
    }

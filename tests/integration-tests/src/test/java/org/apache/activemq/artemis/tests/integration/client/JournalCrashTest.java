@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -110,7 +111,7 @@ public class JournalCrashTest extends SpawnedTestBase {
       try (ClientSession session = factory.createSession(false, false)) {
 
          try {
-            session.createQueue(QUEUE, QUEUE, true);
+            session.createQueue(new QueueConfiguration(QUEUE));
          } catch (Exception ignored) {
          }
 

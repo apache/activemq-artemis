@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.clientcrash;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -94,7 +95,7 @@ public class ClientCrashTest extends ClientTestBase {
       assertActiveConnections(1);
 
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(ClientCrashTest.QUEUE, ClientCrashTest.QUEUE, null, false);
+      session.createQueue(new QueueConfiguration(ClientCrashTest.QUEUE).setDurable(false));
 
       // spawn a JVM that creates a Core client, which sends a message
       // It has to be spawned after the queue was created.
@@ -148,7 +149,7 @@ public class ClientCrashTest extends ClientTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(ClientCrashTest.QUEUE2, ClientCrashTest.QUEUE2, null, false);
+      session.createQueue(new QueueConfiguration(ClientCrashTest.QUEUE2).setDurable(false));
 
       // spawn a JVM that creates a Core client, which sends a message
       p = SpawnedVMSupport.spawnVM(CrashClient2.class.getName());

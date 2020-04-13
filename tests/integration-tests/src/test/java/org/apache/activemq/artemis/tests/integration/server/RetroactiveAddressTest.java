@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -155,7 +156,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
          Wait.assertTrue(() -> server.locateQueue(divertQueue).getMessagesReplaced() == (COUNT * finalI), 3000, 50);
          Wait.assertTrue(() -> server.locateQueue(divertQueue).getMessageCount() == COUNT, 3000, 50);
 
-         session.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString());
+         session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
          Wait.assertTrue(() -> server.locateQueue(queueName) != null);
          Wait.assertTrue(() -> server.locateQueue(queueName).getMessageCount() == COUNT, 500, 50);
          ClientConsumer consumer = session.createConsumer(queueName);
@@ -202,7 +203,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       producer.send(message);
       producer.close();
 
-      session.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName1.toString());
+      session.createQueue(new QueueConfiguration(queueName1).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       Wait.assertTrue(() -> server.locateQueue(queueName1) != null);
       Wait.assertTrue(() -> server.locateQueue(queueName1).getMessageCount() == 2, 500, 50);
 
@@ -259,7 +260,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       producer.close();
       Wait.assertTrue(() -> server.locateQueue(divertQueue).getMessageCount() == 1, 500, 50);
 
-      session.createQueue(addressName.toString(), RoutingType.MULTICAST, queueName1.toString());
+      session.createQueue(new QueueConfiguration(queueName1).setAddress(addressName));
       Wait.assertTrue(() -> server.locateQueue(queueName1) != null);
       Wait.assertTrue(() -> server.locateQueue(queueName1).getMessageCount() == 1, 500, 50);
 
@@ -351,11 +352,11 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
 
       producer.close();
 
-      session.createQueue(addressName.toString(), RoutingType.MULTICAST, multicastQueue.toString());
+      session.createQueue(new QueueConfiguration(multicastQueue).setAddress(addressName));
       Wait.assertTrue(() -> server.locateQueue(multicastQueue) != null);
       Wait.assertTrue(() -> server.locateQueue(multicastQueue).getMessageCount() == 1, 500, 50);
 
-      session.createQueue(addressName.toString(), RoutingType.ANYCAST, anycastQueue.toString());
+      session.createQueue(new QueueConfiguration(anycastQueue).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       Wait.assertTrue(() -> server.locateQueue(anycastQueue) != null);
       Wait.assertTrue(() -> server.locateQueue(anycastQueue).getMessageCount() == 1, 500, 50);
 
@@ -400,7 +401,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       producer.close();
       Wait.assertTrue(() -> server.locateQueue(divertQueue).getMessageCount() == 2, 500, 50);
 
-      session.createQueue(addressName.toString(), RoutingType.MULTICAST, queueName1.toString(), "xxx > 10", false);
+      server.createQueue(new QueueConfiguration(queueName1).setAddress(addressName).setFilterString("xxx > 10").setDurable(false));
       Wait.assertTrue(() -> server.locateQueue(queueName1) != null);
       Wait.assertTrue(() -> server.locateQueue(queueName1).getMessageCount() == 1, 500, 50);
 
@@ -437,7 +438,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
 
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(MESSAGE_COUNT).setMaxSizeBytes(1024 * 20).setPageSizeBytes(1024 * 10).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE));
       server.addAddressInfo(new AddressInfo(addressName));
-      server.createQueue(addressName, RoutingType.MULTICAST, randomQueueName, null, true, false);
+      server.createQueue(new QueueConfiguration(randomQueueName).setAddress(addressName));
 
       ClientProducer producer = session.createProducer(addressName);
 
@@ -457,7 +458,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
 
       Wait.assertTrue(() -> server.locateQueue(divertQueue).getMessageCount() == MESSAGE_COUNT, 500, 50);
 
-      session.createQueue(addressName.toString(), RoutingType.MULTICAST, queueName.toString());
+      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName));
       Wait.assertTrue(() -> server.locateQueue(queueName) != null);
       Wait.assertTrue(() -> server.locateQueue(queueName).getMessageCount() == MESSAGE_COUNT, 500, 50);
 

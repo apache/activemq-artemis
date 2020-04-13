@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -57,7 +58,7 @@ public class TemporaryQueueClusterTest extends ClusterTestBase {
       String tempQueue = "tempqueue";
       // create temp queue on node #0
       ClientSession session = sfs[0].createSession(false, true, true);
-      session.createTemporaryQueue(tempAddress, tempQueue);
+      session.createQueue(new QueueConfiguration(tempQueue).setAddress(tempAddress).setDurable(false).setTemporary(true));
       ClientConsumer consumer = session.createConsumer(tempQueue);
 
       // check the binding is created on node #1

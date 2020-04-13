@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -62,9 +63,9 @@ public class WildcardConfigurationTest extends ActiveMQTestBase {
       SimpleString queueName1 = new SimpleString("Q1");
       SimpleString queueName2 = new SimpleString("Q2");
       SimpleString queueName = new SimpleString("Q");
-      clientSession.createQueue(addressAB, queueName1, null, false);
-      clientSession.createQueue(addressAC, queueName2, null, false);
-      clientSession.createQueue(address, queueName, null, false);
+      clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
       ClientProducer producer = clientSession.createProducer(addressAB);
       ClientProducer producer2 = clientSession.createProducer(addressAC);
       ClientConsumer clientConsumer = clientSession.createConsumer(queueName);

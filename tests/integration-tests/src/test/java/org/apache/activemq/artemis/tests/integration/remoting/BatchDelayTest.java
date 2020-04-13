@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.remoting;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -74,7 +75,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
 
       final String foo = "foo";
 
-      session.createQueue(foo, RoutingType.ANYCAST, foo);
+      session.createQueue(new QueueConfiguration(foo).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer(foo);
 
@@ -94,7 +95,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
 
       final String foo = "foo";
 
-      session.createQueue(foo, RoutingType.ANYCAST, foo);
+      session.createQueue(new QueueConfiguration(foo).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer(foo);
 

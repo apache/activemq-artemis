@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -125,7 +126,7 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
 
       final ClientProducer mainProducer = consumeSession.createProducer(ADDRESS);
 
-      consumeSession.createQueue(ADDRESS, QUEUE_NAME);
+      consumeSession.createQueue(new QueueConfiguration(QUEUE_NAME).setAddress(ADDRESS));
 
       ClientConsumer consumer = consumeSession.createConsumer(QUEUE_NAME);
 

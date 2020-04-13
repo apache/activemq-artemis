@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -44,7 +45,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
    public void testSessionClosedOnRemotingConnectionFailure() throws Exception {
       ClientSession session = addClientSession(sf.createSession());
 
-      session.createQueue("fooaddress", RoutingType.ANYCAST, "fooqueue");
+      session.createQueue(new QueueConfiguration("fooqueue").setAddress("fooaddress").setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer("fooaddress");
 

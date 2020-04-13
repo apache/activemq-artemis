@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -118,7 +119,7 @@ public class CoreClientTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(QUEUE, QUEUE, null, false);
+      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -231,7 +232,7 @@ public class CoreClientTest extends ActiveMQTestBase {
          String queueName = UUIDGenerator.getInstance().generateSimpleStringUUID().toString();
          String address = prefix + baseAddress;
 
-         session.createQueue(prefix + baseAddress, null, queueName, null, false);
+         session.createQueue(new QueueConfiguration(queueName).setAddress(prefix + baseAddress).setDurable(false));
          consumerMap.put(address, session.createConsumer(queueName));
       }
 
@@ -239,7 +240,7 @@ public class CoreClientTest extends ActiveMQTestBase {
          String queueName = UUIDGenerator.getInstance().generateSimpleStringUUID().toString();
          String address = prefix + baseAddress;
 
-         session.createQueue(prefix + baseAddress, null, queueName, null, false);
+         session.createQueue(new QueueConfiguration(queueName).setAddress(prefix + baseAddress).setDurable(false));
          consumerMap.put(address, session.createConsumer(queueName));
       }
 
