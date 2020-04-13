@@ -594,6 +594,45 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
+   public void testProperReloadWhenAddingUserViaManagement() throws Exception {
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor", "--require-login");
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+      ActiveMQServerControl activeMQServerControl = activeMQServer.getActiveMQServerControl();
+
+      ServerLocator serverLocator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
+      ClientSessionFactory sessionFactory = serverLocator.createSessionFactory();
+
+      try {
+         // this will force a properties "reload" event (i.e. initial loading)
+         sessionFactory.createSession("foo", "bar", false, false, false, false, 0);
+         fail("Should have failed to create session here due to security");
+      } catch (Exception e) {
+         // ignore
+      }
+
+      try {
+         activeMQServerControl.createAddress("myAddress", RoutingType.ANYCAST.toString());
+         activeMQServerControl.addSecuritySettings("myAddress", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole");
+         // change properties files which should cause another "reload" event
+         activeMQServerControl.addUser("foo", "bar", "myRole", true);
+         ClientSession session = sessionFactory.createSession("foo", "bar", false, false, false, false, 0);
+         session.createQueue("myAddress", RoutingType.ANYCAST, "myQueue", true);
+         ClientProducer producer = session.createProducer("myAddress");
+         producer.send(session.createMessage(true));
+         session.close();
+      } finally {
+         sessionFactory.close();
+         serverLocator.close();
+         stopServer();
+      }
+   }
+
+   @Test
    public void testMissingUserFileViaManagement() throws Exception {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
