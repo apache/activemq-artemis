@@ -124,8 +124,8 @@ public class AmqpReceiverPriorityTest extends AmqpClientTestSupport {
 
 
       for (int i = 0; i < 2; i++) {
-         AmqpMessage message1 = receiver1.receiveNoWait();
-         assertNotNull("did not receive message first time", message1);
+         AmqpMessage message1 = receiver1.receive(3000, TimeUnit.MILLISECONDS);
+         assertNotNull("did not receive message" + i, message1);
          assertEquals("MessageID:" + i, message1.getMessageId());
          message1.accept();
       }
