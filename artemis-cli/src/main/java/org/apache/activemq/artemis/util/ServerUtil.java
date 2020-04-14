@@ -105,11 +105,19 @@ public class ServerUtil {
    }
 
    public static void killServer(final Process server) throws Exception {
+      killServer(server, false);
+   }
+
+   public static void killServer(final Process server, boolean forcibly) throws Exception {
       if (server != null) {
          System.out.println("**********************************");
          System.out.println("Killing server " + server);
          System.out.println("**********************************");
-         server.destroyForcibly();
+         if (forcibly) {
+            server.destroyForcibly();
+         } else {
+            server.destroy();
+         }
          server.waitFor();
          Thread.sleep(1000);
       }
