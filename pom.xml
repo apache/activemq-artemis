@@ -64,6 +64,8 @@
       <module>artemis-distribution</module>
       <module>tests</module>
       <module>artemis-features</module>
+      <module>artemis-quorum-api</module>
+      <module>artemis-quorum-ri</module>
    </modules>
 
    <name>ActiveMQ Artemis Parent</name>
@@ -105,6 +107,9 @@
       <mockito.version>3.9.0</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.65.Final</netty.version>
+      <curator.version>5.1.0</curator.version>
+      <!-- While waiting https://issues.apache.org/jira/browse/CURATOR-595 fix -->
+      <zookeeper.version>3.6.3</zookeeper.version>
 
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.39.Final</netty-tcnative-version>
@@ -848,6 +853,32 @@
             <groupId>jakarta.security.auth.message</groupId>
             <artifactId>jakarta.security.auth.message-api</artifactId>
             <version>${jakarta.security.auth.message-api.version}</version>
+         </dependency>
+         <!-- Curator Zookeeper RI -->
+         <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>${curator.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>${curator.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-client</artifactId>
+            <version>${curator.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>${zookeeper.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper-jute</artifactId>
+            <version>${zookeeper.version}</version>
          </dependency>
       </dependencies>
 
