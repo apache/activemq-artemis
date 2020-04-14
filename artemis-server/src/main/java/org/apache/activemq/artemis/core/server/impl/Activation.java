@@ -110,4 +110,8 @@ public abstract class Activation implements Runnable {
    public ReplicationManager getReplicationManager() {
       return null;
    }
+
+   public boolean isReplicaSync() {
+      return false;
+   }
 }

@@ -28,11 +28,12 @@ import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.LiveNodeLocator.BackupRegistrationListener;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.jboss.logging.Logger;
 
-public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener {
+public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener, BackupRegistrationListener {
 
    private static final Logger LOGGER = Logger.getLogger(SharedNothingBackupQuorum.class);
 
@@ -236,13 +237,9 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
       }
    }
 
-   public void notifyRegistrationFailed() {
-      signal = BACKUP_ACTIVATION.FAILURE_REPLICATING;
-      latch.countDown();
-   }
-
-   public void notifyAlreadyReplicating() {
-      signal = BACKUP_ACTIVATION.ALREADY_REPLICATING;
+   @Override
+   public void onBackupRegistrationFailed(boolean alreadyReplicating) {
+      signal = alreadyReplicating ? BACKUP_ACTIVATION.ALREADY_REPLICATING : BACKUP_ACTIVATION.FAILURE_REPLICATING;
       latch.countDown();
    }
 

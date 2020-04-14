@@ -57,4 +57,8 @@ public interface HAPolicy<T extends Activation> {
 
    String getScaleDownClustername();
 
+   default boolean useQuorumManager() {
+      return true;
+   }
+
 }

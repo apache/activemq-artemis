@@ -113,6 +113,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -129,6 +130,7 @@ import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.LiveOnlyActivation;
+import org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -1384,6 +1386,8 @@ public abstract class ActiveMQTestBase extends Assert {
          if (isReplicated) {
             if (activation instanceof SharedNothingBackupActivation) {
                isRemoteUpToDate = backup.isReplicaSync();
+            } else if (activation instanceof ReplicationBackupActivation) {
+               isRemoteUpToDate = backup.isReplicaSync();
             } else {
                //we may have already failed over and changed the Activation
                if (actualServer.isStarted()) {
@@ -2515,6 +2519,17 @@ public abstract class ActiveMQTestBase extends Assert {
       // we are returning true if it ran ok.
       // had to Interrupt is exactly the opposite of what we are returning
       return !hadToInterrupt;
+   }
+
+   protected static ReplicationEndpoint getReplicationEndpoint(ActiveMQServer server) {
+      final Activation activation = server.getActivation();
+      if (activation instanceof SharedNothingBackupActivation) {
+         return ((SharedNothingBackupActivation) activation).getReplicationEndpoint();
+      }
+      if (activation instanceof ReplicationBackupActivation) {
+         return ((ReplicationBackupActivation) activation).getReplicationEndpoint();
+      }
+      return null;
    }
 
    // Private -------------------------------------------------------

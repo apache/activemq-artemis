@@ -41,9 +41,9 @@ public class SharedStoreScaleDownBackupTest extends ClusterTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      setupLiveServer(0, isFileStorage(), true, isNetty(), false);
-      setupLiveServer(1, isFileStorage(), true, isNetty(), false);
-      setupBackupServer(2, 0, isFileStorage(), true, isNetty());
+      setupLiveServer(0, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupLiveServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupBackupServer(2, 0, isFileStorage(), HAType.SharedStore, isNetty());
 
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster1", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
