@@ -122,7 +122,7 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
             if (KILL_SERVER >= 0 && i == KILL_SERVER) {
                session.commit();
                System.out.println("Killing server");
-               ServerUtil.killServer(server0);
+               ServerUtil.killServer(server0, true);
                Thread.sleep(2000);
                connection.close();
                connection = connectionFactory.createConnection();
