@@ -1267,8 +1267,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          session.createQueue(forwardingAddress, RoutingType.ANYCAST, divertQueue);
          session.createQueue(address, RoutingType.ANYCAST, queue);
       } else {
-         session.createQueue(new QueueConfiguration(divertQueue).setAddress(forwardingAddress).setRoutingType(RoutingType.ANYCAST));
-         session.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(new QueueConfiguration(divertQueue).setAddress(forwardingAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         session.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
 
       ClientProducer producer = session.createProducer(address);
@@ -1334,8 +1334,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          session.createQueue(sourceAddress, RoutingType.ANYCAST, sourceQueue);
          session.createQueue(targetAddress, RoutingType.ANYCAST, targetQueue);
       } else {
-         session.createQueue(new QueueConfiguration(sourceQueue).setAddress(sourceAddress).setRoutingType(RoutingType.ANYCAST));
-         session.createQueue(new QueueConfiguration(targetQueue).setAddress(targetAddress).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(new QueueConfiguration(sourceQueue).setAddress(sourceAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         session.createQueue(new QueueConfiguration(targetQueue).setAddress(targetAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
 
       serverControl.createBridge(name, sourceQueue, targetAddress, null, // forwardingAddress
@@ -1410,7 +1410,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(atestq, atestq, null, true);
       } else {
-         clientSession.createQueue(new QueueConfiguration(atestq));
+         clientSession.createQueue(new QueueConfiguration(atestq).setDurable(true));
       }
 
       ClientMessage m1 = createTextMessage(clientSession, "");
@@ -1675,8 +1675,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          session.createQueue(random1, RoutingType.ANYCAST, random1);
          session.createQueue(random2, RoutingType.ANYCAST, random2);
       } else {
-         session.createQueue(new QueueConfiguration(random1).setRoutingType(RoutingType.ANYCAST));
-         session.createQueue(new QueueConfiguration(random2).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(new QueueConfiguration(random1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         session.createQueue(new QueueConfiguration(random2).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
 
       ClientProducer producer1 = session.createProducer(random1);
@@ -1735,8 +1735,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          session.createQueue(random1, RoutingType.ANYCAST, random1);
          session.createQueue(random2, RoutingType.ANYCAST, random2);
       } else {
-         session.createQueue(new QueueConfiguration(random1).setRoutingType(RoutingType.ANYCAST));
-         session.createQueue(new QueueConfiguration(random2).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(new QueueConfiguration(random1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         session.createQueue(new QueueConfiguration(random2).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
 
       ClientProducer producer1 = session.createProducer(random1);
@@ -1787,8 +1787,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          session.createQueue(random1, RoutingType.ANYCAST, random1);
          session.createQueue(random2, RoutingType.ANYCAST, random2);
       } else {
-         session.createQueue(new QueueConfiguration(random1).setRoutingType(RoutingType.ANYCAST));
-         session.createQueue(new QueueConfiguration(random2).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(new QueueConfiguration(random1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         session.createQueue(new QueueConfiguration(random2).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
 
       ClientProducer producer1 = session.createProducer(random1);
@@ -1840,8 +1840,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          session.createQueue(random1, RoutingType.ANYCAST, random1);
          session.createQueue(random2, RoutingType.ANYCAST, random2);
       } else {
-         session.createQueue(new QueueConfiguration(random1).setRoutingType(RoutingType.ANYCAST));
-         session.createQueue(new QueueConfiguration(random2).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(new QueueConfiguration(random1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         session.createQueue(new QueueConfiguration(random2).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
 
       ClientConsumer consumer1 = session.createConsumer(random1);
@@ -3310,8 +3310,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          if (legacyCreateQueue) {
             session.createQueue(name1, RoutingType.ANYCAST, name1);
          } else {
-            session.createQueue(new QueueConfiguration(name1).setRoutingType(RoutingType.ANYCAST));
+            session.createQueue(new QueueConfiguration(name1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
          }
+
+         Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(name1));
+         Assert.assertFalse(serverQueue.isDurable());
          ClientProducer producer1 = session.createProducer(name1);
          sendMessagesWithPredefinedSize(30, session, producer1, MESSAGE_SIZE);
 
@@ -3344,9 +3347,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             session.createQueue(name1, RoutingType.ANYCAST, name1);
             session.createQueue(name2, RoutingType.ANYCAST, name2);
          } else {
-            session.createQueue(new QueueConfiguration(name1).setRoutingType(RoutingType.ANYCAST));
-            session.createQueue(new QueueConfiguration(name2).setRoutingType(RoutingType.ANYCAST));
+            session.createQueue(new QueueConfiguration(name1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+            session.createQueue(new QueueConfiguration(name2).setRoutingType(RoutingType.ANYCAST).setDurable(false));
          }
+
+         Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(name1));
+         Assert.assertFalse(serverQueue.isDurable());
+
          ClientProducer producer1 = session.createProducer(name1);
          ClientProducer producer2 = session.createProducer(name2);
          sendMessagesWithPredefinedSize(10, session, producer1, MESSAGE_SIZE);
