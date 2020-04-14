@@ -60,7 +60,7 @@ public class MQTTLeakTest extends SmokeTestBase {
          MQTTRunner.run();
       } finally {
 
-         ServerUtil.killServer(server0);
+         ServerUtil.killServer(server0, true);
       }
    }
 

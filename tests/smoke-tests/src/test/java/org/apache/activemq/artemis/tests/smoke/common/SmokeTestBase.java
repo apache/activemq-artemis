@@ -33,7 +33,7 @@ public class SmokeTestBase extends ActiveMQTestBase {
    public void after() throws Exception {
       for (Process process : processes) {
          try {
-            ServerUtil.killServer(process);
+            ServerUtil.killServer(process, true);
          } catch (Throwable e) {
             e.printStackTrace();
          }
