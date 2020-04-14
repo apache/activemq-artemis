@@ -73,6 +73,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
@@ -404,11 +405,23 @@ public class NettyAcceptor extends AbstractAcceptor {
          @Override
          public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();
+            Pair<String, Integer> peerInfo = getPeerInfo(channel);
             if (sslEnabled) {
-               pipeline.addLast("ssl", getSslHandler(channel.alloc()));
+               pipeline.addLast("ssl", getSslHandler(channel.alloc(), peerInfo.getA(), peerInfo.getB()));
                pipeline.addLast("sslHandshakeExceptionHandler", new SslHandshakeExceptionHandler());
             }
             pipeline.addLast(protocolHandler.getProtocolDecoder());
+         }
+
+         private Pair<String, Integer> getPeerInfo(Channel channel) {
+            try {
+               String[] peerInfo = channel.remoteAddress().toString().replace("/", "").split(":");
+               return new Pair<>(peerInfo[0], Integer.parseInt(peerInfo[1]));
+            } catch (Exception e) {
+               logger.debug("Failed to parse peer info for SSL engine initialization", e);
+            }
+
+            return new Pair<>(null, 0);
          }
       };
       bootstrap.childHandler(factory);
@@ -498,12 +511,12 @@ public class NettyAcceptor extends AbstractAcceptor {
       startServerChannels();
    }
 
-   public synchronized SslHandler getSslHandler(ByteBufAllocator alloc) throws Exception {
+   public synchronized SslHandler getSslHandler(ByteBufAllocator alloc, String peerHost, int peerPort) throws Exception {
       SSLEngine engine;
       if (sslProvider.equals(TransportConstants.OPENSSL_PROVIDER)) {
-         engine = loadOpenSslEngine(alloc);
+         engine = loadOpenSslEngine(alloc, peerHost, peerPort);
       } else {
-         engine = loadJdkSslEngine();
+         engine = loadJdkSslEngine(peerHost, peerPort);
       }
 
       engine.setUseClientMode(false);
@@ -572,7 +585,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       return new SslHandler(engine);
    }
 
-   private SSLEngine loadJdkSslEngine() throws Exception {
+   private SSLEngine loadJdkSslEngine(String peerHost, int peerPort) throws Exception {
       final SSLContext context;
       try {
          if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
@@ -602,8 +615,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
          @Override
          public SSLEngine run() {
-            if (verifyHost) {
-               return context.createSSLEngine(host, port);
+            if (peerHost != null && peerPort != 0) {
+               return context.createSSLEngine(peerHost, peerPort);
             } else {
                return context.createSSLEngine();
             }
@@ -612,7 +625,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       return engine;
    }
 
-   private SSLEngine loadOpenSslEngine(ByteBufAllocator alloc) throws Exception {
+   private SSLEngine loadOpenSslEngine(ByteBufAllocator alloc, String peerHost, int peerPort) throws Exception {
       final SslContext context;
       try {
          if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
@@ -642,8 +655,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
          @Override
          public SSLEngine run() {
-            if (verifyHost) {
-               return context.newEngine(alloc, host, port);
+            if (peerHost != null && peerPort != 0) {
+               return context.newEngine(alloc, peerHost, peerPort);
             } else {
                return context.newEngine(alloc);
             }
