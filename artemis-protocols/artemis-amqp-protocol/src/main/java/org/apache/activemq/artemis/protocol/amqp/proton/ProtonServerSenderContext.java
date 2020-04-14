@@ -838,7 +838,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
       void deliver() {
 
-         int frameSize = protonSession.session.getConnection().getTransport().getOutboundFrameSizeLimit();
+         // This is discounting some bytes due to Transfer payload
+         int frameSize = protonSession.session.getConnection().getTransport().getOutboundFrameSizeLimit() - 50 - (delivery.getTag() != null ? delivery.getTag().length : 0);
 
          // Let the Message decide how to present the message bytes
          LargeBodyReader context = message.getLargeBodyReader();
