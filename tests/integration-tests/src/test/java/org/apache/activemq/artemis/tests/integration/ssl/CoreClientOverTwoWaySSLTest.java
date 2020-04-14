@@ -85,7 +85,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
     * keytool -export -keystore client-side-keystore.jks -file activemq-jks.cer -storepass secureexample
     * keytool -import -keystore server-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
     *
-    * keytool -genkey -keystore verified-client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
+    * keytool -genkey -keystore verified-client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA -ext san=ip:127.0.0.1
     * keytool -export -keystore verified-client-side-keystore.jks -file activemq-jks.cer -storepass secureexample
     * keytool -import -keystore verified-server-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
     *
@@ -94,7 +94,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
     * keytool -export -keystore client-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
     * keytool -import -keystore server-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     *
-    * keytool -genkey -keystore verified-client-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
+    * keytool -genkey -keystore verified-client-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA -ext san=ip:127.0.0.1
     * keytool -export -keystore verified-client-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
     * keytool -import -keystore verified-server-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     *
@@ -103,7 +103,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
     * keytool -export -keystore client-side-keystore.p12 -file activemq-p12.cer -storetype PKCS12 -storepass secureexample
     * keytool -import -keystore server-side-truststore.p12 -storetype PKCS12 -file activemq-p12.cer -storepass secureexample -keypass secureexample -noprompt
     *
-    * keytool -genkey -keystore verified-client-side-keystore.p12 -storetype PKCS12 -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
+    * keytool -genkey -keystore verified-client-side-keystore.p12 -storetype PKCS12 -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA -ext san=ip:127.0.0.1
     * keytool -export -keystore verified-client-side-keystore.p12 -file activemq-p12.cer -storetype PKCS12 -storepass secureexample
     * keytool -import -keystore verified-server-side-truststore.p12 -storetype PKCS12 -file activemq-p12.cer -storepass secureexample -keypass secureexample -noprompt
     */
