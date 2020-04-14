@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
@@ -57,7 +58,6 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.jboss.logging.Logger;
 
@@ -223,6 +223,13 @@ public class SharedNothingLiveActivation extends LiveActivation {
       }
    }
 
+   private static TransportConfiguration getLiveConnector(Configuration configuration) {
+      String connectorName = configuration.getClusterConfigurations().get(0).getConnectorName();
+      TransportConfiguration transportConfiguration = configuration.getConnectorConfigurations().get(connectorName);
+      assert transportConfiguration != null;
+      return transportConfiguration;
+   }
+
    private final class ReplicationFailureListener implements FailureListener, CloseListener {
 
       @Override
@@ -253,28 +260,11 @@ public class SharedNothingLiveActivation extends LiveActivation {
 
                         if (failed && replicatedPolicy.isVoteOnReplicationFailure()) {
                            QuorumManager quorumManager = activeMQServer.getClusterManager().getQuorumManager();
-                           int size = replicatedPolicy.getQuorumSize() == -1 ? quorumManager.getMaxClusterSize() : replicatedPolicy.getQuorumSize();
-                           String liveConnector = null;
-                           List<ClusterConnectionConfiguration> clusterConfigurations = activeMQServer.getConfiguration().getClusterConfigurations();
-                           if (clusterConfigurations != null && clusterConfigurations.size() > 0) {
-                              ClusterConnectionConfiguration clusterConnectionConfiguration = clusterConfigurations.get(0);
-                              String connectorName = clusterConnectionConfiguration.getConnectorName();
-                              TransportConfiguration transportConfiguration = activeMQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
-                              liveConnector = transportConfiguration != null ? transportConfiguration.toString() : null;
-                           }
-                           QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, activeMQServer.getNodeID().toString(), true, liveConnector);
-
-                           quorumManager.vote(quorumVote);
-
-                           try {
-                              quorumVote.await(5, TimeUnit.SECONDS);
-                           } catch (InterruptedException interruption) {
-                              // No-op. The best the quorum can do now is to return the latest number it has
-                           }
-
-                           quorumManager.voteComplete(quorumVote);
-
-                           if (!quorumVote.getDecision()) {
+                           final boolean isStillLive = quorumManager.isStillLive(activeMQServer.getNodeID().toString(),
+                                                                                 getLiveConnector(activeMQServer.getConfiguration()),
+                                                                                 replicatedPolicy.getQuorumSize(),
+                                                                                 5, TimeUnit.SECONDS);
+                           if (!isStillLive) {
                               try {
                                  Thread startThread = new Thread(new Runnable() {
                                     @Override
