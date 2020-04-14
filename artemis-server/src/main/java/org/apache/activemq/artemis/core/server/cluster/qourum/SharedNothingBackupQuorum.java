@@ -72,6 +72,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    private CountDownLatch latch;
 
    private final Object onConnectionFailureGuard = new Object();
+
+   private final boolean failback;
    /**
     * This is a safety net in case the live sends the first {@link ReplicationLiveIsStoppingMessage}
     * with code {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#STOP_CALLED} and crashes before sending the second with
@@ -87,7 +89,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
                                     int quorumSize,
                                     int voteRetries,
                                     long voteRetryWait,
-                                    int quorumVoteWait) {
+                                    int quorumVoteWait,
+                                    boolean failback) {
       this.scheduledPool = scheduledPool;
       this.quorumSize = quorumSize;
       this.latch = new CountDownLatch(1);
@@ -96,6 +99,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
       this.voteRetries = voteRetries;
       this.voteRetryWait = voteRetryWait;
       this.quorumVoteWait = quorumVoteWait;
+      this.failback = failback;
    }
 
    @Override
@@ -161,7 +165,13 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     */
    @Override
    public void nodeDown(Topology topology, long eventUID, String nodeID) {
-      //noop: we are NOT interested on topology info coming from connections != this.connection
+      // ignore it during a failback:
+      // a failing slave close all connections but the one used for replication
+      // triggering a nodeDown before the restarted master receive a STOP_CALLED from it.
+      // This can make master to fire a useless quorum vote during a normal failback.
+      if (!failback && targetServerID.equals(nodeID)) {
+         onConnectionFailure();
+      }
    }
 
    @Override
