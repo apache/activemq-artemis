@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
 import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
+import org.apache.activemq.artemis.core.replication.ReplicationEndpoint.ReplicationEndpointEventListener;
 import org.apache.activemq.artemis.core.server.ActivationParams;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -54,7 +55,7 @@ import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothi
 import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAIL_OVER;
 import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.STOP;
 
-public final class SharedNothingBackupActivation extends Activation {
+public final class SharedNothingBackupActivation extends Activation implements ReplicationEndpointEventListener {
 
    private static final Logger logger = Logger.getLogger(SharedNothingBackupActivation.class);
 
@@ -96,7 +97,7 @@ public final class SharedNothingBackupActivation extends Activation {
       assert replicationEndpoint == null;
       activeMQServer.resetNodeManager();
       backupUpToDate = false;
-      replicationEndpoint = new ReplicationEndpoint(activeMQServer, ioCriticalErrorListener, attemptFailBack, this);
+      replicationEndpoint = new ReplicationEndpoint(activeMQServer, attemptFailBack, this);
    }
 
    @Override
@@ -155,9 +156,6 @@ public final class SharedNothingBackupActivation extends Activation {
 
          logger.debug("Starting backup manager");
          activeMQServer.getBackupManager().start();
-
-         logger.debug("Set backup Quorum");
-         replicationEndpoint.setBackupQuorum(backupQuorum);
 
          replicationEndpoint.setExecutor(activeMQServer.getExecutorFactory().getExecutor());
          EndpointConnector endpointConnector = new EndpointConnector();
@@ -461,7 +459,13 @@ public final class SharedNothingBackupActivation extends Activation {
       return backupUpToDate;
    }
 
-   public void setRemoteBackupUpToDate() {
+   @Override
+   public void onLiveNodeId(String nodeId) {
+      backupQuorum.liveIDSet(nodeId);
+   }
+
+   @Override
+   public void onRemoteBackupUpToDate() {
       activeMQServer.getBackupManager().announceBackup();
       backupUpToDate = true;
       backupSyncLatch.countDown();
@@ -470,7 +474,8 @@ public final class SharedNothingBackupActivation extends Activation {
    /**
     * @throws ActiveMQException
     */
-   public void remoteFailOver(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) throws ActiveMQException {
+   @Override
+   public void onLiveStopping(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) throws ActiveMQException {
       if (logger.isTraceEnabled()) {
          logger.trace("Remote fail-over, got message=" + finalMessage + ", backupUpToDate=" +
                          backupUpToDate);
@@ -525,5 +530,10 @@ public final class SharedNothingBackupActivation extends Activation {
 
          return replicationEndpoint;
       }
+   }
+
+   @Override
+   public boolean isReplicaSync() {
+      return isRemoteBackupUpToDate();
    }
 }

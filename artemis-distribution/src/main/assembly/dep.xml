@@ -62,6 +62,9 @@
             <include>org.apache.activemq.rest:artemis-rest</include>
             <include>org.apache.qpid:qpid-jms-client</include>
             <include>io.micrometer:micrometer-core</include>
+            <!-- quorum -->
+            <include>org.apache.activemq:artemis-quorum-api</include>
+            <include>org.apache.activemq:artemis-quorum-ri</include>
 
             <!-- dependencies -->
             <include>jakarta.jms:jakarta.jms-api</include>
@@ -97,6 +100,12 @@
             <include>com.sun.xml.bind:jaxb-impl</include>
             <include>jakarta.activation:jakarta.activation-api</include>
             <include>jakarta.security.auth.message:jakarta.security.auth.message-api</include>
+            <!-- quorum -->
+            <include>org.apache.curator:curator-recipes</include>
+            <include>org.apache.curator:curator-client</include>
+            <include>org.apache.curator:curator-framework</include>
+            <include>org.apache.zookeeper:zookeeper</include>
+            <include>org.apache.zookeeper:zookeeper-jute</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:artemis-website</exclude>

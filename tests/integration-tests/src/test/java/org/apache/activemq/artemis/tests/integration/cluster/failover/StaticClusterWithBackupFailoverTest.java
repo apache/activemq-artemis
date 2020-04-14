@@ -42,13 +42,13 @@ public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailov
    @Override
    protected void setupServers() throws Exception {
       // The backups
-      setupBackupServer(3, 0, isFileStorage(), isSharedStorage(), isNetty());
-      setupBackupServer(4, 1, isFileStorage(), isSharedStorage(), isNetty());
-      setupBackupServer(5, 2, isFileStorage(), isSharedStorage(), isNetty());
+      setupBackupServer(3, 0, isFileStorage(), haType(), isNetty());
+      setupBackupServer(4, 1, isFileStorage(), haType(), isNetty());
+      setupBackupServer(5, 2, isFileStorage(), haType(), isNetty());
 
       // The lives
-      setupLiveServer(0, isFileStorage(), isSharedStorage(), isNetty(), false);
-      setupLiveServer(1, isFileStorage(), isSharedStorage(), isNetty(), false);
-      setupLiveServer(2, isFileStorage(), isSharedStorage(), isNetty(), false);
+      setupLiveServer(0, isFileStorage(), haType(), isNetty(), false);
+      setupLiveServer(1, isFileStorage(), haType(), isNetty(), false);
+      setupLiveServer(2, isFileStorage(), haType(), isNetty(), false);
    }
 }

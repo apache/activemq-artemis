@@ -79,6 +79,16 @@ public abstract class NodeManager implements ActiveMQComponent {
       }
    }
 
+   public long readDataVersion() throws NodeManagerException {
+      // TODO make it abstract
+      throw new UnsupportedOperationException("TODO");
+   }
+
+   public void writeDataVersion(long version) throws NodeManagerException {
+      // TODO make it abstract
+      throw new UnsupportedOperationException("TODO");
+   }
+
    public abstract SimpleString readNodeId() throws NodeManagerException;
 
    public UUID getUUID() {

@@ -40,8 +40,8 @@ public class SharedStoreMetricsLeakTest extends ClusterTestBase {
    }
 
    private void setupServers() throws Exception {
-      setupLiveServer(0, isFileStorage(), true, isNetty(), false);
-      setupBackupServer(1, 0, isFileStorage(), true, isNetty());
+      setupLiveServer(0, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupBackupServer(1, 0, isFileStorage(), HAType.SharedStore, isNetty());
 
       getServer(0).getConfiguration().setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration().setFailoverOnServerShutdown(true));
       getServer(0).getConfiguration().setMetricsConfiguration(new MetricsConfiguration().setJvmThread(false).setJvmGc(false).setJvmMemory(false).setPlugin(new SimpleMetricsPlugin().init(null)));
