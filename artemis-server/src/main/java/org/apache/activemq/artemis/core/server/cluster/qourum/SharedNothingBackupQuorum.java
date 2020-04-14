@@ -332,21 +332,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
                   //nothing to do here
                }
             }
-            //the live is dead so lets vote for quorum
-            QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, targetServerID);
-
-            quorumManager.vote(quorumVote);
-
-            try {
-               quorumVote.await(quorumVoteWait, TimeUnit.SECONDS);
-            } catch (InterruptedException interruption) {
-               // No-op. The best the quorum can do now is to return the latest number it has
-               ActiveMQServerLogger.LOGGER.quorumVoteAwaitInterrupted();
-            }
-
-            quorumManager.voteComplete(quorumVote);
-
-            if (quorumVote.getDecision()) {
+            if (!quorumManager.hasLive(targetServerID, size, quorumVoteWait, TimeUnit.SECONDS)) {
                return true;
             }
          }
