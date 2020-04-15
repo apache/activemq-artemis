@@ -309,6 +309,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
       }
    }
 
+   @Override
    public synchronized void validateFile() throws ActiveMQException {
       this.ensureFileExists(true);
    }

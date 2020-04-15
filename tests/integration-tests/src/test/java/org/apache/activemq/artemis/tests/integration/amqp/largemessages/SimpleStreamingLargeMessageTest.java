@@ -30,10 +30,14 @@ import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -321,6 +325,35 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          }
 
          session.commit();
+
+         Queue queue = server.locateQueue(SimpleString.toSimpleString(getQueueName()));
+
+         Wait.assertEquals(1, queue::getMessageCount);
+
+         LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
+
+         while (browserIterator.hasNext()) {
+            MessageReference ref = browserIterator.next();
+            org.apache.activemq.artemis.api.core.Message message = ref.getMessage();
+
+            Assert.assertNotNull(message);
+            Assert.assertTrue(message instanceof LargeServerMessage);
+
+            Assert.assertFalse(((LargeServerMessage)message).hasPendingRecord());
+         }
+         browserIterator.close();
+
+         connection.close();
+
+         server.stop();
+
+         server.start();
+
+         connection = client.createConnection();
+         addConnection(connection);
+         connection.setMaxFrameSize(2 * 1024);
+         connection.connect();
+         session = connection.createSession();
 
          AmqpReceiver receiver = session.createReceiver(getQueueName());
          receiver.flow(1);

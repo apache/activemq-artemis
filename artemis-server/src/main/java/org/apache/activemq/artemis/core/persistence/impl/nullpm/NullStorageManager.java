@@ -304,6 +304,11 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
+   public LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception {
+      return null;
+   }
+
+   @Override
    public long generateID() {
       long id = idSequence.getAndIncrement();
 
