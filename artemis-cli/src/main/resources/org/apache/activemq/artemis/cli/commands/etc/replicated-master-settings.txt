@@ -1,0 +1,8 @@
+
+      <ha-policy>
+         <replication>
+            <master>
+               <vote-on-replication-failure>true</vote-on-replication-failure>
+            </master>
+         </replication>
+      </ha-policy>
