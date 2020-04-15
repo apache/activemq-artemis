@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
@@ -140,6 +141,24 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       this.creditRunnable = createCreditRunnable(amqpCredits, minCreditRefresh, receiver, connection).setRan();
       useModified = this.connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
       this.minLargeMessageSize = connection.getProtocolManager().getAmqpMinLargeMessageSize();
+
+      if (sessionSPI != null) {
+         sessionSPI.addCloseable((boolean failed) -> clearLargeMessage());
+      }
+   }
+
+   protected void clearLargeMessage() {
+      connection.runNow(() -> {
+         if (currentLargeMessage != null) {
+            try {
+               currentLargeMessage.deleteFile();
+            } catch (Throwable error) {
+               ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
+            } finally {
+               currentLargeMessage = null;
+            }
+         }
+      });
    }
 
    @Override
@@ -288,6 +307,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
       try {
          if (delivery.isAborted()) {
+            clearLargeMessage();
+
             // Aborting implicitly remotely settles, so advance
             // receiver to the next delivery and settle locally.
             receiver.advance();
@@ -439,6 +460,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    public void close(ErrorCondition condition) throws ActiveMQAMQPException {
       receiver.setCondition(condition);
       close(false);
+      clearLargeMessage();
    }
 
    public void flow() {

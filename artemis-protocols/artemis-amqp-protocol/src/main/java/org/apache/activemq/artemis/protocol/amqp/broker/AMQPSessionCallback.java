@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -151,6 +152,10 @@ public class AMQPSessionCallback implements SessionCallback {
          }
       });
 
+   }
+
+   public void addCloseable(Closeable closeable) {
+      serverSession.addCloseable(closeable);
    }
 
    public void withinContext(Runnable run) throws Exception {

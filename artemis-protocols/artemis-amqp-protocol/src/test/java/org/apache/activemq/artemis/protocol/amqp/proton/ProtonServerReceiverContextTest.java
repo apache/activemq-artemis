@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -50,6 +51,7 @@ import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
@@ -96,7 +98,14 @@ public class ProtonServerReceiverContextTest {
 
       when(mockConnContext.getProtocolManager()).thenReturn(mock(ProtonProtocolManager.class));
 
-      ProtonServerReceiverContext rc = new ProtonServerReceiverContext(null, mockConnContext, null, mockReceiver);
+      AtomicInteger clearLargeMessage = new AtomicInteger(0);
+      ProtonServerReceiverContext rc = new ProtonServerReceiverContext(null, mockConnContext, null, mockReceiver) {
+         @Override
+         protected void clearLargeMessage() {
+            super.clearLargeMessage();
+            clearLargeMessage.incrementAndGet();
+         }
+      };
 
       Delivery mockDelivery = mock(Delivery.class);
       when(mockDelivery.isAborted()).thenReturn(true);
@@ -120,6 +129,8 @@ public class ProtonServerReceiverContextTest {
          verify(mockReceiver, times(1)).flow(1);
       }
       verifyNoMoreInteractions(mockReceiver);
+
+      Assert.assertTrue(clearLargeMessage.get() > 0);
    }
 
    private void doOnMessageWithDeliveryException(List<Symbol> sourceSymbols,
