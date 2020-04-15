@@ -373,7 +373,12 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    private void initializeCurrentLargeMessage(Delivery delivery, Receiver receiver) throws Exception {
       long id = sessionSPI.getStorageManager().generateID();
       currentLargeMessage = new AMQPLargeMessage(id, delivery.getMessageFormat(), null, sessionSPI.getCoreMessageObjectPools(), sessionSPI.getStorageManager());
-      currentLargeMessage.addBytes(receiver.recv());
+
+      ReadableBuffer dataBuffer = receiver.recv();
+      currentLargeMessage.parseHeader(dataBuffer);
+
+      sessionSPI.getStorageManager().largeMessageCreated(id, currentLargeMessage);
+      currentLargeMessage.addBytes(dataBuffer);
    }
 
    private void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx) {

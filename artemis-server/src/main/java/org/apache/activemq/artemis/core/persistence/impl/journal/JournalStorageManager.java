@@ -536,13 +536,23 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          largeMessage.moveHeadersAndProperties(message);
 
-         largeMessage.setMessageID(id);
+         return largeMessageCreated(id, largeMessage);
+      } finally {
+         readUnLock();
+      }
+   }
 
+   @Override
+   public LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception {
+      largeMessage.setMessageID(id);
 
-         // Check durable large massage size before to allocate resources if it can't be stored
-         if (largeMessage.isDurable()) {
-            final long maxRecordSize = getMaxRecordSize();
-            final int messageEncodeSize = largeMessage.getEncodeSize();
+      // Check durable large massage size before to allocate resources if it can't be stored
+      if (largeMessage.toMessage().isDurable()) {
+         final long maxRecordSize = getMaxRecordSize();
+         if (largeMessage instanceof LargeServerMessageImpl) {
+            // the following check only applies to Core
+            LargeServerMessageImpl coreLarge = (LargeServerMessageImpl)largeMessage;
+            final int messageEncodeSize = coreLarge.getEncodeSize();
 
             if (messageEncodeSize > maxRecordSize) {
                ActiveMQServerLogger.LOGGER.messageWithHeaderTooLarge(largeMessage.getMessageID(), logger.getName());
@@ -554,22 +564,20 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(messageEncodeSize, maxRecordSize);
             }
          }
-
-         // We do this here to avoid a case where the replication gets a list without this file
-         // to avoid a race
-         largeMessage.validateFile();
-
-         if (largeMessage.isDurable()) {
-            // We store a marker on the journal that the large file is pending
-            long pendingRecordID = storePendingLargeMessage(id);
-
-            largeMessage.setPendingRecordID(pendingRecordID);
-         }
-
-         return largeMessage;
-      } finally {
-         readUnLock();
       }
+
+      // We do this here to avoid a case where the replication gets a list without this file
+      // to avoid a race
+      largeMessage.validateFile();
+
+      if (largeMessage.toMessage().isDurable()) {
+         // We store a marker on the journal that the large file is pending
+         long pendingRecordID = storePendingLargeMessage(id);
+
+         largeMessage.setPendingRecordID(pendingRecordID);
+      }
+
+      return largeMessage;
    }
 
    @Override
