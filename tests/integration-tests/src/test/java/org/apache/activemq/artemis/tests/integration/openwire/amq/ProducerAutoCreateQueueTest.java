@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -72,8 +73,8 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          }
       }
 
-      assertNotNull(server.getAddressInfo(new SimpleString("trash")));
-      assertEquals(0, server.getTotalMessageCount());
+      Wait.assertTrue(() -> server.getAddressInfo(new SimpleString("trash")) != null);
+      Wait.assertEquals(0, server::getTotalMessageCount);
    }
 
    @Test
@@ -91,9 +92,9 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          }
       }
 
-      assertNotNull(server.getAddressInfo(new SimpleString("trash")));
-      assertNotNull(server.locateQueue(new SimpleString("trash")));
-      assertEquals(1, server.getTotalMessageCount());
+      Wait.assertTrue(() -> server.getAddressInfo(new SimpleString("trash")) != null);
+      Wait.assertTrue(() -> server.locateQueue(new SimpleString("trash")) != null);
+      Wait.assertEquals(1, server::getTotalMessageCount);
    }
 
    @Test
@@ -115,7 +116,8 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          }
       }
 
-      assertNull(server.locateQueue(new SimpleString("trash")));
+      SimpleString queueName = SimpleString.toSimpleString("trash");
+      Wait.assertTrue(() -> server.locateQueue(queueName) == null);
    }
 
    @Test
@@ -138,7 +140,7 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
          }
       }
 
-      assertNotNull(server.locateQueue(new SimpleString("trash")));
-      assertNotNull(server.getAddressInfo(new SimpleString("trash")));
+      Wait.assertTrue(() -> server.locateQueue(new SimpleString("trash")) != null);
+      Wait.assertTrue(() -> server.getAddressInfo(new SimpleString("trash")) != null);
    }
 }
