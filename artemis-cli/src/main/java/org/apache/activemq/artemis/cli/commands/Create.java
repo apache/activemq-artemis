@@ -91,7 +91,8 @@ public class Create extends InputAbstract {
    private static final String ETC_LOGIN_CONFIG = "login.config";
    private static final String ETC_LOGIN_CONFIG_WITH_GUEST = "etc/login-with-guest.config";
    private static final String ETC_LOGIN_CONFIG_WITHOUT_GUEST = "etc/login-without-guest.config";
-   public static final String ETC_REPLICATED_SETTINGS_TXT = "etc/replicated-settings.txt";
+   public static final String ETC_REPLICATED_MASTER_SETTINGS_TXT = "etc/replicated-master-settings.txt";
+   public static final String ETC_REPLICATED_SLAVE_SETTINGS_TXT = "etc/replicated-slave-settings.txt";
    public static final String ETC_SHARED_STORE_SETTINGS_TXT = "etc/shared-store-settings.txt";
    public static final String ETC_CLUSTER_SECURITY_SETTINGS_TXT = "etc/cluster-security-settings.txt";
    public static final String ETC_CLUSTER_SETTINGS_TXT = "etc/cluster-settings.txt";
@@ -590,7 +591,7 @@ public class Create extends InputAbstract {
 
       if (replicated) {
          clustered = true;
-         filters.put("${replicated.settings}", readTextFile(ETC_REPLICATED_SETTINGS_TXT, filters));
+         filters.put("${replicated.settings}", readTextFile(isSlave() ? ETC_REPLICATED_SLAVE_SETTINGS_TXT : ETC_REPLICATED_MASTER_SETTINGS_TXT, filters));
       } else {
          filters.put("${replicated.settings}", "");
       }
