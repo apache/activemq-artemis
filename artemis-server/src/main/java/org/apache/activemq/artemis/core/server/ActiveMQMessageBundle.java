@@ -485,4 +485,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229229, value = "Failed to parse JSON queue configuration: {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException failedToParseJson(String json);
+
+   @Message(id = 229230, value = "Failed to bind acceptor {0} to {1}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalStateException failedToBind(String acceptor, String hostPort, @Cause Exception e);
 }
