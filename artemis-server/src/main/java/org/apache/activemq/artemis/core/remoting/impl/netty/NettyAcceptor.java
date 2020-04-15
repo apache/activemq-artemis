@@ -661,7 +661,12 @@ public class NettyAcceptor extends AbstractAcceptor {
          } else {
             address = new InetSocketAddress(h, port);
          }
-         Channel serverChannel = bootstrap.bind(address).syncUninterruptibly().channel();
+         Channel serverChannel = null;
+         try {
+            serverChannel = bootstrap.bind(address).syncUninterruptibly().channel();
+         } catch (Exception e) {
+            throw ActiveMQMessageBundle.BUNDLE.failedToBind(getName(), h + ":" + port, e);
+         }
          serverChannelGroup.add(serverChannel);
       }
    }
