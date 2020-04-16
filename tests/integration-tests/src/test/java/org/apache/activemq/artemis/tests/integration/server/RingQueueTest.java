@@ -67,12 +67,12 @@ public class RingQueueTest extends ActiveMQTestBase {
       for (int i = 0, j = 0; i < 500; i += 2, j++) {
          ClientMessage m0 = createTextMessage(clientSession, "hello" + i);
          producer.send(m0);
-         Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
+         Wait.assertTrue(() -> queue.getMessageCount() == 1);
          ClientMessage m1 = createTextMessage(clientSession, "hello" + (i + 1));
          producer.send(m1);
          int expectedMessagesReplaced = j + 1;
-         Wait.assertTrue(() -> queue.getMessagesReplaced() == expectedMessagesReplaced, 2000, 100);
-         Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
+         Wait.assertTrue(() -> queue.getMessagesReplaced() == expectedMessagesReplaced);
+         Wait.assertTrue(() -> queue.getMessageCount() == 1);
          ClientConsumer consumer = clientSession.createConsumer(qName);
          ClientMessage message = consumer.receiveImmediate();
          message.acknowledge();
@@ -96,39 +96,39 @@ public class RingQueueTest extends ActiveMQTestBase {
 
       ClientMessage m0 = createTextMessage(clientSession, "hello0");
       producer.send(m0);
-      Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 1);
 
       ClientConsumer consumer = clientSession.createConsumer(qName);
 
       ClientMessage message = consumer.receiveImmediate();
       assertNotNull(message);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 1);
 
       message.acknowledge();
       assertEquals("hello0", message.getBodyBuffer().readString());
 
       ClientMessage m1 = createTextMessage(clientSession, "hello1");
       producer.send(m1);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 2, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 0, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessageCount() == 2, 2000, 100);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 2);
+      Wait.assertTrue(() -> queue.getMessagesReplaced() == 0);
+      Wait.assertTrue(() -> queue.getMessageCount() == 2);
 
       clientSession.rollback();
       consumer.close();
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 0, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 1, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 0);
+      Wait.assertTrue(() -> queue.getMessagesReplaced() == 1);
+      Wait.assertTrue(() -> queue.getMessageCount() == 1);
 
       consumer = clientSession.createConsumer(qName);
       message = consumer.receiveImmediate();
       assertNotNull(message);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 1);
 
       message.acknowledge();
 
       clientSession.commit();
 
-      Wait.assertTrue(() -> queue.getMessagesAcknowledged() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessagesAcknowledged() == 1);
       assertEquals("hello1", message.getBodyBuffer().readString());
    }
 
@@ -149,24 +149,24 @@ public class RingQueueTest extends ActiveMQTestBase {
       producer.send(message);
       message = createTextMessage(clientSession, "hello1");
       producer.send(message);
-      Wait.assertTrue(() -> queue.getMessageCount() == 2, 2000, 100);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 2, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 2);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 2);
       consumer.close();
-      Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 0, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 1);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 0);
+      Wait.assertTrue(() -> queue.getMessagesReplaced() == 1);
       consumer = clientSession.createConsumer(qName);
       message = consumer.receiveImmediate();
       assertNotNull(message);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 1);
       message.acknowledge();
       clientSession.commit();
-      Wait.assertTrue(() -> queue.getMessagesAcknowledged() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessagesAcknowledged() == 1);
       assertEquals("hello1", message.getBodyBuffer().readString());
       consumer.close();
-      Wait.assertTrue(() -> queue.getMessageCount() == 0, 2000, 100);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 0, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 0);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 0);
+      Wait.assertTrue(() -> queue.getMessagesReplaced() == 1);
    }
 
    @Test
@@ -186,16 +186,16 @@ public class RingQueueTest extends ActiveMQTestBase {
       time += 500;
       m0.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
       producer.send(m0);
-      Wait.assertTrue(() -> queue.getScheduledCount() == 1, 2000, 100);
-      Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 0, 2000, 100);
+      Wait.assertTrue(() -> queue.getScheduledCount() == 1);
+      Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 0);
       time = System.currentTimeMillis();
       time += 500;
       m0.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
       producer.send(m0);
-      Wait.assertTrue(() -> queue.getScheduledCount() == 2, 2000, 100);
-      Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 0, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 1, 5000, 100);
-      Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 1, 3000, 100);
+      Wait.assertTrue(() -> queue.getScheduledCount() == 2);
+      Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 0);
+      Wait.assertTrue(() -> queue.getMessagesReplaced() == 1);
+      Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 1);
    }
 
    @Test
@@ -231,7 +231,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       for (int i = 0; i < 100; i++) {
          producer.send(clientSession.createMessage(true));
       }
-      Wait.assertTrue(() -> queue.getMessageCount() == 100, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 100);
 
       queue.setRingSize(10);
 
@@ -242,19 +242,19 @@ public class RingQueueTest extends ActiveMQTestBase {
          message.acknowledge();
       }
       consumer.close();
-      Wait.assertTrue(() -> queue.getMessageCount() == 5, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 5);
 
       for (int i = 0; i < 10; i++) {
          producer.send(clientSession.createMessage(true));
       }
-      Wait.assertTrue(() -> queue.getMessageCount() == 10, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 5, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 10);
+      Wait.assertTrue(() -> queue.getMessagesReplaced() == 5);
       consumer = clientSession.createConsumer(qName);
       message = consumer.receiveImmediate();
       assertNotNull(message);
       message.acknowledge();
       consumer.close();
-      Wait.assertTrue(() -> queue.getMessageCount() == 9, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 9);
 
       queue.setRingSize(5);
 
@@ -264,19 +264,19 @@ public class RingQueueTest extends ActiveMQTestBase {
          message.acknowledge();
       }
       consumer.close();
-      Wait.assertTrue(() -> queue.getMessageCount() == 5, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 5);
       producer.send(clientSession.createMessage(true));
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 6, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessagesReplaced() == 6);
 
       queue.setRingSize(10);
 
       for (int i = 0; i < 5; i++) {
          producer.send(clientSession.createMessage(true));
       }
-      Wait.assertTrue(() -> queue.getMessageCount() == 10, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 10);
       producer.send(clientSession.createMessage(true));
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 7, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessageCount() == 10, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessagesReplaced() == 7);
+      Wait.assertTrue(() -> queue.getMessageCount() == 10);
    }
 
    @Test
@@ -294,12 +294,12 @@ public class RingQueueTest extends ActiveMQTestBase {
       ClientMessage message = createTextMessage(clientSession, "hello" + 0);
       producer.send(message);
       for (int i = 0; i < 5; i++) {
-         Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
+         Wait.assertTrue(() -> queue.getMessageCount() == 1);
          message = createTextMessage(clientSession, "hello" + (i + 1));
          producer.send(message);
          final int finalI = i + 1;
-         Wait.assertTrue(() -> queue.getMessagesReplaced() == finalI, 2000, 100);
-         Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
+         Wait.assertTrue(() -> queue.getMessagesReplaced() == finalI);
+         Wait.assertTrue(() -> queue.getMessageCount() == 1);
          ClientConsumer consumer = clientSession.createConsumer(qName);
          message = consumer.receiveImmediate();
          assertNotNull(message);
@@ -323,12 +323,12 @@ public class RingQueueTest extends ActiveMQTestBase {
 
       ClientMessage m0 = createTextMessage(clientSession, "hello" + 0);
       producer.send(m0);
-      Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getMessageCount() == 1);
       ClientConsumer consumer = clientSession.createConsumer(qName);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 1);
       consumer.close();
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 0, 2000, 100);
-      Wait.assertTrue(() -> queue.getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> queue.getDeliveringCount() == 0);
+      Wait.assertTrue(() -> queue.getMessageCount() == 1);
    }
 
    @Test
@@ -364,7 +364,7 @@ public class RingQueueTest extends ActiveMQTestBase {
          fail(e.getMessage());
       }
 
-      Wait.assertTrue("message count should be " + RING_SIZE + " but it's actually " + queue.getMessageCount(), () -> queue.getMessageCount() == RING_SIZE, 2000, 100);
+      Wait.assertTrue("message count should be " + RING_SIZE + " but it's actually " + queue.getMessageCount(), () -> queue.getMessageCount() == RING_SIZE);
    }
 
    @Override
