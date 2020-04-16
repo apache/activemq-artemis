@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,7 +69,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      timeToRun = 30000L + RandomUtil.randomPositiveInt() % 1000;
+      timeToRun = 5000L + RandomUtil.randomPositiveInt() % 1000;
    }
 
    @Test
@@ -158,7 +159,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
       try {
          server.start();
 
-         Thread.sleep(500);
+         Wait.assertTrue(server::isActive);
 
          locator = createNettyNonHALocator();
 
