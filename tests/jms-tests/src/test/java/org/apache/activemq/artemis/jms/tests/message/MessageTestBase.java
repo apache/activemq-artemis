@@ -135,7 +135,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase {
 
       r.acknowledge();
 
-      ProxyAssertSupport.assertNull(queueCons.receive(100));
+      ProxyAssertSupport.assertNull(queueCons.receiveNoWait());
 
    }
 

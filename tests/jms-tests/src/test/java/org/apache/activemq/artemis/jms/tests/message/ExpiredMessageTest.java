@@ -50,7 +50,7 @@ public class ExpiredMessageTest extends JMSTestCase {
 
       conn.start();
 
-      ProxyAssertSupport.assertNull(cons.receive(2000));
+      ProxyAssertSupport.assertNull(cons.receiveNoWait());
 
       conn.close();
    }
@@ -84,7 +84,7 @@ public class ExpiredMessageTest extends JMSTestCase {
       ProxyAssertSupport.assertEquals(livingMessage.getText(), ((TextMessage) receivedMessage).getText());
 
       // we do not receive the expiring message
-      ProxyAssertSupport.assertNull(cons.receive(1000));
+      ProxyAssertSupport.assertNull(cons.receiveNoWait());
 
       conn.close();
    }
@@ -109,7 +109,7 @@ public class ExpiredMessageTest extends JMSTestCase {
       MessageConsumer cons = session.createConsumer(queue1);
       conn.start();
 
-      ProxyAssertSupport.assertNull(cons.receive(2000));
+      ProxyAssertSupport.assertNull(cons.receiveNoWait());
 
       conn.close();
    }

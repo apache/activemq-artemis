@@ -89,7 +89,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
       // DeliveryImpl is asynch - need to give enough time to get to the consumer
       Thread.sleep(2000);
 
-      ProxyAssertSupport.assertNull(queueConsumer.receive(100));
+      ProxyAssertSupport.assertNull(queueConsumer.receiveNoWait());
    }
 
    @Test
@@ -280,7 +280,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
       // DeliveryImpl is asynch - need to give enough time to get to the consumer
       Thread.sleep(2000);
 
-      ProxyAssertSupport.assertNull(queueConsumer.receive(100));
+      ProxyAssertSupport.assertNull(queueConsumer.receiveNoWait());
 
       // Need to check message isn't still in queue
 

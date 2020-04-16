@@ -730,12 +730,12 @@ public class MessageProducerTest extends JMSTestCase {
       queueProducer.send(ps.createMessage());
 
       assertNotNull(queueConsumer.receive(1000));
-      assertNull(topicConsumer.receive(1000));
+      assertNull(topicConsumer.receiveNoWait());
 
       MessageProducer topicProducer = ps.createProducer(topic);
       topicProducer.send(ps.createMessage());
 
-      assertNull(queueConsumer.receive(1000));
+      assertNull(queueConsumer.receiveNoWait());
       assertNotNull(topicConsumer.receive(1000));
    }
 
