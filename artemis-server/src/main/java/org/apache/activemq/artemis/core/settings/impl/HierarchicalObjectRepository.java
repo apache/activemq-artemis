@@ -172,7 +172,12 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       lock.writeLock().lock();
       try {
          String modifiedMatch = matchModifier.modify(match);
-         clearCache();
+         // an exact match (i.e. one without wildcards) won't impact any other matches so no need to clear the cache
+         if (usesWildcards(modifiedMatch)) {
+            clearCache();
+         } else if (modifiedMatch != null && cache.containsKey(modifiedMatch)) {
+            cache.remove(modifiedMatch);
+         }
 
          if (immutableMatch) {
             immutables.add(modifiedMatch);
@@ -188,6 +193,10 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       if (notifyListeners) {
          onChange();
       }
+   }
+
+   private boolean usesWildcards(String modifiedMatch) {
+      return modifiedMatch == null ? false : (modifiedMatch.contains(wildcardConfiguration.getAnyWordsString()) || modifiedMatch.contains(wildcardConfiguration.getSingleWordString()));
    }
 
    @Override
@@ -277,10 +286,12 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             logger.debug("Cannot remove match " + modMatch + " since it came from a main config");
          } else {
             /**
-             * clear the cache before removing the match. This will force any thread at
-             * {@link #getMatch(String)} to get the lock to recompute.
+             * Clear the cache before removing the match, but only if the match used wildcards. This
+             * will force any thread at {@link #getMatch(String)} to get the lock to recompute.
              */
-            clearCache();
+            if (usesWildcards(modMatch)) {
+               clearCache();
+            }
             matches.remove(modMatch);
             onChange();
          }
