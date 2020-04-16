@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
@@ -74,6 +75,8 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    private final MatchModifier matchModifier;
 
    private final WildcardConfiguration wildcardConfiguration;
+
+   private final AtomicInteger wildcardMatchCount = new AtomicInteger(0);
 
    /**
     * a cache
@@ -175,6 +178,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          // an exact match (i.e. one without wildcards) won't impact any other matches so no need to clear the cache
          if (usesWildcards(modifiedMatch)) {
             clearCache();
+            wildcardMatchCount.incrementAndGet();
          } else if (modifiedMatch != null && cache.containsKey(modifiedMatch)) {
             cache.remove(modifiedMatch);
          }
@@ -220,9 +224,15 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       lock.readLock().lock();
       try {
          T actualMatch;
-         Map<String, Match<T>> possibleMatches = getPossibleMatches(modifiedMatch);
-         Collection<Match<T>> orderedMatches = sort(possibleMatches);
-         actualMatch = merge(orderedMatches);
+         // if there are no wildcard matches we don't need to search, sort, & merge
+         if (wildcardMatchCount.get() > 0) {
+            Map<String, Match<T>> possibleMatches = getPossibleMatches(modifiedMatch);
+            Collection<Match<T>> orderedMatches = sort(possibleMatches);
+            actualMatch = merge(orderedMatches);
+         } else {
+            Match<T> possibleMatch = matches.get(modifiedMatch);
+            actualMatch = possibleMatch == null ? null : possibleMatch.getValue();
+         }
          T value = actualMatch != null ? actualMatch : defaultmatch;
          if (value != null) {
             cache.put(modifiedMatch, value);
@@ -291,6 +301,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
              */
             if (usesWildcards(modMatch)) {
                clearCache();
+               wildcardMatchCount.decrementAndGet();
             }
             matches.remove(modMatch);
             onChange();
