@@ -297,6 +297,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
          assertEquals("position = " + i, getSamplebyte(i), message.getBodyBuffer().readByte());
       }
       message.acknowledge();
+      session.commit();
 
       validateNoFilesOnLargeDir();
    }
