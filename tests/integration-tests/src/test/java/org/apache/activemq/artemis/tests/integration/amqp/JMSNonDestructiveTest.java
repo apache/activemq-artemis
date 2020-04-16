@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.LastValueQueue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -187,9 +188,11 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
 
       //Consume Once
       receive(consumerConnectionSupplier, NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME);
-      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+      Wait.assertEquals(1, queueBinding.getQueue()::getMessageCount);
 
-      Thread.sleep(500);
+      // Wait for expiration
+      Wait.waitFor(() -> queueBinding.getQueue().getMessageCount() == 0, 200); // notice the small timeout here is intended,
+                  // as it will not suceed if we disable scan as we expect the client to expire destinations
 
       //Consume Again this time we expect the message to be expired, so nothing delivered
       receiveNull(consumerConnectionSupplier, NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME);
@@ -280,7 +283,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
    }
 
    public void testNonDestructiveLVQTombstone(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
-      int tombstoneTimeToLive = 500;
+      int tombstoneTimeToLive = 50;
 
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME));
       LastValueQueue lastValueQueue = (LastValueQueue)queueBinding.getQueue();

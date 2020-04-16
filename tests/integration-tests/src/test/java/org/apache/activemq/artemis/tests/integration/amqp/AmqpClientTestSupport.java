@@ -164,7 +164,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       server.getConfiguration().setBindingsDirectory(server.getConfiguration().getBindingsDirectory() + port);
       server.getConfiguration().setPagingDirectory(server.getConfiguration().getPagingDirectory() + port);
       server.getConfiguration().setJMXManagementEnabled(true);
-      server.getConfiguration().setMessageExpiryScanPeriod(5000);
+      server.getConfiguration().setMessageExpiryScanPeriod(100);
       server.setMBeanServer(mBeanServer);
 
       // Add any additional Acceptors needed for tests
