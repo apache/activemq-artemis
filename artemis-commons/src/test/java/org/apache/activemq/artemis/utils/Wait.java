@@ -101,6 +101,9 @@ public class Wait {
       assertTrue(DEFAULT_FAILURE_MESSAGE, () -> !condition.isSatisfied(), duration, sleep);
    }
 
+   public static void assertTrue(Condition condition, final long duration) {
+      assertTrue(DEFAULT_FAILURE_MESSAGE, condition, duration, SLEEP_MILLIS);
+   }
 
    public static void assertTrue(String failureMessage, Condition condition) {
       assertTrue(failureMessage, condition, MAX_WAIT_MILLIS);
