@@ -78,11 +78,11 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
          producer.send(message);
       }
 
-      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> live.locateQueue(divertQueue).getMessageCount() == OFFSET, 3000, 50);
+      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> live.locateQueue(divertQueue).getMessageCount() == OFFSET);
 
       crash(session);
 
-      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(divertQueue).getMessageCount() == OFFSET, 3000, 50);
+      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(divertQueue).getMessageCount() == OFFSET);
 
       for (int j = OFFSET; j < MESSAGE_COUNT + OFFSET; j++) {
          ClientMessage message = session.createMessage(true);
@@ -90,11 +90,11 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
          producer.send(message);
       }
 
-      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(divertQueue).getMessageCount() == MESSAGE_COUNT, 3000, 50);
+      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(divertQueue).getMessageCount() == MESSAGE_COUNT);
 
       session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(queueName) != null);
-      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(queueName).getMessageCount() == MESSAGE_COUNT, 500, 50);
+      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(queueName).getMessageCount() == MESSAGE_COUNT);
 
       ClientConsumer consumer = session.createConsumer(queueName);
       for (int j = OFFSET; j < MESSAGE_COUNT + OFFSET; j++) {
