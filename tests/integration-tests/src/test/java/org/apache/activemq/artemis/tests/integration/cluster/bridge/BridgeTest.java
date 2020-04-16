@@ -751,7 +751,8 @@ public class BridgeTest extends ActiveMQTestBase {
 
       server1.start();
 
-      Thread.sleep(1000);
+      Wait.assertTrue(server1::isActive);
+
 
       ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
 
@@ -884,8 +885,6 @@ public class BridgeTest extends ActiveMQTestBase {
          }
          tx.commit();
       }
-
-      Thread.sleep(100);
 
 
       ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
@@ -1578,8 +1577,8 @@ public class BridgeTest extends ActiveMQTestBase {
                   public void run() {
                      try {
                         System.out.println("Stopping server");
-                        latch.countDown();
                         serverToStop.fail(false);
+                        latch.countDown();
                      } catch (Exception e) {
                         e.printStackTrace();
                      }
