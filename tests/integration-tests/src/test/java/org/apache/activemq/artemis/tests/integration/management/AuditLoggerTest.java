@@ -42,11 +42,13 @@ import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.logging.LogManager;
@@ -97,6 +99,23 @@ public class AuditLoggerTest extends ManagementTestBase {
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
+
+      String originalLoggingConfig = System.getProperty("logging.configuration");
+
+      if (originalLoggingConfig != null) {
+         File file = new File(new URI(originalLoggingConfig));
+         InputStream inputStream = new FileInputStream(file);
+
+         LogManager logManager = LogManager.getLogManager();
+         try {
+            logManager.readConfiguration(inputStream);
+         } catch (IOException e) {
+            System.out.println("error loading logging conifg");
+            e.printStackTrace();
+         }
+
+         inputStream.close();
+      }
    }
 
    private void emptyLogFile() throws Exception {
@@ -155,10 +174,12 @@ public class AuditLoggerTest extends ManagementTestBase {
       LogManager logManager = LogManager.getLogManager();
       try {
          logManager.readConfiguration(inputStream);
+         inputStream.close();
       } catch (IOException e) {
          System.out.println("error loading logging conifg");
          e.printStackTrace();
       }
+
    }
 
    @Test
