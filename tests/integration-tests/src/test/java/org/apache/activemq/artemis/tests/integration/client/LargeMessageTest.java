@@ -45,6 +45,8 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -53,6 +55,7 @@ import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTe
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -245,6 +248,76 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.close();
 
       validateNoFilesOnLargeDir();
+   }
+
+
+   @Test
+   public void testPendingRecord() throws Exception {
+
+      ActiveMQServer server = createServer(true, isNetty(), storeType);
+
+      server.start();
+
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = addClientSession(sf.createSession(false, true, false));
+
+      session.createQueue(new QueueConfiguration(ADDRESS));
+
+      ClientProducer producer = session.createProducer(ADDRESS);
+
+      Message clientFile = createLargeClientMessageStreaming(session, messageSize, true);
+
+      // Send large message which should be dropped and deleted from the filesystem
+
+      producer.send(clientFile);
+
+      validateLargeMessageComplete(server);
+
+      sf.close();
+
+      server.stop();
+
+      server = createServer(true, isNetty(), storeType);
+
+      server.start();
+
+      sf = addSessionFactory(createSessionFactory(locator));
+
+      session = addClientSession(sf.createSession(false, true, false));
+
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+      session.start();
+
+      ClientMessage message = consumer.receiveImmediate();
+      Assert.assertNotNull(message);
+      for (int i = 0; i < messageSize; i++) {
+         assertEquals("position = " + i, getSamplebyte(i), message.getBodyBuffer().readByte());
+      }
+      message.acknowledge();
+
+      validateNoFilesOnLargeDir();
+   }
+
+   protected void validateLargeMessageComplete(ActiveMQServer server) throws Exception {
+      Queue queue = server.locateQueue(ADDRESS);
+
+      Wait.assertEquals(1, queue::getMessageCount);
+
+      LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
+
+      while (browserIterator.hasNext()) {
+         MessageReference ref = browserIterator.next();
+         Message message = ref.getMessage();
+
+         Assert.assertNotNull(message);
+         Assert.assertTrue(message instanceof LargeServerMessage);
+
+         Assert.assertFalse(((LargeServerMessage)message).hasPendingRecord());
+      }
+      browserIterator.close();
    }
 
    @Test

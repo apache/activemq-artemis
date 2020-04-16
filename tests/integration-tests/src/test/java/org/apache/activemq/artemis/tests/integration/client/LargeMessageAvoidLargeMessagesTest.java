@@ -45,6 +45,10 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
    }
 
    @Override
+   protected void validateLargeMessageComplete(ActiveMQServer server) throws Exception {
+   }
+
+   @Override
    protected boolean isNetty() {
       return false;
    }

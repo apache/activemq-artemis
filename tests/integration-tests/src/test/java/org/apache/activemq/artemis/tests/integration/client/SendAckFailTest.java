@@ -287,6 +287,11 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
+      public LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception {
+         return manager.largeMessageCreated(id, largeMessage);
+      }
+
+      @Override
       public void stop() throws Exception {
          manager.stop();
       }
