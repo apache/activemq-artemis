@@ -465,6 +465,11 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception {
+         return null;
+      }
+
+      @Override
       public SequentialFile createFileForLargeMessage(long messageID, LargeMessageExtension extension) {
          return null;
       }

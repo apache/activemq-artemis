@@ -174,6 +174,11 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       }
    }
 
+   @Override
+   public void validateFile() throws ActiveMQException {
+      largeBody.validateFile();
+   }
+
    public void setFileDurable(boolean value) {
       this.fileDurable = value;
    }
@@ -207,7 +212,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       return parsingData;
    }
 
-   protected void parseHeader(ReadableBuffer buffer) {
+   public void parseHeader(ReadableBuffer buffer) {
 
       DecoderImpl decoder = TLSEncode.getDecoder();
       decoder.setBuffer(buffer);

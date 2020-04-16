@@ -245,6 +245,8 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     */
    LargeServerMessage createLargeMessage(long id, Message message) throws Exception;
 
+   LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception;
+
    enum LargeMessageExtension {
       DURABLE(".msg"), TEMPORARY(".tmp"), SYNC(".sync");
       final String extension;

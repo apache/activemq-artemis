@@ -66,5 +66,7 @@ public interface LargeServerMessage extends ReplicatedLargeMessage {
 
    void setStorageManager(StorageManager storageManager);
 
+   void validateFile() throws ActiveMQException;
+
    void finishParse() throws Exception;
 }
