@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.paging.impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -210,6 +211,7 @@ public final class Page implements Comparable<Page> {
                      readFileBuffer.position(endPosition + 1);
                      assert readFileBuffer.get(endPosition) == Page.END_BYTE : "decoding cannot change end byte";
                      msg.initMessage(storageManager);
+                     assert validateLargeMessageStorageManager(msg);
                      if (logger.isTraceEnabled()) {
                         logger.tracef("Reading message %s on pageId=%d for address=%s", msg, pageId, storeName);
                      }
@@ -246,8 +248,13 @@ public final class Page implements Comparable<Page> {
    }
 
    public synchronized List<PagedMessage> read(StorageManager storage) throws Exception {
+      return read(storage, false);
+   }
+
+   public synchronized List<PagedMessage> read(StorageManager storage, boolean onlyLargeMessages) throws Exception {
       if (logger.isDebugEnabled()) {
-         logger.debug("reading page " + this.pageId + " on address = " + storeName);
+         logger.debugf("reading page %d on address = %s onlyLargeMessages = %b", storeName, pageId,
+                       storage, onlyLargeMessages);
       }
 
       if (!file.isOpen()) {
@@ -256,9 +263,11 @@ public final class Page implements Comparable<Page> {
 
       size.lazySet((int) file.size());
 
-      final List<PagedMessage> messages = readFromSequentialFile(storage);
+      final List<PagedMessage> messages = new ArrayList<>();
 
-      numberOfMessages.lazySet(messages.size());
+      final int totalMessageCount = readFromSequentialFile(storage, messages, onlyLargeMessages);
+
+      numberOfMessages.lazySet(totalMessageCount);
 
       return messages;
    }
@@ -316,6 +325,14 @@ public final class Page implements Comparable<Page> {
       return fileBuffer;
    }
 
+   private static boolean validateLargeMessageStorageManager(PagedMessage msg) {
+      if (!(msg.getMessage() instanceof LargeServerMessage)) {
+         return true;
+      }
+      LargeServerMessage largeServerMessage = ((LargeServerMessage) msg.getMessage());
+      return largeServerMessage.getStorageManager() != null;
+   }
+
    private static ChannelBufferWrapper wrapWhole(ByteBuffer fileBuffer) {
       final int position = fileBuffer.position();
       final int limit = fileBuffer.limit();
@@ -340,13 +357,15 @@ public final class Page implements Comparable<Page> {
    private static final int HEADER_SIZE = HEADER_AND_TRAILER_SIZE - 1;
    private static final int MIN_CHUNK_SIZE = Env.osPageSize();
 
-   private List<PagedMessage> readFromSequentialFile(StorageManager storage) throws Exception {
-      final List<PagedMessage> messages = new ArrayList<>();
+   private int readFromSequentialFile(StorageManager storage,
+                                                     List<PagedMessage> messages,
+                                                     boolean onlyLargeMessages) throws Exception {
       final int fileSize = (int) file.size();
       file.position(0);
       int processedBytes = 0;
       ByteBuffer fileBuffer = null;
       ChannelBufferWrapper fileBufferWrapper;
+      int totalMessageCount = 0;
       try {
          int remainingBytes = fileSize - processedBytes;
          if (remainingBytes >= MINIMUM_MSG_PERSISTENT_SIZE) {
@@ -376,29 +395,38 @@ public final class Page implements Comparable<Page> {
                      final int endPosition = fileBuffer.position() + encodedSize;
                      //this check must be performed upfront decoding
                      if (fileBuffer.remaining() >= (encodedSize + 1) && fileBuffer.get(endPosition) == Page.END_BYTE) {
-                        final PagedMessageImpl msg = new PagedMessageImpl(encodedSize, storageManager);
                         fileBufferWrapper.setIndex(fileBuffer.position(), endPosition);
-                        msg.decode(fileBufferWrapper);
-                        fileBuffer.position(endPosition + 1);
-                        assert fileBuffer.get(endPosition) == Page.END_BYTE : "decoding cannot change end byte";
-                        msg.initMessage(storage);
-                        assert msg.getMessage() instanceof LargeServerMessage && ((LargeServerMessage)msg.getMessage()).getStorageManager() != null || !(msg.getMessage() instanceof LargeServerMessage);
-                        if (logger.isTraceEnabled()) {
-                           logger.tracef("Reading message %s on pageId=%d for address=%s", msg, pageId, storeName);
+                        final boolean skipMessage;
+                        if (onlyLargeMessages) {
+                           skipMessage = !PagedMessageImpl.isLargeMessage(fileBufferWrapper);
+                        } else {
+                           skipMessage = false;
                         }
-                        messages.add(msg);
+                        if (!skipMessage) {
+                           final PagedMessageImpl msg = new PagedMessageImpl(encodedSize, storageManager);
+                           msg.decode(fileBufferWrapper);
+                           assert fileBuffer.get(endPosition) == Page.END_BYTE : "decoding cannot change end byte";
+                           msg.initMessage(storage);
+                           assert validateLargeMessageStorageManager(msg);
+                           if (logger.isTraceEnabled()) {
+                              logger.tracef("Reading message %s on pageId=%d for address=%s", msg, pageId, storeName);
+                           }
+                           messages.add(msg);
+                        }
+                        totalMessageCount++;
+                        fileBuffer.position(endPosition + 1);
                         processedBytes = nextPosition;
                      } else {
-                        markFileAsSuspect(file.getFileName(), processedBytes, messages.size());
-                        return messages;
+                        markFileAsSuspect(file.getFileName(), processedBytes, totalMessageCount + 1);
+                        return totalMessageCount;
                      }
                   } else {
-                     markFileAsSuspect(file.getFileName(), processedBytes, messages.size());
-                     return messages;
+                     markFileAsSuspect(file.getFileName(), processedBytes, totalMessageCount + 1);
+                     return totalMessageCount;
                   }
                } else {
-                  markFileAsSuspect(file.getFileName(), processedBytes, messages.size());
-                  return messages;
+                  markFileAsSuspect(file.getFileName(), processedBytes, totalMessageCount + 1);
+                  return totalMessageCount;
                }
                remainingBytes = fileSize - processedBytes;
             }
@@ -408,7 +436,7 @@ public final class Page implements Comparable<Page> {
          if (logger.isTraceEnabled()) {
             logger.tracef("%s has %d bytes of unknown data at position = %d", file.getFileName(), remainingBytes, processedBytes);
          }
-         return messages;
+         return totalMessageCount;
       } finally {
          if (fileBuffer != null) {
             fileFactory.releaseBuffer(fileBuffer);
@@ -500,11 +528,12 @@ public final class Page implements Comparable<Page> {
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Deleting pageNr=" + pageId + " on store " + storeName);
+         logger.debugf("Deleting pageNr=%d on store %d", pageId, storeName);
       }
 
-      List<Long> largeMessageIds = new ArrayList<>();
-      if (messages != null) {
+      final List<Long> largeMessageIds;
+      if (messages != null && messages.length > 0) {
+         largeMessageIds = new ArrayList<>();
          for (PagedMessage msg : messages) {
             if ((msg.getMessage()).isLargeMessage()) {
                // this will trigger large message delete: no need to do it
@@ -513,6 +542,8 @@ public final class Page implements Comparable<Page> {
                largeMessageIds.add(msg.getMessage().getMessageID());
             }
          }
+      } else {
+         largeMessageIds = Collections.emptyList();
       }
 
       try {
