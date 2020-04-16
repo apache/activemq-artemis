@@ -1558,7 +1558,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
-         Message m = topicConsumer.receive(1000);
+         Message m = topicConsumer.receiveNoWait();
 
          ProxyAssertSupport.assertNull(m);
       } finally {
@@ -1601,7 +1601,7 @@ public class MessageConsumerTest extends JMSTestCase {
             }
          }, "Producer").start();
 
-         ProxyAssertSupport.assertNull(topicConsumer.receive(1500));
+         ProxyAssertSupport.assertNull(topicConsumer.receiveNoWait());
       } finally {
          if (producerConnection != null) {
             producerConnection.close();
@@ -1895,7 +1895,7 @@ public class MessageConsumerTest extends JMSTestCase {
          }, "closing thread");
          closerThread.start();
 
-         ProxyAssertSupport.assertNull(topicConsumer.receive(1500));
+         ProxyAssertSupport.assertNull(topicConsumer.receiveNoWait());
 
          // wait for the closing thread to finish
          boolean closed = latch.await(5000, TimeUnit.MILLISECONDS);
@@ -2644,7 +2644,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          conn.start();
 
-         Message msg = cons.receive(3000);
+         Message msg = cons.receiveNoWait();
 
          ProxyAssertSupport.assertNull(msg);
 
@@ -2707,7 +2707,7 @@ public class MessageConsumerTest extends JMSTestCase {
          ProxyAssertSupport.assertEquals("nurse!", tm2.getText());
 
          // but tm1 should not be redelivered
-         tm1 = (TextMessage) cons1.receive(1500);
+         tm1 = (TextMessage) cons1.receiveNoWait();
          ProxyAssertSupport.assertNull(tm1);
       } finally {
          if (conn1 != null) {
@@ -2962,7 +2962,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          MessageConsumer durable4 = sess3.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription1");
 
-         Message m = durable4.receive(1000);
+         Message m = durable4.receiveNoWait();
          ProxyAssertSupport.assertNull(m);
 
          durable3.close();
@@ -3047,7 +3047,7 @@ public class MessageConsumerTest extends JMSTestCase {
          sess4 = conn4.createSession(false, Session.AUTO_ACKNOWLEDGE);
          durable = sess4.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
 
-         TextMessage tm = (TextMessage) durable.receive(1000);
+         TextMessage tm = (TextMessage) durable.receiveNoWait();
          ProxyAssertSupport.assertNull(tm);
          conn4.close();
 
@@ -3079,7 +3079,7 @@ public class MessageConsumerTest extends JMSTestCase {
          sess6 = conn6.createSession(false, Session.AUTO_ACKNOWLEDGE);
          durable = sess6.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
 
-         TextMessage tm3 = (TextMessage) durable.receive(1000);
+         TextMessage tm3 = (TextMessage) durable.receiveNoWait();
          ProxyAssertSupport.assertNull(tm3);
 
          durable.close();
@@ -3233,7 +3233,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          conn2.start();
 
-         TextMessage tm = (TextMessage) durable2.receive(1500);
+         TextMessage tm = (TextMessage) durable2.receiveNoWait();
          ProxyAssertSupport.assertNull(tm);
 
          durable2.close();

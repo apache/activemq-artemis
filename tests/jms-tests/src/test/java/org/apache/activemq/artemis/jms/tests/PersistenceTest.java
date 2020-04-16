@@ -256,7 +256,7 @@ public class PersistenceTest extends JMSTestCase {
             ProxyAssertSupport.assertEquals("a", t.getText());
          }
          {
-            TextMessage t = (TextMessage) cons.receive(500);
+            TextMessage t = (TextMessage) cons.receiveNoWait();
             ProxyAssertSupport.assertNull(t);
          }
       } finally {

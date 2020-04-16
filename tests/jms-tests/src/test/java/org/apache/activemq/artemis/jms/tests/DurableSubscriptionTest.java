@@ -94,7 +94,7 @@ public class DurableSubscriptionTest extends JMSTestCase {
          TextMessage tm = (TextMessage) durable.receive(1000);
          ProxyAssertSupport.assertEquals("k", tm.getText());
 
-         Message m = durable.receive(1000);
+         Message m = durable.receiveNoWait();
          ProxyAssertSupport.assertNull(m);
 
          durable.close();
@@ -197,7 +197,7 @@ public class DurableSubscriptionTest extends JMSTestCase {
 
          conn.start();
 
-         Message m = durable.receive(1000);
+         Message m = durable.receiveNoWait();
          ProxyAssertSupport.assertNull(m);
 
          durable.close();
@@ -266,7 +266,7 @@ public class DurableSubscriptionTest extends JMSTestCase {
 
          conn.start();
 
-         Message m = durable.receive(1000);
+         Message m = durable.receiveNoWait();
 
          // the durable subscription is destroyed and re-created. The red square message stored by
          // the previous durable subscription is lost and (hopefully) garbage collected.
@@ -327,7 +327,7 @@ public class DurableSubscriptionTest extends JMSTestCase {
          MessageConsumer ds = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "uzzi");
          conn.start();
 
-         ProxyAssertSupport.assertNull(ds.receive(1000));
+         ProxyAssertSupport.assertNull(ds.receiveNoWait());
 
          ds.close();
 

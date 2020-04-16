@@ -234,7 +234,7 @@ public class TransactedSessionTest extends JMSTestCase {
             producer.send(m);
          }
 
-         Message m = consumer.receive(500);
+         Message m = consumer.receiveNoWait();
          ProxyAssertSupport.assertNull(m);
       } finally {
          if (conn != null) {
@@ -340,7 +340,7 @@ public class TransactedSessionTest extends JMSTestCase {
          consumer = consumerSess.createConsumer(queue1);
          conn.start();
 
-         Message m = consumer.receive(500);
+         Message m = consumer.receiveNoWait();
 
          ProxyAssertSupport.assertNull(m);
       } finally {
@@ -381,7 +381,7 @@ public class TransactedSessionTest extends JMSTestCase {
 
          producerSess.rollback();
 
-         Message m = consumer.receive(500);
+         Message m = consumer.receiveNoWait();
 
          ProxyAssertSupport.assertNull(m);
       } finally {
@@ -865,7 +865,7 @@ public class TransactedSessionTest extends JMSTestCase {
          consumer = consumerSess.createConsumer(queue1);
          conn.start();
 
-         Message m = consumer.receive(500);
+         Message m = consumer.receiveNoWait();
 
          ProxyAssertSupport.assertNull(m);
       } finally {
@@ -906,7 +906,7 @@ public class TransactedSessionTest extends JMSTestCase {
 
          producerSess.rollback();
 
-         Message m = consumer.receive(500);
+         Message m = consumer.receiveNoWait();
 
          ProxyAssertSupport.assertNull(m);
       } finally {

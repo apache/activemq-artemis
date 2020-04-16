@@ -95,7 +95,7 @@ public class ConnectionClosedTest extends JMSTestCase {
          ProxyAssertSupport.assertEquals("hello", tm.getText());
       }
 
-      Message m = sub2.receive(200);
+      Message m = sub2.receiveNoWait();
 
       ProxyAssertSupport.assertNull(m);
 

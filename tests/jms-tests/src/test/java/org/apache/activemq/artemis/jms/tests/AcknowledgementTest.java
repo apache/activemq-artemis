@@ -328,7 +328,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       consumerSess.recover();
 
-      Message m = consumer.receive(200);
+      Message m = consumer.receiveNoWait();
       ProxyAssertSupport.assertNull(m);
    }
 
@@ -384,7 +384,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       log.trace("Session recover called");
 
-      m = consumer.receive(200);
+      m = consumer.receiveNoWait();
 
       log.trace("Message is:" + m);
 
@@ -519,13 +519,11 @@ public class AcknowledgementTest extends JMSTestCase {
 
       log.trace("Session recover called");
 
-      m = consumer.receive(200);
+      m = consumer.receiveNoWait();
 
       log.trace("Message is:" + m);
 
       ProxyAssertSupport.assertNull(m);
-
-      // Thread.sleep(3000000);
    }
 
    @Test
@@ -575,7 +573,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       log.trace("Session recover called");
 
-      m = consumer.receive(200);
+      m = consumer.receiveNoWait();
 
       log.trace("Message is:" + m);
 
@@ -681,7 +679,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       log.trace("Session recover called");
 
-      m = consumer.receive(200);
+      m = consumer.receiveNoWait();
 
       log.trace("Message is:" + m);
 
