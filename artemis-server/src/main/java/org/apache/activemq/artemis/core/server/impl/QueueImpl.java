@@ -3674,7 +3674,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    /** This will print errors and decide what to do with the errored consumer from the protocol layer. */
    @Override
    public void errorProcessing(Consumer consumer, Throwable t, MessageReference reference) {
-      executor.execute(() -> errorProcessing(consumer, t, reference));
+      executor.execute(() -> internalErrorProcessing(consumer, t, reference));
    }
 
    private void internalErrorProcessing(Consumer consumer, Throwable t, MessageReference reference) {
