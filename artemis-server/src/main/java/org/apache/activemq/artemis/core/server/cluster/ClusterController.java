@@ -92,6 +92,9 @@ public class ClusterController implements ActiveMQComponent {
 
    @Override
    public void start() throws Exception {
+      if (logger.isDebugEnabled()) {
+         logger.debug("Starting Cluster Controller " + System.identityHashCode(this) + " for server " + server);
+      }
       if (started)
          return;
       //set the default locator that will be used to connecting to the default cluster.
@@ -129,13 +132,17 @@ public class ClusterController implements ActiveMQComponent {
 
    @Override
    public void stop() throws Exception {
+      if (logger.isDebugEnabled()) {
+
+         logger.debug("Stopping Cluster Controller " + System.identityHashCode(this) + " for server " + this.server);
+      }
+      started = false;
       //close all the locators
       for (ServerLocatorInternal serverLocatorInternal : locators.values()) {
          serverLocatorInternal.close();
       }
       //stop the quorum manager
       quorumManager.stop();
-      started = false;
    }
 
    @Override
@@ -428,13 +435,19 @@ public class ClusterController implements ActiveMQComponent {
       @Override
       public void run() {
          try {
-            serverLocator.connect();
-            if (serverLocator == replicationLocator) {
-               replicationClusterConnectedLatch.countDown();
+            if (started) {
+               serverLocator.connect();
+               if (serverLocator == replicationLocator) {
+                  replicationClusterConnectedLatch.countDown();
+               }
             }
          } catch (ActiveMQException e) {
             if (!started) {
                return;
+            }
+            if (logger.isDebugEnabled()) {
+
+               logger.debug("retry on Cluster Controller " + System.identityHashCode(ClusterController.this) + " server = " + server);
             }
             server.getScheduledPool().schedule(this, serverLocator.getRetryInterval(), TimeUnit.MILLISECONDS);
          }
