@@ -275,8 +275,11 @@ public final class SharedNothingBackupActivation extends Activation {
                         if (logger.isTraceEnabled()) {
                            logger.trace("Calling activeMQServer.stop() and start() to restart the server");
                         }
-                        activeMQServer.stop();
-                        activeMQServer.start();
+                        if (activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPED &&
+                            activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPING) {
+                           activeMQServer.stop();
+                           activeMQServer.start();
+                        }
                      } catch (Exception e) {
                         ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(e, activeMQServer);
                      }
