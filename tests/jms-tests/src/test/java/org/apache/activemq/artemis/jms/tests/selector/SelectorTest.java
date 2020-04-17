@@ -203,7 +203,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          MessageConsumer cons2 = sess.createConsumer(queue1, selector2);
 
          for (int j = 0; j < 100; j++) {
-            m = cons2.receive(1000);
+            m = cons2.receive(100);
 
             ProxyAssertSupport.assertNotNull(m);
 
@@ -211,7 +211,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
             ProxyAssertSupport.assertEquals("kermit the frog", m.getStringProperty("beatle"));
          }
-     } finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -276,7 +276,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          MessageConsumer cons1 = sess.createConsumer(queue1, selector1);
 
          for (int j = 0; j < NUM_MESSAGES; j++) {
-            Message m = cons1.receive(1000);
+            Message m = cons1.receive(100);
 
             ProxyAssertSupport.assertNotNull(m);
 
@@ -341,7 +341,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
             }
 
             for (int j = 0; j < 10; j++) {
-               Message m = cons1.receive(1000);
+               Message m = cons1.receive(100);
 
                ProxyAssertSupport.assertNotNull(m);
             }
