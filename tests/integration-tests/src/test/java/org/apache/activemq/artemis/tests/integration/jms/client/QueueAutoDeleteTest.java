@@ -71,6 +71,9 @@ public class QueueAutoDeleteTest extends JMSTestBase {
          Queue queue = session.createQueue(testQueueName + "?auto-delete=true");
          ActiveMQDestination activeMQDestination = (ActiveMQDestination) queue;
 
+         final MessageConsumer consumer1 = session.createConsumer(queue);
+
+
          assertEquals(testQueueName, queue.getQueueName());
          assertEquals(true, activeMQDestination.getQueueAttributes().getAutoDelete());
          assertEquals(true, activeMQDestination.getQueueConfiguration().isAutoDelete());
@@ -83,25 +86,22 @@ public class QueueAutoDeleteTest extends JMSTestBase {
          assertTrue(queueBinding.getQueue().isAutoDelete());
          Wait.assertEquals(2, queueBinding.getQueue()::getMessageCount);
 
-         MessageConsumer consumer = session.createConsumer(queue);
-         Message message = consumer.receive(5000);
+         Message message = consumer1.receive(5000);
          assertNotNull(message);
          message.acknowledge();
 
-         consumer.close();
 
          queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
          Wait.assertEquals(1, queueBinding.getQueue()::getMessageCount);
 
-         consumer = session.createConsumer(queue);
-         message = consumer.receive(5000);
+         final MessageConsumer consumer2 = session.createConsumer(queue);
+         consumer1.close();
+
+         message = consumer2.receive(5000);
          assertNotNull(message);
          message.acknowledge();
 
-         consumer.close();
-
-         //Wait longer than scan period.
-         Thread.sleep(20);
+         consumer2.close();
 
          Wait.assertTrue(() -> server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName)) == null, 5000, 10);
 
