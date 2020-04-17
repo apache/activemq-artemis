@@ -53,9 +53,11 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    private T defaultmatch;
 
    /**
-    * all the matches
+    * the matches; separate wildcard matches from exact matches to reduce the searching necessary with a
+    * large number of exact matches
     */
-   private final Map<String, Match<T>> matches = new HashMap<>();
+   private final Map<String, Match<T>> wildcardMatches = new HashMap<>();
+   private final Map<String, Match<T>> exactMatches = new HashMap<>();
 
    /**
     * Certain values cannot be removed after installed.
@@ -83,7 +85,8 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    /**
     * Need a lock instead of using multiple {@link ConcurrentHashMap}s.
     * <p>
-    * We could have a race between the state of {@link #matches} and {@link #cache}:
+    * We could have a race between the state of {@link #wildcardMatches}, {@link #exactMatches},
+    * and {@link #cache}:
     * <p>
     * Thread1: calls {@link #addMatch(String, T)}: i. cleans cache; ii. adds match to Map.<br>
     * Thread2: could add an (out-dated) entry to the cache between 'i. clean cache' and 'ii. add
@@ -145,9 +148,13 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    public List<T> values() {
       lock.readLock().lock();
       try {
-         ArrayList<T> values = new ArrayList<>(matches.size());
+         ArrayList<T> values = new ArrayList<>(wildcardMatches.size() + exactMatches.size());
 
-         for (Match<T> matchValue : matches.values()) {
+         for (Match<T> matchValue : wildcardMatches.values()) {
+            values.add(matchValue.getValue());
+         }
+
+         for (Match<T> matchValue : exactMatches.values()) {
             values.add(matchValue.getValue());
          }
 
@@ -184,7 +191,11 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          }
          Match.verify(modifiedMatch, wildcardConfiguration);
          Match<T> match1 = new Match<>(modifiedMatch, value, wildcardConfiguration);
-         matches.put(modifiedMatch, match1);
+         if (usesWildcards(modifiedMatch)) {
+            wildcardMatches.put(modifiedMatch, match1);
+         } else {
+            exactMatches.put(modifiedMatch, match1);
+         }
       } finally {
          lock.writeLock().unlock();
       }
@@ -291,8 +302,10 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
              */
             if (usesWildcards(modMatch)) {
                clearCache();
+               wildcardMatches.remove(modMatch);
+            } else {
+               exactMatches.remove(modMatch);
             }
-            matches.remove(modMatch);
             onChange();
          }
       } finally {
@@ -340,7 +353,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       try {
          clearCache();
          listeners.clear();
-         matches.clear();
+         clearMatches();
       } finally {
          lock.writeLock().unlock();
       }
@@ -352,7 +365,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       try {
          clearCache();
          immutables.clear();
-         matches.clear();
+         clearMatches();
          for (Map.Entry<String, T> entry : entries) {
             addMatch(entry.getKey(), entry.getValue(), true, false);
          }
@@ -371,6 +384,11 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    @Override
    public void clearCache() {
       cache.clear();
+   }
+
+   private void clearMatches() {
+      wildcardMatches.clear();
+      exactMatches.clear();
    }
 
    private void onChange() {
@@ -399,7 +417,11 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    private Map<String, Match<T>> getPossibleMatches(final String match) {
       HashMap<String, Match<T>> possibleMatches = new HashMap<>();
 
-      for (Entry<String, Match<T>> entry : matches.entrySet()) {
+      if (exactMatches.containsKey(match)) {
+         possibleMatches.put(match, exactMatches.get(match));
+      }
+
+      for (Entry<String, Match<T>> entry : wildcardMatches.entrySet()) {
          Match<T> entryMatch = entry.getValue();
          if (entryMatch.getPattern().matcher(match).matches()) {
             possibleMatches.put(entry.getKey(), entryMatch);
