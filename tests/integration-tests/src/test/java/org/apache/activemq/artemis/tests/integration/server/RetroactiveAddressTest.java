@@ -203,6 +203,8 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       producer.send(message);
       producer.close();
 
+      Wait.assertTrue(() -> server.locateQueue(divertMulticastQueue).getMessageCount() == 2);
+
       session.createQueue(new QueueConfiguration(queueName1).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       Wait.assertTrue(() -> server.locateQueue(queueName1) != null);
       Wait.assertTrue(() -> server.locateQueue(queueName1).getMessageCount() == 2);
