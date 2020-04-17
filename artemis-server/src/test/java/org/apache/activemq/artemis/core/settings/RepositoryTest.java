@@ -66,6 +66,18 @@ public class RepositoryTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testCacheWithWildcards() throws Throwable {
+      HierarchicalObjectRepository<String> repo = new HierarchicalObjectRepository<>();
+
+      repo.addMatch("#", "root");
+      Assert.assertEquals("root", repo.getMatch("b"));
+
+      repo.addMatch("b", "leaf");
+      Assert.assertEquals("leaf", repo.getMatch("b"));
+   }
+
+
+   @Test
    public void testMatchingDocsCustomUnderscorDelimiter() throws Throwable {
       WildcardConfiguration wildcardConfiguration = new WildcardConfiguration();
       wildcardConfiguration.setDelimiter('_');
