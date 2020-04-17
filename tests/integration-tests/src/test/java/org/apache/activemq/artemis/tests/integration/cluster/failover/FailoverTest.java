@@ -112,7 +112,7 @@ public class FailoverTest extends FailoverTestBase {
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test(timeout = 120000)
    public void testTimeoutOnFailover() throws Exception {
-      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
       if (nodeManager instanceof InVMNodeManager) {
          ((InVMNodeManager) nodeManager).failoverPause = 500L;
@@ -249,10 +249,10 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test(timeout = 120000)
    public void testTimeoutOnFailoverConsumeBlocked() throws Exception {
-      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setConsumerWindowSize(0).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setAckBatchSize(0);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setConsumerWindowSize(0).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setAckBatchSize(0).setRetryInterval(10);
 
       if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
+         ((InVMNodeManager) nodeManager).failoverPause = 200L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -344,7 +344,7 @@ public class FailoverTest extends FailoverTestBase {
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test(timeout = 120000)
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
-      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
       if (nodeManager instanceof InVMNodeManager) {
          ((InVMNodeManager) nodeManager).failoverPause = 2000L;
@@ -413,7 +413,7 @@ public class FailoverTest extends FailoverTestBase {
     */
    @Test(timeout = 120000)
    public void testTimeoutOnFailoverTransactionCommitTimeoutCommunication() throws Exception {
-      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(500);
+      locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(50);
 
       if (nodeManager instanceof InVMNodeManager) {
          ((InVMNodeManager) nodeManager).failoverPause = 2000L;
@@ -491,7 +491,7 @@ public class FailoverTest extends FailoverTestBase {
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test(timeout = 120000)
    public void testTimeoutOnFailoverTransactionRollback() throws Exception {
-      locator.setCallTimeout(2000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setCallTimeout(2000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
       if (nodeManager instanceof InVMNodeManager) {
          ((InVMNodeManager) nodeManager).failoverPause = 1000L;
@@ -546,7 +546,7 @@ public class FailoverTest extends FailoverTestBase {
     */
    @Test(timeout = 120000)
    public void testNonTransactedWithZeroConsumerWindowSize() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
       createClientSessionFactory();
 
@@ -661,7 +661,7 @@ public class FailoverTest extends FailoverTestBase {
       Assert.assertEquals(0, sf.numConnections());
    }
 
-   @Test(timeout = 10000)
+   @Test
    public void testFailLiveTooSoon() throws Exception {
       ServerLocator locator = getServerLocator();
 
