@@ -44,7 +44,8 @@ public class BackupAuthenticationTest extends FailoverTestBase {
    }
 
    @Test
-   public void testPasswordSetting() throws Exception {
+   public void testWrongPasswordSetting() throws Exception {
+      Wait.assertTrue(liveServer.getServer()::isActive);
       waitForServerToStart(liveServer.getServer());
       backupServer.start();
       assertTrue(latch.await(5, TimeUnit.SECONDS));
@@ -54,9 +55,8 @@ public class BackupAuthenticationTest extends FailoverTestBase {
        */
       Wait.waitFor(() -> !backupServer.isStarted());
       assertFalse("backup should have stopped", backupServer.isStarted());
-      backupConfig.setClusterPassword(CLUSTER_PASSWORD);
-      backupServer.start();
-      waitForRemoteBackup(null, 5, true, backupServer.getServer());
+      backupServer.stop();
+      liveServer.stop();
    }
 
    @Override

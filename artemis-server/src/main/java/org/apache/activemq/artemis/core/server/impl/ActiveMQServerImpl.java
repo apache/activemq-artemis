@@ -1059,7 +1059,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     */
    void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting, boolean isShutdown) {
 
-      logger.debug("Stopping server");
+      if (logger.isDebugEnabled()) {
+         logger.debug("Stopping server " + this);
+      }
 
       synchronized (this) {
          if (state == SERVER_STATE.STOPPED || state == SERVER_STATE.STOPPING) {
@@ -3899,7 +3901,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       public void run() {
          lockActivation();
          try {
-            runnable.run();
+            if (state != SERVER_STATE.STOPPED && state != SERVER_STATE.STOPPING) {
+               runnable.run();
+            }
          } finally {
             unlockActivation();
          }
