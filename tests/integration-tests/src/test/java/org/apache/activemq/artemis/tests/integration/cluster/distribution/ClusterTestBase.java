@@ -303,52 +303,56 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    private void logTopologyDiagram() {
-      StringBuffer topologyDiagram = new StringBuffer();
-      for (ActiveMQServer activeMQServer : servers) {
-         if (activeMQServer != null) {
-            topologyDiagram.append("\n").append(activeMQServer.getIdentity()).append("\n");
-            if (activeMQServer.isStarted()) {
-               Set<ClusterConnection> ccs = activeMQServer.getClusterManager().getClusterConnections();
+      try {
+         StringBuffer topologyDiagram = new StringBuffer();
+         for (ActiveMQServer activeMQServer : servers) {
+            if (activeMQServer != null) {
+               topologyDiagram.append("\n").append(activeMQServer.getIdentity()).append("\n");
+               if (activeMQServer.isStarted()) {
+                  Set<ClusterConnection> ccs = activeMQServer.getClusterManager().getClusterConnections();
 
-               if (ccs.size() >= 1) {
-                  ClusterConnectionImpl clusterConnection = (ClusterConnectionImpl) ccs.iterator().next();
-                  Collection<TopologyMemberImpl> members = clusterConnection.getTopology().getMembers();
-                  for (TopologyMemberImpl member : members) {
-                     String nodeId = member.getNodeId();
-                     String liveServer = null;
-                     String backupServer = null;
-                     for (ActiveMQServer server : servers) {
-                        if (server != null && server.getNodeID() != null && server.isActive() && server.getNodeID().toString().equals(nodeId)) {
-                           if (server.isActive()) {
-                              liveServer = server.getIdentity();
-                              if (member.getLive() != null) {
-                                 liveServer += "(notified)";
+                  if (ccs.size() >= 1) {
+                     ClusterConnectionImpl clusterConnection = (ClusterConnectionImpl) ccs.iterator().next();
+                     Collection<TopologyMemberImpl> members = clusterConnection.getTopology().getMembers();
+                     for (TopologyMemberImpl member : members) {
+                        String nodeId = member.getNodeId();
+                        String liveServer = null;
+                        String backupServer = null;
+                        for (ActiveMQServer server : servers) {
+                           if (server != null && server.getNodeID() != null && server.isActive() && server.getNodeID().toString().equals(nodeId)) {
+                              if (server.isActive()) {
+                                 liveServer = server.getIdentity();
+                                 if (member.getLive() != null) {
+                                    liveServer += "(notified)";
+                                 } else {
+                                    liveServer += "(not notified)";
+                                 }
                               } else {
-                                 liveServer += "(not notified)";
-                              }
-                           } else {
-                              backupServer = server.getIdentity();
-                              if (member.getBackup() != null) {
-                                 liveServer += "(notified)";
-                              } else {
-                                 liveServer += "(not notified)";
+                                 backupServer = server.getIdentity();
+                                 if (member.getBackup() != null) {
+                                    liveServer += "(notified)";
+                                 } else {
+                                    liveServer += "(not notified)";
+                                 }
                               }
                            }
                         }
-                     }
 
-                     topologyDiagram.append("\t").append("|\n").append("\t->").append(liveServer).append("/").append(backupServer).append("\n");
+                        topologyDiagram.append("\t").append("|\n").append("\t->").append(liveServer).append("/").append(backupServer).append("\n");
+                     }
+                  } else {
+                     topologyDiagram.append("-> no cluster connections\n");
                   }
                } else {
-                  topologyDiagram.append("-> no cluster connections\n");
+                  topologyDiagram.append("-> stopped\n");
                }
-            } else {
-               topologyDiagram.append("-> stopped\n");
             }
          }
+         topologyDiagram.append("\n");
+         log.info(topologyDiagram.toString());
+      } catch (Throwable e) {
+         log.warn("error printing the topology::" + e.getMessage(), e);
       }
-      topologyDiagram.append("\n");
-      log.info(topologyDiagram.toString());
    }
 
    protected void waitForMessages(final int node, final String address, final int count) throws Exception {

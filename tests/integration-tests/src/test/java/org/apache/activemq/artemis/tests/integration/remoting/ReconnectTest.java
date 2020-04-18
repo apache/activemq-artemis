@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -383,14 +384,14 @@ public class ReconnectTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(true, true);
       server.start();
 
+      final AtomicBoolean consumerClosed = new AtomicBoolean(false);
       // imitate consumer close timeout
       Interceptor reattachInterceptor = new Interceptor() {
-         boolean consumerClosed;
 
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            if (!consumerClosed && packet.getType() == PacketImpl.SESS_CONSUMER_CLOSE) {
-               consumerClosed = true;
+            if (!consumerClosed.get() && packet.getType() == PacketImpl.SESS_CONSUMER_CLOSE) {
+               consumerClosed.set(true);
                return false;
             } else {
                return true;
@@ -403,7 +404,7 @@ public class ReconnectTest extends ActiveMQTestBase {
       final long retryInterval = 500;
       final double retryMultiplier = 1d;
       final int reconnectAttempts = 10;
-      ServerLocator locator = createFactory(true).setCallTimeout(2000).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(-1);
+      ServerLocator locator = createFactory(true).setCallTimeout(200).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(-1);
       ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
       ClientSessionInternal session = (ClientSessionInternal)sf.createSession(false, true, true);
@@ -415,6 +416,8 @@ public class ReconnectTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer1 = session.createConsumer(queueName1);
       ClientConsumer clientConsumer2 = session.createConsumer(queueName1);
       clientConsumer1.close();
+
+      Wait.assertTrue(consumerClosed::get);
 
       Wait.assertEquals(1, () -> getConsumerCount(server, session));
 
