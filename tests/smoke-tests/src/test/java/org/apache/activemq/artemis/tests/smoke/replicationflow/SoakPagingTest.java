@@ -30,16 +30,21 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class SoakPagingTest extends SmokeTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(1);
 
    public static final int LAG_CONSUMER_TIME = 1000;
    public static final int TIME_RUNNING = 4000;

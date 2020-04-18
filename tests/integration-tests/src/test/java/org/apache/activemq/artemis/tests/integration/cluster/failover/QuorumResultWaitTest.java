@@ -20,9 +20,15 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.utils.RetryMethod;
+import org.apache.activemq.artemis.utils.RetryRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class QuorumResultWaitTest extends StaticClusterWithBackupFailoverTest {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(0);
 
    public static final int QUORUM_VOTE_WAIT_CONFIGURED_TIME_SEC = 12;
    @Override
@@ -41,6 +47,7 @@ public class QuorumResultWaitTest extends StaticClusterWithBackupFailoverTest {
       servers[3].getConfiguration().setHAPolicyConfiguration(replicatedPolicyConf);
    }
 
+   @RetryMethod(retries = 2)
    @Test
    public void testQuorumVotingResultWait() throws Exception {
       setupCluster();

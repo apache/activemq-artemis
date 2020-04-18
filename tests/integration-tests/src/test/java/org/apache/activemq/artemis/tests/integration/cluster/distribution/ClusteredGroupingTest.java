@@ -50,9 +50,14 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.RetryRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class ClusteredGroupingTest extends ClusterTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    @Test
    public void testGroupingGroupTimeoutWithUnproposal() throws Exception {

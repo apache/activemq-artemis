@@ -32,15 +32,22 @@ import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.utils.RetryMethod;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class ReplicatedMultipleServerFailoverExtraBackupsTest extends ReplicatedMultipleServerFailoverTest {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule();
 
    private void waitForSync(ActiveMQServer server) throws Exception {
       Wait.waitFor(server::isReplicaSync);
    }
 
+   @RetryMethod(retries = 1)
    @Override
    @Test
    public void testStartLiveFirst() throws Exception {

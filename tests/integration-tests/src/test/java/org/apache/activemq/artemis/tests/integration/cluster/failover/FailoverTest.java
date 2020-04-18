@@ -64,12 +64,17 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class FailoverTest extends FailoverTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 

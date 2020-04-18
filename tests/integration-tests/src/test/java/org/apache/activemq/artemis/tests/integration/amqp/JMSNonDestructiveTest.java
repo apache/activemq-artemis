@@ -283,7 +283,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
    }
 
    public void testNonDestructiveLVQTombstone(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
-      int tombstoneTimeToLive = 50;
+      int tombstoneTimeToLive = 500;
 
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME));
       LastValueQueue lastValueQueue = (LastValueQueue)queueBinding.getQueue();
