@@ -29,9 +29,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.After;
+import org.junit.Rule;
 
 public abstract class BridgeTestBase extends ActiveMQTestBase {
+
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    @Override
    @After

@@ -74,6 +74,8 @@
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
+      <retryTests>false</retryTests>
+
       <activemq-artemis-native-version>1.0.1</activemq-artemis-native-version>
       <karaf.version>4.0.6</karaf.version>
       <pax.exam.version>4.9.1</pax.exam.version>
@@ -172,7 +174,7 @@
 
       -->
 
-      <activemq-surefire-argline>-Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager
+      <activemq-surefire-argline>-Dorg.apache.activemq.artemis.utils.RetryRule.retry=${retryTests} -Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
          -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
@@ -1013,6 +1015,13 @@
                </plugin>
             </plugins>
          </build>
+      </profile>
+      <profile>
+         <!-- this will activate the property required to play with tests retry -->
+         <id>tests-retry</id>
+         <properties>
+            <retryTests>true</retryTests>
+         </properties>
       </profile>
       <profile>
          <!-- tests is the profile we use to run the entire testsuite
