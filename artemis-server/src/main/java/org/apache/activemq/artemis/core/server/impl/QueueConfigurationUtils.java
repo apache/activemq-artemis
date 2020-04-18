@@ -38,8 +38,8 @@ public class QueueConfigurationUtils {
       config.setPurgeOnNoConsumers(config.isPurgeOnNoConsumers() == null ? as.isDefaultPurgeOnNoConsumers() : config.isPurgeOnNoConsumers());
       config.setAutoCreateAddress(config.isAutoCreateAddress() == null ? as.isAutoCreateAddresses() : config.isAutoCreateAddress());
 
-      // only set the default auto-delete on auto-created queues
-      config.setAutoDelete(config.isAutoDelete() == null ? config.isAutoCreated() && as.isAutoDeleteQueues() : config.isAutoDelete());
+      // set the default auto-delete
+      config.setAutoDelete(config.isAutoDelete() == null ? (config.isAutoCreated() && as.isAutoDeleteQueues()) || (!config.isAutoCreated() && as.isAutoDeleteCreatedQueues()) : config.isAutoDelete());
 
       config.setAutoDeleteDelay(config.getAutoDeleteDelay() == null ? as.getAutoDeleteQueuesDelay() : config.getAutoDeleteDelay());
       config.setAutoDeleteMessageCount(config.getAutoDeleteMessageCount() == null ? as.getAutoDeleteQueuesMessageCount() : config.getAutoDeleteMessageCount());
