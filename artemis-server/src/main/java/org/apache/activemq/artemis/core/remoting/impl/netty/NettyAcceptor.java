@@ -506,8 +506,14 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    @Override
    public void reload() {
-      serverChannelGroup.disconnect();
+      ChannelGroupFuture future = serverChannelGroup.disconnect();
+      try {
+         future.awaitUninterruptibly();
+      } catch (Exception ignored) {
+      }
+
       serverChannelGroup.clear();
+
       startServerChannels();
    }
 

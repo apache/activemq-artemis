@@ -332,15 +332,15 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
                   while (true) {
 
-                     ClientMessage msg = consumer.receiveImmediate();
-                     if (msg == null) {
+                     if (received.incrementAndGet() > NUMBER_OF_MESSAGES) {
+                        received.decrementAndGet();
                         break;
                      }
+                     ClientMessage msg = consumer.receive(1000);
                      msg.acknowledge();
 
                      session.commit();
 
-                     received.incrementAndGet();
 
                   }
 
