@@ -910,6 +910,11 @@ public class ArtemisTest extends CliTestBase {
 
 
    @Test
+   public void testCustomPort() throws Exception {
+      testSimpleRun("server", 61696);
+   }
+
+   @Test
    public void testPerfJournal() throws Exception {
       File instanceFolder = temporaryFolder.newFolder("server1");
       setupAuth(instanceFolder);
@@ -924,6 +929,10 @@ public class ArtemisTest extends CliTestBase {
 
 
    public void testSimpleRun(String folderName) throws Exception {
+      testSimpleRun(folderName, 61616);
+   }
+
+   public void testSimpleRun(String folderName, int acceptorPort) throws Exception {
       File instanceFolder = temporaryFolder.newFolder(folderName);
 
       setupAuth(instanceFolder);
@@ -933,7 +942,7 @@ public class ArtemisTest extends CliTestBase {
 
       // This is usually set when run from the command line via artemis.profile
       Run.setEmbedded(true);
-      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--addresses", addresses, "--no-autotune", "--require-login");
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--addresses", addresses, "--no-autotune", "--require-login", "--default-port", Integer.toString(acceptorPort));
       System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
 
 
@@ -941,7 +950,7 @@ public class ArtemisTest extends CliTestBase {
          // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
          Artemis.internalExecute("run");
 
-         try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
+         try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:" + acceptorPort);
               ClientSessionFactory factory = locator.createSessionFactory();
               ClientSession coreSession = factory.createSession("admin", "admin", false, true, true, false, 0)) {
             for (String str : queues.split(",")) {
@@ -973,7 +982,7 @@ public class ArtemisTest extends CliTestBase {
          assertEquals(Integer.valueOf(10), Artemis.internalExecute("producer", "--destination", "queue://q1", "--message", "message", "--message-count", "10", "--user", "admin", "--password", "admin"));
          assertEquals(Integer.valueOf(10), Artemis.internalExecute("consumer", "--destination", "queue://q1", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
 
-         ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
+         ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:" + acceptorPort);
          Connection connection = cf.createConnection("admin", "admin");
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
          MessageProducer producer = session.createProducer(ActiveMQDestination.createDestination("queue://q1", ActiveMQDestination.TYPE.QUEUE));
