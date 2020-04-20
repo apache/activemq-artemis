@@ -169,18 +169,24 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    }
 
    @Override
-   public synchronized void addBytes(final byte[] bytes) throws Exception {
-      largeBody.addBytes(bytes);
+   public void addBytes(final byte[] bytes) throws Exception {
+      synchronized (largeBody) {
+         largeBody.addBytes(bytes);
+      }
    }
 
    @Override
-   public synchronized void addBytes(final ActiveMQBuffer bytes) throws Exception {
-      largeBody.addBytes(bytes);
+   public void addBytes(final ActiveMQBuffer bytes) throws Exception {
+      synchronized (largeBody) {
+         largeBody.addBytes(bytes);
+      }
    }
 
    @Override
-   public synchronized int getEncodeSize() {
-      return getHeadersAndPropertiesEncodeSize();
+   public int getEncodeSize() {
+      synchronized (largeBody) {
+         return getHeadersAndPropertiesEncodeSize();
+      }
    }
 
    public void encode(final ActiveMQBuffer buffer1) {
@@ -223,23 +229,29 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    }
 
    @Override
-   public synchronized void deleteFile() throws Exception {
-      largeBody.deleteFile();
-   }
-
-   @Override
-   public synchronized int getMemoryEstimate() {
-      if (memoryEstimate == -1) {
-         // The body won't be on memory (aways on-file), so we don't consider this for paging
-         memoryEstimate = getHeadersAndPropertiesEncodeSize() + DataConstants.SIZE_INT + getEncodeSize() + (16 + 4) * 2 + 1;
+   public void deleteFile() throws Exception {
+      synchronized (largeBody) {
+         largeBody.deleteFile();
       }
-
-      return memoryEstimate;
    }
 
    @Override
-   public synchronized void releaseResources(boolean sync) {
-      largeBody.releaseResources(sync);
+   public int getMemoryEstimate() {
+      synchronized (largeBody) {
+         if (memoryEstimate == -1) {
+            // The body won't be on memory (aways on-file), so we don't consider this for paging
+            memoryEstimate = getHeadersAndPropertiesEncodeSize() + DataConstants.SIZE_INT + getEncodeSize() + (16 + 4) * 2 + 1;
+         }
+
+         return memoryEstimate;
+      }
+   }
+
+   @Override
+   public void releaseResources(boolean sync) {
+      synchronized (largeBody) {
+         largeBody.releaseResources(sync);
+      }
    }
 
    @Override
@@ -310,12 +322,14 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    }
 
    @Override
-   public synchronized void validateFile() throws ActiveMQException {
+   public void validateFile() throws ActiveMQException {
       this.ensureFileExists(true);
    }
 
-   public synchronized void ensureFileExists(boolean toOpen) throws ActiveMQException {
-      largeBody.ensureFileExists(toOpen);
+   public void ensureFileExists(boolean toOpen) throws ActiveMQException {
+      synchronized (largeBody) {
+         largeBody.ensureFileExists(toOpen);
+      }
    }
 
 
