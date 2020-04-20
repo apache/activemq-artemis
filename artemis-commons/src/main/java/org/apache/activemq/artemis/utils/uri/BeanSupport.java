@@ -108,6 +108,9 @@ public class BeanSupport {
                               Set<String> allowableProperties,
                               Map<String, String> query,
                               Map<String, Object> extraProps) {
+      if (allowableProperties.contains("scheme")) {
+         properties.put("scheme", "" + uri.getScheme());
+      }
       if (allowableProperties.contains("host")) {
          properties.put("host", "" + uri.getHost());
       }

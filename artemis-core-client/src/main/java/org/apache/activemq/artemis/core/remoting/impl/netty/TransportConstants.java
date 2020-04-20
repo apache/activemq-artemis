@@ -79,6 +79,8 @@ public class TransportConstants {
 
    public static final String PROTOCOLS_PROP_NAME = "protocols";
 
+   public static final String SCHEME_PROP_NAME = "scheme";
+
    public static final String HOST_PROP_NAME = "host";
 
    public static final String PORT_PROP_NAME = "port";
@@ -362,6 +364,7 @@ public class TransportConstants {
       //noinspection deprecation
       allowableAcceptorKeys.add(TransportConstants.PROTOCOL_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.PROTOCOLS_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.SCHEME_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HOST_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.PORT_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME);
