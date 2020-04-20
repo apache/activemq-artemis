@@ -141,10 +141,12 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       internalReleaseBuffer(2);
    }
 
-   private synchronized void internalReleaseBuffer(int releases) {
-      for (int i = 0; i < releases; i++) {
-         if (temporaryBuffer != null && temporaryBuffer.release()) {
-            temporaryBuffer = null;
+   private void internalReleaseBuffer(int releases) {
+      synchronized (largeBody) {
+         for (int i = 0; i < releases; i++) {
+            if (temporaryBuffer != null && temporaryBuffer.release()) {
+               temporaryBuffer = null;
+            }
          }
       }
    }
@@ -154,12 +156,14 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       return temporaryBuffer;
    }
 
-   public synchronized ByteBuf getSavedEncodeBuffer() {
-      if (temporaryBuffer == null) {
-         temporaryBuffer = PooledByteBufAllocator.DEFAULT.buffer(getEstimateSavedEncode());
-         saveEncoding(temporaryBuffer);
+   public ByteBuf getSavedEncodeBuffer() {
+      synchronized (largeBody) {
+         if (temporaryBuffer == null) {
+            temporaryBuffer = PooledByteBufAllocator.DEFAULT.buffer(getEstimateSavedEncode());
+            saveEncoding(temporaryBuffer);
+         }
+         return temporaryBuffer.retain(1);
       }
-      return temporaryBuffer.retain(1);
    }
 
    @Override
