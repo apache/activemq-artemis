@@ -29,11 +29,17 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.utils.RetryMethod;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(0);
 
    @Override
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
@@ -57,6 +63,20 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
    @Test
    public void testFailWithBrowserWithDelete() throws Exception {
       internalBrowser(2);
+   }
+
+   @Override
+   @RetryMethod(retries = 2)
+   @Test(timeout = 120000)
+   public void testReplicatedFailback() throws Exception {
+      super.testReplicatedFailback();
+   }
+
+   @Override
+   @RetryMethod(retries = 2)
+   @Test(timeout = 120000)
+   public void testFailoverOnInitialConnection() throws Exception {
+      super.testFailoverOnInitialConnection();
    }
 
    //

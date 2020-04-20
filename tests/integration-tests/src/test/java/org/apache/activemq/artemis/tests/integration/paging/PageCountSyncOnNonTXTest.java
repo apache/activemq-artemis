@@ -32,13 +32,18 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(1);
 
    public static final String WORD_START = "&*STARTED&*";
 

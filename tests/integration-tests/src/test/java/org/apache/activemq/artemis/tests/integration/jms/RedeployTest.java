@@ -492,14 +492,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
-
-      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(latch::countDown);
 
       try {
          ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://0.0.0.0:61616");
@@ -514,8 +507,8 @@ public class RedeployTest extends ActiveMQTestBase {
          Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
          brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
          latch.setCount(1);
-         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
-         latch.await(10, TimeUnit.SECONDS);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(latch::countDown);
+         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
 
          Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "myAddress"));
          Assert.assertEquals(RoutingType.MULTICAST, getQueue(embeddedActiveMQ, "myQueue").getRoutingType());
