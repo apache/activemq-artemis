@@ -304,7 +304,9 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
          if (ids.size() > 0 && persist) {
             long tx = storageManager.generateID();
             for (Pair<ByteArrayHolder, Long> id : ids) {
-               storageManager.deleteDuplicateIDTransactional(tx, id.getB());
+               if (id != null) {
+                  storageManager.deleteDuplicateIDTransactional(tx, id.getB());
+               }
             }
             storageManager.commit(tx);
          }

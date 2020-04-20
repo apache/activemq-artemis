@@ -55,8 +55,10 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.AbstractStompCli
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -65,6 +67,9 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
    @Parameterized.Parameter
    public String scheme;
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    protected URI uri;
 

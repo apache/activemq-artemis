@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -40,6 +41,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfigur
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.core.server.impl.jdbc.JdbcNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
@@ -56,21 +58,47 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class NettyFailoverTest extends FailoverTest {
+public class FileLockNodeManagerTest extends FailoverTestBase {
 
    public enum NodeManagerType {
-      InVM, Jdbc
+      InVM, Jdbc, File
    }
 
-   @Parameterized.Parameters(name = "{0} Node Manager")
+   protected ClientSession createSession(ClientSessionFactory sf1,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks,
+                                         int ackBatchSize) throws Exception {
+      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks, ackBatchSize));
+   }
+
+   protected ClientSession createSession(ClientSessionFactory sf1,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks) throws Exception {
+      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks));
+   }
+
+   protected ClientSession createSession(ClientSessionFactory sf1) throws Exception {
+      return addClientSession(sf1.createSession());
+   }
+
+   protected ClientSession createSession(ClientSessionFactory sf1,
+                                         boolean xa,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks) throws Exception {
+      return addClientSession(sf1.createSession(xa, autoCommitSends, autoCommitAcks));
+   }
+
+   @Parameterized.Parameters(name = "{0} Node Manager, Use Separate Lock Folder = {1}")
    public static Iterable<? extends Object> nodeManagerTypes() {
       return Arrays.asList(new Object[][]{
-         {NodeManagerType.Jdbc},
-         {NodeManagerType.InVM}});
+         {NodeManagerType.File, false},
+         {NodeManagerType.File, true}});
    }
 
    @Parameterized.Parameter(0)
    public NodeManagerType nodeManagerType;
+   @Parameterized.Parameter(1)
+   public boolean useSeparateLockFolder;
 
    @Override
    protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
@@ -94,6 +122,9 @@ public class NettyFailoverTest extends FailoverTest {
    @Override
    protected Configuration createDefaultInVMConfig() throws Exception {
       final Configuration config = super.createDefaultInVMConfig();
+      if (useSeparateLockFolder) {
+         config.setNodeManagerLockDirectory(getTestDir() + "/nm_lock");
+      }
       return config;
    }
 
@@ -120,6 +151,13 @@ public class NettyFailoverTest extends FailoverTest {
                code.printStackTrace();
                Assert.fail(message);
             });
+         case File:
+            final Configuration config = createDefaultInVMConfig();
+            if (useSeparateLockFolder) {
+               config.getNodeManagerLockLocation().mkdirs();
+            }
+            return new FileLockNodeManager(config.getNodeManagerLockLocation(), false);
+
          default:
             throw new AssertionError("enum type not supported!");
       }
@@ -131,7 +169,7 @@ public class NettyFailoverTest extends FailoverTest {
       final boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
       NodeManager nodeManager = this.nodeManager;
       //create a separate NodeManager for the backup
-      if (isBackup && (nodeManagerType == NodeManagerType.Jdbc)) {
+      if (isBackup && (nodeManagerType == NodeManagerType.Jdbc || nodeManagerType == NodeManagerType.File)) {
          nodeManager = createNodeManager();
       }
       return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
@@ -150,12 +188,12 @@ public class NettyFailoverTest extends FailoverTest {
    }
 
    @Test(timeout = 120000)
-   public void testFailoverWithHostAlias() throws Exception {
+   public void testSimpleFailover() throws Exception {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, "127.0.0.1");
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
 
-      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc)).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(15);
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc)).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(150).setRetryInterval(10);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
