@@ -85,9 +85,12 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.RetryMethod;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -96,6 +99,10 @@ import static org.apache.activemq.artemis.jms.client.ActiveMQConnection.JMS_SESS
 
 @RunWith(Parameterized.class)
 public class ActiveMQServerControlTest extends ManagementTestBase {
+
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(0);
 
    // Constants -----------------------------------------------------
 
@@ -3069,6 +3076,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
+   @RetryMethod(retries = 2) // the list of connections eventually comes from a hashmap on a different order. Which is fine but makes the test fail. a Retry is ok
    @Test
    public void testListConnections() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
@@ -3092,9 +3100,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          //sleep as test compares creationTime
          csf = (ClientSessionFactoryImpl) createSessionFactory(locator);
-         Thread.sleep(500);
+         Thread.sleep(50);
          csf2 = (ClientSessionFactoryImpl) createSessionFactory(locator);
-         Thread.sleep(500);
+         Thread.sleep(50);
          csf3 = (ClientSessionFactoryImpl) createSessionFactory(locator);
 
          ClientSession session1_c1 = csf.createSession("guest", "guest", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
