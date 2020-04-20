@@ -38,10 +38,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.hadoop.minikdc.MiniKdc;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
@@ -53,6 +55,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    public static final SimpleString QUEUE = new SimpleString("QueueOverKrb5SSL");
    public static final String CLIENT_PRINCIPAL = "client";
