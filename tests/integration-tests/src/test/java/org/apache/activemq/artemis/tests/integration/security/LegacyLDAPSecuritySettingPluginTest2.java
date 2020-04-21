@@ -45,7 +45,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -159,8 +158,6 @@ public class LegacyLDAPSecuritySettingPluginTest2 extends AbstractLdapTestUnit {
 
    @Test
    public void testBasicPluginAuthorization() throws Exception {
-      org.jboss.logmanager.Logger.getLogger(LDAPLoginModule.class.getName()).setLevel(org.jboss.logmanager.Level.DEBUG);
-      org.jboss.logmanager.Logger.getLogger(LegacyLDAPSecuritySettingPlugin.class.getName()).setLevel(org.jboss.logmanager.Level.DEBUG);
       server.start();
       ClientSessionFactory cf = locator.createSessionFactory();
       String name = "TEST.FOO";
