@@ -36,7 +36,9 @@ import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -44,6 +46,11 @@ import org.junit.Test;
  */
 public class FederatedQueueTest extends FederatedTestBase {
 
+
+   // I could not make this test to fail locally even after many retries
+   // however I have seen eventually failures on the CI
+   @Rule
+   public RetryRule retryRule = new RetryRule(1);
 
    @Override
    @Before
@@ -114,10 +121,10 @@ public class FederatedQueueTest extends FederatedTestBase {
          Queue queue0 = session0.createQueue(queueName);
          Queue queue1 = session1.createQueue(queueName);
 
-         MessageConsumer consumer0 = session0.createConsumer(queue0);
          MessageConsumer consumer1 = session1.createConsumer(queue1);
+         Wait.waitFor(() -> getConsumerCount(getServer(1), queueName, 1));
 
-
+         MessageConsumer consumer0 = session0.createConsumer(queue0);
          Wait.waitFor(() -> getConsumerCount(getServer(1), queueName, 2));
 
          MessageProducer producer1 = session1.createProducer(queue1);
