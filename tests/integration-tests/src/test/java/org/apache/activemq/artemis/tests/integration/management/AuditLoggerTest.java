@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -53,6 +54,9 @@ import java.util.HashSet;
 import java.util.UUID;
 import java.util.logging.LogManager;
 
+// https://issues.apache.org/jira/browse/ARTEMIS-2730 this test needs to be moved as a SmokeTest
+// as it's messing up with logging configurations
+@Ignore
 public class AuditLoggerTest extends ManagementTestBase {
 
    private static final File auditLog = new File("target/audit.log");
