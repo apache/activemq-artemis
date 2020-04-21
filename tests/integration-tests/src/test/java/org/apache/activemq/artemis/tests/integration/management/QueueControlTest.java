@@ -301,8 +301,6 @@ public class QueueControlTest extends ManagementTestBase {
       ClientConsumer consumer = session.createConsumer(queue);
       Wait.assertEquals(1, () -> queueControl.getConsumerCount());
 
-      System.out.println("Consumers: " + queueControl.listConsumersAsJSON());
-
       JsonArray obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
 
       assertEquals(1, obj.size());
@@ -355,15 +353,11 @@ public class QueueControlTest extends ManagementTestBase {
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false).putStringProperty("x", "valueX").putStringProperty("y", "valueY"));
 
-      System.out.println("first:" + queueControl.getFirstMessageAsJSON());
-
       long firstMessageTimestamp = queueControl.getFirstMessageTimestamp();
-      System.out.println("first message timestamp: " + firstMessageTimestamp);
       assertTrue(beforeSend <= firstMessageTimestamp);
       assertTrue(firstMessageTimestamp <= System.currentTimeMillis());
 
       long firstMessageAge = queueControl.getFirstMessageAge();
-      System.out.println("first message age: " + firstMessageAge);
       assertTrue(firstMessageAge <= (System.currentTimeMillis() - firstMessageTimestamp));
 
       session.deleteQueue(queue);
@@ -670,8 +664,6 @@ public class QueueControlTest extends ManagementTestBase {
       assertEquals(2, srvqueue.getDeliveringCount());
       assertEquals(2, srvqueue.getConsumerCount());
 
-      System.out.println(queueControl.listDeliveringMessagesAsJSON());
-
       Map<String, Map<String, Object>[]> deliveringMap = queueControl.listDeliveringMessages();
       assertEquals(2, deliveringMap.size());
 
@@ -709,8 +701,6 @@ public class QueueControlTest extends ManagementTestBase {
       msgRec.acknowledge();
       consumer.close();
       assertEquals(1, srvqueue.getDeliveringCount());
-
-      System.out.println(queueControl.listDeliveringMessagesAsJSON());
 
       Map<String, Map<String, Object>[]> deliveringMap = queueControl.listDeliveringMessages();
       assertEquals(1, deliveringMap.size());
@@ -3034,13 +3024,11 @@ public class QueueControlTest extends ManagementTestBase {
 
       Notification notif = listener.getNotification();
 
-      System.out.println("got notif: " + notif);
       assertEquals(CoreNotificationType.BINDING_ADDED.toString(), notif.getType());
 
       this.server.destroyQueue(testQueueName);
 
       notif = listener.getNotification();
-      System.out.println("got notif: " + notif);
       assertEquals(CoreNotificationType.BINDING_REMOVED.toString(), notif.getType());
 
       ActiveMQServerControl control = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
@@ -3048,13 +3036,11 @@ public class QueueControlTest extends ManagementTestBase {
       control.createQueue(new QueueConfiguration(testQueueName2).setRoutingType(RoutingType.MULTICAST).toJSON());
 
       notif = listener.getNotification();
-      System.out.println("got notif: " + notif);
       assertEquals(CoreNotificationType.BINDING_ADDED.toString(), notif.getType());
 
       control.destroyQueue(testQueueName2);
 
       notif = listener.getNotification();
-      System.out.println("got notif: " + notif);
       assertEquals(CoreNotificationType.BINDING_REMOVED.toString(), notif.getType());
    }
 
@@ -3145,7 +3131,7 @@ public class QueueControlTest extends ManagementTestBase {
       consumer.setMessageHandler(new MessageHandler() {
          @Override
          public void onMessage(ClientMessage message) {
-            System.out.println(message);
+            instanceLog.debug(message);
          }
       });
       session.start();

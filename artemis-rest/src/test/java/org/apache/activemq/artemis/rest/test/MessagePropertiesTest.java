@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.rest.HttpHeaderProperty;
 import org.apache.activemq.artemis.rest.queue.QueueDeployment;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -38,7 +39,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
 public class MessagePropertiesTest extends MessageTestBase {
-
+   private static final Logger log = Logger.getLogger(MessagePropertiesTest.class);
 
    public static class Listener implements MessageHandler {
 
@@ -76,7 +77,7 @@ public class MessagePropertiesTest extends MessageTestBase {
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
          Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-         System.out.println("create: " + sender);
+         log.debug("create: " + sender);
 
          {
             response = sender.request().body("text/plain", "val")

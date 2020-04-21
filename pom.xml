@@ -75,6 +75,7 @@
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
       <retryTests>false</retryTests>
+      <logging.config>logging.properties</logging.config>
 
       <activemq-artemis-native-version>1.0.1</activemq-artemis-native-version>
       <karaf.version>4.0.6</karaf.version>
@@ -175,7 +176,7 @@
       -->
 
       <activemq-surefire-argline>-Dorg.apache.activemq.artemis.utils.RetryRule.retry=${retryTests} -Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager
-         -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
+         -Dlogging.configuration="file:${activemq.basedir}/tests/config/${logging.config}"
          -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
       </activemq-surefire-argline>
@@ -1021,6 +1022,14 @@
          <id>tests-retry</id>
          <properties>
             <retryTests>true</retryTests>
+         </properties>
+      </profile>
+      <profile>
+         <!-- this will activate the property required to limit logging on the testsuite -->
+         <id>tests-CI</id>
+         <properties>
+            <!-- notice I did not intend to use retryTests on this profile, as this will be optional depending on where you run the tests -->
+            <logging.config>logging-CI.properties</logging.config>
          </properties>
       </profile>
       <profile>

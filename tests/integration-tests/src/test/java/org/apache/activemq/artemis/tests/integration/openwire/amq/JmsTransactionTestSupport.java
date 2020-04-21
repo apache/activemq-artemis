@@ -122,15 +122,12 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
       TextMessage message = session.createTextMessage("Batch Message");
       for (int j = 0; j < batchCount; j++) {
-         System.out.println("Producing bacth " + j + " of " + batchSize + " messages");
-
          beginTx();
          for (int i = 0; i < batchSize; i++) {
             producer.send(message);
          }
          messageSent();
          commitTx();
-         System.out.println("Consuming bacth " + j + " of " + batchSize + " messages");
 
          beginTx();
          for (int i = 0; i < batchSize; i++) {
@@ -139,7 +136,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
             assertEquals("Batch Message", message.getText());
          }
 
-         System.out.println("commit batch " + j);
          commitTx();
       }
    }
@@ -175,16 +171,12 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       // receives the first message
       beginTx();
       ArrayList<Message> messages = new ArrayList<>();
-      System.out.println("About to consume message 1");
       Message message = consumer.receive(1000);
       messages.add(message);
-      System.out.println("Received: " + ((TextMessage) message).getText());
 
       // receives the second message
-      System.out.println("About to consume message 2");
       message = consumer.receive(4000);
       messages.add(message);
-      System.out.println("Received: " + ((TextMessage) message).getText());
 
       // validates that the rollbacked was not consumed
       commitTx();
@@ -212,10 +204,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       // receives the first message
       beginTx();
       ArrayList<Message> messages = new ArrayList<>();
-      System.out.println("About to consume message 1");
       Message message = consumer.receive(1000);
       messages.add(message);
-      System.out.println("Received: " + message);
 
       // validates that the rollbacked was not consumed
       commitTx();
@@ -254,17 +244,13 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
       // receives the first message
       ArrayList<Message> messages = new ArrayList<>();
-      System.out.println("About to consume message 1");
       beginTx();
       Message message = consumer.receive(1000);
       messages.add(message);
-      System.out.println("Received: " + message);
 
       // receives the second message
-      System.out.println("About to consume message 2");
       message = consumer.receive(4000);
       messages.add(message);
-      System.out.println("Received: " + message);
 
       // validates that the rollbacked was not consumed
       commitTx();
@@ -303,17 +289,13 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
       // receives the first message
       ArrayList<Message> messages = new ArrayList<>();
-      System.out.println("About to consume message 1");
       beginTx();
       Message message = consumer.receive(1000);
       messages.add(message);
-      System.out.println("Received: " + message);
 
       // receives the second message
-      System.out.println("About to consume message 2");
       message = consumer.receive(4000);
       messages.add(message);
-      System.out.println("Received: " + message);
 
       // validates that the rollbacked was not consumed
       commitTx();
@@ -344,8 +326,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       producer.send(outbound[1]);
       commitTx();
 
-      System.out.println("Sent 0: " + outbound[0]);
-      System.out.println("Sent 1: " + outbound[1]);
 
       ArrayList<Message> messages = new ArrayList<>();
       beginTx();
@@ -396,9 +376,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       producer.send(outbound[1]);
       commitTx();
 
-      System.out.println("Sent 0: " + outbound[0]);
-      System.out.println("Sent 1: " + outbound[1]);
-
       ArrayList<Message> messages = new ArrayList<>();
       beginTx();
       TextMessage message = (TextMessage) consumer.receive(1000);
@@ -418,12 +395,10 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       beginTx();
       message = (TextMessage) consumer.receive(5000);
       assertNotNull("Should have re-received the first message again!", message);
-      System.out.println("received1: " + message.getText());
       messages.add(message);
       assertEquals(outbound[0], message);
       message = (TextMessage) consumer.receive(5000);
       assertNotNull("Should have re-received the second message again!", message);
-      System.out.println("received2: " + message.getText());
       messages.add(message);
       assertEquals(outbound[1], message);
 
@@ -457,10 +432,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       // receives the first message
       beginTx();
       for (int i = 0; i < outbound.length; i++) {
-         System.out.println("About to consume message 1");
          Message message = consumer.receive(1000);
          assertNotNull(message);
-         System.out.println("Received: " + message);
       }
 
       // validates that the rollbacked was not consumed
@@ -526,8 +499,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       producer.send(outbound[0]);
       producer.send(outbound[1]);
       commitTx();
-      System.out.println("Sent 0: " + outbound[0]);
-      System.out.println("Sent 1: " + outbound[1]);
 
       beginTx();
       TextMessage message = (TextMessage) consumer.receive(1000);
@@ -540,7 +511,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
       // Create a new consumer
       consumer = resourceProvider.createConsumer(session, destination);
-      System.out.println("Created consumer: " + consumer);
 
       beginTx();
       message = (TextMessage) consumer.receive(1000);
@@ -559,7 +529,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       producer.send(outbound);
       commitTx();
 
-      System.out.println("About to consume message 1");
       beginTx();
       Message message = consumer.receive(5000);
 
@@ -592,7 +561,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       assertTrue("Should be an object message but was: " + message, message instanceof ObjectMessage);
       ObjectMessage objectMessage = (ObjectMessage) message;
       List<String> body = (List<String>) objectMessage.getObject();
-      System.out.println("Received body: " + body);
 
       assertEquals("Size of list should be 1", 1, body.size());
       assertEquals("element 0 of list", "First", body.get(0));

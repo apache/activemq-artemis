@@ -23,12 +23,15 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.jboss.logging.Logger;
 
 public class Outgoing implements Interceptor {
 
+   private static final Logger log = Logger.getLogger(Outgoing.class);
+
    @Override
    public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-      System.out.println("Outgoin:Packet : " + packet);
+      log.debug("Outgoin:Packet : " + packet);
       if (packet.getType() == PacketImpl.SESS_SEND) {
          SessionSendMessage p = (SessionSendMessage) packet;
 

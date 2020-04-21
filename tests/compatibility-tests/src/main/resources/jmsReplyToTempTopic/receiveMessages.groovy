@@ -41,11 +41,9 @@ connection.start()
 for (int i = 0; i < 5; i++) {
     Message message = queueConsumer.receive(5000);
     GroovyRun.assertNotNull(message)
-    System.out.println("Received " + message + " from: " + myQueue);
 
     GroovyRun.assertEquals("myQueue", ((Queue)message.getJMSDestination()).getQueueName());
 
-    System.out.println("Sending message to: " + message.getJMSReplyTo());
     MessageProducer producer = session.createProducer(message.getJMSReplyTo());
     message = session.createMessage();
     producer.send(message);

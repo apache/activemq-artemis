@@ -29,15 +29,15 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class SessionStopStartTest extends ActiveMQTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(SessionStopStartTest.class);
 
    private ActiveMQServer server;
 
@@ -210,9 +210,6 @@ public class SessionStopStartTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < 90; i++) {
          ClientMessage msg = consumer.receive(1000);
-         if (msg == null) {
-            System.out.println("ClientConsumerTest.testStopConsumer");
-         }
          Assert.assertNotNull("message " + i, msg);
          msg.acknowledge();
       }
@@ -297,9 +294,6 @@ public class SessionStopStartTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < 90; i++) {
          ClientMessage msg = consumer.receive(1000);
-         if (msg == null) {
-            System.out.println("ClientConsumerTest.testStopConsumer");
-         }
          Assert.assertNotNull("message " + i, msg);
          msg.acknowledge();
       }

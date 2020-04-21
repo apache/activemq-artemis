@@ -22,7 +22,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.Test;
@@ -50,7 +49,6 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
       AmqpHeader response = connection.readAmqpHeader();
       assertNotNull(response);
       assertEquals(3, response.getProtocolId());
-      IntegrationTestLogger.LOGGER.info("Broker responded with: " + response);
 
       // pump some bytes down the wire until broker closes the connection
       assertTrue("Broker should have closed client connection", Wait.waitFor(new Wait.Condition() {
@@ -78,7 +76,6 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
       }
 
       public void send(AmqpHeader header) throws Exception {
-         IntegrationTestLogger.LOGGER.info("Client sending header: " + header);
          OutputStream outputStream = clientSocket.getOutputStream();
          header.getBuffer().writeTo(outputStream);
          outputStream.flush();

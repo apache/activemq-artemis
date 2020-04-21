@@ -285,7 +285,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
          connection2.connect();
          fail("Should not be able to connect with same container Id.");
       } catch (Exception ex) {
-         LOG.info("Second connection with same container Id failed as expected.");
+         LOG.debug("Second connection with same container Id failed as expected.");
       }
 
       connection2.getStateInspector().assertValid();

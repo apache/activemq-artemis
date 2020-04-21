@@ -194,7 +194,6 @@ public class PagingFailoverTest extends FailoverTestBase {
       while (timeout > System.currentTimeMillis() && queue.getPageSubscription().isPaging()) {
          Thread.sleep(100);
          // Simulating what would happen on expire
-         System.out.println("IsPaging " + queue.getPageSubscription().isPaging());
          queue.expireReferences();
       }
 

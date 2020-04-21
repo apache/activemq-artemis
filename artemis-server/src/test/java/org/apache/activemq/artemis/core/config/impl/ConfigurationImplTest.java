@@ -30,11 +30,14 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ConfigurationImplTest extends ActiveMQTestBase {
+
+   private static final Logger log = Logger.getLogger(ConfigurationImplTest.class);
 
    protected Configuration conf;
 
@@ -532,7 +535,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          tempFolder = new File(tempFolder.getAbsolutePath());
          tempFolder.mkdirs();
 
-         System.out.println("TempFolder = " + tempFolder.getAbsolutePath());
+         log.debug("TempFolder = " + tempFolder.getAbsolutePath());
 
          ConfigurationImpl configuration = new ConfigurationImpl();
          configuration.setJournalDirectory(tempFolder.getAbsolutePath());
@@ -550,7 +553,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          tempFolder = new File(tempFolder.getAbsolutePath());
          tempFolder.mkdirs();
 
-         System.out.println("TempFolder = " + tempFolder.getAbsolutePath());
+         log.debug("TempFolder = " + tempFolder.getAbsolutePath());
          configuration.setNodeManagerLockDirectory(tempFolder.getAbsolutePath());
          File lockLocation = configuration.getNodeManagerLockLocation();
          Assert.assertTrue(lockLocation.exists());

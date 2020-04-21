@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +54,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 public class BMFailoverTest extends FailoverTestBase {
+   private static final Logger log = Logger.getLogger(BMFailoverTest.class);
 
    private ServerLocator locator;
    private ClientSessionFactoryInternal sf;
@@ -198,7 +200,7 @@ public class BMFailoverTest extends FailoverTestBase {
 
       assertNotNull(m);
 
-      System.out.println("********************" + m.getIntProperty("counter"));
+      log.debug("********************" + m.getIntProperty("counter"));
       //the mdb would ack the message before calling onMessage()
       m.acknowledge();
 
@@ -232,7 +234,7 @@ public class BMFailoverTest extends FailoverTestBase {
       //the mdb would ack the message before calling onMessage()
       m.acknowledge();
 
-      System.out.println("********************" + m.getIntProperty("counter"));
+      log.debug("********************" + m.getIntProperty("counter"));
 
       xaSessionRec.getXAResource().end(xidRec, XAResource.TMSUCCESS);
       xaSessionRec.getXAResource().prepare(xidRec);

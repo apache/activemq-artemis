@@ -48,7 +48,6 @@ public class PendingDeliveriesTest extends ClientTestBase {
 
    @After
    public void clearLogger() throws Exception {
-      System.out.println("After clearing");
       AssertionLoggerHandler.stopCapture();
       AssertionLoggerHandler.clear();
    }

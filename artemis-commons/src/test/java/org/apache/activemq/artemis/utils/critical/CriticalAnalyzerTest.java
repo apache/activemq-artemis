@@ -56,7 +56,6 @@ public class CriticalAnalyzerTest {
       analyzer.start();
 
       analyzer.addAction((CriticalComponent comp) -> {
-         System.out.println("component " + comp + " received");
          latch.countDown();
       });
 
@@ -72,7 +71,6 @@ public class CriticalAnalyzerTest {
       analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
 
       analyzer.addAction((CriticalComponent comp) -> {
-         System.out.println("component " + comp + " received");
          latch.countDown();
       });
 
@@ -119,7 +117,6 @@ public class CriticalAnalyzerTest {
       analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
 
       analyzer.addAction((CriticalComponent comp) -> {
-         System.out.println("component " + comp + " received");
          latch.countDown();
       });
 
@@ -143,7 +140,6 @@ public class CriticalAnalyzerTest {
       analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
 
       analyzer.addAction((CriticalComponent comp) -> {
-         System.out.println("component " + comp + " received");
          latch.countDown();
       });
 

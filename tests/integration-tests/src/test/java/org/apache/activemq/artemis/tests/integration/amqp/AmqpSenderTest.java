@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -129,7 +128,6 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
          @Override
          public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
             if (delivery.remotelySettled()) {
-               IntegrationTestLogger.LOGGER.trace("Remote settled message for sender: " + sender.getName());
                settled.countDown();
             }
          }
@@ -143,9 +141,6 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
          message.setText("Test-Message: " + i);
          sender.send(message);
 
-         if (i % 1000 == 0) {
-            IntegrationTestLogger.LOGGER.info("Sent message: " + i);
-         }
       }
 
       Queue queueView = getProxyToQueue(getQueueName());
@@ -173,9 +168,6 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
          message.setText("Test-Message: " + i);
          sender.send(message);
 
-         if (i % 1000 == 0) {
-            IntegrationTestLogger.LOGGER.info("Sent message: " + i);
-         }
       }
 
       Queue queueView = getProxyToQueue(getQueueName());

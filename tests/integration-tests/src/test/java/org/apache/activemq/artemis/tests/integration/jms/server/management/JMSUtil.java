@@ -248,7 +248,6 @@ public class JMSUtil {
 
          @Override
          public void beforeReconnect(ActiveMQException exception) {
-            System.out.println("MyListener.beforeReconnect");
          }
       }
       for (ClientSession session : sessions) {

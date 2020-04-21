@@ -43,9 +43,6 @@ if (legacyOption) {
     topicName = "topic";
 }
 
-System.out.println("topicName = " + topicName);
-
-
 if (clientType.startsWith("ARTEMIS")) {
     // Can't depend directly on artemis, otherwise it wouldn't compile in hornetq
     GroovyRun.evaluate("clients/artemisClient.groovy", "serverArg", "ARTEMIS");

@@ -108,13 +108,13 @@ public class InterceptorTest extends ActiveMQTestBase {
             CreateQueueMessage createQueue = (CreateQueueMessage) packet;
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
-            System.out.println("userName on createQueue = " + userName);
+            instanceLog.debug("userName on createQueue = " + userName);
          } else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
 
-            System.out.println("userName on send = " + userName);
+            instanceLog.debug("userName on send = " + userName);
          }
 
          return true;
@@ -138,13 +138,13 @@ public class InterceptorTest extends ActiveMQTestBase {
             SessionCreateConsumerMessage createQueue = (SessionCreateConsumerMessage) packet;
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
-            System.out.println("userName = " + userName);
+            instanceLog.debug("userName = " + userName);
          } else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
 
-            System.out.println("userName on send = " + userName);
+            instanceLog.debug("userName on send = " + userName);
          }
 
          return true;
@@ -1058,7 +1058,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       String uri = "tcp://localhost:61616?incomingInterceptorList=" + Incoming.class.getCanonicalName() + "&outgoingInterceptorList=" + Outgoing.class.getName();
 
-      System.out.println(uri);
+      instanceLog.debug(uri);
 
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(uri);
 

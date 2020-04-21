@@ -61,7 +61,6 @@ public class MaskPasswordResolvingTest {
    @Test
    public void testPasswordResolving() throws Exception {
       String resolved = PasswordMaskingUtil.resolveMask(maskPassword, password, codec);
-      System.out.println("resolved: " + resolved);
       checkResult(resolved);
    }
 

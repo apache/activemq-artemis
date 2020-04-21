@@ -355,7 +355,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
          byte[] btreceived = client.receiveBroadcast(5, TimeUnit.SECONDS);
 
-         System.out.println("BTReceived = " + Arrays.toString(btreceived));
+         instanceLog.debug("BTReceived = " + Arrays.toString(btreceived));
 
          assertNotNull(btreceived);
 
@@ -393,7 +393,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       InetAddress localAddress = InetAddress.getLoopbackAddress();
 
-      log.info("Local address is " + localAddress);
+      instanceLog.debug("Local address is " + localAddress);
 
       bg = newBroadcast(nodeID, RandomUtil.randomString(), localAddress, -1, groupAddress, groupPort);
 

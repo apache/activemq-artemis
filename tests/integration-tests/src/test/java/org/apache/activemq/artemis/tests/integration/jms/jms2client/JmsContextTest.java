@@ -145,8 +145,6 @@ public class JmsContextTest extends JMSTestBase {
 
       String randomStr = newXID().toString();
 
-      System.out.println("RandomStr:" + randomStr);
-
       TextMessage sendMsg = context.createTextMessage(randomStr);
       producer.send(queue1, sendMsg);
 
@@ -538,7 +536,6 @@ public class JmsContextTest extends JMSTestBase {
    public void illegalStateRuntimeExceptionTests() throws Exception {
       JMSProducer producer = context.createProducer();
       JMSConsumer consumer = context.createConsumer(queue1);
-      System.out.println("Creating TextMessage");
       TextMessage expTextMessage = context.createTextMessage("Call commit");
       CountDownLatch latch = new CountDownLatch(1);
       JMSCOntextStopCompletionListener listener = new JMSCOntextStopCompletionListener(context, latch);

@@ -24,12 +24,14 @@ import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 public class FileLockNodeManagerTest {
+   private static final Logger log = Logger.getLogger(FileLockNodeManagerTest.class);
 
    private static final int TIMEOUT_TOLERANCE = 50;
 
@@ -59,7 +61,7 @@ public class FileLockNodeManagerTest {
 
    protected void assertMeasuredTimeoutFor(long lockAcquisitionTimeout) throws Exception {
       long realTimeout = measureLockAcquisisionTimeout(lockAcquisitionTimeout);
-      System.out.println(String.format("lockAcquisisionTimeout: %d ms, measured timeout: %d ms", lockAcquisitionTimeout, realTimeout));
+      log.debug(String.format("lockAcquisisionTimeout: %d ms, measured timeout: %d ms", lockAcquisitionTimeout, realTimeout));
       Assert.assertTrue(String.format("Timeout %d ms was larger than expected %d ms", realTimeout, lockAcquisitionTimeout + TIMEOUT_TOLERANCE),
             lockAcquisitionTimeout + TIMEOUT_TOLERANCE >= realTimeout);
       Assert.assertTrue(String.format("Timeout %d ms was lower than expected %d ms", realTimeout, lockAcquisitionTimeout),

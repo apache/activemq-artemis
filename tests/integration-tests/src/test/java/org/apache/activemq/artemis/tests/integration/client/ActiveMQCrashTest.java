@@ -31,8 +31,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ import org.junit.Test;
  */
 public class ActiveMQCrashTest extends ActiveMQTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(ActiveMQCrashTest.class);
 
    public ActiveMQServer server;
 
@@ -98,11 +98,11 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-         ActiveMQCrashTest.log.info("AckInterceptor.intercept " + packet);
+         log.debug("AckInterceptor.intercept " + packet);
 
          if (packet.getType() == PacketImpl.SESS_SEND) {
             try {
-               ActiveMQCrashTest.log.info("Stopping server");
+               log.debug("Stopping server");
 
                new Thread() {
                   @Override

@@ -39,14 +39,14 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 import org.junit.Test;
 
 public class NIOvsOIOTest extends ActiveMQTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(NIOvsOIOTest.class);
 
    // Constants -----------------------------------------------------
 
@@ -209,7 +209,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
                log.error("Caught exception", e);
             }
 
-            //log.info(id + " sent message " + i);
+            //log.debug(id + " sent message " + i);
 
          }
       }
@@ -283,7 +283,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
             latch.countDown();
          }
 
-         //log.info(id + " got msg " + count);
+         //log.debug(id + " got msg " + count);
 
       }
 

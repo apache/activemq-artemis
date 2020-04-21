@@ -113,7 +113,6 @@ public class JMSOrderTest extends JMSTestBase {
             Message message = consumer.receive(3000);
             assertNotNull("Failed to receive message: " + i, message);
             int msgNum = message.getIntProperty("nr");
-            System.out.println("Received " + msgNum);
             messageNumbers.add(msgNum);
          }
 
@@ -163,7 +162,6 @@ public class JMSOrderTest extends JMSTestBase {
             Message message = consumer.receive(3000);
             assertNotNull("Failed to receive message: " + i, message);
             int msgNum = message.getIntProperty("nr");
-            System.out.println("Received " + msgNum);
             messageNumbers.add(msgNum);
          }
 

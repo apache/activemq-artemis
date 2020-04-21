@@ -38,7 +38,6 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,7 +49,6 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
    public static final String BROKER_URL = "tcp://localhost:61616?minLargeMessageSize=10000&HA=true&retryInterval=100&reconnectAttempts=20&producerWindowSize=10000";
 
    private Connection connection;
@@ -154,20 +152,20 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
    // Inner classes -------------------------------------------------
 
    protected void disconnect() {
-      ManualReconnectionToSingleServerTest.log.info("calling disconnect");
+      instanceLog.debug("calling disconnect");
       if (connection == null) {
-         ManualReconnectionToSingleServerTest.log.info("connection is null");
+         instanceLog.debug("connection is null");
          return;
       }
 
       try {
          connection.setExceptionListener(null);
-         ManualReconnectionToSingleServerTest.log.info("closing the connection");
+         instanceLog.debug("closing the connection");
          connection.close();
          connection = null;
-         ManualReconnectionToSingleServerTest.log.info("connection closed");
+         instanceLog.debug("connection closed");
       } catch (Exception e) {
-         ManualReconnectionToSingleServerTest.log.info("** got exception");
+         instanceLog.debug("** got exception");
          e.printStackTrace();
       }
    }

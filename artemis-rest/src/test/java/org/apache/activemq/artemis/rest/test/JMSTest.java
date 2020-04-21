@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.rest.HttpHeaderProperty;
 import org.apache.activemq.artemis.rest.Jms;
 import org.apache.activemq.artemis.rest.queue.QueueDeployment;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -45,6 +46,7 @@ import org.junit.Test;
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
 public class JMSTest extends MessageTestBase {
+   private static final Logger log = Logger.getLogger(JMSTest.class);
 
    public static ConnectionFactory connectionFactory;
 
@@ -107,7 +109,7 @@ public class JMSTest extends MessageTestBase {
 
    public static Destination createDestination(String dest) {
       ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(dest);
-      System.out.println("SimpleAddress: " + destination.getSimpleAddress());
+      log.debug("SimpleAddress: " + destination.getSimpleAddress());
       return destination;
    }
 
@@ -152,7 +154,7 @@ public class JMSTest extends MessageTestBase {
    public void testJmsConsumer() throws Exception {
       String queueName = "testQueue2";
       String prefixedQueueName = ActiveMQDestination.createQueueAddressFromName(queueName).toString();
-      System.out.println("Queue name: " + prefixedQueueName);
+      log.debug("Queue name: " + prefixedQueueName);
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -172,9 +174,9 @@ public class JMSTest extends MessageTestBase {
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
          Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-         System.out.println("create: " + sender);
+         log.debug("create: " + sender);
          Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-         System.out.println("consume-next: " + consumeNext);
+         log.debug("consume-next: " + consumeNext);
 
          // test that Accept header is used to set content-type
          {
@@ -199,7 +201,7 @@ public class JMSTest extends MessageTestBase {
    public void testJmsProducer() throws Exception {
       String queueName = "testQueue";
       String prefixedQueueName = ActiveMQDestination.createQueueAddressFromName(queueName).toString();
-      System.out.println("Queue name: " + prefixedQueueName);
+      log.debug("Queue name: " + prefixedQueueName);
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -211,12 +213,12 @@ public class JMSTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-      System.out.println("consume-next: " + consumeNext);
+      log.debug("consume-next: " + consumeNext);
 
       // test that Accept header is used to set content-type
       {

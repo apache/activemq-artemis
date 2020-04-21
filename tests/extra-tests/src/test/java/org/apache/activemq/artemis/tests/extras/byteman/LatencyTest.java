@@ -40,7 +40,7 @@ public class LatencyTest extends ActiveMQTestBase {
          targetClass = "org.jboss.netty.bootstrap.ClientBootstrap",
          targetMethod = "connect",
          targetLocation = "ENTRY",
-         action = "System.out.println(\"netty connecting\")"), @BMRule(
+         action = "log.debug(\"netty connecting\")"), @BMRule(
          name = "sleep OioWorker.run",
          targetClass = "org.jboss.netty.channel.socket.oio.OioWorker",
          targetMethod = "run",

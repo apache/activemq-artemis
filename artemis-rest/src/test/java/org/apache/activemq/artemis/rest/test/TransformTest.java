@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.rest.ActiveMQ;
 import org.apache.activemq.artemis.rest.queue.QueueDeployment;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -38,6 +39,7 @@ import org.junit.Test;
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
 public class TransformTest extends MessageTestBase {
+   private static final Logger log = Logger.getLogger(TransformTest.class);
 
    @BeforeClass
    public static void setup() throws Exception {
@@ -122,12 +124,12 @@ public class TransformTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-      System.out.println("consume-next: " + consumeNext);
+      log.debug("consume-next: " + consumeNext);
 
       // test that Accept header is used to set content-type
       {
@@ -188,7 +190,7 @@ public class TransformTest extends MessageTestBase {
 
       @Override
       public void onMessage(ClientMessage clientMessage) {
-         System.out.println("onMessage!");
+         log.debug("onMessage!");
          try {
             order = ActiveMQ.getEntity(clientMessage, Order.class);
          } catch (Exception e) {
@@ -217,12 +219,12 @@ public class TransformTest extends MessageTestBase {
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
          Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-         System.out.println("create: " + sender);
+         log.debug("create: " + sender);
          Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-         System.out.println("pull: " + consumers);
+         log.debug("pull: " + consumers);
          response = Util.setAutoAck(consumers, true);
          Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-         System.out.println("consume-next: " + consumeNext);
+         log.debug("consume-next: " + consumeNext);
 
          // test that Accept header is used to set content-type
          {

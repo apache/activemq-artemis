@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.rest.test.TransformTest;
 import org.apache.activemq.artemis.rest.test.Util;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -43,6 +44,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class EmbeddedRestActiveMQJMSTest {
+   private static final Logger log = Logger.getLogger(EmbeddedRestActiveMQJMSTest.class);
 
    private static EmbeddedRestActiveMQ server;
    private static ConnectionFactory factory;
@@ -67,12 +69,12 @@ public class EmbeddedRestActiveMQJMSTest {
       response.releaseConnection();
       assertEquals(200, response.getStatus());
       Link sender = response.getLinkHeader().getLinkByTitle("create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = response.getLinkHeader().getLinkByTitle("pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       consumeNext = response.getLinkHeader().getLinkByTitle("consume-next");
-      System.out.println("consume-next: " + consumeNext);
+      log.debug("consume-next: " + consumeNext);
    }
 
    @AfterClass

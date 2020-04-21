@@ -77,26 +77,18 @@ public class JMSConsumer11Test extends BasicOpenWireTest {
       Wait.assertEquals(1, consumer::getMessageSize);
       Wait.assertEquals(1, consumer2::getMessageSize);
 
-      System.out.println("consumer receiving ...");
       // Pick up the first message.
       Message message1 = consumer.receive(1000);
-      System.out.println("received1: " + message1);
       assertNotNull(message1);
 
-      System.out.println("consumer 2 receiving...");
       // Pick up the 2nd messages.
       Message message2 = consumer2.receive(5000);
-      System.out.println("received2: " + message2);
       assertNotNull(message2);
 
-      System.out.println("committing sessions !! " + session.getClass().getName());
       session.commit();
-      System.out.println("committed session, now 2");
       session2.commit();
 
-      System.out.println("all committed");
       Message m = consumer.receiveNoWait();
-      System.out.println("received 3: " + m);
       assertNull(m);
 
       try {
@@ -106,7 +98,6 @@ public class JMSConsumer11Test extends BasicOpenWireTest {
          e.printStackTrace();
       }
 
-      System.out.println("Test finished!!");
    }
 
 }

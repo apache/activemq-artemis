@@ -27,7 +27,6 @@ import javax.jms.Topic;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
@@ -37,8 +36,6 @@ import org.junit.Test;
  * This will perform cleanup tests on paging while using JMS topics
  */
 public class JMSPagingFileDeleteTest extends JMSTestBase {
-
-   static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    Topic topic1;
 
@@ -100,13 +97,13 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
             subscriber1 = session.createConsumer(topic1);
 
             // -----------------(Step1) Publish Messages to make Paging Files. --------------------
-            System.out.println("---------- Send messages. ----------");
+            instanceLog.debug("---------- Send messages. ----------");
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(new byte[JMSPagingFileDeleteTest.MESSAGE_SIZE]);
             for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++) {
                producer.send(bytesMessage);
             }
-            System.out.println("Sent " + JMSPagingFileDeleteTest.MESSAGE_NUM + " messages.");
+            instanceLog.debug("Sent " + JMSPagingFileDeleteTest.MESSAGE_NUM + " messages.");
 
             pagingStore = server.getPagingManager().getPageStore(new SimpleString("topic1"));
             printPageStoreInfo(pagingStore);
@@ -148,13 +145,13 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
          subscriber2 = session.createDurableSubscriber(topic1, "subscriber-2");
 
          // -----------------(Step1) Publish Messages to make Paging Files. --------------------
-         System.out.println("---------- Send messages. ----------");
+         instanceLog.debug("---------- Send messages. ----------");
          BytesMessage bytesMessage = session.createBytesMessage();
          bytesMessage.writeBytes(new byte[JMSPagingFileDeleteTest.MESSAGE_SIZE]);
          for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++) {
             producer.send(bytesMessage);
          }
-         System.out.println("Sent " + JMSPagingFileDeleteTest.MESSAGE_NUM + " messages.");
+         instanceLog.debug("Sent " + JMSPagingFileDeleteTest.MESSAGE_NUM + " messages.");
 
          pagingStore = server.getPagingManager().getPageStore(new SimpleString("topic1"));
          printPageStoreInfo(pagingStore);
@@ -167,7 +164,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
          stopAndStartServer(); // If try this test without restarting server, please comment out this line;
 
          // -----------------(Step3) Subscribe to all the messages from the topic.--------------
-         System.out.println("---------- Receive all messages. ----------");
+         instanceLog.debug("---------- Receive all messages. ----------");
          for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++) {
             Message message1 = subscriber1.receive(JMSPagingFileDeleteTest.RECEIVE_TIMEOUT);
             assertNotNull(message1);
@@ -212,7 +209,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
    }
 
    private void stopAndStartServer() throws Exception {
-      System.out.println("---------- Restart server. ----------");
+      instanceLog.debug("---------- Restart server. ----------");
       connection.close();
 
       jmsServer.stop();
@@ -235,11 +232,11 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
    }
 
    private void printPageStoreInfo(PagingStore pagingStore) throws Exception {
-      System.out.println("---------- Paging Store Info ----------");
-      System.out.println(" CurrentPage = " + pagingStore.getCurrentPage());
-      System.out.println(" FirstPage = " + pagingStore.getFirstPage());
-      System.out.println(" Number of Pages = " + pagingStore.getNumberOfPages());
-      System.out.println(" Address Size = " + pagingStore.getAddressSize());
-      System.out.println(" Is Paging = " + pagingStore.isPaging());
+      instanceLog.debug("---------- Paging Store Info ----------");
+      instanceLog.debug(" CurrentPage = " + pagingStore.getCurrentPage());
+      instanceLog.debug(" FirstPage = " + pagingStore.getFirstPage());
+      instanceLog.debug(" Number of Pages = " + pagingStore.getNumberOfPages());
+      instanceLog.debug(" Address Size = " + pagingStore.getAddressSize());
+      instanceLog.debug(" Is Paging = " + pagingStore.isPaging());
    }
 }

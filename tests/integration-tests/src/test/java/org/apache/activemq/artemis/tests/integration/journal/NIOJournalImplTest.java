@@ -20,19 +20,14 @@ import java.io.File;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestUnit;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
 public class NIOJournalImplTest extends JournalImplTestUnit {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
-
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
-
-      NIOJournalImplTest.log.debug("deleting directory " + getTestDir());
 
       ActiveMQTestBase.deleteDirectory(file);
 

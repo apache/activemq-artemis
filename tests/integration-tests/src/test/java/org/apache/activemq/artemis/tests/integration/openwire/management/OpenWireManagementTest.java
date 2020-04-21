@@ -98,7 +98,6 @@ public class OpenWireManagementTest extends OpenWireTestBase {
             Map<String, Object> params = tconfig.getExtraParams();
             params.put("supportAdvisory", supportAdvisory);
             params.put("suppressInternalManagementObjects", suppressJmx);
-            System.out.println("Now use properties: " + params);
          }
       }
    }

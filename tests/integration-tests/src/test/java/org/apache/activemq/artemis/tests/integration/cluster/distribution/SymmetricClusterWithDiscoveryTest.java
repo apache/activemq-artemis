@@ -17,12 +17,9 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
 public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected final String groupAddress = ActiveMQTestBase.getUDPDiscoveryAddress();
 

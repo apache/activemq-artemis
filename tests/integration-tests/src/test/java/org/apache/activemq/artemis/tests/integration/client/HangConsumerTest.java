@@ -440,14 +440,14 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
             int bindings = 0;
             for (RecordInfo info : infos) {
-               System.out.println("info: " + info);
+               instanceLog.debug("info: " + info);
                if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD) {
                   bindings++;
                }
             }
             assertEquals(1, bindings);
 
-            System.out.println("Bindings: " + bindings);
+            instanceLog.debug("Bindings: " + bindings);
             messagesJournal.stop();
             if (i < 4)
                server.start();
@@ -613,7 +613,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet instanceof SessionReceiveMessage) {
-            System.out.println("Receiving message");
+            instanceLog.debug("Receiving message");
             try {
                reusableLatch.countDown();
                semaphore.acquire();

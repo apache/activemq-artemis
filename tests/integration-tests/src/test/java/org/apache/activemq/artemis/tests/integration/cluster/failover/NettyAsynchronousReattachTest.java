@@ -19,16 +19,13 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
 public class NettyAsynchronousReattachTest extends NettyAsynchronousFailoverTest {
 
-   private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    protected void crash(final ClientSession... sessions) throws Exception {
       for (ClientSession session : sessions) {
-         log.debug("Crashing session " + session);
          ClientSessionInternal internalSession = (ClientSessionInternal) session;
          internalSession.getConnection().fail(new ActiveMQNotConnectedException("oops"));
       }

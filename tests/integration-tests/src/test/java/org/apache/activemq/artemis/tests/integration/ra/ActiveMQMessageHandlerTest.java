@@ -45,7 +45,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Test;
 
 public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
@@ -948,7 +947,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
             latch.countDown();
             if (pause && messages.getAndIncrement() % 2 == 0) {
                try {
-                  IntegrationTestLogger.LOGGER.info("pausing for 2 secs");
+                  instanceLog.debug("pausing for 2 secs");
                   Thread.sleep(2000);
                } catch (InterruptedException e) {
                   interrupted.incrementAndGet();

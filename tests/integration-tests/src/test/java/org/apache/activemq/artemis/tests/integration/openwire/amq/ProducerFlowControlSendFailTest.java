@@ -97,7 +97,6 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlBaseTest
       for (int idx = 0; idx < successSent; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
          Assert.assertNotNull(msg);
-         System.out.println("Received " + msg);
          if (msg != null) {
             msg.acknowledge();
          }

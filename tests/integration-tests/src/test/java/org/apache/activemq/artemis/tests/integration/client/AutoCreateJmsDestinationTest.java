@@ -47,7 +47,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -340,8 +339,6 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       assertNotNull(server.locateQueue(topicAddress));
 
-      IntegrationTestLogger.LOGGER.info("Topic name: " + topicAddress);
-
       topic.delete();
 
       connection.close();
@@ -381,7 +378,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       ConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
       SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-      System.out.println("Address is " + addressName);
+      instanceLog.debug("Address is " + addressName);
       clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
       Topic topic = new ActiveMQTopic(addressName.toString());
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -405,7 +402,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       ConnectionFactory factory = new ActiveMQConnectionFactory();
       try (Connection connection = factory.createConnection()) {
          SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-         System.out.println("Address is " + addressName);
+         instanceLog.debug("Address is " + addressName);
          javax.jms.Queue queue = new ActiveMQQueue(addressName.toString());
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(null);

@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ReusableLatch;
@@ -52,8 +51,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class JmsConsumerTest extends JMSTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private static final String Q_NAME = "ConsumerTestQueue";
 
@@ -113,9 +110,9 @@ public class JmsConsumerTest extends JMSTestBase {
       TextMessage m3 = (TextMessage) cons.receive(2000);
       Assert.assertNull("m3 should be null", m3);
 
-      System.out.println("received m1: " + m1.getText());
-      System.out.println("received m2: " + m2.getText());
-      System.out.println("received m3: " + m3);
+      instanceLog.debug("received m1: " + m1.getText());
+      instanceLog.debug("received m2: " + m2.getText());
+      instanceLog.debug("received m3: " + m3);
       sess.commit();
    }
 
@@ -342,8 +339,6 @@ public class JmsConsumerTest extends JMSTestBase {
 
    @Test
    public void testPreCommitAcksWithMessageExpiry() throws Exception {
-      JmsConsumerTest.log.info("starting test");
-
       conn = cf.createConnection();
       Session session = conn.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
@@ -767,11 +762,9 @@ public class JmsConsumerTest extends JMSTestBase {
 
       for (int i = 0; i < 50; i++) {
          String txt = consumer.receiveBody(String.class, 5000);
-         System.out.println("TXT:" + txt);
          Assert.assertNotNull(txt);
 
          txt = consumer.receiveBody(String.class, 5000);
-         System.out.println("TXT:" + txt);
          Assert.assertNotNull(txt);
       }
 

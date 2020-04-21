@@ -30,12 +30,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class FileStoreMonitorTest extends ActiveMQTestBase {
+
+   private static final Logger log = Logger.getLogger(FileStoreMonitorTest.class);
 
    private ScheduledExecutorService scheduledExecutorService;
    private ExecutorService executorService;
@@ -76,19 +79,19 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
          @Override
          public void tick(long usableSpace, long totalSpace) {
             tick.incrementAndGet();
-            System.out.println("tick:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
+            log.debug("tick:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
          }
 
          @Override
          public void over(long usableSpace, long totalSpace) {
             over.incrementAndGet();
-            System.out.println("over:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
+            log.debug("over:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
          }
 
          @Override
          public void under(long usableSpace, long totalSpace) {
             under.incrementAndGet();
-            System.out.println("under:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
+            log.debug("under:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
          }
       };
       FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, 0.999, null);
@@ -120,7 +123,7 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
       storeMonitor.addCallback(new FileStoreMonitor.Callback() {
          @Override
          public void tick(long usableSpace, long totalSpace) {
-            System.out.println("Tick");
+            log.debug("Tick");
             latch.countDown();
          }
 
