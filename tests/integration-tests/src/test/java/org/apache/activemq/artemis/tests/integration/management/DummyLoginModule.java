@@ -43,7 +43,6 @@ public class DummyLoginModule implements LoginModule {
       this.callbackHandler = callbackHandler;
       this.sharedState = sharedState;
       this.options = options;
-      System.out.println("DummyLoginModule.initialize");
    }
 
    @Override

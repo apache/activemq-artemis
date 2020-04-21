@@ -69,7 +69,6 @@ public class SecurityOpenWireTest extends BasicOpenWireTest {
       try (Connection connection = factory.createConnection("denyQ", "denyQ")) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue("denyQ");
-         System.out.println("Queue:" + queue);
          MessageProducer producer = session.createProducer(queue);
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
          try {

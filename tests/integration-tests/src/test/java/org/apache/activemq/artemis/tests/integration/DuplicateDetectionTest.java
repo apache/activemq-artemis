@@ -40,13 +40,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class DuplicateDetectionTest extends ActiveMQTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private final Logger log = Logger.getLogger(this.getClass());
 
    private ActiveMQServer server;
 
@@ -390,7 +391,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
          Assert.assertEquals(i, message.getObjectProperty(propKey));
       }
 
-      DuplicateDetectionTest.log.info("Now sending more");
+      log.debug("Now sending more");
       for (int i = 0; i < cacheSize; i++) {
          SimpleString dupID = new SimpleString("dupID" + i);
 
@@ -785,13 +786,13 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
       message = consumer.receiveImmediate();
       Assert.assertNull(message);
 
-      DuplicateDetectionTest.log.info("ending session");
+      log.debug("ending session");
       session.end(xid3, XAResource.TMSUCCESS);
 
-      DuplicateDetectionTest.log.info("preparing session");
+      log.debug("preparing session");
       session.prepare(xid3);
 
-      DuplicateDetectionTest.log.info("committing session");
+      log.debug("committing session");
       session.commit(xid3, false);
    }
 
@@ -856,13 +857,13 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
       message = consumer.receiveImmediate();
       Assert.assertNull(message);
 
-      DuplicateDetectionTest.log.info("ending session");
+      log.debug("ending session");
       session.end(xid3, XAResource.TMSUCCESS);
 
-      DuplicateDetectionTest.log.info("preparing session");
+      log.debug("preparing session");
       session.prepare(xid3);
 
-      DuplicateDetectionTest.log.info("committing session");
+      log.debug("committing session");
       session.commit(xid3, false);
    }
 
@@ -926,13 +927,13 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
       message = consumer.receiveImmediate();
       Assert.assertNull(message);
 
-      DuplicateDetectionTest.log.info("ending session");
+      log.debug("ending session");
       session.end(xid3, XAResource.TMSUCCESS);
 
-      DuplicateDetectionTest.log.info("preparing session");
+      log.debug("preparing session");
       session.prepare(xid3);
 
-      DuplicateDetectionTest.log.info("committing session");
+      log.debug("committing session");
       session.commit(xid3, false);
    }
 
@@ -1143,13 +1144,13 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
       message = consumer.receiveImmediate();
       Assert.assertNull(message);
 
-      DuplicateDetectionTest.log.info("ending session");
+      log.debug("ending session");
       session.end(xid3, XAResource.TMSUCCESS);
 
-      DuplicateDetectionTest.log.info("preparing session");
+      log.debug("preparing session");
       session.prepare(xid3);
 
-      DuplicateDetectionTest.log.info("committing session");
+      log.debug("committing session");
       session.commit(xid3, false);
    }
 

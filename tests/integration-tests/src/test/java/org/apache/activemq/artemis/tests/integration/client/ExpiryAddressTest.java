@@ -28,7 +28,6 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -36,8 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ExpiryAddressTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
 
@@ -161,7 +158,6 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
 
-      ExpiryAddressTest.log.info("acking");
       m.acknowledge();
 
       Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
@@ -177,7 +173,6 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
 
-      ExpiryAddressTest.log.info("acking");
       m.acknowledge();
 
       Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");

@@ -284,7 +284,6 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
 
          long text = ((ActiveMQTextMessage) tm).getCoreMessage().getMessageID();
-         System.out.println(tm.getJMSMessageID() + " text = " + text);
          //assertEquals("Message" + j, text);
 
          assertEquals(tm.getStringProperty("JMSXGroupID"), jmsxgroupID);

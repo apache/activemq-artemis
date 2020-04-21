@@ -17,15 +17,14 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.jboss.logging.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
+   private static final Logger log = Logger.getLogger(SimpleSymmetricClusterTest.class);
    // Constants -----------------------------------------------------
-
-   static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Attributes ----------------------------------------------------
 
@@ -65,19 +64,19 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
       startServers(0, 1, 2, 3, 4, 5);
 
-      log.info("");
+      log.debug("");
       for (int i = 0; i <= 5; i++) {
-         log.info(servers[i].describe());
-         log.info(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
+         log.debug(servers[i].describe());
+         log.debug(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
       }
-      log.info("");
+      log.debug("");
 
-      log.info("");
+      log.debug("");
       for (int i = 0; i <= 5; i++) {
-         log.info(servers[i].describe());
-         log.info(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
+         log.debug(servers[i].describe());
+         log.debug(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
       }
-      log.info("");
+      log.debug("");
 
       stopServers(0, 1, 2, 3, 4, 5);
 
@@ -155,7 +154,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
    public void _testLoop() throws Throwable {
       for (int i = 0; i < 10; i++) {
          loopNumber = i;
-         log.info("#test " + i);
+         log.debug("#test " + i);
          testSimple();
          tearDown();
          setUp();
@@ -186,7 +185,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
          waitForTopology(servers[i], 5);
       }
 
-      log.info("All the servers have been started already!");
+      log.debug("All the servers have been started already!");
 
       for (int i = 0; i <= 4; i++) {
          setupSessionFactory(i, isNetty());

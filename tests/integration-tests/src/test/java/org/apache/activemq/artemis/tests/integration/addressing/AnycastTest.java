@@ -98,7 +98,7 @@ public class AnycastTest extends ActiveMQTestBase {
          for (int j = 0; j < num / 2; j++) {
             ClientMessage m = consumers[i].receive(2000);
             assertNotNull(m);
-            System.out.println("consumer" + i + " received: " + m.getBodyBuffer().readString());
+            instanceLog.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
          }
 
          assertNull(consumers[i].receive(200));
@@ -157,7 +157,7 @@ public class AnycastTest extends ActiveMQTestBase {
          for (int j = 0; j < num / 2; j++) {
             ClientMessage m = consumers[i].receive(2000);
             assertNotNull(m);
-            System.out.println("consumer" + i + " received: " + m.getBodyBuffer().readString());
+            instanceLog.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
          }
 
          assertNull(consumers[i].receive(200));
@@ -173,7 +173,7 @@ public class AnycastTest extends ActiveMQTestBase {
          for (int j = 0; j < num / 2; j++) {
             ClientMessage m = consumers[i].receive(2000);
             assertNotNull(m);
-            System.out.println("consumer" + i + " received: " + m.getBodyBuffer().readString());
+            instanceLog.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
          }
 
          assertNull(consumers[i].receive(200));

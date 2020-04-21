@@ -50,21 +50,22 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class LargeMessageTest extends LargeMessageTestBase {
 
-   private static final int RECEIVE_WAIT_TIME = 10000;
 
-   private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(LargeMessageTest.class);
+
+   private static final int RECEIVE_WAIT_TIME = 10000;
 
    protected ServerLocator locator;
 
@@ -85,7 +86,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    @Test
    public void testRollbackPartiallyConsumedBuffer() throws Exception {
       for (int i = 0; i < 1; i++) {
-         log.info("#test " + i);
+         log.debug("#test " + i);
          internalTestRollbackPartiallyConsumedBuffer(false);
          tearDown();
          setUp();
@@ -600,7 +601,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       msg.acknowledge();
       Assert.assertEquals(1, msg.getDeliveryCount());
 
-      log.info("body buffer is " + msg.getBodyBuffer());
+      log.debug("body buffer is " + msg.getBodyBuffer());
 
       for (int i = 0; i < messageSize; i++) {
          Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());

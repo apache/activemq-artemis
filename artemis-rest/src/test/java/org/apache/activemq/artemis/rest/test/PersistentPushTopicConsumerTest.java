@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.rest.MessageServiceManager;
 import org.apache.activemq.artemis.rest.queue.push.xml.XmlLink;
 import org.apache.activemq.artemis.rest.topic.PushTopicRegistration;
 import org.apache.activemq.artemis.rest.topic.TopicDeployment;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -50,6 +51,7 @@ import static org.jboss.resteasy.test.TestPortProvider.generateURL;
  * Test durable queue push consumers
  */
 public class PersistentPushTopicConsumerTest {
+   private static final Logger log = Logger.getLogger(PersistentPushTopicConsumerTest.class);
 
    public static ActiveMQServer server;
    public static MessageServiceManager manager;
@@ -100,9 +102,9 @@ public class PersistentPushTopicConsumerTest {
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
          Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-         System.out.println("create: " + sender);
+         log.debug("create: " + sender);
          Link pushSubscriptions = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-subscriptions");
-         System.out.println("push subscriptions: " + pushSubscriptions);
+         log.debug("push subscriptions: " + pushSubscriptions);
 
          PushTopicRegistration reg = new PushTopicRegistration();
          reg.setDurable(true);
@@ -156,9 +158,9 @@ public class PersistentPushTopicConsumerTest {
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
          Link sender = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
-         System.out.println("create: " + sender);
+         log.debug("create: " + sender);
          Link pushSubscriptions = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "push-subscriptions");
-         System.out.println("push subscriptions: " + pushSubscriptions);
+         log.debug("push subscriptions: " + pushSubscriptions);
 
          String sub1 = generateURL("/subscribers/1");
          String sub2 = generateURL("/subscribers/2");
@@ -211,7 +213,7 @@ public class PersistentPushTopicConsumerTest {
       @POST
       @Consumes("text/plain")
       public void postOne(String msg) {
-         System.out.println("in subscribers 1!!!!!!!!!! " + msg);
+         log.debug("in subscribers 1!!!!!!!!!! " + msg);
          subscriber1 = msg;
          latch.countDown();
       }
@@ -220,7 +222,7 @@ public class PersistentPushTopicConsumerTest {
       @POST
       @Consumes("text/plain")
       public void postTwo(String msg) {
-         System.out.println("in subscribers 2!!!!!!!!!! " + msg);
+         log.debug("in subscribers 2!!!!!!!!!! " + msg);
          subscriber2 = msg;
          latch.countDown();
       }

@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,8 +46,6 @@ public class OrderReattachTest extends ActiveMQTestBase {
    final SimpleString ADDRESS = new SimpleString("address");
 
    // Attributes ----------------------------------------------------
-   private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
-
    private ActiveMQServer server;
 
    // Static --------------------------------------------------------
@@ -204,7 +201,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
             if (message.getIntProperty("count") != count) {
                failure = new Exception("counter " + count + " was not as expected (" + message.getIntProperty("count") + ")");
-               log.warn("Failure on receiving message ", failure);
+               instanceLog.warn("Failure on receiving message ", failure);
                failure.printStackTrace();
                latch.countDown();
             }

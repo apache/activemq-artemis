@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
-import java.util.Arrays;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -27,25 +25,23 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.jboss.logging.Logger;
 
 /**
  * Code to be run in an external VM, via main()
  */
 public class CrashClient {
 
+   private static final Logger log = Logger.getLogger(CrashClient.class);
+
    public static int OK = 9;
    public static int NOT_OK = 1;
    // Constants ------------------------------------------------------------------------------------
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Static ---------------------------------------------------------------------------------------
 
    public static void main(final String[] args) throws Exception {
       try {
-         CrashClient.log.debug("args = " + Arrays.asList(args));
-
          ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
          locator.setClientFailureCheckPeriod(ClientCrashTest.PING_PERIOD);
          locator.setConnectionTTL(ClientCrashTest.CONNECTION_TTL);

@@ -35,7 +35,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
@@ -43,8 +42,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ScheduledMessageTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private final SimpleString atestq = new SimpleString("ascheduledtestq");
 
@@ -286,7 +283,6 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
       message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
       producer.send(message);
 
-      ScheduledMessageTest.log.info("Recover is " + recover);
       if (recover) {
          producer.close();
          session.close();
@@ -613,7 +609,6 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
       session.start(xid2, XAResource.TMNOFLAGS);
       ClientMessage message2 = consumer.receive(11000);
       long end = System.currentTimeMillis();
-      System.out.println("elapsed time = " + (end - time));
       Assert.assertTrue(end >= time);
       Assert.assertNotNull(message2);
       Assert.assertEquals("testINVMCoreClient", message2.getBodyBuffer().readString());

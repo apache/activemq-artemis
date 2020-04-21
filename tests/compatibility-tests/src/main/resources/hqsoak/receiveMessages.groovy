@@ -65,7 +65,6 @@ for (int i = 0; i < consumers; i++) {
         void run() {
             try {
                 int threadid = running.incrementAndGet();
-                System.out.println("Running " + threadid)
                 Connection connection = cf.createConnection();
                 connection.setClientID(clientType + threadid)
                 Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -100,6 +99,5 @@ if (!latchStarted.await(10, TimeUnit.SECONDS)) {
     System.err.prntln("Could not start consumers")
     errorsConsumer.incrementAndGet()
 }
-System.out.println("Running::" + clientType + "::" + running)
 return running;
 

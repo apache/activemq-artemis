@@ -50,7 +50,6 @@ public class SSLProviderTest extends SSLTestBase {
    @Test
    public void testProviderLoading() throws Exception {
       if (!isOpenSSLSupported()) {
-         System.out.println("*** Skip test on un-supported platform.");
          return;
       }
 
@@ -64,7 +63,6 @@ public class SSLProviderTest extends SSLTestBase {
       uri.append("&").append(TransportConstants.TRUSTSTORE_PATH_PROP_NAME).append("=").append(CLIENT_SIDE_TRUSTSTORE);
       uri.append("&").append(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME).append("=").append(PASSWORD);
 
-      System.out.println("uri: " + uri.toString());
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator(uri.toString()));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));

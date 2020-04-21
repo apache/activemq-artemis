@@ -26,15 +26,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class SelfExpandingBufferTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    ActiveMQServer service;
 
@@ -79,8 +76,6 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
          ActiveMQBuffer buffer = msg.getBodyBuffer();
 
-         SelfExpandingBufferTest.log.info("buffer is " + buffer);
-
          byte[] bytes = RandomUtil.randomBytes(10 * buffer.capacity());
 
          buffer.writeBytes(bytes);
@@ -103,11 +98,11 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
          byte[] receivedBytes = new byte[bytes.length];
 
-         // log.info("buffer start pos should be at " + PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT);
+         // log.debug("buffer start pos should be at " + PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT);
          //
-         // log.info("buffer pos at " + msg2.getBodyBuffer().readerIndex());
+         // log.debug("buffer pos at " + msg2.getBodyBuffer().readerIndex());
          //
-         // log.info("buffer length should be " + msg2.getBodyBuffer().readInt(PacketImpl.PACKET_HEADERS_SIZE));
+         // log.debug("buffer length should be " + msg2.getBodyBuffer().readInt(PacketImpl.PACKET_HEADERS_SIZE));
 
          msg2.getBodyBuffer().readBytes(receivedBytes);
 

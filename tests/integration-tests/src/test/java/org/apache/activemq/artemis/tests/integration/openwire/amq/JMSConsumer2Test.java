@@ -144,21 +144,17 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
 
       MessageConsumer consumer = session.createConsumer(destination);
       Message m = consumer.receive(1000);
-      System.out.println("m1 received: " + m);
       assertNotNull(m);
       m = consumer.receive(5000);
-      System.out.println("m2 received: " + m);
       assertNotNull(m);
       assertFalse("redelivered flag set", m.getJMSRedelivered());
 
       // install another consumer while message dispatch is unacked/uncommitted
       Session redispatchSession = connection.createSession(true, Session.SESSION_TRANSACTED);
       MessageConsumer redispatchConsumer = redispatchSession.createConsumer(destination);
-      System.out.println("redispatch consumer: " + redispatchConsumer);
 
       // no commit so will auto rollback and get re-dispatched to
       // redisptachConsumer
-      System.out.println("closing session: " + session);
       session.close();
 
       Message msg = redispatchConsumer.receive(3000);
@@ -174,7 +170,6 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       redispatchSession.commit();
 
       assertNull(redispatchConsumer.receive(500));
-      System.out.println("closing dispatch session: " + redispatchSession);
       redispatchSession.close();
    }
 

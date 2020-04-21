@@ -36,15 +36,12 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class JMSServerStartStopTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
 
@@ -72,7 +69,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
       final int numMessages = 5;
 
       for (int j = 0; j < numMessages; j++) {
-         JMSServerStartStopTest.log.info("Iteration " + j);
+         instanceLog.debug("Iteration " + j);
 
          server.start();
 

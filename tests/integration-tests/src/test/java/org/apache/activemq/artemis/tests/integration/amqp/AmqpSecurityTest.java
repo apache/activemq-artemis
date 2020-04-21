@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -119,7 +118,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
             session.createSender(getQueueName());
             fail("Should not be able to consume here.");
          } catch (Exception ex) {
-            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+            instanceLog.debug("Caught expected exception");
          }
 
          connection.getStateInspector().assertValid();
@@ -217,7 +216,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
             session.createReceiver(getQueueName());
             fail("Should not be able to consume here.");
          } catch (Exception ex) {
-            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+            instanceLog.debug("Caught expected exception");
          }
 
          connection.getStateInspector().assertValid();
@@ -254,7 +253,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
             session.createReceiver(getQueueName(getPrecreatedQueueSize() + 1));
             fail("Should not be able to consume here.");
          } catch (Exception ex) {
-            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+            instanceLog.debug("Caught expected exception");
          }
 
          connection.getStateInspector().assertValid();

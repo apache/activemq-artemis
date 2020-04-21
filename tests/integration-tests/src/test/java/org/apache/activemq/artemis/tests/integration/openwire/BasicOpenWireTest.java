@@ -97,12 +97,9 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    @After
    public void tearDown() throws Exception {
       System.clearProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime");
-      System.out.println("tear down! " + connection);
       try {
          if (connection != null) {
-            System.out.println("closing connection");
             connection.close();
-            System.out.println("connection closed.");
          }
 
          Iterator<SimpleString> iterQueues = testQueues.values().iterator();
@@ -116,7 +113,6 @@ public class BasicOpenWireTest extends OpenWireTestBase {
                // just print, what else can we do?
                e.printStackTrace();
             }
-            System.out.println("Destroyed queue: " + coreQ);
          }
          testQueues.clear();
       } catch (Throwable e) {

@@ -39,7 +39,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          TemporaryQueue queue = session.createTemporaryQueue();
-         System.out.println("queue:" + queue.getQueueName());
+         instanceLog.debug("queue:" + queue.getQueueName());
          MessageProducer producer = session.createProducer(queue);
 
          TextMessage message = session.createTextMessage();
@@ -92,7 +92,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       TemporaryTopic topic = session.createTemporaryTopic();
 
-      System.out.println("topic:" + topic.getTopicName());
+      instanceLog.debug("topic:" + topic.getTopicName());
       MessageConsumer consumer = session.createConsumer(topic);
       MessageProducer producer = session.createProducer(topic);
 

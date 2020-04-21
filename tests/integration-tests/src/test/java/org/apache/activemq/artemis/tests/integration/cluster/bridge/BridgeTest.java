@@ -82,6 +82,7 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,6 +91,8 @@ import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
 public class BridgeTest extends ActiveMQTestBase {
+
+   private static final Logger log = Logger.getLogger(BridgeTest.class);
 
    private ActiveMQServer server0;
    private ActiveMQServer server1;
@@ -248,7 +251,6 @@ public class BridgeTest extends ActiveMQTestBase {
          assertEquals(0, loadQueues(server0).size());
       }
       long timeTaken = System.currentTimeMillis() - time;
-      System.out.println(timeTaken + "ms");
    }
 
    @Test
@@ -391,7 +393,6 @@ public class BridgeTest extends ActiveMQTestBase {
          assertEquals(0, loadQueues(server0).size());
       }
       long timeTaken = System.currentTimeMillis() - time;
-      System.out.println(timeTaken + "ms");
    }
 
    public void internaltestSimpleBridge(final boolean largeMessage, final boolean useFiles) throws Exception {
@@ -1495,7 +1496,7 @@ public class BridgeTest extends ActiveMQTestBase {
             msgCount.incrementAndGet();
 
             if (i % 500 == 0)
-               System.out.println("received " + i);
+              instanceLog.debug("received " + i);
          }
 
          boolean failed = false;
@@ -1569,14 +1570,11 @@ public class BridgeTest extends ActiveMQTestBase {
 
          if (packet instanceof SessionSendMessage && ++count == 100) {
             try {
-               System.out.println("Stopping server after " + count + " messages");
-
                thread = new Thread("***Server Restarter***") {
 
                   @Override
                   public void run() {
                      try {
-                        System.out.println("Stopping server");
                         serverToStop.fail(false);
                         latch.countDown();
                      } catch (Exception e) {
@@ -1816,7 +1814,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          File outputFile = new File(getTemporaryDir(), "huge_message_received.dat");
 
-         System.out.println("-----message save to: " + outputFile.getAbsolutePath());
+         instanceLog.debug("-----message save to: " + outputFile.getAbsolutePath());
          FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
 
          BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
@@ -1861,7 +1859,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       createFile(fileInput, largeMessageSize);
 
-      System.out.println("File created at: " + fileInput.getAbsolutePath());
+      instanceLog.debug("File created at: " + fileInput.getAbsolutePath());
 
       ClientMessage message = session.createMessage(Message.BYTES_TYPE, true);
 
@@ -1875,13 +1873,13 @@ public class BridgeTest extends ActiveMQTestBase {
 
    private static void createFile(final File file, final long fileSize) throws IOException {
       if (file.exists()) {
-         System.out.println("---file already there " + file.length());
+         log.warn("---file already there " + file.length());
          return;
       }
       FileOutputStream fileOut = new FileOutputStream(file);
       BufferedOutputStream buffOut = new BufferedOutputStream(fileOut);
       byte[] outBuffer = new byte[1024 * 1024];
-      System.out.println(" --- creating file, size: " + fileSize);
+      log.debug(" --- creating file, size: " + fileSize);
       for (long i = 0; i < fileSize; i += outBuffer.length) {
          buffOut.write(outBuffer);
       }

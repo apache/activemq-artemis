@@ -164,6 +164,12 @@ import org.junit.runner.Description;
  */
 public abstract class ActiveMQTestBase extends Assert {
 
+   private static final Logger log = Logger.getLogger(ActiveMQTestBase.class);
+
+   private static final Logger baseLog = Logger.getLogger(ActiveMQTestBase.class);
+
+   protected final Logger instanceLog = Logger.getLogger(this.getClass());
+
    static {
       Env.setTestEnv(true);
    }
@@ -206,7 +212,6 @@ public abstract class ActiveMQTestBase extends Assert {
    private static final String SEND_CALL_NUMBER = "sendCallNumber";
    private static final String OS_TYPE = System.getProperty("os.name").toLowerCase();
    private static final int DEFAULT_UDP_PORT;
-   private static final ActiveMQServerLogger log = ActiveMQServerLogger.LOGGER;
 
    protected static final long WAIT_TIMEOUT = 30000;
 
@@ -240,12 +245,12 @@ public abstract class ActiveMQTestBase extends Assert {
    public TestRule watcher = new TestWatcher() {
       @Override
       protected void starting(Description description) {
-         log.info(String.format("**** start #test %s() ***", description.getMethodName()));
+         baseLog.info(String.format("**** start #test %s() ***", description.getMethodName()));
       }
 
       @Override
       protected void finished(Description description) {
-         log.info(String.format("**** end #test %s() ***", description.getMethodName()));
+         baseLog.info(String.format("**** end #test %s() ***", description.getMethodName()));
       }
    };
 
@@ -271,7 +276,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected <T> T serialClone(Object object) throws Exception {
-      System.out.println("object::" + object);
+      log.debug("object::" + object);
       ByteArrayOutputStream bout = new ByteArrayOutputStream();
       ObjectOutputStream obOut = new ObjectOutputStream(bout);
       obOut.writeObject(object);
@@ -1088,16 +1093,16 @@ public abstract class ActiveMQTestBase extends Assert {
          } else if (prop.getPropertyType() == Double.class || prop.getPropertyType() == Double.TYPE) {
             value = RandomUtil.randomDouble();
          } else {
-            System.out.println("Can't validate property of type " + prop.getPropertyType() + " on " + prop.getName());
+            log.debug("Can't validate property of type " + prop.getPropertyType() + " on " + prop.getName());
             value = null;
          }
 
          if (value != null && prop.getWriteMethod() != null && prop.getReadMethod() == null) {
-            System.out.println("WriteOnly property " + prop.getName() + " on " + pojo.getClass());
+            log.debug("WriteOnly property " + prop.getName() + " on " + pojo.getClass());
          } else if (value != null && prop.getWriteMethod() != null &&
             prop.getReadMethod() != null &&
             !ignoreSet.contains(prop.getName())) {
-            System.out.println("Validating " + prop.getName() + " type = " + prop.getPropertyType());
+            log.debug("Validating " + prop.getName() + " type = " + prop.getPropertyType());
             prop.getWriteMethod().invoke(pojo, value);
 
             Assert.assertEquals("Property " + prop.getName(), value, prop.getReadMethod().invoke(pojo));
@@ -1300,7 +1305,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
 
       if (!server.isStarted()) {
-         log.info(threadDump("Server didn't start"));
+         baseLog.info(threadDump("Server didn't start"));
          fail("server didn't start: " + server);
       }
 
@@ -1322,7 +1327,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
 
       if (server.isStarted()) {
-         log.info(threadDump("Server didn't start"));
+         baseLog.info(threadDump("Server didn't start"));
          fail("Server didn't start: " + server);
       }
    }
@@ -1821,9 +1826,6 @@ public abstract class ActiveMQTestBase extends Assert {
       }
 
       AtomicInteger getType(byte key) {
-         if (key == 0) {
-            System.out.println("huh?");
-         }
          Integer ikey = (int) key;
          AtomicInteger value = recordsType.get(ikey);
          if (value == null) {
@@ -1939,7 +1941,7 @@ public abstract class ActiveMQTestBase extends Assert {
          ")" +
          ")";
 
-      log.error(msg);
+      baseLog.error(msg);
       return false;
    }
 
@@ -2033,7 +2035,7 @@ public abstract class ActiveMQTestBase extends Assert {
       int invmSize = InVMRegistry.instance.size();
       if (invmSize > 0) {
          InVMRegistry.instance.clear();
-         log.info(threadDump("Thread dump"));
+         baseLog.info(threadDump("Thread dump"));
          fail("invm registry still had acceptors registered");
       }
 
@@ -2050,14 +2052,14 @@ public abstract class ActiveMQTestBase extends Assert {
       try {
          ServerLocatorImpl.clearThreadPools();
       } catch (Throwable e) {
-         log.info(threadDump(e.getMessage()));
+         baseLog.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
 
       try {
          NettyConnector.clearThreadPools();
       } catch (Exception e) {
-         log.info(threadDump(e.getMessage()));
+         baseLog.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
    }

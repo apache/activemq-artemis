@@ -27,7 +27,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.AfterClass;
@@ -86,7 +85,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
       try {
          f.get(15, TimeUnit.SECONDS);
       } catch (Exception e) {
-         IntegrationTestLogger.LOGGER.warn("aborting test because server is taking too long to start");
+         instanceLog.warn("aborting test because server is taking too long to start");
       }
 
       service.shutdown();

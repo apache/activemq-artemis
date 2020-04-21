@@ -61,9 +61,6 @@ public class RelativePathTest extends ActiveMQTestBase {
 
       //      configuration.setJournal
 
-      System.out.println("Journal dir::" + configuration.getJournalDirectory());
-      System.out.println("Journal loc::" + configuration.getJournalLocation());
-
       ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
 
       server.start();
@@ -84,7 +81,6 @@ public class RelativePathTest extends ActiveMQTestBase {
       // One folder up for testing
       File bindingsHome = new File(instanceHome, "../binx");
 
-      System.out.println("InstanceHome->" + instanceHome);
       instanceHome.mkdirs();
       configuration.setBrokerInstance(instanceHome);
 

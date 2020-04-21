@@ -22,7 +22,6 @@ import java.util.UUID;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.junit.Assert;
@@ -33,7 +32,6 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class StompTestMultiThreaded extends StompTestBase {
 
-   private static final transient IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
    private static final SimpleString QUEUE = new SimpleString("x");
 
    class SomeConsumer extends Thread {

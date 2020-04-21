@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
@@ -51,8 +50,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ReattachTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
    private ActiveMQServer server;
@@ -144,14 +141,10 @@ public class ReattachTest extends ActiveMQTestBase {
 
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            System.out.println("Intercept..." + packet.getClass().getName());
-
             if (packet instanceof SessionProducerCreditsMessage) {
                SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage) packet;
 
-               System.out.println("Credits: " + credit.getCredits());
                if (count.incrementAndGet() == 2) {
-                  System.out.println("Failing");
                   connection.fail(new ActiveMQException(ActiveMQExceptionType.UNSUPPORTED_PACKET, "bye"));
                   return false;
                }
@@ -505,7 +498,7 @@ public class ReattachTest extends ActiveMQTestBase {
                try {
                   connFailure.fail(new ActiveMQNotConnectedException());
                } catch (Exception e) {
-                  ReattachTest.log.warn("Error on the timer " + e);
+                  instanceLog.warn("Error on the timer " + e);
                }
             }
 

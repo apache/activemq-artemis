@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -32,11 +33,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.jboss.logmanager.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -44,9 +47,19 @@ import org.junit.Test;
 
 public class AddressFullLoggingTest extends ActiveMQTestBase {
 
+   private static final Logger logManager = org.jboss.logmanager.Logger.getLogger(ActiveMQServerLogger.class.getPackage().getName());
+   private static java.util.logging.Level previousLevel = logManager.getLevel();
+
    @BeforeClass
    public static void prepareLogger() {
+      logManager.setLevel(Level.INFO);
       AssertionLoggerHandler.startCapture();
+   }
+
+   @AfterClass
+   public static void clearLogger() {
+      AssertionLoggerHandler.stopCapture();
+      logManager.setLevel(previousLevel);
    }
 
    @Test
@@ -145,8 +158,4 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       Assert.assertFalse("Expected to not find AMQ222211", AssertionLoggerHandler.findText("AMQ222211"));
    }
 
-   @AfterClass
-   public static void clearLogger() {
-      AssertionLoggerHandler.stopCapture();
-   }
 }

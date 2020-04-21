@@ -148,7 +148,7 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
          for (int i = 0; i < NUM_MESSAGES  / 2; ++i) {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
             Assert.assertNotNull(message);
-            System.out.println("Read message: " + message.getApplicationProperty("myNewID"));
+            instanceLog.debug("Read message: " + message.getApplicationProperty("myNewID"));
             assertNotNull(message);
             messages.add(message);
          }

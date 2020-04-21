@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.rest.queue.push.ActiveMQPushStrategy;
 import org.apache.activemq.artemis.rest.queue.push.xml.XmlLink;
 import org.apache.activemq.artemis.rest.topic.PushTopicRegistration;
 import org.apache.activemq.artemis.rest.topic.TopicDeployment;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -35,6 +36,8 @@ import org.junit.Test;
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
 public class PushTopicConsumerTest extends MessageTestBase {
+
+   private static final Logger log = Logger.getLogger(PushTopicConsumerTest.class);
 
    @BeforeClass
    public static void setup() throws Exception {
@@ -69,9 +72,9 @@ public class PushTopicConsumerTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-subscriptions");
-      System.out.println("push subscriptions: " + pushSubscriptions);
+      log.debug("push subscriptions: " + pushSubscriptions);
 
       request = new ClientRequest(generateURL("/queues/testBridgeForwardQueue"));
       response = request.head();
@@ -128,9 +131,9 @@ public class PushTopicConsumerTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-subscriptions");
-      System.out.println("push subscriptions: " + pushSubscriptions);
+      log.debug("push subscriptions: " + pushSubscriptions);
 
       request = new ClientRequest(generateURL("/queues/testClassForwardQueue"));
       response = request.head();
@@ -187,9 +190,9 @@ public class PushTopicConsumerTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-subscriptions");
-      System.out.println("push subscriptions: " + pushSubscriptions);
+      log.debug("push subscriptions: " + pushSubscriptions);
 
       request = new ClientRequest(generateURL("/queues/testTemplateForwardQueue"));
       response = request.head();
@@ -279,9 +282,9 @@ public class PushTopicConsumerTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-subscriptions");
-      System.out.println("push subscriptions: " + pushSubscriptions);
+      log.debug("push subscriptions: " + pushSubscriptions);
 
       PushTopicRegistration reg = new PushTopicRegistration();
       reg.setDurable(false);
@@ -323,9 +326,9 @@ public class PushTopicConsumerTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-subscriptions");
-      System.out.println("push subscriptions: " + pushSubscriptions);
+      log.debug("push subscriptions: " + pushSubscriptions);
 
       PushTopicRegistration reg = new PushTopicRegistration();
       reg.setDurable(false);

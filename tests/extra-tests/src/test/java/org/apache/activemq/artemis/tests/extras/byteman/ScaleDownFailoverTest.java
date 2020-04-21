@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 public class ScaleDownFailoverTest extends ClusterTestBase {
+   private static final Logger log = Logger.getLogger(ScaleDownFailoverTest.class);
 
    protected static int stopCount = 0;
    private static ActiveMQServer[] staticServers;
@@ -159,7 +161,7 @@ public class ScaleDownFailoverTest extends ClusterTestBase {
                      if (transportConfiguration.getParams().get(TransportConstants.PORT_PROP_NAME).equals(tc.getParams().get(TransportConstants.PORT_PROP_NAME))) {
                         activeMQServer.stop();
                         stopCount++;
-                        System.out.println("Stopping server listening at: " + tc.getParams().get(TransportConstants.PORT_PROP_NAME));
+                        log.debug("Stopping server listening at: " + tc.getParams().get(TransportConstants.PORT_PROP_NAME));
                      }
                   }
                }

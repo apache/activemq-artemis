@@ -292,8 +292,6 @@ public class LargeMessageCompressTest extends LargeMessageTest {
    public void testHugeStreamingSpacesCompressed() throws Exception {
       final long messageSize = 1024L * 1024L;
 
-      System.out.println("Message size = " + messageSize);
-
       ActiveMQServer server = createServer(true, isNetty());
 
       server.start();

@@ -39,7 +39,6 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
 
 
    private boolean checkMessageProperties(MqttMessage message, Map<String, Object> expectedProperties) {
-      System.out.println("Checking properties in interceptor");
       try {
          assertNotNull(message);
          assertNotNull(server.getNodeID());
@@ -77,7 +76,6 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
       MQTTInterceptor incomingInterceptor = new MQTTInterceptor() {
          @Override
          public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
-            System.out.println("incoming");
             if (packet.getClass() == MqttPublishMessage.class) {
                return checkMessageProperties(packet, expectedProperties);
             } else {
@@ -90,7 +88,6 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
       MQTTInterceptor outgoingInterceptor = new MQTTInterceptor() {
          @Override
          public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
-            System.out.println("outgoing");
             if (packet.getClass() == MqttPublishMessage.class) {
                return checkMessageProperties(packet, expectedProperties);
             } else {

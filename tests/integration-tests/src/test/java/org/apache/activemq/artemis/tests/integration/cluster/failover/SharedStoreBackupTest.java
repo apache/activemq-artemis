@@ -30,7 +30,6 @@ public class SharedStoreBackupTest extends FailoverTestBase {
 
    @Test
    public void testStartSharedBackupWithScalingDownPolicyDisabled() throws Exception {
-      System.out.println("is backup active: " + backupServer.isActive());
       liveServer.stop();
       // wait max 10s for backup to activate
       Assert.assertTrue("Backup did not activate in 10s timeout.", waitForBackupToBecomeActive(backupServer, 10000));
@@ -59,7 +58,6 @@ public class SharedStoreBackupTest extends FailoverTestBase {
       nodeManager = new InVMNodeManager(false);
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
-      System.out.println("backup config created - mnovak");
       backupConfig = super.createDefaultConfig(false).clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration().setScaleDownConfiguration(new ScaleDownConfiguration().setEnabled(false)).setRestartBackup(false)).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);

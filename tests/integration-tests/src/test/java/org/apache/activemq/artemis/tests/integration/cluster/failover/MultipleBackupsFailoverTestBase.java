@@ -33,14 +33,11 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 
 public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
-
-   IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected abstract boolean isNetty();
 
@@ -140,7 +137,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
       locator.removeClusterTopologyListener(topListener);
       if (!ok) {
          if (server != null) {
-            log.info("failed topology, Topology on server = " + server.getClusterManager().describe());
+            instanceLog.warn("failed topology, Topology on server = " + server.getClusterManager().describe());
          }
       }
       Assert.assertTrue("expected " + topologyMembers + " members", ok);

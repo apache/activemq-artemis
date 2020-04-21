@@ -38,10 +38,8 @@ connection.start()
 Message message = queueConsumer.receive(5000);
 GroovyRun.assertNotNull(message)
 session.commit();
-System.out.println("Received " + message + " from: " + myQueue);
 queueConsumer.close();
 
-System.out.println("Sending message to: " + message.getJMSReplyTo());
 MessageProducer producer = session.createProducer(message.getJMSReplyTo());
 message = session.createMessage();
 producer.send(message);

@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,8 +29,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 public class SpringIntegrationTest extends ActiveMQTestBase {
-
-   IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before
@@ -44,12 +41,10 @@ public class SpringIntegrationTest extends ActiveMQTestBase {
 
    @Test
    public void testSpring() throws Exception {
-      System.out.println("Creating bean factory...");
       ApplicationContext context = null;
       try {
          context = new ClassPathXmlApplicationContext(new String[]{"spring-jms-beans.xml"});
          MessageSender sender = (MessageSender) context.getBean("MessageSender");
-         System.out.println("Sending message...");
          ExampleListener.latch.countUp();
          sender.send("Hello world");
          ExampleListener.latch.await(10, TimeUnit.SECONDS);

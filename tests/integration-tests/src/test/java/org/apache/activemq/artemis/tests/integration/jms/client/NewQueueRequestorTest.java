@@ -29,13 +29,10 @@ import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
 
 public class NewQueueRequestorTest extends JMSTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Test
    public void testQueueRequestor() throws Exception {
@@ -57,7 +54,6 @@ public class NewQueueRequestorTest extends JMSTestBase {
          conn2.start();
 
          Message m1 = sess1.createMessage();
-         log.trace("Sending request message");
          TextMessage m2 = (TextMessage) requestor.request(m1);
          assertNotNull(m2);
 
@@ -96,7 +92,7 @@ public class NewQueueRequestorTest extends JMSTestBase {
             Message m2 = sess.createTextMessage("This is the response");
             sender.send(queue, m2);
          } catch (JMSException e) {
-            log.error(e);
+            instanceLog.error(e);
          }
       }
    }

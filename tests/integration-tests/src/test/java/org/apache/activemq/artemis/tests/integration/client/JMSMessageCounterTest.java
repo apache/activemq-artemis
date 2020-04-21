@@ -57,7 +57,7 @@ public class JMSMessageCounterTest extends JMSTestBase {
       QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue.getQueueName());
       assertNotNull(control);
 
-      System.out.println(control.listMessageCounterAsHTML());
+      instanceLog.debug(control.listMessageCounterAsHTML());
 
       jmsServer.stop();
 
@@ -66,7 +66,7 @@ public class JMSMessageCounterTest extends JMSTestBase {
       control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue.getQueueName());
       assertNotNull(control);
 
-      System.out.println(control.listMessageCounterAsHTML());
+      instanceLog.debug(control.listMessageCounterAsHTML());
    }
 
 }

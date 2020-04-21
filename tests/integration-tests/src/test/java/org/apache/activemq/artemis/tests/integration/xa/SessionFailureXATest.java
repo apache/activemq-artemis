@@ -38,7 +38,6 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
@@ -54,8 +53,6 @@ public class SessionFailureXATest extends ActiveMQTestBase {
 
    @Rule
    public RetryRule retryRule = new RetryRule(1);
-
-   private static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 

@@ -63,10 +63,12 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TransactionImplTest extends ActiveMQTestBase {
+   private static final Logger log = Logger.getLogger(TransactionImplTest.class);
 
    @Test
    public void testTimeoutAndThenCommitWithARollback() throws Exception {
@@ -94,7 +96,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
          @Override
          public void afterCommit(Transaction tx) {
-            System.out.println("commit...");
+            log.debug("commit...");
             commit.incrementAndGet();
          }
 
@@ -105,7 +107,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
          @Override
          public void afterRollback(Transaction tx) {
-            System.out.println("rollback...");
+            log.debug("rollback...");
             rollback.incrementAndGet();
          }
 
@@ -162,7 +164,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
          @Override
          public void afterCommit(Transaction tx) {
-            System.out.println("commit...");
+            log.debug("commit...");
             commit.incrementAndGet();
          }
 
@@ -173,7 +175,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
          @Override
          public void afterRollback(Transaction tx) {
-            System.out.println("rollback...");
+            log.debug("rollback...");
             rollback.incrementAndGet();
          }
 

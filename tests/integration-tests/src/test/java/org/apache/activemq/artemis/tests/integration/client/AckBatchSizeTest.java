@@ -82,7 +82,7 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(queueA);
       session.start();
       for (int i = 0; i < numMessages - 1; i++) {
-         System.out.println("Receive ");
+         instanceLog.debug("Receive ");
          ClientMessage m = consumer.receive(5000);
          Assert.assertEquals(0, m.getPropertyNames().size());
          Assert.assertEquals("expected to be " + originalSize, originalSize, m.getEncodeSize());

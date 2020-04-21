@@ -36,14 +36,12 @@ import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
 import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 
 public class DiscoveryBaseTest extends ActiveMQTestBase {
 
-   protected static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected final String address1 = getUDPDiscoveryAddress();
 

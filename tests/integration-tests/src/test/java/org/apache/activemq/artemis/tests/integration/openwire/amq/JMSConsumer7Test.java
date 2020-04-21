@@ -87,10 +87,8 @@ public class JMSConsumer7Test extends BasicOpenWireTest {
                   connection.close();
                   got2Done.countDown();
                }
-               System.out.println("acking tm: " + tm.getText());
                tm.acknowledge();
             } catch (Throwable e) {
-               System.out.println("ack failed!!");
                e.printStackTrace();
             }
          }
@@ -118,7 +116,6 @@ public class JMSConsumer7Test extends BasicOpenWireTest {
          public void onMessage(Message m) {
             try {
                TextMessage tm = (TextMessage) m;
-               System.out.println("2nd received: " + tm.getText());
                // order is not guaranteed as the connection is started before
                // the listener is set.
                // assertEquals("" + counter.get(), tm.getText());

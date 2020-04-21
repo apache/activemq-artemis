@@ -156,7 +156,6 @@ public class RestDeserializationTest extends RestTestBase {
       deployWebApp("/restapp", warFile);
       server.start();
       String uri = server.getURI().toASCIIString();
-      System.out.println("Sever started with uri: " + uri);
 
       restConnection = new RestAMQConnection(uri);
    }

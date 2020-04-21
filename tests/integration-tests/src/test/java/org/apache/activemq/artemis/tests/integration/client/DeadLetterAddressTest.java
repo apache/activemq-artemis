@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -48,8 +47,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class DeadLetterAddressTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
 
@@ -395,8 +392,6 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       for (int i = 0; i < deliveryAttempt; i++) {
          ClientMessage m = clientConsumer.receive(500);
          Assert.assertNotNull(m);
-         DeadLetterAddressTest.log.info("i is " + i);
-         DeadLetterAddressTest.log.info("delivery cout is " + m.getDeliveryCount());
          Assert.assertEquals(i + 1, m.getDeliveryCount());
          m.acknowledge();
          clientSession.rollback();

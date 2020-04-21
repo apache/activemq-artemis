@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,7 +40,7 @@ import org.junit.Test;
 public class FloodServerTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(FloodServerTest.class);
 
    private ActiveMQServer server;
 
@@ -150,11 +150,6 @@ public class FloodServerTest extends ActiveMQTestBase {
 
             for (int i = 0; i < numMessages; i++) {
                producer.send(message);
-
-               // if (i % 1000 == 0)
-               // {
-               // log.info("Producer " + this + " sent " + i);
-               // }
             }
 
             connection.close();
@@ -196,11 +191,6 @@ public class FloodServerTest extends ActiveMQTestBase {
                   FloodServerTest.log.error("message is null");
                   break;
                }
-
-               // if (i % 1000 == 0)
-               // {
-               // log.info("Consumer " + this + " received " + i);
-               // }
             }
 
             connection.close();

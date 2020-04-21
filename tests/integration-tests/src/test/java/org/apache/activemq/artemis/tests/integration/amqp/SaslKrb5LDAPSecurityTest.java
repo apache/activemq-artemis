@@ -119,6 +119,7 @@ import static org.apache.activemq.artemis.tests.util.ActiveMQTestBase.NETTY_ACCE
 @CreateKdcServer(transports = {@CreateTransport(protocol = "TCP", port = 0)})
 @ApplyLdifFiles("SaslKrb5LDAPSecurityTest.ldif")
 public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
+   private static final org.jboss.logging.Logger log = org.jboss.logging.Logger.getLogger(SaslKrb5LDAPSecurityTest.class);
 
    protected static final Logger LOG = LoggerFactory.getLogger(SaslKrb5LDAPSecurityTest.class);
    public static final String QUEUE_NAME = "some_queue";
@@ -222,7 +223,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
       Method refreshMethod = classRef.getMethod("refresh", new Class[0]);
       refreshMethod.invoke(classRef, new Object[0]);
 
-      LOG.info("krb5.conf to: {}", krb5conf.getAbsolutePath());
+      LOG.debug("krb5.conf to: {}", krb5conf.getAbsolutePath());
    }
 
    private void dumpLdapContents() throws Exception {
@@ -234,7 +235,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          String ss = LdifUtils.convertToLdif(entry);
          st += ss + "\n";
       }
-      System.out.println(st);
+      log.debug(st);
 
       cursor = getService().getAdminSession().search(new Dn("dc=example,dc=com"), SearchScope.SUBTREE, new PresenceNode("ObjectClass"), AliasDerefMode.DEREF_ALWAYS);
       st = "";
@@ -244,7 +245,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          String ss = LdifUtils.convertToLdif(entry);
          st += ss + "\n";
       }
-      System.out.println(st);
+      log.debug(st);
    }
 
    private void initLogging() {

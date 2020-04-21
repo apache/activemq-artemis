@@ -192,13 +192,13 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       Assert.assertNotNull(message2);
 
-      System.out.println("Id::" + message2.getMessageID());
+      instanceLog.debug("Id::" + message2.getMessageID());
 
-      System.out.println("Received " + message2);
+      instanceLog.debug("Received " + message2);
 
-      System.out.println("Clie:" + ByteUtil.bytesToHex(message2.getBuffer().array(), 4));
+      instanceLog.debug("Clie:" + ByteUtil.bytesToHex(message2.getBuffer().array(), 4));
 
-      System.out.println("String::" + message2.getReadOnlyBodyBuffer().readString());
+      instanceLog.debug("String::" + message2.getReadOnlyBodyBuffer().readString());
 
       Assert.assertEquals("elo", message2.getStringProperty("hello"));
 
@@ -579,7 +579,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          }
          long end = System.currentTimeMillis();
 
-         System.out.println("Time = " + (end - time));
+         instanceLog.debug("Time = " + (end - time));
 
          {
             TextMessage dummyMessage = session.createTextMessage();
@@ -1012,7 +1012,7 @@ public class ConsumerTest extends ActiveMQTestBase {
                }
 
                if (cons.receiveImmediate() != null) {
-                  System.out.println("ERROR: Received an extra message");
+                  instanceLog.debug("ERROR: Received an extra message");
                   errors.incrementAndGet();
                }
                sessionSend.close();
@@ -1249,11 +1249,11 @@ public class ConsumerTest extends ActiveMQTestBase {
       final long messagesPerRun = (forks * messages);
       for (int r = 0; r < runs; r++) {
          onStartRun.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-         System.out.println("started run " + r);
+         instanceLog.debug("started run " + r);
          final long start = System.currentTimeMillis();
          onFinishRun.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
          final long elapsedMillis = System.currentTimeMillis() - start;
-         System.out.println((messagesPerRun * 1000L) / elapsedMillis + " msg/sec");
+         instanceLog.debug((messagesPerRun * 1000L) / elapsedMillis + " msg/sec");
       }
       Stream.of(producersRunners).forEach(runner -> {
          try {

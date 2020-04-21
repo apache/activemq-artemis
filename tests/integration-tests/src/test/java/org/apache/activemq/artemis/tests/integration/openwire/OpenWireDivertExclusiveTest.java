@@ -93,7 +93,6 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
          MessageConsumer consumer3 = session.createConsumer(q3);
          MessageConsumer consumer4 = session.createConsumer(q4);
 
-         System.out.println("receiving ...");
          for (int i = 0; i < numMessages; i++) {
             Message message = consumer1.receive(TIMEOUT);
 
@@ -153,7 +152,6 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
          MessageConsumer consumer1 = session.createConsumer(q1);
          MessageConsumer consumer2 = session.createConsumer(q2);
 
-         System.out.println("receiving ...");
          for (int i = 0; i < numMessages; i++) {
             Message message = consumer1.receive(TIMEOUT);
 
