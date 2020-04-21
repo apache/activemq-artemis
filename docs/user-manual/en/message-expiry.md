@@ -48,7 +48,7 @@ properties:
   
 ## Configuring Expiry Delay
 
-Default Expiry delay can be configured in the address-setting configuration:
+Default expiry delay can be configured in the address-setting configuration:
 
 ```xml
 <!-- expired messages in exampleQueue will be sent to the expiry address expiryQueue -->
@@ -62,11 +62,35 @@ Default Expiry delay can be configured in the address-setting configuration:
 which are using the default expiration time (i.e. 0). 
   
 For example, if `expiry-delay` is set to "10" and a message which is using the default 
-expiration time (i.e.10) arrives then its expiration time of "0" will be changed to "10." 
+expiration time (i.e. 10) arrives then its expiration time of "0" will be changed to "10."
 However, if a message which is using an expiration time of "20" arrives then its expiration
 time will remain unchanged. Setting `expiry-delay` to "-1" will disable this feature. 
   
-The default is "-1".
+The default is `-1`.
+
+If `expiry-delay` is *not set* then minimum and maximum expiry delay values can be configured
+in the address-setting configuration.
+
+```xml
+<address-setting match="exampleQueue">
+   <min-expiry-delay>10</min-expiry-delay>
+   <max-expiry-delay>100</max-expiry-delay>
+</address-setting>
+```
+
+Semantics are as follows:
+
+ - Messages _without_ an expiration will be set to `max-expiry-delay`. If `max-expiry-delay`
+   is not defined then the message will be set to `min-expiry-delay`. If `min-expiry-delay`
+   is not defined then the message will not be changed.
+ - Messages with an expiration _above_ `max-expiry-delay` will be set to `max-expiry-delay`
+ - Messages with an expiration _below_ `min-expiry-delay` will be set to `min-expiry-delay`
+ - Messages with an expiration _within_ `min-expiry-delay` and `max-expiry-delay` range will
+   not be changed
+ - Any value set for `expiry-delay` other than the default (i.e. `-1`) will override the
+   aforementioned min/max settings.
+
+The default for both `min-expiry-delay` and `max-expiry-delay` is `-1` (i.e. disabled).
 
 ## Configuring Expiry Addresses
 
