@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.jboss.logging.Logger;
@@ -49,8 +48,6 @@ public class TestDeadlockOnPurgePagingTest extends ActiveMQTestBase {
    protected ClientSessionFactory sf;
    static final int MESSAGE_SIZE = 1024; // 1k
    static final int LARGE_MESSAGE_SIZE = 100 * 1024;
-
-   protected static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected static final int RECEIVE_TIMEOUT = 5000;
 

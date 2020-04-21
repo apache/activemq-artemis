@@ -62,20 +62,18 @@ import org.fusesource.hawtdispatch.internal.DispatcherConfig;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Tracer;
 import org.fusesource.mqtt.codec.MQTTFrame;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static java.util.Collections.singletonList;
 
 public class MQTTTestSupport extends ActiveMQTestBase {
 
+   private static final Logger log = Logger.getLogger(MQTTTestSupport.class);
    protected ActiveMQServer server;
-
-   private static final Logger LOG = LoggerFactory.getLogger(MQTTTestSupport.class);
 
    static {
       DispatcherConfig.getDefaultDispatcher().getThreadQueues(DispatchPriority.DEFAULT);
@@ -235,7 +233,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
       server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
 
-      LOG.info("Added connector {} to broker", getProtocolScheme());
+      log.debugv("Added connector {} to broker", getProtocolScheme());
    }
 
    protected void addMQTTConnector() throws Exception {
@@ -245,7 +243,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
 
       server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:");
 
-      LOG.info("Added connector {} to broker", getProtocolScheme());
+      log.debugv("Added connector {} to broker", getProtocolScheme());
    }
 
    public void stopBroker() throws Exception {
@@ -407,17 +405,17 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       return new Tracer() {
          @Override
          public void onReceive(MQTTFrame frame) {
-            LOG.info("Client Received:\n" + frame);
+            log.debug("Client Received:\n" + frame);
          }
 
          @Override
          public void onSend(MQTTFrame frame) {
-            LOG.info("Client Sent:\n" + frame);
+            log.debug("Client Sent:\n" + frame);
          }
 
          @Override
          public void debug(String message, Object... args) {
-            LOG.info(String.format(message, args));
+            log.debug(String.format(message, args));
          }
       };
    }

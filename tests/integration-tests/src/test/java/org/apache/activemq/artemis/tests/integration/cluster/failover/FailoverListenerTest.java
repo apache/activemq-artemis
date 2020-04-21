@@ -37,14 +37,12 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfigu
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 public class FailoverListenerTest extends FailoverTestBase {
 
-   private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
    private ServerLocatorInternal locator;
    private ClientSessionFactoryInternal sf;
 
@@ -74,9 +72,9 @@ public class FailoverListenerTest extends FailoverTestBase {
       assertTrue(failureLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(0));
 
-      log.info("backup (nowLive) topology = " + backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
+      instanceLog.debug("backup (nowLive) topology = " + backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
 
-      log.info("Server Crash!!!");
+      instanceLog.debug("Server Crash!!!");
 
       assertTrue(failureDoneLatch.await(5, TimeUnit.SECONDS));
       //the backup server should be online by now
@@ -92,7 +90,7 @@ public class FailoverListenerTest extends FailoverTestBase {
 
       verifyMessageOnServer(1, 1);
 
-      log.info("******* starting live server back");
+      instanceLog.debug("******* starting live server back");
       liveServer.start();
       Thread.sleep(1000);
       //starting the live server trigger a failover event
@@ -101,7 +99,7 @@ public class FailoverListenerTest extends FailoverTestBase {
       //the life server should be online by now
       assertEquals(FailoverEventType.FAILOVER_COMPLETED, listener.getFailoverEventType().get(3));
 
-      System.out.println("After failback: " + locator.getTopology().describe());
+      instanceLog.debug("After failback: " + locator.getTopology().describe());
 
       message = session.createMessage(true);
 
@@ -268,7 +266,7 @@ public class FailoverListenerTest extends FailoverTestBase {
       @Override
       public void failoverEvent(FailoverEventType eventType) {
          this.failoverTypeEvent.add(eventType);
-         log.info("Failover event just happen : " + eventType.toString());
+         instanceLog.debug("Failover event just happen : " + eventType.toString());
          if (eventType == FailoverEventType.FAILURE_DETECTED) {
             failureLatch.countDown();
          } else if (eventType == FailoverEventType.FAILOVER_COMPLETED || eventType == FailoverEventType.FAILOVER_FAILED) {

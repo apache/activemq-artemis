@@ -36,11 +36,9 @@ Queue myQueue = session.createQueue("myQueue");
 
 GroovyRun.assertEquals("myQueue", myQueue.getQueueName());
 
-System.out.println("myQueue::" + myQueue);
 TemporaryTopic replyTopic = session.createTemporaryTopic();
 MessageConsumer consumer = session.createConsumer(replyTopic);
 
-System.out.println("Temporary Topic " + replyTopic);
 
 MessageProducer queueProducer = session.createProducer(myQueue)
 
@@ -53,14 +51,12 @@ sendMessage(session.createMessage(), replyTopic, myQueue, queueProducer);
 session.commit();
 
 
-System.out.println("Receiving message from: " + replyTopic);
 for (int i = 0; i < 5; i++) {
     message = consumer.receive(10000);
     GroovyRun.assertNotNull(message);
 }
 GroovyRun.assertNull(consumer.receiveNoWait());
 session.commit();
-System.out.println("Received message: " + message);
 
 connection.close();
 senderLatch.countDown();
@@ -68,6 +64,5 @@ senderLatch.countDown();
 
 void sendMessage(Message message, TemporaryTopic replyTopic, Queue myQueue, MessageProducer queueProducer) {
     message.setJMSReplyTo(replyTopic);
-    System.out.println("Sending " + message + " to: " + myQueue);
     queueProducer.send(message);
 }

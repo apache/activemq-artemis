@@ -26,10 +26,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.rest.MessageServiceConfiguration;
 import org.apache.activemq.artemis.rest.MessageServiceManager;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.jboss.resteasy.test.TestPortProvider;
 
 class EmbeddedTestServer {
+   private static final Logger log = Logger.getLogger(EmbeddedTestServer.class);
 
    protected MessageServiceManager manager = new MessageServiceManager(null);
    protected MessageServiceConfiguration config = new MessageServiceConfiguration();
@@ -38,7 +40,7 @@ class EmbeddedTestServer {
 
    EmbeddedTestServer() {
       int port = TestPortProvider.getPort();
-      System.out.println("default port is: " + port);
+      log.debug("default port is: " + port);
       tjws.setPort(port);
       tjws.setRootResourcePath("");
       tjws.setSecurityDomain(null);
@@ -65,7 +67,7 @@ class EmbeddedTestServer {
    }
 
    public void start() throws Exception {
-      System.out.println("\nStarting EmbeddedTestServer");
+      log.debug("\nStarting EmbeddedTestServer");
       if (activeMQServer == null) {
          Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
@@ -84,7 +86,7 @@ class EmbeddedTestServer {
    }
 
    public void stop() throws Exception {
-      System.out.println("\nStopping EmbeddedTestServer");
+      log.debug("\nStopping EmbeddedTestServer");
       manager.stop();
       tjws.stop();
       activeMQServer.stop();

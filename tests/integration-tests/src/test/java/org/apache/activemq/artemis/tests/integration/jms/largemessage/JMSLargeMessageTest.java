@@ -91,8 +91,6 @@ public class JMSLargeMessageTest extends JMSTestBase {
 
       byte[] data = new byte[1024];
 
-      System.out.println("Message = " + rm);
-
       for (int i = 0; i < 1024 * 1024; i += 1024) {
          int numberOfBytes = rm.readBytes(data);
          Assert.assertEquals(1024, numberOfBytes);
@@ -131,8 +129,6 @@ public class JMSLargeMessageTest extends JMSTestBase {
       BytesMessage rm = (BytesMessage) cons.receive(10000);
 
       byte[] data = new byte[1024];
-
-      System.out.println("Message = " + rm);
 
       int numberOfBytes = rm.readBytes(data);
       Assert.assertEquals(10, numberOfBytes);
@@ -179,7 +175,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
          rm.setObjectProperty("JMS_AMQ_OutputStream", new OutputStream() {
             @Override
             public void write(final int b) throws IOException {
-               System.out.println("b = " + b);
+               instanceLog.debug("b = " + b);
             }
 
          });
@@ -234,7 +230,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
          public void write(final int b) throws IOException {
             numberOfBytes.incrementAndGet();
             if (ActiveMQTestBase.getSamplebyte(position++) != b) {
-               System.out.println("Wrong byte at position " + position);
+               instanceLog.warn("Wrong byte at position " + position);
                numberOfErrors.incrementAndGet();
             }
          }

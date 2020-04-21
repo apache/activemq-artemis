@@ -24,12 +24,14 @@ import javax.jms.Session;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 public class FileSystemSyncBlockedTest extends CriticalAnalyzerFaultInjectionTestBase {
+   private static final Logger log = Logger.getLogger(FileSystemSyncBlockedTest.class);
 
    @BMRules(rules = {@BMRule(name = "Simulate Slow Disk Sync", targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile", targetMethod = "sync", targetLocation = "ENTRY", condition = "!flagged(\"testSlowDiskSync\")",  // Once the server shutdowns we stop applying this rule.
       action = "waitFor(\"testSlowDiskSync\")"), @BMRule(
@@ -57,7 +59,7 @@ public class FileSystemSyncBlockedTest extends CriticalAnalyzerFaultInjectionTes
 
       // if you have more than 100 components, then you have a leak!
       Assert.assertTrue(server.getStorageManager().getJournalSequentialFileFactory().getCriticalAnalyzer().getNumberOfComponents() < 10);
-      System.out.println("Number of components:" + server.getStorageManager().getJournalSequentialFileFactory().getCriticalAnalyzer().getNumberOfComponents());
+      log.debug("Number of components:" + server.getStorageManager().getJournalSequentialFileFactory().getCriticalAnalyzer().getNumberOfComponents());
 
    }
 }

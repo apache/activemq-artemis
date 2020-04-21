@@ -271,8 +271,6 @@ public class AddressControlTest extends ManagementTestBase {
 
       Assert.assertEquals("# of pages is 2", 2, addressControl.getNumberOfPages());
 
-      System.out.println("Address size=" + addressControl.getAddressSize());
-
       Assert.assertEquals(serverQueue.getPageSubscription().getPagingStore().getAddressSize(), addressControl.getAddressSize());
    }
 

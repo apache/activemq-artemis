@@ -127,7 +127,7 @@ public class AddressCommandTest extends JMSTestBase {
       ShowAddress showAddress = new ShowAddress();
       showAddress.setName(address);
       showAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      System.out.println(output.toString());
+      instanceLog.debug(output.toString());
    }
 
    @Test
@@ -158,7 +158,7 @@ public class AddressCommandTest extends JMSTestBase {
       showAddress.setName(address.toString());
       showAddress.setBindings(true);
       showAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      System.out.println(output.toString());
+      instanceLog.debug(output.toString());
    }
 
    @Test
@@ -208,13 +208,13 @@ public class AddressCommandTest extends JMSTestBase {
 
    private void checkExecutionPassed(AbstractAction command) throws Exception {
       String fullMessage = output.toString();
-      System.out.println("output: " + fullMessage);
+      instanceLog.debug("output: " + fullMessage);
       assertTrue(fullMessage, fullMessage.contains("successfully"));
    }
 
    private void checkExecutionFailure(AbstractAction command, String message) throws Exception {
       String fullMessage = error.toString();
-      System.out.println("error: " + fullMessage);
+      instanceLog.debug("error: " + fullMessage);
       assertTrue(fullMessage, fullMessage.contains(message));
    }
 }

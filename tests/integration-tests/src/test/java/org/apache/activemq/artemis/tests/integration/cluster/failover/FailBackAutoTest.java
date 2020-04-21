@@ -35,15 +35,16 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfigur
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
 public class FailBackAutoTest extends FailoverTestBase {
 
-   private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(FailBackAutoTest.class);
+
    private static final int NUM_MESSAGES = 100;
    private ServerLocatorInternal locator;
    private ClientSessionFactoryInternal sf;
@@ -71,9 +72,9 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       assertTrue(latch.await(5, TimeUnit.SECONDS));
 
-      log.info("backup (nowLive) topology = " + backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
+      log.debug("backup (nowLive) topology = " + backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
 
-      log.info("Server Crash!!!");
+      log.debug("Server Crash!!!");
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -93,12 +94,12 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       session.addFailureListener(listener);
 
-      log.info("******* starting live server back");
+      log.debug("******* starting live server back");
       liveServer.start();
 
       Thread.sleep(1000);
 
-      System.out.println("After failback: " + locator.getTopology().describe());
+      log.debug("After failback: " + locator.getTopology().describe());
 
       assertTrue(latch2.await(5, TimeUnit.SECONDS));
 
@@ -145,7 +146,7 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       session.addFailureListener(listener);
 
-      IntegrationTestLogger.LOGGER.info("Crashing live server...");
+      log.debug("Crashing live server...");
 
       liveServer.crash(session);
 
@@ -162,7 +163,7 @@ public class FailBackAutoTest extends FailoverTestBase {
       listener = new CountDownSessionFailureListener(session);
 
       session.addFailureListener(listener);
-      log.info("restarting live node now");
+      log.debug("restarting live node now");
       liveServer.start();
 
       assertTrue("expected a session failure 1", listener.getLatch().await(5, TimeUnit.SECONDS));
@@ -181,7 +182,7 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       waitForBackup(sf, 10);
 
-      IntegrationTestLogger.LOGGER.info("Crashing live server again...");
+      log.debug("Crashing live server again...");
 
       liveServer.crash();
 

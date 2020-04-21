@@ -29,14 +29,16 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
+
+   private static final Logger log = Logger.getLogger(AddressQueueDeleteDelayTest.class);
 
    public static final int DURATION_MILLIS = 30_000;
    public static final int SLEEP_MILLIS = 100;
@@ -82,14 +84,14 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
 
       long elapsedTime = System.currentTimeMillis() - start;
-      IntegrationTestLogger.LOGGER.info("Elapsed time to delete queue: " + elapsedTime);
+      log.debug("Elapsed time to delete queue: " + elapsedTime);
       assertTrue(elapsedTime >= (deleteQueuesDelay));
 
       start = info.getBindingRemovedTimestamp();
 
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
       elapsedTime = System.currentTimeMillis() - start;
-      IntegrationTestLogger.LOGGER.info("Elapsed time to delete address: " + elapsedTime);
+      log.debug("Elapsed time to delete address: " + elapsedTime);
       assertTrue("ellapsedTime=" + elapsedTime + " while delay is " + deleteAddressesDelay, elapsedTime >= (deleteAddressesDelay));
    }
 

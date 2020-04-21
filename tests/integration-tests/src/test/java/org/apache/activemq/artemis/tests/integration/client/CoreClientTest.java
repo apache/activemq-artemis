@@ -48,7 +48,6 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -56,8 +55,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class CoreClientTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Test
    public void testCoreClientNetty() throws Exception {
@@ -140,8 +137,6 @@ public class CoreClientTest extends ActiveMQTestBase {
 
          producer.send(message);
       }
-
-      CoreClientTest.log.info("sent messages");
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
 

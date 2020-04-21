@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -28,6 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class FindDestinationTest extends MessageTestBase {
+   private static final Logger log = Logger.getLogger(FindDestinationTest.class);
 
    @Test
    public void testFindQueue() throws Exception {
@@ -41,12 +43,12 @@ public class FindDestinationTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-      System.out.println("poller: " + consumeNext);
+      log.debug("poller: " + consumeNext);
 
       ClientResponse<?> res = sender.request().body("text/plain", Integer.toString(1)).post();
       res.releaseConnection();
@@ -57,7 +59,7 @@ public class FindDestinationTest extends MessageTestBase {
       Assert.assertEquals("1", res.getEntity(String.class));
       res.releaseConnection();
       Link session = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
-      System.out.println("session: " + session);
+      log.debug("session: " + session);
       Assert.assertEquals(204, session.request().delete().getStatus());
    }
 
@@ -82,7 +84,7 @@ public class FindDestinationTest extends MessageTestBase {
       Assert.assertNotNull(sub1);
       Link consumeNext1 = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consume-next");
       Assert.assertNotNull(consumeNext1);
-      System.out.println("consumeNext1: " + consumeNext1);
+      log.debug("consumeNext1: " + consumeNext1);
 
       res = subscriptions.request().post();
       Assert.assertEquals(201, res.getStatus());

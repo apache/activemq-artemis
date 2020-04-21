@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,6 +54,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(BMUnitRunner.class)
 public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase {
+   private static final Logger log = Logger.getLogger(RaceOnSyncLargeMessageOverReplication2Test.class);
 
    public static int messageChunkCount = 0;
 
@@ -84,7 +86,7 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
    public void setUp() throws Exception {
       super.setUp();
 
-      System.out.println("Tmp::" + getTemporaryDir());
+      log.debug("Tmp::" + getTemporaryDir());
 
       flagChunkEntered.setCount(1);
       flagChunkWait.setCount(1);
@@ -211,7 +213,7 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
 
       t.join(5000);
 
-      System.out.println("Thread joined");
+      log.debug("Thread joined");
 
       Assert.assertFalse(t.isAlive());
 

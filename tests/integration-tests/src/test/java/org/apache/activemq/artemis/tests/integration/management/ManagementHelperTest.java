@@ -23,8 +23,8 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class ManagementHelperTest extends Assert {
 
    // Constants -----------------------------------------------------
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(ManagementHelperTest.class);
 
    // Attributes ----------------------------------------------------
 
@@ -55,7 +55,7 @@ public class ManagementHelperTest extends Assert {
       Assert.assertEquals(2, parameters.length);
       Assert.assertEquals(param, parameters[0]);
       Object parameter_2 = parameters[1];
-      ManagementHelperTest.log.info("type " + parameter_2);
+      log.debug("type " + parameter_2);
       Assert.assertTrue(parameter_2 instanceof Object[]);
       Object[] retrievedParams = (Object[]) parameter_2;
       Assert.assertEquals(params.length, retrievedParams.length);
@@ -189,12 +189,12 @@ public class ManagementHelperTest extends Assert {
       String key1 = RandomUtil.randomString();
       String[] val1 = new String[]{"a", "b", "c"};
 
-      ManagementHelperTest.log.info("val1 type is " + Arrays.toString(val1));
+      log.debug("val1 type is " + Arrays.toString(val1));
 
       String key2 = RandomUtil.randomString();
       Long[] val2 = new Long[]{1L, 2L, 3L, 4L, 5L};
 
-      ManagementHelperTest.log.info("val2 type is " + Arrays.toString(val2));
+      log.debug("val2 type is " + Arrays.toString(val2));
 
       map.put(key1, val1);
       map.put(key2, val2);

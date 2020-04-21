@@ -33,15 +33,12 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class PredefinedQueueTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private Configuration configuration = null;
 
@@ -304,7 +301,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final int numMessages = 1;
 
-      PredefinedQueueTest.log.info("sending messages");
+      instanceLog.debug("sending messages");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
@@ -316,7 +313,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       session.close();
 
-      PredefinedQueueTest.log.info("stopping");
+      instanceLog.debug("stopping");
 
       sf.close();
 
@@ -377,7 +374,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final int numMessages = 1;
 
-      PredefinedQueueTest.log.info("sending messages");
+      instanceLog.debug("sending messages");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);

@@ -59,9 +59,9 @@ public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase {
 
          message.getBodyBuffer().writeString(body);
 
-         //  log.info("sending message");
+         //  log.debug("sending message");
          producer.send(message);
-         // log.info("sent message");
+         // log.debug("sent message");
 
          ClientMessage received1 = consumer1.receive(1000);
          Assert.assertNotNull(received1);

@@ -33,14 +33,13 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class AutoDeleteDistributedTest extends ClusterTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(AutoDeleteDistributedTest.class);
 
    @Override
    @Before
@@ -110,7 +109,7 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
          client2JmsConsumer.setMessageListener(new MessageListener() {
             @Override
             public void onMessage(final javax.jms.Message m) {
-               System.out.println("Message received. " + m);
+               log.debug("Message received. " + m);
                onMessageReceived.countDown();
             }
          });
@@ -125,7 +124,7 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
             jmsProducer.setAsync(new javax.jms.CompletionListener() {
                @Override
                public void onCompletion(final javax.jms.Message m) {
-                  System.out.println("Message sent. " + m);
+                  log.debug("Message sent. " + m);
                   onMessageSent.countDown();
                }
 
@@ -141,11 +140,11 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
                jmsProducer.send(client1JmsContext.createQueue("queues.myQueue"), jmsMsg);
             }
 
-            System.out.println("Waiting for message to be sent...");
+            log.debug("Waiting for message to be sent...");
             onMessageSent.await(5, TimeUnit.SECONDS);
          }
 
-         System.out.println("Waiting for message to be received...");
+         log.debug("Waiting for message to be received...");
          Assert.assertTrue(onMessageReceived.await(5, TimeUnit.SECONDS));
 
          client2JmsConsumer.close();

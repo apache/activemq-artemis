@@ -26,13 +26,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ExclusiveDivertWithClusterTest extends ClusterTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before

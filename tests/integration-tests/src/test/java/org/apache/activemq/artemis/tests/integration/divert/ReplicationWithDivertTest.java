@@ -81,8 +81,6 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      System.out.println("Tmp::" + getTemporaryDir());
-
       flagChunkEntered.setCount(1);
       flagChunkWait.setCount(1);
 

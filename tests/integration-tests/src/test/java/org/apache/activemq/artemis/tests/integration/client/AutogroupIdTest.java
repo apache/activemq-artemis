@@ -29,7 +29,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,7 +36,6 @@ import org.junit.Test;
 
 public class AutogroupIdTest extends ActiveMQTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    public final SimpleString addressA = new SimpleString("addressA");
 
@@ -93,8 +91,6 @@ public class AutogroupIdTest extends ActiveMQTestBase {
       ClientConsumer consumer2 = session.createConsumer(groupTestQ);
       consumer2.setMessageHandler(myMessageHandler2);
 
-      log.info("starting session");
-
       session.start();
 
       final int numMessages = 100;
@@ -105,8 +101,6 @@ public class AutogroupIdTest extends ActiveMQTestBase {
       waitForLatch(latch);
 
       session.close();
-
-      log.info(myMessageHandler2.messagesReceived);
 
       Assert.assertEquals(100, myMessageHandler.messagesReceived);
       Assert.assertEquals(0, myMessageHandler2.messagesReceived);

@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,6 +41,8 @@ import org.junit.Test;
  * This test spawns a remote VM, as we want to "crash" the VM right after the journal is filled with data
  */
 public class ValidateTransactionHealthTest extends SpawnedTestBase {
+
+   private static final Logger log = Logger.getLogger(ValidateTransactionHealthTest.class);
 
    private static final int OK = 10;
 
@@ -135,8 +138,7 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
                              final int numberOfThreads) throws Exception {
       try {
          if (type.equals("aio") && !LibaioContext.isLoaded()) {
-            // Using System.out as this output will go towards junit report
-            System.out.println("AIO not found, test being ignored on this platform");
+            log.warn("AIO not found, test being ignored on this platform");
             return;
          }
 
@@ -214,7 +216,7 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
       @Override
       public void addRecord(final RecordInfo info) {
          if (info.id == lastID) {
-            System.out.println("id = " + info.id + " last id = " + lastID);
+            log.debug("id = " + info.id + " last id = " + lastID);
          }
 
          ByteBuffer buffer = ByteBuffer.wrap(info.data);
@@ -259,7 +261,6 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
                                " aio|nio|mmap <journalDirectory> <NumberOfElements> <TransactionSize> <NumberOfThreads>");
          System.exit(-1);
       }
-      System.out.println("Running");
       String journalType = args[0];
       String journalDir = args[1];
       long numberOfElements = Long.parseLong(args[2]);
@@ -399,7 +400,7 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
                   journal.appendAddRecordTransactional(transactionId, id, (byte) 99, buffer.array());
 
                   if (++transactionCounter == transactionSize) {
-                     System.out.println("Commit transaction " + transactionId);
+                     log.debug("Commit transaction " + transactionId);
                      journal.appendCommitRecord(transactionId, true);
                      transactionCounter = 0;
                      transactionId = nextID.incrementAndGet();

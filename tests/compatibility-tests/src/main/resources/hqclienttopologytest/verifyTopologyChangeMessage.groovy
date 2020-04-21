@@ -45,8 +45,6 @@ Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 
 try {
     latch.await(5, TimeUnit.SECONDS);
-    System.out.println("Count is " + latch.getCount());
-    System.out.println("Retrieved transport params: " + transportParams);
 
     // cluster topology message should arrive immediately after connecting
     GroovyRun.assertEquals(0, (int) latch.getCount());

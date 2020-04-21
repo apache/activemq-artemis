@@ -36,13 +36,10 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.junit.Before;
 
 public class JMSClusteredTestBase extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected MBeanServer mBeanServer1;
 

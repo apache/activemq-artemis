@@ -122,7 +122,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
          if (i != received) {
             // Shouldn't this be a failure?
-            System.out.println(i + "!=" + received);
+            instanceLog.warn(i + "!=" + received);
          }
          msg.acknowledge();
       }

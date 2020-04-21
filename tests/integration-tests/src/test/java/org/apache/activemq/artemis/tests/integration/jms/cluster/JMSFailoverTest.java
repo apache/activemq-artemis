@@ -59,12 +59,12 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +77,7 @@ import org.junit.Test;
  */
 public class JMSFailoverTest extends ActiveMQTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(JMSFailoverTest.class);
 
    // Constants -----------------------------------------------------
 
@@ -222,14 +222,14 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       conn.start();
 
-      JMSFailoverTest.log.info("sent messages and started connection");
+      instanceLog.debug("sent messages and started connection");
 
       Thread.sleep(2000);
 
       JMSUtil.crash(liveServer, ((ActiveMQSession) sess).getCoreSession());
 
       for (int i = 0; i < numMessages; i++) {
-         JMSFailoverTest.log.info("got message " + i);
+         log.debug("got message " + i);
 
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
@@ -344,7 +344,6 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
             if (packet instanceof SessionReceiveContinuationMessage) {
                if (count++ == 300 && !killed.get()) {
-                  System.out.println("sending countDown on latch waitToKill");
                   killed.set(true);
                   waitToKill.countDown();
                }
@@ -370,8 +369,6 @@ public class JMSFailoverTest extends ActiveMQTestBase {
             }
 
             try {
-               System.out.println("Killing server...");
-
                JMSUtil.crash(liveServer, coreSession);
             } catch (Exception e) {
                e.printStackTrace();
@@ -475,7 +472,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       backupJMSServer.setRegistry(new JndiBindingRegistry(ctx2));
 
       backupJMSServer.getActiveMQServer().setIdentity("JMSBackup");
-      log.info("Starting backup");
+      log.debug("Starting backup");
       backupJMSServer.start();
 
       liveConf = createBasicConfig().setJournalDirectory(getJournalDir()).setBindingsDirectory(getBindingsDir()).setSecurityEnabled(false).addAcceptorConfiguration(liveAcceptortc).setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).addConnectorConfiguration(livetc.getName(), livetc).setPersistenceEnabled(true).setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(livetc.getName()));
@@ -487,7 +484,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       liveJMSServer.setRegistry(new JndiBindingRegistry(ctx1));
 
       liveJMSServer.getActiveMQServer().setIdentity("JMSLive");
-      log.info("Starting life");
+      log.debug("Starting life");
 
       liveJMSServer.start();
 

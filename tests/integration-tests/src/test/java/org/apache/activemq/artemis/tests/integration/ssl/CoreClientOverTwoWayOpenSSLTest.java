@@ -122,7 +122,6 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             try {
                if (connection.getTransportConnection() instanceof NettyConnection) {
-                  System.out.println("Passed through....");
                   NettyConnection nettyConnection = (NettyConnection) connection.getTransportConnection();
                   SslHandler sslHandler = (SslHandler) nettyConnection.getChannel().pipeline().get("ssl");
                   Assert.assertNotNull(sslHandler);

@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -70,7 +69,7 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
       for (int i = 0; i < MSG_COUNT; ++i) {
          AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
          assertNotNull("Failed to read message: " + (i + 1), message);
-         IntegrationTestLogger.LOGGER.info("Read message: " + message.getMessageId());
+         instanceLog.info("Read message: " + message.getMessageId());
          message.accept();
       }
       receiver.close();

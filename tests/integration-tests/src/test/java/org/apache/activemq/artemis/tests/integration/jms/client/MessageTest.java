@@ -27,15 +27,12 @@ import javax.jms.StreamMessage;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.reader.MessageUtil;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class MessageTest extends JMSTestBase {
    // Constants -----------------------------------------------------
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private static final long TIMEOUT = 1000;
 
@@ -226,35 +223,35 @@ public class MessageTest extends JMSTestBase {
       Assert.assertNull(message.getObjectProperty(MessageTest.propName3));
 
       try {
-         MessageTest.log.info(message.getIntProperty(MessageTest.propName1));
+         instanceLog.debug(message.getIntProperty(MessageTest.propName1));
          Assert.fail("Should throw exception");
       } catch (NumberFormatException e) {
          // Ok
       }
 
       try {
-         MessageTest.log.info(message.getShortProperty(MessageTest.propName1));
+         instanceLog.debug(message.getShortProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
          // Ok
       }
       try {
-         MessageTest.log.info(message.getByteProperty(MessageTest.propName1));
+         instanceLog.debug(message.getByteProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
          // Ok
       }
       Assert.assertEquals(false, message.getBooleanProperty(MessageTest.propName1));
       try {
-         MessageTest.log.info(message.getLongProperty(MessageTest.propName1));
+         instanceLog.debug(message.getLongProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
          // Ok
       }
       try {
-         MessageTest.log.info(message.getFloatProperty(MessageTest.propName1));
+         instanceLog.debug(message.getFloatProperty(MessageTest.propName1));
       } catch (NullPointerException e) {
          // Ok
       }
       try {
-         MessageTest.log.info(message.getDoubleProperty(MessageTest.propName1));
+         instanceLog.debug(message.getDoubleProperty(MessageTest.propName1));
       } catch (NullPointerException e) {
          // Ok
       }

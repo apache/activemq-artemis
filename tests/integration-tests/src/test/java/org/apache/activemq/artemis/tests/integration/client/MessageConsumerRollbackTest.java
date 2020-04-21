@@ -220,7 +220,6 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
             }
 
             if (counter.incrementAndGet() % 200 == 0) {
-               System.out.println("rollback " + message);
                session.rollback();
             } else {
                commitLatch.countDown();

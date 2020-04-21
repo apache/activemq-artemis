@@ -23,9 +23,9 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,7 +45,7 @@ public class ClientExitTest extends ClientTestBase {
 
    // Static ---------------------------------------------------------------------------------------
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(ClientExitTest.class);
 
    // Attributes -----------------------------------------------------------------------------------
 

@@ -79,7 +79,6 @@ public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest {
       message.setStringProperty("test", "test");
       message.setJMSType("test");
       producer2.send(producerDestination2, message);
-      System.out.println("Creating durable consumer");
       consumer2 = consumeSession2.createDurableSubscriber((Topic) consumerDestination2, getName());
       Message msg = consumer2.receive(1000);
       assertNotNull(msg);

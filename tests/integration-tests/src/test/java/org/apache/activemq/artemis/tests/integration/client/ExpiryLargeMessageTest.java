@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
@@ -41,8 +40,6 @@ import org.junit.Test;
  * This test will send large messages in page-mode, DLQ then, expiry then, and they should be received fine
  */
 public class ExpiryLargeMessageTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Constants -----------------------------------------------------
    final SimpleString EXPIRY = new SimpleString("my-expiry");
@@ -153,13 +150,12 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
          cons = session.createConsumer(EXPIRY);
          session.start();
 
-         log.info("Trying " + rep);
          for (int i = 0; i < numberOfMessages / 2; i++) {
             ClientMessage message = cons.receive(5000);
             assertNotNull(message);
 
             if (i % 10 == 0) {
-               System.out.println("Received " + i);
+               instanceLog.debug("Received " + i);
             }
 
             for (int location = 0; location < messageSize; location++) {
@@ -209,7 +205,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
             assertNotNull(message);
 
             if (i % 10 == 0) {
-               System.out.println("Received " + i);
+               instanceLog.debug("Received " + i);
             }
 
             for (int location = 0; location < messageSize; location++) {
@@ -339,7 +335,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
          assertNotNull(message);
 
          if (i % 10 == 0) {
-            System.out.println("Received " + i);
+            instanceLog.debug("Received " + i);
          }
 
          for (int location = 0; location < messageSize; location++) {

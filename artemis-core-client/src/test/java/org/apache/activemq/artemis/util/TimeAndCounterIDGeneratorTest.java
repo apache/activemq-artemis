@@ -77,8 +77,6 @@ public class TimeAndCounterIDGeneratorTest extends Assert {
 
       final TimeAndCounterIDGenerator seq = new TimeAndCounterIDGenerator();
 
-      System.out.println("Time = " + TimeAndCounterIDGeneratorTest.hex(System.currentTimeMillis()) + ", " + seq);
-
       final int NUMBER_OF_THREADS = 100;
 
       final int NUMBER_OF_IDS = 10;
@@ -142,8 +140,6 @@ public class TimeAndCounterIDGeneratorTest extends Assert {
    @Test
    public void testWrapID() throws Throwable {
       TimeAndCounterIDGenerator seq = new TimeAndCounterIDGenerator();
-
-      System.out.println("Current Time = " + TimeAndCounterIDGeneratorTest.hex(System.currentTimeMillis()) + " " + seq);
 
       seq.setInternalDate(System.currentTimeMillis() + 10000L); // 10 seconds in the future
 

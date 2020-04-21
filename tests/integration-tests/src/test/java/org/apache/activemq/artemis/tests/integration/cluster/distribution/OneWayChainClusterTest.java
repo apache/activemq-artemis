@@ -23,13 +23,10 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
 
 public class OneWayChainClusterTest extends ClusterTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before
@@ -298,23 +295,23 @@ public class OneWayChainClusterTest extends ClusterTestBase {
       verifyReceiveRoundRobin(10, 0, 1);
       verifyNotReceive(0, 1);
 
-      log.info("============================================ before restart");
-      log.info(clusterDescription(servers[0]));
-      log.info(clusterDescription(servers[1]));
-      log.info(clusterDescription(servers[2]));
-      log.info(clusterDescription(servers[3]));
-      log.info(clusterDescription(servers[4]));
+      instanceLog.debug("============================================ before restart");
+      instanceLog.debug(clusterDescription(servers[0]));
+      instanceLog.debug(clusterDescription(servers[1]));
+      instanceLog.debug(clusterDescription(servers[2]));
+      instanceLog.debug(clusterDescription(servers[3]));
+      instanceLog.debug(clusterDescription(servers[4]));
 
       stopServers(2);
 
       waitForTopology(servers[1], 4);
 
       Thread.sleep(1000);
-      log.info("============================================ after stop");
-      log.info(clusterDescription(servers[0]));
-      log.info(clusterDescription(servers[1]));
-      log.info(clusterDescription(servers[3]));
-      log.info(clusterDescription(servers[4]));
+      instanceLog.debug("============================================ after stop");
+      instanceLog.debug(clusterDescription(servers[0]));
+      instanceLog.debug(clusterDescription(servers[1]));
+      instanceLog.debug(clusterDescription(servers[3]));
+      instanceLog.debug(clusterDescription(servers[4]));
 
       startServers(2);
 
@@ -322,12 +319,12 @@ public class OneWayChainClusterTest extends ClusterTestBase {
 
       waitForTopology(servers[1], 5);
 
-      log.info("============================================ after start");
-      log.info(clusterDescription(servers[0]));
-      log.info(clusterDescription(servers[1]));
-      log.info(clusterDescription(servers[2]));
-      log.info(clusterDescription(servers[3]));
-      log.info(clusterDescription(servers[4]));
+      instanceLog.debug("============================================ after start");
+      instanceLog.debug(clusterDescription(servers[0]));
+      instanceLog.debug(clusterDescription(servers[1]));
+      instanceLog.debug(clusterDescription(servers[2]));
+      instanceLog.debug(clusterDescription(servers[3]));
+      instanceLog.debug(clusterDescription(servers[4]));
 
       send(0, "queues.testaddress", 10, false, null);
 

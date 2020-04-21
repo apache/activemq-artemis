@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,8 +26,6 @@ import org.junit.Test;
  * Most of the cases are covered in OneWayTwoNodeClusterTest - we don't duplicate them all here
  */
 public class URISimpleClusterTest extends ClusterTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before

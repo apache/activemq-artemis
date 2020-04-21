@@ -43,15 +43,12 @@ import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerConte
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class AcknowledgeTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    public final SimpleString addressA = new SimpleString("addressA");
 
@@ -108,7 +105,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       Thread.sleep(500);
-      log.info("woke up");
+      instanceLog.debug("woke up");
 
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
@@ -117,7 +114,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
          @Override
          public void onMessage(final ClientMessage message) {
-            log.info("Got message " + c++);
+            instanceLog.debug("Got message " + c++);
             latch.countDown();
          }
       });

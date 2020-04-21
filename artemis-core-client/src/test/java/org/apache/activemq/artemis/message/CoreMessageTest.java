@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRec
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 import org.apache.activemq.artemis.utils.Base64;
-import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Assert;
 import org.junit.Before;
@@ -104,7 +103,7 @@ public class CoreMessageTest {
       ActiveMQBuffer buffer = sendMessage.encode(null);
 
       byte[] byteArray = buffer.byteBuf().array();
-      System.out.println("Sending " + ByteUtil.bytesToHex(buffer.toByteBuffer().array(), 1) + ", bytes = " + byteArray.length);
+      //System.out.println("Sending " + ByteUtil.bytesToHex(buffer.toByteBuffer().array(), 1) + ", bytes = " + byteArray.length);
 
       buffer.readerIndex(5);
 
@@ -215,9 +214,7 @@ public class CoreMessageTest {
    @Test
    public void testSaveReceiveLimitedBytes() {
       CoreMessage empty = new CoreMessage().initBuffer(100);
-      System.out.println("R " + empty.getBodyBuffer().readerIndex() + " W " + empty.getBodyBuffer().writerIndex());
       empty.getBodyBuffer().writeByte((byte)7);
-      System.out.println("R " + empty.getBodyBuffer().readerIndex() + " W " + empty.getBodyBuffer().writerIndex());
 
       ByteBuf buffer = Unpooled.buffer(200);
       empty.sendBuffer(buffer, 0);
@@ -226,8 +223,6 @@ public class CoreMessageTest {
       empty2.receiveBuffer(buffer);
 
       Assert.assertEquals((byte)7, empty2.getBodyBuffer().readByte());
-
-      System.out.println("Readable :: " + empty2.getBodyBuffer().readerIndex() + " writer :" + empty2.getBodyBuffer().writerIndex());
 
       try {
          empty2.getBodyBuffer().readByte();

@@ -33,7 +33,6 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,8 +42,6 @@ import org.junit.Test;
  */
 public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase {
    // Constants -----------------------------------------------------
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Attributes ----------------------------------------------------
 

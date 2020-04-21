@@ -108,9 +108,9 @@ public class AmqpCoreTest extends JMSClientTestSupport {
 
       @Override
       public void onMessage(ClientMessage message) {
-         System.out.println("received: " + message.getBodySize());
+         instanceLog.debug("received: " + message.getBodySize());
          if (message.getBodySize() == 0) {
-            System.out.println("xxx found zero len message!");
+            instanceLog.debug("xxx found zero len message!");
             zeroLen = true;
          }
          addMessage(message);
@@ -118,7 +118,7 @@ public class AmqpCoreTest extends JMSClientTestSupport {
 
       private synchronized void addMessage(ClientMessage message) {
          numMsg++;
-         System.out.println("[receiver " + id + "] recieved: " + numMsg);
+         instanceLog.debug("[receiver " + id + "] recieved: " + numMsg);
       }
 
       public synchronized boolean waitForMessages(int num) throws Exception {

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.rest.test;
 
 import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.apache.activemq.artemis.rest.util.Constants;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
 public class DupQueueTest extends MessageTestBase {
+   private static final Logger log = Logger.getLogger(DupQueueTest.class);
 
    @Test
    public void testDup() throws Exception {
@@ -42,18 +44,18 @@ public class DupQueueTest extends MessageTestBase {
       ClientResponse<?> response = request.head();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-      System.out.println("poller: " + consumeNext);
+      log.debug("poller: " + consumeNext);
 
       ClientResponse<?> res = sender.request().body("text/plain", Integer.toString(1)).post();
       Assert.assertEquals(307, res.getStatus());
       sender = res.getLocationLink();
       res.releaseConnection();
-      System.out.println("create-next: " + sender);
+      log.debug("create-next: " + sender);
       Assert.assertNotNull(sender);
       res = sender.request().body("text/plain", Integer.toString(1)).post();
       res.releaseConnection();
@@ -71,17 +73,17 @@ public class DupQueueTest extends MessageTestBase {
       Assert.assertEquals("1", res.getEntity(String.class));
       res.releaseConnection();
       Link session = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
-      System.out.println("session: " + session);
+      log.debug("session: " + session);
       consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
-      System.out.println("consumeNext: " + consumeNext);
+      log.debug("consumeNext: " + consumeNext);
 
       res = consumeNext.request().header(Constants.WAIT_HEADER, "10").post(String.class);
       Assert.assertEquals(200, res.getStatus());
       res.releaseConnection();
       session = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
-      System.out.println("session: " + session);
+      log.debug("session: " + session);
       consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
-      System.out.println("consumeNext: " + consumeNext);
+      log.debug("consumeNext: " + consumeNext);
       res = consumeNext.request().post(String.class);
       res.releaseConnection();
 
@@ -105,12 +107,12 @@ public class DupQueueTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create-with-id");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-      System.out.println("poller: " + consumeNext);
+      log.debug("poller: " + consumeNext);
 
       ClientResponse<?> res = sender.request().pathParameter("id", "1").body("text/plain", Integer.toString(1)).post();
       res.releaseConnection();
@@ -128,18 +130,18 @@ public class DupQueueTest extends MessageTestBase {
       Assert.assertEquals("1", res.getEntity(String.class));
       res.releaseConnection();
       Link session = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
-      System.out.println("session: " + session);
+      log.debug("session: " + session);
       consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
-      System.out.println("consumeNext: " + consumeNext);
+      log.debug("consumeNext: " + consumeNext);
 
       res = consumeNext.request().header(Constants.WAIT_HEADER, "10").post(String.class);
       Assert.assertEquals(200, res.getStatus());
       Assert.assertEquals("2", res.getEntity(String.class));
       res.releaseConnection();
       session = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
-      System.out.println("session: " + session);
+      log.debug("session: " + session);
       consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
-      System.out.println("consumeNext: " + consumeNext);
+      log.debug("consumeNext: " + consumeNext);
       res = consumeNext.request().post(String.class);
       res.releaseConnection();
       Assert.assertEquals(503, res.getStatus());

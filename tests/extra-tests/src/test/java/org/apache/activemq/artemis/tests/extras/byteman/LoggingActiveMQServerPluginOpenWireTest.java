@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServer
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,6 +40,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(BMUnitRunner.class)
 public class LoggingActiveMQServerPluginOpenWireTest extends LoggingActiveMQServerPluginTest {
+   private static final Logger log = Logger.getLogger(LoggingActiveMQServerPluginOpenWireTest.class);
 
    /**
     * Aim: test queue creation are logged when plugin configured with
@@ -157,8 +159,8 @@ public class LoggingActiveMQServerPluginOpenWireTest extends LoggingActiveMQServ
 
          Thread.sleep(500);
 
-         for (String log : unexpectedLogs) {
-            System.out.println(" others events logged >>>>" + log);
+         for (String logline : unexpectedLogs) {
+            log.debug(" others events logged >>>>" + logline);
          }
 
          assertEquals("created connections", 2, createdConnectionLogs.size());

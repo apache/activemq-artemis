@@ -421,7 +421,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
                boolean rollback = false;
                if (msgCount.getAndIncrement() == 0) {
                   rollback = true;
-                  System.out.println("Forcing first message to time out");
+                  instanceLog.debug("Forcing first message to time out");
                   Thread.sleep(5000);
                }
 

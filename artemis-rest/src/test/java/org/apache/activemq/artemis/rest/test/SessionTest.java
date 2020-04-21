@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.rest.test;
 import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.apache.activemq.artemis.rest.topic.TopicDeployment;
 import org.apache.activemq.artemis.rest.util.Constants;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
 public class SessionTest extends MessageTestBase {
+   private static final Logger log = Logger.getLogger(SessionTest.class);
 
    @BeforeClass
    public static void setup() throws Exception {
@@ -50,15 +52,15 @@ public class SessionTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link session = response.getLocationLink();
       response = session.request().head();
       response.releaseConnection();
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-      System.out.println("consume-next: " + consumeNext);
+      log.debug("consume-next: " + consumeNext);
 
       response = sender.request().body("text/plain", Integer.toString(1)).post();
       response.releaseConnection();
@@ -104,15 +106,15 @@ public class SessionTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-subscriptions");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link session = response.getLocationLink();
       response = session.request().head();
       response.releaseConnection();
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-      System.out.println("consume-next: " + consumeNext);
+      log.debug("consume-next: " + consumeNext);
 
       response = sender.request().body("text/plain", Integer.toString(1)).post();
       response.releaseConnection();
@@ -160,15 +162,15 @@ public class SessionTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, false);
       Link session = response.getLocationLink();
       response = session.request().head();
       response.releaseConnection();
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
-      System.out.println("consume-next: " + consumeNext);
+      log.debug("consume-next: " + consumeNext);
       Link ack = null;
 
       response = sender.request().body("text/plain", Integer.toString(1)).post();
@@ -236,15 +238,15 @@ public class SessionTest extends MessageTestBase {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-subscriptions");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, false);
       Link session = response.getLocationLink();
       response = session.request().head();
       response.releaseConnection();
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
-      System.out.println("consume-next: " + consumeNext);
+      log.debug("consume-next: " + consumeNext);
       Link ack = null;
 
       response = sender.request().body("text/plain", Integer.toString(1)).post();

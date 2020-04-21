@@ -26,15 +26,12 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
 
 public class NoLocalSubscriberTest extends JMSTestBase {
    // Constants -----------------------------------------------------
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Static --------------------------------------------------------
 
@@ -50,9 +47,6 @@ public class NoLocalSubscriberTest extends JMSTestBase {
     */
    @Test
    public void testNoLocal() throws Exception {
-      if (log.isTraceEnabled()) {
-         log.trace("testNoLocal");
-      }
 
       Connection defaultConn = null;
       Connection newConn = null;

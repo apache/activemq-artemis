@@ -45,7 +45,6 @@ public class MQTTRejectingInterceptorTest extends MQTTTestSupport {
       MQTTInterceptor incomingInterceptor = new MQTTInterceptor() {
          @Override
          public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
-            System.out.println("incoming");
             if (packet.getClass() == MqttPublishMessage.class) {
                return false;
             } else {
