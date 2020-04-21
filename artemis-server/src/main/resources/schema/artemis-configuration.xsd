@@ -3136,6 +3136,22 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="min-expiry-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     Overrides the expiration time for messages using a lower value. "-1" disables this setting.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="max-expiry-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     Overrides the expiration time for messages using a higher value. "-1" disables this setting.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="redelivery-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>

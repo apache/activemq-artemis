@@ -345,6 +345,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX, conf.getAddressesSettings().get("a1").getDeadLetterQueuePrefix());
       assertEquals(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX, conf.getAddressesSettings().get("a1").getDeadLetterQueueSuffix());
       assertEquals("a1.2", conf.getAddressesSettings().get("a1").getExpiryAddress().toString());
+      assertEquals(1L, (long) conf.getAddressesSettings().get("a1").getExpiryDelay());
+      assertEquals(2L, (long) conf.getAddressesSettings().get("a1").getMinExpiryDelay());
+      assertEquals(3L, (long) conf.getAddressesSettings().get("a1").getMaxExpiryDelay());
       assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES, conf.getAddressesSettings().get("a1").isAutoCreateExpiryResources());
       assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX, conf.getAddressesSettings().get("a1").getExpiryQueuePrefix());
       assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX, conf.getAddressesSettings().get("a1").getExpiryQueueSuffix());
@@ -375,6 +378,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("", conf.getAddressesSettings().get("a2").getDeadLetterQueuePrefix().toString());
       assertEquals(".DLQ", conf.getAddressesSettings().get("a2").getDeadLetterQueueSuffix().toString());
       assertEquals("a2.2", conf.getAddressesSettings().get("a2").getExpiryAddress().toString());
+      assertEquals(-1L, (long) conf.getAddressesSettings().get("a2").getExpiryDelay());
+      assertEquals(-1L, (long) conf.getAddressesSettings().get("a2").getMinExpiryDelay());
+      assertEquals(-1L, (long) conf.getAddressesSettings().get("a2").getMaxExpiryDelay());
       assertEquals(true, conf.getAddressesSettings().get("a2").isAutoCreateDeadLetterResources());
       assertEquals("", conf.getAddressesSettings().get("a2").getExpiryQueuePrefix().toString());
       assertEquals(".EXP", conf.getAddressesSettings().get("a2").getExpiryQueueSuffix().toString());
