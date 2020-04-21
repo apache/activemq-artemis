@@ -100,6 +100,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final long DEFAULT_EXPIRY_DELAY = -1;
 
+   public static final long DEFAULT_MIN_EXPIRY_DELAY = -1;
+
+   public static final long DEFAULT_MAX_EXPIRY_DELAY = -1;
+
    public static final boolean DEFAULT_SEND_TO_DLA_ON_NO_ROUTE = false;
 
    public static final long DEFAULT_SLOW_CONSUMER_THRESHOLD = -1;
@@ -148,6 +152,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private SimpleString expiryAddress = null;
 
    private Long expiryDelay = AddressSettings.DEFAULT_EXPIRY_DELAY;
+
+   private Long minExpiryDelay = AddressSettings.DEFAULT_MIN_EXPIRY_DELAY;
+
+   private Long maxExpiryDelay = AddressSettings.DEFAULT_MAX_EXPIRY_DELAY;
 
    private Boolean defaultLastValueQueue = null;
 
@@ -264,6 +272,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.expiryQueuePrefix = other.expiryQueuePrefix;
       this.expiryQueueSuffix = other.expiryQueueSuffix;
       this.expiryDelay = other.expiryDelay;
+      this.minExpiryDelay = other.minExpiryDelay;
+      this.maxExpiryDelay = other.maxExpiryDelay;
       this.defaultLastValueQueue = other.defaultLastValueQueue;
       this.defaultLastValueKey = other.defaultLastValueKey;
       this.defaultNonDestructive = other.defaultNonDestructive;
@@ -677,6 +687,24 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public Long getMinExpiryDelay() {
+      return minExpiryDelay;
+   }
+
+   public AddressSettings setMinExpiryDelay(final Long minExpiryDelay) {
+      this.minExpiryDelay = minExpiryDelay;
+      return this;
+   }
+
+   public Long getMaxExpiryDelay() {
+      return maxExpiryDelay;
+   }
+
+   public AddressSettings setMaxExpiryDelay(final Long maxExpiryDelay) {
+      this.maxExpiryDelay = maxExpiryDelay;
+      return this;
+   }
+
    public boolean isSendToDLAOnNoRoute() {
       return sendToDLAOnNoRoute != null ? sendToDLAOnNoRoute : AddressSettings.DEFAULT_SEND_TO_DLA_ON_NO_ROUTE;
    }
@@ -899,6 +927,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (expiryDelay == null) {
          expiryDelay = merged.expiryDelay;
+      }
+      if (minExpiryDelay == null) {
+         minExpiryDelay = merged.minExpiryDelay;
+      }
+      if (maxExpiryDelay == null) {
+         maxExpiryDelay = merged.maxExpiryDelay;
       }
       if (redistributionDelay == null) {
          redistributionDelay = merged.redistributionDelay;
@@ -1231,6 +1265,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          expiryQueueSuffix = buffer.readNullableSimpleString();
       }
+
+      if (buffer.readableBytes() > 0) {
+         minExpiryDelay = BufferHelper.readNullableLong(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         maxExpiryDelay = BufferHelper.readNullableLong(buffer);
+      }
    }
 
    @Override
@@ -1250,6 +1292,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          SimpleString.sizeofNullableString(deadLetterAddress) +
          SimpleString.sizeofNullableString(expiryAddress) +
          BufferHelper.sizeOfNullableLong(expiryDelay) +
+         BufferHelper.sizeOfNullableLong(minExpiryDelay) +
+         BufferHelper.sizeOfNullableLong(maxExpiryDelay) +
          BufferHelper.sizeOfNullableBoolean(defaultLastValueQueue) +
          BufferHelper.sizeOfNullableLong(redistributionDelay) +
          BufferHelper.sizeOfNullableBoolean(sendToDLAOnNoRoute) +
@@ -1408,6 +1452,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       buffer.writeNullableSimpleString(expiryQueuePrefix);
 
       buffer.writeNullableSimpleString(expiryQueueSuffix);
+
+      BufferHelper.writeNullableLong(buffer, minExpiryDelay);
+
+      BufferHelper.writeNullableLong(buffer, maxExpiryDelay);
    }
 
    /* (non-Javadoc)
@@ -1422,6 +1470,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((dropMessagesWhenFull == null) ? 0 : dropMessagesWhenFull.hashCode());
       result = prime * result + ((expiryAddress == null) ? 0 : expiryAddress.hashCode());
       result = prime * result + ((expiryDelay == null) ? 0 : expiryDelay.hashCode());
+      result = prime * result + ((minExpiryDelay == null) ? 0 : expiryDelay.hashCode());
+      result = prime * result + ((maxExpiryDelay == null) ? 0 : expiryDelay.hashCode());
       result = prime * result + ((defaultLastValueQueue == null) ? 0 : defaultLastValueQueue.hashCode());
       result = prime * result + ((defaultLastValueKey == null) ? 0 : defaultLastValueKey.hashCode());
       result = prime * result + ((defaultNonDestructive == null) ? 0 : defaultNonDestructive.hashCode());
@@ -1514,6 +1564,16 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          if (other.expiryDelay != null)
             return false;
       } else if (!expiryDelay.equals(other.expiryDelay))
+         return false;
+      if (minExpiryDelay == null) {
+         if (other.minExpiryDelay != null)
+            return false;
+      } else if (!minExpiryDelay.equals(other.minExpiryDelay))
+         return false;
+      if (maxExpiryDelay == null) {
+         if (other.maxExpiryDelay != null)
+            return false;
+      } else if (!maxExpiryDelay.equals(other.maxExpiryDelay))
          return false;
       if (defaultLastValueQueue == null) {
          if (other.defaultLastValueQueue != null)
@@ -1817,6 +1877,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          expiryAddress +
          ", expiryDelay=" +
          expiryDelay +
+         ", minExpiryDelay=" +
+         minExpiryDelay +
+         ", maxExpiryDelay=" +
+         maxExpiryDelay +
          ", defaultLastValueQueue=" +
          defaultLastValueQueue +
          ", defaultLastValueKey=" +

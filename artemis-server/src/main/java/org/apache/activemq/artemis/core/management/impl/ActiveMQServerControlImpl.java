@@ -2830,6 +2830,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
 
       return settings.add("expiryDelay", addressSettings.getExpiryDelay())
+            .add("minExpiryDelay", addressSettings.getExpiryDelay())
+            .add("maxExpiryDelay", addressSettings.getExpiryDelay())
             .add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts())
             .add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize())
             .add("maxSizeBytes", addressSettings.getMaxSizeBytes())
