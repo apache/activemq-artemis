@@ -38,11 +38,11 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private static final long DELAY = 1000;
+   private static final long DELAY = 100;
 
    private static final double MULTIPLIER = 2.0;
 
-   private static final long MAX_DELAY = 17000;
+   private static final long MAX_DELAY = 1000;
 
    private final String queueName = "MultipliedDelayedMessageTestQueue";
 
