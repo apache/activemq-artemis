@@ -41,6 +41,27 @@ which eliminates all the setup and class variables which are provided by `Single
 
 ## Keys for writing good tests
 
+### Use log.debug
+
+- Please use log.debug instead of log.info.
+
+On your classes, import the following:
+
+```java
+public class MyTest {
+     private static final org.jboss.logging.Logger log = org.jboss.logging.Logger.getLogger($CLASS_NAME$.class);
+    
+     @Test
+     public void test() {
+            log.debug("Log only what you need please!");
+     }
+}
+```
+
+- Please do not use System.out.println()
+
+As a general rule, only use System.out if you really intend an error to be on the reporting. Debug information should be called through log.debug.
+
 ### Avoid leaks
 
 An important task for any test-case is to clean up all the resources it creates when it runs. This includes the server
