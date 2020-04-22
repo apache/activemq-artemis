@@ -35,7 +35,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.federation.FederatedTestBase;
 import org.apache.activemq.artemis.tests.integration.federation.FederatedTestUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_FEDERATED_QUEUE_CONSUMER;
@@ -51,6 +53,8 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 
 public class FederationBrokerPluginTest extends FederatedTestBase {
 
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    private final Map<String, AtomicInteger> methodCalls = new HashMap<>();
    private final MethodCalledVerifier verifier0 = new MethodCalledVerifier(methodCalls);
