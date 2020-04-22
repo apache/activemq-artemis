@@ -37,7 +37,7 @@ import org.junit.Test;
 public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
 
    @Rule
-   public RetryRule retryRule = new RetryRule(0);
+   public RetryRule retryRule = new RetryRule(2);
 
    @Override
    protected void setupServers() throws Exception {
@@ -56,7 +56,6 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
 
    }
 
-   @RetryMethod(retries = 2)
    @Test
    public void testQuorumVoting() throws Exception {
       int[] liveServerIDs = new int[]{0, 1, 2};
