@@ -73,8 +73,10 @@ import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUt
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -84,6 +86,9 @@ import static org.apache.activemq.artemis.core.management.impl.openmbean.Composi
 
 @RunWith(value = Parameterized.class)
 public class QueueControlTest extends ManagementTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    private ActiveMQServer server;
    private ClientSession session;
@@ -274,10 +279,10 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(0, queueControl.getConsumerCount());
 
       ClientConsumer consumer = session.createConsumer(queue);
-      Assert.assertEquals(1, queueControl.getConsumerCount());
+      Wait.assertEquals(1, () -> queueControl.getConsumerCount());
 
       consumer.close();
-      Assert.assertEquals(0, queueControl.getConsumerCount());
+      Wait.assertEquals(0, () -> queueControl.getConsumerCount());
 
       session.deleteQueue(queue);
    }
@@ -291,10 +296,10 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      Assert.assertEquals(0, queueControl.getConsumerCount());
+      Wait.assertEquals(0, () -> queueControl.getConsumerCount());
 
       ClientConsumer consumer = session.createConsumer(queue);
-      Assert.assertEquals(1, queueControl.getConsumerCount());
+      Wait.assertEquals(1, () -> queueControl.getConsumerCount());
 
       System.out.println("Consumers: " + queueControl.listConsumersAsJSON());
 
@@ -376,9 +381,9 @@ public class QueueControlTest extends ManagementTestBase {
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(durable));
-      Assert.assertEquals(1, getMessagesAdded(queueControl));
+      Wait.assertEquals(1, () -> getMessagesAdded(queueControl));
       producer.send(session.createMessage(durable));
-      Assert.assertEquals(2, getMessagesAdded(queueControl));
+      Wait.assertEquals(2, () -> getMessagesAdded(queueControl));
 
       consumeMessages(2, session, queue);
 
@@ -400,10 +405,10 @@ public class QueueControlTest extends ManagementTestBase {
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false));
       consumeMessages(1, session, queue);
-      Assert.assertEquals(1, queueControl.getMessagesAcknowledged());
+      Wait.assertEquals(1, () -> queueControl.getMessagesAcknowledged());
       producer.send(session.createMessage(false));
       consumeMessages(1, session, queue);
-      Assert.assertEquals(2, queueControl.getMessagesAcknowledged());
+      Wait.assertEquals(2, () -> queueControl.getMessagesAcknowledged());
 
       //      ManagementTestBase.consumeMessages(2, session, queue);
 
