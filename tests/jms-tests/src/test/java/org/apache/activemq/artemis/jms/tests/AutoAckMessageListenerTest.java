@@ -57,7 +57,7 @@ public class AutoAckMessageListenerTest extends JMSTestCase {
          consumer.setMessageListener(listener);
 
          // create and send messages
-         log.info("Send and receive two message");
+         log.debug("Send and receive two message");
          Message messageSent = session.createMessage();
          messageSent.setBooleanProperty("last", false);
          producer.send(messageSent);
@@ -67,7 +67,7 @@ public class AutoAckMessageListenerTest extends JMSTestCase {
          conn.start();
 
          // wait until message is received
-         log.info("waiting until message has been received by message listener...");
+         log.debug("waiting until message has been received by message listener...");
          latch.await(10, TimeUnit.SECONDS);
 
          // check message listener status
@@ -112,20 +112,20 @@ public class AutoAckMessageListenerTest extends JMSTestCase {
       public void onMessage(Message message) {
          try {
             if (message.getBooleanProperty("last") == false) {
-               log.info("Received first message.");
+               log.debug("Received first message.");
                if (message.getJMSRedelivered() == true) {
                   // should not re-receive this one
-                  log.info("Error: received first message twice");
+                  log.debug("Error: received first message twice");
                   passed = false;
                }
             } else {
                if (message.getJMSRedelivered() == false) {
                   // received second message for first time
-                  log.info("Received second message. Calling recover()");
+                  log.debug("Received second message. Calling recover()");
                   session.recover();
                } else {
                   // should be redelivered after recover
-                  log.info("Received second message again as expected");
+                  log.debug("Received second message again as expected");
                   passed = true;
                   monitor.countDown();
                }
