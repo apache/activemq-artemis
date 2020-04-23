@@ -65,12 +65,14 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class PagingStoreImplTest extends ActiveMQTestBase {
+   private static final Logger log = Logger.getLogger(PagingStoreImplTest.class);
 
    static {
       MessagePersister.registerPersister(CoreMessagePersister.getInstance());
@@ -286,7 +288,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       for (int pageNr = 0; pageNr < 2; pageNr++) {
          Page page = store.depage();
 
-         System.out.println("numberOfPages = " + store.getNumberOfPages());
+         log.debug("numberOfPages = " + store.getNumberOfPages());
 
          page.open();
 
@@ -699,7 +701,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                      page.close(false, false);
                      page.delete(null);
                   } else {
-                     System.out.println("Depaged!!!! numerOfMessages = " + msgsRead + " of " + NUMBER_OF_MESSAGES);
+                     log.debug("Depaged!!!! numerOfMessages = " + msgsRead + " of " + NUMBER_OF_MESSAGES);
                      Thread.sleep(500);
                   }
                }
