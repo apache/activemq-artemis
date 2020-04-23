@@ -92,10 +92,18 @@ public class ConnectionAbstract extends InputAbstract {
       this.protocol = protocol;
    }
 
+   @SuppressWarnings("StringEquality")
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
+      // it is intentional to make a comparison on the String object here
+      // this is to test if the original option was switched or not.
+      // we don't care about being .equals at all.
+      // as a matter of fact if you pass brokerURL in a way it's equals to DEFAULT_BROKER_URL,
+      // we should not the broker URL Instance
+      // and still honor the one passed by parameter.
+      // SupressWarnings was added to this method to supress the false positive here from error-prone.
       if (brokerURL == DEFAULT_BROKER_URL) {
          String brokerURLInstance = getBrokerURLInstance();
 
