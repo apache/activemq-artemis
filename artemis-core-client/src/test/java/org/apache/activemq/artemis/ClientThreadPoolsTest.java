@@ -82,7 +82,6 @@ public class ClientThreadPoolsTest {
       ActiveMQClient.getGlobalThreadPool().execute(new Runnable() {
          @Override
          public void run() {
-            System.err.println("Hello!");
             try {
                inUse.countDown();
                neverLeave.await();
@@ -114,7 +113,6 @@ public class ClientThreadPoolsTest {
       ActiveMQClient.getGlobalThreadPool().execute(new Runnable() {
          @Override
          public void run() {
-            System.err.println("Hello!");
             try {
                inUse.countDown();
                neverLeave.await();

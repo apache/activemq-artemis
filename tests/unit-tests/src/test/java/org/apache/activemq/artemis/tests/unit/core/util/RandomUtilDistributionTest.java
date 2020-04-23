@@ -22,6 +22,7 @@ import java.util.HashSet;
 import org.apache.activemq.artemis.tests.util.SpawnedVMCheck;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import org.junit.Test;
  * This test will start many parallel VMs, to make sure each VM would generate a good distribution of random numbers
  */
 public class RandomUtilDistributionTest {
+   private static final Logger log = Logger.getLogger(RandomUtilDistributionTest.class);
 
    @Rule
    public SpawnedVMCheck check = new SpawnedVMCheck();
@@ -53,7 +55,7 @@ public class RandomUtilDistributionTest {
    @Test
    public void testDistribution() throws Exception {
       int numberOfStarts = 50;
-      int iterations = 10;
+      int iterations = 1;
 
       int value = 0;
       for (int i = 0; i < iterations; i++) {
@@ -67,7 +69,7 @@ public class RandomUtilDistributionTest {
       // Be careful removing it (make sure you know what you're doing in case you do so)
       int minimumExpected = (int) ((iterations * numberOfStarts) * 0.80);
 
-      System.out.println("value=" + value + ", minimum expected = " + minimumExpected);
+      log.debug("value=" + value + ", minimum expected = " + minimumExpected);
       Assert.assertTrue("The Random distribution is pretty bad. All tries have returned duplicated randoms. value=" + value + ", minimum expected = " + minimumExpected, value > minimumExpected);
 
    }
@@ -89,7 +91,7 @@ public class RandomUtilDistributionTest {
             valueSet.add(process[i].exitValue());
          }
 
-         System.out.println("Generated " + valueSet.size() + " randoms out of  " + numberOfTries + " tries");
+         log.debug("Generated " + valueSet.size() + " randoms out of  " + numberOfTries + " tries");
 
          return valueSet.size();
 

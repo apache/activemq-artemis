@@ -48,6 +48,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
+
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -506,6 +507,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          try {
             Object deserializedObj = ois.readObject();
 
+            // cannot use logging here, as this test is playing with classLoading here.
             System.out.println("Deserialized Object " + deserializedObj);
 
             myAssertNotSame(originalProxy, deserializedObj);
