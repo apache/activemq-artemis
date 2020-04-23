@@ -29,9 +29,9 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RetryRule;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,10 +39,9 @@ import org.junit.Rule;
 
 public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBase {
 
+   private static final Logger log = Logger.getLogger(MultiThreadReattachSupportTestBase.class);
    @Rule
    public RetryRule retryRule = new RetryRule(2);
-
-   private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private Timer timer;
 
@@ -77,7 +76,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
                                                  final boolean failOnCreateConnection,
                                                  final long failDelay) throws Exception {
       for (int its = 0; its < numIts; its++) {
-         log.info("Beginning iteration " + its);
+         log.debug("Beginning iteration " + its);
 
          start();
 
@@ -214,7 +213,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
 
       @Override
       public synchronized void run() {
-         log.info("** Failing connection");
+         log.debug("** Failing connection");
 
          RemotingConnectionImpl conn = (RemotingConnectionImpl) ((ClientSessionInternal) session).getConnection();
 
@@ -225,7 +224,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
             conn.fail(new ActiveMQNotConnectedException("blah"));
          }
 
-         log.info("** Fail complete");
+         log.debug("** Fail complete");
 
          cancel();
 

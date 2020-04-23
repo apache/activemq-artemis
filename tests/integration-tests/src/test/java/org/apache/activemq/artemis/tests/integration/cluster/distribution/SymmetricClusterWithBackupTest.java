@@ -18,13 +18,10 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Test
@@ -63,8 +60,6 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
          waitForBindings(2, "queues.testaddress", 4, 4, false);
          waitForBindings(3, "queues.testaddress", 4, 4, false);
          waitForBindings(4, "queues.testaddress", 4, 4, false);
-
-         System.out.println("waited for all bindings");
 
          send(0, "queues.testaddress", 10, false, null);
 
@@ -244,8 +239,6 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
 
       startServers();
 
-      SymmetricClusterWithBackupTest.log.info("setup session factories: ");
-
       setupSessionFactory(0, isNetty());
       setupSessionFactory(1, isNetty());
       setupSessionFactory(2, isNetty());
@@ -322,8 +315,6 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
       addConsumer(26, 3, "queue18", null);
       addConsumer(27, 4, "queue18", null);
 
-      SymmetricClusterWithBackupTest.log.info("wait for bindings...");
-
       waitForBindings(0, "queues.testaddress", 5, 5, true);
       waitForBindings(1, "queues.testaddress", 5, 5, true);
       waitForBindings(2, "queues.testaddress", 5, 5, true);
@@ -335,8 +326,6 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
       waitForBindings(2, "queues.testaddress", 23, 23, false);
       waitForBindings(3, "queues.testaddress", 22, 22, false);
       waitForBindings(4, "queues.testaddress", 21, 21, false);
-
-      SymmetricClusterWithBackupTest.log.info("send and receive messages");
 
       send(0, "queues.testaddress", 10, false, null);
 

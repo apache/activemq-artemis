@@ -209,7 +209,7 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       // Get the new address
       String address = sender.getSender().getRemoteTarget().getAddress();
-      LOG.info("New dynamic sender address -> {}", address);
+      LOG.debug("New dynamic sender address -> {}", address);
 
       // Create a message and send to a receive that is listening on the newly
       // created dynamic link address.
@@ -258,7 +258,7 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       // Get the new address
       String address = receiver.getReceiver().getRemoteSource().getAddress();
-      LOG.info("New dynamic receiver address -> {}", address);
+      LOG.debug("New dynamic receiver address -> {}", address);
 
       // Create a message and send to a receive that is listening on the newly
       // created dynamic link address.

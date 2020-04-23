@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.rest.HttpHeaderProperty;
 import org.apache.activemq.artemis.rest.integration.EmbeddedRestActiveMQ;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -40,6 +41,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class EmbeddedTest {
+   private static final Logger log = Logger.getLogger(EmbeddedTest.class);
 
    public static EmbeddedRestActiveMQ server;
 
@@ -93,12 +95,12 @@ public class EmbeddedTest {
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = response.getLinkHeader().getLinkByTitle("create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = response.getLinkHeader().getLinkByTitle("pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link consumeNext = response.getLinkHeader().getLinkByTitle("consume-next");
-      System.out.println("consume-next: " + consumeNext);
+      log.debug("consume-next: " + consumeNext);
 
       // test that Accept header is used to set content-type
       {

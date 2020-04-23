@@ -88,7 +88,6 @@ public class LargeMessageQueueAutoCreationTest extends BasicOpenWireTest {
       Map.Entry<String, AddressSettings> entry = map.entrySet().iterator().next();
       AddressSettings settings = entry.getValue();
       settings.setAutoCreateQueues(true);
-      System.out.println("server cofg, isauto? " + entry.getValue().isAutoCreateQueues());
    }
 
 

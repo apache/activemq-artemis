@@ -59,8 +59,6 @@ public class DisableAdvisoryTest extends BasicOpenWireTest {
 
       TextMessage message = session.createTextMessage("This is a text message");
 
-      System.out.println("Sent message: " + message.getText());
-
       producer.send(message);
 
       MessageConsumer messageConsumer = session.createConsumer(queue);
@@ -68,8 +66,6 @@ public class DisableAdvisoryTest extends BasicOpenWireTest {
       connection.start();
 
       TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
-
-      System.out.println("Received message: " + messageReceived.getText());
 
       //Openwire client will create advisory consumers to the broker.
       //The broker is configured supportAdvisory=false and therefore doesn't

@@ -78,7 +78,7 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 4, servers.get(0).getServer());
       ClientSession session = sendAndConsume(sf, true);
 
-      System.out.println(((ServerLocatorInternal) locator).getTopology().describe());
+      instanceLog.debug(((ServerLocatorInternal) locator).getTopology().describe());
       Thread.sleep(500);
       servers.get(0).crash(session);
 

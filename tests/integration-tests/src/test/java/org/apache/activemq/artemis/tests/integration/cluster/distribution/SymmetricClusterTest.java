@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ import org.junit.Test;
  */
 public class SymmetricClusterTest extends ClusterTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(SymmetricClusterTest.class);
 
    @Override
    @Before
@@ -273,14 +273,14 @@ public class SymmetricClusterTest extends ClusterTestBase {
 
    @Test
    public void testRoundRobinMultipleQueues() throws Exception {
-      SymmetricClusterTest.log.info("starting");
+      log.debug("starting");
       setupCluster();
 
-      SymmetricClusterTest.log.info("setup cluster");
+      log.debug("setup cluster");
 
       startServers();
 
-      SymmetricClusterTest.log.info("started servers");
+      log.debug("started servers");
 
       setupSessionFactory(0, isNetty());
       setupSessionFactory(1, isNetty());
@@ -288,7 +288,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
       setupSessionFactory(3, isNetty());
       setupSessionFactory(4, isNetty());
 
-      SymmetricClusterTest.log.info("Set up session factories");
+      log.debug("Set up session factories");
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(1, "queues.testaddress", "queue0", null, false);
@@ -308,7 +308,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
       createQueue(3, "queues.testaddress", "queue2", null, false);
       createQueue(4, "queues.testaddress", "queue2", null, false);
 
-      SymmetricClusterTest.log.info("created queues");
+      log.debug("created queues");
 
       addConsumer(0, 0, "queue0", null);
       addConsumer(1, 1, "queue0", null);
@@ -328,7 +328,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
       addConsumer(13, 3, "queue2", null);
       addConsumer(14, 4, "queue2", null);
 
-      SymmetricClusterTest.log.info("added consumers");
+      log.debug("added consumers");
 
       waitForBindings(0, "queues.testaddress", 3, 3, true);
       waitForBindings(1, "queues.testaddress", 3, 3, true);
@@ -342,23 +342,23 @@ public class SymmetricClusterTest extends ClusterTestBase {
       waitForBindings(3, "queues.testaddress", 12, 12, false);
       waitForBindings(4, "queues.testaddress", 12, 12, false);
 
-      SymmetricClusterTest.log.info("waited for bindings");
+      log.debug("waited for bindings");
 
       send(0, "queues.testaddress", 10, false, null);
 
-      SymmetricClusterTest.log.info("sent messages");
+      log.debug("sent messages");
 
       verifyReceiveRoundRobinInSomeOrder(10, 0, 1, 2, 3, 4);
 
-      SymmetricClusterTest.log.info("verified 1");
+      log.debug("verified 1");
 
       verifyReceiveRoundRobinInSomeOrder(10, 5, 6, 7, 8, 9);
 
-      SymmetricClusterTest.log.info("verified 2");
+      log.debug("verified 2");
 
       verifyReceiveRoundRobinInSomeOrder(10, 10, 11, 12, 13, 14);
 
-      SymmetricClusterTest.log.info("verified 3");
+      log.debug("verified 3");
    }
 
    @Test

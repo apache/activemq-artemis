@@ -26,15 +26,15 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.jboss.logging.Logger;
 
 /**
  * Code to be run in an external VM, via main()
  */
 public class GracefulClient {
-   // Constants ------------------------------------------------------------------------------------
+   private static final Logger log = Logger.getLogger(GracefulClient.class);
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   // Constants ------------------------------------------------------------------------------------
 
    // Static ---------------------------------------------------------------------------------------
 

@@ -41,13 +41,11 @@ public class TransportConfigurationTest {
       HashMap<String, Object> configMap2 = new HashMap<>();
       configMap2.put("host", "localhost");
 
-      System.out.println("Equals::" + configMap1.equals(configMap2));
       configuration = new TransportConfiguration("SomeClass", configMap1, null);
       configuration2 = new TransportConfiguration("SomeClass", configMap2, null);
       Assert.assertEquals(configuration, configuration2);
       Assert.assertEquals(configuration.hashCode(), configuration2.hashCode());
 
-      System.out.println("Equals::" + configMap1.equals(configMap2));
       configuration = new TransportConfiguration("SomeClass", configMap1, "name1");
       configuration2 = new TransportConfiguration("SomeClass", configMap2, "name2");
       Assert.assertNotEquals(configuration, configuration2);

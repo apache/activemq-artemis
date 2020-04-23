@@ -109,7 +109,7 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
          targetMethod = "close",
          targetLocation = "AT EXIT",
          condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-         action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"), @BMRule(
+         action = "log.debug(\"throwing stuff\");throw new InterruptedException()"), @BMRule(
          name = "closeEnter",
          targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
          targetMethod = "close",
@@ -136,7 +136,7 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
          targetMethod = "close",
          targetLocation = "AT EXIT",
          condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-         action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"), @BMRule(
+         action = "log.debug(\"throwing stuff\");throw new InterruptedException()"), @BMRule(
          name = "closeEnter",
          targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
          targetMethod = "close",

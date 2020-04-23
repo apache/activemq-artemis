@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.rest.MessageServiceManager;
 import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.artemis.rest.queue.push.xml.XmlLink;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -40,6 +41,8 @@ import static org.jboss.resteasy.test.TestPortProvider.generateURL;
  * Test durable queue push consumers
  */
 public class PersistentPushQueueConsumerTest {
+
+   private static final Logger log = Logger.getLogger(PersistentPushQueueConsumerTest.class);
 
    public static MessageServiceManager manager;
    protected static ResteasyDeployment deployment;
@@ -81,19 +84,19 @@ public class PersistentPushQueueConsumerTest {
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
          Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-         System.out.println("create: " + sender);
+         log.debug("create: " + sender);
          Link pushSubscriptions = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-consumers");
-         System.out.println("push subscriptions: " + pushSubscriptions);
+         log.debug("push subscriptions: " + pushSubscriptions);
 
          request = new ClientRequest(generateURL("/queues/" + testName + "forwardQueue"));
          response = request.head();
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
          Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-         System.out.println("pull: " + consumers);
+         log.debug("pull: " + consumers);
          response = Util.setAutoAck(consumers, true);
          Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-         System.out.println("poller: " + consumeNext);
+         log.debug("poller: " + consumeNext);
 
          PushRegistration reg = new PushRegistration();
          reg.setDurable(true);
@@ -161,9 +164,9 @@ public class PersistentPushQueueConsumerTest {
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
          Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-         System.out.println("create: " + sender);
+         log.debug("create: " + sender);
          Link pushSubscriptions = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-consumers");
-         System.out.println("push subscriptions: " + pushSubscriptions);
+         log.debug("push subscriptions: " + pushSubscriptions);
 
          PushRegistration reg = new PushRegistration();
          reg.setDurable(true);

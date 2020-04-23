@@ -23,7 +23,6 @@ import java.net.URLDecoder;
 
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.Assert;
@@ -31,8 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class NettySecurityClientTest extends SpawnedTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer messagingService;
 
@@ -88,7 +85,6 @@ public class NettySecurityClientTest extends SpawnedTestBase {
 
       // the client VM should exit by itself. If it doesn't, that means we have a problem
       // and the test will timeout
-      NettySecurityClientTest.log.debug("waiting for the client VM to exit ...");
       p.waitFor();
 
       Assert.assertEquals("client VM did not exit cleanly", 0, p.exitValue());

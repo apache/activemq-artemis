@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.rest.test;
 
 import org.apache.activemq.artemis.rest.util.Constants;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -26,6 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class CreateDestinationTest extends MessageTestBase {
+   private static final Logger log = Logger.getLogger(CreateDestinationTest.class);
 
    @BeforeClass
    public static void reg() {
@@ -39,19 +41,19 @@ public class CreateDestinationTest extends MessageTestBase {
       ClientResponse cRes = create.body("application/activemq.jms.queue+xml", queueConfig).post();
       cRes.releaseConnection();
       Assert.assertEquals(201, cRes.getStatus());
-      System.out.println("Location: " + cRes.getLocationLink());
+      log.debug("Location: " + cRes.getLocationLink());
       ClientRequest request = cRes.getLocationLink().request();
 
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
       Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
-      System.out.println("create: " + sender);
+      log.debug("create: " + sender);
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
-      System.out.println("pull: " + consumers);
+      log.debug("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
-      System.out.println("poller: " + consumeNext);
+      log.debug("poller: " + consumeNext);
 
       ClientResponse<?> res = sender.request().body("text/plain", Integer.toString(1)).post();
       res.releaseConnection();
@@ -62,23 +64,23 @@ public class CreateDestinationTest extends MessageTestBase {
       Assert.assertEquals("1", res.getEntity(String.class));
       res.releaseConnection();
       Link session = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
-      System.out.println("session: " + session);
+      log.debug("session: " + session);
       consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
-      System.out.println("consumeNext: " + consumeNext);
+      log.debug("consumeNext: " + consumeNext);
 
       res = sender.request().body("text/plain", Integer.toString(2)).post();
       res.releaseConnection();
       Assert.assertEquals(201, res.getStatus());
 
-      System.out.println(consumeNext);
+      log.debug(consumeNext);
       res = consumeNext.request().header(Constants.WAIT_HEADER, "10").post(String.class);
       Assert.assertEquals(200, res.getStatus());
       Assert.assertEquals("2", res.getEntity(String.class));
       res.releaseConnection();
       session = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
-      System.out.println("session: " + session);
+      log.debug("session: " + session);
       getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
-      System.out.println("consumeNext: " + consumeNext);
+      log.debug("consumeNext: " + consumeNext);
 
       res = session.request().delete();
       res.releaseConnection();
@@ -108,7 +110,7 @@ public class CreateDestinationTest extends MessageTestBase {
       Assert.assertNotNull(sub1);
       Link consumeNext1 = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consume-next");
       Assert.assertNotNull(consumeNext1);
-      System.out.println("consumeNext1: " + consumeNext1);
+      log.debug("consumeNext1: " + consumeNext1);
 
       res = subscriptions.request().post();
       res.releaseConnection();

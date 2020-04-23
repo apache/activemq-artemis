@@ -1473,11 +1473,8 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
       Role role = new Role("arole", false, false, false, false, false, false, false, false, false, false);
-      System.out.println("guest:" + role);
       Role sendRole = new Role("guest", true, false, true, false, false, false, false, false, true, false);
-      System.out.println("guest:" + sendRole);
       Role receiveRole = new Role("receiver", false, true, false, false, false, false, false, false, false, false);
-      System.out.println("guest:" + receiveRole);
       Set<Role> roles = new HashSet<>();
       roles.add(sendRole);
       roles.add(role);

@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,6 +34,7 @@ import org.junit.Test;
  * Tests of jms bridge using HA connection factories.
  */
 public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase {
+   private static final Logger log = Logger.getLogger(JMSBridgeClusteredTest.class);
 
    private ServerGroup sourceServer;
    private ServerGroup targetServer;
@@ -103,7 +105,7 @@ public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase {
          //start the bridge
          bridge.start();
 
-         System.out.println("started bridge");
+         log.debug("started bridge");
 
          final int NUM_MESSAGES = batchSize / 2;
 

@@ -198,10 +198,10 @@ public class ExtraStompTest extends StompTestBase {
 
       // receive but don't ack
       frame = conn.receiveFrame(10000);
-      System.out.println(frame);
+      instanceLog.debug(frame);
 
       frame = conn.receiveFrame(10000);
-      System.out.println(frame);
+      instanceLog.debug(frame);
 
       unsubscribe(conn, "a-sub");
 

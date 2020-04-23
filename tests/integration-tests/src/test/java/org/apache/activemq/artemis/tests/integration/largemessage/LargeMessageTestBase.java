@@ -46,10 +46,10 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.DeflaterReader;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -58,7 +58,8 @@ import org.junit.runners.Parameterized;
 public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+
+   private static final Logger log = Logger.getLogger(LargeMessageTestBase.class);
 
    protected final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 

@@ -79,10 +79,10 @@ public class RetryRule implements MethodRule {
                   currentException = null;
                   try {
                      base.evaluate();
-                     logger.info("RETRY " + (retryNr + 1)  + " of " + retries + " on " + target.getClass() + "::" + method.getName() + " succeeded");
+                     logger.warn("RETRY " + (retryNr + 1)  + " of " + retries + " on " + target.getClass() + "::" + method.getName() + " succeeded");
                      break;
                   } catch (Throwable t2) {
-                     logger.info("RETRY " + (retryNr + 1)  + " of " + retries + " on " + target.getClass() + "::" + method.getName() + " failed ", t2);
+                     logger.warn("RETRY " + (retryNr + 1)  + " of " + retries + " on " + target.getClass() + "::" + method.getName() + " failed ", t2);
                      currentException = t2;
                   }
                }

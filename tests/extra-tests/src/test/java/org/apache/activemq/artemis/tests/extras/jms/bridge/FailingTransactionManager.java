@@ -31,11 +31,8 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
 public class FailingTransactionManager implements TransactionManager {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private final TransactionManager tm;
    private int calls;
@@ -126,7 +123,6 @@ public class FailingTransactionManager implements TransactionManager {
          } else {
             int fails = failures.incrementAndGet();
             RollbackException ex = new RollbackException("Expected rollback for test");
-            log.tracef(ex, "We are about to fail commit for %s th  time", fails);
             throw ex;
          }
       }

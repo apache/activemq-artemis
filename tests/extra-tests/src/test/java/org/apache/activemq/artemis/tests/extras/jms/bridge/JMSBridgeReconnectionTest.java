@@ -32,19 +32,15 @@ import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.ra.DummyTransactionManager;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class JMSBridgeReconnectionTest extends BridgeTestBase {
+   private static final Logger log = Logger.getLogger(JMSBridgeReconnectionTest.class);
 
-   /**
-    *
-    */
    private static final int TIME_WAIT = 5000;
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Crash and reconnect
 
@@ -185,17 +181,17 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       // Now crash the dest server
 
-      JMSBridgeReconnectionTest.log.info("About to crash server");
+      instanceLog.debug("About to crash server");
 
       server1.stop();
 
       // Wait a while before starting up to simulate the dest being down for a while
-      JMSBridgeReconnectionTest.log.info("Waiting 5 secs before bringing server back up");
+      instanceLog.debug("Waiting 5 secs before bringing server back up");
       Thread.sleep(TIME_WAIT);
-      JMSBridgeReconnectionTest.log.info("Done wait");
+      instanceLog.debug("Done wait");
 
       // Restart the server
-      JMSBridgeReconnectionTest.log.info("Restarting server");
+      instanceLog.debug("Restarting server");
       server1.start();
 
       // jmsServer1.createQueue(false, "targetQueue", null, true, "queue/targetQueue");
@@ -206,17 +202,17 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       // Send some more messages
 
-      JMSBridgeReconnectionTest.log.info("Sending more messages");
+      instanceLog.debug("Sending more messages");
 
       sendMessages(cf0, sourceQueue, NUM_MESSAGES / 2, NUM_MESSAGES / 2, persistent, largeMessage);
 
-      JMSBridgeReconnectionTest.log.info("Sent messages");
+      instanceLog.debug("Sent messages");
 
       server1.stop();
 
       bridge.stop();
 
-      System.out.println("JMSBridgeReconnectionTest.performCrashAndReconnectDestBasic");
+      log.debug("JMSBridgeReconnectionTest.performCrashAndReconnectDestBasic");
    }
 
    @Test
@@ -246,14 +242,14 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       checkAllMessageReceivedInOrder(cf1, targetQueue, 0, 1, false);
 
-      JMSBridgeReconnectionTest.log.info("About to crash server");
+      instanceLog.debug("About to crash server");
 
       server1.stop();
 
       // Wait a while before starting up to simulate the dest being down for a while
-      JMSBridgeReconnectionTest.log.info("Waiting 5 secs before bringing server back up");
+      instanceLog.debug("Waiting 5 secs before bringing server back up");
       Thread.sleep(TIME_WAIT);
-      JMSBridgeReconnectionTest.log.info("Done wait");
+      instanceLog.debug("Done wait");
 
       bridge.stop();
 
@@ -301,7 +297,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       // Now crash the dest server
 
-      JMSBridgeReconnectionTest.log.info("About to crash server");
+      instanceLog.debug("About to crash server");
 
       server1.stop();
 
@@ -309,9 +305,9 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
          server1.start();
       }
       // Wait a while before starting up to simulate the dest being down for a while
-      JMSBridgeReconnectionTest.log.info("Waiting 5 secs before bringing server back up");
+      instanceLog.debug("Waiting 5 secs before bringing server back up");
       Thread.sleep(TIME_WAIT);
-      JMSBridgeReconnectionTest.log.info("Done wait");
+      instanceLog.debug("Done wait");
 
       bridge.stop();
 
@@ -394,14 +390,14 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
       // Now crash the dest server
 
-      JMSBridgeReconnectionTest.log.info("About to crash server");
+      instanceLog.debug("About to crash server");
 
       server1.stop();
 
       // Wait a while before starting up to simulate the dest being down for a while
-      JMSBridgeReconnectionTest.log.info("Waiting 5 secs before bringing server back up");
+      instanceLog.debug("Waiting 5 secs before bringing server back up");
       Thread.sleep(TIME_WAIT);
-      JMSBridgeReconnectionTest.log.info("Done wait");
+      instanceLog.debug("Done wait");
 
       // Restart the server
       server1.start();

@@ -40,15 +40,15 @@ import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfigu
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class MessageRedistributionTest extends ClusterTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(MessageRedistributionTest.class);
 
    @Override
    @Before
@@ -84,7 +84,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
    public void testRedistributionWithMessageGroups() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-      MessageRedistributionTest.log.info("Doing test");
+      log.debug("Doing test");
 
       getServer(0).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("handler")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(new SimpleString("queues")));
       getServer(1).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("handler")).setType(GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(new SimpleString("queues")));
@@ -146,9 +146,6 @@ public class MessageRedistributionTest extends ClusterTestBase {
       //consume the non grouped messages
       for (int i = 0; i < 5; i++) {
          ClientMessage message = getConsumer(0).receive(5000);
-         if (message == null) {
-            System.out.println();
-         }
          Assert.assertNotNull("" + i, message);
          message.acknowledge();
          Assert.assertNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
@@ -168,7 +165,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
          message.acknowledge();
          Assert.assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
-      MessageRedistributionTest.log.info("Test done");
+      log.debug("Test done");
    }
 
    //https://issues.jboss.org/browse/HORNETQ-1057
@@ -176,7 +173,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
    public void testRedistributionStopsWhenConsumerAdded() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-      MessageRedistributionTest.log.info("Doing test");
+      log.debug("Doing test");
 
       startServers(0, 1, 2);
 
@@ -206,14 +203,14 @@ public class MessageRedistributionTest extends ClusterTestBase {
       Bindable bindable = servers[0].getPostOffice().getBinding(new SimpleString("queue0")).getBindable();
       String debug = ((QueueImpl) bindable).debug();
       Assert.assertFalse(debug.contains(Redistributor.class.getName()));
-      MessageRedistributionTest.log.info("Test done");
+      log.debug("Test done");
    }
 
    @Test
    public void testRedistributionWhenConsumerIsClosed() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-      MessageRedistributionTest.log.info("Doing test");
+      log.debug("Doing test");
 
       startServers(0, 1, 2);
 
@@ -247,7 +244,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       verifyReceiveRoundRobinInSomeOrderWithCounts(false, ids1, 0, 2);
 
-      MessageRedistributionTest.log.info("Test done");
+      log.debug("Test done");
    }
 
    @Test
@@ -329,7 +326,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       Assert.assertNull(consumer1.receiveImmediate());
       Assert.assertNull(consumer2.receiveImmediate());
 
-      MessageRedistributionTest.log.info("Test done");
+      log.debug("Test done");
    }
 
    @Test

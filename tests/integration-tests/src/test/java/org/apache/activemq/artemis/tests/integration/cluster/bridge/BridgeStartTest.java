@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -57,8 +56,6 @@ public class BridgeStartTest extends ActiveMQTestBase {
    }
 
    private final boolean netty;
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected boolean isNetty() {
       return netty;
@@ -337,11 +334,7 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          sf1.close();
 
-         BridgeStartTest.log.info("stopping server 1");
-
          server1.stop();
-
-         BridgeStartTest.log.info("stopped server 1");
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = session0.createMessage(false);
@@ -351,12 +344,8 @@ public class BridgeStartTest extends ActiveMQTestBase {
             producer0.send(message);
          }
 
-         BridgeStartTest.log.info("sent some more messages");
-
          server1.start();
          waitForServerToStart(server1);
-
-         BridgeStartTest.log.info("started server1");
 
          sf1 = locator.createSessionFactory(server1tc);
 
@@ -365,8 +354,6 @@ public class BridgeStartTest extends ActiveMQTestBase {
          consumer1 = session1.createConsumer(queueName1);
 
          session1.start();
-
-         BridgeStartTest.log.info("started session");
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = consumer1.receive(1000);
@@ -625,8 +612,6 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          Bridge bridge = server0.getClusterManager().getBridges().get(bridgeName);
 
-         BridgeStartTest.log.info("stopping bridge manually");
-
          bridge.stop();
 
          bridge.flushExecutor();
@@ -642,8 +627,6 @@ public class BridgeStartTest extends ActiveMQTestBase {
          Assert.assertNull(consumer1.receiveImmediate());
 
          bridge.start();
-
-         BridgeStartTest.log.info("started bridge");
 
          // The previous messages will get resent, but with duplicate detection they will be rejected
          // at the target

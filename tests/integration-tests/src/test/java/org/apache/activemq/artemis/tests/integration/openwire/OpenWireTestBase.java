@@ -107,7 +107,6 @@ public class OpenWireTestBase extends ActiveMQTestBase {
       server.start();
 
       coreCf = ActiveMQJMSClient.createConnectionFactory("vm://0?reconnectAttempts=-1","cf");
-      System.out.println("debug: server started");
    }
 
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {

@@ -63,7 +63,6 @@ public class StompPropertiesInterceptorTest extends StompTestBase {
          if (stompFrame.getCommand().equals("CONNECT") || stompFrame.getCommand().equals("CONNECTED")) {
             return true;
          }
-         System.out.println("Checking properties in interceptor");
          assertNotNull(stompFrame);
          assertEquals(stompFrame.getHeader(MY_HEADER), expectedProperties.get(MY_HEADER));
          assertEquals(stompFrame.getBody(), expectedProperties.get(MESSAGE_TEXT));

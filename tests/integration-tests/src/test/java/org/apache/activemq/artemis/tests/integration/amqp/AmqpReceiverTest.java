@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -365,7 +364,6 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectClosedResource(Session session) {
-            IntegrationTestLogger.LOGGER.info("Session closed: " + session.getContext());
          }
 
          @Override
@@ -375,7 +373,6 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectClosedResource(Receiver receiver) {
-            IntegrationTestLogger.LOGGER.info("Receiver closed: " + receiver.getContext());
             closed.set(true);
          }
       });

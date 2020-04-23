@@ -58,15 +58,12 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
 public abstract class BridgeTestBase extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected ConnectionFactoryFactory cff0, cff1;
 
@@ -395,8 +392,6 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
             // No *guarantee* that any messages will be received
             // but you still might get some depending on how/where the crash occurred
          }
-
-         BridgeTestBase.log.trace("Check complete");
 
       } finally {
          if (conn != null) {

@@ -824,11 +824,11 @@ public class StompTest extends StompTestBase {
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
       String text = "A" + "\u00ea" + "\u00f1" + "\u00fc" + "C";
-      log.info(text);
+      log.debug(text);
       sendJmsMessage(text);
 
       ClientStompFrame frame = conn.receiveFrame(10000);
-      log.info(frame);
+      log.debug(frame);
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       Assert.assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader(Stomp.Headers.Message.DESTINATION));
       Assert.assertEquals(text, frame.getBody());

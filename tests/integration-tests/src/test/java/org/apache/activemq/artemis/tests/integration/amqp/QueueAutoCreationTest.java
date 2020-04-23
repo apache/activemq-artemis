@@ -90,7 +90,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       Map.Entry<String, AddressSettings> entry = map.entrySet().iterator().next();
       AddressSettings settings = entry.getValue();
       settings.setAutoCreateQueues(true);
-      System.out.println("server cofg, isauto? " + entry.getValue().isAutoCreateQueues());
+      instanceLog.debug("server cofg, isauto? " + entry.getValue().isAutoCreateQueues());
    }
 
 
@@ -118,7 +118,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:5672");
       Connection connection = factory.createConnection();
       SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-      System.out.println("Address is " + addressName);
+      instanceLog.debug("Address is " + addressName);
       clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
       Topic topic = new ActiveMQTopic(addressName.toString());
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -137,7 +137,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:5672");
       Connection connection = factory.createConnection();
       SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-      System.out.println("Address is " + addressName);
+      instanceLog.debug("Address is " + addressName);
       clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -158,7 +158,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:5672");
       Connection connection = factory.createConnection();
       SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-      System.out.println("Address is " + addressName);
+      instanceLog.debug("Address is " + addressName);
       clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
 
       Connection recConnection = factory.createConnection();

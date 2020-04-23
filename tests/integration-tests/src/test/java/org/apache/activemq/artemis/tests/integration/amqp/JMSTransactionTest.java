@@ -40,7 +40,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       javax.jms.Queue queue = session.createQueue(getQueueName());
 
-      System.out.println("queue:" + queue.getQueueName());
+      instanceLog.debug("queue:" + queue.getQueueName());
       MessageProducer p = session.createProducer(queue);
       for (int i = 0; i < 10; i++) {
          TextMessage message = session.createTextMessage();
@@ -62,7 +62,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       javax.jms.Queue queue = session.createQueue(getQueueName());
 
-      System.out.println("queue:" + queue.getQueueName());
+      instanceLog.debug("queue:" + queue.getQueueName());
       MessageProducer p = session.createProducer(queue);
       for (int i = 0; i < 10; i++) {
          TextMessage message = session.createTextMessage();
@@ -106,7 +106,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       javax.jms.Queue queue = session.createQueue(getQueueName());
 
-      System.out.println("queue:" + queue.getQueueName());
+      instanceLog.debug("queue:" + queue.getQueueName());
       MessageProducer p = session.createProducer(queue);
       for (int i = 0; i < 10; i++) {
          TextMessage message = session.createTextMessage();

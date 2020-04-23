@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.ra.ActiveMQRATestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -67,6 +68,7 @@ import org.junit.Test;
  * Simulates several messages being received over multiple instances with reconnects during the process.
  */
 public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase {
+   private static final Logger log = Logger.getLogger(MDBMultipleHandlersServerDisconnectTest.class);
 
    final ConcurrentHashMap<Integer, AtomicInteger> mapCounter = new ConcurrentHashMap<>();
 
@@ -228,7 +230,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
                if (playServerClosingSession && serverSessions.size() > 0) {
 
                   int randomBother = RandomUtil.randomInterval(0, serverSessions.size() - 1);
-                  System.out.println("bugging session " + randomBother);
+                  log.debug("bugging session " + randomBother);
 
                   ServerSession serverSession = serverSessions.get(randomBother);
 
@@ -278,19 +280,19 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
          }
 
          if (i == NUMBER_OF_MESSAGES * 0.90) {
-            System.out.println("Disabled failures at " + i);
+            log.debug("Disabled failures at " + i);
             playTXTimeouts = false;
             playServerClosingSession = false;
             playServerClosingConsumer = false;
 
          }
 
-         System.out.println("Received " + i + " messages");
+         log.debug("Received " + i + " messages");
 
          doReceiveMessage(message);
 
          if (i % 200 == 0) {
-            System.out.println("received " + i);
+            log.debug("received " + i);
             session.commit();
          }
       }
@@ -303,7 +305,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
             break;
          }
 
-         System.out.println("Received extra message " + message);
+         log.debug("Received extra message " + message);
 
          doReceiveMessage(message);
       }
@@ -338,15 +340,12 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       session.close();
 
       if (failed) {
-         for (int i = 0; i < 10; i++) {
-            System.out.println("----------------------------------------------------");
-         }
-         System.out.println(writer.toString());
+         log.debug(writer.toString());
       }
 
       Assert.assertFalse(writer.toString(), failed);
 
-      System.out.println("Received " + NUMBER_OF_MESSAGES + " messages");
+      log.debug("Received " + NUMBER_OF_MESSAGES + " messages");
 
       Assert.assertFalse("There was meta-data failures, some sessions didn't reconnect properly", metaDataFailed.get());
 

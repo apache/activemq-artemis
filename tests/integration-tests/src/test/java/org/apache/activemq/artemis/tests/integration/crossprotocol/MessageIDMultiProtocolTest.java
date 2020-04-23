@@ -115,8 +115,8 @@ public class MessageIDMultiProtocolTest extends OpenWireTestBase {
 
             Assert.assertTrue(messageId.startsWith("ID:"));
 
-            System.out.println("[" + protocolSender + "][" + protocolConsumer + "] " + messageId);
-            System.out.println("[" + protocolSender + "][" + protocolConsumer + "] " + sentMid);
+            instanceLog.debug("[" + protocolSender + "][" + protocolConsumer + "] " + messageId);
+            instanceLog.debug("[" + protocolSender + "][" + protocolConsumer + "] " + sentMid);
 
             if (protocolConsumer.equals(protocolSender)) {
                //only same protocol we guarantee the same JMSMessageID

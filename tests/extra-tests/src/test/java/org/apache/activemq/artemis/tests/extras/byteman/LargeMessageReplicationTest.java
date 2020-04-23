@@ -42,13 +42,14 @@ import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTe
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 public class LargeMessageReplicationTest extends FailoverTestBase {
-
+   private static final Logger log = Logger.getLogger(LargeMessageReplicationTest.class);
 
    private static final String DIVERT_ADDRESS = "jms.queue.testQueue";
    private static final String DIVERT_FORWARD_ADDRESS = "jms.queue.divertedQueue";
@@ -184,7 +185,7 @@ public class LargeMessageReplicationTest extends FailoverTestBase {
    }
 
    private static void copyThread() {
-      System.out.println("_************************ " + Thread.currentThread().getId());
+      log.debug("_************************ " + Thread.currentThread().getId());
       copyThread.set(Thread.currentThread().getId());
    }
 

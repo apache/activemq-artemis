@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(TwoWayTwoNodeClusterTest.class);
 
    @Override
    @Before
@@ -235,13 +235,13 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
          waitForTopology(servers[1], 2);
 
          for (int i = 0; i < 10; i++) {
-            log.info("Sleep #test " + i);
-            log.info("#stop #test #" + i);
+            log.debug("Sleep #test " + i);
+            log.debug("#stop #test #" + i);
             Thread.sleep(500);
             stopServers(1);
 
             waitForTopology(servers[0], 1, -1, 2000);
-            log.info("#start #test #" + i);
+            log.debug("#start #test #" + i);
             startServers(1);
             waitForTopology(servers[0], 2, -1, 2000);
             waitForTopology(servers[1], 2, -1, 2000);
@@ -284,12 +284,12 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
       //allow the topology to be propagated before restarting
       waitForTopology(servers[0], 1, -1, 2000);
 
-      System.out.println(clusterDescription(servers[0]));
+      instanceLog.debug(clusterDescription(servers[0]));
 
       startServers(1);
 
-      System.out.println(clusterDescription(servers[0]));
-      System.out.println(clusterDescription(servers[1]));
+      instanceLog.debug(clusterDescription(servers[0]));
+      instanceLog.debug(clusterDescription(servers[1]));
 
       setupSessionFactory(1, isNetty());
 

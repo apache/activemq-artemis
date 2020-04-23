@@ -74,7 +74,6 @@ public class SimpleNotificationService implements NotificationService {
 
       @Override
       public void onNotification(final Notification notification) {
-         System.out.println(">>>>>>>>" + notification);
          notifications.add(notification);
       }
 

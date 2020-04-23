@@ -81,13 +81,13 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.RetryMethod;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -100,6 +100,7 @@ import static org.apache.activemq.artemis.jms.client.ActiveMQConnection.JMS_SESS
 @RunWith(Parameterized.class)
 public class ActiveMQServerControlTest extends ManagementTestBase {
 
+   private static final Logger log = Logger.getLogger(ActiveMQServerControlTest.class);
 
    @Rule
    public RetryRule retryRule = new RetryRule(0);
@@ -130,7 +131,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    private static boolean contains(final String name, final String[] strings) {
       boolean found = false;
       for (String str : strings) {
-         IntegrationTestLogger.LOGGER.info("Does " + str + " match " + name);
          if (name.equals(str)) {
             found = true;
             break;
@@ -1629,8 +1629,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       boolean success = serverControl.commitPreparedTransaction(XidImpl.toBase64String(xid));
 
       success = serverControl.commitPreparedTransaction(XidImpl.toBase64String(xid));
-
-      System.out.println("ActiveMQServerControlTest.testCommitPreparedTransactions");
    }
 
    @Test
@@ -1881,7 +1879,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addClientSession(factories.get(1).createSession());
 
       String jsonString = serverControl.listConnectionsAsJSON();
-      IntegrationTestLogger.LOGGER.info(jsonString);
+      log.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(usingCore() ? 3 : 2, array.size());
@@ -1944,7 +1942,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addClientConsumer(session.createConsumer(queueName, SimpleString.toSimpleString(filter), true));
 
       String jsonString = serverControl.listConsumersAsJSON(factory.getConnection().getID().toString());
-      IntegrationTestLogger.LOGGER.info(jsonString);
+      log.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(2, array.size());
@@ -2007,7 +2005,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addClientConsumer(session2.createConsumer(queueName));
 
       String jsonString = serverControl.listAllConsumersAsJSON();
-      IntegrationTestLogger.LOGGER.info(jsonString);
+      log.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(usingCore() ? 3 : 2, array.size());
@@ -2080,7 +2078,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session2.createConsumer(queueName);
 
       String jsonString = serverControl.listSessionsAsJSON(factory.getConnection().getID().toString());
-      IntegrationTestLogger.LOGGER.info(jsonString);
+      log.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(2, array.size());
@@ -2144,7 +2142,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session2.createConsumer(queueName);
 
       String jsonString = serverControl.listAllSessionsAsJSON();
-      IntegrationTestLogger.LOGGER.info(jsonString);
+      log.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(2 + (usingCore() ? 1 : 0), array.size());
@@ -2185,7 +2183,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       con.setClientID(clientID);
 
       String jsonString = serverControl.listAllSessionsAsJSON();
-      IntegrationTestLogger.LOGGER.info(jsonString);
+      log.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(1 + (usingCore() ? 1 : 0), array.size());

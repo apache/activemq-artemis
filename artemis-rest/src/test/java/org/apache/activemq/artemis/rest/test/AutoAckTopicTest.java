@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.rest.test;
 
 import org.apache.activemq.artemis.rest.topic.TopicDeployment;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -25,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class AutoAckTopicTest extends MessageTestBase {
+   private static final Logger log = Logger.getLogger(AutoAckTopicTest.class);
 
    @Test
    public void testSuccessFirst() throws Exception {
@@ -50,7 +52,7 @@ public class AutoAckTopicTest extends MessageTestBase {
       Assert.assertNotNull(sub1);
       Link consumeNext1 = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consume-next");
       Assert.assertNotNull(consumeNext1);
-      System.out.println("consumeNext1: " + consumeNext1);
+      log.debug("consumeNext1: " + consumeNext1);
 
       res = subscriptions.request().post();
       res.releaseConnection();
@@ -59,7 +61,7 @@ public class AutoAckTopicTest extends MessageTestBase {
       Assert.assertNotNull(sub2);
       Link consumeNext2 = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consume-next");
       Assert.assertNotNull(consumeNext2);
-      System.out.println("consumeNext2: " + consumeNext2);
+      log.debug("consumeNext2: " + consumeNext2);
 
       res = sender.request().body("text/plain", "1").post();
       res.releaseConnection();
@@ -169,11 +171,11 @@ public class AutoAckTopicTest extends MessageTestBase {
             ClientRequest request = new ClientRequest(url);
             ClientResponse<?> response = request.post();
             response.releaseConnection();
-            System.out.println("NPS response: " + response.getStatus());
+            log.debug("NPS response: " + response.getStatus());
             Assert.assertEquals(201, response.getStatus());
             isFinished = true;
          } catch (Exception e) {
-            System.out.println("Exception " + e);
+            log.debug("Exception " + e);
             failed = true;
          }
       }

@@ -94,7 +94,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       Set<XARecoveryConfig> resources = ra.getRecoveryManager().getResources();
 
       for (int i = 0; i < 10; i++) {
-         System.out.println(i);
          activation.start();
          assertEquals(1, resources.size());
          activation.stop();

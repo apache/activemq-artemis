@@ -271,7 +271,6 @@ public class ReconnectTest extends ActiveMQTestBase {
             @Override
             public void beforeReconnect(ActiveMQException exception) {
                threadToBeInterrupted.add(Thread.currentThread());
-               System.out.println("Thread " + Thread.currentThread() + " reconnecting now");
                latchCommit.countDown();
             }
          });

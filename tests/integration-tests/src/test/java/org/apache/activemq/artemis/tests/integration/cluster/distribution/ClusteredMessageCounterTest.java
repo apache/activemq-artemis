@@ -129,7 +129,6 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
 
          waitForBindings(0, "queues", 1, 1, false);
 
-         System.out.println("sending.....");
          send(0, "queues", numMsg, durable, null);
 
          verifyReceiveAllOnSingleConsumer(true, 0, numMsg, 1);
@@ -162,7 +161,6 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
          waitForBindings(1, "queues", 1, 0, true);
          waitForBindings(0, "queues", 1, 0, false);
 
-         System.out.println("sending.....");
          Thread sendThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -171,7 +169,6 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
                } catch (Exception e) {
                   e.printStackTrace();
                }
-               System.out.println("messages sent.");
             }
          });
 
@@ -195,7 +192,6 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
             stopFlag.set(true);
          }
          sendThread.join();
-         System.out.println("Results collected: " + results.size());
          //checking
          for (MessageCounterInfo info : results) {
             assertTrue("countDelta should be positive " + info.getCountDelta() + dumpResults(results), info.getCountDelta() >= 0);
@@ -233,9 +229,6 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
          try {
             String result = queueControl.listMessageCounter();
             MessageCounterInfo info = MessageCounterInfo.fromJSON(result);
-            if (info.getCountDelta() != 0) {
-               System.out.println("non zero value got ---> " + info.getCountDelta());
-            }
             results.add(info);
             resultLatch.countDown();
             if (info.getCountDelta() < 0) {
@@ -283,7 +276,6 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
             for (; num < batchSize || stopFlag.get(); num++) {
                ClientMessage message = consumer.receive(2000);
                if (message == null) {
-                  System.out.println("No more messages received!");
                   break;
                }
                message.acknowledge();
@@ -292,7 +284,6 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
          } catch (ActiveMQException e) {
             e.printStackTrace();
          } finally {
-            System.out.println("received messages: " + num);
             if (consumer != null) {
                try {
                   consumer.close();
@@ -311,7 +302,6 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
             //we only receive (numMsg - 200) to avoid the paging being cleaned up
             //when all paged messages are consumed.
             if (!stopFlag.get() && total.addAndGet(num) < numMsg - 200) {
-               System.out.println("go for another batch " + total.get());
                timer2.schedule(new PeriodicalReceiver(this.batchSize, this.serverID, this.period), period);
             }
          }

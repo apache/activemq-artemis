@@ -45,9 +45,6 @@ public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest {
       String text = "TEST: " + System.currentTimeMillis();
       Message sendMessage = session.createTextMessage(text);
 
-      if (verbose) {
-         System.out.println("About to send a message: " + sendMessage + " with text: " + text);
-      }
       producer.send(producerDestination, sendMessage);
 
       // receive but don't acknowledge

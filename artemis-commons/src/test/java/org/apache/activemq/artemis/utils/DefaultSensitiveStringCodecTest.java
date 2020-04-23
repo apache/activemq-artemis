@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import org.jboss.logging.Logger;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -27,6 +28,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class DefaultSensitiveStringCodecTest {
+
+   private static final Logger log = Logger.getLogger(DefaultSensitiveStringCodecTest.class);
 
    @Test
    public void testDefaultAlgorithm() throws Exception {
@@ -43,7 +46,7 @@ public class DefaultSensitiveStringCodecTest {
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
-      System.out.println("encoded value: " + maskedText);
+      log.debug("encoded value: " + maskedText);
 
       //one way can't decode
       try {
@@ -67,10 +70,10 @@ public class DefaultSensitiveStringCodecTest {
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
-      System.out.println("encoded value: " + maskedText);
+      log.debug("encoded value: " + maskedText);
 
       String decoded = codec.decode(maskedText);
-      System.out.println("encoded value: " + maskedText);
+      log.debug("encoded value: " + maskedText);
 
       assertEquals("decoded result not match: " + decoded, decoded, plainText);
    }

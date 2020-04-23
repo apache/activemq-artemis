@@ -148,8 +148,6 @@ public class ScaleDownDirectTest extends ClusterTestBase {
 
       messageCheckNull = consumer2.receiveImmediate();
 
-      System.out.println("Received " + messageCheckNull);
-
       assertNull(messageCheckNull);
    }
 

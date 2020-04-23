@@ -65,7 +65,7 @@ public class MessageTestBase {
          String href = (String) response.getHeaders().getFirst(headerName);
          if (href == null)
             return null;
-         //System.out.println(headerName + ": " + href);
+         //log.debug(headerName + ": " + href);
          Link l = new Link(title, null, href, null, null);
          try {
             l.setExecutor((ClientExecutor) executorField.get(response));

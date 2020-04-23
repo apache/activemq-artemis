@@ -98,13 +98,10 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       @Override
       public void onMessage(Message message) {
          try {
-            System.out.println("Message Received: " + message);
             counter++;
             if (counter <= 4) {
-               System.out.println("Message Rollback.");
                session.rollback();
             } else {
-               System.out.println("Message Commit.");
                message.acknowledge();
                session.commit();
             }
@@ -271,7 +268,6 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       consumer.setMessageListener(new MessageListener() {
          @Override
          public void onMessage(Message message) {
-            System.out.println("Message Received: " + message);
             try {
                received.add(((TextMessage) message).getText());
             } catch (JMSException e) {
@@ -318,7 +314,6 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       dlqConsumer.setMessageListener(new MessageListener() {
          @Override
          public void onMessage(Message message) {
-            System.out.println("DLQ Message Received: " + message);
             dlqMessage[0] = message;
             gotDlqMessage.countDown();
          }
@@ -327,13 +322,11 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       MessageConsumer consumer = session.createConsumer(queue);
 
       final int maxDeliveries = getRedeliveryPolicy().getMaximumRedeliveries();
-      System.out.println("max redlivery: " + maxDeliveries);
       final CountDownLatch gotMessage = new CountDownLatch(maxDeliveries);
 
       consumer.setMessageListener(new MessageListener() {
          @Override
          public void onMessage(Message message) {
-            System.out.println("Message Received: " + message);
             gotMessage.countDown();
             throw new RuntimeException(getName() + " force a redelivery");
          }
@@ -348,8 +341,6 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       message = dlqMessage[0];
       assertNotNull("dlq message captured", message);
       String cause = message.getStringProperty(ActiveMQMessage.DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY);
-
-      System.out.println("DLQ'd message cause reported as: " + cause);
 
       assertTrue("cause 'cause' exception is remembered", cause.contains("RuntimeException"));
       assertTrue("is correct exception", cause.contains(getName()));

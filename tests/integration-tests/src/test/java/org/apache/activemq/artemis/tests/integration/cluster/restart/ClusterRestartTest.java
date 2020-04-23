@@ -21,13 +21,10 @@ import java.util.Collection;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.Test;
 
 public class ClusterRestartTest extends ClusterTestBase {
-
-   IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Test
    public void testRestartWithQueuesCreateInDiffOrder() throws Exception {
@@ -40,8 +37,8 @@ public class ClusterRestartTest extends ClusterTestBase {
 
       startServers(0, 1);
 
-      System.out.println("server 0 = " + getServer(0).getNodeID());
-      System.out.println("server 1 = " + getServer(1).getNodeID());
+      instanceLog.debug("server 0 = " + getServer(0).getNodeID());
+      instanceLog.debug("server 1 = " + getServer(1).getNodeID());
 
       setupSessionFactory(0, isNetty(), 15);
       setupSessionFactory(1, isNetty());
@@ -73,7 +70,6 @@ public class ClusterRestartTest extends ClusterTestBase {
 
       sendInRange(1, "queues.testaddress", 0, 10, true, null);
 
-      log.info("stopping******************************************************");
       stopServers(0);
       // Waiting some time after stopped
       Thread.sleep(2000);
@@ -90,7 +86,7 @@ public class ClusterRestartTest extends ClusterTestBase {
       sendInRange(1, "queues.testaddress", 10, 20, false, null);
 
       verifyReceiveAllInRange(0, 20, 0);
-      System.out.println("*****************************************************************************");
+      instanceLog.debug("*****************************************************************************");
    }
 
    @Test
@@ -104,8 +100,8 @@ public class ClusterRestartTest extends ClusterTestBase {
 
       startServers(0, 1);
 
-      System.out.println("server 0 = " + getServer(0).getNodeID());
-      System.out.println("server 1 = " + getServer(1).getNodeID());
+      instanceLog.debug("server 0 = " + getServer(0).getNodeID());
+      instanceLog.debug("server 1 = " + getServer(1).getNodeID());
       setupSessionFactory(0, isNetty(), 15);
       setupSessionFactory(1, isNetty());
 
@@ -133,11 +129,11 @@ public class ClusterRestartTest extends ClusterTestBase {
 
       sendInRange(1, "queues.testaddress", 0, 10, true, null);
 
-      System.out.println("stopping******************************************************");
+      instanceLog.debug("stopping******************************************************");
       stopServers(0);
 
       sendInRange(1, "queues.testaddress", 10, 20, true, null);
-      System.out.println("stopped******************************************************");
+      instanceLog.debug("stopped******************************************************");
       startServers(0);
 
       waitForBindings(0, "queues.testaddress", 1, 0, true);
@@ -150,14 +146,14 @@ public class ClusterRestartTest extends ClusterTestBase {
       addConsumer(1, 0, "queue10", null);
 
       verifyReceiveRoundRobin(0, 20, 0, 1);
-      System.out.println("*****************************************************************************");
+      instanceLog.debug("*****************************************************************************");
    }
 
    private void printBindings(final int num) throws Exception {
       for (int i = 0; i < num; i++) {
          Collection<Binding> bindings0 = getServer(i).getPostOffice().getBindingsForAddress(new SimpleString("queues.testaddress")).getBindings();
          for (Binding binding : bindings0) {
-            System.out.println(binding + " on node " + i + " at " + binding.getID());
+            instanceLog.debug(binding + " on node " + i + " at " + binding.getID());
          }
       }
    }

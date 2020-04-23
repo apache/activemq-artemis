@@ -58,7 +58,6 @@ public class ClusterConnectionConfigTest extends ClusterTestBase {
    @Test
    public void testRedistributionFlowControl() throws Exception {
       final int producerWindow = new Random().nextInt(Integer.MAX_VALUE);
-      System.out.println("window is: " + producerWindow);
       setupCluster(MessageLoadBalancingType.ON_DEMAND, (ClusterConnectionConfiguration cfg) -> {
          cfg.setProducerWindowSize(producerWindow);
       });
@@ -82,7 +81,6 @@ public class ClusterConnectionConfigTest extends ClusterTestBase {
 
       //receiveMessages(consumers[1].consumer, 0, 1, true);
       Thread.sleep(5000);
-      System.out.println("checking records..........................");
       makeSureForwardingFlowControl(producerWindow, 0, 1);
 
 

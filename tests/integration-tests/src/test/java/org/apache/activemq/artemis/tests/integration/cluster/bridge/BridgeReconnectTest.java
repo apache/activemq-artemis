@@ -46,13 +46,14 @@ import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
 public class BridgeReconnectTest extends BridgeTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(BridgeReconnectTest.class);
 
    private static final int NUM_MESSAGES = 100;
 
@@ -204,7 +205,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       startServers();
 
-      BridgeReconnectTest.log.info("** failing connection");
+      BridgeReconnectTest.log.debug("** failing connection");
       // Now we will simulate a failure of the bridge connection between server0 and server1
       server0.fail(true);
 
@@ -445,16 +446,16 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       ClientProducer prod0 = session0.createProducer(testAddress);
 
-      BridgeReconnectTest.log.info("stopping server1");
+      BridgeReconnectTest.log.debug("stopping server1");
       server1.stop();
 
       if (sleep) {
          Thread.sleep(2 * clientFailureCheckPeriod);
       }
 
-      BridgeReconnectTest.log.info("restarting server1");
+      BridgeReconnectTest.log.debug("restarting server1");
       server1.start();
-      BridgeReconnectTest.log.info("server 1 restarted");
+      BridgeReconnectTest.log.debug("server 1 restarted");
 
       ClientSessionFactory csf1 = locator.createSessionFactory(server1tc);
       session1 = csf1.createSession(false, true, true);
@@ -474,7 +475,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
          prod0.send(message);
       }
 
-      BridgeReconnectTest.log.info("sent messages");
+      BridgeReconnectTest.log.debug("sent messages");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage r1 = cons1.receive(30000);
@@ -482,7 +483,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
          assertEquals("property value matches", i, r1.getObjectProperty(propKey));
       }
 
-      BridgeReconnectTest.log.info("got messages");
+      BridgeReconnectTest.log.debug("got messages");
       closeServers();
       assertNoMoreConnections();
    }
@@ -585,7 +586,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
          fail("Message " + outOfOrder + " was received out of order, it was supposed to be " + supposed);
       }
 
-      log.info("=========== second failure, sending message");
+      log.debug("=========== second failure, sending message");
 
       // Fail again - should reconnect
       forwardingConnection = ((BridgeImpl) bridge).getForwardingConnection();
@@ -666,8 +667,6 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       final Queue queue = (Queue) server0.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
 
-      System.out.println("DeliveringCount: " + queue.getDeliveringCount());
-
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(false);
          message.putIntProperty(propKey, i);
@@ -679,12 +678,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
          }
       }
 
-      for (int i = 0; i < 100 && queue.getDeliveringCount() != 0; i++) {
-         Thread.sleep(10);
-      }
-
-      System.out.println("Check.. DeliveringCount: " + queue.getDeliveringCount());
-      assertEquals("Delivering count of a source queue should be zero on connection failure", 0, queue.getDeliveringCount());
+      Wait.assertEquals(0, queue::getDeliveringCount);
 
       closeServers();
 

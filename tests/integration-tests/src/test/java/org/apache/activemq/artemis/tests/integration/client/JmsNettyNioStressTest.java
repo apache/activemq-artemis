@@ -282,9 +282,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
 
       Wait.waitFor(() -> totalExpectedCount == totalCount.get(), 60000, 100);
 
-      System.out.println("Done.." + totalCount.get() + ", expected " + totalExpectedCount);
       Assert.assertEquals("Possible deadlock", totalExpectedCount, totalCount.get());
-      System.out.println("After assert");
 
       // attempt cleaning up (this is not in a finally, still needs some work)
       connectionProducer.close();

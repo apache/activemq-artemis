@@ -59,10 +59,13 @@ import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ScheduledDeliveryHandlerTest extends Assert {
+
+   private static final Logger log = Logger.getLogger(ScheduledDeliveryHandlerTest.class);
 
    @Test
    public void testScheduleRandom() throws Exception {
@@ -279,7 +282,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
             assertTrue(ref.getScheduledDeliveryTime() >= lastTime);
          } else {
             if (ref.getScheduledDeliveryTime() < lastTime) {
-               System.out.println("^^^fail at " + ref.getScheduledDeliveryTime());
+               log.debug("^^^fail at " + ref.getScheduledDeliveryTime());
             }
          }
          lastTime = ref.getScheduledDeliveryTime();

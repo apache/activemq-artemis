@@ -210,7 +210,6 @@ public class InvalidDestinationTest extends JMSTestBase {
             fail("Expected InvalidDestinationException, received " + e);
          }
 
-         System.out.println("Testing Session.createDurableConsumer(Topic, String) for InvalidDestinationException");
          try {
             session.createDurableConsumer(invalidTopic, "InvalidDestinationException");
          } catch (InvalidDestinationException e) {

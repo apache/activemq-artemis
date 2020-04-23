@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ import org.junit.Test;
 public class PingTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(PingTest.class);
 
    private static final long CLIENT_FAILURE_CHECK_PERIOD = 500;
 
@@ -105,8 +105,6 @@ public class PingTest extends ActiveMQTestBase {
 
       ClientSession session = csf.createSession(false, true, true);
 
-      PingTest.log.info("Created session");
-
       Assert.assertEquals(1, ((ClientSessionFactoryInternal) csf).numConnections());
 
       Listener clientListener = new Listener();
@@ -136,8 +134,6 @@ public class PingTest extends ActiveMQTestBase {
       Assert.assertNull(serverListener.getException());
 
       RemotingConnection serverConn2 = server.getRemotingService().getConnections().iterator().next();
-
-      PingTest.log.info("Server conn2 is " + serverConn2);
 
       Assert.assertTrue(serverConn == serverConn2);
 
@@ -190,8 +186,6 @@ public class PingTest extends ActiveMQTestBase {
       Assert.assertNull(serverListener.getException());
 
       RemotingConnection serverConn2 = server.getRemotingService().getConnections().iterator().next();
-
-      PingTest.log.info("Serverconn2 is " + serverConn2);
 
       Assert.assertTrue(serverConn == serverConn2);
 
@@ -293,8 +287,6 @@ public class PingTest extends ActiveMQTestBase {
 
       if (!server.getRemotingService().getConnections().isEmpty()) {
          RemotingConnection serverConn2 = server.getRemotingService().getConnections().iterator().next();
-
-         PingTest.log.info("Serverconn2 is " + serverConn2);
       }
 
       Assert.assertTrue(server.getRemotingService().getConnections().isEmpty());

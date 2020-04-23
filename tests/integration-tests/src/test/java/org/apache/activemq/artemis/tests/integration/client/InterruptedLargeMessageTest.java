@@ -63,11 +63,11 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,9 +77,9 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
    static final int RECEIVE_WAIT_TIME = 60000;
 
-   private final int LARGE_MESSAGE_SIZE = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 3;
+   private static final Logger log = Logger.getLogger(InterruptedLargeMessageTest.class);
 
-   private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private final int LARGE_MESSAGE_SIZE = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 3;
 
    protected ServerLocator locator;
 
@@ -180,7 +180,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          @Override
          public void run() {
             try {
-               System.out.println("Receiving message");
+               instanceLog.debug("Receiving message");
                ClientMessage msg = cons.receive(5000);
                if (msg == null) {
                   System.err.println("Message not received");
@@ -234,7 +234,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          @Override
          public void run() {
             try {
-               System.out.println("Receiving message");
+               instanceLog.debug("Receiving message");
                javax.jms.Message msg = consumer.receive(5000);
                if (msg == null) {
                   System.err.println("Message not received");
@@ -242,10 +242,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                   return;
                }
             } catch (JMSException e) {
-               log.debug("This exception was ok as it was expected", e);
+               instanceLog.debug("This exception was ok as it was expected", e);
                expectedErrors.incrementAndGet();
             } catch (Throwable e) {
-               log.warn("Captured unexpected exception", e);
+               instanceLog.warn("Captured unexpected exception", e);
                unexpectedErrors.incrementAndGet();
             }
          }
@@ -451,7 +451,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       server.start();
 
       for (int start = 0; start < 2; start++) {
-         System.out.println("Start " + start);
+         instanceLog.debug("Start " + start);
 
          sf = createSessionFactory(locator);
 
@@ -465,7 +465,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          ClientConsumer cons1 = session.createConsumer(ADDRESS);
          session.start();
          for (int i = 0; i < 10; i++) {
-            log.info("I = " + i);
+            instanceLog.info("I = " + i);
             ClientMessage msg = cons1.receive(5000);
             Assert.assertNotNull(msg);
             Assert.assertEquals(1, msg.getIntProperty("txid").intValue());
@@ -529,7 +529,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
          @Override
          public void postAcknowledge(final MessageReference ref, AckReason reason) {
-            System.out.println("Ignoring postACK on message " + ref);
+            instanceLog.debug("Ignoring postACK on message " + ref);
          }
 
          @Override
@@ -739,7 +739,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          if (packet instanceof SessionContinuationMessage) {
             SessionContinuationMessage msg = (SessionContinuationMessage) packet;
             if (!msg.isContinues() && intMessages) {
-               System.out.println("Ignored a message");
+               log.debug("Ignored a message");
                latch.countDown();
                return false;
             }

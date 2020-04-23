@@ -50,12 +50,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.util.AbstractStompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RetryRule;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,6 +64,8 @@ import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public abstract class StompTestBase extends ActiveMQTestBase {
+
+   private static final Logger log = Logger.getLogger(StompTestBase.class);
 
    @Parameterized.Parameter
    public String scheme;
@@ -608,7 +610,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
       }
 
-      IntegrationTestLogger.LOGGER.info("Received: " + frame);
+      log.debug("Received: " + frame);
 
       return frame;
    }
