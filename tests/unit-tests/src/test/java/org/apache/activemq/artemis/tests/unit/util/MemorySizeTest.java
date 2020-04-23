@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.unit.util;
 
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.utils.MemorySize;
 import org.jboss.logging.Logger;
 import org.junit.Assert;

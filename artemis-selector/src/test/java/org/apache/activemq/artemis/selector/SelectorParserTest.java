@@ -27,9 +27,6 @@ import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @version $Revision: 1.2 $
- */
 public class SelectorParserTest {
 
    private static final Logger log = Logger.getLogger(SelectorParserTest.class);
