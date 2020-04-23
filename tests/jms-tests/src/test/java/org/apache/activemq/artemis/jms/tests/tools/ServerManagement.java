@@ -93,14 +93,14 @@ public class ServerManagement {
                                        " has not been created or has already been killed, so it cannot be killed");
       } else {
          Server server = ServerManagement.servers.get(i);
-         ServerManagement.log.info("invoking kill() on server " + i);
+         ServerManagement.log.debug("invoking kill() on server " + i);
          try {
             server.kill();
          } catch (Throwable t) {
             // This is likely to throw an exception since the server dies before the response is received
          }
 
-         ServerManagement.log.info("Waiting for server to die");
+         ServerManagement.log.debug("Waiting for server to die");
 
          try {
             while (true) {
@@ -114,7 +114,7 @@ public class ServerManagement {
 
          Thread.sleep(300);
 
-         ServerManagement.log.info("server " + i + " killed and dead");
+         ServerManagement.log.debug("server " + i + " killed and dead");
       }
 
    }
