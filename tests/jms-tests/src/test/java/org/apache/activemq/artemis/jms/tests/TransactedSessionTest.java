@@ -171,10 +171,10 @@ public class TransactedSessionTest extends JMSTestCase {
          MessageConsumer consumer = sess.createConsumer(ActiveMQServerTestCase.topic1);
          conn.start();
 
-         log.info("sending message first time");
+         log.debug("sending message first time");
          TextMessage mSent = sess.createTextMessage("igloo");
          producer.send(mSent);
-         log.info("sent message first time");
+         log.debug("sent message first time");
 
          sess.commit();
 
@@ -183,10 +183,10 @@ public class TransactedSessionTest extends JMSTestCase {
 
          sess.commit();
 
-         log.info("sending message again");
+         log.debug("sending message again");
          mSent.setText("rollback");
          producer.send(mSent);
-         log.info("sent message again");
+         log.debug("sent message again");
 
          sess.commit();
 
