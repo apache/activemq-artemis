@@ -25,15 +25,15 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
 
-public class JAASSecurityManagerWrapper implements ActiveMQSecurityManager3 {
+public class JAASSecurityManagerWrapper implements ActiveMQSecurityManager4 {
    ActiveMQJAASSecurityManager activeMQJAASSecurityManager;
 
    @Override
-   public String validateUser(String user, String password, RemotingConnection remotingConnection) {
+   public String validateUser(String user, String password, RemotingConnection remotingConnection, String securityDomain) {
       System.out.println("validateUser(" + user + ", " + password + ", " + remotingConnection.getRemoteAddress() + ")");
-      return activeMQJAASSecurityManager.validateUser(user, password, remotingConnection);
+      return activeMQJAASSecurityManager.validateUser(user, password, remotingConnection, securityDomain);
    }
 
 
@@ -43,9 +43,10 @@ public class JAASSecurityManagerWrapper implements ActiveMQSecurityManager3 {
                               Set<Role> roles,
                               CheckType checkType,
                               String address,
-                              RemotingConnection remotingConnection) {
+                              RemotingConnection remotingConnection,
+                              String securityDomain) {
       System.out.println("validateUserAndRole(" + user + ", " + password + ", " + roles + ", " + checkType + ", " + address + ", " + remotingConnection.getRemoteAddress() + ")");
-      return activeMQJAASSecurityManager.validateUserAndRole(user, password, roles, checkType, address, remotingConnection);
+      return activeMQJAASSecurityManager.validateUserAndRole(user, password, roles, checkType, address, remotingConnection, securityDomain);
    }
 
    @Override

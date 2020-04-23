@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
@@ -112,6 +113,14 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    public String authenticate(final String user,
                               final String password,
                               RemotingConnection connection) throws Exception {
+      return authenticate(user, password, connection, null);
+   }
+
+   @Override
+   public String authenticate(final String user,
+                              final String password,
+                              RemotingConnection connection,
+                              String securityDomain) throws Exception {
       if (securityEnabled) {
 
          if (managementClusterUser.equals(user)) {
@@ -133,7 +142,9 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          String validatedUser = null;
          boolean userIsValid = false;
 
-         if (securityManager instanceof ActiveMQSecurityManager3) {
+         if (securityManager instanceof ActiveMQSecurityManager4) {
+            validatedUser = ((ActiveMQSecurityManager4) securityManager).validateUser(user, password, connection, securityDomain);
+         } else if (securityManager instanceof ActiveMQSecurityManager3) {
             validatedUser = ((ActiveMQSecurityManager3) securityManager).validateUser(user, password, connection);
          } else if (securityManager instanceof ActiveMQSecurityManager2) {
             userIsValid = ((ActiveMQSecurityManager2) securityManager).validateUser(user, password, CertificateUtil.getCertsFromConnection(connection));
@@ -205,7 +216,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          }
 
          final boolean validated;
-         if (securityManager instanceof ActiveMQSecurityManager3) {
+         if (securityManager instanceof ActiveMQSecurityManager4) {
+            final ActiveMQSecurityManager4 securityManager4 = (ActiveMQSecurityManager4) securityManager;
+            validated = securityManager4.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection(), session.getSecurityDomain()) != null;
+         } else if (securityManager instanceof ActiveMQSecurityManager3) {
             final ActiveMQSecurityManager3 securityManager3 = (ActiveMQSecurityManager3) securityManager;
             validated = securityManager3.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection()) != null;
          } else if (securityManager instanceof ActiveMQSecurityManager2) {

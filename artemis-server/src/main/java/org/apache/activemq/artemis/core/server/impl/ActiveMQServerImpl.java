@@ -1519,7 +1519,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                       final SessionCallback callback,
                                       final boolean autoCreateQueues,
                                       final OperationContext context,
-                                      final Map<SimpleString, RoutingType> prefixes) throws Exception {
+                                      final Map<SimpleString, RoutingType> prefixes,
+                                      final String securityDomain) throws Exception {
 
       if (AuditLogger.isEnabled()) {
          AuditLogger.createCoreSession(this, name, username, "****", minLargeMessageSize, connection, autoCommitSends,
@@ -1528,7 +1529,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       String validatedUser = "";
 
       if (securityStore != null) {
-         validatedUser = securityStore.authenticate(username, password, connection);
+         validatedUser = securityStore.authenticate(username, password, connection, securityDomain);
       }
 
       checkSessionLimit(validatedUser);
@@ -1537,7 +1538,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          callBrokerSessionPlugins(plugin -> plugin.beforeCreateSession(name, username, minLargeMessageSize, connection,
                  autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes));
       }
-      final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes);
+      final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes, securityDomain);
 
       sessions.put(name, session);
 
@@ -1614,8 +1615,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                                      SessionCallback callback,
                                                      OperationContext context,
                                                      boolean autoCreateJMSQueues,
-                                                     Map<SimpleString, RoutingType> prefixes) throws Exception {
-      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, pagingManager, prefixes);
+                                                     Map<SimpleString, RoutingType> prefixes,
+                                                     String securityDomain) throws Exception {
+      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, pagingManager, prefixes, securityDomain);
    }
 
    @Override
