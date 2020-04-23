@@ -319,7 +319,8 @@ public interface ActiveMQServer extends ServiceComponent {
                                SessionCallback callback,
                                boolean autoCreateQueues,
                                OperationContext context,
-                               Map<SimpleString, RoutingType> prefixes) throws Exception;
+                               Map<SimpleString, RoutingType> prefixes,
+                               String securityDomain) throws Exception;
 
    SecurityStore getSecurityStore();
 

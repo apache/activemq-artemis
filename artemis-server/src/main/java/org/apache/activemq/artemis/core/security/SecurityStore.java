@@ -23,6 +23,8 @@ public interface SecurityStore {
 
    String authenticate(String user, String password, RemotingConnection remotingConnection) throws Exception;
 
+   String authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) throws Exception;
+
    void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception;
 
    void check(SimpleString address, SimpleString queue, CheckType checkType, SecurityAuth session) throws Exception;

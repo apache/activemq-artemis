@@ -245,6 +245,11 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
                      public RemotingConnection getRemotingConnection() {
                         return connection.connectionCallback.getProtonConnectionDelegate();
                      }
+
+                     @Override
+                     public String getSecurityDomain() {
+                        return connection.getProtocolManager().getSecurityDomain();
+                     }
                   });
                } catch (ActiveMQSecurityException e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingProducer(e.getMessage());

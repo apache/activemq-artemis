@@ -21,16 +21,18 @@ import org.apache.activemq.artemis.core.security.SecurityStore;
 public class PlainSASL extends ServerSASLPlain {
 
    private final SecurityStore securityStore;
+   private final String securityDomain;
 
-   public PlainSASL(SecurityStore securityStore) {
+   public PlainSASL(SecurityStore securityStore, String securityDomain) {
       this.securityStore = securityStore;
+      this.securityDomain = securityDomain;
    }
 
    @Override
    protected boolean authenticate(String user, String password) {
       if (securityStore.isSecurityEnabled()) {
          try {
-            securityStore.authenticate(user, password, null);
+            securityStore.authenticate(user, password, null, securityDomain);
             return true;
          } catch (Exception e) {
             return false;

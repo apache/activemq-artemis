@@ -107,7 +107,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       if (isPermittedMechanism(mechanism)) {
          switch (mechanism) {
             case PlainSASL.NAME:
-               result = new PlainSASL(server.getSecurityStore());
+               result = new PlainSASL(server.getSecurityStore(), manager.getSecurityDomain());
                break;
 
             case AnonymousServerSASL.NAME:

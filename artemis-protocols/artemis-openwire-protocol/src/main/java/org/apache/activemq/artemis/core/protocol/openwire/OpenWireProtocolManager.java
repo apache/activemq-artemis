@@ -114,6 +114,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    private final ScheduledExecutorService scheduledPool;
 
+   private String securityDomain;
+
    //bean properties
    //http://activemq.apache.org/failover-transport-reference.html
    private boolean rebalanceClusterClients = false;
@@ -472,7 +474,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    }
 
    public void validateUser(String login, String passcode, OpenWireConnection connection) throws Exception {
-      server.getSecurityStore().authenticate(login, passcode, connection);
+      server.getSecurityStore().authenticate(login, passcode, connection, getSecurityDomain());
    }
 
    public void sendBrokerInfo(OpenWireConnection connection) throws Exception {
@@ -587,6 +589,16 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    @Override
    public Map<SimpleString, RoutingType> getPrefixes() {
       return prefixes;
+   }
+
+   @Override
+   public void setSecurityDomain(String securityDomain) {
+      this.securityDomain = securityDomain;
+   }
+
+   @Override
+   public String getSecurityDomain() {
+      return securityDomain;
    }
 
    public List<DestinationInfo> getTemporaryDestinations() {
