@@ -1146,9 +1146,18 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       // A -1 <expiry-delay> means don't do anything
       if (expirationOverride >= 0) {
-         // only override the exiration on messages where the expiration hasn't been set by the user
+         // only override the expiration on messages where the expiration hasn't been set by the user
          if (message.getExpiration() == 0) {
             message.setExpiration(System.currentTimeMillis() + expirationOverride);
+         }
+      } else {
+         long minExpiration = addressSettingsRepository.getMatch(address.toString()).getMinExpiryDelay();
+         long maxExpiration = addressSettingsRepository.getMatch(address.toString()).getMaxExpiryDelay();
+
+         if (maxExpiration != AddressSettings.DEFAULT_MAX_EXPIRY_DELAY && (message.getExpiration() == 0 || message.getExpiration() > (System.currentTimeMillis() + maxExpiration))) {
+            message.setExpiration(System.currentTimeMillis() + maxExpiration);
+         } else if (minExpiration != AddressSettings.DEFAULT_MIN_EXPIRY_DELAY && message.getExpiration() < (System.currentTimeMillis() + minExpiration)) {
+            message.setExpiration(System.currentTimeMillis() + minExpiration);
          }
       }
    }

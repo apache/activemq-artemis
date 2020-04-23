@@ -34,7 +34,9 @@ import org.junit.Test;
 
 public class MessageExpirationTest extends ActiveMQTestBase {
 
-   private static final int EXPIRATION = 200;
+   private static final int EXPIRATION = 1000;
+   private static final int MIN_EXPIRATION = 500;
+   private static final int MAX_EXPIRATION = 1500;
 
    private ActiveMQServer server;
 
@@ -92,6 +94,135 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       session.deleteQueue(queue);
    }
 
+   @Test
+   public void testMessageWithNoExpirationMinExpiryDelayOverride() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.close();
+
+      session = addClientSession(sf.createSession(false, true, false));
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(false);
+
+      AddressSettings addressSettings = new AddressSettings().setMinExpiryDelay((long) MIN_EXPIRATION);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      producer.send(message);
+
+      long start = System.currentTimeMillis();
+      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, MIN_EXPIRATION + 200, 50);
+      assertTrue(System.currentTimeMillis() - start > MIN_EXPIRATION);
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testMessageWithTooSmallExpirationMinExpiryDelayOverride() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.close();
+
+      session = addClientSession(sf.createSession(false, true, false));
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(false);
+
+      AddressSettings addressSettings = new AddressSettings().setMinExpiryDelay((long) MIN_EXPIRATION);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      message.setExpiration(System.currentTimeMillis() + (MIN_EXPIRATION / 2));
+      producer.send(message);
+
+      long start = System.currentTimeMillis();
+      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, MIN_EXPIRATION + 200, 50);
+      assertTrue(System.currentTimeMillis() - start > MIN_EXPIRATION);
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testMessageWithNoExpirationMaxExpiryDelayOverride() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.close();
+
+      session = addClientSession(sf.createSession(false, true, false));
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(false);
+
+      AddressSettings addressSettings = new AddressSettings().setMaxExpiryDelay((long) MAX_EXPIRATION);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      producer.send(message);
+
+      long start = System.currentTimeMillis();
+      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, MAX_EXPIRATION + 200, 50);
+      assertTrue(System.currentTimeMillis() - start <= (MAX_EXPIRATION + 200));
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testMessageWithTooLargeExpirationMaxExpiryDelayOverride() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.close();
+
+      session = addClientSession(sf.createSession(false, true, false));
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(false);
+
+      AddressSettings addressSettings = new AddressSettings().setMaxExpiryDelay((long) MAX_EXPIRATION);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      message.setExpiration(System.currentTimeMillis() + (MAX_EXPIRATION * 2));
+      producer.send(message);
+
+      long start = System.currentTimeMillis();
+      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, MAX_EXPIRATION + 100, 50);
+      assertTrue(System.currentTimeMillis() - start <= (MAX_EXPIRATION + 200));
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testMessageWithAcceptableExpirationMinMaxExpiryDelayOverride() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.close();
+
+      session = addClientSession(sf.createSession(false, true, false));
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(false);
+
+      AddressSettings addressSettings = new AddressSettings().setMinExpiryDelay((long) MIN_EXPIRATION).setMaxExpiryDelay((long) MAX_EXPIRATION);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      message.setExpiration(System.currentTimeMillis() + EXPIRATION);
+      producer.send(message);
+
+      long start = System.currentTimeMillis();
+      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, EXPIRATION + 100, 50);
+      assertTrue(System.currentTimeMillis() - start > MIN_EXPIRATION);
+      assertTrue(System.currentTimeMillis() - start < MAX_EXPIRATION);
+
+      session.deleteQueue(queue);
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
@@ -99,7 +230,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       server = createServer(false);
 
-      server.getConfiguration().setMessageExpiryScanPeriod(500);
+      server.getConfiguration().setMessageExpiryScanPeriod(100);
 
       server.start();
       locator = createInVMNonHALocator();
