@@ -26,10 +26,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class OrderedExecutorSanityTest {
+   private static final Logger log = Logger.getLogger(OrderedExecutorSanityTest.class);
 
    @Test
    public void shouldExecuteTasksInOrder() throws InterruptedException {
@@ -175,7 +177,7 @@ public class OrderedExecutorSanityTest {
 
             long elapsed = (end - start);
 
-            System.out.println("execution " + i + " in " + TimeUnit.NANOSECONDS.toMillis(elapsed) + " milliseconds");
+            log.info("execution " + i + " in " + TimeUnit.NANOSECONDS.toMillis(elapsed) + " milliseconds");
          }
       } finally {
          executorService.shutdown();
