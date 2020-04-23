@@ -63,9 +63,7 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       assertEquals(outbound[0], consumer.receive(1000));
       consumer.close();
 
-      System.out.println("creating browser...");
       QueueBrowser browser = session.createBrowser(destination);
-      System.out.println("browser created");
       Enumeration<?> enumeration = browser.getEnumeration();
 
       // browse the second
@@ -79,7 +77,6 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       // There should be no more.
       boolean tooMany = false;
       while (enumeration.hasMoreElements()) {
-         System.out.println("Got extra message: " + ((TextMessage) enumeration.nextElement()).getText());
          tooMany = true;
       }
       assertFalse(tooMany);
@@ -275,7 +272,6 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
 
       // create consumer
       MessageConsumer consumer = session.createConsumer(destination);
-      System.out.println("created consumer ... ");
       // lets consume any outstanding messages from previous test runs
       while (consumer.receive(1000) != null) {
       }
@@ -287,19 +283,14 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       producer.send(outbound[0]);
 
       // create browser first
-      System.out.println("creating browser...");
       QueueBrowser browser = session.createBrowser(destination);
-      System.out.println("created " + browser);
 
       Enumeration<?> enumeration = browser.getEnumeration();
 
-      System.out.println("browsing first");
       // browse the first message
       assertTrue("should have received the first message", enumeration.hasMoreElements());
-      System.out.println("we have more");
       assertEquals(outbound[0], enumeration.nextElement());
 
-      System.out.println("ok");
 
       consumer = session.createConsumer(destination);
       // Receive the first message.
@@ -307,7 +298,6 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       consumer.close();
       browser.close();
       producer.close();
-      System.out.println("test done.");
    }
 
    @Test
@@ -334,12 +324,10 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest {
       while (enumeration.hasMoreElements()) {
          Message browsed = (Message) enumeration.nextElement();
 
-         System.out.println("Browsed Message [{}]" + browsed.getJMSMessageID());
 
          numberBrowsed++;
       }
 
-      System.out.println("Number browsed:  " + numberBrowsed);
       assertEquals(numberOfMessages, numberBrowsed);
       browser.close();
       producer.close();

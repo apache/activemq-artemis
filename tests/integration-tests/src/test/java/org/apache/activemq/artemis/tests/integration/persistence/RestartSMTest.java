@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeJournalLoader;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -38,7 +37,6 @@ import org.junit.Test;
 public class RestartSMTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Attributes ----------------------------------------------------
 
@@ -97,7 +95,7 @@ public class RestartSMTest extends ActiveMQTestBase {
          try {
             journal.stop();
          } catch (Exception ex) {
-            RestartSMTest.log.warn(ex.getMessage(), ex);
+            instanceLog.warn(ex.getMessage(), ex);
          }
       }
    }

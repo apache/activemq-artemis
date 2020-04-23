@@ -52,7 +52,6 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
    @Test
    public void testClusteredQueue() throws Exception {
 
-      System.out.println("creating connections");
       Connection conn1 = openWireCf1.createConnection();
       Connection conn2 = openWireCf2.createConnection();
 
@@ -107,7 +106,6 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
          Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue targetQueue1 = session1.createQueue(QUEUE_NAME);
          Queue tempQueue = session1.createTemporaryQueue();
-         System.out.println("temp queue is " + tempQueue.getQueueName());
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue targetQueue2 = session2.createQueue(QUEUE_NAME);
 
@@ -135,8 +133,6 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
          for (int i = 0; i < 10; i++) {
             if (i % 2 == 0) {
                TextMessage received = (TextMessage) cons2.receive(5000);
-               System.out.println(received.getText());
-               System.out.println("check temp queue on server #2");
                MessageProducer tempProducer = session2.createProducer(received.getJMSReplyTo());
                tempProducer.send(session2.createTextMessage(">>> " + received.getText()));
                tempProducer.close();
@@ -147,7 +143,6 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
             if (i % 2 == 0) {
                TextMessage received = (TextMessage) tempCons1.receive(5000);
                assertNotNull(received);
-               System.out.println(received.getText());
             }
          }
       } finally {

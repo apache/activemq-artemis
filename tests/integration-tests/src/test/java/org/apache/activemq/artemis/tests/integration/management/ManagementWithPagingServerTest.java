@@ -89,11 +89,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       for (JsonValue jsonValue : array) {
          JsonValue val = ((JsonObject) jsonValue).get("messageID");
          Long l = ((JsonLongImpl) val).longValue();
-         if (longs.contains(l)) {
-            System.out.println("ManagementWithPagingServerTest.testListMessagesAsJSON");
-         }
          longs.add(l);
-         System.out.println("jsonValue = " + jsonValue);
       }
       assertEquals(num, array.size());
 

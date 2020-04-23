@@ -60,9 +60,7 @@ public class SharedConsumerTest extends JMSTestBase {
 
          for (int i = 0; i < numMessages; i += 2) {
             String msg = con1.receiveBody(String.class, 5000);
-            System.out.println("msg = " + msg);
             msg = con2.receiveBody(String.class, 5000);
-            System.out.println("msg = " + msg);
          }
 
       } finally {

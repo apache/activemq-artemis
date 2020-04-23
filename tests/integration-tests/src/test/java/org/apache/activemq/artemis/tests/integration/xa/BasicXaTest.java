@@ -45,10 +45,10 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.ra.ActiveMQRAXAResource;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +58,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class BasicXaTest extends ActiveMQTestBase {
 
-   private static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(BasicXaTest.class);
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 
@@ -303,7 +303,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       clientSession = sessionFactory.createSession(true, false, false);
 
-      log.info("committing");
+      log.debug("committing");
 
       clientSession.commit(xid, false);
       clientSession.start();
@@ -667,7 +667,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       String[] preparedTransactions = messagingService.getActiveMQServerControl().listPreparedTransactions();
       Assert.assertEquals(1, preparedTransactions.length);
-      System.out.println(preparedTransactions[0]);
+      instanceLog.debug(preparedTransactions[0]);
       Assert.assertTrue(messagingService.getActiveMQServerControl().commitPreparedTransaction(XidImpl.toBase64String(xid)));
       Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicCommittedTransactions().length);
 
@@ -685,7 +685,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       String[] preparedTransactions = messagingService.getActiveMQServerControl().listPreparedTransactions();
       Assert.assertEquals(1, preparedTransactions.length);
-      System.out.println(preparedTransactions[0]);
+      instanceLog.debug(preparedTransactions[0]);
 
       Assert.assertTrue(messagingService.getActiveMQServerControl().rollbackPreparedTransaction(XidImpl.toBase64String(xid)));
       Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicRolledBackTransactions().length);

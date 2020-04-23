@@ -341,7 +341,7 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
          session.lookupSubscription(getSubscriptionName());
          fail("Should throw an exception since there is not subscription");
       } catch (Exception e) {
-         LOG.info("Error on lookup: {}", e.getMessage());
+         LOG.debug("Error on lookup: {}", e.getMessage());
       }
 
       connection.close();

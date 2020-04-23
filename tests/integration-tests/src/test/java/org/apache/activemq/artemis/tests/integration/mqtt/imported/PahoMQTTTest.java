@@ -24,13 +24,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTLogger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -38,7 +38,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class PahoMQTTTest extends MQTTTestSupport {
 
-   private static MQTTLogger LOG = MQTTLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(PahoMQTTTest.class);
 
    @Parameterized.Parameters(name = "protocol={0}")
    public static Collection<Object[]> getParams() {
@@ -55,7 +55,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
    public void testLotsOfClients() throws Exception {
 
       final int CLIENTS = Integer.getInteger("PahoMQTTTest.CLIENTS", 100);
-      LOG.info("Using: {} clients: " + CLIENTS);
+      log.debug("Using: {} clients: " + CLIENTS);
 
       final AtomicInteger receiveCounter = new AtomicInteger();
       MqttClient client = createPahoClient("consumer");
@@ -111,7 +111,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
       assertNull("Async error: " + asyncError.get(), asyncError.get());
       sendBarrier.countDown();
 
-      LOG.info("All clients connected... waiting to receive sent messages...");
+      log.debug("All clients connected... waiting to receive sent messages...");
 
       // We should eventually get all the messages.
       within(30, TimeUnit.SECONDS, new Task() {
@@ -121,7 +121,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
          }
       });
 
-      LOG.info("All messages received.");
+      log.debug("All messages received.");
 
       disconnectDoneLatch.await();
       assertNull("Async error: " + asyncError.get(), asyncError.get());

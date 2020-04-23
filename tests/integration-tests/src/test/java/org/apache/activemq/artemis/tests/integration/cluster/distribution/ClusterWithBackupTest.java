@@ -17,13 +17,10 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ClusterWithBackupTest extends ClusterTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before
@@ -39,41 +36,35 @@ public class ClusterWithBackupTest extends ClusterTestBase {
 
    @Test
    public void testBasicRoundRobin() throws Throwable {
-      try {
-         setupCluster();
+      setupCluster();
 
-         startServers(0, 1, 2, 3, 4, 5);
+      startServers(0, 1, 2, 3, 4, 5);
 
-         setupSessionFactory(3, isNetty());
-         setupSessionFactory(4, isNetty());
-         setupSessionFactory(5, isNetty());
+      setupSessionFactory(3, isNetty());
+      setupSessionFactory(4, isNetty());
+      setupSessionFactory(5, isNetty());
 
-         createQueue(3, "queues.testaddress", "queue0", null, false);
-         createQueue(4, "queues.testaddress", "queue0", null, false);
-         createQueue(5, "queues.testaddress", "queue0", null, false);
+      createQueue(3, "queues.testaddress", "queue0", null, false);
+      createQueue(4, "queues.testaddress", "queue0", null, false);
+      createQueue(5, "queues.testaddress", "queue0", null, false);
 
-         addConsumer(0, 3, "queue0", null);
-         addConsumer(1, 4, "queue0", null);
-         addConsumer(2, 5, "queue0", null);
+      addConsumer(0, 3, "queue0", null);
+      addConsumer(1, 4, "queue0", null);
+      addConsumer(2, 5, "queue0", null);
 
-         waitForBindings(3, "queues.testaddress", 1, 1, true);
-         waitForBindings(4, "queues.testaddress", 1, 1, true);
-         waitForBindings(5, "queues.testaddress", 1, 1, true);
+      waitForBindings(3, "queues.testaddress", 1, 1, true);
+      waitForBindings(4, "queues.testaddress", 1, 1, true);
+      waitForBindings(5, "queues.testaddress", 1, 1, true);
 
-         waitForBindings(3, "queues.testaddress", 2, 2, false);
-         waitForBindings(4, "queues.testaddress", 2, 2, false);
-         waitForBindings(5, "queues.testaddress", 2, 2, false);
+      waitForBindings(3, "queues.testaddress", 2, 2, false);
+      waitForBindings(4, "queues.testaddress", 2, 2, false);
+      waitForBindings(5, "queues.testaddress", 2, 2, false);
 
-         send(3, "queues.testaddress", 100, false, null);
+      send(3, "queues.testaddress", 100, false, null);
 
-         verifyReceiveRoundRobinInSomeOrder(100, 0, 1, 2);
+      verifyReceiveRoundRobinInSomeOrder(100, 0, 1, 2);
 
-         verifyNotReceive(0, 0, 1, 2);
-      } catch (Throwable e) {
-         e.printStackTrace();
-         log.error(e.getMessage(), e);
-         throw e;
-      }
+      verifyNotReceive(0, 0, 1, 2);
    }
 
    protected void setupCluster() throws Exception {

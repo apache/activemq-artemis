@@ -236,7 +236,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
             if (wrapped.getBody() instanceof Data) {
                // converters can change this to AmqValue
                Data data = (Data) wrapped.getBody();
-               System.out.println("received : message: " + data.getValue().getLength());
+               instanceLog.debug("received : message: " + data.getValue().getLength());
                assertEquals(PAYLOAD, data.getValue().getLength());
             }
             message.accept();
@@ -290,7 +290,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
          if (wrapped.getBody() instanceof Data) {
             Data data = (Data) wrapped.getBody();
-            System.out.println("received : message: " + data.getValue().getLength());
+            instanceLog.debug("received : message: " + data.getValue().getLength());
             assertEquals(PAYLOAD, data.getValue().getLength());
          }
 
@@ -397,7 +397,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    public void doTestSendLargeMessage(int expectedSize) throws Exception {
-      LOG.info("doTestSendLargeMessage called with expectedSize " + expectedSize);
+      LOG.debug("doTestSendLargeMessage called with expectedSize " + expectedSize);
       byte[] payload = createLargePayload(expectedSize);
       assertEquals(expectedSize, payload.length);
 
@@ -417,12 +417,12 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          producer.send(message);
          long endTime = System.currentTimeMillis();
 
-         LOG.info("Returned from send after {} ms", endTime - startTime);
+         LOG.debug("Returned from send after {} ms", endTime - startTime);
          startTime = System.currentTimeMillis();
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
 
-         LOG.info("Calling receive");
+         LOG.debug("Calling receive");
          Message received = consumer.receive();
          assertNotNull(received);
          assertTrue(received instanceof BytesMessage);
@@ -430,7 +430,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          assertNotNull(bytesMessage);
          endTime = System.currentTimeMillis();
 
-         LOG.info("Returned from receive after {} ms", endTime - startTime);
+         LOG.debug("Returned from receive after {} ms", endTime - startTime);
          byte[] bytesReceived = new byte[expectedSize];
          assertEquals(expectedSize, bytesMessage.readBytes(bytesReceived, expectedSize));
          assertTrue(Arrays.equals(payload, bytesReceived));

@@ -164,7 +164,6 @@ public class TopicClusterTest extends JMSClusteredTestBase {
          ActiveMQMessage hqMessage = (ActiveMQMessage) m;
          ClientMessage coreMessage = hqMessage.getCoreMessage();
          Set<SimpleString> coreProps = coreMessage.getPropertyNames();
-         System.out.println("core props: " + coreProps);
          boolean exist = false;
          for (SimpleString prop : coreProps) {
             if (prop.startsWith(org.apache.activemq.artemis.api.core.Message.HDR_ROUTE_TO_IDS)) {

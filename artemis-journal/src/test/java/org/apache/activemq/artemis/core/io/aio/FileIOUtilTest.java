@@ -42,7 +42,6 @@ public class FileIOUtilTest {
 
    @Test
    public void testCopy() throws Exception {
-      System.out.println("Data at " + temporaryFolder.getRoot());
       SequentialFileFactory factory = new NIOSequentialFileFactory(temporaryFolder.getRoot(), 100);
       SequentialFile file = factory.createSequentialFile("file1.bin");
       file.open();
@@ -77,8 +76,6 @@ public class FileIOUtilTest {
       newFile2.close();
       file.close();
       file2.close();
-
-      System.out.println("Test result::");
 
    }
 

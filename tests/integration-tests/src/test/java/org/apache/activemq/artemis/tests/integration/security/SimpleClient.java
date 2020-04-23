@@ -39,7 +39,6 @@ final class SimpleClient {
             throw new Exception("require 1 argument: connector factory class name");
          }
 
-         System.out.println("I'm here");
          String connectorFactoryClassName = args[0];
 
          String queueName = RandomUtil.randomString();

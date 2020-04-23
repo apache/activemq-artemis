@@ -26,15 +26,12 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class DelayedMessageTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
 
@@ -119,8 +116,6 @@ public class DelayedMessageTest extends ActiveMQTestBase {
          Assert.assertNotNull(tm);
 
          long time = System.currentTimeMillis();
-
-         log.info("delay " + (time - now));
 
          Assert.assertTrue(time - now >= DelayedMessageTest.DELAY);
 

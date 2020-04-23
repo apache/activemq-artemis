@@ -49,9 +49,9 @@ import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.ra.DummyTransactionManager;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,7 +59,7 @@ import org.junit.rules.Timeout;
 
 public class JMSBridgeTest extends BridgeTestBase {
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(JMSBridgeTest.class);
 
    @Rule
    public Timeout timeout = new Timeout(120000);
@@ -390,7 +390,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
       } finally {
          if (bridge != null) {
-            JMSBridgeTest.log.info("Stopping bridge");
+            instanceLog.debug("Stopping bridge");
             bridge.stop();
          }
       }
@@ -815,7 +815,7 @@ public class JMSBridgeTest extends BridgeTestBase {
             try {
                started.rollback();
             } catch (Exception e) {
-               JMSBridgeTest.log.error("Failed to rollback", e);
+               log.error("Failed to rollback", e);
             }
          }
 
@@ -823,7 +823,7 @@ public class JMSBridgeTest extends BridgeTestBase {
             try {
                mgr.resume(toResume);
             } catch (Exception e) {
-               JMSBridgeTest.log.error("Failed to resume", e);
+               log.error("Failed to resume", e);
             }
          }
          if (bridge != null) {
@@ -972,7 +972,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
          connTarget = cf1.createConnection();
 
-         JMSBridgeTest.log.trace("Sending " + NUM_MESSAGES + " messages");
+         log.trace("Sending " + NUM_MESSAGES + " messages");
 
          List<String> ids1 = new ArrayList<>();
 
@@ -1007,7 +1007,7 @@ public class JMSBridgeTest extends BridgeTestBase {
             ids1.add(tm.getJMSMessageID());
          }
 
-         JMSBridgeTest.log.trace("Sent the first messages");
+         log.trace("Sent the first messages");
 
          Session sessTarget = connTarget.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -1146,7 +1146,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
          connTarget = cf1.createConnection();
 
-         JMSBridgeTest.log.trace("Sending " + NUM_MESSAGES + " messages");
+         log.trace("Sending " + NUM_MESSAGES + " messages");
 
          Session sessSource = connSource.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -1293,7 +1293,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
          connTarget = cf1.createConnection();
 
-         JMSBridgeTest.log.trace("Sending " + NUM_MESSAGES + " messages");
+         log.trace("Sending " + NUM_MESSAGES + " messages");
 
          Session sessSource = connSource.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -1375,13 +1375,13 @@ public class JMSBridgeTest extends BridgeTestBase {
 
       // Now crash the dest server
 
-      JMSBridgeTest.log.info("About to crash server");
+      instanceLog.debug("About to crash server");
 
       server1.stop();
 
       // Now stop the bridge while the failover is happening
 
-      JMSBridgeTest.log.info("About to stop the bridge");
+      instanceLog.debug("About to stop the bridge");
 
       bridge.stop();
 
@@ -1450,7 +1450,7 @@ public class JMSBridgeTest extends BridgeTestBase {
             try {
                connSource.close();
             } catch (Exception e) {
-               JMSBridgeTest.log.error("Failed to close connection", e);
+               log.error("Failed to close connection", e);
             }
          }
 
@@ -1518,7 +1518,7 @@ public class JMSBridgeTest extends BridgeTestBase {
             try {
                connSource.close();
             } catch (Exception e) {
-               JMSBridgeTest.log.error("Failed to close connection", e);
+               log.error("Failed to close connection", e);
             }
          }
 
@@ -1584,7 +1584,7 @@ public class JMSBridgeTest extends BridgeTestBase {
             try {
                connSource.close();
             } catch (Exception e) {
-               JMSBridgeTest.log.error("Failed to close connection", e);
+               log.error("Failed to close connection", e);
             }
          }
 
@@ -1644,7 +1644,7 @@ public class JMSBridgeTest extends BridgeTestBase {
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES - 1, false);
       } finally {
          if (bridge != null) {
-            JMSBridgeTest.log.info("Stopping bridge");
+            instanceLog.debug("Stopping bridge");
             bridge.stop();
          }
       }
@@ -1831,7 +1831,7 @@ public class JMSBridgeTest extends BridgeTestBase {
       final List<TextMessage> sentMessages = new ArrayList<>();
       final List<TextMessage> receivedMessages = new ArrayList<>();
 
-      log.info("Starting bridge " + bridge);
+      instanceLog.debug("Starting bridge " + bridge);
       bridge.start();
       waitForComponent(bridge, 15);
 
@@ -1850,7 +1850,7 @@ public class JMSBridgeTest extends BridgeTestBase {
                msg.setIntProperty("count", counter);
                producer.send(msg);
                sentMessages.add(msg);
-               log.info("Sent message with property counter: " + counter + ", messageId:" + msg.getJMSMessageID()
+               instanceLog.debug("Sent message with property counter: " + counter + ", messageId:" + msg.getJMSMessageID()
                   + ((msg.getStringProperty("_AMQ_DUPL_ID") != null) ? ", _AMQ_DUPL_ID=" + msg.getStringProperty("_AMQ_DUPL_ID") : ""));
                counter++;
                Thread.sleep(200);
@@ -1892,7 +1892,7 @@ public class JMSBridgeTest extends BridgeTestBase {
                if (msg != null) {
                   msg.acknowledge();
                   receivedMessages.add(msg);
-                  log.info("Received message with messageId: " + msg.getJMSMessageID() +
+                  instanceLog.debug("Received message with messageId: " + msg.getJMSMessageID() +
                      " and property counter " + msg.getIntProperty("count"));
                } else {
                   running = false;
@@ -1916,16 +1916,16 @@ public class JMSBridgeTest extends BridgeTestBase {
          }
       });
 
-      log.info("Starting producer thread...");
+      instanceLog.debug("Starting producer thread...");
       producerThread.start();
 
       Assert.assertTrue(waitForMessages(server1, targetQueue.getQueueName(), NUM_MESSAGES / 100, 250000));
 
-      log.info("Stopping bridge " + bridge);
+      instanceLog.debug("Stopping bridge " + bridge);
       bridge.stop();
       Thread.sleep(5000);
 
-      log.info("Starting bridge " + bridge + " again");
+      instanceLog.debug("Starting bridge " + bridge + " again");
       bridge.start();
       waitForComponent(bridge, 15);
 
@@ -1933,13 +1933,13 @@ public class JMSBridgeTest extends BridgeTestBase {
 
 
 
-      log.info("Starting consumer thread...");
+      instanceLog.debug("Starting consumer thread...");
       consumerThread.start();
 
-      log.info("Waiting for the consumer thread to die...");
+      instanceLog.debug("Waiting for the consumer thread to die...");
       consumerThread.join();
 
-      log.info("Waiting for the producer thread to die...");
+      instanceLog.debug("Waiting for the producer thread to die...");
       producerThread.join();
 
       bridge.stop();
@@ -1977,7 +1977,7 @@ public class JMSBridgeTest extends BridgeTestBase {
             }
          }
       }
-      log.info("Number of messages in queue " + queueName + " on server: " + server + " is: " + count);
+      log.debug("Number of messages in queue " + queueName + " on server: " + server + " is: " + count);
       return count;
    }
 
@@ -1987,7 +1987,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
       long count = 0;
       while ((count = countMessagesInQueue(server, queueName)) < numberOfMessages) {
-         log.info("Total number of messages in queue: " + queueName + " on server " + server + " is " + count);
+         log.debug("Total number of messages in queue: " + queueName + " on server " + server + " is " + count);
          Thread.sleep(5000);
          if (System.currentTimeMillis() - startTime > timeout) {
             log.warn(numberOfMessages + " not on server " + server + " in timeout " + timeout + "ms.");

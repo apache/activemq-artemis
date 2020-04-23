@@ -154,7 +154,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
                msg.acknowledge();
 
                if (i % 500 == 0) {
-                  System.out.println("Consumed " + i);
+                  instanceLog.debug("Consumed " + i);
                   consumerSession.commit();
                }
             }

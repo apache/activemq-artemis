@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.rest.queue.push.ActiveMQPushStrategy;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.artemis.rest.queue.push.xml.XmlLink;
 import org.apache.activemq.artemis.rest.util.Constants;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -34,6 +35,7 @@ import org.junit.Test;
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
 public class PushQueueConsumerTest extends MessageTestBase {
+   private static final Logger log = Logger.getLogger(PushQueueConsumerTest.class);
 
    enum PushRegistrationType {
       CLASS, BRIDGE, URI, TEMPLATE
@@ -50,7 +52,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          // The name of the queue used for the test should match the name of the test
          String queue = "testBridge";
          String queueToPushTo = "pushedFrom-" + queue;
-         System.out.println("\n" + queue);
+         log.debug("\n" + queue);
          deployQueue(queue);
          deployQueue(queueToPushTo);
 
@@ -92,7 +94,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          // The name of the queue used for the test should match the name of the test
          String queue = "testClass";
          String queueToPushTo = "pushedFrom-" + queue;
-         System.out.println("\n" + queue);
+         log.debug("\n" + queue);
 
          deployQueue(queue);
          deployQueue(queueToPushTo);
@@ -127,7 +129,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          // The name of the queue used for the test should match the name of the test
          String queue = "testTemplate";
          String queueToPushTo = "pushedFrom-" + queue;
-         System.out.println("\n" + queue);
+         log.debug("\n" + queue);
 
          deployQueue(queue);
          deployQueue(queueToPushTo);
@@ -197,7 +199,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          // The name of the queue used for the test should match the name of the test
          String queue = "testUri";
          String queueToPushTo = "pushedFrom-" + queue;
-         System.out.println("\n" + queue);
+         log.debug("\n" + queue);
 
          deployQueue(queue);
          deployQueue(queueToPushTo);
@@ -229,7 +231,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          // The name of the queue used for the test should match the name of the test
          String queue = "testUriWithMultipleSessions";
          String queueToPushTo = "pushedFrom-" + queue;
-         System.out.println("\n" + queue);
+         log.debug("\n" + queue);
 
          deployQueue(queue);
          deployQueue(queueToPushTo);

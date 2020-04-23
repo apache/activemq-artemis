@@ -79,7 +79,6 @@ public class MessageRedistributionTest extends ClusterTestBase {
    private void closeConsumerAndConnectionConcurrently(int targetNode, int remoteNode) throws Exception {
 
       String targetUri = getServerUri(targetNode);
-      System.out.println("uri is " + targetUri);
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(targetUri);
       Connection conn = null;
       CountDownLatch active = new CountDownLatch(1);

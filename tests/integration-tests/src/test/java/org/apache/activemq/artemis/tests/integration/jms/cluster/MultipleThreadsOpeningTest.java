@@ -39,7 +39,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
       final int ITERATIONS = 50;
 
       for (int i = 0; i < ITERATIONS; i++) {
-         System.out.println("#test " + i);
+         instanceLog.info("#test " + i);
          internalMultipleOpen(200, 1);
          tearDown();
          setUp();
@@ -75,7 +75,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
 
                for (int i = 0; i < numberOfOpens; i++) {
                   if (i > 0 && i % 100 == 0)
-                     System.out.println("connections created on Thread " + Thread.currentThread() + " " + i);
+                     instanceLog.debug("connections created on Thread " + Thread.currentThread() + " " + i);
                   Connection conn = cf1.createConnection();
                   Session sess = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
                   sess.close();

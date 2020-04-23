@@ -371,7 +371,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      LOG.info("Attempting to read message with receiver");
+      LOG.debug("Attempting to read message with receiver");
       AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(2);
       AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
@@ -400,7 +400,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          message.setMessageAnnotation("serialNo", i);
          message.setText("Test-Message");
 
-         System.out.println("Sending message: " + message.getMessageId());
+         instanceLog.debug("Sending message: " + message.getMessageId());
 
          sender.send(message);
       }
@@ -422,7 +422,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       for (int i = 0; i < MSG_COUNT; ++i) {
          received = receiver2.receive(5, TimeUnit.SECONDS);
          assertNotNull("Should have got a message", received);
-         System.out.println("Read message: " + received.getMessageId());
+         instanceLog.debug("Read message: " + received.getMessageId());
          assertEquals("msg" + i, received.getMessageId());
       }
 
@@ -516,7 +516,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       sender.close();
 
-      LOG.info("Attempting to read first two messages with receiver #1");
+      LOG.debug("Attempting to read first two messages with receiver #1");
       AmqpReceiver receiver1 = session.createReceiver(getQueueName());
       receiver1.flow(2);
       AmqpMessage message1 = receiver1.receive(10, TimeUnit.SECONDS);
@@ -528,7 +528,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message1.accept();
       message2.accept();
 
-      LOG.info("Attempting to read next two messages with receiver #2");
+      LOG.debug("Attempting to read next two messages with receiver #2");
       AmqpReceiver receiver2 = session.createReceiver(getQueueName());
       receiver2.flow(2);
       AmqpMessage message3 = receiver2.receive(10, TimeUnit.SECONDS);
@@ -540,7 +540,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message3.accept();
       message4.accept();
 
-      LOG.info("Attempting to read remaining messages with receiver #1");
+      LOG.debug("Attempting to read remaining messages with receiver #1");
       receiver1.flow(MSG_COUNT - 4);
       for (int i = 4; i < MSG_COUNT; i++) {
          AmqpMessage message = receiver1.receive(10, TimeUnit.SECONDS);
@@ -603,24 +603,24 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message3.accept();
       message4.accept();
 
-      LOG.info("*** Attempting to read remaining messages with both receivers");
+      LOG.debug("*** Attempting to read remaining messages with both receivers");
       int splitCredit = (MSG_COUNT - 4) / 2;
 
-      LOG.info("**** Receiver #1 granting credit[{}] for its block of messages", splitCredit);
+      LOG.debug("**** Receiver #1 granting credit[{}] for its block of messages", splitCredit);
       receiver1.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver1.receive(10, TimeUnit.SECONDS);
          assertNotNull("Receiver #1 should have read a message", message);
-         LOG.info("Receiver #1 read message: {}", message.getMessageId());
+         LOG.debug("Receiver #1 read message: {}", message.getMessageId());
          message.accept();
       }
 
-      LOG.info("**** Receiver #2 granting credit[{}] for its block of messages", splitCredit);
+      LOG.debug("**** Receiver #2 granting credit[{}] for its block of messages", splitCredit);
       receiver2.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver2.receive(10, TimeUnit.SECONDS);
          assertNotNull("Receiver #2 should have read message[" + i + "]", message);
-         LOG.info("Receiver #2 read message: {}", message.getMessageId());
+         LOG.debug("Receiver #2 read message: {}", message.getMessageId());
          message.accept();
       }
 
@@ -677,7 +677,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          @Override
          public void run() {
             try {
-               LOG.info("Starting consumer connection");
+               LOG.debug("Starting consumer connection");
                AmqpConnection connection = addConnection(client.connect());
                AmqpSession session = connection.createSession();
                AmqpReceiver receiver = session.createReceiver(address);
@@ -928,7 +928,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          sender.send(message);
       }
 
-      LOG.info("Attempting to read first two messages with receiver #1");
+      LOG.debug("Attempting to read first two messages with receiver #1");
       receiver1.flow(2);
       AmqpMessage message1 = receiver1.receive(10, TimeUnit.SECONDS);
       AmqpMessage message2 = receiver1.receive(10, TimeUnit.SECONDS);
@@ -939,7 +939,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message1.accept();
       message2.accept();
 
-      LOG.info("Attempting to read next two messages with receiver #2");
+      LOG.debug("Attempting to read next two messages with receiver #2");
       receiver2.flow(2);
       AmqpMessage message3 = receiver2.receive(10, TimeUnit.SECONDS);
       AmqpMessage message4 = receiver2.receive(10, TimeUnit.SECONDS);
@@ -950,24 +950,24 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message3.accept();
       message4.accept();
 
-      LOG.info("*** Attempting to read remaining messages with both receivers");
+      LOG.debug("*** Attempting to read remaining messages with both receivers");
       int splitCredit = (MSG_COUNT - 4) / 2;
 
-      LOG.info("**** Receiver #1 granting credit[{}] for its block of messages", splitCredit);
+      LOG.debug("**** Receiver #1 granting credit[{}] for its block of messages", splitCredit);
       receiver1.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver1.receive(10, TimeUnit.SECONDS);
          assertNotNull("Receiver #1 should have read a message", message);
-         LOG.info("Receiver #1 read message: {}", message.getMessageId());
+         LOG.debug("Receiver #1 read message: {}", message.getMessageId());
          message.accept();
       }
 
-      LOG.info("**** Receiver #2 granting credit[{}] for its block of messages", splitCredit);
+      LOG.debug("**** Receiver #2 granting credit[{}] for its block of messages", splitCredit);
       receiver2.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver2.receive(10, TimeUnit.SECONDS);
          assertNotNull("Receiver #2 should have read a message[" + i + "]", message);
-         LOG.info("Receiver #2 read message: {}", message.getMessageId());
+         LOG.debug("Receiver #2 read message: {}", message.getMessageId());
          message.accept();
       }
 
@@ -1153,7 +1153,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
                   received.accept();
                   done.countDown();
                } catch (Exception ex) {
-                  LOG.info("Caught error: {}", ex.getClass().getSimpleName());
+                  LOG.debug("Caught error: {}", ex.getClass().getSimpleName());
                   error.set(true);
                }
             }

@@ -41,10 +41,10 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,7 +55,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
-   private static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(BasicXaRecoveryTest.class);
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 
@@ -282,7 +282,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      BasicXaRecoveryTest.log.info("*** stopping and restarting");
+      log.debug("*** stopping and restarting");
 
       if (restartServer) {
          stopAndRestartServer();
@@ -519,7 +519,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      BasicXaRecoveryTest.log.info("shutting down server");
+      log.debug("shutting down server");
 
       if (stopServer) {
          stopAndRestartServer();
@@ -527,7 +527,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
          recreateClients();
       }
 
-      BasicXaRecoveryTest.log.info("restarted");
+      log.debug("restarted");
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
@@ -944,7 +944,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      BasicXaRecoveryTest.log.info("stopping and restarting");
+      log.debug("stopping and restarting");
 
       if (stopServer) {
          stopAndRestartServer();
@@ -952,7 +952,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
          recreateClients();
       }
 
-      BasicXaRecoveryTest.log.info("Restarted");
+      log.debug("Restarted");
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 

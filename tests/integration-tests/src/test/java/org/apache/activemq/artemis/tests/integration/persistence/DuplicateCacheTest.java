@@ -27,11 +27,16 @@ import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class DuplicateCacheTest extends StorageManagerTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    public DuplicateCacheTest(StoreConfiguration.StoreType storeType) {
       super(storeType);

@@ -674,8 +674,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
             assertNotNull("Message null on iteration " + i, message);
 
-            System.out.println("received message: " + i);
-            System.out.println("is redelivered: " + message.getJMSRedelivered());
             if (i > 0) {
                assertTrue(message.getJMSRedelivered());
             }
@@ -727,8 +725,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
          assertNotNull("Message null", message);
 
-         System.out.println("received message: " + message);
-         System.out.println("is redelivered: " + message.getJMSRedelivered());
          assertFalse(message.getJMSRedelivered());
 
       } finally {

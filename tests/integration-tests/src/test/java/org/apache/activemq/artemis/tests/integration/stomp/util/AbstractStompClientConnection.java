@@ -30,7 +30,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.transport.netty.NettyTransport;
@@ -131,7 +130,6 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
    private ClientStompFrame sendFrameInternal(ClientStompFrame frame, boolean wicked) throws IOException, InterruptedException {
       ClientStompFrame response = null;
-      IntegrationTestLogger.LOGGER.trace("Sending " + (wicked ? "*wicked* " : "") + "frame:\n" + frame);
       ByteBuffer buffer;
       if (wicked) {
          buffer = frame.toByteBufferWithExtra("\n");
@@ -164,8 +162,6 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
             }
          }
       }
-
-      IntegrationTestLogger.LOGGER.trace("Received:\n" + response);
 
       return response;
    }

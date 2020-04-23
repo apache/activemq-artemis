@@ -72,8 +72,6 @@ public class ShutdownOnCriticalIOErrorMoveNextTest extends ActiveMQTestBase {
 
          Assert.assertFalse(server.isStarted());
 
-         System.out.println("Sent messages");
-
       } finally {
          server.stop();
 

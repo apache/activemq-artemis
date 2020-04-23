@@ -59,7 +59,6 @@ public class JmsResourceProvider {
     * @see org.apache.activemq.test.JmsResourceProvider#createSession(javax.jms.Connection)
     */
    public Session createSession(Connection conn) throws JMSException {
-      System.out.println("createing a session tx ? " + transacted);
       return conn.createSession(transacted, ackMode);
    }
 

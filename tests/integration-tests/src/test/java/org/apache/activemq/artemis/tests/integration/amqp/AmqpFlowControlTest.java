@@ -254,7 +254,6 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
             try {
                for (int i = 0; i < maxMessages; i++) {
                   sender.send(message);
-                  System.out.println("Sent " + i);
                   sentMessages.getAndIncrement();
                }
                timeout.countDown();

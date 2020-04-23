@@ -101,7 +101,6 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      System.out.println(queue);
       notifConsumer.close();
       notifConsumer = session.createConsumer(notifQueue.toString(), ManagementHelper.HDR_ROUTING_NAME + "= '" +
          queue +
@@ -128,7 +127,6 @@ public class NotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
-      System.out.println(queue);
       notifConsumer.close();
       notifConsumer = session.createConsumer(notifQueue.toString(), ManagementHelper.HDR_ROUTING_NAME + " <> '" +
          queue + "' AND " + ManagementHelper.HDR_ADDRESS + " <> '" + address + "'");
@@ -307,8 +305,6 @@ public class NotificationTest extends ActiveMQTestBase {
       Assert.assertNotNull(notifications[0].getObjectProperty(ManagementHelper.HDR_CONNECTION_NAME));
       Assert.assertNotNull(notifications[0].getObjectProperty(ManagementHelper.HDR_SESSION_NAME));
       Assert.assertEquals(SimpleString.toSimpleString("myUser"), notifications[0].getObjectProperty(ManagementHelper.HDR_USER));
-      System.out.println(notifications[0].getTimestamp());
-      System.out.println(start);
       Assert.assertTrue(notifications[0].getTimestamp() >= start);
       Assert.assertTrue((Long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
 
@@ -488,21 +484,11 @@ public class NotificationTest extends ActiveMQTestBase {
       ClientMessage m = null;
       for (int i = 0; i < expected; i++) {
          m = consumer.receive(timeout);
-         if (m != null) {
-            for (SimpleString key : m.getPropertyNames()) {
-               System.out.println(key + "=" + m.getObjectProperty(key));
-            }
-         }
          Assert.assertNotNull("expected to received " + expected + " messages, got only " + i, m);
          messages[i] = m;
          m.acknowledge();
       }
       m = consumer.receiveImmediate();
-      if (m != null) {
-         for (SimpleString key : m.getPropertyNames()) {
-            System.out.println(key + "=" + m.getObjectProperty(key));
-         }
-      }
       Assert.assertNull("received one more message than expected (" + expected + ")", m);
 
       return messages;

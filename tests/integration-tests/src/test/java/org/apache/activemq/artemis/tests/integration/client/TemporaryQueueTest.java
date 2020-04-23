@@ -48,16 +48,16 @@ import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.jboss.logging.Logger;
 import org.junit.Test;
 
 public class TemporaryQueueTest extends SingleServerTestBase {
    // Constants -----------------------------------------------------
 
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(TemporaryQueueTest.class);
 
    private static final long CONNECTION_TTL = 2000;
 
@@ -107,8 +107,6 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       session.close();
 
       sf.close();
-
-      System.out.println("size = " + server.getAddressSettingsRepository().getCacheSize());
 
       assertTrue(server.getAddressSettingsRepository().getCacheSize() < 10);
    }
@@ -398,7 +396,6 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
          localSession.start();
 
-         log.info("Iteration " + i);
          String queueRed = address + "_red_" + (countTmpQueue++);
          String queueBlue = address + "_blue_" + (countTmpQueue++);
 
@@ -556,7 +553,6 @@ public class TemporaryQueueTest extends SingleServerTestBase {
                errors.incrementAndGet();
             }
 
-            System.out.println("done");
          }
       };
 
@@ -590,7 +586,6 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
       for (ServerSession sessionIterator : server.getSessions()) {
          if (sessionIterator.getMetaData("consumer") != null) {
-            System.out.println("Failing session");
             ServerSessionImpl impl = (ServerSessionImpl) sessionIterator;
             impl.getRemotingConnection().fail(new ActiveMQDisconnectedException("failure e"));
          }

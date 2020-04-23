@@ -510,13 +510,13 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          @Override
          public void onCompactDone() {
             latchDone.countDown();
-            System.out.println("Waiting on Compact");
+            instanceLog.debug("Waiting on Compact");
             try {
                ActiveMQTestBase.waitForLatch(latchWait);
             } catch (InterruptedException e) {
                e.printStackTrace();
             }
-            System.out.println("Done");
+            instanceLog.debug("Done");
          }
       };
 
@@ -627,17 +627,17 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          int count = 0;
          for (long liveID : liveIDs) {
             if (count++ % 2 == 0) {
-               System.out.println("Deleting no trans " + liveID);
+               instanceLog.debug("Deleting no trans " + liveID);
                delete(liveID);
             } else {
-               System.out.println("Deleting TX " + liveID);
+               instanceLog.debug("Deleting TX " + liveID);
                // A Total new transaction (that was created after the compact started) to delete a record that is being
                // compacted
                deleteTx(transactionID, liveID);
                commit(transactionID++);
             }
 
-            System.out.println("Deletes are going into " + ((JournalImpl) journal).getCurrentFile());
+            instanceLog.debug("Deletes are going into " + ((JournalImpl) journal).getCurrentFile());
          }
       }
 
@@ -766,7 +766,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.testCompact();
 
-      System.out.println("Debug after compact\n" + journal.debug());
+      instanceLog.debug("Debug after compact\n" + journal.debug());
 
       stopJournal();
       createJournal();
@@ -1202,11 +1202,11 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.forceMoveNextFile();
 
-      System.out.println("Number of Files: " + journal.getDataFilesCount());
+      instanceLog.debug("Number of Files: " + journal.getDataFilesCount());
 
-      System.out.println("Before compact ****************************");
-      System.out.println(journal.debug());
-      System.out.println("*****************************************");
+      instanceLog.debug("Before compact ****************************");
+      instanceLog.debug(journal.debug());
+      instanceLog.debug("*****************************************");
 
       journal.testCompact();
 
@@ -1410,7 +1410,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       journal.forceMoveNextFile();
 
       startCompact();
-      System.out.println("Committing TX " + tx);
+      instanceLog.debug("Committing TX " + tx);
       commit(tx);
       finishCompact();
 
@@ -1460,7 +1460,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       journal.forceMoveNextFile();
 
       startCompact();
-      System.out.println("Committing TX " + tx1);
+      instanceLog.debug("Committing TX " + tx1);
       rollback(tx0);
       for (int i = 0; i < 10; i++) {
          addTx(tx1, ids[i]);
@@ -1516,7 +1516,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       journal.forceMoveNextFile();
 
       startCompact();
-      System.out.println("Committing TX " + tx1);
+      instanceLog.debug("Committing TX " + tx1);
       rollback(tx0);
       for (int i = 0; i < 10; i++) {
          addTx(tx1, ids[i]);
@@ -1784,7 +1784,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                try {
                   while (running.get()) {
                      Thread.sleep(500);
-                     System.out.println("Compacting");
+                     instanceLog.debug("Compacting");
                      ((JournalImpl) storage.getMessageJournal()).testCompact();
                      ((JournalImpl) storage.getMessageJournal()).checkReclaimStatus();
                   }

@@ -21,17 +21,18 @@ import java.util.HashSet;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 
 public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase {
 
    protected static final String QUEUE_NAME = "queue0";
    protected static final String QUEUES_TESTADDRESS = "queues.testaddress";
-   protected static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+
+   protected static final Logger log = Logger.getLogger(ClusterWithBackupFailoverTestBase.class);
 
    protected abstract void setupCluster(MessageLoadBalancingType messageLoadBalancingType) throws Exception;
 
@@ -72,7 +73,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
     * @throws Exception
     */
    protected void failNode(final int node, final int originalLiveNode) throws Exception {
-      ClusterWithBackupFailoverTestBase.log.info("*** failing node " + node);
+      log.debug("*** failing node " + node);
 
       ActiveMQServer server = getServer(node);
 

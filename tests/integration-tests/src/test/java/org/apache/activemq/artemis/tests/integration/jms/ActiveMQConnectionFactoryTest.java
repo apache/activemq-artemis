@@ -48,7 +48,6 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfigu
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.jms.serializables.TestClass1;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
@@ -61,8 +60,6 @@ import org.junit.Test;
  * ActiveMQConnectionFactoryTest
  */
 public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private final String groupAddress = getUDPDiscoveryAddress();
 
@@ -90,8 +87,6 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       if (conn != null) {
          conn.close();
       }
-
-      ActiveMQConnectionFactoryTest.log.info("Got here");
 
       testSettersThrowException(cf);
    }
@@ -370,7 +365,6 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          }
       }
 
-      System.out.println("query string: " + query);
       ActiveMQConnectionFactory factory = null;
       if (useJndi) {
          Hashtable<String, Object> props = new Hashtable<>();

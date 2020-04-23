@@ -56,7 +56,6 @@ public class JMSUsecase1Test extends BasicOpenWireTest {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, destinationType);
-      System.out.println("destionation: " + destination);
       MessageProducer producer = session.createProducer(destination);
       producer.setDeliveryMode(this.deliveryMode);
       MessageConsumer consumer = session.createConsumer(destination);

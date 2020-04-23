@@ -180,8 +180,6 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
                               final String connectorHost,
                               final boolean mustConnect,
                               final int localPort) throws Exception {
-      System.out.println("acceptor=" + acceptorHost + ", connector=" + connectorHost + ", mustConnect=" + mustConnect);
-
       Map<String, Object> params = new HashMap<>();
       params.put(getHostPropertyKey(), acceptorHost);
       TransportConfiguration acceptorConfig = new TransportConfiguration(getAcceptorFactoryClassName(), params);
@@ -211,7 +209,6 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
                Assert.assertTrue(address.endsWith(":" + localPort));
             }
             sf.close();
-            System.out.println("connection OK");
          } else {
             try {
                locator.createSessionFactory();

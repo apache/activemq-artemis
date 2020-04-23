@@ -114,7 +114,7 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m1);
       clientSessionTxReceives.start();
       for (int i = 0; i < 10; i++) {
-         System.out.println("#Deliver " + i);
+         instanceLog.debug("#Deliver " + i);
          ClientMessage m = consumer.receive(5000);
          Assert.assertNotNull(m);
          m.acknowledge();

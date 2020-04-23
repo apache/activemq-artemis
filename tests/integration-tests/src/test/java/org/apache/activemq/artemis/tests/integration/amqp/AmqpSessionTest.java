@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
@@ -46,7 +45,7 @@ public class AmqpSessionTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectClosedResource(Session session) {
-            IntegrationTestLogger.LOGGER.info("Session closed: " + session.getContext());
+            instanceLog.debug("Session closed: " + session.getContext());
          }
 
          @Override

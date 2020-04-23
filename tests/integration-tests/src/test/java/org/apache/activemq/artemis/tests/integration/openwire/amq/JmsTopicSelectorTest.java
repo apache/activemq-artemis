@@ -54,11 +54,7 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest {
          connection.setClientID(getClass().getName());
       }
 
-      System.out.println("Created connection: " + connection);
-
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-      System.out.println("Created session: " + session);
 
       if (topic) {
          consumerDestination = this.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
@@ -68,18 +64,14 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest {
          producerDestination = this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       }
 
-      System.out.println("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
-      System.out.println("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
       producer = session.createProducer(producerDestination);
       producer.setDeliveryMode(deliveryMode);
 
-      System.out.println("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
       connection.start();
    }
 
    protected MessageConsumer createConsumer(String selector) throws JMSException {
       if (durable) {
-         System.out.println("Creating durable consumer");
          return session.createDurableSubscriber((Topic) consumerDestination, getName(), selector, false);
       }
       return session.createConsumer(consumerDestination, selector);

@@ -94,9 +94,6 @@ public class RequestorTest extends ActiveMQTestBase {
       requestConsumer.setMessageHandler(new SimpleMessageHandler(key, sessionRequest));
 
       for (int i = 0; i < 2000; i++) {
-         if (i % 100 == 0) {
-            System.out.println(i);
-         }
          final ClientSession session = sf.createSession(false, true, true);
 
          session.start();

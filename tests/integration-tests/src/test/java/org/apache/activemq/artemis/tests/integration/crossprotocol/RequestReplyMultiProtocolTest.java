@@ -156,7 +156,7 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
             TextMessage received = (TextMessage)consumer.receive(5000);
 
             Assert.assertNotNull(received);
-            System.out.println("Destination::" + received.getJMSDestination());
+            instanceLog.debug("Destination::" + received.getJMSDestination());
 
             if (useTopic) {
                Assert.assertTrue("JMSDestination type is " + received.getJMSDestination().getClass(),  received.getJMSDestination() instanceof Topic);
@@ -167,7 +167,7 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
             Assert.assertNotNull(received.getJMSReplyTo());
             Assert.assertEquals("hello " + (i++), received.getText());
 
-            System.out.println("received " + received.getText() + " and " + received.getJMSReplyTo());
+            instanceLog.debug("received " + received.getText() + " and " + received.getJMSReplyTo());
 
             if (destination instanceof Queue) {
                Assert.assertTrue("Type is " + received.getJMSReplyTo().getClass().toString(), received.getJMSReplyTo() instanceof Queue);

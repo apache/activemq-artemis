@@ -126,13 +126,11 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
          if (temperMode == 1) {
             // this is tampering with the system causing an artifical issue. The system should still heal itself.
             for (long pageID = store.getFirstPage(); pageID <= store.getCurrentPage().getPageId() + 10; pageID++) {
-               System.out.println("Sending close on " + pageID);
                liveServer.getServer().getStorageManager().pageClosed(store.getStoreName(), (int) pageID);
             }
          }  else if (temperMode == 2) {
             // this is tampering with the system causing an artifical issue. The system should still heal itself.
             for (long pageID = store.getFirstPage(); pageID <= store.getCurrentPage().getPageId() + 10; pageID++) {
-               System.out.println("Sending close on " + pageID);
                liveServer.getServer().getStorageManager().pageDeleted(store.getStoreName(), (int) pageID);
             }
          }

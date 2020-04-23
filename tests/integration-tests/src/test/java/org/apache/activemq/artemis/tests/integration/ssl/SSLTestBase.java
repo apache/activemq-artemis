@@ -83,7 +83,6 @@ public abstract class SSLTestBase extends ActiveMQTestBase {
    }
 
    protected void configureSSLParameters(Map<String, Object> params) {
-      System.out.println("*** Configure server SSL using provider: " + sslProvider);
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.SSL_PROVIDER, sslProvider);
       params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, "JKS");

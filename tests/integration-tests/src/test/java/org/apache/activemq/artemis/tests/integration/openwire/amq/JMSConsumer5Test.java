@@ -97,19 +97,16 @@ public class JMSConsumer5Test extends BasicOpenWireTest {
          public void onMessage(Message m) {
             counter.incrementAndGet();
             if (counter.get() == 4) {
-               System.out.println("ok finished all 4, done sleep");
                done.countDown();
             }
          }
       });
 
       assertTrue(done.await(1000, TimeUnit.MILLISECONDS));
-      System.out.println("ok await ok");
       Thread.sleep(200);
 
       // Make sure only 4 messages were delivered.
       assertEquals(4, counter.get());
-      System.out.println("test done ok " + counter.get());
    }
 
 }

@@ -152,7 +152,6 @@ public class NetworkHealthTest {
          public void run() {
             super.run();
             latch.countDown();
-            System.out.println("Check");
          }
       });
       check.addComponent(component);

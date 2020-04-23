@@ -100,7 +100,6 @@ public class ProducerFlowControlTest extends ProducerFlowControlBaseTest {
       TextMessage msg;
       for (int idx = 0; idx < 5; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
-         System.out.println("received: " + idx + ", msg: " + msg.getJMSMessageID());
          msg.acknowledge();
       }
       Thread.sleep(1000);
@@ -147,7 +146,6 @@ public class ProducerFlowControlTest extends ProducerFlowControlBaseTest {
       for (int idx = 0; idx < 5; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
          assertNotNull("Got a message", msg);
-         System.out.println("received: " + idx + ", msg: " + msg.getJMSMessageID());
          msg.acknowledge();
       }
       Thread.sleep(1000);

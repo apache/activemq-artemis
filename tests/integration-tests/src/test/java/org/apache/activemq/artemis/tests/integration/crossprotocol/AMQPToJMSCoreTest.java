@@ -77,7 +77,6 @@ public class AMQPToJMSCoreTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageDestination() throws Exception {
-      System.out.println("foo");
       AmqpClient client = new AmqpClient(new URI("tcp://127.0.0.1:61616"), null, null);
       AmqpConnection amqpconnection = client.connect();
       try {

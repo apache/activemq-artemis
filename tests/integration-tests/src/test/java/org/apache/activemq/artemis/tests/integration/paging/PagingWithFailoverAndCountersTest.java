@@ -200,18 +200,16 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
                         session.commit();
                         if (currentMsg > lastCommit) {
                            lastCommit = currentMsg;
-                        } else {
-                           System.out.println("Ignoring setting lastCommit (" + lastCommit + ") <= currentMSG (" + currentMsg + ")");
                         }
                      }
                      msgcount++;
                   }
 
                   if (msgcount % 100 == 0) {
-                     System.out.println("received " + msgcount + " on " + queueName);
+                     instanceLog.debug("received " + msgcount + " on " + queueName);
                   }
                } catch (Throwable e) {
-                  System.out.println("=====> expected Error at " + currentMsg + " with lastCommit=" + lastCommit);
+                  instanceLog.warn("=====> expected Error at " + currentMsg + " with lastCommit=" + lastCommit);
                }
             }
 
@@ -245,8 +243,6 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
                session.createQueue(new QueueConfiguration("new-queue").setRoutingType(RoutingType.ANYCAST));
 
-               System.out.println("created queue");
-
                session.start();
                ClientProducer prod = session.createProducer("new-queue");
                prod.send(session.createMessage(true));
@@ -260,8 +256,6 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
                e.printStackTrace();
                fail(e.getMessage());
             }
-            System.out.println("Started monitoring");
-
             Queue queue2 = inProcessBackup.getServer().locateQueue(SimpleString.toSimpleString("cons2"));
 
             while (isRunning(1)) {

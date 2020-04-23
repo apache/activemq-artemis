@@ -227,21 +227,11 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       ClientMessage m = null;
       for (int i = 0; i < expected; i++) {
          m = consumer.receive(500);
-         if (m != null) {
-            for (SimpleString key : m.getPropertyNames()) {
-               System.out.println(key + "=" + m.getObjectProperty(key));
-            }
-         }
          Assert.assertNotNull("expected to received " + expected + " messages, got only " + i, m);
          messages[i] = m;
          m.acknowledge();
       }
       m = consumer.receiveImmediate();
-      if (m != null) {
-         for (SimpleString key : m.getPropertyNames()) {
-            System.out.println(key + "=" + m.getObjectProperty(key));
-         }
-      }
       Assert.assertNull("received one more message than expected (" + expected + ")", m);
 
       return messages;

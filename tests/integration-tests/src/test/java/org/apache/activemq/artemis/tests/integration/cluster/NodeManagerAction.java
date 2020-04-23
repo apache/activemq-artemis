@@ -125,7 +125,6 @@ public class NodeManagerAction {
          e.printStackTrace();
          System.exit(9);
       }
-      System.out.println("work performed");
    }
 
 }

@@ -53,7 +53,6 @@ public class FQQNStompTest extends StompTestBase {
       conn = StompClientConnectionFactory.createClientConnection(uri);
       QueueQueryResult result = server.queueQuery(new SimpleString(getQueueName()));
       assertTrue(result.isExists());
-      System.out.println("address: " + result.getAddress() + " queue " + result.getName());
    }
 
    @Override
@@ -84,7 +83,7 @@ public class FQQNStompTest extends StompTestBase {
       ClientStompFrame frame = conn.receiveFrame(2000);
       assertNotNull(frame);
       assertEquals("Hello World!", frame.getBody());
-      System.out.println("frame: " + frame);
+      instanceLog.debug("frame: " + frame);
       unsubscribe(conn, "sub-01");
    }
 
@@ -185,7 +184,7 @@ public class FQQNStompTest extends StompTestBase {
       ClientStompFrame frame = conn.receiveFrame(2000);
       assertNotNull(frame);
       assertEquals("Hello World!", frame.getBody());
-      System.out.println("frame: " + frame);
+      instanceLog.debug("frame: " + frame);
       unsubscribe(conn, "sub-01");
 
       //queue::

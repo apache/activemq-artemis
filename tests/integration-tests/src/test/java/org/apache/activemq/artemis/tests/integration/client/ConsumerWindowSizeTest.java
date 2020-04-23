@@ -46,7 +46,6 @@ import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
@@ -61,10 +60,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
    private final SimpleString queueA = new SimpleString("queueA");
 
    private final int TIMEOUT = 5;
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
-
-   private static final boolean isTrace = ConsumerWindowSizeTest.log.isTraceEnabled();
 
    private ServerLocator locator;
 
@@ -416,7 +411,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          ClientMessage msg = consumer.receiveImmediate();
          if (msg == null) {
-            System.out.println("Returning null");
+            instanceLog.debug("Returning null");
             break;
          }
          msg.acknowledge();
@@ -721,8 +716,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             String str = getTextMessage(msg);
             Assert.assertEquals("Msg" + i, str);
 
-            log.info("got msg " + str);
-
             msg.acknowledge();
 
             Assert.assertEquals("A slow consumer shouldn't buffer anything on the client side!", 0, cons1.getBufferSize());
@@ -734,8 +727,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             Assert.assertNotNull("expected message at i = " + i, msg);
 
             String str = getTextMessage(msg);
-
-            log.info("got msg " + str);
 
             Assert.assertEquals("Msg" + i, str);
 
@@ -1186,13 +1177,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             @Override
             public synchronized void onMessage(final ClientMessage message) {
                try {
-                  log.info("received msg " + message);
                   String str = getTextMessage(message);
-                  if (ConsumerWindowSizeTest.isTrace) {
-                     ConsumerWindowSizeTest.log.trace("Received message " + str);
-                  }
-
-                  ConsumerWindowSizeTest.log.info("Received message " + str);
 
                   failed = failed || !str.equals("Msg" + count);
 
@@ -1230,11 +1215,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          Assert.assertTrue(latchReceived.await(TIMEOUT, TimeUnit.SECONDS));
 
-         log.info("bs " + consReceiveOneAndHold.getBufferSize());
-
          long timeout = System.currentTimeMillis() + 1000 * TIMEOUT;
          while (consReceiveOneAndHold.getBufferSize() == 0 && System.currentTimeMillis() < timeout) {
-            log.info("bs " + consReceiveOneAndHold.getBufferSize());
             Thread.sleep(10);
          }
 

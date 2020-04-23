@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 public class ManagementExceptionHandlingTest extends ActiveMQTestBase {
+   private static final Logger log = Logger.getLogger(ManagementExceptionHandlingTest.class);
 
    protected ActiveMQServer server = null;
 
@@ -89,7 +91,7 @@ public class ManagementExceptionHandlingTest extends ActiveMQTestBase {
    public void testAddressControl() throws Exception {
       server.getActiveMQServerControl().createAddress("test.address", "ANYCAST");
       MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-      System.out.println("server is " + mbs);
+      log.debug("server is " + mbs);
       ObjectName objectName = new ObjectName("org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"test.address\"");
       Object[] params = new Object[] {new HashMap(), 3, "aGVsbG8=", true, null, null};
       String[] signature = new String[] {"java.util.Map", "int", "java.lang.String", "boolean", "java.lang.String", "java.lang.String"};

@@ -129,7 +129,7 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
       }
       browserIterator.close();
 
-      System.out.println("There are " + serverQueue.getMessageCount() + " on the queue");
+      instanceLog.debug("There are " + serverQueue.getMessageCount() + " on the queue");
       int messageCount = (int)serverQueue.getMessageCount();
 
       AmqpClient client = createLocalClient();
@@ -148,7 +148,7 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
          message.accept(true);
          received++;
 
-         System.out.println("Received " + received);
+         instanceLog.debug("Received " + received);
          Data data = (Data)message.getWrappedMessage().getBody();
          byte[] byteArray = data.getValue().getArray();
 

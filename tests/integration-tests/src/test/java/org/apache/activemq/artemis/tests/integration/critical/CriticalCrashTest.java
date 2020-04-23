@@ -80,7 +80,6 @@ public class CriticalCrashTest extends SpawnedTestBase {
             producer.send(session.createTextMessage("text"));
          }
 
-         System.out.println("Sent messages");
 
       } finally {
          server.stop();
@@ -108,7 +107,6 @@ public class CriticalCrashTest extends SpawnedTestBase {
                   if (blocked.get()) {
                      while (true) {
                         try {
-                           System.out.println("Blocking forever");
                            Thread.sleep(1000);
                         } catch (Throwable ignored) {
 

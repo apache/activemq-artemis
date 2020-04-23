@@ -124,12 +124,8 @@ public class NettyReplicationStopTest extends FailoverTestBase {
 
                   ClientMessage message = session.createMessage(true).putIntProperty("i", code);
                   alignedOnSend.countDown();
-                  System.out.println("blocking!!");
                   producer.send(message);
                   codesSent.add(code);
-
-                  System.out.println("Sent!");
-
                } catch (Exception e) {
                   // that's ok;
                   e.printStackTrace(); // logging just for debug & reference

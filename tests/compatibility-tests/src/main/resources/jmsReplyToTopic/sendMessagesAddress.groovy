@@ -41,15 +41,12 @@ MessageProducer queueProducer = session.createProducer(myQueue)
 queueProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
 Message message = session.createMessage();
 message.setJMSReplyTo(replyTopic);
-System.out.println("Sending " + message + " to: " + myQueue);
 queueProducer.send(message);
 session.commit();
 
-System.out.println("Receiving message from: " + replyTopic);
 message = consumer.receive(10000);
 GroovyRun.assertNotNull(message);
 session.commit();
-System.out.println("Received message: " + message);
 
 connection.close();
 senderLatch.countDown();

@@ -43,7 +43,6 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
    protected Destination producerDestination;
    protected boolean topic = true;
    protected boolean durable;
-   protected boolean verbose;
    protected long initRedeliveryDelay;
 
    @Override
@@ -57,17 +56,11 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
          connection.setClientID(getClass().getName());
       }
 
-      System.out.println("Created connection: " + connection);
-
       session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       consumeSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-      System.out.println("Created session: " + session);
-      System.out.println("Created consumeSession: " + consumeSession);
       producer = session.createProducer(null);
       // producer.setRoutingType(deliveryMode);
-
-      System.out.println("Created producer: " + producer);
 
       if (topic) {
          consumerDestination = this.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
@@ -77,12 +70,8 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
          producerDestination = this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       }
 
-      System.out.println("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
-      System.out.println("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
       consumer = createConsumer(getName());
       connection.start();
-
-      System.out.println("Created connection: " + connection);
    }
 
    /**
@@ -95,9 +84,6 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
       String text = "TEST";
       Message sendMessage = session.createTextMessage(text);
 
-      if (verbose) {
-         System.out.println("About to send a message: " + sendMessage + " with text: " + text);
-      }
       producer.send(producerDestination, sendMessage);
 
       // receive but don't acknowledge
@@ -124,7 +110,6 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
 
    protected MessageConsumer createConsumer(String durableName) throws JMSException {
       if (durable) {
-         System.out.println("Creating durable consumer " + durableName);
          return consumeSession.createDurableSubscriber((Topic) consumerDestination, durableName);
       }
       return consumeSession.createConsumer(consumerDestination);

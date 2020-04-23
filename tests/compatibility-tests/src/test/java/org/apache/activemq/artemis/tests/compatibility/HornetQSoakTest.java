@@ -99,7 +99,6 @@ public class HornetQSoakTest extends ClasspathBase {
       AtomicInteger runningConsumer1XArtemis = (AtomicInteger) evaluate(artemis1XClassLoader, "hqsoak/receiveMessages.groovy", "ARTEMIS1X", "" + numberOfConsumersArtemis, "" + totalMessagePerQueue);
       AtomicInteger runningConsumerHornetQ = (AtomicInteger) evaluate(hornetqClassLoader, "hqsoak/receiveMessages.groovy", "HORNETQ", "" + numberOfConsumersHornetQ, "" + totalMessagePerQueue);
 
-      System.out.println("Running producers");
 
       AtomicInteger ranArtemisProducer = (AtomicInteger) evaluate(artemisClassLoader, "hqsoak/sendMessages.groovy", "ARTEMIS", "" + threadsProducerArtemis, "" + numberOfMessagesArtemis);
       AtomicInteger ranHornetQProducer = (AtomicInteger) evaluate(hornetqClassLoader, "hqsoak/sendMessages.groovy", "HORNETQ", "" + threadsProducerHornetQ, "" + numberOfMessagesHornetQ);
