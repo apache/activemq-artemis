@@ -39,12 +39,17 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.LastValueQueue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RetryRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class JMSNonDestructiveTest extends JMSClientTestSupport {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    private static final String NON_DESTRUCTIVE_QUEUE_NAME = "NON_DESTRUCTIVE_QUEUE";
    private static final String NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME = "NON_DESTRUCTIVE_EXPIRY_QUEUE";

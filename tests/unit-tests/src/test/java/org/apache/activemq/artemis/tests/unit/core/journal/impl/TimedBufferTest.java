@@ -34,11 +34,12 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TimedBufferTest extends ActiveMQTestBase {
-
+   private static final Logger log = Logger.getLogger(TimedBufferTest.class);
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -167,7 +168,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
       IOCallback callback = new IOCallback() {
          @Override
          public void done() {
-            System.out.println("done");
+            log.debug("done");
             latchFlushed.countDown();
          }
 
@@ -388,7 +389,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          assert observer.flushesDone() == 2;
          //it is much more than what is expected!!if it will fail it means that the timed IOPS = 1/(timeout + blockingDeviceFlushTime)!!!!!!
          //while it has to be IOPS = 1/timeout
-         System.out.println("elapsed time: " + elapsedTime + " with timeout: " + timeout);
+         log.debug("elapsed time: " + elapsedTime + " with timeout: " + timeout);
          final long maxExpected = timeout + deviceTime;
          Assert.assertTrue("elapsed = " + elapsedTime + " max expected = " + maxExpected, elapsedTime <= maxExpected);
       } finally {
@@ -429,7 +430,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          assert observer.flushesDone() == 2;
          //it is much more than what is expected!!if it will fail it means that the timed IOPS = 1/(timeout + blockingDeviceFlushTime)!!!!!!
          //while it has to be IOPS = 1/timeout
-         System.out.println("elapsed time: " + elapsedTime + " with timeout: " + timeout);
+         log.debug("elapsed time: " + elapsedTime + " with timeout: " + timeout);
          final long maxExpected = timeout + deviceTime;
          Assert.assertTrue("elapsed = " + elapsedTime + " max expected = " + maxExpected, elapsedTime <= maxExpected);
       } finally {

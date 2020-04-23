@@ -48,7 +48,7 @@ import org.junit.Before;
 
 public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
-   private static final Logger logger = Logger.getLogger(JournalImplTestBase.class);
+   private static final Logger log = Logger.getLogger(JournalImplTestBase.class);
 
    protected List<RecordInfo> records = new LinkedList<>();
 
@@ -223,7 +223,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
     * @throws Exception
     */
    protected void exportImportJournal() throws Exception {
-      System.out.println("Exporting to " + getTestDir() + "/output.log");
+      log.debug("Exporting to " + getTestDir() + "/output.log");
 
       EncodeJournal.exportJournal(getTestDir(), this.filePrefix, this.fileExtension, this.minFiles, this.fileSize, getTestDir() + "/output.log");
 
@@ -236,12 +236,12 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          }
       };
 
-      System.out.println("file = " + dir);
+      log.debug("file = " + dir);
 
       File[] files = dir.listFiles(fnf);
 
       for (File file : files) {
-         System.out.println("Deleting " + file);
+         log.debug("Deleting " + file);
          file.delete();
       }
 
@@ -643,7 +643,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          expectedSet.removeAll(actualSet);
 
          for (RecordInfo info : expectedSet) {
-            logger.warn("The following record is missing:: " + info);
+            log.warn("The following record is missing:: " + info);
          }
 
          Assert.assertEquals("There are duplicates on the actual list", actualSet.size(), actualSet.size());
@@ -659,29 +659,29 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          HashSet<RecordInfo> hashExpected = new HashSet<>();
          hashExpected.addAll(expected);
 
-         System.out.println("#Summary **********************************************************************************************************************");
+         log.debug("#Summary **********************************************************************************************************************");
          for (RecordInfo r : hashActual) {
             if (!hashExpected.contains(r)) {
-               System.out.println("Record " + r + " was supposed to be removed and it exists");
+               log.debug("Record " + r + " was supposed to be removed and it exists");
             }
          }
 
          for (RecordInfo r : hashExpected) {
             if (!hashActual.contains(r)) {
-               System.out.println("Record " + r + " was not found on actual list");
+               log.debug("Record " + r + " was not found on actual list");
             }
          }
 
-         System.out.println("#expected **********************************************************************************************************************");
+         log.debug("#expected **********************************************************************************************************************");
          for (RecordInfo recordInfo : expected) {
-            System.out.println("Record::" + recordInfo);
+            log.debug("Record::" + recordInfo);
          }
-         System.out.println("#actual ************************************************************************************************************************");
+         log.debug("#actual ************************************************************************************************************************");
          for (RecordInfo recordInfo : actual) {
-            System.out.println("Record::" + recordInfo);
+            log.debug("Record::" + recordInfo);
          }
 
-         System.out.println("#records ***********************************************************************************************************************");
+         log.debug("#records ***********************************************************************************************************************");
 
          try {
             describeJournal(journal.getFileFactory(), (JournalImpl) journal, journal.getFileFactory().getDirectory(), System.out);
