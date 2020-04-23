@@ -88,6 +88,8 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
+   private String securityDomain;
+
    public CoreProtocolManager(final CoreProtocolManagerFactory factory,
                               final ActiveMQServer server,
                               final List<Interceptor> incomingInterceptors,
@@ -219,6 +221,16 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
    @Override
    public Map<SimpleString, RoutingType> getPrefixes() {
       return prefixes;
+   }
+
+   @Override
+   public void setSecurityDomain(String securityDomain) {
+      this.securityDomain = securityDomain;
+   }
+
+   @Override
+   public String getSecurityDomain() {
+      return securityDomain;
    }
 
    private boolean isArtemis(ActiveMQBuffer buffer) {

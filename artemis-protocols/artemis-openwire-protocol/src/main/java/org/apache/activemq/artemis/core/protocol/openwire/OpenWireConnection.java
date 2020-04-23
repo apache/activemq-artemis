@@ -237,6 +237,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    // SecurityAuth implementation
    @Override
+   public String getSecurityDomain() {
+      return protocolManager.getSecurityDomain();
+   }
+
+   // SecurityAuth implementation
+   @Override
    public String getPassword() {
       ConnectionInfo info = getConnectionInfo();
       if (info == null) {
@@ -759,7 +765,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    private void createInternalSession(ConnectionInfo info) throws Exception {
-      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes());
+      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes(), protocolManager.getSecurityDomain());
    }
 
    //raise the refCount of context

@@ -134,7 +134,8 @@ public class MQTTConnectionManager {
                                                          session.getSessionCallback(),
                                                          MQTTUtil.SESSION_AUTO_CREATE_QUEUE,
                                                          server.newOperationContext(),
-                                                         session.getProtocolManager().getPrefixes());
+                                                         session.getProtocolManager().getPrefixes(),
+                                                         session.getProtocolManager().getSecurityDomain());
       return (ServerSessionImpl) serverSession;
    }
 

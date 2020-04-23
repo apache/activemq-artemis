@@ -118,6 +118,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private boolean securityEnabled = true;
 
+   private final String securityDomain;
+
    protected final String username;
 
    protected final String password;
@@ -225,7 +227,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SessionCallback callback,
                             final OperationContext context,
                             final PagingManager pagingManager,
-                            final Map<SimpleString, RoutingType> prefixes) throws Exception {
+                            final Map<SimpleString, RoutingType> prefixes,
+                            final String securityDomain) throws Exception {
       this.username = username;
 
       this.password = password;
@@ -284,6 +287,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
       //When the ServerSessionImpl initialization is complete, need to create and send a SESSION_CREATED notification.
       sendSessionNotification(CoreNotificationType.SESSION_CREATED);
+
+      this.securityDomain = securityDomain;
    }
 
    // ServerSession implementation ---------------------------------------------------------------------------
@@ -1062,6 +1067,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public RemotingConnection getRemotingConnection() {
       return remotingConnection;
+   }
+
+   @Override
+   public String getSecurityDomain() {
+      return securityDomain;
    }
 
    public static class TempQueueCleanerUpper implements CloseListener, FailureListener {

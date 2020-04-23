@@ -26,4 +26,6 @@ public interface SecurityAuth {
    String getPassword();
 
    RemotingConnection getRemotingConnection();
+
+   String getSecurityDomain();
 }

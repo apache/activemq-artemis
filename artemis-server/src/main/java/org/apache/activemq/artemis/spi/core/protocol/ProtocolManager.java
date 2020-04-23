@@ -74,4 +74,8 @@ public interface ProtocolManager<P extends BaseInterceptor> {
    void setMulticastPrefix(String multicastPrefix);
 
    Map<SimpleString, RoutingType> getPrefixes();
+
+   void setSecurityDomain(String securityDomain);
+
+   String getSecurityDomain();
 }
