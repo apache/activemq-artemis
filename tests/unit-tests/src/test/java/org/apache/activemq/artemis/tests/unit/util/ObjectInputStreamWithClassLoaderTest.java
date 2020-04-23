@@ -44,12 +44,10 @@ import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClas
 import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
-   private static final Logger log = Logger.getLogger(ObjectInputStreamWithClassLoaderTest.class);
 
    // Constants -----------------------------------------------------
 
@@ -509,7 +507,8 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          try {
             Object deserializedObj = ois.readObject();
 
-            log.debug("Deserialized Object " + deserializedObj);
+            // cannot use logging here, as this test is playing with classLoading here.
+            System.out.println("Deserialized Object " + deserializedObj);
 
             myAssertNotSame(originalProxy, deserializedObj);
             myAssertNotSame(originalProxy.getClass(), deserializedObj.getClass());

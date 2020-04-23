@@ -55,7 +55,7 @@ public class RandomUtilDistributionTest {
    @Test
    public void testDistribution() throws Exception {
       int numberOfStarts = 50;
-      int iterations = 10;
+      int iterations = 1;
 
       int value = 0;
       for (int i = 0; i < iterations; i++) {

@@ -26,9 +26,6 @@ import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @version $Revision: 1.7 $
- */
 public class SelectorTest {
 
    class MockMessage implements Filterable {
