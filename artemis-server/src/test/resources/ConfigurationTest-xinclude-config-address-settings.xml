@@ -18,6 +18,9 @@
    <address-setting match="a1">
       <dead-letter-address>a1.1</dead-letter-address>
       <expiry-address>a1.2</expiry-address>
+      <expiry-delay>1</expiry-delay>
+      <min-expiry-delay>2</min-expiry-delay>
+      <max-expiry-delay>3</max-expiry-delay>
       <redelivery-delay>1</redelivery-delay>
       <redelivery-collision-avoidance-factor>0.5</redelivery-collision-avoidance-factor>
       <max-size-bytes>817M</max-size-bytes>
