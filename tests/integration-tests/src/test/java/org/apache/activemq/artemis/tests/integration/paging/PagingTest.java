@@ -104,7 +104,6 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.RetryMethod;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.jboss.logging.Logger;
@@ -123,7 +122,7 @@ public class PagingTest extends ActiveMQTestBase {
    private static final Logger log = Logger.getLogger(PagingTest.class);
 
    @Rule
-   public RetryRule retryMethod = new RetryRule(0);
+   public RetryRule retryMethod = new RetryRule(1);
 
    private static final Logger logger = Logger.getLogger(PagingTest.class);
 
@@ -1743,7 +1742,6 @@ public class PagingTest extends ActiveMQTestBase {
 
    }
 
-   @RetryMethod(retries = 1)
    @Test
    public void testInabilityToCreateDirectoryDuringPaging() throws Exception {
       // this test only applies to file-based stores

@@ -33,12 +33,18 @@ import org.apache.activemq.artemis.core.server.impl.LastValueQueue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RetryMethod;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class LVQTest extends ActiveMQTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    private ActiveMQServer server;
 
@@ -541,6 +547,12 @@ public class LVQTest extends ActiveMQTestBase {
       assertEquals(0, queue.getDeliveringCount());
    }
 
+   // There's a race between the schedule message reaching the queue,
+   // and actually being delivered
+   // by the time scheduledCount == 0 the message could still be in flight to the queue on
+   // an executor, and that's not an issue,
+   // however this test may eventually fail because of that, so I'm setting a retry here
+   @RetryMethod(retries = 3)
    @Test
    public void testScheduledMessages() throws Exception {
       final long DELAY_TIME = 10;
@@ -561,6 +573,8 @@ public class LVQTest extends ActiveMQTestBase {
 
       // allow schedules to elapse so the messages will be delivered to the queue
       Wait.waitFor(() -> queue.getScheduledCount() == 0);
+
+      Wait.assertEquals(MESSAGE_COUNT, queue::getMessagesAdded);
 
       clientSession.start();
       ClientMessage m = consumer.receive(5000);
