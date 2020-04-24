@@ -37,7 +37,9 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -45,6 +47,8 @@ import org.junit.Test;
  */
 public class FederatedAddressTest extends FederatedTestBase {
 
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    @Override
    @Before
@@ -298,7 +302,7 @@ public class FederatedAddressTest extends FederatedTestBase {
                                  1000, 100));
          final QueueBinding remoteQueueBinding = (QueueBinding) getServer(1).getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(address))
             .getBindings().iterator().next();
-         assertEquals(1, remoteQueueBinding.getQueue().getConsumerCount());
+         Wait.assertEquals(1, () -> remoteQueueBinding.getQueue().getConsumerCount());
 
          producer1.send(session1.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
