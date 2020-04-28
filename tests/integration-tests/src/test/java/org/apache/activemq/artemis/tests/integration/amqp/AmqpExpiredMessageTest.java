@@ -27,6 +27,7 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
@@ -111,6 +112,68 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpReceiver receiverDLQ = session.createReceiver(getDeadLetterAddress());
       receiverDLQ.flow(1);
       received = receiverDLQ.receive(5, TimeUnit.SECONDS);
+
+      assertNotNull("Should have read message from DLQ", received);
+      assertEquals(0, received.getTimeToLive());
+      assertNotNull(received);
+      assertEquals("Value1", received.getApplicationProperty("key1"));
+
+      connection.close();
+   }
+
+   /** This test is validating a broker feature where the message copy through the DLQ will receive an annotation.
+    *  It is also testing filter on that annotation. */
+   @Test(timeout = 60000)
+   public void testExpiryThroughTTLValidateAnnotation() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getQueueName());
+
+      // Get the Queue View early to avoid racing the delivery.
+      final Queue queueView = getProxyToQueue(getQueueName());
+      assertNotNull(queueView);
+
+      AmqpMessage message = new AmqpMessage();
+      message.setTimeToLive(1);
+      message.setText("Test-Message");
+      message.setDurable(true);
+      message.setApplicationProperty("key1", "Value1");
+      sender.send(message);
+      sender.close();
+
+      Thread.sleep(100);
+
+      // Now try and get the message
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
+      receiver.flow(1);
+      AmqpMessage received = receiver.receiveNoWait();
+      assertNull(received);
+
+      Wait.assertEquals(1, queueView::getMessagesExpired);
+
+      connection.close();
+
+      // This will stop and start the server
+      // to make sure the message is decoded again from its binary format
+      // avoiding any parsing cached at the server.
+      server.stop();
+      server.start();
+
+      final Queue dlqView = getProxyToQueue(getDeadLetterAddress());
+      assertNotNull(dlqView);
+      Wait.assertEquals(1, dlqView::getMessageCount);
+
+      client = createAmqpClient();
+      connection = addConnection(client.connect());
+      session = connection.createSession();
+
+      AmqpReceiver receiverDLQ = session.createReceiver(getDeadLetterAddress(), "_AMQ_ORIG_ADDRESS='" + getQueueName() + "'");
+      receiverDLQ.flow(1);
+      received = receiverDLQ.receive(5, TimeUnit.SECONDS);
+      Assert.assertNotNull(received);
+      received.accept();
 
       assertNotNull("Should have read message from DLQ", received);
       assertEquals(0, received.getTimeToLive());
@@ -272,7 +335,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      assertEquals(1, queueView.getMessageCount());
+      Wait.assertEquals(1, queueView::getMessageCount);
 
       // Now try and get the message
       AmqpReceiver receiver = session.createReceiver(getQueueName());
@@ -280,7 +343,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(received);
 
-      assertEquals(0, queueView.getMessagesExpired());
+      Wait.assertEquals(0, queueView::getMessagesExpired);
 
       connection.close();
    }
@@ -305,7 +368,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
       Thread.sleep(50);
 
-      assertEquals(1, queueView.getMessageCount());
+      Wait.assertEquals(1, queueView::getMessageCount);
 
       // Now try and get the message
       AmqpReceiver receiver = session.createReceiver(getQueueName());

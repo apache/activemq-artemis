@@ -614,6 +614,10 @@ public interface Message {
 
    Long getLongProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
+   default Object getObjectPropertyForFilter(SimpleString key) {
+      return getObjectProperty(key);
+   }
+
    Object getObjectProperty(SimpleString key);
 
    default Object removeAnnotation(SimpleString key) {
