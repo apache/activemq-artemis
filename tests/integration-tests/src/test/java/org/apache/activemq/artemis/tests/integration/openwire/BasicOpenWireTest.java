@@ -116,11 +116,9 @@ public class BasicOpenWireTest extends OpenWireTestBase {
          }
          testQueues.clear();
       } catch (Throwable e) {
-         System.out.println("Exception !! " + e);
          e.printStackTrace();
       } finally {
          super.tearDown();
-         System.out.println("Super done.");
       }
    }
 

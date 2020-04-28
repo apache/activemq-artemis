@@ -46,6 +46,7 @@ import javax.transaction.xa.Xid;
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -1720,7 +1721,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
             try {
                confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
                largeServerMessage.clearPendingRecordID();
-            } catch (Exception e) {
+            } catch (ActiveMQShutdownException e) {
+               // this may happen, this is asynchronous as all that would happen is we missed the update
+               // since the update was missed, next restart this operation will be retried
+               ActiveMQServerLogger.LOGGER.debug(e.getMessage(), e);
+            } catch (Throwable e) {
                ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
