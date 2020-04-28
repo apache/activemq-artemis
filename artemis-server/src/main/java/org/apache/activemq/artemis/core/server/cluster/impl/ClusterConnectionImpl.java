@@ -811,6 +811,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       targetLocator.setMaxRetryInterval(maxRetryInterval);
       targetLocator.setRetryIntervalMultiplier(retryIntervalMultiplier);
       targetLocator.setMinLargeMessageSize(minLargeMessageSize);
+      targetLocator.setCallTimeout(serverLocator.getCallTimeout());
+      targetLocator.setCallFailoverTimeout(serverLocator.getCallFailoverTimeout());
 
       // No producer flow control on the bridges by default, as we don't want to lock the queues
       targetLocator.setProducerWindowSize(this.producerWindowSize);
