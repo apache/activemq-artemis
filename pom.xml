@@ -1657,6 +1657,7 @@
                <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
                <skip>${skipLicenseCheck}</skip>
                <excludes>
+                  <exclude>.repository/**</exclude>
                   <exclude>.travis.yml</exclude>
                   <exclude>**/footer.html</exclude>
                   <exclude>**/*.txt</exclude>
