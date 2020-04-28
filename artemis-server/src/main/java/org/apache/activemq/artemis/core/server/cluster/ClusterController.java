@@ -190,6 +190,8 @@ public class ClusterController implements ActiveMQComponent {
       //if the cluster isn't available we want to hang around until it is
       serverLocator.setReconnectAttempts(config.getReconnectAttempts());
       serverLocator.setInitialConnectAttempts(config.getInitialConnectAttempts());
+      serverLocator.setCallTimeout(config.getCallTimeout());
+      serverLocator.setCallFailoverTimeout(config.getCallFailoverTimeout());
       serverLocator.setRetryInterval(config.getRetryInterval());
       serverLocator.setRetryIntervalMultiplier(config.getRetryIntervalMultiplier());
       serverLocator.setMaxRetryInterval(config.getMaxRetryInterval());
