@@ -47,8 +47,8 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -74,7 +74,7 @@ public class AmqpPluginTest extends AmqpClientTestSupport {
 
    protected static final Logger LOG = LoggerFactory.getLogger(AmqpPluginTest.class);
 
-   private final Map<String, AtomicInteger> methodCalls = new HashMap<>();
+   private final Map<String, AtomicInteger> methodCalls = new ConcurrentHashMap<>();
    private final MethodCalledVerifier verifier = new MethodCalledVerifier(methodCalls);
 
    @Override

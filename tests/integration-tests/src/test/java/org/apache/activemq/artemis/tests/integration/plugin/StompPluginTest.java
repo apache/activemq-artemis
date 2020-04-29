@@ -51,8 +51,8 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -109,7 +109,7 @@ public class StompPluginTest extends StompTestBase {
       }
    }
 
-   private final Map<String, AtomicInteger> methodCalls = new HashMap<>();
+   private final Map<String, AtomicInteger> methodCalls = new ConcurrentHashMap<>();
    private final MethodCalledVerifier verifier = new MethodCalledVerifier(methodCalls);
    private final AtomicBoolean stompBeforeCreateSession = new AtomicBoolean();
    private final AtomicBoolean stompBeforeRemoveSession = new AtomicBoolean();
