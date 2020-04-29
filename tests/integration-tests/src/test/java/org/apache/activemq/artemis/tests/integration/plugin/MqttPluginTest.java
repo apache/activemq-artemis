@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,7 +61,7 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 public class MqttPluginTest extends MQTTTestSupport {
 
 
-   private final Map<String, AtomicInteger> methodCalls = new HashMap<>();
+   private final Map<String, AtomicInteger> methodCalls = new ConcurrentHashMap<>();
    private final MethodCalledVerifier verifier = new MethodCalledVerifier(methodCalls);
 
    @Override

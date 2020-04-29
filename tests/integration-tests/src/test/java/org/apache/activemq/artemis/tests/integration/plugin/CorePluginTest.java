@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
@@ -100,7 +101,7 @@ public class CorePluginTest extends JMSTestBase {
 
    private Queue queue;
 
-   private final Map<String, AtomicInteger> methodCalls = new HashMap<>();
+   private final Map<String, AtomicInteger> methodCalls = new ConcurrentHashMap<>();
    private final MethodCalledVerifier verifier = new MethodCalledVerifier(methodCalls);
    private final ConfigurationVerifier configurationVerifier = new ConfigurationVerifier();
    public static final String INVM_CONNECTOR_FACTORY = InVMConnectorFactory.class.getCanonicalName();

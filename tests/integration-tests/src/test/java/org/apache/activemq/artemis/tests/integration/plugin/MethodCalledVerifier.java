@@ -5,8 +5,8 @@ package org.apache.activemq.artemis.tests.integration.plugin;
 
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.base.Preconditions;
@@ -120,7 +120,7 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    }
 
    public MethodCalledVerifier() {
-      this(new HashMap<String, AtomicInteger>());
+      this(new ConcurrentHashMap<>());
    }
 
    @Override
