@@ -368,7 +368,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
       Thread.sleep(50);
 
-      Wait.assertEquals(1, queueView::getMessageCount);
+      Wait.assertEquals(0, queueView::getMessageCount);
 
       // Now try and get the message
       AmqpReceiver receiver = session.createReceiver(getQueueName());
