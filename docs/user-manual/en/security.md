@@ -1253,3 +1253,16 @@ configure it in `bootstrap.xml` using the `security-manager` element, e.g.:
 ```
 
 The `security-manager` example demonstrates how to do this is more detail.
+
+## Per-Acceptor Security Domains
+
+It's possible to override the broker's JAAS security domain by specifying a
+security domain on an individual `acceptor`. Simply use the `securityDomain`
+parameter and indicate which domain from your `login.config` to use, e.g.:
+
+```xml
+<acceptor name="myAcceptor">tcp://127.0.0.1:61616?securityDomain=mySecurityDomain</acceptor>
+```
+
+Any client connecting to this acceptor will be have security enforced using
+`mySecurityDomain`.

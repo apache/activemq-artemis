@@ -80,7 +80,7 @@ public class JAASSecurityManagerTest {
          }
          ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
 
-         String result = securityManager.validateUser("first", "secret", null);
+         String result = securityManager.validateUser("first", "secret", null, null);
 
          assertNotNull(result);
          assertEquals("first", result);
@@ -88,7 +88,7 @@ public class JAASSecurityManagerTest {
          Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
          Set<Role> roles = new HashSet<>();
          roles.add(role);
-         result = securityManager.validateUserAndRole("first", "secret", roles, CheckType.SEND, "someaddress", null);
+         result = securityManager.validateUserAndRole("first", "secret", roles, CheckType.SEND, "someaddress", null, null);
 
          assertNotNull(result);
          assertEquals("first", result);

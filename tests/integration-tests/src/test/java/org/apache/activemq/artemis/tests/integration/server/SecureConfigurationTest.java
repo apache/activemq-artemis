@@ -286,12 +286,12 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
          try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
             D destination = destinationSupplier.create(session);
             MessageConsumer messageConsumer = consumerSupplier.create(destination, session);
-            messageConsumer.receive(1000);
+            Assert.assertNull(messageConsumer.receiveNoWait());
 
             TextMessage messageToSend = session.createTextMessage(message);
             session.createProducer(destination).send(messageToSend);
 
-            TextMessage received = (TextMessage) messageConsumer.receive(1000);
+            TextMessage received = (TextMessage) messageConsumer.receive(100);
             messageRecieved = received != null ? received.getText() : null;
          }
       } catch (JMSException | JMSRuntimeException e) {
