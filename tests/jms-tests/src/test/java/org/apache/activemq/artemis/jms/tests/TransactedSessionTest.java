@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TransactedSessionTest extends JMSTestCase {
@@ -617,6 +618,8 @@ public class TransactedSessionTest extends JMSTestCase {
 
    }
 
+   @Test
+   @Ignore
    public void _testSendCommitQueueCommitsInOrder() throws Exception {
       Connection conn = null;
 

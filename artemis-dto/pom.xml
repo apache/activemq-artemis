@@ -36,6 +36,10 @@
 
    <dependencies>
       <dependency>
+          <groupId>com.google.errorprone</groupId>
+          <artifactId>error_prone_core</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
@@ -87,7 +91,7 @@
       <plugins>
          <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
+            <version>1.8</version>
             <executions>
                <execution>
                   <phase>generate-resources</phase>
@@ -129,6 +133,11 @@
                   <groupId>com.sun.xml.bind</groupId>
                   <artifactId>jaxb-jxc</artifactId>
                   <version>${version.jaxb}</version>
+               </dependency>
+               <dependency>
+                   <groupId>javax.activation</groupId>
+                   <artifactId>activation</artifactId>
+                   <version>${version.activation}</version>
                </dependency>
             </dependencies>
          </plugin>

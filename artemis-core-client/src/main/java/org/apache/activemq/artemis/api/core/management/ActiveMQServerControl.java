@@ -1763,7 +1763,7 @@ public interface ActiveMQServerControl {
     * List the information about a user or all users if no username is supplied (only applicable when using the JAAS PropertiesLoginModule).
     *
     * @param username
-    * @return JSON array of user & role information
+    * @return JSON array of user and role information
     * @throws Exception
     */
    @Operation(desc = "list info about a user or all users if no username is supplied (only applicable when using the JAAS PropertiesLoginModule)", impact = MBeanOperationInfo.ACTION)
