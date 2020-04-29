@@ -2073,4 +2073,16 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224104, value = "Error starting the Acceptor {0} {1}", format = Message.Format.MESSAGE_FORMAT)
    void errorStartingAcceptor(String name, Object configuration);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224105, value = "prepare the transaction with xid {0} on wrong session {1}", format = Message.Format.MESSAGE_FORMAT)
+   void prepareXIDOnWrongSession(Xid xid, String sessionName);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224106, value = "commit the transaction with xid {0} on wrong session {1}", format = Message.Format.MESSAGE_FORMAT)
+   void commitXIDOnWrongSession(Xid xid, String sessionName);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224107, value = "rollback the transaction with xid {0} on wrong session {1}", format = Message.Format.MESSAGE_FORMAT)
+   void rollbackXIDOnWrongSession(Xid xid, String sessionName);
 }

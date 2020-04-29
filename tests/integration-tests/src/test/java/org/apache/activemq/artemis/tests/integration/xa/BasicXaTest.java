@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.ra.ActiveMQRAXAResource;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -469,6 +470,96 @@ public class BasicXaTest extends ActiveMQTestBase {
          Assert.fail("Exception exptected");
       } catch (XAException e) {
          Assert.assertTrue(e.errorCode == XAException.XA_RETRY);
+      }
+   }
+
+   private void startXATransaction(Xid xid) throws Exception {
+      ClientProducer clientProducer = clientSession.createProducer(atestq);
+      ClientMessage sentMessage = createTextMessage(clientSession, "TEST");
+      clientProducer.send(sentMessage);
+      sentMessage.acknowledge();
+
+      clientSession.start(xid, XAResource.TMNOFLAGS);
+      clientSession.start();
+
+      ClientConsumer clientConsumer = clientSession.createConsumer(atestq);
+      ClientMessage receivedMessage = clientConsumer.receive(1000);
+      Assert.assertNotNull(receivedMessage);
+      receivedMessage.acknowledge();
+      Assert.assertEquals(receivedMessage.getBodyBuffer().readString(), "TEST");
+
+      clientSession.end(xid, XAResource.TMSUCCESS);
+   }
+
+   @Test
+   public void testPrepareOnWrongSession() throws Exception {
+      ClientSession clientSession2 = sessionFactory.createSession(true, false, false);
+
+      Xid xid = newXID();
+      startXATransaction(xid);
+
+      AssertionLoggerHandler.startCapture();
+      try {
+         clientSession2.prepare(xid);
+
+         assertTrue("Expected to find AMQ224105", AssertionLoggerHandler.findText("AMQ224105"));
+
+         clientSession.prepare(xid);
+
+         assertTrue("Expected to find AMQ221079", AssertionLoggerHandler.findText("AMQ221079"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+   }
+
+
+   @Test
+   public void testCommitOnWrongSession() throws Exception {
+      ClientSession clientSession2 = sessionFactory.createSession(true, false, false);
+
+      Xid xid = newXID();
+      startXATransaction(xid);
+
+      clientSession.prepare(xid);
+
+      AssertionLoggerHandler.startCapture();
+      try {
+         clientSession2.commit(xid, false);
+
+         assertTrue("Expected to find AMQ224106", AssertionLoggerHandler.findText("AMQ224106"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+
+      try {
+         clientSession.commit(xid, false);
+         Assert.fail("Exception exptected");
+      } catch (XAException e) {
+         Assert.assertTrue(e.errorCode == XAException.XAER_NOTA);
+      }
+   }
+
+   @Test
+   public void testRollbackOnWrongSession() throws Exception {
+      ClientSession clientSession2 = sessionFactory.createSession(true, false, false);
+
+      Xid xid = newXID();
+      startXATransaction(xid);
+
+      AssertionLoggerHandler.startCapture();
+      try {
+         clientSession2.rollback(xid);
+
+         assertTrue("Expected to find AMQ224107", AssertionLoggerHandler.findText("AMQ224107"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+
+      try {
+         clientSession.rollback(xid);
+         Assert.fail("Exception exptected");
+      } catch (XAException e) {
+         Assert.assertTrue(e.errorCode == XAException.XAER_NOTA);
       }
    }
 

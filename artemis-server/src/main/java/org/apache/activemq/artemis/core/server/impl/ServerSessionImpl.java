@@ -1329,6 +1329,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized void xaCommit(final Xid xid, final boolean onePhase) throws Exception {
+      Transaction sessionTX = this.pendingTX;
       this.pendingTX = null;
 
       if (tx != null && tx.getXid().equals(xid)) {
@@ -1363,6 +1364,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
                throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot commit transaction, it is suspended " + xid);
             } else {
+               if (theTx != sessionTX) {
+                  ActiveMQServerLogger.LOGGER.commitXIDOnWrongSession(xid, getName());
+               }
+
                theTx.commit(onePhase);
             }
          }
@@ -1474,6 +1479,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized void xaRollback(final Xid xid) throws Exception {
+      Transaction sessionTX = this.pendingTX;
       this.pendingTX = null;
 
       if (tx != null && tx.getXid().equals(xid)) {
@@ -1520,6 +1526,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
                throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot rollback transaction, it is suspended " + xid);
             } else {
+               if (theTx != sessionTX) {
+                  ActiveMQServerLogger.LOGGER.rollbackXIDOnWrongSession(xid, getName());
+               }
+
                doRollback(false, false, theTx);
             }
          }
@@ -1607,6 +1617,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized void xaPrepare(final Xid xid) throws Exception {
+      Transaction sessionTX = this.pendingTX;
+
       if (tx != null && tx.getXid().equals(xid)) {
          final String msg = "Cannot commit, session is currently doing work in a transaction " + tx.getXid();
 
@@ -1628,6 +1640,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             } else if (theTx.getState() == Transaction.State.PREPARED) {
                ActiveMQServerLogger.LOGGER.ignoringPrepareOnXidAlreadyCalled(xid.toString());
             } else {
+               if (theTx != sessionTX) {
+                  ActiveMQServerLogger.LOGGER.prepareXIDOnWrongSession(xid, getName());
+               }
+
                theTx.prepare();
             }
          }
