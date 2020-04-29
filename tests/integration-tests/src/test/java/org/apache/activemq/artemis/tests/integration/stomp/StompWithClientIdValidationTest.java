@@ -50,9 +50,9 @@ public class StompWithClientIdValidationTest extends StompTestBase {
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration()) {
          @Override
-         public String validateUser(String user, String password, RemotingConnection remotingConnection) {
+         public String validateUser(String user, String password, RemotingConnection remotingConnection, String securityDomain) {
 
-            String validatedUser = super.validateUser(user, password, remotingConnection);
+            String validatedUser = super.validateUser(user, password, remotingConnection, securityDomain);
             if (validatedUser == null) {
                return null;
             }

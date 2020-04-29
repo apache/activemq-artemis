@@ -32,6 +32,8 @@ public abstract class AbstractProtocolManager<P, I extends BaseInterceptor<P>, C
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
+   private String securityDomain;
+
    protected String invokeInterceptors(final List<I> interceptors, final P message, final C connection) {
       if (interceptors != null && !interceptors.isEmpty()) {
          for (I interceptor : interceptors) {
@@ -65,5 +67,15 @@ public abstract class AbstractProtocolManager<P, I extends BaseInterceptor<P>, C
    @Override
    public Map<SimpleString, RoutingType> getPrefixes() {
       return prefixes;
+   }
+
+   @Override
+   public String getSecurityDomain() {
+      return securityDomain;
+   }
+
+   @Override
+   public void setSecurityDomain(String securityDomain) {
+      this.securityDomain = securityDomain;
    }
 }
