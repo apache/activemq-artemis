@@ -101,7 +101,7 @@ public class QueueCheck extends CheckAbstract {
 
       if (browse != null) {
          if (browse == -1) {
-            checkTasks.add(new CheckTask(String.format("a consumer can browse the queue",
+            checkTasks.add(new CheckTask(String.format("a consumer can browse the queue %s",
                                                        getName()), this::checkQueueBrowse));
          } else if (browse > 0) {
             checkTasks.add(new CheckTask(String.format("a consumer can browse %d messages from the queue %s",

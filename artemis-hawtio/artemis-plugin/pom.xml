@@ -97,6 +97,10 @@
       <artifactId>log4j</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>error_prone_core</artifactId>
+    </dependency>
 
   </dependencies>
 

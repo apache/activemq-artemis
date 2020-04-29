@@ -170,6 +170,10 @@
          <version>${netty-tcnative-version}</version>
          <scope>test</scope>
       </dependency>
+      <dependency>
+          <groupId>com.google.errorprone</groupId>
+          <artifactId>error_prone_core</artifactId>
+      </dependency>
 
    </dependencies>
 
