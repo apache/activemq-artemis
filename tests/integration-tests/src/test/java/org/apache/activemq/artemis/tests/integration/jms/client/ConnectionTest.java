@@ -20,6 +20,7 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.InvalidClientIDException;
 import javax.jms.JMSContext;
+import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.QueueSession;
 import javax.jms.Session;
@@ -31,14 +32,22 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ConnectionTest extends JMSTestBase {
+
+   private static final Logger log = Logger.getLogger(ConnectionTest.class);
 
    private Connection conn2;
 
@@ -245,6 +254,55 @@ public class ConnectionTest extends JMSTestBase {
          if (newConn != null) {
             newConn.close();
          }
+      }
+   }
+
+   @Test
+   public void testCreateSessionAndCloseConnectionConcurrently() throws Exception {
+      final int ATTEMPTS = 10;
+      final int THREAD_COUNT = 50;
+      final int SESSION_COUNT = 10;
+      final ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
+      try {
+         ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616");
+
+         for (int i = 0; i < ATTEMPTS; i++) {
+            final CountDownLatch lineUp = new CountDownLatch(THREAD_COUNT);
+            final AtomicBoolean error = new AtomicBoolean(false);
+            final Connection connection = cf.createConnection();
+
+            for (int j = 0; j < THREAD_COUNT; ++j) {
+               executor.execute(() -> {
+                  for (int k = 0; k < SESSION_COUNT; k++) {
+                     try {
+                        connection.createSession().close();
+                        if (k == 0) {
+                           lineUp.countDown();
+                        }
+                     } catch (javax.jms.IllegalStateException e) {
+                        // ignore
+                        break;
+                     } catch (JMSException e) {
+                        // ignore
+                        break;
+                     } catch (Throwable t) {
+                        log.warn(t.getMessage(), t);
+                        error.set(true);
+                        break;
+                     }
+                  }
+               });
+            }
+
+            // wait until all the threads have created & closed at least 1 session
+            assertTrue(lineUp.await(10, TimeUnit.SECONDS));
+            connection.close();
+            if (error.get()) {
+               assertFalse(error.get());
+            }
+         }
+      } finally {
+         executor.shutdownNow();
       }
    }
 
