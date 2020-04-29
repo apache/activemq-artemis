@@ -48,20 +48,20 @@ public final class ActiveMQXAConnection extends ActiveMQConnection implements XA
    }
 
    @Override
-   public XASession createXASession() throws JMSException {
+   public synchronized XASession createXASession() throws JMSException {
       checkClosed();
       return (XASession) createSessionInternal(isXA(), true, Session.SESSION_TRANSACTED, ActiveMQSession.TYPE_GENERIC_SESSION);
    }
 
    @Override
-   public XAQueueSession createXAQueueSession() throws JMSException {
+   public synchronized XAQueueSession createXAQueueSession() throws JMSException {
       checkClosed();
       return (XAQueueSession) createSessionInternal(isXA(), true, Session.SESSION_TRANSACTED, ActiveMQSession.TYPE_QUEUE_SESSION);
 
    }
 
    @Override
-   public XATopicSession createXATopicSession() throws JMSException {
+   public synchronized XATopicSession createXATopicSession() throws JMSException {
       checkClosed();
       return (XATopicSession) createSessionInternal(isXA(), true, Session.SESSION_TRANSACTED, ActiveMQSession.TYPE_TOPIC_SESSION);
    }
