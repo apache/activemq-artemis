@@ -192,7 +192,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * For that reason we have this method to force that nonXASession, since the JMS Javadoc
     * mandates createSession to return a XASession.
     */
-   public Session createNonXASession(final boolean transacted, final int acknowledgeMode) throws JMSException {
+   public synchronized Session createNonXASession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
 
       return createSessionInternal(false, transacted, acknowledgeMode, ActiveMQConnection.TYPE_GENERIC_CONNECTION);
@@ -206,7 +206,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * For that reason we have this method to force that nonXASession, since the JMS Javadoc
     * mandates createSession to return a XASession.
     */
-   public Session createNonXATopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
+   public synchronized Session createNonXATopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
 
       return createSessionInternal(false, transacted, acknowledgeMode, ActiveMQConnection.TYPE_TOPIC_CONNECTION);
@@ -220,7 +220,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * For that reason we have this method to force that nonXASession, since the JMS Javadoc
     * mandates createSession to return a XASession.
     */
-   public Session createNonXAQueueSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
+   public synchronized Session createNonXAQueueSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
 
       return createSessionInternal(false, transacted, acknowledgeMode, ActiveMQConnection.TYPE_QUEUE_CONNECTION);
@@ -432,14 +432,14 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    @Override
-   public Session createSession(int sessionMode) throws JMSException {
+   public synchronized Session createSession(int sessionMode) throws JMSException {
       checkClosed();
       return createSessionInternal(false, sessionMode == Session.SESSION_TRANSACTED, sessionMode, ActiveMQSession.TYPE_GENERIC_SESSION);
 
    }
 
    @Override
-   public Session createSession() throws JMSException {
+   public synchronized Session createSession() throws JMSException {
       checkClosed();
       return createSessionInternal(false, false, Session.AUTO_ACKNOWLEDGE, ActiveMQSession.TYPE_GENERIC_SESSION);
    }
@@ -447,7 +447,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    // QueueConnection implementation ---------------------------------------------------------------
 
    @Override
-   public QueueSession createQueueSession(final boolean transacted, int acknowledgeMode) throws JMSException {
+   public synchronized QueueSession createQueueSession(final boolean transacted, int acknowledgeMode) throws JMSException {
       checkClosed();
       return createSessionInternal(false, transacted, checkAck(transacted, acknowledgeMode), ActiveMQSession.TYPE_QUEUE_SESSION);
    }
@@ -477,7 +477,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    // TopicConnection implementation ---------------------------------------------------------------
 
    @Override
-   public TopicSession createTopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
+   public synchronized TopicSession createTopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
       return createSessionInternal(false, transacted, checkAck(transacted, acknowledgeMode), ActiveMQSession.TYPE_TOPIC_SESSION);
    }
