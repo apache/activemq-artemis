@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.api.core;
 
-/** If {@link Message#getContext()} != null and is implementing this interface.
+/**
  *  These methods will be called during refCount operations */
 public interface RefCountMessageListener {
 

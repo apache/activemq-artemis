@@ -676,7 +676,6 @@ public interface Message {
    /**
     * @see #usageUp()
     * @return
-    * @throws Exception
     */
    int usageDown();
 

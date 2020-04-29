@@ -45,6 +45,12 @@
          <optional>true</optional>
       </dependency>
       <dependency>
+          <groupId>com.google.errorprone</groupId>
+          <artifactId>error_prone_core</artifactId>
+          <scope>provided</scope>
+          <optional>true</optional>
+      </dependency>
+      <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging</artifactId>
       </dependency>

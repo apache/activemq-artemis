@@ -310,8 +310,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * </ul><p>
     *
     * @param queueConfiguration the configuration to use when creating the queue
-    * @return the {@code Queue} instance that was created
-    * @throws Exception
+    * @throws ActiveMQException
     */
    void createQueue(QueueConfiguration queueConfiguration) throws ActiveMQException;
 

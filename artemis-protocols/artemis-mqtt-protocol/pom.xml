@@ -41,6 +41,10 @@
          <artifactId>jboss-logging-annotations</artifactId>
       </dependency>
       <dependency>
+          <groupId>com.google.errorprone</groupId>
+          <artifactId>error_prone_core</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging</artifactId>
       </dependency>
@@ -123,6 +127,13 @@
          <artifactId>awaitility</artifactId>
          <version>4.0.1</version>
          <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>jakarta.annotation</groupId>
+         <artifactId>jakarta.annotation-api</artifactId>
+         <version>1.3.5</version>
+         <scope>test</scope>
+         <type>jar</type>
       </dependency>
    </dependencies>
 

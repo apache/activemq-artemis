@@ -240,7 +240,7 @@ public interface RemotingConnection extends BufferHandler {
 
    /**
     * Sets the client ID associated with this connection
-    * @return
+     * @param cID
     */
    void setClientID(String cID);
 
