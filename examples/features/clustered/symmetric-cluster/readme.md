@@ -31,7 +31,7 @@ Here's the relevant snippet from the broker configuration, which tells the broke
 	   <discovery-group-ref discovery-group-name="my-discovery-group"/>
     </cluster-connection>
 
-In this example we create a symmetric cluster of six live nodes, and we also pair each live node with it's own backup node. (A backup node is not strictly necessary for a symmetric cluster).
+In this example we create a symmetric cluster of six live nodes.
 
 In this example will we will demonstrate this by deploying a JMS topic and Queue on all nodes of the cluster , sending messages to the queue and topic from different nodes, and verifying messages are received correctly by consumers on different nodes.
 
