@@ -2390,6 +2390,30 @@ public interface AuditLogger extends BasicLogger {
    void clearDuplicateIdCache(String user, Object source, Object... args);
 
 
+   static void getChannelName(Object source) {
+      LOGGER.getChannelName(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601511, value = "User {0} is getting channelName property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getChannelName(String user, Object source, Object... args);
+
+   static void getFileContents(Object source) {
+      LOGGER.getFileContents(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601512, value = "User {0} is getting fileContents property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getFileContents(String user, Object source, Object... args);
+
+   static void getFile(Object source) {
+      LOGGER.getFile(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601513, value = "User {0} is getting file property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getFile(String user, Object source, Object... args);
+
    /*
     * This logger is for message production and consumption and is on the hot path so enabled independently
     *

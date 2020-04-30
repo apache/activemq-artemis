@@ -17,76 +17,41 @@
 package org.apache.activemq.artemis.core.management.impl;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.management.JGroupsChannelBroadcastGroupControl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
-public class BroadcastGroupControlImpl extends BaseBroadcastGroupControlImpl implements BroadcastGroupControl {
+public class JGroupsChannelBroadcastGroupControlImpl extends BaseBroadcastGroupControlImpl implements JGroupsChannelBroadcastGroupControl {
 
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
 
-   private UDPBroadcastEndpointFactory endpointFactory;
+   private ChannelBroadcastEndpointFactory endpointFactory;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public BroadcastGroupControlImpl(final BroadcastGroup broadcastGroup,
-                                    final StorageManager storageManager,
-                                    final BroadcastGroupConfiguration configuration,
-                                    final UDPBroadcastEndpointFactory endpointFactory) throws Exception {
-      super(BroadcastGroupControl.class, broadcastGroup, storageManager, configuration);
+   public JGroupsChannelBroadcastGroupControlImpl(final BroadcastGroup broadcastGroup,
+                                                  final StorageManager storageManager,
+                                                  final BroadcastGroupConfiguration configuration,
+                                                  final ChannelBroadcastEndpointFactory endpointFactory) throws Exception {
+      super(JGroupsChannelBroadcastGroupControl.class, broadcastGroup, storageManager, configuration);
       this.endpointFactory = endpointFactory;
    }
 
    // BroadcastGroupControlMBean implementation ---------------------
 
-   //todo ghoward we should deal with this properly
    @Override
-   public String getGroupAddress() throws Exception {
+   public String getChannelName() throws Exception {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.getGroupAddress(this.getBroadcastGroup());
+         AuditLogger.getChannelName(this.endpointFactory.getChannelName());
       }
-      clearIO();
-      try {
-         return endpointFactory.getGroupAddress();
-      } finally {
-         blockOnIO();
-      }
+      return endpointFactory.getChannelName();
    }
-
-   @Override
-   public int getGroupPort() throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.getGroupPort(this.getBroadcastGroup());
-      }
-      clearIO();
-      try {
-         return endpointFactory.getGroupPort();
-      } finally {
-         blockOnIO();
-      }
-   }
-
-   @Override
-   public int getLocalBindPort() throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.getLocalBindPort(this.getBroadcastGroup());
-      }
-      clearIO();
-      try {
-         return endpointFactory.getLocalBindPort();
-      } finally {
-         blockOnIO();
-      }
-   }
-
-   // MessagingComponentControlMBean implementation -----------------
-
 
    // Public --------------------------------------------------------
 
