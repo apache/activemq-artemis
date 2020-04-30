@@ -33,7 +33,8 @@ public class RetryRule implements MethodRule {
 
    private static Logger logger = Logger.getLogger(RetryRule.class);
 
-   int defaultNumberOfRetries;
+   final int defaultNumberOfRetries;
+   final boolean retrySuccess;
 
    public RetryRule() {
       this(0);
@@ -41,6 +42,17 @@ public class RetryRule implements MethodRule {
 
    public RetryRule(int defaultNumberOfRetries) {
       this.defaultNumberOfRetries = defaultNumberOfRetries;
+      this.retrySuccess = false;
+   }
+
+   /**
+    *
+    * @param defaultNumberOfRetries
+    * @param retrySuccess if true, it will keep retrying until it failed or the number of retries have reached an end, opposite rule.
+    */
+   public RetryRule(int defaultNumberOfRetries, boolean retrySuccess) {
+      this.defaultNumberOfRetries = defaultNumberOfRetries;
+      this.retrySuccess = retrySuccess;
    }
 
    private int getNumberOfRetries(final FrameworkMethod method) {
@@ -58,6 +70,28 @@ public class RetryRule implements MethodRule {
 
    @Override
    public Statement apply(final Statement base, final FrameworkMethod method, Object target) {
+      if (retrySuccess) {
+         return retrySuccess(base, method, target);
+      } else {
+         return retryIfFailed(base, method, target);
+      }
+   }
+
+   protected Statement retrySuccess(Statement base, FrameworkMethod method, Object target) {
+      return new Statement() {
+         @Override
+         public void evaluate() throws Throwable {
+            int retries = getNumberOfRetries(method) + 1;
+            for (int i = 0; i < retries; i++) {
+               logger.warn("LOOP " + i);
+               base.evaluate();
+            }
+         }
+      };
+   }
+
+
+   protected Statement retryIfFailed(Statement base, FrameworkMethod method, Object target) {
       return new Statement() {
          @Override
          public void evaluate() throws Throwable {
