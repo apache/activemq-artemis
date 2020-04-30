@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
@@ -196,6 +197,36 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       checkMetric(metrics, "artemis.routed.message.count", "address", addressName, 1.0);
       checkMetric(metrics, "artemis.unrouted.message.count", "address", addressName, 0.0);
       checkMetric(metrics, "artemis.consumer.count", "queue", queueName, 0.0);
+   }
+
+   @Test
+   public void testMessageCountWithPaging() throws Exception {
+      final String data = "Simple Text " + UUID.randomUUID().toString();
+      final String queueName = "simpleQueue";
+      final String addressName = "simpleAddress";
+
+      server.getAddressSettingsRepository().getMatch(addressName).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxSizeBytes(1024 * 10).setPageSizeBytes(1024 * 5);
+
+      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      ClientProducer producer = session.createProducer(addressName);
+      ClientMessage message = session.createMessage(true);
+      message.getBodyBuffer().writeString(data);
+      long messageCount = 0;
+      while (!server.getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+         producer.send(message);
+         messageCount++;
+      }
+
+      Wait.assertEquals(messageCount, server.locateQueue(queueName)::getMessageCount, 2000, 100);
+      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, Double.valueOf(messageCount));
+
+      for (int i = 0; i < messageCount; i++) {
+         producer.send(message);
+      }
+      producer.close();
+
+      Wait.assertEquals(messageCount * 2, server.locateQueue(queueName)::getMessageCount, 2000, 100);
+      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, Double.valueOf(messageCount * 2));
    }
 
    public Map<Meter.Id, Double> getMetrics() {
