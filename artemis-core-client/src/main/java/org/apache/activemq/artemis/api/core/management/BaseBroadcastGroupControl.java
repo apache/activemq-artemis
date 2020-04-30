@@ -19,23 +19,30 @@ package org.apache.activemq.artemis.api.core.management;
 /**
  * A BroadcastGroupControl is used to manage a broadcast group.
  */
-public interface BroadcastGroupControl extends BaseBroadcastGroupControl {
+public interface BaseBroadcastGroupControl extends ActiveMQComponentControl {
 
    /**
-    * Returns the local port this broadcast group is bound to.
+    * Returns the configuration name of this broadcast group.
     */
-   @Attribute(desc = "local port this broadcast group is bound to")
-   int getLocalBindPort() throws Exception;
+   @Attribute(desc = "name of this broadcast group")
+   String getName();
 
    /**
-    * Returns the address this broadcast group is broadcasting to.
+    * Returns the period used by this broadcast group.
     */
-   @Attribute(desc = "address this broadcast group is broadcasting to")
-   String getGroupAddress() throws Exception;
+   @Attribute(desc = "period used by this broadcast group")
+   long getBroadcastPeriod();
 
    /**
-    * Returns the port this broadcast group is broadcasting to.
+    * Returns the pairs of live-backup connectors that are broadcasted by this broadcast group.
     */
-   @Attribute(desc = "port this broadcast group is broadcasting to")
-   int getGroupPort() throws Exception;
+   @Attribute(desc = "pairs of live-backup connectors that are broadcasted by this broadcast group")
+   Object[] getConnectorPairs();
+
+   /**
+    * Returns the pairs of live-backup connectors that are broadcasted by this broadcast group
+    * using JSON serialization.
+    */
+   @Attribute(desc = "pairs of live-backup connectors that are broadcasted by this broadcast group using JSON serialization")
+   String getConnectorPairsAsJSON() throws Exception;
 }
