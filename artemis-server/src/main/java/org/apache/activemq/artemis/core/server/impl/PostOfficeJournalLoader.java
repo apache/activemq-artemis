@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import javax.transaction.xa.Xid;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +24,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.netty.util.collection.LongObjectHashMap;
+import io.netty.util.collection.LongObjectMap;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -45,7 +46,7 @@ import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
-import org.apache.activemq.artemis.core.persistence.impl.journal.AddMessageRecord;
+import org.apache.activemq.artemis.core.persistence.impl.journal.MessageRecordOrderedMap;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.QueueStatusEncoding;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
@@ -195,51 +196,24 @@ public class PostOfficeJournalLoader implements JournalLoader {
    }
 
    @Override
-   public void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception {
-      for (Map.Entry<Long, Map<Long, AddMessageRecord>> entry : queueMap.entrySet()) {
-         long queueID = entry.getKey();
+   public void handleAddMessage(LongObjectHashMap<MessageRecordOrderedMap> queueMap) throws Exception {
+      final Map<Long, Queue> queues = this.queues;
+      for (LongObjectMap.PrimitiveEntry<MessageRecordOrderedMap> entry : queueMap.entries()) {
+         final long queueID = entry.key();
+         final MessageRecordOrderedMap queueRecords = entry.value();
 
-         Map<Long, AddMessageRecord> queueRecords = entry.getValue();
-
-         Queue queue = this.queues.get(queueID);
+         final Queue queue = queues.get(queueID);
 
          if (queue == null) {
-            if (queueRecords.values().size() != 0) {
+            if (!queueRecords.isEmpty()) {
                ActiveMQServerLogger.LOGGER.journalCannotFindQueueForMessage(queueID);
             }
-
             continue;
          }
-
          // Redistribution could install a Redistributor while we are still loading records, what will be an issue with
          // prepared ACKs
          // We make sure te Queue is paused before we reroute values.
-         queue.pause();
-
-         Collection<AddMessageRecord> valueRecords = queueRecords.values();
-
-         long currentTime = System.currentTimeMillis();
-
-         for (AddMessageRecord record : valueRecords) {
-            long scheduledDeliveryTime = record.getScheduledDeliveryTime();
-
-            if (scheduledDeliveryTime != 0 && scheduledDeliveryTime <= currentTime) {
-               scheduledDeliveryTime = 0;
-               record.getMessage().setScheduledDeliveryTime(0L);
-            }
-
-            if (scheduledDeliveryTime != 0) {
-               record.getMessage().setScheduledDeliveryTime(scheduledDeliveryTime);
-            }
-
-            MessageReference ref = postOffice.reload(record.getMessage(), queue, null);
-
-            ref.setDeliveryCount(record.getDeliveryCount());
-
-            if (scheduledDeliveryTime != 0) {
-               record.getMessage().setScheduledDeliveryTime(0L);
-            }
-         }
+         queueRecords.pauseReloadMessages(postOffice, queue, System.currentTimeMillis());
       }
    }
 

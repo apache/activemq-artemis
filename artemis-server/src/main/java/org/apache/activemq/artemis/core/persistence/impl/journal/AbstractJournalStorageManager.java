@@ -29,7 +29,6 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +43,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.transaction.xa.Xid;
 
 import io.netty.buffer.Unpooled;
+import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
@@ -852,8 +852,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
          ArrayList<LargeServerMessage> largeMessages = new ArrayList<>();
 
-         Map<Long, Map<Long, AddMessageRecord>> queueMap = new HashMap<>();
-
          Map<Long, PageSubscription> pageSubscriptions = new HashMap<>();
 
          final long totalSize = records.size();
@@ -877,6 +875,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          } else {
             pools = null;
          }
+         final LongObjectHashMap<MessageRecordOrderedMap> queueMap = new LongObjectHashMap<>(
+            queueInfos == null ? LongObjectHashMap.DEFAULT_CAPACITY : queueInfos.size());
          // This will free up memory sooner while reading the records
          records.clear(record -> {
             try {
@@ -930,26 +930,27 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                      break;
                   }
                   case JournalRecordIds.ADD_REF: {
-                     long messageID = record.id;
+                     final long messageID = record.id;
 
                      RefEncoding encoding = new RefEncoding();
 
                      encoding.decode(buff);
 
-                     Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
+                     final long queueID = encoding.queueID;
 
-                     if (queueMessages == null) {
-                        queueMessages = new LinkedHashMap<>();
-
-                        queueMap.put(encoding.queueID, queueMessages);
-                     }
+                     MessageRecordOrderedMap queueMessages = queueMap.get(queueID);
 
                      Message message = messages.get(messageID);
 
                      if (message == null) {
-                        ActiveMQServerLogger.LOGGER.cannotFindMessage(record.id);
+                        ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
                      } else {
-                        queueMessages.put(messageID, new AddMessageRecord(message));
+                        if (queueMessages == null) {
+                           queueMessages = new MessageRecordOrderedMap();
+
+                           queueMap.put(queueID, queueMessages);
+                        }
+                        queueMessages.addMessage(messageID, message);
                      }
 
                      break;
@@ -961,14 +962,12 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                      encoding.decode(buff);
 
-                     Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
+                     MessageRecordOrderedMap queueMessages = queueMap.get(encoding.queueID);
 
                      if (queueMessages == null) {
                         ActiveMQServerLogger.LOGGER.journalCannotFindQueue(encoding.queueID, messageID);
                      } else {
-                        AddMessageRecord rec = queueMessages.remove(messageID);
-
-                        if (rec == null) {
+                        if (!queueMessages.removeMessage(messageID)) {
                            ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
                         }
                      }
@@ -982,17 +981,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                      encoding.decode(buff);
 
-                     Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
+                     MessageRecordOrderedMap queueMessages = queueMap.get(encoding.queueID);
 
                      if (queueMessages == null) {
                         ActiveMQServerLogger.LOGGER.journalCannotFindQueueDelCount(encoding.queueID);
                      } else {
-                        AddMessageRecord rec = queueMessages.get(messageID);
-
-                        if (rec == null) {
+                        if (!queueMessages.setDeliveryCount(messageID, encoding.count)) {
                            ActiveMQServerLogger.LOGGER.journalCannotFindMessageDelCount(messageID);
-                        } else {
-                           rec.setDeliveryCount(encoding.count);
                         }
                      }
 
@@ -1041,18 +1036,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                      encoding.decode(buff);
 
-                     Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
+                     MessageRecordOrderedMap queueMessages = queueMap.get(encoding.queueID);
 
                      if (queueMessages == null) {
                         ActiveMQServerLogger.LOGGER.journalCannotFindQueueScheduled(encoding.queueID, messageID);
                      } else {
-
-                        AddMessageRecord rec = queueMessages.get(messageID);
-
-                        if (rec == null) {
+                        if (!queueMessages.setScheduledDeliveryTime(messageID, encoding.scheduledDeliveryTime)) {
                            ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
-                        } else {
-                           rec.setScheduledDeliveryTime(encoding.scheduledDeliveryTime);
                         }
                      }
 
