@@ -142,6 +142,15 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
 
       @Override
       public String decode(String secret) throws Exception {
+         /*
+         * using contant value to generate a secrectkey is not secure, 
+         * blowfish is a broken encryption algorithm, we recommend the code patch:
+         * SecureRandom random = new SecureRandom(); 
+         * String defaultKey = String.valueOf(random.nextInt());
+         * byte[] keyBytes = defaultKey.getBytes(); 
+         * keyBytes = Arrays.copyOf(keyBytes,24);
+         * SecretKey key = new SecretKeySpec(keyBytes, "AES");
+         */
          SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
 
          byte[] encoding;
