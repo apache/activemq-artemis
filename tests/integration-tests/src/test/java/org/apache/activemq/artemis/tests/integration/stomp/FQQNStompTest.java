@@ -203,4 +203,57 @@ public class FQQNStompTest extends StompTestBase {
       assertEquals(Stomp.Responses.ERROR, frame.getCommand());
    }
 
+   @Test
+   public void testSendFQQNAutoCreateOnSend() throws Exception {
+      final SimpleString myAddress = SimpleString.toSimpleString("myAddress");
+      final SimpleString q1Name = SimpleString.toSimpleString("q1");
+
+      conn.connect(defUser, defPass);
+      send(conn, myAddress + "\\c\\c" + q1Name, null, "Hello World!");
+
+      assertTrue(Wait.waitFor(() -> server.locateQueue(q1Name) != null, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(q1Name).getMessageCount() == 1, 2000, 100));
+
+      subscribeQueue(conn, "sub-01", myAddress + "\\c\\c" + q1Name);
+      ClientStompFrame frame = conn.receiveFrame(2000);
+      assertNotNull(frame);
+      assertEquals("Hello World!", frame.getBody());
+      assertTrue(Wait.waitFor(() -> server.locateQueue(q1Name).getMessageCount() == 0, 2000, 100));
+
+      unsubscribe(conn, "sub-01");
+   }
+
+   @Test
+   public void testSendFQQNAutoCreateOnSubscribe() throws Exception {
+      final SimpleString myAddress = SimpleString.toSimpleString("myAddress");
+      final SimpleString q1Name = SimpleString.toSimpleString("q1");
+      final SimpleString q2Name = SimpleString.toSimpleString("q2");
+
+      StompClientConnection consumer1Connection = StompClientConnectionFactory.createClientConnection(uri);
+      consumer1Connection.connect(defUser, defPass);
+      subscribeQueue(consumer1Connection, "sub-01", myAddress + "\\c\\c" + q1Name);
+
+      StompClientConnection consumer2Connection = StompClientConnectionFactory.createClientConnection(uri);
+      consumer2Connection.connect(defUser, defPass);
+      subscribeQueue(consumer2Connection, "sub-02", myAddress + "\\c\\c" + q2Name);
+
+      assertTrue(Wait.waitFor(() -> server.locateQueue(q1Name) != null, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(q2Name) != null, 2000, 100));
+
+      StompClientConnection senderConnection = StompClientConnectionFactory.createClientConnection(uri);
+      senderConnection.connect(defUser, defPass);
+      send(senderConnection, myAddress + "\\c\\c" + q1Name, null, "Hello World!", false, RoutingType.ANYCAST);
+
+      assertTrue(Wait.waitFor(() -> server.locateQueue(q1Name).getMessagesAdded() == 1, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(q2Name).getMessagesAdded() == 0, 2000, 100));
+
+      ClientStompFrame frame = consumer1Connection.receiveFrame(2000);
+      assertNotNull(frame);
+      assertEquals("Hello World!", frame.getBody());
+      assertTrue(Wait.waitFor(() -> server.locateQueue(q1Name).getMessageCount() == 0, 4000, 100));
+
+      unsubscribe(consumer1Connection, "sub-01");
+      unsubscribe(consumer2Connection, "sub-02");
+   }
+
 }
