@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
@@ -430,6 +431,41 @@ public class AddressControlTest extends ManagementTestBase {
       assertEquals("test", new String(buffer));
       assertEquals("myValue1", message.getStringProperty("myProp1"));
       assertEquals("myValue2", message.getStringProperty("myProp2"));
+   }
+
+   @Test
+   public void testGetCurrentDuplicateIdCacheSize() throws Exception {
+      internalDuplicateIdTest(false);
+   }
+
+   @Test
+   public void testClearDuplicateIdCache() throws Exception {
+      internalDuplicateIdTest(true);
+   }
+
+   private void internalDuplicateIdTest(boolean clear) throws Exception {
+      server.getConfiguration().setPersistIDCache(false);
+      SimpleString address = RandomUtil.randomSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      Assert.assertEquals(0, addressControl.getQueueNames().length);
+      session.createQueue(address, RoutingType.ANYCAST, address);
+      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      Map<String, String> headers = new HashMap<>();
+      headers.put(Message.HDR_DUPLICATE_DETECTION_ID.toString(), UUID.randomUUID().toString());
+      addressControl.sendMessage(headers, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
+      addressControl.sendMessage(headers, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
+      headers.clear();
+      headers.put(Message.HDR_DUPLICATE_DETECTION_ID.toString(), UUID.randomUUID().toString());
+      addressControl.sendMessage(headers, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
+
+      Wait.assertTrue(() -> addressControl.getCurrentDuplicateIdCacheSize() == 2);
+
+      if (clear) {
+         assertTrue(addressControl.clearDuplicateIdCache());
+         Wait.assertTrue(() -> addressControl.getCurrentDuplicateIdCacheSize() == 0);
+      }
    }
 
    // Package protected ---------------------------------------------

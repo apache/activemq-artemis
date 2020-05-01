@@ -139,6 +139,16 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public long getCurrentDuplicateIdCacheSize() {
+            return (long) proxy.retrieveAttributeValue("currentDuplicateIdCacheSize");
+         }
+
+         @Override
+         public boolean clearDuplicateIdCache() throws Exception {
+            return (boolean) proxy.invokeOperation("clearDuplicateIdCache");
+         }
+
+         @Override
          public String sendMessage(Map<String, String> headers,
                                    int type,
                                    String body,
