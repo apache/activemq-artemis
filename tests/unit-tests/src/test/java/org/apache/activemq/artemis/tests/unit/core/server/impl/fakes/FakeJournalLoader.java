@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 public class FakeJournalLoader implements JournalLoader {
 
    @Override
-   public void handleNoMessageReferences(Map<Long, Message> messages) {
+   public void handleNoMessageReferences(Iterable<Message> messages) {
    }
 
    @Override

@@ -217,8 +217,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
    }
 
    @Override
-   public void handleNoMessageReferences(Map<Long, Message> messages) {
-      for (Message msg : messages.values()) {
+   public void handleNoMessageReferences(Iterable<Message> messages) {
+      for (Message msg : messages) {
          if (msg.getRefCount() == 0 && msg.getDurableCount() == 0) {
             ActiveMQServerLogger.LOGGER.journalUnreferencedMessage(msg.getMessageID());
             try {

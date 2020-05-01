@@ -43,7 +43,7 @@ public interface JournalLoader {
 
    void handleAddMessage(Long2ObjectMap<MessageRecordOrderedMap> queueMap) throws Exception;
 
-   void handleNoMessageReferences(Map<Long, Message> messages);
+   void handleNoMessageReferences(Iterable<Message> messages);
 
    void handleGroupingBindings(List<GroupingInfo> groupingInfos);
 

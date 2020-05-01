@@ -1194,7 +1194,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
             }
          }
 
-         journalLoader.handleNoMessageReferences(messages);
+         journalLoader.handleNoMessageReferences(messages.values());
 
          // To recover positions on Iterators
          if (pagingManager != null) {
