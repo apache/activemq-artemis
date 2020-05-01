@@ -34,8 +34,10 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -44,6 +46,9 @@ import org.junit.Test;
  */
 public class PagingFailoverTest extends FailoverTestBase {
    // Constants -----------------------------------------------------
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    private static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
