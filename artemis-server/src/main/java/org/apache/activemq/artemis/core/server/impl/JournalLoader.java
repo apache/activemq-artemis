@@ -20,7 +20,7 @@ import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Map;
 
-import io.netty.util.collection.LongObjectHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -41,7 +41,7 @@ public interface JournalLoader {
 
    void initAddresses(List<AddressBindingInfo> addressBindingInfo) throws Exception;
 
-   void handleAddMessage(LongObjectHashMap<MessageRecordOrderedMap> queueMap) throws Exception;
+   void handleAddMessage(Long2ObjectMap<MessageRecordOrderedMap> queueMap) throws Exception;
 
    void handleNoMessageReferences(Map<Long, Message> messages);
 

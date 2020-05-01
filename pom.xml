@@ -95,6 +95,7 @@
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <mockito.version>2.25.0</mockito.version>
       <jctools.version>2.1.2</jctools.version>
+      <fastutil.version>8.1.1</fastutil.version>
       <netty.version>4.1.48.Final</netty.version>
 
       <!-- this is basically for tests -->
@@ -505,6 +506,11 @@
             <artifactId>jctools-core</artifactId>
             <version>${jctools.version}</version>
             <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil</artifactId>
+            <version>${fastutil.version}</version>
          </dependency>
          <dependency>
             <groupId>io.netty</groupId>

@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 
-import io.netty.util.collection.LongObjectHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -40,12 +40,12 @@ public final class MessageRecordOrderedMap {
       private int deliveryCount = 0;
    }
 
-   private LongObjectHashMap<AddMessageRecord> records;
-   private final LinkedHashMap<Long, Message> messages;
+   private Long2ObjectMap<AddMessageRecord> records;
+   private final Long2ObjectLinkedOpenHashMap<Message> messages;
 
    public MessageRecordOrderedMap() {
       records = null;
-      messages = new LinkedHashMap<>();
+      messages = new Long2ObjectLinkedOpenHashMap<>();
    }
 
    public void addMessage(long messageID, Message message) {
@@ -67,10 +67,10 @@ public final class MessageRecordOrderedMap {
       if (!messages.containsKey(messageID)) {
          return null;
       }
-      LongObjectHashMap<AddMessageRecord> records = this.records;
+      Long2ObjectMap<AddMessageRecord> records = this.records;
       AddMessageRecord record = null;
       if (records == null) {
-         records = new LongObjectHashMap<>();
+         records = new Long2ObjectOpenHashMap<>();
          this.records = records;
       } else {
          record = records.get(messageID);
@@ -127,15 +127,15 @@ public final class MessageRecordOrderedMap {
       if (currentTimeMillis < 0) {
          throw new IllegalArgumentException("currentTimeMillis cannot be < 0");
       }
-      final LinkedHashMap<Long, Message> messages = this.messages;
+      final Long2ObjectLinkedOpenHashMap<Message> messages = this.messages;
       if (messages.isEmpty()) {
          return;
       }
-      final LongObjectHashMap<AddMessageRecord> records = this.records;
+      final Long2ObjectMap<AddMessageRecord> records = this.records;
       queue.pause();
-      for (Map.Entry<Long, Message> entry : messages.entrySet()) {
+      for (Long2ObjectMap.Entry<Message> entry : messages.long2ObjectEntrySet()) {
          // not using entry.getValue().getMessageID() to save a data dependency from message
-         final long messageID = entry.getKey().longValue();
+         final long messageID = entry.getLongKey();
          final AddMessageRecord record = records == null ? null : records.get(messageID);
          final Message message = entry.getValue();
          final long scheduledDeliveryTime = updateMessageScheduledDeliveryTime(message, record, currentTimeMillis);

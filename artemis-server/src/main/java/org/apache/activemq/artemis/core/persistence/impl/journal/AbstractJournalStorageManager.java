@@ -43,7 +43,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.transaction.xa.Xid;
 
 import io.netty.buffer.Unpooled;
-import io.netty.util.collection.LongObjectHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
@@ -844,7 +845,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       Set<PageTransactionInfo> invalidPageTransactions = new HashSet<>();
 
-      Map<Long, Message> messages = new HashMap<>();
+      Long2ObjectMap<Message> messages = new Long2ObjectOpenHashMap<>();
       readLock();
       try {
 
@@ -875,8 +876,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          } else {
             pools = null;
          }
-         final LongObjectHashMap<MessageRecordOrderedMap> queueMap = new LongObjectHashMap<>(
-            queueInfos == null ? LongObjectHashMap.DEFAULT_CAPACITY : queueInfos.size());
+         final Long2ObjectMap<MessageRecordOrderedMap> queueMap = new Long2ObjectOpenHashMap<>(
+            queueInfos == null ? Long2ObjectOpenHashMap.DEFAULT_INITIAL_SIZE : queueInfos.size());
          // This will free up memory sooner while reading the records
          records.clear(record -> {
             try {

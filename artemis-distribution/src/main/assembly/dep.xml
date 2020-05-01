@@ -83,6 +83,7 @@
             <include>org.jboss.logging:jboss-logging</include>
             <include>org.jboss.slf4j:slf4j-jboss-logmanager</include>
             <include>org.jctools:jctools-core</include>
+            <include>it.unimi.dsi:fastutil</include>
             <include>io.netty:netty-all</include>
             <include>org.apache.qpid:proton-j</include>
             <include>org.apache.activemq:activemq-client</include>

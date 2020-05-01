@@ -24,8 +24,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.netty.util.collection.LongObjectHashMap;
-import io.netty.util.collection.LongObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -196,11 +195,11 @@ public class PostOfficeJournalLoader implements JournalLoader {
    }
 
    @Override
-   public void handleAddMessage(LongObjectHashMap<MessageRecordOrderedMap> queueMap) throws Exception {
+   public void handleAddMessage(Long2ObjectMap<MessageRecordOrderedMap> queueMap) throws Exception {
       final Map<Long, Queue> queues = this.queues;
-      for (LongObjectMap.PrimitiveEntry<MessageRecordOrderedMap> entry : queueMap.entries()) {
-         final long queueID = entry.key();
-         final MessageRecordOrderedMap queueRecords = entry.value();
+      for (Long2ObjectMap.Entry<MessageRecordOrderedMap> entry : queueMap.long2ObjectEntrySet()) {
+         final long queueID = entry.getLongKey();
+         final MessageRecordOrderedMap queueRecords = entry.getValue();
 
          final Queue queue = queues.get(queueID);
 

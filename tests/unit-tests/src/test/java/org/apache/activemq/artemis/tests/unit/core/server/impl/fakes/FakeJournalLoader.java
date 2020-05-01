@@ -20,7 +20,7 @@ import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Map;
 
-import io.netty.util.collection.LongObjectHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -42,7 +42,7 @@ public class FakeJournalLoader implements JournalLoader {
    }
 
    @Override
-   public void handleAddMessage(LongObjectHashMap<MessageRecordOrderedMap> queueMap) throws Exception {
+   public void handleAddMessage(Long2ObjectMap<MessageRecordOrderedMap> queueMap) throws Exception {
    }
 
    @Override
