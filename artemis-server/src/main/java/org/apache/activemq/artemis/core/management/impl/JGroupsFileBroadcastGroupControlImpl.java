@@ -17,76 +17,64 @@
 package org.apache.activemq.artemis.core.management.impl;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.management.JGroupsFileBroadcastGroupControl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
-public class BroadcastGroupControlImpl extends BaseBroadcastGroupControlImpl implements BroadcastGroupControl {
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+public class JGroupsFileBroadcastGroupControlImpl extends BaseBroadcastGroupControlImpl implements JGroupsFileBroadcastGroupControl {
 
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
 
-   private UDPBroadcastEndpointFactory endpointFactory;
+   private JGroupsFileBroadcastEndpointFactory endpointFactory;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public BroadcastGroupControlImpl(final BroadcastGroup broadcastGroup,
-                                    final StorageManager storageManager,
-                                    final BroadcastGroupConfiguration configuration,
-                                    final UDPBroadcastEndpointFactory endpointFactory) throws Exception {
-      super(BroadcastGroupControl.class, broadcastGroup, storageManager, configuration);
+   public JGroupsFileBroadcastGroupControlImpl(final BroadcastGroup broadcastGroup,
+                                               final StorageManager storageManager,
+                                               final BroadcastGroupConfiguration configuration,
+                                               final JGroupsFileBroadcastEndpointFactory endpointFactory) throws Exception {
+      super(JGroupsFileBroadcastGroupControl.class, broadcastGroup, storageManager, configuration);
       this.endpointFactory = endpointFactory;
    }
 
    // BroadcastGroupControlMBean implementation ---------------------
 
-   //todo ghoward we should deal with this properly
    @Override
-   public String getGroupAddress() throws Exception {
+   public String getFileContents() throws Exception {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.getGroupAddress(this.getBroadcastGroup());
+         AuditLogger.getFileContents(this.getBroadcastGroup());
       }
-      clearIO();
-      try {
-         return endpointFactory.getGroupAddress();
-      } finally {
-         blockOnIO();
-      }
+      URL resource = this.getClass().getClassLoader().getResource(this.getFile());
+      File file = new File(resource.getFile());
+      return new String(Files.readAllBytes(Paths.get(file.getPath())));
    }
 
    @Override
-   public int getGroupPort() throws Exception {
+   public String getChannelName() {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.getGroupPort(this.getBroadcastGroup());
+         AuditLogger.getChannelName(this.getBroadcastGroup());
       }
-      clearIO();
-      try {
-         return endpointFactory.getGroupPort();
-      } finally {
-         blockOnIO();
-      }
+      return endpointFactory.getChannelName();
    }
 
    @Override
-   public int getLocalBindPort() throws Exception {
+   public String getFile() {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.getLocalBindPort(this.getBroadcastGroup());
+         AuditLogger.getFile(this.getBroadcastGroup());
       }
-      clearIO();
-      try {
-         return endpointFactory.getLocalBindPort();
-      } finally {
-         blockOnIO();
-      }
+      return endpointFactory.getFile();
    }
-
-   // MessagingComponentControlMBean implementation -----------------
-
 
    // Public --------------------------------------------------------
 
