@@ -78,9 +78,9 @@ infrastructure.
 
 If an AMQP Link is dynamic then a temporary queue will be created and either
 the remote source or remote target address will be set to the name of the
-temporary queue. If the Link is not dynamic then the the address of the remote
-target or source will used for the queue. If this does not exist then it will
-be auto-created if the settings allow.
+temporary queue. If the Link is not dynamic then the address of the remote 
+target or source will be used for the queue. In case it does not exist, 
+it will be auto-created if the settings allow.
 
 ## AMQP and Multicast Addresses (Topics)
 
