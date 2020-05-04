@@ -19,23 +19,11 @@ package org.apache.activemq.artemis.api.core.management;
 /**
  * A BroadcastGroupControl is used to manage a broadcast group.
  */
-public interface BroadcastGroupControl extends BaseBroadcastGroupControl {
+public interface JGroupsChannelBroadcastGroupControl extends BaseBroadcastGroupControl {
 
    /**
-    * Returns the local port this broadcast group is bound to.
+    * Returns the JGroups channel name
     */
-   @Attribute(desc = "local port this broadcast group is bound to")
-   int getLocalBindPort() throws Exception;
-
-   /**
-    * Returns the address this broadcast group is broadcasting to.
-    */
-   @Attribute(desc = "address this broadcast group is broadcasting to")
-   String getGroupAddress() throws Exception;
-
-   /**
-    * Returns the port this broadcast group is broadcasting to.
-    */
-   @Attribute(desc = "port this broadcast group is broadcasting to")
-   int getGroupPort() throws Exception;
+   @Attribute(desc = "Returns the JGroups channel name")
+   String getChannelName() throws Exception;
 }

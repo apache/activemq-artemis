@@ -29,6 +29,8 @@ import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.management.JGroupsChannelBroadcastGroupControl;
+import org.apache.activemq.artemis.api.core.management.JGroupsFileBroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -49,6 +51,16 @@ public class ManagementControlHelper {
    public static BroadcastGroupControl createBroadcastGroupControl(final String name,
                                                                    final MBeanServer mbeanServer) throws Exception {
       return (BroadcastGroupControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getBroadcastGroupObjectName(name), BroadcastGroupControl.class, mbeanServer);
+   }
+
+   public static JGroupsFileBroadcastGroupControl createJgroupsFileBroadcastGroupControl(final String name,
+                                                                   final MBeanServer mbeanServer) throws Exception {
+      return (JGroupsFileBroadcastGroupControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getBroadcastGroupObjectName(name), JGroupsFileBroadcastGroupControl.class, mbeanServer);
+   }
+
+   public static JGroupsChannelBroadcastGroupControl createJgroupsChannelBroadcastGroupControl(final String name,
+                                                                                            final MBeanServer mbeanServer) throws Exception {
+      return (JGroupsChannelBroadcastGroupControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getBroadcastGroupObjectName(name), JGroupsChannelBroadcastGroupControl.class, mbeanServer);
    }
 
    public static BridgeControl createBridgeControl(final String name, final MBeanServer mbeanServer) throws Exception {
