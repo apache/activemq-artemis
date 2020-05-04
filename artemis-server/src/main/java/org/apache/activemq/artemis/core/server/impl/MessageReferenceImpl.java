@@ -114,7 +114,10 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    @Override
    public void onDelivery(Consumer<? super MessageReference> onDelivery) {
-      assert this.onDelivery == null;
+      // I am keeping this commented out as a documentation feature:
+      // a Message reference may eventually be taken back before the connection.run was finished.
+      // as a result it may be possible to have this.onDelivery != null here due to cancellations.
+      // assert this.onDelivery == null;
       this.onDelivery = onDelivery;
    }
 
