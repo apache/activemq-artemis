@@ -569,8 +569,23 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
     */
    @Override
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
+      // we need to mark closed first to make sure no more adds are accepted
+      closed = true;
+
+      // MessageReferences are sent to the Connection executor (Netty Loop)
+      // as a result the returning references have to be done later after they
+      // had their chance to finish and clear the runnable
+      connection.runLater(() -> {
+         try {
+            internalClose(remoteLinkClose);
+         } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+         }
+      });
+   }
+
+   private void internalClose(boolean remoteLinkClose) throws ActiveMQAMQPException {
       try {
-         closed = true;
          protonSession.removeSender(sender);
          sessionSPI.closeSender(brokerConsumer);
          // if this is a link close rather than a connection close or detach, we need to delete
@@ -836,6 +851,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       void resume() {
          connection.runNow(this::deliver);
       }
+
       void deliver() {
 
          // This is discounting some bytes due to Transfer payload
@@ -994,11 +1010,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    }
 
    private static SimpleString createQueueName(boolean useCoreSubscriptionNaming,
-                                         String clientId,
-                                         String pubId,
-                                         boolean shared,
-                                         boolean global,
-                                         boolean isVolatile) {
+                                               String clientId,
+                                               String pubId,
+                                               boolean shared,
+                                               boolean global,
+                                               boolean isVolatile) {
       if (useCoreSubscriptionNaming) {
          final boolean durable = !isVolatile;
          final String subscriptionName = pubId.contains("|") ? pubId.split("\\|")[0] : pubId;
