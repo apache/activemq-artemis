@@ -17,22 +17,25 @@
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
 import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class PlainSASL extends ServerSASLPlain {
 
    private final SecurityStore securityStore;
    private final String securityDomain;
+   private RemotingConnection remotingConnection;
 
-   public PlainSASL(SecurityStore securityStore, String securityDomain) {
+   public PlainSASL(SecurityStore securityStore, String securityDomain, RemotingConnection remotingConnection) {
       this.securityStore = securityStore;
       this.securityDomain = securityDomain;
+      this.remotingConnection = remotingConnection;
    }
 
    @Override
    protected boolean authenticate(String user, String password) {
       if (securityStore.isSecurityEnabled()) {
          try {
-            securityStore.authenticate(user, password, null, securityDomain);
+            securityStore.authenticate(user, password, remotingConnection, securityDomain);
             return true;
          } catch (Exception e) {
             return false;

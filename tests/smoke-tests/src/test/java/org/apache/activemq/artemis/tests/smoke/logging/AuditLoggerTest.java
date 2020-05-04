@@ -14,112 +14,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.management;
+package org.apache.activemq.artemis.tests.smoke.logging;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
-import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.After;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
+import javax.management.MBeanServerConnection;
+import javax.management.MBeanServerInvocationHandler;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.util.HashSet;
+import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.UUID;
-import java.util.logging.LogManager;
 
-// https://issues.apache.org/jira/browse/ARTEMIS-2730 this test needs to be moved as a SmokeTest
-// as it's messing up with logging configurations
-@Ignore
-public class AuditLoggerTest extends ManagementTestBase {
+public class AuditLoggerTest extends SmokeTestBase {
 
-   private static final File auditLog = new File("target/audit.log");
+   private static final File auditLog = new File("target/audit-logging2/log/audit.log");
 
-   private ActiveMQServer server;
-   private Configuration conf;
+   private static final String JMX_SERVER_HOSTNAME = "localhost";
+   private static final int JMX_SERVER_PORT = 10099;
+
+   public static final String SERVER_NAME = "audit-logging2";
+
    protected ClientSession session;
    private ServerLocator locator;
    private ClientSessionFactory sf;
 
-   @Override
    @Before
-   public void setUp() throws Exception {
-      super.setUp();
+   public void before() throws Exception {
+      cleanupData(SERVER_NAME);
+      disableCheckThread();
+      startServer(SERVER_NAME, 0, 30000);
       emptyLogFile();
-
-      TransportConfiguration connectorConfig = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-
-      conf = createDefaultNettyConfig().setJMXManagementEnabled(true).addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
-      conf.setSecurityEnabled(true);
-      SecurityConfiguration securityConfiguration = new SecurityConfiguration();
-      securityConfiguration.addUser("guest", "guest");
-      securityConfiguration.addUser("myUser", "myPass");
-      securityConfiguration.addRole("guest", "guest");
-      securityConfiguration.addRole("myUser", "guest");
-      securityConfiguration.setDefaultUser("guest");
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, securityManager, true));
-      server.start();
-
-      HashSet<Role> role = new HashSet<>();
-      //role guest cannot delete queues
-      role.add(new Role("guest", true, true, true, false, true, false, true, true, true, true));
-      server.getSecurityRepository().addMatch("#", role);
-
-      locator = createInVMNonHALocator().setBlockOnNonDurableSend(true);
+      locator = createNonHALocator(true).setBlockOnNonDurableSend(true);
       sf = createSessionFactory(locator);
       session = sf.createSession("guest", "guest", false, true, false, false, 100);
       session.start();
       addClientSession(session);
-   }
-
-   @After
-   @Override
-   public void tearDown() throws Exception {
-      super.tearDown();
-
-      String originalLoggingConfig = System.getProperty("logging.configuration");
-
-      if (originalLoggingConfig != null) {
-         File file = new File(new URI(originalLoggingConfig));
-         InputStream inputStream = new FileInputStream(file);
-
-         LogManager logManager = LogManager.getLogManager();
-         try {
-            logManager.readConfiguration(inputStream);
-         } catch (IOException e) {
-            System.out.println("error loading logging conifg");
-            e.printStackTrace();
-         }
-
-         inputStream.close();
-      }
    }
 
    private void emptyLogFile() throws Exception {
@@ -132,11 +87,15 @@ public class AuditLoggerTest extends ManagementTestBase {
 
    @Test
    public void testAuditLog() throws Exception {
-      reloadLoggingConfig("audit.logging.properties");
+      JMXConnector jmxConnector = getJmxConnector();
+
+      MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
+      String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
+      ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
       SimpleString address = RandomUtil.randomSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
-      final AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
+      final AddressControl addressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
 
       Assert.assertEquals(0, addressControl.getQueueNames().length);
       session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
@@ -153,62 +112,90 @@ public class AuditLoggerTest extends ManagementTestBase {
       address = RandomUtil.randomSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
-      final AddressControl addressControl2 = ManagementControlHelper.createAddressControl(address, mbeanServer);
+      final AddressControl addressControl2 = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
 
       Assert.assertEquals(1, addressControl.getQueueNames().length);
 
       session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       Wait.waitFor(() -> addressControl2.getQueueNames().length == 1);
 
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(true));
+      Wait.waitFor(() -> addressControl.getMessageCount() == 1);
       try {
          session.deleteQueue(address);
-         fail("Deleting queue should get exception");
+         Assert.fail("Deleting queue should get exception");
       } catch (Exception e) {
          //ignore
       }
 
       checkAuditLogRecord(true, "gets security check failure:", "guest does not have permission='DELETE_NON_DURABLE_QUEUE'");
       //hot patch not in log
-      checkAuditLogRecord(false, "is sending a core message");
+      checkAuditLogRecord(true, "is sending a core message");
    }
 
-   private void reloadLoggingConfig(String logFile) {
-      ClassLoader cl = AuditLoggerTest.class.getClassLoader();
-      InputStream inputStream = cl.getResourceAsStream(logFile);
-      LogManager logManager = LogManager.getLogManager();
-      try {
-         logManager.readConfiguration(inputStream);
-         inputStream.close();
-      } catch (IOException e) {
-         System.out.println("error loading logging conifg");
-         e.printStackTrace();
-      }
+   protected JMXConnector getJmxConnector() throws MalformedURLException {
+      HashMap environment = new HashMap();
+      String[]  credentials = new String[] {"admin", "admin"};
+      environment.put(JMXConnector.CREDENTIALS, credentials);
+      // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
+      System.setProperty("java.rmi.server.hostname", JMX_SERVER_HOSTNAME);
 
+      // I don't specify both ports here manually on purpose. See actual RMI registry connection port extraction below.
+      String urlString = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT + "/jmxrmi";
+
+      JMXServiceURL url = new JMXServiceURL(urlString);
+      JMXConnector jmxConnector = null;
+
+      try {
+         jmxConnector = JMXConnectorFactory.connect(url, environment);
+         System.out.println("Successfully connected to: " + urlString);
+      } catch (Exception e) {
+         jmxConnector = null;
+         e.printStackTrace();
+         Assert.fail(e.getMessage());
+      }
+      return jmxConnector;
    }
 
    @Test
    public void testAuditHotLog() throws Exception {
-      reloadLoggingConfig("audit.logging.hot.properties");
+      JMXConnector jmxConnector = getJmxConnector();
+      MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
+      String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
+      ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
       SimpleString address = RandomUtil.randomSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
-      final AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
+      final AddressControl addressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
 
       Assert.assertEquals(0, addressControl.getQueueNames().length);
       session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
       Assert.assertEquals(1, addressControl.getQueueNames().length);
       String uniqueStr = Base64.encodeBytes(UUID.randomUUID().toString().getBytes());
-      addressControl.sendMessage(null, Message.BYTES_TYPE, uniqueStr, false, null, null);
 
-      Wait.waitFor(() -> addressControl.getMessageCount() == 1);
-      Assert.assertEquals(1, addressControl.getMessageCount());
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(true));
+      producer.send(session.createMessage(true));
+     // addressControl.sendMessage(null, Message.BYTES_TYPE, uniqueStr, false, null, null);
+
+      Wait.waitFor(() -> addressControl.getMessageCount() == 2);
+      Assert.assertEquals(2, addressControl.getMessageCount());
 
       checkAuditLogRecord(true, "sending a core message");
+
+      ClientConsumer consumer = session.createConsumer(address);
+      session.start();
+      ClientMessage clientMessage = consumer.receiveImmediate();
+      Assert.assertNotNull(clientMessage);
+      clientMessage = consumer.receiveImmediate();
+      Assert.assertNotNull(clientMessage);
+      checkAuditLogRecord(true, "is consuming a message from");
    }
 
    //check the audit log has a line that contains all the values
    private void checkAuditLogRecord(boolean exist, String... values) throws Exception {
-      assertTrue(auditLog.exists());
+      Assert.assertTrue(auditLog.exists());
       boolean hasRecord = false;
       try (BufferedReader reader = new BufferedReader(new FileReader(auditLog))) {
          String line = reader.readLine();
@@ -230,9 +217,9 @@ public class AuditLoggerTest extends ManagementTestBase {
             line = reader.readLine();
          }
          if (exist) {
-            assertTrue(hasRecord);
+            Assert.assertTrue(hasRecord);
          } else {
-            assertFalse(hasRecord);
+            Assert.assertFalse(hasRecord);
          }
       }
    }

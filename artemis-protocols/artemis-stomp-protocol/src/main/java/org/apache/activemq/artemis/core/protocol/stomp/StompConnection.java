@@ -115,6 +115,7 @@ public final class StompConnection implements RemotingConnection {
    private final ScheduledExecutorService scheduledExecutorService;
 
    private final ExecutorFactory executorFactory;
+   private Subject subject;
 
    @Override
    public boolean isSupportReconnect() {
@@ -853,6 +854,16 @@ public final class StompConnection implements RemotingConnection {
    @Override
    public boolean isSupportsFlowControl() {
       return false;
+   }
+
+   @Override
+   public void setAuditSubject(Subject subject) {
+      this.subject = subject;
+   }
+
+   @Override
+   public Subject getAuditSubject() {
+      return subject;
    }
 
    @Override

@@ -393,6 +393,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    @Override
+   public String getRemoteAddress() {
+      return connectionCallback.getTransportConnection().getRemoteAddress();
+   }
+
+   @Override
    public void onRemoteOpen(Connection connection) throws Exception {
       handler.requireHandler();
       try {

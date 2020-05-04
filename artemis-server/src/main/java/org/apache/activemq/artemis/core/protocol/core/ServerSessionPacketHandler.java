@@ -95,6 +95,7 @@ import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.SimpleFuture;
@@ -263,6 +264,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    private void onMessagePacket(final Packet packet) {
       if (logger.isTraceEnabled()) {
          logger.trace("ServerSessionPacketHandler::handlePacket," + packet);
+      }
+      if (AuditLogger.isAnyLoggingEnabled()) {
+         AuditLogger.setRemoteAddress(remotingConnection.getRemoteAddress());
+         AuditLogger.setCurrentCaller(remotingConnection.getAuditSubject());
       }
       final byte type = packet.getType();
       switch (type) {

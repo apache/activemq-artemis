@@ -182,6 +182,16 @@ public class ManagementRemotingConnection implements RemotingConnection {
    }
 
    @Override
+   public void setAuditSubject(Subject subject) {
+
+   }
+
+   @Override
+   public Subject getAuditSubject() {
+      return null;
+   }
+
+   @Override
    public Subject getSubject() {
       return null;
    }

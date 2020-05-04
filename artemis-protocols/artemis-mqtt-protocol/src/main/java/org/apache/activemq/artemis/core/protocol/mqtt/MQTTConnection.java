@@ -52,6 +52,7 @@ public class MQTTConnection implements RemotingConnection {
    private final List<FailureListener> failureListeners = new CopyOnWriteArrayList<>();
 
    private final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();
+   private Subject subject;
 
    public MQTTConnection(Connection transportConnection) throws Exception {
       this.transportConnection = transportConnection;
@@ -256,6 +257,16 @@ public class MQTTConnection implements RemotingConnection {
    @Override
    public boolean isSupportsFlowControl() {
       return false;
+   }
+
+   @Override
+   public void setAuditSubject(Subject subject) {
+      this.subject = subject;
+   }
+
+   @Override
+   public Subject getAuditSubject() {
+      return subject;
    }
 
    @Override

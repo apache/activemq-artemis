@@ -21,7 +21,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 import javax.security.cert.X509Certificate;
 import java.io.IOException;
 import java.security.Principal;
@@ -35,7 +34,7 @@ import org.jboss.logging.Logger;
 /**
  * A LoginModule that propagates TLS certificates subject DN as a UserPrincipal.
  */
-public class ExternalCertificateLoginModule implements LoginModule {
+public class ExternalCertificateLoginModule implements AuditLoginModule {
 
    private static final Logger logger = Logger.getLogger(ExternalCertificateLoginModule.class);
 
@@ -90,6 +89,7 @@ public class ExternalCertificateLoginModule implements LoginModule {
 
    @Override
    public boolean abort() throws LoginException {
+      registerFailureForAudit(userName);
       clear();
       logger.debug("abort");
       return true;
