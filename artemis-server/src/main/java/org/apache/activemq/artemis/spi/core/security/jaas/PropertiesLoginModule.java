@@ -24,7 +24,6 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
@@ -36,7 +35,7 @@ import org.apache.activemq.artemis.utils.HashProcessor;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.jboss.logging.Logger;
 
-public class PropertiesLoginModule extends PropertiesLoader implements LoginModule {
+public class PropertiesLoginModule extends PropertiesLoader implements AuditLoginModule {
 
    private static final Logger logger = Logger.getLogger(PropertiesLoginModule.class);
 
@@ -144,6 +143,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
 
    @Override
    public boolean abort() throws LoginException {
+      registerFailureForAudit(user);
       clear();
 
       if (debug) {

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import org.apache.activemq.artemis.logs.AuditLogger;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -57,6 +59,16 @@ public class ArtemisMBeanServerBuilder extends MBeanServerBuilder {
 
       @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+         //if this is invoked via jolokia the address will be set by the filter
+         //if not we can deduct it from RMI or it must be internal
+         if (AuditLogger.isAnyLoggingEnabled() && AuditLogger.getRemoteAddress() == null) {
+            String name = Thread.currentThread().getName();
+            String url = "internal";
+            if (name.startsWith("RMI TCP Connection")) {
+               url = name.substring(name.indexOf('-') + 1);
+            }
+            AuditLogger.setRemoteAddress(url);
+         }
          if (guarded.contains(method.getName())) {
             if (ArtemisMBeanServerBuilder.guard == null) {
                throw new IllegalStateException("ArtemisMBeanServerBuilder not initialized");

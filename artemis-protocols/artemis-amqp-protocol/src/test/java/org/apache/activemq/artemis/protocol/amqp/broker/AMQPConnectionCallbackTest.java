@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.GSSAPIServerSASL;
@@ -32,7 +33,7 @@ public class AMQPConnectionCallbackTest {
    public void getServerSASLOnlyAllowedMechs() throws Exception {
       ProtonProtocolManager protonProtocolManager = new ProtonProtocolManager(new ProtonProtocolManagerFactory(), null, null, null);
       protonProtocolManager.setSaslMechanisms(new String[]{PlainSASL.NAME});
-      AMQPConnectionCallback connectionCallback = new AMQPConnectionCallback(protonProtocolManager, null, null, new ActiveMQServerImpl());
+      AMQPConnectionCallback connectionCallback = new AMQPConnectionCallback(protonProtocolManager, new InVMConnection(1, null, null, null), null, new ActiveMQServerImpl());
       assertEquals(1, connectionCallback.getSaslMechanisms().length);
       for (String mech: connectionCallback.getSaslMechanisms()) {
          assertNotNull(connectionCallback.getServerSASL(mech));

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import org.apache.activemq.artemis.logs.AuditLogger;
+
 import javax.management.remote.JMXAuthenticator;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -41,8 +43,9 @@ public class JaasAuthenticator implements JMXAuthenticator {
 
    @Override
    public Subject authenticate(final Object credentials) throws SecurityException {
+
+      Subject subject = new Subject();
       try {
-         Subject subject = new Subject();
 
          LoginContext loginContext = new LoginContext(realm, subject, new CallbackHandler() {
             @Override
@@ -70,8 +73,14 @@ public class JaasAuthenticator implements JMXAuthenticator {
             }
          });
          loginContext.login();
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.userSuccesfullyLoggedInAudit(subject);
+         }
          return subject;
       } catch (LoginException e) {
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.userFailedLoggedInAudit(subject, e.getMessage());
+         }
          throw new SecurityException("Authentication failed", e);
       }
    }

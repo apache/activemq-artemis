@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
@@ -193,7 +194,20 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager4 {
          } else {
             lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, remotingConnection), configuration);
          }
-         lc.login();
+         try {
+            lc.login();
+            if (AuditLogger.isAnyLoggingEnabled() && remotingConnection != null) {
+               remotingConnection.setAuditSubject(lc.getSubject());
+            }
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.userSuccesfullyLoggedInAudit(lc.getSubject());
+            }
+         } catch (LoginException e) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.userFailedLoggedInAudit(lc.getSubject(), e.getMessage());
+            }
+            throw e;
+         }
          return lc.getSubject();
       } finally {
          if (thisLoader != currentLoader) {

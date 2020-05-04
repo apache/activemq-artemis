@@ -24,7 +24,6 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
@@ -35,7 +34,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.jboss.logging.Logger;
 
-public class InVMLoginModule implements LoginModule {
+public class InVMLoginModule implements AuditLoginModule {
 
    private static final Logger logger = Logger.getLogger(InVMLoginModule.class);
 
@@ -126,6 +125,7 @@ public class InVMLoginModule implements LoginModule {
 
    @Override
    public boolean abort() throws LoginException {
+      registerFailureForAudit(user);
       clear();
 
       logger.debug("abort");

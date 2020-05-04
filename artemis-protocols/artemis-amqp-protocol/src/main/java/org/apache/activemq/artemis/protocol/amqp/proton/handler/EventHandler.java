@@ -91,4 +91,7 @@ public interface EventHandler {
       return true;
    }
 
+   default String getRemoteAddress() {
+      return "";
+   }
 }
