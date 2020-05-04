@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -158,6 +159,9 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       message.getBodyBuffer().writeString(data);
       producer.send(message);
       producer.close();
+
+      Queue queue = server.locateQueue(queueName);
+      Wait.assertEquals(1, queue::getMessageCount);
 
       Map<Meter.Id, Double> metrics = getMetrics();
 
