@@ -128,6 +128,45 @@ message for later delivery:
 If both annotations are present in the same message then the broker will prefer
 the more specific `x-opt-delivery-time` value.
 
+## DLQ and Expiry transfer
+
+AMQP Messages will be copied before transferred to a DLQ or ExpiryQueue and will receive properties and annotations during this process.
+
+The broker also keeps an internal only property (called extra property) that is not exposed to the clients, and those will also be filled during this process.
+
+Here is a list of Annotations and Property names AMQP Messages will receive when transferred:
+
+|Annotation name| Internal Property Name|Description|
+|---------------|-----------------------|-----------|
+|x-opt-ORIG-MESSAGE-ID|_AMQ_ORIG_MESSAGE_ID|The original message ID before the transfer|
+|x-opt-ACTUAL-EXPIRY|_AMQ_ACTUAL_EXPIRY|When the expiry took place. Milliseconds since epoch times|
+|x-opt-ORIG-QUEUE|_AMQ_ORIG_QUEUE|The original queue name before the transfer|
+|x-opt-ORIG-ADDRESS|_AMQ_ORIG_ADDRESS|The original address name before the transfer|
+
+## Filtering on Message Annotations
+
+It is possible to filter on messaging annotations if you use the prefix "m." before the annotation name.
+
+For example if you want to filter messages sent to a specific destination, you could create your filter accordingly to this:
+
+```java
+ConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:5672");
+Connection connection = factory.createConnection();
+Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+connection.start();
+javax.jms.Queue queue = session.createQueue("my-DLQ");
+MessageConsumer consumer = session.createConsumer(queue, "\"m.x-opt-ORIG-ADDRESS\"='ORIGINAL_PLACE'");
+Message message = consumer.receive();
+```
+
+The broker will set internal properties. If you intend to filter after DLQ or Expiry you may choose the internal property names:
+
+```java
+// Replace the consumer creation on the previous example:
+MessageConsumer consumer = session.createConsumer(queue, "_AMQ_ORIG_ADDRESS='ORIGINAL_PLACE'");
+```
+
+
 ## Configuring AMQP Idle Timeout
 
 It is possible to configure the AMQP Server's IDLE Timeout by setting the property amqpIdleTimeout in milliseconds on the acceptor.

@@ -16,10 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -168,9 +176,19 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection = addConnection(client.connect());
       session = connection.createSession();
 
-      AmqpReceiver receiverDLQ = session.createReceiver(getDeadLetterAddress(), "_AMQ_ORIG_ADDRESS='" + getQueueName() + "'");
+      AmqpReceiver receiverDLQ = session.createReceiver(getDeadLetterAddress(), "\"m.x-opt-ORIG-ADDRESS\"='" + getQueueName() + "'");
       receiverDLQ.flow(1);
       received = receiverDLQ.receive(5, TimeUnit.SECONDS);
+      Assert.assertNotNull(received);
+      Assert.assertEquals(getQueueName(), received.getMessageAnnotation("x-opt-ORIG-ADDRESS"));
+      // close without accepting on purpose, it will issue a redelivery on the second filter
+      receiverDLQ.close();
+
+      // Redo the selection, however now using the extra-properties, since the broker will store these as extra properties on AMQP Messages
+      receiverDLQ = session.createReceiver(getDeadLetterAddress(), "_AMQ_ORIG_ADDRESS='" + getQueueName() + "'");
+      receiverDLQ.flow(1);
+      received = receiverDLQ.receive(5, TimeUnit.SECONDS);
+      Assert.assertEquals(getQueueName(), received.getMessageAnnotation("x-opt-ORIG-ADDRESS"));
       Assert.assertNotNull(received);
       received.accept();
 
@@ -180,6 +198,44 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       assertEquals("Value1", received.getApplicationProperty("key1"));
 
       connection.close();
+   }
+
+   /** This test is validating a broker feature where the message copy through the DLQ will receive an annotation.
+    *  It is also testing filter on that annotation. */
+   @Test(timeout = 60000)
+   public void testExpiryQpidJMS() throws Exception {
+      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", getBrokerAmqpConnectionURI().toString());
+      Connection connection = factory.createConnection();
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(getQueueName());
+         MessageProducer sender = session.createProducer(queue);
+
+         // Get the Queue View early to avoid racing the delivery.
+         final Queue queueView = getProxyToQueue(getQueueName());
+         assertNotNull(queueView);
+
+         sender.setTimeToLive(1);
+         TextMessage message = session.createTextMessage("Test-Message");
+         message.setStringProperty("key1", "Value1");
+         sender.send(message);
+         sender.close();
+
+         Wait.assertEquals(1, queueView::getMessagesExpired);
+         final Queue dlqView = getProxyToQueue(getDeadLetterAddress());
+         assertNotNull(dlqView);
+         Wait.assertEquals(1, dlqView::getMessageCount);
+
+         connection.start();
+         javax.jms.Queue queueDLQ = session.createQueue(getDeadLetterAddress());
+         MessageConsumer receiverDLQ = session.createConsumer(queueDLQ, "\"m.x-opt-ORIG-ADDRESS\"='" + getQueueName() + "'");
+         Message received = receiverDLQ.receive(5000);
+         Assert.assertNotNull(received);
+         receiverDLQ.close();
+      } finally {
+         connection.close();
+      }
+
    }
 
    @Test(timeout = 60000)
@@ -261,14 +317,12 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpMessage message = new AmqpMessage();
       message.setAbsoluteExpiryTime(0);
       // AET should override any TTL set
-      message.setTimeToLive(1000);
+      message.setTimeToLive(100);
       message.setText("Test-Message");
       sender.send(message);
       sender.close();
 
-      Wait.assertEquals(1, queueView::getMessageCount);
-
-      Thread.sleep(1000);
+      Wait.assertEquals(1L, queueView::getMessagesExpired, 10000, 10);
 
       // Now try and get the message
       AmqpReceiver receiver = session.createReceiver(getQueueName());
@@ -426,7 +480,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
          message = receiver.receive(5, TimeUnit.SECONDS);
          assertNotNull(message);
-         assertEquals(getQueueName(), message.getMessageAnnotation(org.apache.activemq.artemis.api.core.Message.HDR_ORIGINAL_ADDRESS.toString()));
+         assertEquals(getQueueName(), message.getMessageAnnotation("x-opt-ORIG-QUEUE"));
          assertNull(message.getDeliveryAnnotation("shouldDisappear"));
          assertNull(receiver.receiveNoWait());
       } finally {

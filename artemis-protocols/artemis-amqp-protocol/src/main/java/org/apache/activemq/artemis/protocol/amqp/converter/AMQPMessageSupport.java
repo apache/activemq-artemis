@@ -35,6 +35,7 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -62,6 +63,9 @@ import org.jboss.logging.Logger;
 public final class AMQPMessageSupport {
 
    private static final Logger logger = Logger.getLogger(AMQPMessageSupport.class);
+
+
+   public static SimpleString HDR_ORIGINAL_ADDRESS_ANNOTATION = SimpleString.toSimpleString("x-opt-ORIG-ADDRESS");
 
    public static final String JMS_REPLY_TO_TYPE_MSG_ANNOTATION_SYMBOL_NAME = "x-opt-jms-reply-to";
 
@@ -178,6 +182,9 @@ public final class AMQPMessageSupport {
    public static final Binary EMPTY_BINARY = new Binary(new byte[0]);
    public static final Data EMPTY_BODY = new Data(EMPTY_BINARY);
 
+   public static final String X_OPT_PREFIX = "x-opt-";
+   public static final String AMQ_PROPERTY_PREFIX = "_AMQ_";
+
    public static final short AMQP_UNKNOWN = 0;
    public static final short AMQP_NULL = 1;
    public static final short AMQP_DATA = 2;
@@ -284,6 +291,18 @@ public final class AMQPMessageSupport {
          return null;
       }
    }
+
+   public static String toAnnotationName(String key) {
+      if (!key.startsWith(X_OPT_PREFIX.toString())) {
+         if (key.startsWith(AMQ_PROPERTY_PREFIX)) {
+            return X_OPT_PREFIX.concat(key.substring(AMQ_PROPERTY_PREFIX.length()).replace('_', '-'));
+         }
+
+         return key;
+      }
+      return  key;
+   }
+
 
    public static String toAddress(Destination destination) {
       try {
