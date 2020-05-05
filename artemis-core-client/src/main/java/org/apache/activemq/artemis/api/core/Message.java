@@ -463,24 +463,24 @@ public interface Message {
    }
 
    default void referenceOriginalMessage(final Message original, String originalQueue) {
-      String queueOnMessage = original.getAnnotationString(Message.HDR_ORIGINAL_QUEUE);
+      Object queueOnMessage = original.getBrokerProperty(Message.HDR_ORIGINAL_QUEUE);
 
       if (queueOnMessage != null) {
-         setAnnotation(Message.HDR_ORIGINAL_QUEUE, queueOnMessage);
+         setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, queueOnMessage);
       } else if (originalQueue != null) {
-         setAnnotation(Message.HDR_ORIGINAL_QUEUE, originalQueue);
+         setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
       }
 
-      Object originalID = original.getAnnotation(Message.HDR_ORIG_MESSAGE_ID);
+      Object originalID = original.getBrokerProperty(Message.HDR_ORIG_MESSAGE_ID);
 
       if (originalID != null) {
-         setAnnotation(Message.HDR_ORIGINAL_ADDRESS, original.getAnnotationString(Message.HDR_ORIGINAL_ADDRESS));
+         setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getBrokerProperty(Message.HDR_ORIGINAL_ADDRESS));
 
-         setAnnotation(Message.HDR_ORIG_MESSAGE_ID, originalID);
+         setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, originalID);
       } else {
-         setAnnotation(Message.HDR_ORIGINAL_ADDRESS, original.getAddress());
+         setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getAddress());
 
-         setAnnotation(Message.HDR_ORIG_MESSAGE_ID, original.getMessageID());
+         setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, original.getMessageID());
       }
 
       // reset expiry
@@ -639,6 +639,17 @@ public interface Message {
    default Message setAnnotation(SimpleString key, Object value) {
       putObjectProperty(key, value);
       return this;
+   }
+
+   /** To be called by the broker on ocasions such as DLQ and expiry.
+    * When the broker is adding additional properties. */
+   default Message setBrokerProperty(SimpleString key, Object value) {
+      putObjectProperty(key, value);
+      return this;
+   }
+
+   default Object getBrokerProperty(SimpleString key) {
+      return getObjectProperty(key);
    }
 
    Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException;

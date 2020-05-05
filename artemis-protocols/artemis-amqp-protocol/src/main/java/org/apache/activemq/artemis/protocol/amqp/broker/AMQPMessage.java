@@ -104,6 +104,8 @@ import org.jboss.logging.Logger;
  */
 public abstract class AMQPMessage extends RefCountMessage implements org.apache.activemq.artemis.api.core.Message {
 
+   private static final SimpleString ANNOTATION_AREA_PREFIX = SimpleString.toSimpleString("m.");
+
    protected static final Logger logger = Logger.getLogger(AMQPMessage.class);
 
    public static final SimpleString ADDRESS_PROPERTY = SimpleString.toSimpleString("_AMQ_AD");
@@ -275,14 +277,18 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public Object getObjectPropertyForFilter(SimpleString key) {
-      Object value = getObjectProperty(key);
-      if (value == null) {
-         value = getMessageAnnotation(key.toString());
-      }
-      if (value == null) {
-         value = getExtraBytesProperty(key);
+      if (key.startsWith(ANNOTATION_AREA_PREFIX)) {
+         key = key.subSeq(ANNOTATION_AREA_PREFIX.length(), key.length());
+         return getAnnotation(key);
       }
 
+      Object value = getObjectProperty(key);
+      if (value == null) {
+         TypedProperties extra = getExtraProperties();
+         if (extra != null) {
+            value = extra.getProperty(key);
+         }
+      }
       return value;
    }
 
@@ -498,6 +504,9 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    protected void setMessageAnnotation(Symbol annotation, Object value) {
+      if (value instanceof SimpleString) {
+         value = value.toString();
+      }
       getMessageAnnotationsMap(true).put(annotation, value);
    }
 
@@ -1277,6 +1286,25 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       setMessageAnnotation(key.toString(), value);
       return this;
    }
+
+
+   @Override
+   public org.apache.activemq.artemis.api.core.Message setBrokerProperty(SimpleString key, Object value) {
+      // Annotation names have to start with x-opt
+      setMessageAnnotation(AMQPMessageSupport.toAnnotationName(key.toString()), value);
+      createExtraProperties().putProperty(key, value);
+      return this;
+   }
+
+   @Override
+   public Object getBrokerProperty(SimpleString key) {
+      TypedProperties extra = getExtraProperties();
+      if (extra == null) {
+         return null;
+      }
+      return extra.getProperty(key);
+   }
+
 
    // JMS Style property access methods.  These can result in additional decode of AMQP message
    // data from Application properties.  Updates to application properties puts the message in a
