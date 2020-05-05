@@ -242,7 +242,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
                   if (entry.getKey().getDivert().getForwardAddress().equals(queue.getAddress())) {
                      final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(binding.getAddress());
                      //check if the queue has been tracked by this divert and if so remove the consumer
-                     if (entry.getValue().remove(queue)) {
+                     if (entry.getValue().remove(queue.getAddress())) {
                         removeRemoteConsumer(getKey(addressInfo));
                      }
                   }
