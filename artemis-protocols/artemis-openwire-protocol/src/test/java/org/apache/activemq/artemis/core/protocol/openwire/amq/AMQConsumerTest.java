@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.ConsumerInfo;
 import org.junit.Assert;
@@ -63,7 +64,7 @@ public class AMQConsumerTest {
       Mockito.when(session.getConnection()).thenReturn(Mockito.mock(OpenWireConnection.class));
       Mockito.when(session.getCoreServer()).thenReturn(Mockito.mock(ActiveMQServer.class));
       Mockito.when(session.getCoreSession()).thenReturn(coreSession);
-      Mockito.when(session.convertWildcard(ArgumentMatchers.any(String.class))).thenReturn("");
+      Mockito.when(session.convertWildcard(ArgumentMatchers.any(ActiveMQDestination.class))).thenReturn("");
 
       ConsumerInfo info = new ConsumerInfo();
       info.setPrefetchSize(prefetchSize);
