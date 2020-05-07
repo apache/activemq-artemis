@@ -183,7 +183,12 @@ public class AMQSession implements SessionCallback {
          }
          if (openWireDest.isQueue()) {
             openWireDest = protocolManager.virtualTopicConsumerToFQQN(openWireDest);
-            SimpleString queueName = new SimpleString(convertWildcard(openWireDest.getPhysicalName()));
+            SimpleString queueName;
+            if (!openWireDest.isTemporary()) {
+               queueName = new SimpleString(convertWildcard(openWireDest.getPhysicalName()));
+            } else {
+               queueName = new SimpleString(openWireDest.getPhysicalName());
+            }
 
             if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary())) {
                throw new InvalidDestinationException("Destination doesn't exist: " + queueName);
