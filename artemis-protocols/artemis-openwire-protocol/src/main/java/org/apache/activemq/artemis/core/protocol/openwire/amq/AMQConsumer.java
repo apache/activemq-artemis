@@ -139,7 +139,13 @@ public class AMQConsumer {
          }
       }
 
-      SimpleString destinationName = new SimpleString(session.convertWildcard(openwireDestination.getPhysicalName()));
+      SimpleString destinationName;
+      if (openwireDestination.isTemporary()) {
+         destinationName = new SimpleString(openwireDestination.getPhysicalName());
+      } else {
+         destinationName = new SimpleString(session.convertWildcard(openwireDestination.getPhysicalName()));
+      }
+
       if (openwireDestination.isTopic()) {
          SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), destinationName.toString(), info.getSubscriptionName(), selector, destinationName);
 
