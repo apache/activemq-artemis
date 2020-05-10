@@ -28,6 +28,7 @@ import javax.jms.Topic;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
@@ -157,10 +158,16 @@ public class SoakPagingTest extends SmokeTestBase {
          }
 
          System.out.println("Awaiting producers...");
-         producersLatch.await();
+         if (!producersLatch.await(30000, TimeUnit.MILLISECONDS)) {
+            System.err.println("Awaiting producers timeout");
+            System.exit(0);
+         }
 
          System.out.println("Awaiting consumers...");
-         consumersLatch.await();
+         if (!consumersLatch.await(30000, TimeUnit.MILLISECONDS)) {
+            System.err.println("Awaiting consumers timeout");
+            System.exit(0);
+         }
 
          System.out.println("Awaiting timeout...");
          Thread.sleep(time);
