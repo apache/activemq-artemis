@@ -28,19 +28,25 @@ import javax.jms.Topic;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class SoakPagingTest extends SmokeTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(1);
 
    public static final int LAG_CONSUMER_TIME = 1000;
    public static final int TIME_RUNNING = 4000;
@@ -157,10 +163,16 @@ public class SoakPagingTest extends SmokeTestBase {
          }
 
          System.out.println("Awaiting producers...");
-         producersLatch.await();
+         if (!producersLatch.await(30000, TimeUnit.MILLISECONDS)) {
+            System.err.println("Awaiting producers timeout");
+            System.exit(0);
+         }
 
          System.out.println("Awaiting consumers...");
-         consumersLatch.await();
+         if (!consumersLatch.await(30000, TimeUnit.MILLISECONDS)) {
+            System.err.println("Awaiting consumers timeout");
+            System.exit(0);
+         }
 
          System.out.println("Awaiting timeout...");
          Thread.sleep(time);
