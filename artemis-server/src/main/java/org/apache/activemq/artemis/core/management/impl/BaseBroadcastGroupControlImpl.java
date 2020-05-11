@@ -42,6 +42,12 @@ public class BaseBroadcastGroupControlImpl extends AbstractControl implements Ba
 
    // Constructors --------------------------------------------------
 
+   public BaseBroadcastGroupControlImpl(final BroadcastGroup broadcastGroup,
+                                        final StorageManager storageManager,
+                                        final BroadcastGroupConfiguration configuration) throws Exception {
+      this(BaseBroadcastGroupControl.class, broadcastGroup, storageManager, configuration);
+   }
+
    public BaseBroadcastGroupControlImpl(final Class broadcastGroupControlClass,
                                         final BroadcastGroup broadcastGroup,
                                         final StorageManager storageManager,
