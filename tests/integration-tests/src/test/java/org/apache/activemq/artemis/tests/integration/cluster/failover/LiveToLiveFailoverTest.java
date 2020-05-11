@@ -32,8 +32,10 @@ import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -191,7 +193,6 @@ public class LiveToLiveFailoverTest extends FailoverTest {
     *       Ignoring the test for now until we can fix it.
     * @throws Exception
     */
-   @Ignore
    @Test
    public void scaleDownDelay() throws Exception {
       createSessionFactory();
@@ -206,6 +207,11 @@ public class LiveToLiveFailoverTest extends FailoverTest {
       sendMessages(session, producer, 1000);
 
       crash(session);
+
+      // Wait for failover to happen
+      Queue serverQueue = backupServer.getServer().locateQueue(ADDRESS);
+
+      Wait.assertEquals(1000, serverQueue::getMessageCount);
 
       ClientConsumer consumer = session.createConsumer(ADDRESS);
 
