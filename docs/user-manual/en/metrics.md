@@ -86,15 +86,19 @@ JVM memory metrics are exported as well.
 
 ## Configuration
 
-In `broker.xml` use the `metrics-plugin` element and specify the `class-name`
-attribute to configure your plugin, e.g.:
+All metrics are enabled by default. If you want to disable metrics for a
+particular address or set of addresses you can do so by setting the
+`enable-metrics` `address-setting` to `false`.
+
+To configure the plugin itself use the `metrics-plugin` element in `broker.xml`
+and specify the `class-name` attribute, e.g.:
 
 ```xml
 <metrics-plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.LoggingMetricsPlugin" />
 ```
 
-As noted, the plugin can also be configured with key/value properties in order
-to customize its behavior as necessary, e.g.:
+The plugin can also be configured with key/value properties in order to
+customize the implementation as necessary, e.g.:
 
 ```xml
 <metrics-plugin class-name="org.example.MyMetricsPlugin">

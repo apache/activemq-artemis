@@ -291,6 +291,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String RETROACTIVE_MESSAGE_COUNT = "retroactive-message-count";
 
+   private static final String ENABLE_METRICS = "enable-metrics";
+
 
    // Attributes ----------------------------------------------------
 
@@ -1215,6 +1217,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setExpiryQueuePrefix(new SimpleString(getTrimmedTextContent(child)));
          } else if (EXPIRY_QUEUE_SUFFIX_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setExpiryQueueSuffix(new SimpleString(getTrimmedTextContent(child)));
+         } else if (ENABLE_METRICS.equalsIgnoreCase(name)) {
+            addressSettings.setEnableMetrics(XMLUtil.parseBoolean(child));
          }
       }
       return setting;
