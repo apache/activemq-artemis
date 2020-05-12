@@ -746,13 +746,18 @@ public class ReclaimerTest extends ActiveMQTestBase {
 
       @Override
       public void incNegCount(final JournalFile file) {
+         incNegCount(file, 1);
+      }
+
+      @Override
+      public void incNegCount(JournalFile file, int delta) {
          Integer count = negCounts.get(file);
 
-         int c = count == null ? 1 : count.intValue() + 1;
+         int c = count == null ? delta : count.intValue() + delta;
 
          negCounts.put(file, c);
 
-         totalDep++;
+         totalDep += delta;
       }
 
       @Override

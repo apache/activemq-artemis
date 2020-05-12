@@ -92,12 +92,28 @@ public class JournalFileImpl implements JournalFile {
 
    @Override
    public void incNegCount(final JournalFile file) {
-      if (file != this) {
-         totalNegativeToOthers.incrementAndGet();
+      incNegCount(file, 1);
+   }
+
+   @Override
+   public void incNegCount(final JournalFile file, int delta) {
+      if (delta <= 0) {
+         throw new IllegalArgumentException("delta must be > 0");
       }
-      AtomicInteger previous = negCounts.putIfAbsent(file, new AtomicInteger(1));
+      if (file != this) {
+         totalNegativeToOthers.addAndGet(delta);
+      }
+      // GC-free path: including capturing lambdas
+      AtomicInteger previous = negCounts.get(file);
       if (previous != null) {
-         previous.incrementAndGet();
+         previous.addAndGet(delta);
+         return;
+      }
+      // no counter yet: slow path, allocating
+      previous = negCounts.putIfAbsent(file, new AtomicInteger(delta));
+      // racy attempt to create the counter
+      if (previous != null) {
+         previous.addAndGet(delta);
       }
    }
 
