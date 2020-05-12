@@ -3583,6 +3583,14 @@
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
+
+            <xsd:element name="enable-metrics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to enable metrics for metrics plugins on the matching address
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
             
          </xsd:all>
 

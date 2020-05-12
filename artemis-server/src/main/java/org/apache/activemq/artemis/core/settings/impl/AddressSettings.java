@@ -125,6 +125,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final SimpleString DEFAULT_DEAD_LETTER_QUEUE_SUFFIX = SimpleString.toSimpleString("");
 
+   public static final boolean DEFAULT_ENABLE_METRICS = true;
+
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
    private Long maxSizeBytes = null;
@@ -247,6 +249,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private SimpleString expiryQueueSuffix = null;
 
+   private Boolean enableMetrics = null;
+
    //from amq5
    //make it transient
    private transient Integer queuePrefetch = null;
@@ -310,6 +314,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.defaultGroupBuckets = other.defaultGroupBuckets;
       this.defaultGroupFirstKey = other.defaultGroupFirstKey;
       this.defaultRingSize = other.defaultRingSize;
+      this.enableMetrics = other.enableMetrics;
    }
 
    public AddressSettings() {
@@ -882,6 +887,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public boolean isEnableMetrics() {
+      return enableMetrics != null ? enableMetrics : AddressSettings.DEFAULT_ENABLE_METRICS;
+   }
+
+   public AddressSettings setEnableMetrics(final boolean enableMetrics) {
+      this.enableMetrics = enableMetrics;
+      return this;
+   }
+
    /**
     * merge 2 objects in to 1
     *
@@ -1068,6 +1082,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (expiryQueueSuffix == null) {
          expiryQueueSuffix = merged.expiryQueueSuffix;
+      }
+      if (enableMetrics == null) {
+         enableMetrics = merged.enableMetrics;
       }
    }
 
@@ -1273,6 +1290,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          maxExpiryDelay = BufferHelper.readNullableLong(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         enableMetrics = BufferHelper.readNullableBoolean(buffer);
+      }
    }
 
    @Override
@@ -1334,7 +1355,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          SimpleString.sizeofNullableString(deadLetterQueueSuffix) +
          BufferHelper.sizeOfNullableBoolean(autoCreateExpiryResources) +
          SimpleString.sizeofNullableString(expiryQueuePrefix) +
-         SimpleString.sizeofNullableString(expiryQueueSuffix);
+         SimpleString.sizeofNullableString(expiryQueueSuffix) +
+         BufferHelper.sizeOfNullableBoolean(enableMetrics);
    }
 
    @Override
@@ -1456,6 +1478,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableLong(buffer, minExpiryDelay);
 
       BufferHelper.writeNullableLong(buffer, maxExpiryDelay);
+
+      BufferHelper.writeNullableBoolean(buffer, enableMetrics);
    }
 
    /* (non-Javadoc)
@@ -1525,6 +1549,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((autoCreateExpiryResources == null) ? 0 : autoCreateExpiryResources.hashCode());
       result = prime * result + ((expiryQueuePrefix == null) ? 0 : expiryQueuePrefix.hashCode());
       result = prime * result + ((expiryQueueSuffix == null) ? 0 : expiryQueueSuffix.hashCode());
+      result = prime * result + ((enableMetrics == null) ? 0 : enableMetrics.hashCode());
       return result;
    }
 
@@ -1860,6 +1885,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       } else if (!expiryQueueSuffix.equals(other.expiryQueueSuffix))
          return false;
 
+      if (enableMetrics == null) {
+         if (other.enableMetrics != null)
+            return false;
+      } else if (!enableMetrics.equals(other.enableMetrics))
+         return false;
+
       return true;
    }
 
@@ -1985,6 +2016,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          expiryQueuePrefix +
          ", expiryQueueSuffix=" +
          expiryQueueSuffix +
+         ", enableMetrics=" +
+         enableMetrics +
          "]";
    }
 }
