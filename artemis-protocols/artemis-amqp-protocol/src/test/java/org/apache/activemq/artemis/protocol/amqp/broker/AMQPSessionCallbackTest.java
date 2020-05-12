@@ -33,11 +33,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
-import org.mockito.stubbing.Answer;
 
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_CREDITS_DEFAULT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LOW_CREDITS_DEFAULT;
@@ -75,16 +73,7 @@ public class AMQPSessionCallbackTest {
 
    @Before
    public void setRule() {
-
-      // The connection will call the runnable now on this mock, as these would happen on a different thread.
-      Mockito.doAnswer(new Answer() {
-         @Override
-         public Void answer(InvocationOnMock invocation) throws Throwable {
-            ((Runnable) invocation.getArguments()[0]).run();
-            return null;
-         }
-      }).when(connection).runNow(Mockito.isA(Runnable.class));
-
+      Mockito.when(connection.isHandler()).thenReturn(true);
    }
 
    /**

@@ -44,7 +44,6 @@ import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMess
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Modified;
 import org.apache.qpid.proton.amqp.messaging.Outcome;
@@ -86,34 +85,87 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
     * In case the creditRunnable was run, we reset and send it over.
     * We set it as ran as the first one should always go through
     */
-   protected final AtomicRunnable creditRunnable;
+   protected final Runnable creditRunnable;
+   protected final Runnable spiFlow = this::sessionSPIFlow;
    private final boolean useModified;
+
+   /** no need to synchronize this as we only update it while in handler
+    * @see #incrementSettle()
+    */
+   private int pendingSettles = 0;
 
    /**
     * This Credit Runnable may be used in Mock tests to simulate the credit semantic here
     */
-   public static AtomicRunnable createCreditRunnable(int refill,
-                                                     int threshold,
-                                                     Receiver receiver,
-                                                     AMQPConnectionContext connection) {
-      Runnable creditRunnable = () -> {
+   public static Runnable createCreditRunnable(int refill,
+                                               int threshold,
+                                               Receiver receiver,
+                                               AMQPConnectionContext connection,
+                                               ProtonServerReceiverContext context) {
+      return new FlowControlRunner(refill, threshold, receiver, connection, context);
+   }
+
+
+   /**
+    * This Credit Runnable may be used in Mock tests to simulate the credit semantic here
+    */
+   public static Runnable createCreditRunnable(int refill,
+                                               int threshold,
+                                               Receiver receiver,
+                                               AMQPConnectionContext connection) {
+      return new FlowControlRunner(refill, threshold, receiver, connection, null);
+   }
+
+   /**
+    * The reason why we use the AtomicRunnable here
+    * is because PagingManager will call Runnables in case it was blocked.
+    * however it could call many Runnables
+    *  and this serves as a control to avoid duplicated calls
+    * */
+   static class FlowControlRunner implements Runnable {
+      final int refill;
+      final int threshold;
+      final Receiver receiver;
+      final AMQPConnectionContext connection;
+      final ProtonServerReceiverContext context;
+
+      FlowControlRunner(int refill, int threshold, Receiver receiver, AMQPConnectionContext connection, ProtonServerReceiverContext context) {
+         this.refill = refill;
+         this.threshold = threshold;
+         this.receiver = receiver;
+         this.connection = connection;
+         this.context = context;
+      }
+
+      @Override
+      public void run() {
+         if (!connection.isHandler()) {
+            // for the case where the paging manager is resuming flow due to blockage
+            // this should then move back to the connection thread.
+            connection.runLater(this);
+            return;
+         }
 
          connection.requireInHandler();
-         if (receiver.getCredit() <= threshold) {
-            int topUp = refill - receiver.getCredit();
+         int pending = context != null ? context.pendingSettles : 0;
+         if (isBellowThreshold(receiver.getCredit(), pending, threshold)) {
+            int topUp = calculatedUpdateRefill(refill, receiver.getCredit(), pending);
             if (topUp > 0) {
-               // System.out.println("Sending " + topUp + " towards client");
                receiver.flow(topUp);
-               connection.flush();
+               connection.instantFlush();
             }
          }
-      };
-      return new AtomicRunnable() {
-         @Override
-         public void atomicRun() {
-            connection.runNow(creditRunnable);
-         }
-      };
+
+      }
+   }
+
+
+   public static boolean isBellowThreshold(int credit, int pending, int threshold) {
+      return credit <= threshold - pending;
+   }
+
+   public static int calculatedUpdateRefill(int refill, int credits, int pending) {
+      return refill - credits - pending;
    }
 
    /*
@@ -138,7 +190,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       this.sessionSPI = sessionSPI;
       this.amqpCredits = connection.getAmqpCredits();
       this.minCreditRefresh = connection.getAmqpLowCredits();
-      this.creditRunnable = createCreditRunnable(amqpCredits, minCreditRefresh, receiver, connection).setRan();
+      this.creditRunnable = createCreditRunnable(amqpCredits, minCreditRefresh, receiver, connection, this);
       useModified = this.connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
       this.minLargeMessageSize = connection.getProtocolManager().getAmqpMinLargeMessageSize();
 
@@ -403,8 +455,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
                                                               useModified,
                                                               e);
          delivery.disposition(deliveryState);
-         delivery.settle();
-         flow();
+         settle(delivery);
          connection.flush();
       });
    }
@@ -473,14 +524,27 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       clearLargeMessage();
    }
 
-   public void flow() {
+   public int incrementSettle() {
+      assert pendingSettles >= 0;
       connection.requireInHandler();
-      if (!creditRunnable.isRun()) {
-         return; // nothing to be done as the previous one did not run yet
-      }
+      return pendingSettles++;
+   }
 
-      creditRunnable.reset();
+   public void settle(Delivery settlement) {
+      connection.requireInHandler();
+      pendingSettles--;
+      assert pendingSettles >= 0;
+      settlement.settle();
+      flow();
+   }
 
+   public void flow() {
+      // this will mark flow control to happen once after the event loop
+      connection.afterFlush(spiFlow);
+   }
+
+   private void sessionSPIFlow() {
+      connection.requireInHandler();
       // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
       if (sessionSPI != null) {
          sessionSPI.flow(address, creditRunnable);
