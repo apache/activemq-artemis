@@ -620,6 +620,7 @@ that would be found in the `broker.xml` file.
       <default-address-routing-type></default-address-routing-type>
       <default-ring-size>-1</default-ring-size>
       <retroactive-message-count>0</retroactive-message-count>
+      <enable-metrics>true</enable-metrics>
    </address-setting>
 </address-settings>
 ```
@@ -896,3 +897,7 @@ be set to -1. Read more about [ring queues](ring-queues.md).
 `retroactive-message-count` defines the number of messages to preserve for future
 queues created on the matching address. Defaults to 0. Read more about
 [retroactive addresses](retroactive-addresses.md).
+
+`enable-metrics` determines whether or not metrics will be published to any
+configured metrics plugin for the matching address. Default is `true`. Read more
+about [metrics](metrics.md).

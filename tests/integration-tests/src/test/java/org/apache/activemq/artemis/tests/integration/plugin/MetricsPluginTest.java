@@ -149,9 +149,20 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
    @Test
    public void testForBasicMetricsPresenceAndValue() throws Exception {
+      internalTestForBasicMetrics(true);
+   }
+
+   @Test
+   public void testDisablingMetrics() throws Exception {
+      internalTestForBasicMetrics(false);
+   }
+
+   private void internalTestForBasicMetrics(boolean enabled) throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
+
+      server.getAddressSettingsRepository().getMatch(addressName).setEnableMetrics(enabled);
 
       session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer(addressName);
@@ -165,14 +176,14 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       Map<Meter.Id, Double> metrics = getMetrics();
 
-      checkMetric(metrics, "artemis.message.count", "queue", queueName, 1.0);
-      checkMetric(metrics, "artemis.messages.added", "queue", queueName, 1.0);
-      checkMetric(metrics, "artemis.messages.acknowledged", "queue", queueName, 0.0);
-      checkMetric(metrics, "artemis.durable.message.count", "queue", queueName, 1.0);
-      checkMetric(metrics, "artemis.delivering.message.count", "queue", queueName, 0.0);
-      checkMetric(metrics, "artemis.routed.message.count", "address", addressName, 1.0);
-      checkMetric(metrics, "artemis.unrouted.message.count", "address", addressName, 0.0);
-      checkMetric(metrics, "artemis.consumer.count", "queue", queueName, 0.0);
+      checkMetric(metrics, "artemis.message.count", "queue", queueName, 1.0, enabled);
+      checkMetric(metrics, "artemis.messages.added", "queue", queueName, 1.0, enabled);
+      checkMetric(metrics, "artemis.messages.acknowledged", "queue", queueName, 0.0, enabled);
+      checkMetric(metrics, "artemis.durable.message.count", "queue", queueName, 1.0, enabled);
+      checkMetric(metrics, "artemis.delivering.message.count", "queue", queueName, 0.0, enabled);
+      checkMetric(metrics, "artemis.routed.message.count", "address", addressName, 1.0, enabled);
+      checkMetric(metrics, "artemis.unrouted.message.count", "address", addressName, 0.0, enabled);
+      checkMetric(metrics, "artemis.consumer.count", "queue", queueName, 0.0, enabled);
 
       ClientConsumer consumer = session.createConsumer(queueName);
       session.start();
@@ -180,8 +191,8 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       assertNotNull(message);
 
       metrics = getMetrics();
-      checkMetric(metrics, "artemis.delivering.message.count", "queue", queueName, 1.0);
-      checkMetric(metrics, "artemis.consumer.count", "queue", queueName, 1.0);
+      checkMetric(metrics, "artemis.delivering.message.count", "queue", queueName, 1.0, enabled);
+      checkMetric(metrics, "artemis.consumer.count", "queue", queueName, 1.0, enabled);
 
       message.acknowledge();
       assertEquals(data, message.getBodyBuffer().readString());
@@ -193,14 +204,14 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       metrics = getMetrics();
 
-      checkMetric(metrics, "artemis.message.count", "queue", queueName, 0.0);
-      checkMetric(metrics, "artemis.messages.added", "queue", queueName, 1.0);
-      checkMetric(metrics, "artemis.messages.acknowledged", "queue", queueName, 1.0);
-      checkMetric(metrics, "artemis.durable.message.count", "queue", queueName, 0.0);
-      checkMetric(metrics, "artemis.delivering.message.count", "queue", queueName, 0.0);
-      checkMetric(metrics, "artemis.routed.message.count", "address", addressName, 1.0);
-      checkMetric(metrics, "artemis.unrouted.message.count", "address", addressName, 0.0);
-      checkMetric(metrics, "artemis.consumer.count", "queue", queueName, 0.0);
+      checkMetric(metrics, "artemis.message.count", "queue", queueName, 0.0, enabled);
+      checkMetric(metrics, "artemis.messages.added", "queue", queueName, 1.0, enabled);
+      checkMetric(metrics, "artemis.messages.acknowledged", "queue", queueName, 1.0, enabled);
+      checkMetric(metrics, "artemis.durable.message.count", "queue", queueName, 0.0, enabled);
+      checkMetric(metrics, "artemis.delivering.message.count", "queue", queueName, 0.0, enabled);
+      checkMetric(metrics, "artemis.routed.message.count", "address", addressName, 1.0, enabled);
+      checkMetric(metrics, "artemis.unrouted.message.count", "address", addressName, 0.0, enabled);
+      checkMetric(metrics, "artemis.consumer.count", "queue", queueName, 0.0, enabled);
    }
 
    @Test
@@ -247,13 +258,21 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    }
 
    public void checkMetric(Map<Meter.Id, Double> metrics, String metric, String tag, String tagValue, Double expectedValue) {
+      checkMetric(metrics, metric, tag, tagValue, expectedValue, true);
+   }
+
+   public void checkMetric(Map<Meter.Id, Double> metrics, String metric, String tag, String tagValue, Double expectedValue, boolean enabled) {
       OptionalDouble actualValue = metrics.entrySet().stream()
               .filter(entry -> metric.equals(entry.getKey().getName()))
               .filter(entry -> tagValue.equals(entry.getKey().getTag(tag)))
               .mapToDouble(Map.Entry::getValue)
               .findFirst();
 
-      assertTrue(metric + " for " + tag + " " + tagValue + " not present", actualValue.isPresent());
-      assertEquals(metric + " not equal", expectedValue, actualValue.getAsDouble(), 0);
+      if (enabled) {
+         assertTrue(metric + " for " + tag + " " + tagValue + " not present", actualValue.isPresent());
+         assertEquals(metric + " not equal", expectedValue, actualValue.getAsDouble(), 0);
+      } else {
+         assertFalse(metric + " for " + tag + " " + tagValue + " present", actualValue.isPresent());
+      }
    }
 }
