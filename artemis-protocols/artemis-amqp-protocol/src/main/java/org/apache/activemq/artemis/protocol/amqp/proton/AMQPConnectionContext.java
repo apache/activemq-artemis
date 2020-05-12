@@ -149,6 +149,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       handler.requireHandler();
    }
 
+   public boolean isHandler() {
+      return handler.isHandler();
+   }
+
    public void scheduledFlush() {
       handler.scheduledFlush();
    }
@@ -193,6 +197,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
    public void flush() {
       handler.flush();
+   }
+
+   public void afterFlush(Runnable runnable) {
+      handler.afterFlush(runnable);
    }
 
    public void close(ErrorCondition errorCondition) {
