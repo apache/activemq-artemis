@@ -32,9 +32,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -1744,8 +1746,19 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                   server.removeAddressInfo(address, null);
                }
+            } catch (ActiveMQShutdownException e) {
+               // the address and queue reaper is asynchronous so it may happen
+               // that the broker is shutting down while the reaper iterates
+               // through the addresses, next restart this operation will be retried
+               logger.debug(e.getMessage(), e);
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, address);
+               if (e instanceof ActiveMQAddressDoesNotExistException && getAddressInfo(address) == null) {
+                  // the address and queue reaper is asynchronous so it may happen
+                  // that the address is removed before the reaper removes it
+                  logger.debug(e.getMessage(), e);
+               } else {
+                  ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, address);
+               }
             }
          }
       }
