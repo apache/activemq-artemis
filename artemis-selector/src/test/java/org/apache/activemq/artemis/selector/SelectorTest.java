@@ -193,6 +193,16 @@ public class SelectorTest {
    }
 
    @Test
+   public void testDottedProperty() throws Exception {
+      MockMessage message = createMessage();
+      message.setJMSType("selector-test");
+      message.setStringProperty("a.test", "value");
+      message.setJMSMessageID("id:test:1:1:1:1");
+
+      assertSelector(message, "\"a.test\" = 'value'", true);
+   }
+
+   @Test
    public void testBasicSelectors() throws Exception {
       MockMessage message = createMessage();
 

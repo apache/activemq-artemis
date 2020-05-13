@@ -131,6 +131,7 @@ TOKEN [IGNORE_CASE] :
 TOKEN [IGNORE_CASE] :
 {
     < ID : ["a"-"z", "_", "$"] (["a"-"z","0"-"9","_", "$"])* >
+    | < QUOTED_ID : "\"" ( ("\"\"") | ~["\""] )*  "\""  >
 }
 
 // ----------------------------------------------------------------------------
@@ -555,6 +556,20 @@ PropertyExpression variable() :
         t=<ID>
         {
             left = new PropertyExpression(t.image);
+        }
+        |
+        t = <QUOTED_ID>
+        {
+            // Decode the string value.
+            StringBuffer rc = new StringBuffer();
+            String image = t.image;
+            for( int i=1; i < image.length()-1; i++ ) {
+                char c = image.charAt(i);
+                if( c == '"' )
+                    i++;
+                rc.append(c);
+            }
+            return new PropertyExpression(rc.toString());
         }
     )
     {
