@@ -3384,7 +3384,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       copy.setExpiration(0);
 
       if (expiry) {
-         copy.setAnnotation(Message.HDR_ACTUAL_EXPIRY_TIME, System.currentTimeMillis());
+         copy.setBrokerProperty(Message.HDR_ACTUAL_EXPIRY_TIME, System.currentTimeMillis());
       }
 
       copy.reencode();

@@ -148,6 +148,11 @@ public class TypedProperties {
       otherProps.forEachInternal(this::doPutValue);
    }
 
+   public TypedProperties putProperty(final SimpleString key, final Object value) {
+      setObjectProperty(key, value, this);
+      return this;
+   }
+
    public Object getProperty(final SimpleString key) {
       return doGetProperty(key);
    }

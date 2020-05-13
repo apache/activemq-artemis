@@ -396,19 +396,19 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpMessage message = new AmqpMessage();
 
       message.setMessageId("msg" + 1);
-      message.setMessageAnnotation("serialNo", 1);
+      message.setMessageAnnotation("x-opt-serialNo", 1);
       message.setText("Test-Message");
       sender.send(message);
 
       message = new AmqpMessage();
       message.setMessageId("msg" + 2);
-      message.setMessageAnnotation("serialNo", 2);
+      message.setMessageAnnotation("x-opt-serialNo", 2);
       message.setText("Test-Message 2");
       sender.send(message);
       sender.close();
 
       LOG.debug("Attempting to read message with receiver");
-      AmqpReceiver receiver = session.createReceiver(getQueueName(), "serialNo=2");
+      AmqpReceiver receiver = session.createReceiver(getQueueName(), "\"m.x-opt-serialNo\"=2");
       receiver.flow(2);
       AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
       assertNotNull("Should have read message", received);
