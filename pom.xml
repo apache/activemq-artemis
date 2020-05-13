@@ -100,7 +100,7 @@
       <netty.version>4.1.50.Final</netty.version>
 
       <!-- this is basically for tests -->
-      <netty-tcnative-version>2.0.29.Final</netty-tcnative-version>
+      <netty-tcnative-version>2.0.31.Final</netty-tcnative-version>
       <proton.version>0.33.5</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
