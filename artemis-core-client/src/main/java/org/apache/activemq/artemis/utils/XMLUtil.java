@@ -255,23 +255,27 @@ public final class XMLUtil {
    public static String replaceSystemPropsInString(String xml) {
       while (xml.contains("${")) {
          int start = xml.indexOf("${");
-         int end = xml.indexOf("}") + 1;
-         if (end < 0) {
+         int end = xml.indexOf("}", start) + 1;
+
+         if (start < 0 || end <= 0) {
             break;
          }
+
          String subString = xml.substring(start, end);
          String prop = subString.substring(2, subString.length() - 1).trim();
          String val = "";
+
          if (prop.contains(":")) {
             String[] parts = prop.split(":", 2);
             prop = parts[0].trim();
             val = parts[1].trim();
          }
+
          String sysProp = System.getProperty(prop, val);
          logger.debug("replacing " + subString + " with " + sysProp);
          xml = xml.replace(subString, sysProp);
-
       }
+
       return xml;
    }
 
