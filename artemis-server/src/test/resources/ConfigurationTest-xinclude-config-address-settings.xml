@@ -77,5 +77,6 @@
       <default-address-routing-type>ANYCAST</default-address-routing-type>
       <default-consumer-window-size>10000</default-consumer-window-size>
       <retroactive-message-count>10</retroactive-message-count>
+      <enable-metrics>false</enable-metrics>
    </address-setting>
 </address-settings>
