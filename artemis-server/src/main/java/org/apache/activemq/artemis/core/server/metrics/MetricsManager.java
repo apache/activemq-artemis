@@ -31,6 +31,8 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class MetricsManager {
 
@@ -40,11 +42,16 @@ public class MetricsManager {
 
    private final Map<String, List<Meter>> meters = new ConcurrentHashMap<>();
 
-   public MetricsManager(String brokerName, ActiveMQMetricsPlugin metricsPlugin) {
+   private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
+
+   public MetricsManager(String brokerName,
+                         ActiveMQMetricsPlugin metricsPlugin,
+                         HierarchicalRepository<AddressSettings> addressSettingsRepository) {
       this.brokerName = brokerName;
       meterRegistry = metricsPlugin.getRegistry();
       Metrics.globalRegistry.add(meterRegistry);
       new JvmMemoryMetrics().bindTo(meterRegistry);
+      this.addressSettingsRepository = addressSettingsRepository;
    }
 
    public MeterRegistry getMeterRegistry() {
@@ -59,7 +66,7 @@ public class MetricsManager {
 
    public void registerQueueGauge(String address, String queue, Consumer<MetricGaugeBuilder> builder) {
       final MeterRegistry meterRegistry = this.meterRegistry;
-      if (meterRegistry == null) {
+      if (meterRegistry == null || !addressSettingsRepository.getMatch(address).isEnableMetrics()) {
          return;
       }
       final List<Gauge.Builder> newMeters = new ArrayList<>();
@@ -85,7 +92,7 @@ public class MetricsManager {
 
    public void registerAddressGauge(String address, Consumer<MetricGaugeBuilder> builder) {
       final MeterRegistry meterRegistry = this.meterRegistry;
-      if (meterRegistry == null) {
+      if (meterRegistry == null || !addressSettingsRepository.getMatch(address).isEnableMetrics()) {
          return;
       }
       final List<Gauge.Builder> newMeters = new ArrayList<>();
