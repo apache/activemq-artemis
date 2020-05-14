@@ -425,6 +425,11 @@ public interface ActiveMQClientLogger extends BasicLogger {
            format = Message.Format.MESSAGE_FORMAT)
    void broadcastTimeout(int retry, int maxretry);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212078, value = "Connection factory parameter ignored {0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void connectionFactoryParameterIgnored(String parameterName);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)
    void onMessageError(@Cause Throwable e);

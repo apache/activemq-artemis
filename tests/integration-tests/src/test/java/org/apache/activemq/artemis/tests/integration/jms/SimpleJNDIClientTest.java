@@ -57,6 +57,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -113,6 +114,21 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       props.put("java.naming.provider.url", "");
       new InitialContext(props);//Must not throw an exception
 
+   }
+
+   @Test
+   public void testConnectionFactoryStringWithInvalidParameter() throws Exception {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616?foo=too");
+
+      AssertionLoggerHandler.startCapture();
+      try {
+         new InitialContext(props);
+         assertTrue("Expected to find AMQ212078", AssertionLoggerHandler.findText("AMQ212078"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
    }
 
    @Test
