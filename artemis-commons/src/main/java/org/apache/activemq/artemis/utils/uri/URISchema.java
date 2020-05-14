@@ -31,7 +31,7 @@ public abstract class URISchema<T, P> {
    }
 
    public void populateObject(URI uri, T bean) throws Exception {
-      BeanSupport.setData(uri, bean, parseQuery(uri.getQuery(), null));
+      internalPopulateObject(uri, parseQuery(uri.getQuery(), null), bean);
    }
 
    public URI newURI(T bean) throws Exception {
@@ -97,6 +97,10 @@ public abstract class URISchema<T, P> {
 
       return new URI(getSchemaName(), null, "//", query, null);
 
+   }
+
+   protected void internalPopulateObject(URI uri, Map<String, String> query, T bean) throws Exception {
+      BeanSupport.setData(uri, bean, query);
    }
 
    public static Map<String, String> parseQuery(String uri,
