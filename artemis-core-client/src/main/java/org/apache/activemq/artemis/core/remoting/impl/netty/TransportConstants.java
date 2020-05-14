@@ -29,6 +29,8 @@ public class TransportConstants {
 
    private static final Logger logger = Logger.getLogger(TransportConstants.class);
 
+   public static final String SSL_CONTEXT_PROP_NAME = "sslContext";
+
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
 
    public static final String SSL_KRB5_CONFIG_PROP_NAME = "sslKrb5Config";
