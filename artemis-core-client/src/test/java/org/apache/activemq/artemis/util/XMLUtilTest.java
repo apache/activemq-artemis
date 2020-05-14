@@ -219,6 +219,26 @@ public class XMLUtilTest extends SilentTestCase {
    }
 
    @Test
+   public void testReplaceSystemPropertiesWithUnclosedPropertyReferenceInXML() {
+      String before = "<configuration>\n" + "   <test name=\"${sysprop1}\">content1</test>\n" + "   <test name=\"test2\">content2</test>\n" + "   <test name=\"test3\">content3</test>\n" + "   <test name=\"test4\">${sysprop2</test>\n" + "   <test name=\"test5\">content5</test>\n" + "   <test name=\"test6\">content6</test>\n" + "</configuration>";
+      String after = "<configuration>\n" + "   <test name=\"test1\">content1</test>\n" + "   <test name=\"test2\">content2</test>\n" + "   <test name=\"test3\">content3</test>\n" + "   <test name=\"test4\">${sysprop2</test>\n" + "   <test name=\"test5\">content5</test>\n" + "   <test name=\"test6\">content6</test>\n" + "</configuration>";
+      System.setProperty("sysprop1", "test1");
+      System.setProperty("sysprop2", "content4");
+      String replaced = XMLUtil.replaceSystemPropsInString(before);
+      Assert.assertEquals(after, replaced);
+   }
+
+   @Test
+   public void testReplaceSystemPropertiesWithMiscCurlyBracesInXML() {
+      String before = "<configuration>\n" + "   <test name=\"${sysprop1}\">content1{ }</test>\n" + "   <test name=\"test2\">content2 {</test>\n" + "   <test name=\"test3\">content3 }</test>\n" + "   <test name=\"test4\">${sysprop2}</test>\n" + "   <test name=\"test5\">content5{ }</test>\n" + "   <test name=\"test6\">content6 }</test>\n" + "</configuration>";
+      String after = "<configuration>\n" + "   <test name=\"test1\">content1{ }</test>\n" + "   <test name=\"test2\">content2 {</test>\n" + "   <test name=\"test3\">content3 }</test>\n" + "   <test name=\"test4\">content4</test>\n" + "   <test name=\"test5\">content5{ }</test>\n" + "   <test name=\"test6\">content6 }</test>\n" + "</configuration>";
+      System.setProperty("sysprop1", "test1");
+      System.setProperty("sysprop2", "content4");
+      String replaced = XMLUtil.replaceSystemPropsInString(before);
+      Assert.assertEquals(after, replaced);
+   }
+
+   @Test
    public void testStripCDATA() throws Exception {
       String xml = "<![CDATA[somedata]]>";
       String stripped = XMLUtil.stripCDATA(xml);
