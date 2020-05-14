@@ -313,6 +313,12 @@ Please see the examples for a full working example of using Netty SSL.
 Netty SSL uses all the same properties as Netty TCP but adds the following
 additional properties:
 
+- `sslContext`
+
+A key that can be used in conjunction with `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory`
+to cache created SSLContext and avoid recreating. Look [Configuring a SSLContextFactory](#Configuring a SSLContextFactory)
+for more details.
+
 - `sslEnabled`
 
   Must be `true` to enable SSL. Default is `false`.
@@ -488,6 +494,24 @@ additional properties:
 
   Any plugin specified will need to be placed on the
   [broker's classpath](using-server.md#adding-runtime-dependencies).
+
+
+#### Configuring a SSLContextFactory
+
+If you have a `JDK` provider you can configure which SSLContextFactory to use.
+Currently we provide two implementations: 
+- `org.apache.activemq.artemis.core.remoting.impl.ssl.DefaultSSLContextFactory`
+- `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory`
+but you can also add your own implementation of `org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory`.
+
+The implementations are loaded by a ServiceLoader, thus you need to declare your implementation in
+a `META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory` file.
+If several implementations are available, the one with the highest `priority` will be selected.
+So for example, if you want to use `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory`
+you need to add a `META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory` file
+to your classpath with the content `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory`.
+
+**Note:** This mechanism doesn't work if you have selected `OPENSSL` as provider.
 
 
 ### Configuring Netty HTTP
