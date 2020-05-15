@@ -116,6 +116,10 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       AMQPMessageSymbolSearch.kmpNeedleOf(AMQPMessageSupport.SCHEDULED_DELIVERY_TIME),
       AMQPMessageSymbolSearch.kmpNeedleOf(AMQPMessageSupport.SCHEDULED_DELIVERY_DELAY)};
 
+   private static final KMPNeedle[] DUPLICATE_ID_NEEDLES = new KMPNeedle[] {
+      AMQPMessageSymbolSearch.kmpNeedleOf(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString())
+   };
+
    public static final int DEFAULT_MESSAGE_FORMAT = 0;
    public static final int DEFAULT_MESSAGE_PRIORITY = 4;
    public static final int MAX_MESSAGE_PRIORITY = 9;
@@ -1015,6 +1019,13 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final Object getDuplicateProperty() {
+
+      if (applicationProperties == null) {
+         if (!AMQPMessageSymbolSearch.anyApplicationProperties(getData(), DUPLICATE_ID_NEEDLES)) {
+            // no need for duplicate-property
+            return null;
+         }
+      }
       return getObjectProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID);
    }
 
