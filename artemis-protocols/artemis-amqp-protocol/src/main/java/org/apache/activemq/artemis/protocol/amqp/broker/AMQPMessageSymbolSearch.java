@@ -58,17 +58,17 @@ final class AMQPMessageSymbolSearch {
 
 
    public static boolean anyMessageAnnotations(final ReadableBuffer data, final KMPNeedle[] needles) {
-      return lookupOnSection(MessageAnnotations.class, data, needles);
+      return lookupOnSection(MessageAnnotations.class, data, needles, 0);
    }
 
-   public static boolean anyApplicationProperties(final ReadableBuffer data, final KMPNeedle[] needles) {
-      return lookupOnSection(ApplicationProperties.class, data, needles);
+   public static boolean anyApplicationProperties(final ReadableBuffer data, final KMPNeedle[] needles, int startAt) {
+      return lookupOnSection(ApplicationProperties.class, data, needles, startAt);
    }
 
-   private static boolean lookupOnSection(final Class section, final ReadableBuffer data, final KMPNeedle[] needles) {
+   private static boolean lookupOnSection(final Class section, final ReadableBuffer data, final KMPNeedle[] needles, final int startAt) {
       DecoderImpl decoder = TLSEncode.getDecoder();
       final int position = data.position();
-      decoder.setBuffer(data.rewind());
+      decoder.setBuffer(data.position(startAt));
       try {
          while (data.hasRemaining()) {
             TypeConstructor<?> constructor = decoder.readConstructor();

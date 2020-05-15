@@ -1020,8 +1020,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    @Override
    public final Object getDuplicateProperty() {
 
-      if (applicationProperties == null) {
-         if (!AMQPMessageSymbolSearch.anyApplicationProperties(getData(), DUPLICATE_ID_NEEDLES)) {
+      if (applicationProperties == null && messageDataScanned == MessageDataScanningStatus.SCANNED.code && applicationPropertiesPosition != VALUE_NOT_PRESENT) {
+         if (!AMQPMessageSymbolSearch.anyApplicationProperties(getData(), DUPLICATE_ID_NEEDLES, applicationPropertiesPosition)) {
             // no need for duplicate-property
             return null;
          }
