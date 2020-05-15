@@ -46,7 +46,12 @@ public class Artemis {
 
       String instance = System.getProperty("artemis.instance");
       File fileInstance = instance != null ? new File(instance) : null;
-      execute(fileHome, fileInstance, args);
+
+      Object result = execute(fileHome, fileInstance, args);
+      if (result instanceof Exception) {
+         // Set a nonzero status code for the exceptions caught and printed by org.apache.activemq.artemis.cli.Artemis.execute
+         System.exit(1);
+      }
    }
 
    /**
