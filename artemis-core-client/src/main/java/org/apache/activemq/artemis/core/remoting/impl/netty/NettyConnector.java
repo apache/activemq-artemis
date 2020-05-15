@@ -103,7 +103,6 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.ResourceLeakDetector.Level;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
@@ -122,6 +121,9 @@ import org.apache.activemq.artemis.utils.IPV6Util;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
+
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
 
 public class NettyConnector extends AbstractConnector {
 
@@ -674,22 +676,10 @@ public class NettyConnector extends AbstractConnector {
                                       String truststoreProvider,
                                       String truststorePath,
                                       String truststorePassword) throws Exception {
-      SSLContext context;
-      if (useDefaultSslContext) {
-         context = SSLContext.getDefault();
-      } else {
-         context = new SSLSupport()
-            .setKeystoreProvider(keystoreProvider)
-            .setKeystorePath(keystorePath)
-            .setKeystorePassword(keystorePassword)
-            .setTruststoreProvider(truststoreProvider)
-            .setTruststorePath(truststorePath)
-            .setTruststorePassword(truststorePassword)
-            .setTrustAll(trustAll)
-            .setCrlPath(crlPath)
-            .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
-            .createContext();
-      }
+      SSLContext context = SSLContextFactoryProvider.getSSLContextFactory().getSSLContext(configuration,
+              keystoreProvider, keystorePath, keystorePassword,
+           truststoreProvider, truststorePath, truststorePassword,
+           crlPath, trustManagerFactoryPlugin, trustAll);
       Subject subject = null;
       if (kerb5Config != null) {
          LoginContext loginContext = new LoginContext(kerb5Config);
