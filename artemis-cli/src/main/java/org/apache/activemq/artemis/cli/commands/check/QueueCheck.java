@@ -83,6 +83,10 @@ public class QueueCheck extends CheckAbstract {
       ArrayList<CheckTask> checkTasks = new ArrayList<>();
 
       if (getName() == null) {
+         name = input("--name", "Name is a mandatory property for Queue check", null);
+      }
+
+      if (getName() == null) {
          throw new IllegalArgumentException("The name of the queue is required");
       }
 
