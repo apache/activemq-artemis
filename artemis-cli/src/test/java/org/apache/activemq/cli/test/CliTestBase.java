@@ -85,13 +85,13 @@ public class CliTestBase {
       LockAbstract.unlock();
    }
 
-   protected void startServer() throws Exception {
+   protected Object startServer() throws Exception {
       File rootDirectory = new File(temporaryFolder.getRoot(), "broker");
       setupAuth(rootDirectory);
       Run.setEmbedded(true);
       Artemis.main("create", rootDirectory.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login", "--disable-persistence");
       System.setProperty("artemis.instance", rootDirectory.getAbsolutePath());
-      Artemis.internalExecute("run");
+      return Artemis.internalExecute("run");
    }
 
    void setupAuth() {
