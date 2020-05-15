@@ -347,7 +347,7 @@ public class CheckTest extends CliTestBase {
             queueCheck.setPassword("admin");
             queueCheck.setName(queueName);
             queueCheck.setConsume(1);
-            queueCheck.setTimeout(3000);
+            queueCheck.setTimeout(100);
             queueCheck.execute(context);
 
             Assert.fail("CLIException expected.");
