@@ -461,6 +461,9 @@ public class AMQPSessionCallback implements SessionCallback {
                           SimpleString address,
                           RoutingContext routingContext,
                           AMQPMessage message) throws Exception {
+
+      context.incrementSettle();
+
       if (address != null) {
          message.setAddress(address);
       } else {
@@ -468,7 +471,7 @@ public class AMQPSessionCallback implements SessionCallback {
          address = message.getAddressSimpleString();
          if (address == null) {
             // Errors are not currently handled as required by AMQP 1.0 anonterm-v1.0
-            rejectMessage(delivery, Symbol.valueOf("failed"), "Missing 'to' field for message sent to an anonymous producer");
+            rejectMessage(context, delivery, Symbol.valueOf("failed"), "Missing 'to' field for message sent to an anonymous producer");
             return;
          }
       }
@@ -504,7 +507,7 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
-   private void rejectMessage(Delivery delivery, Symbol errorCondition, String errorMessage) {
+   private void rejectMessage(final ProtonServerReceiverContext context, Delivery delivery, Symbol errorCondition, String errorMessage) {
       ErrorCondition condition = new ErrorCondition();
       condition.setCondition(errorCondition);
       condition.setDescription(errorMessage);
@@ -514,9 +517,9 @@ public class AMQPSessionCallback implements SessionCallback {
       afterIO(new IOCallback() {
          @Override
          public void done() {
-            connection.runLater(() -> {
+            connection.runNow(() -> {
                delivery.disposition(rejected);
-               delivery.settle();
+               context.settle(delivery);
                connection.flush();
             });
          }
@@ -543,7 +546,7 @@ public class AMQPSessionCallback implements SessionCallback {
             afterIO(new IOCallback() {
                @Override
                public void done() {
-                  connection.runLater(() -> {
+                  connection.runNow(() -> {
                      if (delivery.getRemoteState() instanceof TransactionalState) {
                         TransactionalState txAccepted = new TransactionalState();
                         txAccepted.setOutcome(Accepted.getInstance());
@@ -553,9 +556,8 @@ public class AMQPSessionCallback implements SessionCallback {
                      } else {
                         delivery.disposition(Accepted.getInstance());
                      }
-                     delivery.settle();
-                     context.flow();
-                     connection.instantFlush();
+                     context.settle(delivery);
+                     connection.flush();
                   });
                }
 
@@ -565,7 +567,7 @@ public class AMQPSessionCallback implements SessionCallback {
                }
             });
          } else {
-            rejectMessage(delivery, Symbol.valueOf("failed"), "Interceptor rejected message");
+            rejectMessage(context, delivery, Symbol.valueOf("failed"), "Interceptor rejected message");
          }
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
