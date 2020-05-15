@@ -52,7 +52,20 @@ final class AMQPMessageSymbolSearch {
       return KMPNeedle.of(symbol.toString().getBytes(StandardCharsets.US_ASCII));
    }
 
-   public static boolean anyMessageAnnotations(ReadableBuffer data, KMPNeedle[] needles) {
+   public static KMPNeedle kmpNeedleOf(String symbol) {
+      return KMPNeedle.of(symbol.getBytes(StandardCharsets.US_ASCII));
+   }
+
+
+   public static boolean anyMessageAnnotations(final ReadableBuffer data, final KMPNeedle[] needles) {
+      return lookupOnSection(MessageAnnotations.class, data, needles);
+   }
+
+   public static boolean anyApplicationProperties(final ReadableBuffer data, final KMPNeedle[] needles) {
+      return lookupOnSection(ApplicationProperties.class, data, needles);
+   }
+
+   private static boolean lookupOnSection(final Class section, final ReadableBuffer data, final KMPNeedle[] needles) {
       DecoderImpl decoder = TLSEncode.getDecoder();
       final int position = data.position();
       decoder.setBuffer(data.rewind());
@@ -61,7 +74,7 @@ final class AMQPMessageSymbolSearch {
             TypeConstructor<?> constructor = decoder.readConstructor();
             final Class<?> typeClass = constructor.getTypeClass();
             if (MSG_BODY_TYPES.containsKey(typeClass)) {
-               if (MessageAnnotations.class.equals(typeClass)) {
+               if (section.equals(typeClass)) {
                   final int start = data.position();
                   constructor.skipValue();
                   final int end = data.position();
