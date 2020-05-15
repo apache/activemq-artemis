@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.activemq.artemis.api.core.Pair;
-
 /**
  * This holds the relationship a record has with other files in regard to reference counting.
  * Note: This class used to be called PosFiles
@@ -29,11 +24,15 @@ import org.apache.activemq.artemis.api.core.Pair;
  */
 public class JournalRecord {
 
+   // use a very small size to account for near empty cases
+   private static int INITIAL_FILES_CAPACITY = 5;
    private final JournalFile addFile;
-
    private final int size;
 
-   private List<Pair<JournalFile, Integer>> updateFiles;
+   // use this singleton to save using a separated boolean field to mark the "deleted" state
+   // that would enlarge JournalRecord of several bytes
+   private static final ObjIntIntArrayList<JournalFile> DELETED = new ObjIntIntArrayList<>(0);
+   private ObjIntIntArrayList<JournalFile> fileUpdates;
 
    public JournalRecord(final JournalFile addFile, final int size) {
       this.addFile = addFile;
@@ -45,26 +44,45 @@ public class JournalRecord {
       addFile.addSize(size);
    }
 
-   void addUpdateFile(final JournalFile updateFile, final int size) {
-      if (updateFiles == null) {
-         updateFiles = new ArrayList<>();
+   void addUpdateFile(final JournalFile updateFile, final int bytes) {
+      checkNotDeleted();
+      if (bytes == 0) {
+         return;
       }
-
-      updateFiles.add(new Pair<>(updateFile, size));
-
+      if (fileUpdates == null) {
+         fileUpdates = new ObjIntIntArrayList<>(INITIAL_FILES_CAPACITY);
+      }
+      final int files = fileUpdates.size();
+      if (files > 0) {
+         final int lastIndex = files - 1;
+         if (fileUpdates.addToIntsIfMatch(lastIndex, updateFile, bytes, 1)) {
+            updateFile.incPosCount();
+            updateFile.addSize(bytes);
+            return;
+         }
+      }
+      fileUpdates.add(updateFile, bytes, 1);
       updateFile.incPosCount();
-
-      updateFile.addSize(size);
+      updateFile.addSize(bytes);
    }
 
    void delete(final JournalFile file) {
-      file.incNegCount(addFile);
-      addFile.decSize(size);
-
-      if (updateFiles != null) {
-         for (Pair<JournalFile, Integer> updFile : updateFiles) {
-            file.incNegCount(updFile.getA());
-            updFile.getA().decSize(updFile.getB());
+      checkNotDeleted();
+      final ObjIntIntArrayList<JournalFile> fileUpdates = this.fileUpdates;
+      try {
+         file.incNegCount(addFile);
+         addFile.decSize(size);
+         if (fileUpdates != null) {
+            // not-capturing lambda to save allocation
+            fileUpdates.forEach((updFile, bytes, posCount, f) -> {
+               f.incNegCount(updFile, posCount);
+               updFile.decSize(bytes);
+            }, file);
+         }
+      } finally {
+         if (fileUpdates != null) {
+            fileUpdates.clear();
+            this.fileUpdates = DELETED;
          }
       }
    }
@@ -74,16 +92,23 @@ public class JournalRecord {
       StringBuilder buffer = new StringBuilder();
       buffer.append("JournalRecord(add=" + addFile.getFile().getFileName());
 
-      if (updateFiles != null) {
-
-         for (Pair<JournalFile, Integer> update : updateFiles) {
-            buffer.append(", update=" + update.getA().getFile().getFileName());
+      final ObjIntIntArrayList<JournalFile> fileUpdates = this.fileUpdates;
+      if (fileUpdates != null) {
+         if (fileUpdates == DELETED) {
+            buffer.append(", deleted");
+         } else {
+            fileUpdates.forEach((file, ignoredA, ignoredB, builder) -> builder.append(", update=").append(file.getFile().getFileName()), buffer);
          }
-
       }
-
       buffer.append(")");
 
       return buffer.toString();
    }
+
+   private void checkNotDeleted() {
+      if (fileUpdates == DELETED) {
+         throw new IllegalStateException("the record is already deleted");
+      }
+   }
+
 }

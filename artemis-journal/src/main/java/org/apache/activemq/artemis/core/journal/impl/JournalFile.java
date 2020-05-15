@@ -24,6 +24,8 @@ public interface JournalFile {
 
    void incNegCount(JournalFile file);
 
+   void incNegCount(JournalFile file, int delta);
+
    int getPosCount();
 
    void incPosCount();
