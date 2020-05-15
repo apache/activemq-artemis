@@ -725,6 +725,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
          message.getWrappedMessage().setContentType("text/plain");
          message.getWrappedMessage().setBody(new Data(new Binary(messageText.getBytes(StandardCharsets.UTF_8))));
+         //message.setApplicationProperty("_AMQ_DUPL_ID", "11");
 
          sender.send(message);
          sender.close();
