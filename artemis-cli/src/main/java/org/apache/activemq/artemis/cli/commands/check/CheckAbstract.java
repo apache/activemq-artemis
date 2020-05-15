@@ -36,7 +36,7 @@ import org.apache.commons.lang3.time.StopWatch;
 public abstract class CheckAbstract extends AbstractAction {
 
    @Option(name = "--name", description = "Name of the target to check")
-   private String name;
+   protected String name;
 
    @Option(name = "--timeout", description = "Time to wait for the check execution, in milliseconds")
    private int timeout = 30000;
