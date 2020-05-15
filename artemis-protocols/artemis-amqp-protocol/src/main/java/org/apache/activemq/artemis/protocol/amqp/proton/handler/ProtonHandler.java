@@ -20,8 +20,10 @@ import javax.security.auth.Subject;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
@@ -91,6 +93,57 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    boolean flushInstantly = false;
 
+   /** afterFlush and afterFlushSet properties
+    *  are set by afterFlush methods.
+    *  This is to be called after the flush loop.
+    *  this is usually to be used by flow control events that
+    *  have to take place after the incoming bytes are settled.
+    *
+    *  There is only one afterFlush most of the time, and for that reason
+    *   as an optimization we will try to use a single place most of the time
+    *   however if more are needed we will use the list.
+    *  */
+   private Runnable afterFlush;
+   protected Set<Runnable> afterFlushSet;
+
+   public void afterFlush(Runnable runnable) {
+      requireHandler();
+      if (afterFlush == null) {
+         afterFlush = runnable;
+         return;
+      } else {
+         if (afterFlush != runnable) {
+            if (afterFlushSet == null) {
+               afterFlushSet = new HashSet<>();
+            }
+            afterFlushSet.add(runnable);
+         }
+      }
+   }
+
+   public void runAfterFlush() {
+      requireHandler();
+      if (afterFlush != null) {
+         Runnable toRun = afterFlush;
+         afterFlush = null;
+         // setting it to null to avoid recursive flushes
+         toRun.run();
+      }
+
+      if (afterFlushSet != null) {
+         // This is not really expected to happen.
+         // most of the time we will only have a single Runnable needing after flush
+         // as this was written for flow control
+         // however in extreme of caution, I'm dealing with a case where more than one is used.
+         Set<Runnable> toRun = afterFlushSet;
+         // setting it to null to avoid recursive flushes
+         afterFlushSet = null;
+         for (Runnable runnable : toRun) {
+            runnable.run();
+         }
+      }
+   }
+
    public ProtonHandler(EventLoop workerExecutor, ArtemisExecutor poolExecutor, boolean isServer) {
       this.workerExecutor = workerExecutor;
       this.poolExecutor = poolExecutor;
@@ -146,6 +199,10 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    public int capacity() {
       requireHandler();
       return transport.capacity();
+   }
+
+   public boolean isHandler() {
+      return workerExecutor.inEventLoop();
    }
 
    public void requireHandler() {
@@ -530,6 +587,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       }
 
       flushBytes();
+
+      runAfterFlush();
    }
 
 

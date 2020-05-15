@@ -157,6 +157,7 @@ public class ProtonServerReceiverContextTest {
 
       Receiver mockReceiver = mock(Receiver.class);
       ProtonServerReceiverContext rc = new ProtonServerReceiverContext(mockSession, mockConnContext, null, mockReceiver);
+      rc.incrementSettle();
 
       Delivery mockDelivery = mock(Delivery.class);
       when(mockDelivery.getLink()).thenReturn(mockReceiver);
@@ -173,6 +174,16 @@ public class ProtonServerReceiverContextTest {
 
       verify(mockDelivery, times(1)).settle();
       verify(mockDelivery, times(1)).disposition(any(expectedDeliveryState));
+   }
+
+
+   @Test
+   public void calculateFlowControl() {
+      Assert.assertFalse(ProtonServerReceiverContext.isBellowThreshold(1000, 100, 1000));
+      Assert.assertTrue(ProtonServerReceiverContext.isBellowThreshold(1000, 0, 1000));
+
+      Assert.assertEquals(1000, ProtonServerReceiverContext.calculatedUpdateRefill(2000, 1000, 0));
+      Assert.assertEquals(900, ProtonServerReceiverContext.calculatedUpdateRefill(2000, 1000, 100));
    }
 
 }
