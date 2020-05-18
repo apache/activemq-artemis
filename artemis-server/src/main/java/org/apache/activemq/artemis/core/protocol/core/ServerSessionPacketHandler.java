@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
@@ -1044,7 +1045,21 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             LargeServerMessage message = currentLargeMessage;
             currentLargeMessage.setStorageManager(storageManager);
             currentLargeMessage = null;
-            session.doSend(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage)message.toMessage(), storageManager), null, false, false);
+
+            try {
+               if (session.getServer().hasBrokerMessagePlugins()) {
+                  session.getServer().callBrokerMessagePlugins(plugin -> plugin.beforeSend(session, session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage)message.toMessage(), storageManager), false, false));
+               }
+               RoutingStatus result = session.doSend(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage)message.toMessage(), storageManager), null, false, false);
+               if (session.getServer().hasBrokerMessagePlugins()) {
+                  session.getServer().callBrokerMessagePlugins(plugin -> plugin.afterSend(session, session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage)message.toMessage(), storageManager), false, false, result));
+               }
+            } catch (Exception e) {
+               if (session.getServer().hasBrokerMessagePlugins()) {
+                  session.getServer().callBrokerMessagePlugins(plugin -> plugin.onSendException(session, session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage)message.toMessage(), storageManager), false, false, e));
+               }
+               throw e;
+            }
          }
       }
    }

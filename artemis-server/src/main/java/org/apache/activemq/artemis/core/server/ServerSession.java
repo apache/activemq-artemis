@@ -533,4 +533,6 @@ public interface ServerSession extends SecurityAuth {
    int getDefaultConsumerWindowSize(SimpleString address);
 
    String toManagementString();
+
+   ActiveMQServer getServer();
 }

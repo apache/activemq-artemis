@@ -62,4 +62,13 @@ public interface LargeBodyReader {
     * This method must not be called directly by ActiveMQ Artemis clients.
     */
    long getSize() throws ActiveMQException;
+
+
+   /**
+    * Check if the large message file matches its size
+    * @return true if matches, false otherwise
+    */
+   default boolean validateLargeMessage(long expectedSize) {
+      return true;
+   }
 }

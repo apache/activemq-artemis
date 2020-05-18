@@ -23,6 +23,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -30,6 +31,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -44,13 +46,22 @@ import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
+import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.After;
 import org.junit.Assert;
@@ -367,6 +378,204 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testMessagePluginForLargeMessage() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      LargeMessagePlugin plugin = new LargeMessagePlugin();
+      server.registerBrokerPlugin(plugin);
+
+      server.start();
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, false);
+
+      try {
+         LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+
+         fileMessage.setMessageID(1005);
+
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
+            fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
+         }
+         // The server would be doing this
+         fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+
+         fileMessage.releaseResources(false);
+
+         session.createQueue("A", RoutingType.ANYCAST, "A");
+
+         ClientProducer prod = session.createProducer("A");
+
+         prod.send(fileMessage);
+
+         fileMessage.deleteFile();
+
+         session.commit();
+
+         session.start();
+
+         ClientConsumer cons = session.createConsumer("A");
+
+         ClientMessage msg = cons.receive(5000);
+
+         Assert.assertNotNull(msg);
+
+         Assert.assertEquals(msg.getBodySize(), 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
+            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         }
+
+         msg.acknowledge();
+
+         session.commit();
+
+         plugin.validateSuccessfulSendAndReceive();
+      } finally {
+         sf.close();
+         locator.close();
+         server.stop();
+      }
+   }
+
+   @Test
+   public void testMessagePluginForLargeMessageOnSendException() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      LargeMessagePlugin plugin = new LargeMessagePlugin();
+      plugin.setOnSendException(true);
+
+      server.registerBrokerPlugin(plugin);
+
+      server.start();
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, false);
+
+      try {
+         LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+
+         fileMessage.setMessageID(1005);
+
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
+            fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
+         }
+         // The server would be doing this
+         fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+
+         fileMessage.releaseResources(false);
+
+         session.createQueue("A", RoutingType.ANYCAST, "A");
+
+         ClientProducer prod = session.createProducer("A");
+
+         prod.send(fileMessage);
+
+         fileMessage.deleteFile();
+
+         session.commit();
+
+      } finally {
+         sf.close();
+         locator.close();
+         server.stop();
+      }
+      assertTrue(plugin.onSendExceptionCalled.get());
+   }
+
+   //the test verifies that a corrupted (zero-sized)
+   //large message will be detected by server and won't be
+   //delivered to clients.
+   @Test
+   public void testCorruptedLargeMessage() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      final CountDownLatch latch = new CountDownLatch(1);
+
+      server.registerBrokerPlugin(new ActiveMQServerMessagePlugin() {
+         @Override
+         public void afterSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue, RoutingStatus result) throws ActiveMQException {
+            latch.countDown();
+         }
+      });
+
+      server.start();
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, false);
+
+      try {
+         LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+
+         fileMessage.setMessageID(1005);
+
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
+            fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
+         }
+         // The server would be doing this
+         fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+
+         fileMessage.releaseResources(false);
+
+         session.createQueue("A", RoutingType.ANYCAST, "A");
+
+         ClientProducer prod = session.createProducer("A");
+
+         prod.send(fileMessage);
+
+         fileMessage.deleteFile();
+
+         session.commit();
+
+         latch.await();
+         //corrupt the large file
+         String lmLoc = server.getConfiguration().getLargeMessagesDirectory();
+         File lmDir = new File(lmLoc);
+
+         Wait.assertEquals(1, () -> {
+            File[] fileList = lmDir.listFiles();
+            for (File f : fileList) {
+               System.out.println("large file: " + f.getAbsolutePath() + " size: " + f.length());
+            }
+            return fileList.length;
+         }, 2000);
+
+         File[] fileList = lmDir.listFiles();
+         File lmFile = fileList[0];
+
+         lmFile.delete();
+         lmFile.createNewFile();
+
+         long size = lmFile.length();
+
+         assertEquals(0, size);
+
+         session.start();
+
+         ClientConsumer cons = session.createConsumer("A");
+         ClientMessage msg = cons.receive(1000);
+
+         Assert.assertNull(msg);
+
+         session.commit();
+
+      } finally {
+         sf.close();
+         locator.close();
+         server.stop();
+      }
+   }
+
    private void replaceFile(LargeServerMessageImpl largeMessage) throws Exception {
       SequentialFile originalFile = largeMessage.getAppendFile();
       MockSequentialFile mockFile = new MockSequentialFile(originalFile);
@@ -464,4 +673,93 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
       }
    }
 
+   private static class LargeMessagePlugin implements ActiveMQServerMessagePlugin {
+
+      private AtomicBoolean beforeSendCalled = new AtomicBoolean(false);
+      private AtomicBoolean afterSendCalled = new AtomicBoolean(false);
+      private AtomicBoolean onSendExceptionCalled = new AtomicBoolean(false);
+      private AtomicBoolean beforeMessageRouteCalled = new AtomicBoolean(false);
+      private AtomicBoolean afterMessageRouteCalled = new AtomicBoolean(false);
+      private AtomicBoolean onMessageRouteExceptionCalled = new AtomicBoolean(false);
+      private AtomicBoolean beforeDeliverCalled = new AtomicBoolean(false);
+      private AtomicBoolean afterDeliverCalled = new AtomicBoolean(false);
+      private AtomicBoolean messageExpiredCalled = new AtomicBoolean(false);
+      private AtomicBoolean messageAcknowledgedCalled = new AtomicBoolean(false);
+
+      private AtomicBoolean throwOnSend = new AtomicBoolean(false);
+
+
+      @Override
+      public void beforeSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue) throws ActiveMQException {
+         this.beforeSendCalled.set(true);
+         if (throwOnSend.get()) {
+            throw new ActiveMQException("for test!");
+         }
+      }
+
+      @Override
+      public void afterSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue, RoutingStatus result) throws ActiveMQException {
+         this.afterSendCalled.set(true);
+      }
+
+      @Override
+      public void onSendException(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue,
+                                   Exception e) throws ActiveMQException {
+         this.onSendExceptionCalled.set(true);
+      }
+
+      @Override
+      public void beforeMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates) throws ActiveMQException {
+         this.beforeMessageRouteCalled.set(true);
+      }
+
+      @Override
+      public void afterMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
+                                    RoutingStatus result) throws ActiveMQException {
+         this.afterMessageRouteCalled.set(true);
+      }
+
+      @Override
+      public void onMessageRouteException(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
+                                           Exception e) throws ActiveMQException {
+         this.onMessageRouteExceptionCalled.set(true);
+      }
+
+      @Override
+      public void beforeDeliver(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
+         this.beforeDeliverCalled.set(true);
+      }
+
+      @Override
+      public void afterDeliver(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
+         this.afterDeliverCalled.set(true);
+      }
+
+      @Override
+      public void messageExpired(MessageReference message, SimpleString messageExpiryAddress, ServerConsumer consumer) throws ActiveMQException {
+         this.messageExpiredCalled.set(true);
+      }
+
+      @Override
+      public void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) throws ActiveMQException {
+         this.messageAcknowledgedCalled.set(true);
+      }
+
+      public void validateSuccessfulSendAndReceive() {
+         assertTrue(beforeSendCalled.get());
+         assertTrue(afterSendCalled.get());
+         assertFalse(onSendExceptionCalled.get());
+         assertTrue(beforeMessageRouteCalled.get());
+         assertTrue(afterMessageRouteCalled.get());
+         assertFalse(onMessageRouteExceptionCalled.get());
+         assertTrue(beforeDeliverCalled.get());
+         assertTrue(afterDeliverCalled.get());
+         assertFalse(messageExpiredCalled.get());
+         assertTrue(messageAcknowledgedCalled.get());
+      }
+
+      public void setOnSendException(boolean flag) {
+         this.throwOnSend.set(flag);
+      }
+   }
 }
