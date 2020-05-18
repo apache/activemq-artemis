@@ -48,6 +48,7 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.jboss.logging.Logger;
 
 import javax.servlet.DispatcherType;
@@ -252,6 +253,7 @@ public class WebServerComponent implements ExternalComponent {
       if (isStarted()) {
          return;
       }
+      cleanupTmp();
       server.start();
       ActiveMQWebLogger.LOGGER.webserverStarted(webServerConfig.bind);
 
@@ -274,6 +276,35 @@ public class WebServerComponent implements ExternalComponent {
       Path lib = artemisHomePath.resolve("lib");
       File libFolder = new File(lib.toUri());
       return libFolder;
+   }
+
+   private void cleanupTmp() {
+      if (webContexts == null || webContexts.size() == 0) {
+         //there is no webapp to be deployed (as in some tests)
+         return;
+      }
+      List<File> temporaryFiles = new ArrayList<>();
+
+      for (WebAppContext context : webContexts) {
+         WebInfConfiguration config = new WebInfConfiguration();
+         try {
+            config.resolveTempDirectory(context);
+            File webTmpBase = context.getTempDirectory().getParentFile();
+            if (webTmpBase.exists()) {
+               webTmpBase.listFiles((f) -> {
+                  temporaryFiles.add(f);
+                  return false;
+               });
+            }
+            if (temporaryFiles.size() > 0) {
+               WebTmpCleaner.cleanupTmpFiles(getLibFolder(), temporaryFiles, true);
+            }
+            //all web contexts share a same base dir. So we only do it once.
+            break;
+         } catch (Exception e) {
+            logger.warn("Failed to get base dir for tmp web files", e);
+         }
+      }
    }
 
    public void cleanupWebTemporaryFiles(List<WebAppContext> webContexts) throws Exception {
@@ -326,5 +357,9 @@ public class WebServerComponent implements ExternalComponent {
       if (isShutdown) {
          internalStop();
       }
+   }
+
+   public List<WebAppContext> getWebContexts() {
+      return this.webContexts;
    }
 }
