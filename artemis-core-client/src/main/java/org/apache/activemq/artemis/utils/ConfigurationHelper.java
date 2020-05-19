@@ -54,7 +54,13 @@ public class ConfigurationHelper {
       } else {
          // The resource adapter will aways send Strings, hence the conversion here
          if (prop instanceof String) {
-            return Integer.valueOf((String) prop);
+            try {
+               return Integer.valueOf((String) prop);
+            } catch (NumberFormatException e) {
+               ActiveMQClientLogger.LOGGER.propertyNotInteger(propName, prop.getClass().getName());
+
+               return def;
+            }
          } else if (prop instanceof Number == false) {
             ActiveMQClientLogger.LOGGER.propertyNotInteger(propName, prop.getClass().getName());
 
@@ -77,7 +83,12 @@ public class ConfigurationHelper {
       } else {
          // The resource adapter will aways send Strings, hence the conversion here
          if (prop instanceof String) {
-            return Long.valueOf((String) prop);
+            try {
+               return Long.valueOf((String) prop);
+            } catch (NumberFormatException e) {
+               ActiveMQClientLogger.LOGGER.propertyNotLong(propName, prop.getClass().getName());
+               return def;
+            }
          } else if (prop instanceof Number == false) {
             ActiveMQClientLogger.LOGGER.propertyNotLong(propName, prop.getClass().getName());
 
