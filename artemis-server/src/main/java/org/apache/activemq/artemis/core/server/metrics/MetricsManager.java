@@ -28,8 +28,11 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -45,13 +48,21 @@ public class MetricsManager {
    private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
 
    public MetricsManager(String brokerName,
-                         ActiveMQMetricsPlugin metricsPlugin,
+                         MetricsConfiguration metricsConfiguration,
                          HierarchicalRepository<AddressSettings> addressSettingsRepository) {
       this.brokerName = brokerName;
-      meterRegistry = metricsPlugin.getRegistry();
+      meterRegistry = metricsConfiguration.getPlugin().getRegistry();
       Metrics.globalRegistry.add(meterRegistry);
-      new JvmMemoryMetrics().bindTo(meterRegistry);
       this.addressSettingsRepository = addressSettingsRepository;
+      if (metricsConfiguration.isJvmMemory()) {
+         new JvmMemoryMetrics().bindTo(meterRegistry);
+      }
+      if (metricsConfiguration.isJvmGc()) {
+         new JvmGcMetrics().bindTo(meterRegistry);
+      }
+      if (metricsConfiguration.isJvmThread()) {
+         new JvmThreadMetrics().bindTo(meterRegistry);
+      }
    }
 
    public MeterRegistry getMeterRegistry() {

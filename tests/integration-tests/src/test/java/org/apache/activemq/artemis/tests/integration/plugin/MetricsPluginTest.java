@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
@@ -44,10 +47,24 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
+@RunWith(Parameterized.class)
 public class MetricsPluginTest extends ActiveMQTestBase {
+
+   private boolean legacyConfig;
+
+   @Parameterized.Parameters(name = "legacyConfig={0}")
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
+   }
+
+   public MetricsPluginTest(boolean legacyConfig) {
+      this.legacyConfig = legacyConfig;
+   }
 
    protected ActiveMQServer server;
    protected ClientSession session;
@@ -59,7 +76,11 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
-      server.getConfiguration().setMetricsPlugin(new SimpleMetricsPlugin().init(null));
+      if (legacyConfig) {
+         server.getConfiguration().setMetricsPlugin(new SimpleMetricsPlugin().init(null));
+      } else {
+         server.getConfiguration().setMetricsConfiguration(new MetricsConfiguration().setPlugin(new SimpleMetricsPlugin().init(null)));
+      }
       server.start();
       locator = createInVMNonHALocator();
       sf = createSessionFactory(locator);
@@ -245,6 +266,10 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    }
 
    public Map<Meter.Id, Double> getMetrics() {
+      return getMetrics(server);
+   }
+
+   public static Map<Meter.Id, Double> getMetrics(ActiveMQServer server) {
       Map<Meter.Id, Double> metrics = new HashMap<>();
       List<Meter> meters = server.getMetricsManager().getMeterRegistry().getMeters();
       assertTrue(meters.size() > 0);
