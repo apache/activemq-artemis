@@ -2836,8 +2836,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
        * on Micrometer as "optional" in the Maven pom.xml. This is particularly beneficial because optional dependencies
        * are not required to be included in the OSGi bundle and the Micrometer jars apparently don't support OSGi.
        */
-      if (configuration.getMetricsPlugin() != null) {
-         metricsManager = new MetricsManager(configuration.getName(), configuration.getMetricsPlugin(), addressSettingsRepository);
+      if (configuration.getMetricsConfiguration() != null && configuration.getMetricsConfiguration().getPlugin() != null) {
+         metricsManager = new MetricsManager(configuration.getName(), configuration.getMetricsConfiguration(), addressSettingsRepository);
       }
 
       registerMeters();

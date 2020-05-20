@@ -194,11 +194,16 @@
          </bridge>
       </bridges>
 
-      <metrics-plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin">
-         <property key="foo" value="x"/>
-         <property key="bar" value="y"/>
-         <property key="baz" value="z"/>
-      </metrics-plugin>
+      <metrics>
+         <jvm-memory>false</jvm-memory>
+         <jvm-gc>true</jvm-gc>
+         <jvm-threads>true</jvm-threads>
+         <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin">
+            <property key="foo" value="x"/>
+            <property key="bar" value="y"/>
+            <property key="baz" value="z"/>
+         </plugin>
+      </metrics>
 
       <ha-policy>
          <!--only one of the following-->

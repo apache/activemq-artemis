@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -465,12 +466,23 @@ public class FileConfigurationTest extends ConfigurationImplTest {
 
       assertEquals(false, conf.isJournalDatasync());
 
+      // keep test for backwards compatibility
       ActiveMQMetricsPlugin metricsPlugin = conf.getMetricsPlugin();
       assertTrue(metricsPlugin instanceof SimpleMetricsPlugin);
       Map<String, String> options = ((SimpleMetricsPlugin) metricsPlugin).getOptions();
       assertEquals("x", options.get("foo"));
       assertEquals("y", options.get("bar"));
       assertEquals("z", options.get("baz"));
+
+      MetricsConfiguration metricsConfiguration = conf.getMetricsConfiguration();
+      assertTrue(metricsConfiguration.getPlugin() instanceof SimpleMetricsPlugin);
+      options = ((SimpleMetricsPlugin) metricsPlugin).getOptions();
+      assertEquals("x", options.get("foo"));
+      assertEquals("y", options.get("bar"));
+      assertEquals("z", options.get("baz"));
+      assertFalse(metricsConfiguration.isJvmMemory());
+      assertTrue(metricsConfiguration.isJvmGc());
+      assertTrue(metricsConfiguration.isJvmThread());
    }
 
    private void verifyAddresses() {
