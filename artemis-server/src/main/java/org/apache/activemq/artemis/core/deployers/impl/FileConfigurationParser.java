@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -710,11 +711,15 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       parseBrokerPlugins(e, config);
 
-      NodeList metricsPlugin = e.getElementsByTagName("metrics-plugin");
+      { // for backwards compatibility
+         NodeList metricsPlugin = e.getElementsByTagName("metrics-plugin");
 
-      if (metricsPlugin.getLength() != 0) {
-         parseMetricsPlugin(metricsPlugin.item(0), config);
+         if (metricsPlugin.getLength() != 0) {
+            parseMetricsPlugin(metricsPlugin.item(0), config);
+         }
       }
+
+      parseMetrics(e, config);
 
       NodeList connectorServiceConfigs = e.getElementsByTagName("connector-service");
 
@@ -806,6 +811,34 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return properties;
    }
 
+   /**
+    * @param e
+    * @param config
+    */
+   private void parseMetrics(final Element e, final Configuration config) {
+      NodeList elements = e.getElementsByTagName("metrics");
+      MetricsConfiguration metricsConfiguration = new MetricsConfiguration();
+
+      if (elements.getLength() != 0) {
+         Element node = (Element) elements.item(0);
+         NodeList children = node.getChildNodes();
+         for (int j = 0; j < children.getLength(); j++) {
+            Node child = children.item(j);
+            if (child.getNodeName().equals("jvm-gc")) {
+               metricsConfiguration.setJvmGc(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("jvm-memory")) {
+               metricsConfiguration.setJvmMemory(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("jvm-threads")) {
+               metricsConfiguration.setJvmThread(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("plugin")) {
+               metricsConfiguration.setPlugin(parseMetricsPlugin(child, config));
+            }
+         }
+      }
+
+      config.setMetricsConfiguration(metricsConfiguration);
+   }
+
    private ActiveMQMetricsPlugin parseMetricsPlugin(final Node item, final Configuration config) {
       final String clazz = item.getAttributes().getNamedItem("class-name").getNodeValue();
 
@@ -819,6 +852,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       });
 
       ActiveMQServerLogger.LOGGER.initializingMetricsPlugin(clazz, properties.toString());
+
+      // leaving this as-is for backwards compatibility
       config.setMetricsPlugin(metricsPlugin.init(properties));
 
       return metricsPlugin;
