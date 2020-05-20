@@ -82,28 +82,37 @@ message count). However, these metrics can be deduced by aggregating the
 lower level metrics (e.g. aggregate the message.count metrics from all queues
 to get the total).
 
-JVM memory metrics are exported as well.
+JVM memory metrics are also exported by default and GC and thread metrics can
+be configured
 
 ## Configuration
 
-All metrics are enabled by default. If you want to disable metrics for a
-particular address or set of addresses you can do so by setting the
-`enable-metrics` `address-setting` to `false`.
+Metrics for all addresses and queues are enabled by default. If you want to
+disable metrics for a particular address or set of addresses you can do so by
+setting the `enable-metrics` `address-setting` to `false`.
 
-To configure the plugin itself use the `metrics-plugin` element in `broker.xml`
-and specify the `class-name` attribute, e.g.:
+In `broker.xml` use the `metrics` element to configure which JVM metrics are
+reported and to configure the plugin itself. Here's a configuration with all
+JVM metrics:
 
 ```xml
-<metrics-plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.LoggingMetricsPlugin" />
+<metrics>
+   <jvm-memory>true</jvm-memory> <!-- defaults to true -->
+   <jvm-gc>true</jvm-gc> <!-- defaults to false -->
+   <jvm-threads>true</jvm-threads> <!-- defaults to false -->
+   <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.LoggingMetricsPlugin"/>
+</metrics>
 ```
 
 The plugin can also be configured with key/value properties in order to
 customize the implementation as necessary, e.g.:
 
 ```xml
-<metrics-plugin class-name="org.example.MyMetricsPlugin">
-   <property key="host" value="example.org" />
-   <property key="port" value="5162" />
-   <property key="foo" value="10" />
-</metrics-plugin>
+<metrics>
+   <plugin class-name="org.example.MyMetricsPlugin">
+      <property key="host" value="example.org" />
+      <property key="port" value="5162" />
+      <property key="foo" value="10" />
+   </plugin>
+</metrics>
 ```

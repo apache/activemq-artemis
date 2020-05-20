@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
@@ -269,7 +270,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private List<SecuritySettingPlugin> securitySettingPlugins = new ArrayList<>();
 
-   private ActiveMQMetricsPlugin metricsPlugin = null;
+   private MetricsConfiguration metricsConfiguration = null;
 
    private final List<ActiveMQServerBasePlugin> brokerPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerConnectionPlugin> brokerConnectionPlugins = new CopyOnWriteArrayList<>();
@@ -1487,9 +1488,18 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this.securitySettingPlugins;
    }
 
+   @Deprecated
    @Override
    public ActiveMQMetricsPlugin getMetricsPlugin() {
-      return this.metricsPlugin;
+      if (metricsConfiguration != null) {
+         return metricsConfiguration.getPlugin();
+      }
+      return null;
+   }
+
+   @Override
+   public MetricsConfiguration getMetricsConfiguration() {
+      return this.metricsConfiguration;
    }
 
    @Override
@@ -1712,9 +1722,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   @Deprecated
    @Override
    public ConfigurationImpl setMetricsPlugin(final ActiveMQMetricsPlugin plugin) {
-      this.metricsPlugin = plugin;
+      if (metricsConfiguration == null) {
+         metricsConfiguration = new MetricsConfiguration();
+      }
+      metricsConfiguration.setPlugin(plugin);
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl setMetricsConfiguration(final MetricsConfiguration metricsConfiguration) {
+      this.metricsConfiguration = metricsConfiguration;
       return this;
    }
 

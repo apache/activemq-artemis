@@ -600,6 +600,15 @@ public final class ActiveMQDefaultConfiguration {
    // How long to wait for a reply if in the middle of a fail-over. -1 means wait forever.
    private static long DEFAULT_FEDERATION_CALL_FAILOVER_TIMEOUT = -1;
 
+   // Whether or not to report JVM memory metrics
+   private static final boolean DEFAULT_JVM_MEMORY_METRICS = true;
+
+   // Whether or not to report JVM GC metrics
+   private static final boolean DEFAULT_JVM_GC_METRICS = false;
+
+   // Whether or not to report JVM thread metrics
+   private static final boolean DEFAULT_JVM_THREAD_METRICS = false;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1628,6 +1637,27 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static long getDefaultFederationCallFailoverTimeout() {
       return DEFAULT_FEDERATION_CALL_FAILOVER_TIMEOUT;
+   }
+
+   /**
+    * Whether or not to report JVM memory metrics
+    */
+   public static boolean getDefaultJvmMemoryMetrics() {
+      return DEFAULT_JVM_MEMORY_METRICS;
+   }
+
+   /**
+    * Whether or not to report JVM GC metrics
+    */
+   public static boolean getDefaultJvmGcMetrics() {
+      return DEFAULT_JVM_GC_METRICS;
+   }
+
+   /**
+    * Whether or not to report JVM thread metrics
+    */
+   public static boolean getDefaultJvmThreadMetrics() {
+      return DEFAULT_JVM_THREAD_METRICS;
    }
 
 }

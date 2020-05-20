@@ -1051,7 +1051,7 @@
             <xsd:complexType>
                <xsd:annotation>
                   <xsd:documentation>
-                     a metrics plugin
+                     DEPRECATED: use metrics instead. A metrics plugin
                   </xsd:documentation>
                </xsd:annotation>
                <xsd:sequence>
@@ -1070,6 +1070,69 @@
                      </xsd:documentation>
                   </xsd:annotation>
                </xsd:attribute>
+               <xsd:attributeGroup ref="xml:specialAttrs"/>
+            </xsd:complexType>
+         </xsd:element>
+
+         <xsd:element name="metrics" maxOccurs="1" minOccurs="0">
+            <xsd:complexType>
+               <xsd:annotation>
+                  <xsd:documentation>
+                     metrics configuration
+                  </xsd:documentation>
+               </xsd:annotation>
+               <xsd:all>
+                  <xsd:element name="jvm-memory" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           whether or not to report JVM memory metrics
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:element>
+
+                  <xsd:element name="jvm-threads" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           whether or not to report JVM thread metrics
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:element>
+
+                  <xsd:element name="jvm-gc" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           whether or not to report JVM GC metrics
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:element>
+
+                  <xsd:element name="plugin" maxOccurs="1" minOccurs="0">
+                     <xsd:complexType>
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              a metrics plugin
+                           </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:sequence>
+                           <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
+                              <xsd:annotation>
+                                 <xsd:documentation>
+                                    properties to configure a plugin
+                                 </xsd:documentation>
+                              </xsd:annotation>
+                           </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="class-name" type="xsd:string" use="required">
+                           <xsd:annotation>
+                              <xsd:documentation>
+                                 the name of the metrics plugin class to instantiate
+                              </xsd:documentation>
+                           </xsd:annotation>
+                        </xsd:attribute>
+                        <xsd:attributeGroup ref="xml:specialAttrs"/>
+                     </xsd:complexType>
+                  </xsd:element>
+               </xsd:all>
                <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
