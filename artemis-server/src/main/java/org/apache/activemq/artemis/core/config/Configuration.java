@@ -1056,7 +1056,10 @@ public interface Configuration {
 
    Configuration addSecuritySettingPlugin(SecuritySettingPlugin plugin);
 
+   @Deprecated
    Configuration setMetricsPlugin(ActiveMQMetricsPlugin plugin);
+
+   Configuration setMetricsConfiguration(MetricsConfiguration metricsConfiguration);
 
    /**
     * @return list of {@link ConnectorServiceConfiguration}
@@ -1065,7 +1068,10 @@ public interface Configuration {
 
    List<SecuritySettingPlugin> getSecuritySettingPlugins();
 
+   @Deprecated
    ActiveMQMetricsPlugin getMetricsPlugin();
+
+   MetricsConfiguration getMetricsConfiguration();
 
    /**
     * The default password decoder
