@@ -31,8 +31,7 @@ ENV CREATE_ARGUMENTS --user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --sil
 # add user and group for artemis
 RUN groupadd -g 1000 -r artemis && useradd -r -u 1000 -g artemis artemis \
  && apt-get -qq -o=Dpkg::Use-Pty=0 update && \
-    apt-get -qq -o=Dpkg::Use-Pty=0 install -y --no-install-recommends \
-    libaio1=0.3.110-3 && \
+    apt-get -qq -o=Dpkg::Use-Pty=0 install -y libaio1 && \
     rm -rf /var/lib/apt/lists/*
 
 USER artemis
