@@ -2595,6 +2595,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       postOffice.removeBinding(name, null, true);
+
+      if (((DivertBinding)binding).getDivert().getTransformer() != null) {
+         getServiceRegistry().removeDivertTransformer(name.toString());
+      }
    }
 
    @Override
