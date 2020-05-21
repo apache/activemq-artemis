@@ -157,6 +157,11 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    }
 
    @Override
+   public void removeDivertTransformer(String name) {
+      divertTransformers.remove(name);
+   }
+
+   @Override
    public Transformer getDivertTransformer(String name, TransformerConfiguration transformerConfiguration) {
       Transformer transformer = divertTransformers.get(name);
 

@@ -98,6 +98,8 @@ public interface ServiceRegistry {
 
    void addDivertTransformer(String name, Transformer transformer);
 
+   void removeDivertTransformer(String name);
+
    /**
     * Get an instance of org.apache.activemq.artemis.core.server.transformer.Transformer for a bridge
     *
