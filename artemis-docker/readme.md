@@ -1,6 +1,6 @@
 # Docker Image Example
 
-This is an example on how you could create your own Docker Image For Apache ActiveMQ Artemis based on CentOS or Ubuntu.
+This is an example on how you could create your own Docker Image For Apache ActiveMQ Artemis based on CentOS or Debian.
 # Preparing
 
 Use the script ./prepare-docker.sh as it will copy the docker files under the binary distribution.
@@ -13,11 +13,11 @@ $ ./prepare-docker.sh $ARTEMIS_HOME
 
 Go to `$ARTEMIS_HOME` where you prepared the binary with Docker files.
 
-## For Ubuntu:
+## For Debian:
 
 From within the `$ARTEMIS_HOME` folder:
 ```
-$ docker build -f ./docker/Dockerfile-ubuntu -t artemis-ubuntu .
+$ docker build -f ./docker/Dockerfile-debian -t artemis-debian .
 ```
 
 ## For CentOS
@@ -28,7 +28,7 @@ $ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
 ```
 
 **Note:**
-`-t artemis-ubuntu`,`-t artemis-centos` are just tag names for the purpose of this guide
+`-t artemis-debian`,`-t artemis-centos` are just tag names for the purpose of this guide
 
 # Variables:
 
