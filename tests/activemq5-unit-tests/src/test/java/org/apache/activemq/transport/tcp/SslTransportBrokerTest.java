@@ -24,7 +24,9 @@ import junit.framework.Test;
 import junit.textui.TestRunner;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.transport.TransportBrokerTestSupport;
+import org.junit.Ignore;
 
+@Ignore
 public class SslTransportBrokerTest extends TransportBrokerTestSupport {
 
    public static final String KEYSTORE_TYPE = "jks";

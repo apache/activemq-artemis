@@ -49,9 +49,11 @@ import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.management.JMSConnectionStatsImpl;
 import org.apache.activemq.transport.failover.FailoverTransport;
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(ActiveMQXAConnectionFactoryTest.class);

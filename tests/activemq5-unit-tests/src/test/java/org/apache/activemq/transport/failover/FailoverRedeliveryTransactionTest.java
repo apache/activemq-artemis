@@ -20,8 +20,10 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class FailoverRedeliveryTransactionTest extends FailoverTransactionTest {
 
    @Override

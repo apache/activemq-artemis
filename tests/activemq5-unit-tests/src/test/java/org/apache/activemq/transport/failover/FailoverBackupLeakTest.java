@@ -34,6 +34,7 @@ import org.apache.activemq.util.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -41,6 +42,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Ensures connections aren't leaked when when we use backup=true and randomize=false
  */
+@Ignore
 public class FailoverBackupLeakTest extends OpenwireArtemisBaseTest {
 
    private EmbeddedJMS s1, s2;

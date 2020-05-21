@@ -33,10 +33,12 @@ import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 public class FailoverPriorityTest extends OpenwireArtemisBaseTest {
 
    protected final Logger LOG = LoggerFactory.getLogger(getClass());

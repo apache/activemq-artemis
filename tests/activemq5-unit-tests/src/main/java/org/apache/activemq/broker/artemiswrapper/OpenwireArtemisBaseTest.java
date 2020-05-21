@@ -47,9 +47,6 @@ public class OpenwireArtemisBaseTest {
    public CleanupThreadRule cleanupRules = new CleanupThreadRule();
 
    @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
-
-   @Rule
    public TemporaryFolder temporaryFolder;
    @Rule
    public TestName name = new TestName();

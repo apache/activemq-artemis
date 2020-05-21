@@ -27,10 +27,12 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
+import org.junit.Ignore;
 
 /**
  * https://issues.apache.org/jira/browse/ARTEMIS-189
  */
+@Ignore
 public class JmsQueueWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
 
    private String destination1String = "TEST.ONE.ONE";
