@@ -38,6 +38,7 @@ import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -47,6 +48,7 @@ import org.junit.Test;
  * connections on the client should start with 3, then have two after the 3rd
  * broker is removed and then show 3 after the 3rd broker is reintroduced.
  */
+@Ignore
 public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
 
    private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";

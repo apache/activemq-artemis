@@ -19,7 +19,9 @@ package org.apache.activemq.transport.tcp;
 import junit.framework.Test;
 
 import org.apache.activemq.transport.TransportBrokerTestSupport;
+import org.junit.Ignore;
 
+@Ignore
 public class TcpTransportBrokerTest extends TransportBrokerTestSupport {
 
    @Override

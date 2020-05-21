@@ -49,6 +49,7 @@ import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -58,6 +59,7 @@ import static org.junit.Assert.assertTrue;
 
 // see https://issues.apache.org/activemq/browse/AMQ-2573
 @RunWith(BMUnitRunner.class)
+@Ignore // This test is using byteMan. it's not really accurate.
 public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(FailoverConsumerUnconsumedTest.class);

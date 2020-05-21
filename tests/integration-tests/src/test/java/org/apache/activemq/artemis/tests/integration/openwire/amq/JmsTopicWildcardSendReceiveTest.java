@@ -27,11 +27,13 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsTopicWildcardSendReceiveTest
  */
+@Ignore
 public class JmsTopicWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
 
    private String destination1String = "TEST.ONE.ONE";

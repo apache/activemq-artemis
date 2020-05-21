@@ -30,10 +30,12 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
+import org.junit.Ignore;
 
 /**
  *
  */
+@Ignore
 public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
 
    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsQueueCompositeSendReceiveTest.class);
