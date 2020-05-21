@@ -26,7 +26,7 @@ WORKDIR /opt
 ENV ARTEMIS_USER artemis
 ENV ARTEMIS_PASSWORD artemis
 ENV ANONYMOUS_LOGIN false
-ENV CREATE_ARGUMENTS --user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --silent --http-host 0.0.0.0 --relax-jolokia
+ENV EXTRA_ARGS --http-host 0.0.0.0 --relax-jolokia
 
 # add user and group for artemis
 RUN groupadd -g 1000 -r artemis && useradd -r -u 1000 -g artemis artemis \
