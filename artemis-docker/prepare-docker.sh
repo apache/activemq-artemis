@@ -51,6 +51,7 @@ then
   rm -rf $target/docker
 fi
 mkdir $target/docker
-cp ./{Dockerfile-centos,Dockerfile-ubuntu,docker-run.sh} $target/docker
+cp ./Dockerfile-* $target/docker
+cp ./docker-run.sh $target/docker
 
 echo "Docker file support files at : $target/docker"
