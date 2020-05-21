@@ -1461,5 +1461,8 @@ public class DivertTest extends ActiveMQTestBase {
       }
       assertNotNull(divert);
       assertEquals(transformer, divert.getTransformer());
+
+      server.destroyDivert(SimpleString.toSimpleString(DIVERT));
+      assertNull(serviceRegistry.getDivertTransformer(DIVERT, null));
    }
 }
