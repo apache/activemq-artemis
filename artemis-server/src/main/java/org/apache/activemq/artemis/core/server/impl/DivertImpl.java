@@ -37,7 +37,9 @@ public class DivertImpl implements Divert {
 
    private final PostOffice postOffice;
 
-   private final SimpleString forwardAddress;
+   private final SimpleString address;
+
+   private volatile SimpleString forwardAddress;
 
    private final SimpleString uniqueName;
 
@@ -45,16 +47,17 @@ public class DivertImpl implements Divert {
 
    private final boolean exclusive;
 
-   private final Filter filter;
+   private volatile Filter filter;
 
-   private final Transformer transformer;
+   private volatile Transformer transformer;
 
    private final StorageManager storageManager;
 
-   private final ComponentConfigurationRoutingType routingType;
+   private volatile ComponentConfigurationRoutingType routingType;
 
-   public DivertImpl(final SimpleString forwardAddress,
-                     final SimpleString uniqueName,
+   public DivertImpl(final SimpleString uniqueName,
+                     final SimpleString address,
+                     final SimpleString forwardAddress,
                      final SimpleString routingName,
                      final boolean exclusive,
                      final Filter filter,
@@ -62,6 +65,8 @@ public class DivertImpl implements Divert {
                      final PostOffice postOffice,
                      final StorageManager storageManager,
                      final ComponentConfigurationRoutingType routingType) {
+      this.address = address;
+
       this.forwardAddress = forwardAddress;
 
       this.uniqueName = uniqueName;
@@ -154,6 +159,11 @@ public class DivertImpl implements Divert {
    }
 
    @Override
+   public SimpleString getAddress() {
+      return address;
+   }
+
+   @Override
    public Filter getFilter() {
       return filter;
    }
@@ -166,6 +176,31 @@ public class DivertImpl implements Divert {
    @Override
    public SimpleString getForwardAddress() {
       return forwardAddress;
+   }
+
+   @Override
+   public ComponentConfigurationRoutingType getRoutingType() {
+      return routingType;
+   }
+
+   @Override
+   public void setFilter(Filter filter) {
+      this.filter = filter;
+   }
+
+   @Override
+   public void setTransformer(Transformer transformer) {
+      this.transformer = transformer;
+   }
+
+   @Override
+   public void setForwardAddress(SimpleString forwardAddress) {
+      this.forwardAddress = forwardAddress;
+   }
+
+   @Override
+   public void setRoutingType(ComponentConfigurationRoutingType routingType) {
+      this.routingType = routingType;
    }
 
    /* (non-Javadoc)

@@ -664,7 +664,9 @@ public interface ActiveMQServer extends ServiceComponent {
 
    FederationManager getFederationManager();
 
-   void deployDivert(DivertConfiguration config) throws Exception;
+   Divert deployDivert(DivertConfiguration config) throws Exception;
+
+   Divert updateDivert(DivertConfiguration config) throws Exception;
 
    void destroyDivert(SimpleString name) throws Exception;
 

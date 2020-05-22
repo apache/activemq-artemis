@@ -1573,6 +1573,17 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "transformerPropertiesAsJSON", desc = "Configuration properties of the divert's transformer in JSON form") String transformerPropertiesAsJSON,
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
 
+   /**
+    * update a divert
+    */
+   @Operation(desc = "Update a divert", impact = MBeanOperationInfo.ACTION)
+   void updateDivert(@Parameter(name = "name", desc = "Name of the queue") String name,
+                     @Parameter(name = "forwardingAddress", desc = "Address to divert to") String forwardingAddress,
+                     @Parameter(name = "filterString", desc = "Filter of the divert") String filterString,
+                     @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName,
+                     @Parameter(name = "transformerProperties", desc = "Configuration properties of the divert's transformer") Map<String, String> transformerProperties,
+                     @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
+
    @Operation(desc = "Destroy a Divert", impact = MBeanOperationInfo.ACTION)
    void destroyDivert(@Parameter(name = "name", desc = "Name of the divert") String name) throws Exception;
 

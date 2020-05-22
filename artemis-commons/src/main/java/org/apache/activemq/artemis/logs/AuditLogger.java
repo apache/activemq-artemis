@@ -2662,4 +2662,12 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601726, value = "User {0} failed to browse messages from queue {1}", format = Message.Format.MESSAGE_FORMAT)
    void browseMessagesFailure(String user, String queueName);
+
+   static void updateDivert(Object source, Object... args) {
+      LOGGER.updateDivert(getCaller(), source, arrayToString(args));
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601727, value = "User {0} is updating a divert on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void updateDivert(String user, Object source, Object... args);
 }

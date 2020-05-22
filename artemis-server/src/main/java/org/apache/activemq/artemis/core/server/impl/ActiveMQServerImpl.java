@@ -2544,7 +2544,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
 
    @Override
-   public void deployDivert(DivertConfiguration config) throws Exception {
+   public Divert deployDivert(DivertConfiguration config) throws Exception {
       if (config.getName() == null) {
          throw ActiveMQMessageBundle.BUNDLE.divertWithNoName();
       }
@@ -2552,13 +2552,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (config.getAddress() == null) {
          ActiveMQServerLogger.LOGGER.divertWithNoAddress();
 
-         return;
+         return null;
       }
 
       if (config.getForwardingAddress() == null) {
          ActiveMQServerLogger.LOGGER.divertWithNoForwardingAddress();
 
-         return;
+         return null;
       }
 
       SimpleString sName = new SimpleString(config.getName());
@@ -2566,7 +2566,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (postOffice.getBinding(sName) != null) {
          ActiveMQServerLogger.LOGGER.divertBindingAlreadyExists(sName);
 
-         return;
+         return null;
       }
 
       SimpleString sAddress = new SimpleString(config.getAddress());
@@ -2575,13 +2575,53 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       Filter filter = FilterImpl.createFilter(config.getFilterString());
 
-      Divert divert = new DivertImpl(new SimpleString(config.getForwardingAddress()), sName, new SimpleString(config.getRoutingName()), config.isExclusive(), filter, transformer, postOffice, storageManager, config.getRoutingType());
+      Divert divert = new DivertImpl(sName, sAddress, new SimpleString(config.getForwardingAddress()),
+                                     new SimpleString(config.getRoutingName()), config.isExclusive(),
+                                     filter, transformer, postOffice, storageManager, config.getRoutingType());
 
       Binding binding = new DivertBinding(storageManager.generateID(), sAddress, divert);
 
       postOffice.addBinding(binding);
 
-      managementService.registerDivert(divert, config);
+      managementService.registerDivert(divert);
+
+      return divert;
+   }
+
+   @Override
+   public Divert updateDivert(DivertConfiguration config) throws Exception {
+      final DivertBinding divertBinding = (DivertBinding) postOffice.getBinding(SimpleString.toSimpleString(config.getName()));
+      if (divertBinding == null) {
+         return null;
+      }
+
+      final Divert divert = divertBinding.getDivert();
+
+      Filter filter = FilterImpl.createFilter(config.getFilterString());
+      if (filter != null && !filter.equals(divert.getFilter())) {
+         divert.setFilter(filter);
+      }
+
+      if (config.getTransformerConfiguration() != null) {
+         getServiceRegistry().removeDivertTransformer(divert.getUniqueName().toString());
+         Transformer transformer = getServiceRegistry().getDivertTransformer(
+            config.getName(), config.getTransformerConfiguration());
+         divert.setTransformer(transformer);
+      }
+
+      if (config.getForwardingAddress() != null) {
+         SimpleString forwardAddress = SimpleString.toSimpleString(config.getForwardingAddress());
+
+         if (!forwardAddress.equals(config)) {
+            divert.setForwardAddress(forwardAddress);
+         }
+      }
+
+      if (config.getRoutingType() != null && divert.getRoutingType() != config.getRoutingType()) {
+         divert.setRoutingType(config.getRoutingType());
+      }
+
+      return divert;
    }
 
    @Override
