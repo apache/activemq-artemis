@@ -19,14 +19,17 @@ package org.apache.activemq.artemis.core.management.impl;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.Divert;
+import org.apache.activemq.artemis.core.server.transformer.RegisteredTransformer;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
 public class DivertControlImpl extends AbstractControl implements DivertControl {
@@ -36,8 +39,6 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
    // Attributes ----------------------------------------------------
 
    private final Divert divert;
-
-   private final DivertConfiguration configuration;
 
    private final String internalNamingPrefix;
 
@@ -49,11 +50,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    public DivertControlImpl(final Divert divert,
                             final StorageManager storageManager,
-                            final DivertConfiguration configuration,
                             final String internalNamingPrefix) throws Exception {
       super(DivertControl.class, storageManager);
       this.divert = divert;
-      this.configuration = configuration;
       this.internalNamingPrefix = internalNamingPrefix;
    }
 
@@ -64,7 +63,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
       clearIO();
       try {
-         return configuration.getAddress();
+         return divert.getAddress().toString();
       } finally {
          blockOnIO();
       }
@@ -77,7 +76,8 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
       clearIO();
       try {
-         return configuration.getFilterString();
+         Filter filter = divert.getFilter();
+         return filter != null ? filter.getFilterString().toString() : null;
       } finally {
          blockOnIO();
       }
@@ -90,7 +90,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
       clearIO();
       try {
-         return configuration.getForwardingAddress();
+         return divert.getForwardAddress().toString();
       } finally {
          blockOnIO();
       }
@@ -116,7 +116,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
       clearIO();
       try {
-         return configuration.getTransformerConfiguration() == null ? null : configuration.getTransformerConfiguration().getClassName();
+         Transformer transformer = divert.getTransformer();
+         return transformer != null ? (transformer instanceof RegisteredTransformer ?
+            ((RegisteredTransformer)transformer).getTransformer() : transformer).getClass().getName() : null;
       } finally {
          blockOnIO();
       }
@@ -137,7 +139,9 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
       clearIO();
       try {
-         return configuration.getTransformerConfiguration() == null ? null : configuration.getTransformerConfiguration().getProperties();
+         Transformer transformer = divert.getTransformer();
+         return transformer != null && transformer instanceof RegisteredTransformer ?
+            ((RegisteredTransformer)transformer).getProperties() : Collections.emptyMap();
       } finally {
          blockOnIO();
       }
@@ -150,7 +154,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
       clearIO();
       try {
-         return configuration.getRoutingType().toString();
+         return divert.getRoutingType().toString();
       } finally {
          blockOnIO();
       }

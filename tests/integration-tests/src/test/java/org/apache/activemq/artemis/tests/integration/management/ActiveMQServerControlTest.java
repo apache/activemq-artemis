@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -1314,6 +1315,110 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       divertedConsumer.close();
       session.deleteQueue(queue);
       session.deleteQueue(divertQueue);
+      session.close();
+
+      locator.close();
+
+   }
+
+   @Test
+   public void testCreateAndUpdateDivert() throws Exception {
+      String address = RandomUtil.randomString();
+      String name = RandomUtil.randomString();
+      String routingName = RandomUtil.randomString();
+      String forwardingAddress = RandomUtil.randomString();
+      String updatedForwardingAddress = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
+      assertEquals(0, serverControl.getDivertNames().length);
+
+      serverControl.createDivert(name.toString(), routingName, address, forwardingAddress, true, null, null);
+
+      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
+      DivertControl divertControl = ManagementControlHelper.createDivertControl(name.toString(), address, mbeanServer);
+      assertEquals(name.toString(), divertControl.getUniqueName());
+      assertEquals(address, divertControl.getAddress());
+      assertEquals(forwardingAddress, divertControl.getForwardingAddress());
+      assertEquals(routingName, divertControl.getRoutingName());
+      assertTrue(divertControl.isExclusive());
+      assertNull(divertControl.getFilter());
+      assertNull(divertControl.getTransformerClassName());
+      String[] divertNames = serverControl.getDivertNames();
+      assertEquals(1, divertNames.length);
+      assertEquals(name, divertNames[0]);
+
+      // check that a message sent to the address is diverted exclusively
+      ServerLocator locator = createInVMNonHALocator();
+
+      ClientSessionFactory csf = createSessionFactory(locator);
+      ClientSession session = csf.createSession();
+
+      String updatedDivertQueue = RandomUtil.randomString();
+      String divertQueue = RandomUtil.randomString();
+      String queue = RandomUtil.randomString();
+      if (legacyCreateQueue) {
+         session.createQueue(updatedForwardingAddress, RoutingType.ANYCAST, updatedDivertQueue);
+         session.createQueue(forwardingAddress, RoutingType.ANYCAST, divertQueue);
+         session.createQueue(address, RoutingType.ANYCAST, queue);
+      } else {
+         session.createQueue(new QueueConfiguration(updatedDivertQueue).setAddress(updatedForwardingAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         session.createQueue(new QueueConfiguration(divertQueue).setAddress(forwardingAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         session.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      }
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(false);
+      String text = RandomUtil.randomString();
+      message.putStringProperty("prop", text);
+      producer.send(message);
+
+      ClientConsumer consumer = session.createConsumer(queue);
+      ClientConsumer divertedConsumer = session.createConsumer(divertQueue);
+      ClientConsumer updatedDivertedConsumer = session.createConsumer(updatedDivertQueue);
+
+      session.start();
+
+      assertNull(consumer.receiveImmediate());
+      message = divertedConsumer.receive(5000);
+      assertNotNull(message);
+      assertEquals(text, message.getStringProperty("prop"));
+      assertNull(updatedDivertedConsumer.receiveImmediate());
+
+      serverControl.updateDivert(name.toString(), updatedForwardingAddress, null, null, null, ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
+
+      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
+      divertControl = ManagementControlHelper.createDivertControl(name.toString(), address, mbeanServer);
+      assertEquals(name.toString(), divertControl.getUniqueName());
+      assertEquals(address, divertControl.getAddress());
+      assertEquals(updatedForwardingAddress, divertControl.getForwardingAddress());
+      assertEquals(routingName, divertControl.getRoutingName());
+      assertTrue(divertControl.isExclusive());
+      assertNull(divertControl.getFilter());
+      assertNull(divertControl.getTransformerClassName());
+      divertNames = serverControl.getDivertNames();
+      assertEquals(1, divertNames.length);
+      assertEquals(name, divertNames[0]);
+
+      // check that a message is no longer exclusively diverted
+      message = session.createMessage(false);
+      String text2 = RandomUtil.randomString();
+      message.putStringProperty("prop", text2);
+      producer.send(message);
+
+      assertNull(consumer.receiveImmediate());
+      assertNull(divertedConsumer.receiveImmediate());
+      message = updatedDivertedConsumer.receive(5000);
+      assertNotNull(message);
+      assertEquals(text2, message.getStringProperty("prop"));
+
+      consumer.close();
+      divertedConsumer.close();
+      updatedDivertedConsumer.close();
+      session.deleteQueue(queue);
+      session.deleteQueue(divertQueue);
+      session.deleteQueue(updatedDivertQueue);
       session.close();
 
       locator.close();

@@ -1239,6 +1239,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void updateDivert(String name,
+                                  String forwardingAddress,
+                                  String filterString,
+                                  String transformerClassName,
+                                  Map<String, String> transformerProperties,
+                                  String routingType) throws Exception {
+            proxy.invokeOperation("updateDivert", name, forwardingAddress, filterString, transformerClassName, transformerProperties, routingType);
+         }
+
+         @Override
          public void destroyDivert(String name) throws Exception {
             proxy.invokeOperation("destroyDivert", name);
          }
