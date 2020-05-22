@@ -97,6 +97,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
+import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -3410,6 +3411,38 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          TransformerConfiguration transformerConfiguration = transformerClassName == null ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
          DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType));
          server.deployDivert(config);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void updateDivert(final String name,
+                            final String forwardingAddress,
+                            final String filterString,
+                            final String transformerClassName,
+                            final Map<String, String> transformerProperties,
+                            final String routingType) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.updateDivert(this.server, name, forwardingAddress, filterString,
+                                  transformerClassName, transformerProperties, routingType);
+      }
+      checkStarted();
+
+      clearIO();
+
+      try {
+         TransformerConfiguration transformerConfiguration = transformerClassName == null ? null :
+            new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
+
+         DivertConfiguration config = new DivertConfiguration().setName(name).setForwardingAddress(forwardingAddress).
+            setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).
+            setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType));
+
+         final Divert divert = server.updateDivert(config);
+         if (divert == null) {
+            throw ActiveMQMessageBundle.BUNDLE.divertDoesNotExist(config.getName());
+         }
       } finally {
          blockOnIO();
       }

@@ -14,35 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.api.core;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.server.transformer.Transformer;
+/**
+ * An operation failed because an address exists on the server.
+ */
+public final class ActiveMQDivertDoesNotExistException extends ActiveMQException {
 
-public interface Divert extends Bindable {
+   public ActiveMQDivertDoesNotExistException() {
+      super(ActiveMQExceptionType.DIVERT_DOES_NOT_EXIST);
+   }
 
-   SimpleString getAddress();
-
-   Filter getFilter();
-
-   boolean isExclusive();
-
-   SimpleString getUniqueName();
-
-   SimpleString getRoutingName();
-
-   Transformer getTransformer();
-
-   SimpleString getForwardAddress();
-
-   ComponentConfigurationRoutingType getRoutingType();
-
-   void setFilter(Filter filter);
-
-   void setTransformer(Transformer transformer);
-
-   void setForwardAddress(SimpleString forwardAddress);
-
-   void setRoutingType(ComponentConfigurationRoutingType routingType);
+   public ActiveMQDivertDoesNotExistException(String msg) {
+      super(ActiveMQExceptionType.DIVERT_DOES_NOT_EXIST, msg);
+   }
 }
