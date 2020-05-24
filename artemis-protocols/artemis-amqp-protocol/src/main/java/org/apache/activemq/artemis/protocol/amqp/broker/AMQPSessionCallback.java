@@ -301,6 +301,16 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
+   public void createQueue(QueueConfiguration queueConfiguration) throws Exception {
+      try {
+         serverSession.createQueue(queueConfiguration);
+      } catch (ActiveMQSecurityException se) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(se.getMessage());
+      } catch (ActiveMQQueueExistsException e) {
+         // ignore as may be caused by multiple, concurrent clients
+      }
+   }
+
    public QueueQueryResult queueQuery(SimpleString queueName, RoutingType routingType, boolean autoCreate) throws Exception {
       QueueQueryResult queueQueryResult = serverSession.executeQueueQuery(queueName);
 
@@ -323,8 +333,6 @@ public class AMQPSessionCallback implements SessionCallback {
 
       return queueQueryResult;
    }
-
-
 
    public boolean checkAddressAndAutocreateIfPossible(SimpleString address, RoutingType routingType) throws Exception {
       boolean result = false;

@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -327,152 +328,126 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          }
          source.setAddress(queue.toString());
       } else {
-         SimpleString addressToUse;
-         SimpleString queueNameToUse = null;
-         shared = hasCapabilities(SHARED, source);
-         global = hasCapabilities(GLOBAL, source);
-
-         //find out if we have an address made up of the address and queue name, if yes then set queue name
          if (CompositeAddress.isFullyQualified(source.getAddress())) {
-            addressToUse = SimpleString.toSimpleString(CompositeAddress.extractAddressName(source.getAddress()));
-            queueNameToUse = SimpleString.toSimpleString(CompositeAddress.extractQueueName(source.getAddress()));
+            queue = getOrCreateFullyQualifiedQueue(source);
          } else {
-            addressToUse = SimpleString.toSimpleString(source.getAddress());
-         }
-         //check to see if the client has defined how we act
-         boolean clientDefined = hasCapabilities(TOPIC, source) || hasCapabilities(QUEUE, source);
-         if (clientDefined) {
-            multicast = hasCapabilities(TOPIC, source);
-            AddressQueryResult addressQueryResult = null;
-            try {
-               addressQueryResult = sessionSPI.addressQuery(addressToUse, multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, true);
-            } catch (ActiveMQSecurityException e) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(e.getMessage());
-            } catch (ActiveMQAMQPException e) {
-               throw e;
-            } catch (Exception e) {
-               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
-            }
+            shared = hasCapabilities(SHARED, source);
+            global = hasCapabilities(GLOBAL, source);
+            SimpleString addressToUse = SimpleString.toSimpleString(source.getAddress());
+            //check to see if the client has defined how we act
+            boolean clientDefined = hasCapabilities(TOPIC, source) || hasCapabilities(QUEUE, source);
+            if (clientDefined) {
+               multicast = hasCapabilities(TOPIC, source);
+               AddressQueryResult addressQueryResult = null;
+               try {
+                  addressQueryResult = sessionSPI.addressQuery(addressToUse, multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, true);
+               } catch (ActiveMQSecurityException e) {
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(e.getMessage());
+               } catch (ActiveMQAMQPException e) {
+                  throw e;
+               } catch (Exception e) {
+                  throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+               }
 
-            if (!addressQueryResult.isExists()) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
-            }
+               if (!addressQueryResult.isExists()) {
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
+               }
 
-            Set<RoutingType> routingTypes = addressQueryResult.getRoutingTypes();
+               Set<RoutingType> routingTypes = addressQueryResult.getRoutingTypes();
 
-            //if the client defines 1 routing type and the broker another then throw an exception
-            if (multicast && !routingTypes.contains(RoutingType.MULTICAST)) {
-               throw new ActiveMQAMQPIllegalStateException("Address " + addressToUse + " is not configured for topic support");
-            } else if (!multicast && !routingTypes.contains(RoutingType.ANYCAST)) {
-               //if client specifies fully qualified name that's allowed, don't throw exception.
-               if (queueNameToUse == null) {
+               //if the client defines 1 routing type and the broker another then throw an exception
+               if (multicast && !routingTypes.contains(RoutingType.MULTICAST)) {
+                  throw new ActiveMQAMQPIllegalStateException("Address " + addressToUse + " is not configured for topic support");
+               } else if (!multicast && !routingTypes.contains(RoutingType.ANYCAST)) {
                   throw new ActiveMQAMQPIllegalStateException("Address " + addressToUse + " is not configured for queue support");
                }
-            }
-         } else {
-            // if not we look up the address
-            AddressQueryResult addressQueryResult = null;
-            try {
-               addressQueryResult = sessionSPI.addressQuery(addressToUse, defaultRoutingType, true);
-            } catch (ActiveMQSecurityException e) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(e.getMessage());
-            } catch (ActiveMQAMQPException e) {
-               throw e;
-            } catch (Exception e) {
-               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
-            }
-
-            if (!addressQueryResult.isExists()) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
-            }
-
-            Set<RoutingType> routingTypes = addressQueryResult.getRoutingTypes();
-            if (routingTypes.contains(RoutingType.MULTICAST) && routingTypes.size() == 1) {
-               multicast = true;
             } else {
-               //todo add some checks if both routing types are supported
-               multicast = false;
-            }
-         }
-         routingTypeToUse = multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST;
-         // if not dynamic then we use the target's address as the address to forward the
-         // messages to, however there has to be a queue bound to it so we need to check this.
-         if (multicast) {
-            Map.Entry<Symbol, DescribedType> filter = AmqpSupport.findFilter(source.getFilter(), AmqpSupport.NO_LOCAL_FILTER_IDS);
-            if (filter != null) {
-               String remoteContainerId = sender.getSession().getConnection().getRemoteContainer();
-               String noLocalFilter = MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + remoteContainerId + "'";
-               if (selector != null) {
-                  selector += " AND " + noLocalFilter;
-               } else {
-                  selector = noLocalFilter;
+               // if not we look up the address
+               AddressQueryResult addressQueryResult = null;
+               try {
+                  addressQueryResult = sessionSPI.addressQuery(addressToUse, defaultRoutingType, true);
+               } catch (ActiveMQSecurityException e) {
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(e.getMessage());
+               } catch (ActiveMQAMQPException e) {
+                  throw e;
+               } catch (Exception e) {
+                  throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
                }
 
-               supportedFilters.put(filter.getKey(), filter.getValue());
+               if (!addressQueryResult.isExists()) {
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
+               }
+
+               Set<RoutingType> routingTypes = addressQueryResult.getRoutingTypes();
+               if (routingTypes.contains(RoutingType.MULTICAST) && routingTypes.size() == 1) {
+                  multicast = true;
+               } else {
+                  //todo add some checks if both routing types are supported
+                  multicast = false;
+               }
             }
+            routingTypeToUse = multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST;
+            // if not dynamic then we use the target's address as the address to forward the
+            // messages to, however there has to be a queue bound to it so we need to check this.
+            if (multicast) {
+               Map.Entry<Symbol, DescribedType> filter = AmqpSupport.findFilter(source.getFilter(), AmqpSupport.NO_LOCAL_FILTER_IDS);
+               if (filter != null) {
+                  String remoteContainerId = sender.getSession().getConnection().getRemoteContainer();
+                  String noLocalFilter = MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + remoteContainerId + "'";
+                  if (selector != null) {
+                     selector += " AND " + noLocalFilter;
+                  } else {
+                     selector = noLocalFilter;
+                  }
 
-            queue = getMatchingQueue(queueNameToUse, addressToUse, RoutingType.MULTICAST);
-            SimpleString simpleStringSelector = SimpleString.toSimpleString(selector);
+                  supportedFilters.put(filter.getKey(), filter.getValue());
+               }
 
-            //if the address specifies a broker configured queue then we always use this, treat it as a queue
-            if (queue != null) {
-               multicast = false;
-            } else if (TerminusDurability.UNSETTLED_STATE.equals(source.getDurable()) || TerminusDurability.CONFIGURATION.equals(source.getDurable())) {
+               SimpleString simpleStringSelector = SimpleString.toSimpleString(selector);
+               if (isDurableSubscription(source)) {
+                  // if we are a subscription and durable create a durable queue using the container
+                  // id and link name
+                  String clientId = getClientId();
+                  String pubId = sender.getName();
+                  queue = createQueueName(connection.isUseCoreSubscriptionNaming(), clientId, pubId, shared, global, false);
+                  QueueQueryResult result = sessionSPI.queueQuery(queue, routingTypeToUse, false);
+                  if (result.isExists()) {
+                     // If a client reattaches to a durable subscription with a different no-local
+                     // filter value, selector or address then we must recreate the queue (JMS semantics).
+                     if (!Objects.equals(result.getFilterString(), simpleStringSelector) || (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString()))) {
 
-               // if we are a subscription and durable create a durable queue using the container
-               // id and link name
-               String clientId = getClientId();
-               String pubId = sender.getName();
-               queue = createQueueName(connection.isUseCoreSubscriptionNaming(), clientId, pubId, shared, global, false);
-               QueueQueryResult result = sessionSPI.queueQuery(queue, routingTypeToUse, false);
-               if (result.isExists()) {
-                  // If a client reattaches to a durable subscription with a different no-local
-                  // filter value, selector or address then we must recreate the queue (JMS semantics).
-                  if (!Objects.equals(result.getFilterString(), simpleStringSelector) || (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString()))) {
-
-                     if (result.getConsumerCount() == 0) {
-                        sessionSPI.deleteQueue(queue);
-                        sessionSPI.createUnsharedDurableQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
+                        if (result.getConsumerCount() == 0) {
+                           sessionSPI.deleteQueue(queue);
+                           sessionSPI.createUnsharedDurableQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
+                        } else {
+                           throw new ActiveMQAMQPIllegalStateException("Unable to recreate subscription, consumers already exist");
+                        }
+                     }
+                  } else {
+                     if (shared) {
+                        sessionSPI.createSharedDurableQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
                      } else {
-                        throw new ActiveMQAMQPIllegalStateException("Unable to recreate subscription, consumers already exist");
+                        sessionSPI.createUnsharedDurableQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
                      }
                   }
                } else {
-                  if (shared) {
-                     sessionSPI.createSharedDurableQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
+                  // otherwise we are a volatile subscription
+                  isVolatile = true;
+                  if (shared && sender.getName() != null) {
+                     queue = createQueueName(connection.isUseCoreSubscriptionNaming(), getClientId(), sender.getName(), shared, global, isVolatile);
+                     QueueQueryResult result = sessionSPI.queueQuery(queue, routingTypeToUse, false);
+                     if (!(result.isExists() && Objects.equals(result.getAddress(), addressToUse) && Objects.equals(result.getFilterString(), simpleStringSelector))) {
+                        sessionSPI.createSharedVolatileQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
+                     }
                   } else {
-                     sessionSPI.createUnsharedDurableQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
+                     queue = SimpleString.toSimpleString(java.util.UUID.randomUUID().toString());
+                     tempQueueName = queue;
+                     try {
+                        sessionSPI.createTemporaryQueue(addressToUse, queue, RoutingType.MULTICAST, simpleStringSelector);
+                     } catch (Exception e) {
+                        throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
+                     }
                   }
-               }
-            } else {
-               // otherwise we are a volatile subscription
-               isVolatile = true;
-               if (shared && sender.getName() != null) {
-                  queue = createQueueName(connection.isUseCoreSubscriptionNaming(), getClientId(), sender.getName(), shared, global, isVolatile);
-                  QueueQueryResult result = sessionSPI.queueQuery(queue, routingTypeToUse, false);
-                  if (!(result.isExists() && Objects.equals(result.getAddress(), addressToUse) && Objects.equals(result.getFilterString(), simpleStringSelector))) {
-                     sessionSPI.createSharedVolatileQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
-                  }
-               } else {
-                  queue = SimpleString.toSimpleString(java.util.UUID.randomUUID().toString());
-                  tempQueueName = queue;
-                  try {
-                     sessionSPI.createTemporaryQueue(addressToUse, queue, RoutingType.MULTICAST, simpleStringSelector);
-                  } catch (Exception e) {
-                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
-                  }
-               }
-            }
-         } else {
-            if (queueNameToUse != null) {
-               //a queue consumer can receive from a multicast queue if it uses a fully qualified name
-               //setting routingType to null means do not check the routingType against the Queue's routing type.
-               routingTypeToUse = null;
-               SimpleString matchingAnycastQueue = getMatchingQueue(queueNameToUse, addressToUse, null);
-               if (matchingAnycastQueue != null) {
-                  queue = matchingAnycastQueue;
-               } else {
-                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
                }
             } else {
                SimpleString matchingAnycastQueue = sessionSPI.getMatchingQueue(addressToUse, RoutingType.ANYCAST);
@@ -483,20 +458,19 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                }
             }
 
-         }
-
-         if (queue == null) {
-            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressNotSet();
-         }
-
-         try {
-            if (!sessionSPI.queueQuery(queue, routingTypeToUse, !multicast).isExists()) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
+            if (queue == null) {
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressNotSet();
             }
-         } catch (ActiveMQAMQPNotFoundException e) {
-            throw e;
-         } catch (Exception e) {
-            throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+
+            try {
+               if (!sessionSPI.queueQuery(queue, routingTypeToUse, !multicast).isExists()) {
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
+               }
+            } catch (ActiveMQAMQPNotFoundException e) {
+               throw e;
+            } catch (Exception e) {
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+            }
          }
       }
 
@@ -522,19 +496,42 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
    }
 
-   private SimpleString getMatchingQueue(SimpleString queueName, SimpleString address, RoutingType routingType) throws Exception {
-      if (queueName != null) {
-         QueueQueryResult result = sessionSPI.queueQuery(queueName, routingType, false);
-         if (!result.isExists()) {
-            throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist");
-         } else {
-            if (!result.getAddress().equals(address)) {
-               throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist for address '" + address + "'");
-            }
-            return sessionSPI.getMatchingQueue(address, queueName, routingType);
-         }
+   private SimpleString getOrCreateFullyQualifiedQueue(Source source) throws Exception {
+      SimpleString address = SimpleString.toSimpleString(CompositeAddress.extractAddressName(source.getAddress()));
+      SimpleString queueName = SimpleString.toSimpleString(CompositeAddress.extractQueueName(source.getAddress()));
+      RoutingType routingType = getRoutingType(source);
+
+      AddressQueryResult addressQueryResult = sessionSPI.addressQuery(address, routingType, true);
+
+      // we ignore routing type for this query, as in case of routing type mismatch we are using
+      // existing queue anyway
+      QueueQueryResult queueQueryResult = sessionSPI.queueQuery(queueName, null, false);
+
+      if (!queueQueryResult.isExists()) {
+         QueueConfiguration queueConfiguration = new QueueConfiguration(queueName)
+            .setAddress(addressQueryResult.getName())
+            .setRoutingType(routingType)
+            .setAutoCreated(true);
+         sessionSPI.createQueue(queueConfiguration);
+      } else if (!queueQueryResult.getAddress().equals(address)) {
+         throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist for address '" + address + "'");
       }
-      return null;
+
+      return queueName;
+   }
+
+   private RoutingType getRoutingType(Source source) {
+      if (hasCapabilities(TOPIC, source)) {
+         return RoutingType.MULTICAST;
+      } else if (hasCapabilities(QUEUE, source)) {
+         return RoutingType.ANYCAST;
+      } else {
+         return defaultRoutingType;
+      }
+   }
+
+   private boolean isDurableSubscription(Source source) {
+      return TerminusDurability.UNSETTLED_STATE.equals(source.getDurable()) || TerminusDurability.CONFIGURATION.equals(source.getDurable());
    }
 
    protected String getClientId() {

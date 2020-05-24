@@ -39,6 +39,12 @@ import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpReceiver;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,27 +70,6 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<String, Object>()));
-   }
-
-   @Test
-   public void testFQQNTopicWhenQueueDoesNotExist() throws Exception {
-      Exception e = null;
-      String queueName = "testQueue";
-
-      Connection connection = createConnection(false);
-      try {
-         connection.setClientID("FQQNconn");
-         connection.start();
-         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Topic topic = session.createTopic(multicastAddress.toString() + "::" + queueName);
-         session.createConsumer(topic);
-      } catch (InvalidDestinationException ide) {
-         e = ide;
-      } finally {
-         connection.close();
-      }
-      assertNotNull(e);
-      assertTrue(e.getMessage().contains("Queue: '" + queueName + "' does not exist"));
    }
 
    @Test
@@ -331,5 +316,46 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       }
       assertNotNull(expectedException);
       assertTrue(expectedException.getMessage().contains("Queue: 'q1' does not exist for address ''"));
+   }
+
+   @Test
+   public void testCreateMulticastQueueUsingFQQN() throws Exception {
+      AmqpConnection amqpConnection = createAmqpConnection();
+      AmqpSession session = amqpConnection.createSession();
+      Source source = new Source();
+      source.setAddress("a1::q1");
+      source.setCapabilities(AmqpSupport.TOPIC_CAPABILITY);
+      AmqpReceiver receiver = session.createReceiver(source);
+
+      assertNotNull(receiver);
+
+      QueueQueryResult q1 = server.queueQuery(new SimpleString("q1"));
+      assertTrue(q1.isExists());
+      assertEquals("q1", q1.getName().toString());
+      assertEquals("a1", q1.getAddress().toString());
+      assertEquals(RoutingType.MULTICAST, q1.getRoutingType());
+      assertTrue(q1.isDurable());
+      assertTrue(q1.isAutoCreated());
+   }
+
+   @Test
+   public void testCreateAnycastQueueUsingFQQN() throws Exception {
+      AmqpConnection amqpConnection = createAmqpConnection();
+      AmqpSession session = amqpConnection.createSession();
+      Source source = new Source();
+      source.setAddress("a1::q1");
+      source.setCapabilities(AmqpSupport.QUEUE_CAPABILITY);
+      source.setDurable(TerminusDurability.CONFIGURATION);
+      AmqpReceiver receiver = session.createReceiver(source);
+
+      assertNotNull(receiver);
+
+      QueueQueryResult q1 = server.queueQuery(new SimpleString("q1"));
+      assertTrue(q1.isExists());
+      assertEquals("q1", q1.getName().toString());
+      assertEquals("a1", q1.getAddress().toString());
+      assertEquals(RoutingType.ANYCAST, q1.getRoutingType());
+      assertTrue(q1.isDurable());
+      assertTrue(q1.isAutoCreated());
    }
 }
