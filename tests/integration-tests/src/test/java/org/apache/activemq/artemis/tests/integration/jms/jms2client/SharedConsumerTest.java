@@ -25,6 +25,7 @@ import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +66,23 @@ public class SharedConsumerTest extends JMSTestBase {
 
       } finally {
          context.close();
+      }
+   }
+
+   @Test
+   public void sharedDurableSubUser() throws Exception {
+      try (JMSContext context = cf.createContext("foo", "bar")) {
+         context.createSharedDurableConsumer(topic1, "mySharedCon");
+         boolean found = false;
+         for (Binding binding : server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(topic1.getTopicName())).getBindings()) {
+            found = true;
+            assertTrue(binding instanceof LocalQueueBinding);
+            assertEquals("mySharedCon", ((LocalQueueBinding)binding).getQueue().getName().toString());
+            assertNotNull(((LocalQueueBinding)binding).getQueue().getUser());
+            assertEquals("foo", ((LocalQueueBinding)binding).getQueue().getUser().toString());
+         }
+
+         assertTrue(found);
       }
    }
 
