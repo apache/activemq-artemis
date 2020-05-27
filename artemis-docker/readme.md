@@ -13,7 +13,7 @@ $ ./prepare-docker.sh $ARTEMIS_HOME
 
 Go to `$ARTEMIS_HOME` where you prepared the binary with Docker files.
 
-## For Debian:
+## For Debian
 
 From within the `$ARTEMIS_HOME` folder:
 ```
@@ -30,21 +30,37 @@ $ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
 **Note:**
 `-t artemis-debian`,`-t artemis-centos` are just tag names for the purpose of this guide
 
-# Variables:
 
- - ARTEMIS_USER 
- - ARTEMIS_PASSWORD
- - ANONYMOUS_LOGIN
+# Environment Variables
 
-Default here is FALSE. If you set this to true, it will change security settings passed on the broker instance creation.
+Environment variables determine the options sent to `artemis create` on first execution of the Docker
+container. The available options are: 
 
-- CREATE_ARGUMENTS
+**`ARTEMIS_USER`**
 
-Default here is `--user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --silent --http-host 0.0.0.0 --relax-jolokia`
+The administrator username. The default is `artemis`.
 
+**`ARTEMIS_PASSWORD`**
 
-This will be passed straight to `./artemis create` during the execution.
+The administrator password. The default is `artemis`.
 
+**`ANONYMOUS_LOGIN`**
+
+Set to `true` to allow anonymous logins. The default is `false`.
+
+**`EXTRA_ARGS`**
+
+Additional arguments sent to the `artemis create` command. The default is `--http-host 0.0.0.0 --relax-jolokia`.
+Setting this value will override the default. See the documentation on `artemis create` for available options.
+
+**Final broker creation command:**
+
+The combination of the above environment variables results in the `docker-run.sh` script calling
+the following command to create the broker instance the first time the Docker container runs:
+
+    ${ARTEMIS_HOME}/bin/artemis create --user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --silent ${LOGIN_OPTION} ${EXTRA_ARGS}
+
+Note: `LOGIN_OPTION` is either `--allow-anonymous` or `--require-login` depending on the value of `ANONYMOUS_LOGIN`.
 
 # Mapping point
 
