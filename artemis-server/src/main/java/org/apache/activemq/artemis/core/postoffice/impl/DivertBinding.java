@@ -31,8 +31,6 @@ public class DivertBinding implements Binding {
 
    private final Divert divert;
 
-   private final Filter filter;
-
    private final SimpleString uniqueName;
 
    private final SimpleString routingName;
@@ -48,8 +46,6 @@ public class DivertBinding implements Binding {
 
       this.divert = divert;
 
-      filter = divert.getFilter();
-
       uniqueName = divert.getUniqueName();
 
       routingName = divert.getRoutingName();
@@ -64,7 +60,7 @@ public class DivertBinding implements Binding {
 
    @Override
    public Filter getFilter() {
-      return filter;
+      return divert.getFilter();
    }
 
    @Override
@@ -129,7 +125,7 @@ public class DivertBinding implements Binding {
          ", divert=" +
          divert +
          ", filter=" +
-         filter +
+         divert.getFilter() +
          ", uniqueName=" +
          uniqueName +
          ", routingName=" +

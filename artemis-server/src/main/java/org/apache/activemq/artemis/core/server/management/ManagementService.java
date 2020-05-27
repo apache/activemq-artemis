@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -104,7 +103,7 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    void unregisterAcceptors();
 
-   void registerDivert(Divert divert, DivertConfiguration config) throws Exception;
+   void registerDivert(Divert divert) throws Exception;
 
    void unregisterDivert(SimpleString name, SimpleString address) throws Exception;
 

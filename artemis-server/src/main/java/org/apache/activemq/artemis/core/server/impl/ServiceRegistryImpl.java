@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
+import org.apache.activemq.artemis.core.server.transformer.RegisteredTransformer;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
@@ -249,7 +250,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
       if (transformerConfiguration != null && transformerConfiguration.getClassName() != null) {
          try {
-            transformer = loadClass(transformerConfiguration.getClassName());
+            transformer = new RegisteredTransformer(loadClass(transformerConfiguration.getClassName()));
             transformer.init(Collections.unmodifiableMap(transformerConfiguration.getProperties()));
          } catch (Exception e) {
             throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(e, transformerConfiguration.getClassName());
