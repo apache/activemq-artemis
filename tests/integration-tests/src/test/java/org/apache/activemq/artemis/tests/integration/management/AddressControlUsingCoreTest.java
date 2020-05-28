@@ -79,6 +79,11 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public String[] getAllQueueNames() throws Exception {
+            return (String[]) proxy.retrieveAttributeValue("allQueueNames", String.class);
+         }
+
+         @Override
          public String[] getQueueNames() throws Exception {
             return (String[]) proxy.retrieveAttributeValue("queueNames", String.class);
          }
