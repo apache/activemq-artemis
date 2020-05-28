@@ -2361,14 +2361,14 @@
 
    <xsd:complexType name="databaseStoreType">
       <xsd:all>
-         <xsd:element name="jdbc-driver-class-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+         <xsd:element name="jdbc-driver-class-name" type="xsd:string" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC Driver class name
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-connection-url" type="xsd:string" minOccurs="1" maxOccurs="1">
+         <xsd:element name="jdbc-connection-url" type="xsd:string" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC Connection URL e.g. jdbc:mysql://localhost:3306/
@@ -2390,6 +2390,31 @@
                   DriverManager.getConnection(String url, String user, String password). This can be encrypted.
                </xsd:documentation>
             </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="data-source-class-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The DataSource class name
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="data-source-properties" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  A list of options for the DataSource
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:sequence>
+                  <xsd:element name="data-source-property" type="dataSourcePropertyType" minOccurs="1" maxOccurs="unbounded">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           A key-value pair option for the DataSource
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:element>
+               </xsd:sequence>
+            </xsd:complexType>
          </xsd:element>
          <xsd:element name="message-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
             <xsd:annotation>
@@ -2456,6 +2481,23 @@
          </xsd:element>
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="dataSourcePropertyType">
+      <xsd:attribute name="key" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               Configuration option key
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="value" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               Configuration option value
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
    </xsd:complexType>
 
    <xsd:complexType name="haPolicyType">

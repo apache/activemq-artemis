@@ -21,9 +21,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -31,11 +33,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCDataSourceUtils;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
@@ -79,15 +84,20 @@ public class JDBCSequentialFileFactoryTest {
    @Before
    public void setup() throws Exception {
       executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      Map<String, Object> dataSourceProperties = new HashMap<>();
       if (useAuthentication) {
          user = "testuser";
          password = "testpassword";
          System.setProperty("derby.connection.requireAuthentication", "true");
          System.setProperty("derby.user." + user, password);
+         dataSourceProperties.put("username", user);
+         dataSourceProperties.put("password", password);
       }
-      String connectionUrl = "jdbc:derby:target/data;create=true";
+      dataSourceProperties.put("url", "jdbc:derby:target/data;create=true");
+      dataSourceProperties.put("driverClassName", className);
       String tableName = "FILES";
-      factory = new JDBCSequentialFileFactory(connectionUrl, user, password, className, JDBCUtils.getSQLProvider(className, tableName, SQLProvider.DatabaseStoreType.PAGE), executor, new IOCriticalErrorListener() {
+      String jdbcDatasourceClass = ActiveMQDefaultConfiguration.getDefaultDataSourceClassName();
+      factory = new JDBCSequentialFileFactory(new JDBCConnectionProvider(JDBCDataSourceUtils.getDataSource(jdbcDatasourceClass, dataSourceProperties)), JDBCUtils.getSQLProvider(dataSourceProperties, tableName, SQLProvider.DatabaseStoreType.PAGE), executor, new IOCriticalErrorListener() {
          @Override
          public void onIOException(Throwable code, String message, SequentialFile file) {
          }

@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.nio.ByteBuffer;
-import java.sql.Connection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +25,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
-import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
 import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
@@ -35,8 +34,6 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 
 public class JDBCJournalStorageManager extends JournalStorageManager {
-
-   private Connection connection;
 
    public JDBCJournalStorageManager(Configuration config,
                                     CriticalAnalyzer analyzer,
@@ -59,33 +56,35 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
    protected synchronized void init(Configuration config, IOCriticalErrorListener criticalErrorListener) {
       try {
          final DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) config.getStoreConfiguration();
+         final JDBCConnectionProvider connectionProvider = dbConf.getConnectionProvider();
+         final int networkTimeout = dbConf.getJdbcNetworkTimeout();
+         if (networkTimeout >= 0) {
+            connectionProvider.setNetworkTimeout(executorFactory.getExecutor(), networkTimeout);
+         }
          final JDBCJournalImpl bindingsJournal;
          final JDBCJournalImpl messageJournal;
          final JDBCSequentialFileFactory largeMessagesFactory;
-         if (dbConf.getDataSource() != null) {
-            SQLProvider.Factory sqlProviderFactory = dbConf.getSqlProviderFactory();
-            if (sqlProviderFactory == null) {
-               sqlProviderFactory = new PropertySQLProvider.Factory(dbConf.getDataSource());
-            }
-            bindingsJournal = new JDBCJournalImpl(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getBindingsTableName(), SQLProvider.DatabaseStoreType.BINDINGS_JOURNAL), scheduledExecutorService, executorFactory.getExecutor(), criticalErrorListener,dbConf.getJdbcJournalSyncPeriodMillis());
-            messageJournal = new JDBCJournalImpl(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getMessageTableName(), SQLProvider.DatabaseStoreType.MESSAGE_JOURNAL), scheduledExecutorService, executorFactory.getExecutor(), criticalErrorListener, dbConf.getJdbcJournalSyncPeriodMillis());
-            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getLargeMessageTableName(), SQLProvider.DatabaseStoreType.LARGE_MESSAGE), executorFactory.getExecutor(), criticalErrorListener);
-         } else {
-            String driverClassName = dbConf.getJdbcDriverClassName();
-            bindingsJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getJdbcUser(), dbConf.getJdbcPassword(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getBindingsTableName(), SQLProvider.DatabaseStoreType.BINDINGS_JOURNAL), scheduledExecutorService, executorFactory.getExecutor(), criticalErrorListener, dbConf.getJdbcJournalSyncPeriodMillis());
-            messageJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getJdbcUser(), dbConf.getJdbcPassword(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getMessageTableName(), SQLProvider.DatabaseStoreType.MESSAGE_JOURNAL), scheduledExecutorService, executorFactory.getExecutor(), criticalErrorListener, dbConf.getJdbcJournalSyncPeriodMillis());
-            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(), dbConf.getJdbcUser(), dbConf.getJdbcPassword(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getLargeMessageTableName(), SQLProvider.DatabaseStoreType.LARGE_MESSAGE), executorFactory.getExecutor(), criticalErrorListener);
+         SQLProvider.Factory sqlProviderFactory = dbConf.getSqlProviderFactory();
+         if (sqlProviderFactory == null) {
+            sqlProviderFactory = new PropertySQLProvider.Factory(connectionProvider);
          }
-         final int networkTimeout = dbConf.getJdbcNetworkTimeout();
-         if (networkTimeout >= 0) {
-            bindingsJournal.setNetworkTimeout(executorFactory.getExecutor(), networkTimeout);
-         }
-         if (networkTimeout >= 0) {
-            messageJournal.setNetworkTimeout(executorFactory.getExecutor(), networkTimeout);
-         }
-         if (networkTimeout >= 0) {
-            largeMessagesFactory.setNetworkTimeout(executorFactory.getExecutor(), networkTimeout);
-         }
+         bindingsJournal = new JDBCJournalImpl(
+                 connectionProvider,
+                 sqlProviderFactory.create(dbConf.getBindingsTableName(), SQLProvider.DatabaseStoreType.BINDINGS_JOURNAL),
+                 scheduledExecutorService,
+                 executorFactory.getExecutor(),
+                 criticalErrorListener,dbConf.getJdbcJournalSyncPeriodMillis());
+         messageJournal = new JDBCJournalImpl(
+                 connectionProvider,
+                 sqlProviderFactory.create(dbConf.getMessageTableName(), SQLProvider.DatabaseStoreType.MESSAGE_JOURNAL),
+                 scheduledExecutorService, executorFactory.getExecutor(),
+                 criticalErrorListener,
+                 dbConf.getJdbcJournalSyncPeriodMillis());
+         largeMessagesFactory = new JDBCSequentialFileFactory(
+                 connectionProvider,
+                 sqlProviderFactory.create(dbConf.getLargeMessageTableName(), SQLProvider.DatabaseStoreType.LARGE_MESSAGE),
+                 executorFactory.getExecutor(),
+                 criticalErrorListener);
          this.bindingsJournal = bindingsJournal;
          this.messageJournal = messageJournal;
          this.largeMessagesFactory = largeMessagesFactory;

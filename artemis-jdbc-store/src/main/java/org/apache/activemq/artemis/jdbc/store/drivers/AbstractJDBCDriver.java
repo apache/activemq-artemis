@@ -16,23 +16,15 @@
  */
 package org.apache.activemq.artemis.jdbc.store.drivers;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Arrays;
-import java.util.Properties;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
-import org.apache.activemq.artemis.jdbc.store.logging.LoggingConnection;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.jboss.logging.Logger;
 
 /**
@@ -43,80 +35,27 @@ public abstract class AbstractJDBCDriver {
 
    private static final Logger logger = Logger.getLogger(AbstractJDBCDriver.class);
 
-   protected Connection connection;
-
    protected SQLProvider sqlProvider;
 
-   private String jdbcConnectionUrl;
+   protected JDBCConnectionProvider connectionProvider;
 
-   private String jdbcDriverClass;
+   public AbstractJDBCDriver() { }
 
-   private DataSource dataSource;
-
-   private Executor networkTimeoutExecutor;
-
-   private int networkTimeoutMillis;
-
-   private String user;
-
-   private String password;
-
-   public AbstractJDBCDriver() {
-      this.networkTimeoutExecutor = null;
-      this.networkTimeoutMillis = -1;
-   }
-
-   public AbstractJDBCDriver(SQLProvider sqlProvider, String jdbcConnectionUrl, String user, String password, String jdbcDriverClass) {
-      this.jdbcConnectionUrl = jdbcConnectionUrl;
-      this.user = user;
-      this.password = password;
-      this.jdbcDriverClass = jdbcDriverClass;
-      this.sqlProvider = sqlProvider;
-      this.networkTimeoutExecutor = null;
-      this.networkTimeoutMillis = -1;
-   }
-
-   public AbstractJDBCDriver(DataSource dataSource, SQLProvider provider) {
-      this.dataSource = dataSource;
+   public AbstractJDBCDriver(JDBCConnectionProvider connectionProvider, SQLProvider provider) {
+      this.connectionProvider = connectionProvider;
       this.sqlProvider = provider;
-      this.networkTimeoutExecutor = null;
-      this.networkTimeoutMillis = -1;
    }
 
    public void start() throws SQLException {
-      connect();
-      synchronized (connection) {
-         createSchema();
-         prepareStatements();
-      }
-   }
-
-   public AbstractJDBCDriver(Connection connection, SQLProvider sqlProvider) {
-      if (logger.isTraceEnabled() && !(connection instanceof LoggingConnection)) {
-         this.connection = new LoggingConnection(connection, logger);
-      } else {
-         this.connection = connection;
-      }
-      this.sqlProvider = sqlProvider;
-      this.networkTimeoutExecutor = null;
-      this.networkTimeoutMillis = -1;
+      createSchema();
+      prepareStatements();
    }
 
    public void stop() throws SQLException {
-      synchronized (connection) {
-         if (sqlProvider.closeConnectionOnShutdown()) {
-            try {
-               connection.setAutoCommit(true);
-               connection.close();
-            } catch (SQLException e) {
-               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
-               throw e;
-            }
-         }
-      }
+
    }
 
-   protected abstract void prepareStatements() throws SQLException;
+   protected abstract void prepareStatements();
 
    protected abstract void createSchema() throws SQLException;
 
@@ -124,217 +63,116 @@ public abstract class AbstractJDBCDriver {
       createTableIfNotExists(sqlProvider.getTableName(), schemaSqls);
    }
 
-   private void connect() throws SQLException {
-      if (connection == null) {
-         if (dataSource != null) {
-            try {
-               connection = dataSource.getConnection();
-
-               if (logger.isTraceEnabled() && !(connection instanceof LoggingConnection)) {
-                  this.connection = new LoggingConnection(connection, logger);
-               }
-
-            } catch (SQLException e) {
-               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
-               throw e;
-            }
-         } else {
-            try {
-               if (jdbcDriverClass == null || jdbcDriverClass.isEmpty()) {
-                  throw new IllegalStateException("jdbcDriverClass is null or empty!");
-               }
-               if (jdbcConnectionUrl == null || jdbcConnectionUrl.isEmpty()) {
-                  throw new IllegalStateException("jdbcConnectionUrl is null or empty!");
-               }
-               final Driver dbDriver = getDriver(jdbcDriverClass);
-               Properties properties = new Properties();
-               if (user != null) {
-                  properties.setProperty("user", user);
-                  properties.setProperty("password", password);
-               }
-               connection = dbDriver.connect(jdbcConnectionUrl, properties);
-
-               if (logger.isTraceEnabled() && !(connection instanceof LoggingConnection)) {
-                  this.connection = new LoggingConnection(connection, logger);
-               }
-
-               if (connection == null) {
-                  throw new IllegalStateException("the driver: " + jdbcDriverClass + " isn't able to connect to the requested url: " + jdbcConnectionUrl);
-               }
-            } catch (SQLException e) {
-               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
-               ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcConnectionUrl);
-               throw e;
-            }
-         }
-         if (this.networkTimeoutMillis >= 0 && this.networkTimeoutExecutor == null) {
-            logger.warn("Unable to set a network timeout on the JDBC connection: networkTimeoutExecutor is null");
-         }
-         if (this.networkTimeoutMillis >= 0 && this.networkTimeoutExecutor != null) {
-            try {
-               connection.setNetworkTimeout(this.networkTimeoutExecutor, this.networkTimeoutMillis);
-            } catch (SQLException e) {
-               logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
-               ActiveMQJournalLogger.LOGGER.warn("Unable to set a network timeout on the JDBC connection");
-            } catch (Throwable throwable) {
-               //it included SecurityExceptions and UnsupportedOperationException
-               logger.warn("Unable to set a network timeout on the JDBC connection", throwable);
-            }
-         }
-      }
-   }
-
    public void destroy() throws Exception {
       final String dropTableSql = "DROP TABLE " + sqlProvider.getTableName();
-      try {
-         connection.setAutoCommit(false);
-         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(dropTableSql);
-         }
-         connection.commit();
-      } catch (SQLException e) {
-         logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, dropTableSql));
+      try (Connection connection = connectionProvider.getConnection()) {
          try {
-            connection.rollback();
-         } catch (SQLException rollbackEx) {
-            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, dropTableSql));
-            throw rollbackEx;
+            connection.setAutoCommit(false);
+            try (Statement statement = connection.createStatement()) {
+               statement.executeUpdate(dropTableSql);
+            }
+            connection.commit();
+         } catch (SQLException e) {
+            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, dropTableSql));
+            try {
+               connection.rollback();
+            } catch (SQLException rollbackEx) {
+               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, dropTableSql));
+               throw rollbackEx;
+            }
+            throw e;
          }
-         throw e;
       }
    }
 
    private void createTableIfNotExists(String tableName, String... sqls) throws SQLException {
       logger.tracef("Validating if table %s didn't exist before creating", tableName);
-      try {
-         connection.setAutoCommit(false);
-         final boolean tableExists;
-         try (ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null)) {
-            if (rs == null || !rs.next()) {
-               tableExists = false;
-               if (logger.isTraceEnabled()) {
-                  logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, Arrays.toString(sqls));
-               }
-               if (rs != null) {
-                  final SQLWarning sqlWarning = rs.getWarnings();
-                  if (sqlWarning != null) {
-                     logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), sqlWarning));
+      try (Connection connection = connectionProvider.getConnection()) {
+         try {
+            connection.setAutoCommit(false);
+            final boolean tableExists;
+            try (ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null)) {
+               if (rs == null || !rs.next()) {
+                  tableExists = false;
+                  if (logger.isTraceEnabled()) {
+                     logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, Arrays.toString(sqls));
                   }
-               }
-            } else {
-               tableExists = true;
-            }
-         }
-         if (tableExists) {
-            logger.tracef("Validating if the existing table %s is initialized or not", tableName);
-            try (Statement statement = connection.createStatement();
-                 ResultSet cntRs = statement.executeQuery(sqlProvider.getCountJournalRecordsSQL())) {
-               logger.tracef("Validation of the existing table %s initialization is started", tableName);
-               int rows;
-               if (cntRs.next() && (rows = cntRs.getInt(1)) > 0) {
-                  logger.tracef("Table %s did exist but is not empty. Skipping initialization. Found %d rows.", tableName, rows);
-                  if (logger.isDebugEnabled()) {
-                     final long expectedRows = Stream.of(sqls).map(String::toUpperCase).filter(sql -> sql.contains("INSERT INTO")).count();
-                     if (rows < expectedRows) {
-                        logger.debug("Table " + tableName + " was expected to contain " + expectedRows + " rows while it has " + rows + " rows.");
+                  if (rs != null) {
+                     final SQLWarning sqlWarning = rs.getWarnings();
+                     if (sqlWarning != null) {
+                        logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), sqlWarning));
                      }
                   }
-                  connection.commit();
-                  return;
                } else {
-                  sqls = Stream.of(sqls).filter(sql -> {
-                     final String upperCaseSql = sql.toUpperCase();
-                     return !(upperCaseSql.contains("CREATE TABLE") || upperCaseSql.contains("CREATE INDEX"));
-                  }).toArray(String[]::new);
-                  if (sqls.length > 0) {
-                     logger.tracef("Table %s did exist but is empty. Starting initialization.", tableName);
+                  tableExists = true;
+               }
+            }
+            if (tableExists) {
+               logger.tracef("Validating if the existing table %s is initialized or not", tableName);
+               try (Statement statement = connection.createStatement();
+                    ResultSet cntRs = statement.executeQuery(sqlProvider.getCountJournalRecordsSQL())) {
+                  logger.tracef("Validation of the existing table %s initialization is started", tableName);
+                  int rows;
+                  if (cntRs.next() && (rows = cntRs.getInt(1)) > 0) {
+                     logger.tracef("Table %s did exist but is not empty. Skipping initialization. Found %d rows.", tableName, rows);
+                     if (logger.isDebugEnabled()) {
+                        final long expectedRows = Stream.of(sqls).map(String::toUpperCase).filter(sql -> sql.contains("INSERT INTO")).count();
+                        if (rows < expectedRows) {
+                           logger.debug("Table " + tableName + " was expected to contain " + expectedRows + " rows while it has " + rows + " rows.");
+                        }
+                     }
+                     connection.commit();
+                     return;
                   } else {
-                     logger.tracef("Table %s did exist but is empty. Initialization completed: no initialization statements left.", tableName);
+                     sqls = Stream.of(sqls).filter(sql -> {
+                        final String upperCaseSql = sql.toUpperCase();
+                        return !(upperCaseSql.contains("CREATE TABLE") || upperCaseSql.contains("CREATE INDEX"));
+                     }).toArray(String[]::new);
+                     if (sqls.length > 0) {
+                        logger.tracef("Table %s did exist but is empty. Starting initialization.", tableName);
+                     } else {
+                        logger.tracef("Table %s did exist but is empty. Initialization completed: no initialization statements left.", tableName);
+                     }
+                  }
+               } catch (SQLException e) {
+                  //that's not a real issue and do not deserve any user-level log:
+                  //some DBMS just return stale information about table existence
+                  //and can fail on later attempts to access them
+                  if (logger.isTraceEnabled()) {
+                     logger.trace(JDBCUtils.appendSQLExceptionDetails(new StringBuilder("Can't verify the initialization of table ").append(tableName).append(" due to:"), e, sqlProvider.getCountJournalRecordsSQL()));
+                  }
+                  try {
+                     connection.rollback();
+                  } catch (SQLException rollbackEx) {
+                     logger.debug("Rollback failed while validating initialization of a table", rollbackEx);
+                  }
+                  connection.setAutoCommit(false);
+                  logger.tracef("Table %s seems to exist, but we can't verify the initialization. Keep trying to create and initialize.", tableName);
+               }
+            }
+            if (sqls.length > 0) {
+               try (Statement statement = connection.createStatement()) {
+                  for (String sql : sqls) {
+                     statement.executeUpdate(sql);
+                     final SQLWarning statementSqlWarning = statement.getWarnings();
+                     if (statementSqlWarning != null) {
+                        logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), statementSqlWarning, sql));
+                     }
                   }
                }
-            } catch (SQLException e) {
-               //that's not a real issue and do not deserve any user-level log:
-               //some DBMS just return stale information about table existence
-               //and can fail on later attempts to access them
-               if (logger.isTraceEnabled()) {
-                  logger.trace(JDBCUtils.appendSQLExceptionDetails(new StringBuilder("Can't verify the initialization of table ").append(tableName).append(" due to:"), e, sqlProvider.getCountJournalRecordsSQL()));
-               }
-               try {
-                  connection.rollback();
-               } catch (SQLException rollbackEx) {
-                  logger.debug("Rollback failed while validating initialization of a table", rollbackEx);
-               }
-               connection.setAutoCommit(false);
-               logger.tracef("Table %s seems to exist, but we can't verify the initialization. Keep trying to create and initialize.", tableName);
+
+               connection.commit();
             }
-         }
-         if (sqls.length > 0) {
-            try (Statement statement = connection.createStatement()) {
-               for (String sql : sqls) {
-                  statement.executeUpdate(sql);
-                  final SQLWarning statementSqlWarning = statement.getWarnings();
-                  if (statementSqlWarning != null) {
-                     logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), statementSqlWarning, sql));
-                  }
-               }
+         } catch (SQLException e) {
+            final String sqlStatements = String.join("\n", sqls);
+            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, sqlStatements));
+            try {
+               connection.rollback();
+            } catch (SQLException rollbackEx) {
+               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, sqlStatements));
+               throw rollbackEx;
             }
-
-            connection.commit();
-         }
-      } catch (SQLException e) {
-         final String sqlStatements = String.join("\n", sqls);
-         logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, sqlStatements));
-         try {
-            connection.rollback();
-         } catch (SQLException rollbackEx) {
-            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, sqlStatements));
-            throw rollbackEx;
-         }
-         throw e;
-      }
-   }
-
-   private static AtomicBoolean shutAdded = new AtomicBoolean(false);
-
-   private static class ShutdownDerby extends Thread {
-      @Override
-      public void run() {
-         try {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true");
-         } catch (Exception e) {
-         }
-      }
-
-   }
-
-   private Driver getDriver(String className) {
-      try {
-         Driver driver = (Driver) Class.forName(className).newInstance();
-
-         // Shutdown the derby if using the derby embedded driver.
-         if (className.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
-            if (shutAdded.compareAndSet(false, true)) {
-               Runtime.getRuntime().addShutdownHook(new ShutdownDerby());
-            }
-         }
-         return driver;
-      } catch (ClassNotFoundException cnfe) {
-         throw new RuntimeException("Could not find class: " + className);
-      } catch (Exception e) {
-         throw new RuntimeException("Unable to instantiate driver class: ", e);
-      }
-   }
-
-   public Connection getConnection() {
-      return connection;
-   }
-
-   public final void setConnection(Connection connection) {
-      if (this.connection == null) {
-         if (logger.isTraceEnabled() && !(connection instanceof LoggingConnection)) {
-            this.connection = new LoggingConnection(connection, logger);
-         } else {
-            this.connection = connection;
+            throw e;
          }
       }
    }
@@ -343,37 +181,12 @@ public abstract class AbstractJDBCDriver {
       this.sqlProvider = sqlProvider;
    }
 
-   public void setJdbcConnectionUrl(String jdbcConnectionUrl) {
-      this.jdbcConnectionUrl = jdbcConnectionUrl;
+   public void setJdbcConnectionProvider(JDBCConnectionProvider connectionProvider) {
+      this.connectionProvider = connectionProvider;
    }
 
-   public String getUser() {
-      return user;
-   }
-
-   public void setUser(String user) {
-      this.user = user;
-   }
-
-   public String getPassword() {
-      return password;
-   }
-
-   public void setPassword(String password) {
-      this.password = password;
-   }
-
-   public void setJdbcDriverClass(String jdbcDriverClass) {
-      this.jdbcDriverClass = jdbcDriverClass;
-   }
-
-   public void setDataSource(DataSource dataSource) {
-      this.dataSource = dataSource;
-   }
-
-   public void setNetworkTimeout(Executor executor, int milliseconds) {
-      this.networkTimeoutExecutor = executor;
-      this.networkTimeoutMillis = milliseconds;
+   public JDBCConnectionProvider getJdbcConnectionProvider() {
+      return this.connectionProvider;
    }
 
 }
