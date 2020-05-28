@@ -84,7 +84,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
       }
       clearIO();
       try {
-         Map<String, Object> clone = new HashMap(configuration.getParams());
+         Map<String, Object> clone = new HashMap(configuration.getCombinedParams());
          for (Map.Entry<String, Object> entry : clone.entrySet()) {
             if (entry.getKey().toLowerCase().contains("password")) {
                entry.setValue("****");
