@@ -64,7 +64,8 @@ public class PagingReceiveTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(ADDRESS);
       assertEquals(numMsgs, queue.getMessagesAdded());
       receiveAllMessages();
-      queue.getPageSubscription().cleanupEntries(true);
+      queue.getPageSubscription().scheduleCleanupCheck();
+      Wait.assertEquals(0, ((PageSubscriptionImpl)queue.getPageSubscription()).getScheduledCleanupCount()::get);
       assertEquals(numMsgs, queue.getMessagesAdded());
    }
 
