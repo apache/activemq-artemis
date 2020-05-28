@@ -115,16 +115,44 @@ public class AddressControlTest extends ManagementTestBase {
 
       AddressControl addressControl = createManagementControl(address);
       String[] queueNames = addressControl.getQueueNames();
-      Assert.assertEquals(1, queueNames.length);
-      Assert.assertEquals(queue.toString(), queueNames[0]);
+      Assert.assertEquals(2, queueNames.length);
 
       session.createQueue(new QueueConfiguration(anotherQueue).setAddress(address).setDurable(false));
       queueNames = addressControl.getQueueNames();
-      Assert.assertEquals(2, queueNames.length);
+      Assert.assertEquals(3, queueNames.length);
 
       session.deleteQueue(queue);
 
       queueNames = addressControl.getQueueNames();
+      Assert.assertEquals(2, queueNames.length);
+
+      session.deleteQueue(anotherQueue);
+   }
+
+   @Test
+   public void testLocalQueueNames() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString anotherQueue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+
+      // add a fake RemoteQueueBinding to simulate being in a cluster; we don't want this binding to be returned by getQueueNames()
+      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
+      server.getPostOffice().addBinding(binding);
+
+      AddressControl addressControl = createManagementControl(address);
+      String[] queueNames = addressControl.getLocalQueueNames();
+      Assert.assertEquals(1, queueNames.length);
+      Assert.assertEquals(queue.toString(), queueNames[0]);
+
+      session.createQueue(new QueueConfiguration(anotherQueue).setAddress(address).setDurable(false));
+      queueNames = addressControl.getLocalQueueNames();
+      Assert.assertEquals(2, queueNames.length);
+
+      session.deleteQueue(queue);
+
+      queueNames = addressControl.getLocalQueueNames();
       Assert.assertEquals(1, queueNames.length);
       Assert.assertEquals(anotherQueue.toString(), queueNames[0]);
 
