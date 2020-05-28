@@ -808,7 +808,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       checkInitialised();
       AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + name);
       if (addressControl != null) {
-         for (String queueName : addressControl.getQueueNames()) {
+         for (String queueName : addressControl.getAllQueueNames()) {
             Binding binding = server.getPostOffice().getBinding(new SimpleString(queueName));
             if (binding == null) {
                ActiveMQJMSServerLogger.LOGGER.noQueueOnTopic(queueName, name);
@@ -821,7 +821,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
             }
          }
 
-         if (addressControl.getQueueNames().length == 0) {
+         if (addressControl.getAllQueueNames().length == 0) {
             try {
                server.removeAddressInfo(SimpleString.toSimpleString(name), null);
             } catch (ActiveMQAddressDoesNotExistException e) {
