@@ -1041,7 +1041,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.checkQueueCreationLimit(getUsername());
 
-      server.createSharedQueue(queueConfiguration);
+      server.createSharedQueue(queueConfiguration.setUser(getUsername()));
    }
 
    @Deprecated
