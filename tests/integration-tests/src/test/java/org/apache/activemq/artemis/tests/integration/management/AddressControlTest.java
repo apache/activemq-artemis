@@ -102,7 +102,7 @@ public class AddressControlTest extends ManagementTestBase {
    }
 
    @Test
-   public void testGetQueueNames() throws Exception {
+   public void testGetLocalQueueNames() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString anotherQueue = RandomUtil.randomSimpleString();
@@ -146,6 +146,40 @@ public class AddressControlTest extends ManagementTestBase {
       String[] queueNames = addressControl.getRemoteQueueNames();
       Assert.assertEquals(1, queueNames.length);
       Assert.assertEquals(queue.toString(), queueNames[0]);
+   }
+
+   @Test
+   public void testGetAllQueueNames() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString anotherQueue = RandomUtil.randomSimpleString();
+      SimpleString remoteQueue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+
+      // add a fake RemoteQueueBinding to simulate being in a cluster
+      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, remoteQueue, RandomUtil.randomSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
+      server.getPostOffice().addBinding(binding);
+
+      AddressControl addressControl = createManagementControl(address);
+      String[] queueNames = addressControl.getAllQueueNames();
+      Assert.assertEquals(2, queueNames.length);
+      Assert.assertTrue(Arrays.asList(queueNames).contains(queue.toString()));
+      Assert.assertTrue(Arrays.asList(queueNames).contains(remoteQueue.toString()));
+
+      session.createQueue(new QueueConfiguration(anotherQueue).setAddress(address).setDurable(false));
+      queueNames = addressControl.getAllQueueNames();
+      Assert.assertEquals(3, queueNames.length);
+      Assert.assertTrue(Arrays.asList(queueNames).contains(anotherQueue.toString()));
+
+      session.deleteQueue(queue);
+
+      queueNames = addressControl.getAllQueueNames();
+      Assert.assertEquals(2, queueNames.length);
+      Assert.assertTrue(Arrays.asList(queueNames).contains(anotherQueue.toString()));
+      Assert.assertFalse(Arrays.asList(queueNames).contains(queue.toString()));
+
+      session.deleteQueue(anotherQueue);
    }
 
    @Test

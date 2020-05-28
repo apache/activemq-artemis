@@ -72,16 +72,22 @@ public interface AddressControl {
    long getNumberOfMessages() throws Exception;
 
    /**
-    * Returns the names of the queues bound to this address.
+    * Returns the names of the remote queue(s) bound to this address.
     */
    @Attribute(desc = "names of the remote queue(s) bound to this address")
    String[] getRemoteQueueNames() throws Exception;
 
    /**
-    * Returns the names of the queues bound to this address.
+    * Returns the names of the local queue(s) bound to this address.
     */
    @Attribute(desc = "names of the local queue(s) bound to this address")
    String[] getQueueNames() throws Exception;
+
+   /**
+    * Returns the names of both the local & remote queue(s) bound to this address.
+    */
+   @Attribute(desc = "names of both the local & remote queue(s) bound to this address")
+   String[] getAllQueueNames() throws Exception;
 
    /**
     * Returns the number of pages used by this address.
