@@ -52,11 +52,17 @@ public class TopicControlClusterTest extends JMSClusteredTestBase {
          AddressControl topicControl1 = ManagementControlHelper.createAddressControl(simpleTopicName, mBeanServer1);
          AddressControl topicControl2 = ManagementControlHelper.createAddressControl(simpleTopicName, mBeanServer2);
 
-         assertTrue("There should be 3 subscriptions on the topic, 2 local and 1 remote.",
-                    Wait.waitFor(() -> topicControl1.getQueueNames().length == 3, 2000));
+         assertTrue("There should be 2 local subscriptions on the topic.",
+                    Wait.waitFor(() -> topicControl1.getQueueNames().length == 2, 2000));
 
-         assertTrue("There should be 3 subscriptions on the topic, 1 local and 2 remote.",
-                    Wait.waitFor(() -> topicControl2.getQueueNames().length == 3, 2000));
+         assertTrue("There should be 1 remote subscription on the topic.",
+                    Wait.waitFor(() -> topicControl1.getRemoteQueueNames().length == 1, 2000));
+
+         assertTrue("There should be 1 local subscription on the topic.",
+                    Wait.waitFor(() -> topicControl2.getQueueNames().length == 1, 2000));
+
+         assertTrue("There should be 2 remote subscriptions on the topic.",
+                    Wait.waitFor(() -> topicControl2.getRemoteQueueNames().length == 2, 2000));
       }
 
       jmsServer1.destroyTopic("t1");

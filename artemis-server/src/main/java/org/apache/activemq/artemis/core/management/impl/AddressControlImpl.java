@@ -133,17 +133,26 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getRemoteQueueNames() throws Exception {
-      return getQueueNames(false);
+      return getQueueNames(SearchType.REMOTE);
    }
 
    @Override
    public String[] getQueueNames() throws Exception {
-      return getQueueNames(true);
+      return getQueueNames(SearchType.LOCAL);
    }
 
-   private String[] getQueueNames(boolean local) throws Exception {
+   @Override
+   public String[] getAllQueueNames() throws Exception {
+      return getQueueNames(SearchType.ALL);
+   }
+
+   enum SearchType {
+      LOCAL, REMOTE, ALL
+   }
+
+   private String[] getQueueNames(SearchType searchType) throws Exception {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.getQueueNames(this.addressInfo, local);
+         AuditLogger.getQueueNames(this.addressInfo, searchType);
       }
       clearIO();
       try {
@@ -151,7 +160,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          if (bindings != null) {
             List<String> queueNames = new ArrayList<>();
             for (Binding binding : bindings.getBindings()) {
-               if ((local && binding.isLocal()) || (!local && binding instanceof RemoteQueueBinding)) {
+               if (binding instanceof QueueBinding && ((searchType == SearchType.ALL) || (searchType == SearchType.LOCAL && binding.isLocal()) || (searchType == SearchType.REMOTE && binding instanceof RemoteQueueBinding))) {
                   queueNames.add(binding.getUniqueName().toString());
                }
             }
