@@ -239,17 +239,6 @@ public class ByteUtil {
       return sb.toString();
    }
 
-   public static byte[] getActiveArray(ByteBuffer buffer) {
-      byte[] ret = new byte[buffer.remaining()];
-      if (buffer.hasArray()) {
-         byte[] array = buffer.array();
-         System.arraycopy(array, buffer.arrayOffset() + buffer.position(), ret, 0, ret.length);
-      } else {
-         buffer.slice().get(ret);
-      }
-      return ret;
-   }
-
    public static long convertTextBytes(final String text) {
       try {
          Matcher m = ONE.matcher(text);

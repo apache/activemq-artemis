@@ -44,7 +44,6 @@ import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
-import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -251,9 +250,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    private ActiveMQBuffer inflate(ActiveMQBuffer buffer) throws DataFormatException {
-      int bytesToRead = buffer.readableBytes();
+      final int bytesToRead = buffer.readableBytes();
       Inflater inflater = new Inflater();
-      inflater.setInput(ByteUtil.getActiveArray(buffer.readBytes(bytesToRead).toByteBuffer()));
+      final byte[] input = new byte[bytesToRead];
+      buffer.readBytes(input);
+      inflater.setInput(input);
 
       //get the real size of large message
       long sizeBody = getLongProperty(Message.HDR_LARGE_BODY_SIZE);
