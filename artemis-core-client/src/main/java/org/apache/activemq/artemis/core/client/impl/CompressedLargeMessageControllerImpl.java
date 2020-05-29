@@ -24,7 +24,6 @@ import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -590,13 +589,6 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    @Override
    public float getFloat(final int index) {
       return Float.intBitsToFloat(getInt(index));
-   }
-
-   @Override
-   public ActiveMQBuffer readBytes(final int length) {
-      byte[] bytesToGet = new byte[length];
-      readBytes(bytesToGet);
-      return ActiveMQBuffers.wrappedBuffer(bytesToGet);
    }
 
    @Override

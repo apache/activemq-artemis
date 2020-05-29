@@ -331,11 +331,6 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    }
 
    @Override
-   public ActiveMQBuffer readBytes(final int length) {
-      return new ChannelBufferWrapper(buffer.readBytes(length), releasable);
-   }
-
-   @Override
    public char readChar() {
       return (char) buffer.readShort();
    }

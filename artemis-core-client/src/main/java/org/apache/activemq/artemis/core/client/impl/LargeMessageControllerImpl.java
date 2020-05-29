@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
@@ -973,14 +972,6 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    @Override
    public float getFloat(final int index) {
       return Float.intBitsToFloat(getInt(index));
-   }
-
-   @Override
-   public ActiveMQBuffer readBytes(final int length) {
-      byte[] bytesToGet = new byte[length];
-      getBytes(readerIndex, bytesToGet);
-      readerIndex += length;
-      return ActiveMQBuffers.wrappedBuffer(bytesToGet);
    }
 
    @Override
