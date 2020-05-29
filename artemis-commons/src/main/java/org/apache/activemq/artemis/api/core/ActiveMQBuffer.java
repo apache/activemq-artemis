@@ -800,19 +800,6 @@ public interface ActiveMQBuffer extends DataInput {
    String readUTF();
 
    /**
-    * Transfers this buffer's data to a newly created buffer starting at
-    * the current {@code readerIndex} and increases the {@code readerIndex}
-    * by the number of the transferred bytes (= {@code length}).
-    * The returned buffer's {@code readerIndex} and {@code writerIndex} are
-    * {@code 0} and {@code length} respectively.
-    *
-    * @param length the number of bytes to transfer
-    * @return the newly created buffer which contains the transferred bytes
-    * @throws IndexOutOfBoundsException if {@code length} is greater than {@code this.readableBytes}
-    */
-   ActiveMQBuffer readBytes(int length);
-
-   /**
     * Returns a new slice of this buffer's sub-region starting at the current
     * {@code readerIndex} and increases the {@code readerIndex} by the size
     * of the new slice (= {@code length}).
