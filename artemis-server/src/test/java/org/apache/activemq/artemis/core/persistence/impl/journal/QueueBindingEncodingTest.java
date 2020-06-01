@@ -50,6 +50,7 @@ public class QueueBindingEncodingTest extends Assert {
       final byte routingType = RandomUtil.randomByte();
       final boolean configurationManaged = RandomUtil.randomBoolean();
       final long ringSize = RandomUtil.randomLong();
+      final boolean enabled = RandomUtil.randomBoolean();
 
       PersistentQueueBindingEncoding encoding = new PersistentQueueBindingEncoding(name,
                                                                                    address,
@@ -58,6 +59,7 @@ public class QueueBindingEncodingTest extends Assert {
                                                                                    autoCreated,
                                                                                    maxConsumers,
                                                                                    purgeOnNoConsumers,
+                                                                                   enabled,
                                                                                    exclusive,
                                                                                    groupRebalance,
                                                                                    groupBuckets,
@@ -87,6 +89,7 @@ public class QueueBindingEncodingTest extends Assert {
       assertEquals(autoCreated, decoding.isAutoCreated());
       assertEquals(maxConsumers, decoding.getMaxConsumers());
       assertEquals(purgeOnNoConsumers, decoding.isPurgeOnNoConsumers());
+      assertEquals(enabled, decoding.isEnabled());
       assertEquals(exclusive, decoding.isExclusive());
       assertEquals(groupRebalance, decoding.isGroupRebalance());
       assertEquals(groupBuckets, decoding.getGroupBuckets());

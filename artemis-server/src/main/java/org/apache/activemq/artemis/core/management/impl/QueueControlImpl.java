@@ -619,6 +619,52 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public void disable() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.disable(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         server.getPostOffice().updateQueue(queue.getQueueConfiguration().setEnabled(false));
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void enable() throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.enable(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         server.getPostOffice().updateQueue(queue.getQueueConfiguration().setEnabled(true));
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isEnabled() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isEnabled(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isEnabled();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
+   @Override
    public boolean isConfigurationManaged() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.isConfigurationManaged(queue);

@@ -2670,4 +2670,30 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601727, value = "User {0} is updating a divert on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void updateDivert(String user, Object source, Object... args);
+
+   static void isEnabled(Object source) {
+      LOGGER.isEnabled(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601728, value = "User {0} is getting enabled property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void isEnabled(String user, Object source, Object... args);
+
+   static void disable(Object source, Object... args) {
+      LOGGER.disable(getCaller(), source, arrayToString(args));
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601729, value = "User {0} is disabling on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void disable(String user, Object source, Object... args);
+
+   static void enable(Object source) {
+      LOGGER.resume(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601730, value = "User {0} is enabling on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void enable(String user, Object source, Object... args);
+
+
 }

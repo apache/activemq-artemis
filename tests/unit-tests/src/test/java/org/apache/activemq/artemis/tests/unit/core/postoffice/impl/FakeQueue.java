@@ -51,6 +51,16 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public boolean isEnabled() {
+      return false;
+   }
+
+   @Override
+   public void setEnabled(boolean value) {
+
+   }
+
+   @Override
    public PagingStore getPagingStore() {
       return null;
    }

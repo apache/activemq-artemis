@@ -41,6 +41,7 @@ public class QueueAttributes implements Serializable {
    public static final String AUTO_DELETE_DELAY = "auto-delete-delay";
    public static final String AUTO_DELETE_MESSAGE_COUNT = "auto-delete-message-count";
    public static final String RING_SIZE = "ring-size";
+   public static final String ENABLED = "enabled";
 
    private RoutingType routingType;
    private SimpleString filterString;
@@ -61,6 +62,7 @@ public class QueueAttributes implements Serializable {
    private Long autoDeleteDelay;
    private Long autoDeleteMessageCount;
    private Long ringSize;
+   private Boolean enabled;
 
 
    public void set(String key, String value) {
@@ -103,6 +105,8 @@ public class QueueAttributes implements Serializable {
             setAutoDeleteMessageCount(Long.valueOf(value));
          } else if (key.equals(RING_SIZE)) {
             setRingSize(Long.valueOf(value));
+         } else if (key.equals(ENABLED)) {
+            setEnabled(Boolean.valueOf(value));
          }
       }
    }
@@ -113,6 +117,7 @@ public class QueueAttributes implements Serializable {
          .setRoutingType(this.getRoutingType())
          .setExclusive(this.getExclusive())
          .setRingSize(this.getRingSize())
+         .setEnabled(this.isEnabled())
          .setGroupRebalance(this.getGroupRebalance())
          .setNonDestructive(this.getNonDestructive())
          .setLastValue(this.getLastValue())
@@ -139,6 +144,7 @@ public class QueueAttributes implements Serializable {
             .setRoutingType(queueConfiguration.getRoutingType())
             .setExclusive(queueConfiguration.isExclusive())
             .setRingSize(queueConfiguration.getRingSize())
+            .setEnabled(queueConfiguration.isEnabled())
             .setGroupRebalance(queueConfiguration.isGroupRebalance())
             .setNonDestructive(queueConfiguration.isNonDestructive())
             .setLastValue(queueConfiguration.isLastValue())
@@ -325,6 +331,15 @@ public class QueueAttributes implements Serializable {
 
    public QueueAttributes setRingSize(Long ringSize) {
       this.ringSize = ringSize;
+      return this;
+   }
+
+   public Boolean isEnabled() {
+      return enabled;
+   }
+
+   public QueueAttributes setEnabled(Boolean enabled) {
+      this.enabled = enabled;
       return this;
    }
 }
