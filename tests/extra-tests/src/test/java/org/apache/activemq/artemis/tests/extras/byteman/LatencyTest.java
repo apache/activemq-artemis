@@ -24,11 +24,17 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 public class LatencyTest extends ActiveMQTestBase {
+   private static final Logger log = Logger.getLogger(LatencyTest.class);
+
+   private static void debugLog(String message) {
+      log.debug(message);
+   }
 
    /*
    * simple test to make sure connect still works with some network latency  built into netty
@@ -40,7 +46,7 @@ public class LatencyTest extends ActiveMQTestBase {
          targetClass = "org.jboss.netty.bootstrap.ClientBootstrap",
          targetMethod = "connect",
          targetLocation = "ENTRY",
-         action = "log.debug(\"netty connecting\")"), @BMRule(
+         action = "org.apache.activemq.artemis.tests.extras.byteman.LatencyTest.debugLog(\"netty connecting\")"), @BMRule(
          name = "sleep OioWorker.run",
          targetClass = "org.jboss.netty.channel.socket.oio.OioWorker",
          targetMethod = "run",
