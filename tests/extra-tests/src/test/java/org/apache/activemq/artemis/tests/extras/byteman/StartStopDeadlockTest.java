@@ -42,6 +42,10 @@ import org.junit.runner.RunWith;
 public class StartStopDeadlockTest extends ActiveMQTestBase {
    private static final Logger log = Logger.getLogger(StartStopDeadlockTest.class);
 
+   private static void debugLog(String message) {
+      log.debug(message);
+   }
+
    /*
    * simple test to make sure connect still works with some network latency  built into netty
    * */
@@ -54,7 +58,7 @@ public class StartStopDeadlockTest extends ActiveMQTestBase {
          targetMethod = "initialisePart2",
          targetLocation = "ENTRY",
          condition = "incrementCounter(\"server-Init\") == 2",
-         action = "log.debug(\"server backup init\"), waitFor(\"start-init\")"), @BMRule(
+         action = "org.apache.activemq.artemis.tests.extras.byteman.StartStopDeadlockTest.debugLog(\"server backup init\"), waitFor(\"start-init\")"), @BMRule(
          name = "JMSServer.stop wait-init",
          targetClass = "org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl",
          targetMethod = "stop",
