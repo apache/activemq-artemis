@@ -211,6 +211,15 @@ a given property.)
   The `QueueControl` can pause and resume the underlying queue. When a queue is
   paused, it will receive messages but will not deliver them.  When it's resumed,
   it'll begin delivering the queued messages, if any.
+  
+- Disabling and Enabling Queues
+  
+  The `QueueControl` can disable and enable the underlying queue. When a queue is
+  disabled, it will not longer have messages routed to it.  When it's enabled,
+  it'll begin having messages routed to it again. 
+  
+  This is useful where you may need to disable message routing to a queue but wish to keep consumers active
+  to investigate issues, without causing further message build up in the queue.
 
 #### Other Resources Management
 

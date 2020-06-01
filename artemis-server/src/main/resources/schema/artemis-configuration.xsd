@@ -3789,6 +3789,7 @@
       <xsd:attribute name="consumers-before-dispatch" type="xsd:int" use="optional"/>
       <xsd:attribute name="delay-before-dispatch" type="xsd:long" use="optional"/>
       <xsd:attribute name="ring-size" type="xsd:long" use="optional"/>
+      <xsd:attribute name="enabled" type="xsd:boolean" use="optional"/>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 

@@ -57,6 +57,8 @@ public class CoreQueueConfiguration implements Serializable {
 
    private Long delayBeforeDispatch;
 
+   private Boolean enabled;
+
    private Long ringSize = ActiveMQDefaultConfiguration.getDefaultRingSize();
 
    private Boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
@@ -126,6 +128,10 @@ public class CoreQueueConfiguration implements Serializable {
       return ringSize;
    }
 
+   public Boolean isEnabled() {
+      return enabled;
+   }
+
    public QueueConfiguration toQueueConfiguration() {
       return new QueueConfiguration(this.getName())
          .setAddress(this.getAddress())
@@ -144,7 +150,8 @@ public class CoreQueueConfiguration implements Serializable {
          .setGroupBuckets(this.getGroupBuckets())
          .setGroupFirstKey(this.getGroupFirstKey())
          .setUser(this.getUser())
-         .setLastValueKey(this.getLastValueKey());
+         .setLastValueKey(this.getLastValueKey())
+         .setEnabled(this.isEnabled());
    }
 
    public static CoreQueueConfiguration fromQueueConfiguration(QueueConfiguration queueConfiguration) {
@@ -165,6 +172,7 @@ public class CoreQueueConfiguration implements Serializable {
          .setConsumersBeforeDispatch(queueConfiguration.getConsumersBeforeDispatch())
          .setDelayBeforeDispatch(queueConfiguration.getDelayBeforeDispatch())
          .setRingSize(queueConfiguration.getRingSize() != null ? queueConfiguration.getRingSize() : ActiveMQDefaultConfiguration.getDefaultRingSize())
+         .setEnabled(queueConfiguration.isEnabled() != null ? queueConfiguration.isEnabled() : ActiveMQDefaultConfiguration.getDefaultEnabled())
          .setPurgeOnNoConsumers(queueConfiguration.isPurgeOnNoConsumers() != null ? queueConfiguration.isPurgeOnNoConsumers() : ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers())
          .setRoutingType(queueConfiguration.getRoutingType() != null ? queueConfiguration.getRoutingType() : ActiveMQDefaultConfiguration.getDefaultRoutingType());
    }
@@ -230,6 +238,14 @@ public class CoreQueueConfiguration implements Serializable {
     */
    public CoreQueueConfiguration setRingSize(Long ringSize) {
       this.ringSize = ringSize;
+      return this;
+   }
+
+   /**
+    * @param enabled for this queue, default is true
+    */
+   public CoreQueueConfiguration setEnabled(Boolean enabled) {
+      this.enabled = enabled;
       return this;
    }
 
@@ -321,6 +337,8 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((consumersBeforeDispatch == null) ? 0 : consumersBeforeDispatch.hashCode());
       result = prime * result + ((delayBeforeDispatch == null) ? 0 : delayBeforeDispatch.hashCode());
       result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
+      result = prime * result + ((ringSize == null) ? 0 : ringSize.hashCode());
+      result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
       return result;
    }
 
@@ -359,6 +377,18 @@ public class CoreQueueConfiguration implements Serializable {
          if (other.purgeOnNoConsumers != null)
             return false;
       } else if (!purgeOnNoConsumers.equals(other.purgeOnNoConsumers)) {
+         return false;
+      }
+      if (ringSize == null) {
+         if (other.ringSize != null)
+            return false;
+      } else if (!ringSize.equals(other.ringSize)) {
+         return false;
+      }
+      if (enabled == null) {
+         if (other.enabled != null)
+            return false;
+      } else if (!enabled.equals(other.enabled)) {
          return false;
       }
       if (exclusive == null) {
@@ -447,6 +477,8 @@ public class CoreQueueConfiguration implements Serializable {
          ", nonDestructive=" + nonDestructive +
          ", consumersBeforeDispatch=" + consumersBeforeDispatch +
          ", delayBeforeDispatch=" + delayBeforeDispatch +
+         ", ringSize=" + ringSize +
+         ", enabled=" + enabled +
          "]";
    }
 }

@@ -514,6 +514,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_PURGE_ON_NO_CONSUMERS = false;
 
+   public static final boolean DEFAULT_ENABLED = true;
+
    public static final boolean DEFAULT_QUEUE_AUTO_DELETE = true;
 
    public static final boolean DEFAULT_CREATED_QUEUE_AUTO_DELETE = false;
@@ -1451,6 +1453,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean getDefaultPurgeOnNoConsumers() {
       return DEFAULT_PURGE_ON_NO_CONSUMERS;
+   }
+
+   public static boolean getDefaultEnabled() {
+      return DEFAULT_ENABLED;
    }
 
    public static boolean getDefaultQueueAutoDelete(boolean autoCreated) {

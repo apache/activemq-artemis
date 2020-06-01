@@ -143,6 +143,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
                                                              .setTemporary(false)
                                                              .setAutoCreated(queueBindingInfo.isAutoCreated())
                                                              .setPurgeOnNoConsumers(queueBindingInfo.isPurgeOnNoConsumers())
+                                                             .setEnabled(queueBindingInfo.isEnabled())
                                                              .setMaxConsumers(queueBindingInfo.getMaxConsumers())
                                                              .setExclusive(queueBindingInfo.isExclusive())
                                                              .setGroupRebalance(queueBindingInfo.isGroupRebalance())

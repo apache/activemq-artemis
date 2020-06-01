@@ -75,6 +75,8 @@ public class QueueQueryResult {
 
    private Long ringSize;
 
+   private Boolean enabled;
+
    public QueueQueryResult(final SimpleString name,
                            final SimpleString address,
                            final boolean durable,
@@ -101,7 +103,8 @@ public class QueueQueryResult {
                            final Long autoDeleteDelay,
                            final Long autoDeleteMessageCount,
                            final Integer defaultConsumerWindowSize,
-                           final Long ringSize) {
+                           final Long ringSize,
+                           final Boolean enabled) {
       this.durable = durable;
 
       this.temporary = temporary;
@@ -155,6 +158,8 @@ public class QueueQueryResult {
       this.defaultConsumerWindowSize = defaultConsumerWindowSize;
 
       this.ringSize = ringSize;
+
+      this.enabled = enabled;
    }
 
    public boolean isExists() {
@@ -267,5 +272,9 @@ public class QueueQueryResult {
 
    public Long getRingSize() {
       return ringSize;
+   }
+
+   public Boolean isEnabled() {
+      return enabled;
    }
 }

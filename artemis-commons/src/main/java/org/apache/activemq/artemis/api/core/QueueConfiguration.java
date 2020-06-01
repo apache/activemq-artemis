@@ -62,6 +62,7 @@ public class QueueConfiguration implements Serializable {
    public static final String LAST_VALUE_KEY = "last-value-key";
    public static final String NON_DESTRUCTIVE = "non-destructive";
    public static final String PURGE_ON_NO_CONSUMERS = "purge-on-no-consumers";
+   public static final String ENABLED = "enabled";
    public static final String CONSUMERS_BEFORE_DISPATCH = "consumers-before-dispatch";
    public static final String DELAY_BEFORE_DISPATCH = "delay-before-dispatch";
    public static final String CONSUMER_PRIORITY = "consumer-priority";
@@ -92,6 +93,7 @@ public class QueueConfiguration implements Serializable {
    private SimpleString lastValueKey;
    private Boolean nonDestructive;
    private Boolean purgeOnNoConsumers;
+   private Boolean enabled;
    private Integer consumersBeforeDispatch;
    private Long delayBeforeDispatch;
    private Integer consumerPriority;
@@ -202,6 +204,8 @@ public class QueueConfiguration implements Serializable {
             setNonDestructive(Boolean.valueOf(value));
          } else if (key.equals(PURGE_ON_NO_CONSUMERS)) {
             setPurgeOnNoConsumers(Boolean.valueOf(value));
+         } else if (key.equals(ENABLED)) {
+            setEnabled(Boolean.valueOf(value));
          } else if (key.equals(CONSUMERS_BEFORE_DISPATCH)) {
             setConsumersBeforeDispatch(Integer.valueOf(value));
          } else if (key.equals(DELAY_BEFORE_DISPATCH)) {
@@ -408,6 +412,16 @@ public class QueueConfiguration implements Serializable {
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       return this;
    }
+
+   public Boolean isEnabled() {
+      return enabled;
+   }
+
+   public QueueConfiguration setEnabled(Boolean enabled) {
+      this.enabled = enabled;
+      return this;
+   }
+
 
    public Integer getConsumersBeforeDispatch() {
       return consumersBeforeDispatch;
@@ -634,6 +648,9 @@ public class QueueConfiguration implements Serializable {
       if (isPurgeOnNoConsumers() != null) {
          builder.add(PURGE_ON_NO_CONSUMERS, isPurgeOnNoConsumers());
       }
+      if (isEnabled() != null) {
+         builder.add(ENABLED, isEnabled());
+      }
       if (getConsumersBeforeDispatch() != null) {
          builder.add(CONSUMERS_BEFORE_DISPATCH, getConsumersBeforeDispatch());
       }
@@ -741,6 +758,8 @@ public class QueueConfiguration implements Serializable {
          return false;
       if (!Objects.equals(purgeOnNoConsumers, that.purgeOnNoConsumers))
          return false;
+      if (!Objects.equals(enabled, that.enabled))
+         return false;
       if (!Objects.equals(consumersBeforeDispatch, that.consumersBeforeDispatch))
          return false;
       if (!Objects.equals(delayBeforeDispatch, that.delayBeforeDispatch))
@@ -789,6 +808,7 @@ public class QueueConfiguration implements Serializable {
       result = 31 * result + Objects.hashCode(lastValueKey);
       result = 31 * result + Objects.hashCode(nonDestructive);
       result = 31 * result + Objects.hashCode(purgeOnNoConsumers);
+      result = 31 * result + Objects.hashCode(enabled);
       result = 31 * result + Objects.hashCode(consumersBeforeDispatch);
       result = 31 * result + Objects.hashCode(delayBeforeDispatch);
       result = 31 * result + Objects.hashCode(consumerPriority);
@@ -824,6 +844,7 @@ public class QueueConfiguration implements Serializable {
          + ", lastValueKey=" + lastValueKey
          + ", nonDestructive=" + nonDestructive
          + ", purgeOnNoConsumers=" + purgeOnNoConsumers
+         + ", enabled=" + enabled
          + ", consumersBeforeDispatch=" + consumersBeforeDispatch
          + ", delayBeforeDispatch=" + delayBeforeDispatch
          + ", consumerPriority=" + consumerPriority

@@ -161,6 +161,7 @@ under the License.
          <address name="config_test_queue_change">
             <multicast>
                <queue name="config_test_queue_change_queue" max-consumers="10" purge-on-no-consumers="false" />
+               <queue name="config_test_queue_change_queue_defaults" purge-on-no-consumers="true" enabled="false" />
             </multicast>
          </address>
       </addresses>
