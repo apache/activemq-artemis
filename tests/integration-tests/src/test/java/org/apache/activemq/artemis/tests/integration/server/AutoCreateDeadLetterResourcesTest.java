@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -196,8 +197,71 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
       assertNotNull(context.createConsumer(context.createQueue(fqqn)).receive(2000));
    }
 
-   private void triggerDlaDelivery() throws Exception {
+   @Test
+   public void testDivertedMessage() throws Exception {
+      SimpleString dlqName = AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.concat(addressA).concat(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX);
+      String divertAddress = "divertAddress";
+
+      server.deployDivert(new DivertConfiguration().setName("testDivert").setAddress(divertAddress).setForwardingAddress(addressA.toString()));
+
       server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sessionFactory = createSessionFactory(locator);
+      ClientSession session = addClientSession(sessionFactory.createSession(true, true));
+      ClientProducer producer = addClientProducer(session.createProducer(divertAddress));
+      producer.send(session.createMessage(true));
+      producer.close();
+
+      Wait.assertEquals(1L, () -> server.locateQueue(queueA).getMessageCount(), 2000, 100);
+
+      triggerDlaDelivery();
+
+      Wait.assertTrue(() -> server.locateQueue(dlqName).getMessageCount() == 1, 2000, 100);
+
+      ClientConsumer consumer = session.createConsumer(dlqName);
+      session.start();
+      ClientMessage message = consumer.receive(1000);
+      assertNotNull(message);
+      message.acknowledge();
+   }
+
+   @Test
+   public void testMovedMessage() throws Exception {
+      SimpleString dlqName = AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.concat(addressA).concat(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX);
+      final SimpleString moveFromAddress = new SimpleString("moveFromAddress");
+      final SimpleString moveFromQueue = new SimpleString("moveFromQueue");
+      server.createQueue(new QueueConfiguration(moveFromQueue).setAddress(moveFromAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sessionFactory = createSessionFactory(locator);
+      ClientSession session = addClientSession(sessionFactory.createSession(true, true));
+      ClientProducer producer = addClientProducer(session.createProducer(moveFromAddress));
+      producer.send(session.createMessage(true));
+      producer.close();
+
+      server.locateQueue(moveFromQueue).moveReferences(null, addressA, null);
+
+      Wait.assertEquals(1L, () -> server.locateQueue(queueA).getMessageCount(), 2000, 100);
+
+      triggerDlaDelivery();
+
+      Wait.assertTrue(() -> server.locateQueue(dlqName).getMessageCount() == 1, 2000, 100);
+
+      ClientConsumer consumer = session.createConsumer(dlqName);
+      session.start();
+      ClientMessage message = consumer.receive(1000);
+      assertNotNull(message);
+      message.acknowledge();
+   }
+
+   private void triggerDlaDelivery() throws Exception {
+      try {
+         server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      } catch (Exception e) {
+         // ignore
+      }
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = addClientSession(sessionFactory.createSession(true, false));
