@@ -59,6 +59,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
 
    private Long ringSize;
 
+   private Boolean enabled;
+
    @Deprecated
    public CreateQueueMessage_V2(final SimpleString address,
                                 final SimpleString queueName,
@@ -89,7 +91,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          queueAttributes.getAutoDelete(),
          queueAttributes.getAutoDeleteDelay(),
          queueAttributes.getAutoDeleteMessageCount(),
-         queueAttributes.getRingSize()
+         queueAttributes.getRingSize(),
+         queueAttributes.isEnabled()
       );
    }
 
@@ -118,7 +121,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          queueConfiguration.isAutoDelete(),
          queueConfiguration.getAutoDeleteDelay(),
          queueConfiguration.getAutoDeleteMessageCount(),
-         queueConfiguration.getRingSize()
+         queueConfiguration.getRingSize(),
+         queueConfiguration.isEnabled()
       );
    }
 
@@ -144,7 +148,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
                                 final Boolean autoDelete,
                                 final Long autoDeleteDelay,
                                 final Long autoDeleteMessageCount,
-                                final Long ringSize) {
+                                final Long ringSize,
+                                final Boolean enabled) {
       this();
 
       this.address = address;
@@ -170,6 +175,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.autoDeleteDelay = autoDeleteDelay;
       this.autoDeleteMessageCount = autoDeleteMessageCount;
       this.ringSize = ringSize;
+      this.enabled = enabled;
    }
 
    public CreateQueueMessage_V2() {
@@ -200,7 +206,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          .setAutoDeleteMessageCount(autoDeleteMessageCount)
          .setTemporary(temporary)
          .setAutoCreated(autoCreated)
-         .setRingSize(ringSize);
+         .setRingSize(ringSize)
+         .setEnabled(enabled);
    }
 
    @Override
@@ -223,6 +230,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       buff.append(", autoDeleteDelay=" + autoDeleteDelay);
       buff.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
       buff.append(", ringSize=" + ringSize);
+      buff.append(", enabled=" + enabled);
 
       buff.append("]");
       return buff.toString();
@@ -364,6 +372,14 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.ringSize = ringSize;
    }
 
+   public Boolean isEnabled() {
+      return enabled;
+   }
+
+   public void setEnabled(Boolean enabled) {
+      this.enabled = enabled;
+   }
+
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
@@ -384,6 +400,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       BufferHelper.writeNullableLong(buffer, autoDeleteMessageCount);
       buffer.writeNullableSimpleString(groupFirstKey);
       BufferHelper.writeNullableLong(buffer, ringSize);
+      BufferHelper.writeNullableBoolean(buffer, enabled);
    }
 
    @Override
@@ -414,6 +431,9 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       if (buffer.readableBytes() > 0) {
          ringSize = BufferHelper.readNullableLong(buffer);
       }
+      if (buffer.readableBytes() > 0) {
+         enabled = BufferHelper.readNullableBoolean(buffer);
+      }
    }
 
    @Override
@@ -437,6 +457,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       result = prime * result + (autoDeleteDelay == null ? 0 : autoDeleteDelay.hashCode());
       result = prime * result + (autoDeleteMessageCount == null ? 0 : autoDeleteMessageCount.hashCode());
       result = prime * result + (ringSize == null ? 0 : ringSize.hashCode());
+      result = prime * result + (enabled ? 1231 : 1237);
       return result;
    }
 
@@ -519,6 +540,11 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          if (other.ringSize != null)
             return false;
       } else if (!ringSize.equals(other.ringSize))
+         return false;
+      if (enabled == null) {
+         if (other.enabled != null)
+            return false;
+      } else if (!enabled.equals(other.enabled))
          return false;
       if (routingType == null) {
          if (other.routingType != null)

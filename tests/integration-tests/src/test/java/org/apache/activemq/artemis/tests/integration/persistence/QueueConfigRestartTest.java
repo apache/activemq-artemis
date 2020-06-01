@@ -173,6 +173,50 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertTrue(queueBinding2.getQueue().isPurgeOnNoConsumers());
    }
+
+   @Test
+   public void testQueueConfigEnabledAndRestart() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      server.start();
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queue = new SimpleString("test.queue");
+
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setEnabled(true));
+
+      QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertTrue(queueBinding1.getQueue().isEnabled());
+
+      server.stop();
+
+      server.start();
+
+      QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertTrue(queueBinding2.getQueue().isEnabled());
+   }
+
+   @Test
+   public void testQueueConfigDisabledAndRestart() throws Exception {
+      ActiveMQServer server = createServer(true);
+
+      server.start();
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queue = new SimpleString("test.queue");
+
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setEnabled(false));
+
+      QueueBinding queueBinding1 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertFalse(queueBinding1.getQueue().isEnabled());
+
+      server.stop();
+
+      server.start();
+
+      QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
+      Assert.assertFalse(queueBinding2.getQueue().isEnabled());
+   }
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

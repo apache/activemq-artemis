@@ -147,7 +147,9 @@ under the License.
          </address>
          <address name="config_test_queue_change">
             <multicast>
-               <queue name="config_test_queue_change_queue" max-consumers="1" purge-on-no-consumers="true" />
+               <queue name="config_test_queue_change_queue" max-consumers="1" purge-on-no-consumers="true" enabled="false" />
+               <!-- checks that when not set, values are set back to defaults -->
+               <queue name="config_test_queue_change_queue_defaults" />
             </multicast>
          </address>
       </addresses>

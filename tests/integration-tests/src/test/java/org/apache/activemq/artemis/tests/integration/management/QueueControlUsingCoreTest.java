@@ -181,6 +181,21 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isEnabled() {
+            return  (Boolean) proxy.retrieveAttributeValue("isEnabled");
+         }
+
+         @Override
+         public void enable() throws Exception {
+            proxy.invokeOperation("enable");
+         }
+
+         @Override
+         public void disable() throws Exception {
+            proxy.invokeOperation("disable");
+         }
+
+         @Override
          public boolean isConfigurationManaged() {
             return (Boolean) proxy.retrieveAttributeValue("configurationManaged");
          }
