@@ -463,25 +463,9 @@ public interface Message {
    }
 
    default void referenceOriginalMessage(final Message original, String originalQueue) {
-      Object queueOnMessage = original.getBrokerProperty(Message.HDR_ORIGINAL_QUEUE);
-
-      if (queueOnMessage != null) {
-         setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, queueOnMessage);
-      } else if (originalQueue != null) {
-         setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
-      }
-
-      Object originalID = original.getBrokerProperty(Message.HDR_ORIG_MESSAGE_ID);
-
-      if (originalID != null) {
-         setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getBrokerProperty(Message.HDR_ORIGINAL_ADDRESS));
-
-         setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, originalID);
-      } else {
-         setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getAddress());
-
-         setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, original.getMessageID());
-      }
+      setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
+      setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getAddress());
+      setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, original.getMessageID());
 
       // reset expiry
       setExpiration(0);

@@ -1674,6 +1674,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void pageLookupError(int pageNr, int messageNr, int offset, int startNr);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222289, value = "Did not route to any matching bindings on dead-letter-address {0} and auto-create-dead-letter-resources is true; dropping message: {1}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void noMatchingBindingsOnDLAWithAutoCreateDLAResources(SimpleString address, String message);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
