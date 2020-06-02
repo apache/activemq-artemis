@@ -380,6 +380,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.WANT_CLIENT_AUTH_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.VERIFY_HOST_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.SNIHOST_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_NODELAY_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
@@ -445,6 +446,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.VERIFY_HOST_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.TRUST_ALL_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.FORCE_SSL_PARAMETERS);
+      allowableConnectorKeys.add(TransportConstants.SNIHOST_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.TCP_NODELAY_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
