@@ -374,9 +374,13 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       return 0;
    }
 
+
    @Override
    public int getMemoryEstimate() {
-      return 0;
+      if (memoryEstimate == -1) {
+         memoryEstimate = memoryOffset * 2 + (extraProperties != null ? extraProperties.getEncodeSize() : 0);
+      }
+      return memoryEstimate;
    }
 
    @Override
