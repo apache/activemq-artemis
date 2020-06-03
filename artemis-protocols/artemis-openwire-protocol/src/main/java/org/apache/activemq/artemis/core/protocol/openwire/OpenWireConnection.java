@@ -1204,6 +1204,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processRemoveProducer(ProducerId id) throws Exception {
+         ConnectionState cs = getState();
+         if (cs != null) {
+            SessionState ss = cs.getSessionState(id.getParentId());
+            if (ss != null) {
+               ss.removeProducer(id);
+            }
+         }
          return null;
       }
 
