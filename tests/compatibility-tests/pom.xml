@@ -598,8 +598,12 @@
                      <value>${ARTEMIS-200}</value>
                   </property>
                   <property>
-                     <name>ARTEMIS-210</name>
+                     <name>ARTEMIS-210</name> <!-- 2.1.0 -->
                      <value>${ARTEMIS-210}</value>
+                  </property>
+                  <property>
+                     <name>ARTEMIS-2_10_0</name> <!-- 2.10.0 -->
+                     <value>${ARTEMIS-2_10_0}</value>
                   </property>
                   <property>
                      <name>ARTEMIS-240</name>
