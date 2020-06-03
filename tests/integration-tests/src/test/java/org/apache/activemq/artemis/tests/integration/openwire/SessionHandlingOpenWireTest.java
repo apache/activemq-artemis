@@ -20,12 +20,17 @@ import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
 
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.activemq.state.ConnectionState;
+import org.apache.activemq.state.SessionState;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertNotNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -80,5 +85,33 @@ public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
       }
       assertFalse(AssertionLoggerHandler.findText("Client connection failed, clearing up resources for session"));
       assertFalse(AssertionLoggerHandler.findText("Cleared up resources for session"));
+   }
+
+
+   @Test
+   public void testProducerState() throws Exception {
+      try (Connection conn = factory.createConnection()) {
+         conn.start();
+         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination dest = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
+
+         for (int i = 0; i < 10; i++) {
+            MessageProducer messageProducer = session.createProducer(dest);
+            messageProducer.close();
+         }
+
+         // verify no trace of producer on the broker
+         for (RemotingConnection remotingConnection : server.getRemotingService().getConnections()) {
+            if (remotingConnection instanceof OpenWireConnection) {
+               OpenWireConnection openWireConnection = (OpenWireConnection) remotingConnection;
+               ConnectionState connectionState = openWireConnection.getState();
+               if (connectionState != null) {
+                  for (SessionState sessionState : connectionState.getSessionStates()) {
+                     assertTrue("no producer states leaked", Wait.waitFor(() -> sessionState.getProducerIds().isEmpty()));
+                  }
+               }
+            }
+         }
+      }
    }
 }
