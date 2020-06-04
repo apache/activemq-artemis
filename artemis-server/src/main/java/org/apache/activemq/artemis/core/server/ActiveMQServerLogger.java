@@ -443,6 +443,14 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 221082, value = "Initializing metrics plugin {0} with properties: {1}", format = Message.Format.MESSAGE_FORMAT)
    void initializingMetricsPlugin(String clazz, String properties);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221083, value = "ignoring quorum vote as max cluster size is {0}.", format = Message.Format.MESSAGE_FORMAT)
+   void ignoringQuorumVote(int maxClusterSize);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221084, value = "Requested {0} quorum votes", format = Message.Format.MESSAGE_FORMAT)
+   void requestedQuorumVotes(int vote);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
       format = Message.Format.MESSAGE_FORMAT)
