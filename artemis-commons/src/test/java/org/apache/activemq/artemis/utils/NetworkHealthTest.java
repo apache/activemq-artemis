@@ -326,4 +326,14 @@ public class NetworkHealthTest {
       Assert.assertEquals(0, purePing.get());
    }
 
+   @Test(timeout = 30_000)
+   public void testPurePingTimeout() throws Exception {
+      NetworkHealthCheck check = new NetworkHealthCheck(null, 100, 2000);
+
+      long time = System.currentTimeMillis();
+      //[RFC1166] reserves the address block 192.0.2.0/24 for test.
+      Assert.assertFalse(check.purePing(InetAddress.getByName("192.0.2.0")));
+      Assert.assertTrue(System.currentTimeMillis() - time >= 2000);
+   }
+
 }
