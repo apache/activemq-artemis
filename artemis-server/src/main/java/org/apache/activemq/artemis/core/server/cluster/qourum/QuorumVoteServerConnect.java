@@ -141,7 +141,11 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
       return votesNeeded == 0;
    }
 
-   public void await(int latchTimeout, TimeUnit unit) throws InterruptedException {
+   public void await(int latchTimeout, TimeUnit unit, int maxClusterSize) throws InterruptedException {
+      if (maxClusterSize <= 1) {
+         ActiveMQServerLogger.LOGGER.ignoringQuorumVote(maxClusterSize);
+         return;
+      }
       ActiveMQServerLogger.LOGGER.waitingForQuorumVoteResults(latchTimeout, unit.toString().toLowerCase());
       if (voteCompleted.await(latchTimeout, unit))
          ActiveMQServerLogger.LOGGER.receivedAllQuorumVotes();

@@ -202,7 +202,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
       vote(quorumVote);
 
       try {
-         quorumVote.await(voteTimeout, voteTimeoutUnit);
+         quorumVote.await(voteTimeout, voteTimeoutUnit, maxClusterSize);
       } catch (InterruptedException interruption) {
          // No-op. The best the quorum can do now is to return the latest number it has
          ActiveMQServerLogger.LOGGER.quorumVoteAwaitInterrupted();
@@ -232,8 +232,9 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
       synchronized (voteRunnables) {
          if (!started)
             return;
-         //send a vote to each node
+         //if no quorum existed, i.e. single pair logging voting is confusing
          ActiveMQServerLogger.LOGGER.initiatingQuorumVote(quorumVote.getName());
+         //send a vote to each node
          for (TopologyMemberImpl tm : clusterController.getDefaultClusterTopology().getMembers()) {
             //but not ourselves
             if (!tm.getNodeId().equals(clusterController.getNodeID().toString())) {

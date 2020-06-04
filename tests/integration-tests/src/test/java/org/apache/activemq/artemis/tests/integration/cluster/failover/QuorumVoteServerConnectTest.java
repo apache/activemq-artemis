@@ -107,7 +107,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
          final Future<InterruptedException> waitingTaskResult = executor.submit(() -> {
             taskStarted.countDown();
             try {
-               quorum.await(1, TimeUnit.DAYS);
+               quorum.await(1, TimeUnit.DAYS, size);
                return null;
             } catch (InterruptedException e) {
                return e;
@@ -145,7 +145,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
          final Future<InterruptedException> waitingTaskResult = executor.submit(() -> {
             taskStarted.countDown();
             try {
-               quorum.await(1, TimeUnit.DAYS);
+               quorum.await(1, TimeUnit.DAYS, size);
                return null;
             } catch (InterruptedException e) {
                return e;
@@ -189,7 +189,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
          final Future<InterruptedException> waitingTaskResult = executor.submit(() -> {
             taskStarted.countDown();
             try {
-               quorum.await(1, TimeUnit.DAYS);
+               quorum.await(1, TimeUnit.DAYS, size);
                return null;
             } catch (InterruptedException e) {
                return e;
