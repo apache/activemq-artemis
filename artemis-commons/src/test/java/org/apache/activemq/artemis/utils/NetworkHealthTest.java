@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -324,6 +325,34 @@ public class NetworkHealthTest {
 
       Assert.assertEquals(1, isReacheable.get());
       Assert.assertEquals(0, purePing.get());
+   }
+
+   @Test
+   public void testPurePingTimeout() throws Exception {
+      NetworkHealthCheck check = new NetworkHealthCheck(null, 100, 3000);
+
+      CountDownLatch purePingLatch = new CountDownLatch(1);
+      CountDownLatch purePingThreadLatch = new CountDownLatch(1);
+
+      Thread purePingThread = new Thread(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               purePingThreadLatch.countDown();
+
+               //[RFC1166] reserves the address block 192.0.2.0/24 for test.
+               Assert.assertFalse(check.purePing(InetAddress.getByName("192.0.2.0")));
+
+               purePingLatch.countDown();
+            } catch (Exception e) {
+               Assert.fail("Unexpected exception: " + e.toString());
+            }
+         }
+      });
+
+      purePingThread.start();
+      purePingThreadLatch.await();
+      Assert.assertTrue(purePingLatch.await(5000, TimeUnit.MILLISECONDS));
    }
 
 }
