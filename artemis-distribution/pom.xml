@@ -284,6 +284,26 @@
                </execution>
             </executions>
          </plugin>
+         <plugin>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>markdown-page-generator-plugin</artifactId>
+            <version>0.27.0</version>
+            <executions>
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>generate</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <configuration>
+               <headerHtmlFile>${activemq.basedir}/examples/common/header.html</headerHtmlFile>
+               <footerHtmlFile>${activemq.basedir}/examples/common/footer.html</footerHtmlFile>
+               <inputDirectory>${activemq.basedir}/examples</inputDirectory>
+               <outputDirectory>${project.build.directory}/markdown-pages/examples</outputDirectory>
+               <recursiveInput>true</recursiveInput>
+            </configuration>
+         </plugin>
       </plugins>
    </build>
 

@@ -15,7 +15,6 @@ ratReport.txt
 .factorypath
 **/.editorconfig
 **/derby.log
-examples/**/readme.html
 **/.DS_Store
 
 # for native build

@@ -175,16 +175,5 @@ under the License.
             </plugins>
          </build>
       </profile>
-      <profile>
-         <id>release</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>com.vladsch.flexmark</groupId>
-                  <artifactId>markdown-page-generator-plugin</artifactId>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
    </profiles>
 </project>
