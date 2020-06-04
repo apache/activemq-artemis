@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 
@@ -51,7 +52,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
    public static final String IPV6_DEFAULT_COMMAND = "ping6 -c 1 %2$s";
 
-   public static final String IPV4_DEFAULT_COMMAND = "ping -c 1 -t %d %s";
+   public static final String IPV4_DEFAULT_COMMAND = Env.isMacOs() ? "ping -c 1 -t %d %s" : "ping -c 1 -w %d %s";
 
    private String ipv4Command = IPV4_DEFAULT_COMMAND;
 
