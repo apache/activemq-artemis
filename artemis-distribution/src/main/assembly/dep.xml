@@ -228,6 +228,7 @@
          <directoryMode>0755</directoryMode>
          <fileMode>0755</fileMode>
       </fileSet>
+      <!-- examples -->
       <fileSet>
          <directory>${activemq.basedir}/examples</directory>
          <outputDirectory>examples</outputDirectory>
@@ -238,6 +239,11 @@
             <exclude>**/**/*.dat</exclude>
             <exclude>**/**/*.md</exclude>
          </excludes>
+      </fileSet>
+      <fileSet>
+         <directory>${project.build.directory}/markdown-pages/examples</directory>
+         <outputDirectory>examples</outputDirectory>
+         <lineEnding>keep</lineEnding>
       </fileSet>
       <!-- Include license and notice files -->
       <fileSet>
