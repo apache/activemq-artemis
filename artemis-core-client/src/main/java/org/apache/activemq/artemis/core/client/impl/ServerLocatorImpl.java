@@ -707,9 +707,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       // ATM topology is never != null. Checking here just to be consistent with
       // how the sendSubscription happens.
       // in case this ever changes.
-      if (topology != null && !factory.waitForTopology(config.callTimeout, TimeUnit.MILLISECONDS)) {
-         factory.cleanup();
-         throw ActiveMQClientMessageBundle.BUNDLE.connectionTimedOutOnReceiveTopology(discoveryGroup);
+      if (useTopologyForLoadBalancing) {
+         if (topology != null && !factory.waitForTopology(config.callTimeout, TimeUnit.MILLISECONDS)) {
+            factory.cleanup();
+            throw ActiveMQClientMessageBundle.BUNDLE.connectionTimedOutOnReceiveTopology(discoveryGroup);
+         }
       }
 
       addFactory(factory);
