@@ -189,7 +189,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
                               int voteTimeout,
                               TimeUnit voteTimeoutUnit) {
       Objects.requireNonNull(nodeID, "nodeID");
-      Objects.requireNonNull(nodeID, "liveConnector");
+      Objects.requireNonNull(liveConnector, "liveConnector");
       if (!started) {
          throw new IllegalStateException("QuorumManager must start first");
       }
@@ -199,15 +199,18 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
    }
 
    private boolean awaitVoteComplete(QuorumVoteServerConnect quorumVote, int voteTimeout, TimeUnit voteTimeoutUnit) {
+      final int maxClusterSize = this.maxClusterSize;
       vote(quorumVote);
-
-      try {
-         quorumVote.await(voteTimeout, voteTimeoutUnit);
-      } catch (InterruptedException interruption) {
-         // No-op. The best the quorum can do now is to return the latest number it has
-         ActiveMQServerLogger.LOGGER.quorumVoteAwaitInterrupted();
+      if (maxClusterSize > 1) {
+         try {
+            quorumVote.await(voteTimeout, voteTimeoutUnit);
+         } catch (InterruptedException interruption) {
+            // No-op. The best the quorum can do now is to return the latest number it has
+            ActiveMQServerLogger.LOGGER.quorumVoteAwaitInterrupted();
+         }
+      } else {
+         ActiveMQServerLogger.LOGGER.ignoringQuorumVote(maxClusterSize);
       }
-
       voteComplete(quorumVote);
 
       return quorumVote.getDecision();
@@ -246,8 +249,10 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
                runnables.add(voteRunnable);
             }
          }
-         if (runnables.size() > 0) {
-            voteRunnables.put(quorumVote, new VoteRunnableHolder(quorumVote, runnables, runnables.size()));
+         final int votes = runnables.size();
+         ActiveMQServerLogger.LOGGER.requestedQuorumVotes(votes);
+         if (votes > 0) {
+            voteRunnables.put(quorumVote, new VoteRunnableHolder(quorumVote, runnables, votes));
 
             for (VoteRunnable runnable : runnables) {
                executor.submit(runnable);
