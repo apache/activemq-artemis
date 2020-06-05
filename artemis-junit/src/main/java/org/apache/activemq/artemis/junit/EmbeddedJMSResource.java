@@ -66,10 +66,10 @@ import org.slf4j.LoggerFactory;
  *
  * <pre><code>
  * public class SimpleTest {
- *     @Rule
+ *     &#64;Rule
  *     public EmbeddedJMSResource server = new EmbeddedJMSResource();
  *
- *     @Test
+ *     &#64;Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded server here
  *     }

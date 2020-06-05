@@ -288,7 +288,6 @@ public class MQTTConnection implements RemotingConnection {
     * Sets the client ID associated with this connection
     *
     * @param cID
-    * @return
     */
    @Override
    public void setClientID(String cID) {

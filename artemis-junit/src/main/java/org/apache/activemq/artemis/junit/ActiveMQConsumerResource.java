@@ -32,10 +32,10 @@ import org.apache.activemq.artemis.api.core.RoutingType;
  *
  * <pre><code>
  * public class SimpleTest {
- *     @Rule
+ *     &#64;Rule
  *     public ActiveMQConsumerResource client = new ActiveMQProducerResource( "vm://0", "test.queue" );
  *
- *     @Test
+ *     &#64;Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded client here
  *         ClientMessage message = client.receiveMessage();

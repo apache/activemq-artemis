@@ -55,12 +55,12 @@ public class SimpleAddressManager implements AddressManager {
    private final StorageManager storageManager;
 
    /**
-    * HashMap<Address, Binding>
+    * {@code HashMap<Address, Binding>}
     */
    protected final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
 
    /**
-    * HashMap<QueueName, Binding>
+    * {@code HashMap<QueueName, Binding>}
     */
    private final ConcurrentMap<SimpleString, Binding> nameMap = new ConcurrentHashMap<>();
 
