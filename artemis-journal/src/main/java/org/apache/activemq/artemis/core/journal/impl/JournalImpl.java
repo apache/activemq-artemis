@@ -1846,7 +1846,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    /**
     * <p>Load data accordingly to the record layouts</p>
     * <p>Basic record layout:</p>
-    * <table border=1 summary="">
+    * <table border=1>
+    * <caption></caption>
     * <tr><td><b>Field Name</b></td><td><b>Size</b></td></tr>
     * <tr><td>RecordType</td><td>Byte (1)</td></tr>
     * <tr><td>FileID</td><td>Integer (4 bytes)</td></tr>
@@ -1860,7 +1861,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * </table>
     * <p> The check-size is used to validate if the record is valid and complete </p>
     * <p>Commit/Prepare record layout:</p>
-    * <table border=1 summary="">
+    * <table border=1>
+    * <caption></caption>
     * <tr><td><b>Field Name</b></td><td><b>Size</b></td></tr>
     * <tr><td>RecordType</td><td>Byte (1)</td></tr>
     * <tr><td>FileID</td><td>Integer (4 bytes)</td></tr>

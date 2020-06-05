@@ -64,7 +64,7 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
    private volatile long cachedLastIndex = 0;
 
    /**
-    * @throws IllegalArgumentException if {@code chunkSize} is <0 or not a power of 2
+    * @throws IllegalArgumentException if {@code chunkSize} is &lt;0 or not a power of 2
     */
    public ConcurrentAppendOnlyChunkedList(final int chunkSize) {
       if (chunkSize <= 0) {

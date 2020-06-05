@@ -2362,7 +2362,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    /**
     * @param e
-    * @return
     */
    protected void parseWildcardConfiguration(final Element e, final Configuration mainConfig) {
       WildcardConfiguration conf = mainConfig.getWildcardConfiguration();

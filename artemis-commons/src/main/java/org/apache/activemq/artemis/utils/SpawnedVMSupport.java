@@ -171,7 +171,7 @@ public class SpawnedVMSupport {
     * @param logOutput
     * @param logErrorOutput
     * @param useLogging
-    * @param debugPort      if <=0 it means no debug
+    * @param debugPort      if &lt;=0 it means no debug
     * @param args
     * @return
     * @throws IOException

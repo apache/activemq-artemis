@@ -28,7 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * A hash set implementation of {@link Set<Long>} that uses open addressing values.
+ * A hash set implementation of {@literal Set<Long>} that uses open addressing values.
  * To minimize the memory footprint, this class uses open addressing rather than chaining.
  * Collisions are resolved using linear probing. Deletions implement compaction, so cost of
  * remove can approach O(N) for full maps, which makes a small loadFactor recommended.

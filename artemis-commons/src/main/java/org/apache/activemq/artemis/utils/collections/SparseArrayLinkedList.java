@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  * it's a linked list of arrays/chunks of {@code T}.<br>
  * Differently from an {@code UnrolledLinkedList} this list doesn't optimize addition and removal to achieve a balanced
  * utilization among chunks ie a chunk is removed only if empty and chunks can't be merged.
- * This list has been optimized for small-sized chunks (ideally <= 32 elements): this allow search/removal to
+ * This list has been optimized for small-sized chunks (ideally &lt;= 32 elements): this allow search/removal to
  * be performed with a greedy approach despite a sparse chunk utilization (ie chunks contains few sparse elements).<br>
  *
  * From the memory footprint's point of view, this list won't remove the last remaining array although empty to optimize

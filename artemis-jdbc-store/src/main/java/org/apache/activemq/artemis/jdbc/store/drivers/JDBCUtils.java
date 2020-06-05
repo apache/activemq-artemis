@@ -40,7 +40,7 @@ public class JDBCUtils {
    }
 
    /**
-    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.<br/>
+    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.<br>
     * The information appended are:
     * <ul>
     * <li>SQL STATEMENTS</li>
@@ -61,7 +61,7 @@ public class JDBCUtils {
    }
 
    /**
-    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.<br/>
+    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.<br>
     * The information appended are:
     * <ul>
     * <li>SQL EXCEPTIONS details ({@link SQLException#getSQLState},

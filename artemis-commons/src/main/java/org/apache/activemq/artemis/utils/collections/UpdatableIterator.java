@@ -52,8 +52,6 @@ public class UpdatableIterator<E> implements ResettableIterator<E>, RepeatableIt
     * It is important that on nulling off the changedIterator, we atomically compare and set as the
     * changedIterator could be further updated by another thread whilst we are resetting,
     * the subsequent update simply would be picked up on the next reset.
-    *
-    * @return this (itself).
     */
    @Override
    public void reset() {
