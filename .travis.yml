@@ -2,6 +2,8 @@ language: java
 install: true
 jdk:
   - openjdk8
+  - openjdk11
+  - openjdk14
 
 # clean out Artemis artifacts from the cache
 before_install:
@@ -19,5 +21,5 @@ script:
 cache:
   directories:
   - $HOME/.m2
-  before_cache:
+before_cache:
   - rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*
