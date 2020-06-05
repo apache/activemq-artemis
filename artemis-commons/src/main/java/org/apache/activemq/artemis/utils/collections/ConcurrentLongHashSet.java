@@ -34,7 +34,7 @@ import static org.apache.activemq.artemis.utils.Preconditions.checkArgument;
  * Provides similar methods as a ConcurrentSet&lt;Long&gt; but since it's an open hash map with linear probing, no node
  * allocations are required to store the values.
  * <p>
- * Items <strong>MUST</strong> be >= 0.
+ * Items <strong>MUST</strong> be &gt;= 0.
  */
 public class ConcurrentLongHashSet {
 

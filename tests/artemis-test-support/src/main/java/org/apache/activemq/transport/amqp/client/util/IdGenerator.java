@@ -231,7 +231,7 @@ public class IdGenerator {
 
    /**
     * When using the {@link java.net.InetAddress#getHostName()} method in an
-    * environment where neither a proper DNS lookup nor an <tt>/etc/hosts</tt>
+    * environment where neither a proper DNS lookup nor an <code>/etc/hosts</code>
     * entry exists for a given host, the following exception will be thrown:
     * <code>
     * java.net.UnknownHostException: &lt;hostname&gt;: &lt;hostname&gt;
@@ -241,7 +241,7 @@ public class IdGenerator {
     * Instead of just throwing an UnknownHostException and giving up, this
     * method grabs a suitable hostname from the exception and prevents the
     * exception from being thrown. If a suitable hostname cannot be acquired
-    * from the exception, only then is the <tt>UnknownHostException</tt> thrown.
+    * from the exception, only then is the <code>UnknownHostException</code> thrown.
     *
     * @return The hostname
     * @throws UnknownHostException if the given host cannot be looked up.

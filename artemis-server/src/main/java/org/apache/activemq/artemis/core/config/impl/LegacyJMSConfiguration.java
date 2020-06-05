@@ -139,7 +139,6 @@ public class LegacyJMSConfiguration implements Deployable {
     * Parse the topic node as a TopicConfiguration object
     *
     * @param node
-    * @return topic configuration
     * @throws Exception
     */
    public void parseTopicConfiguration(final Node node) throws Exception {
@@ -153,7 +152,6 @@ public class LegacyJMSConfiguration implements Deployable {
     * Parse the Queue Configuration node as a QueueConfiguration object
     *
     * @param node
-    * @return jms queue configuration
     * @throws Exception
     */
    public void parseQueueConfiguration(final Node node) throws Exception {

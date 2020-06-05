@@ -211,7 +211,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
     * This will return the proper buffer to represent the data of the Message. If compressed it will decompress.
     * If large, it will read from the file or streaming.
     * @return
-    * @throws ActiveMQException
     */
    @Override
    public ActiveMQBuffer getDataBuffer() {

@@ -884,13 +884,6 @@
             <plugins>
                <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-javadoc-plugin</artifactId>
-                  <configuration>
-                     <additionalparam>-Xdoclint:none</additionalparam>
-                  </configuration>
-               </plugin>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-compiler-plugin</artifactId>
                   <version>3.8.1</version>
                   <configuration combine.self="override" />
@@ -916,17 +909,6 @@
               <maven.compiler.source>8</maven.compiler.source>
               <maven.compiler.target>8</maven.compiler.target>
           </properties>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-javadoc-plugin</artifactId>
-                  <configuration>
-                     <additionalparam>-Xdoclint:none</additionalparam>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
       </profile>
       <profile>
           <id>java9on</id>
@@ -1448,7 +1430,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-javadoc-plugin</artifactId>
-               <version>2.10.4</version>
+               <version>3.0.1</version>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
@@ -1836,7 +1818,6 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.4</version>
             <configuration>
                <minmemory>128m</minmemory>
                <maxmemory>1024m</maxmemory>
