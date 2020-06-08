@@ -257,8 +257,26 @@ public interface QueueControl {
    /**
     *
     */
-   @Attribute(desc = "delete this queue when the last consumer disconnects")
+   @Attribute(desc = "purge this queue when the last consumer disconnects")
    boolean isPurgeOnNoConsumers();
+
+   /**
+    *
+    */
+   @Attribute(desc = "if the queue is enabled, default it is enabled, when disabled messages will not be routed to the queue")
+   boolean isEnabled();
+
+   /**
+    * Enables the queue. Messages are now routed to this queue.
+    */
+   @Operation(desc = "Enables routing of messages to the Queue", impact = MBeanOperationInfo.ACTION)
+   void enable() throws Exception;
+
+   /**
+    * Enables the queue. Messages are not routed to this queue.
+    */
+   @Operation(desc = "Disables routing of messages to the Queue", impact = MBeanOperationInfo.ACTION)
+   void disable() throws Exception;
 
    /**
     *
@@ -594,6 +612,7 @@ public interface QueueControl {
     */
    @Operation(desc = "Resumes delivery of queued messages and gets the queue out of paused state. It will also affected the state of a persisted pause.", impact = MBeanOperationInfo.ACTION)
    void resume() throws Exception;
+
 
    @Operation(desc = "List all the existent consumers on the Queue")
    String listConsumersAsJSON() throws Exception;

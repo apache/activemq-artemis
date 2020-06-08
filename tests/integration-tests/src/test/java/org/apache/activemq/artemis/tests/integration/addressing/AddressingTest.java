@@ -268,6 +268,62 @@ public class AddressingTest extends ActiveMQTestBase {
       Wait.assertEquals(1, server.locateQueue(queueName)::getMessageCount);
    }
 
+
+   @Test
+   public void testQueueEnabledDisabled() throws Exception {
+      SimpleString address = new SimpleString("test.address");
+      SimpleString defaultQueue = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString enabledQueue = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString disabledQueue = SimpleString.toSimpleString(UUID.randomUUID().toString());
+
+
+      //Validate default is enabled, and check that queues enabled receive messages and disabled do not on same address.
+
+      server.createQueue(new QueueConfiguration(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(new QueueConfiguration(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+      server.createQueue(new QueueConfiguration(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+
+      assertNotNull(server.locateQueue(defaultQueue));
+      assertNotNull(server.locateQueue(enabledQueue));
+      assertNotNull(server.locateQueue(disabledQueue));
+      ClientSession session = sessionFactory.createSession();
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(true));
+
+      assertNotNull(server.locateQueue(defaultQueue));
+      assertNotNull(server.locateQueue(enabledQueue));
+      assertNotNull(server.locateQueue(disabledQueue));
+
+      Wait.assertEquals(1, server.locateQueue(defaultQueue)::getMessageCount);
+      Wait.assertEquals(1, server.locateQueue(enabledQueue)::getMessageCount);
+      Wait.assertEquals(0, server.locateQueue(disabledQueue)::getMessageCount);
+
+      //Update Queue Disable All
+      server.updateQueue(new QueueConfiguration(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+      server.updateQueue(new QueueConfiguration(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+      server.updateQueue(new QueueConfiguration(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+
+      producer.send(session.createMessage(true));
+
+      Wait.assertEquals(1, server.locateQueue(defaultQueue)::getMessageCount);
+      Wait.assertEquals(1, server.locateQueue(enabledQueue)::getMessageCount);
+      Wait.assertEquals(0, server.locateQueue(disabledQueue)::getMessageCount);
+
+
+      //Update Queue Enable All
+      server.updateQueue(new QueueConfiguration(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+      server.updateQueue(new QueueConfiguration(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+      server.updateQueue(new QueueConfiguration(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+
+
+      producer.send(session.createMessage(true));
+
+      Wait.assertEquals(2, server.locateQueue(defaultQueue)::getMessageCount);
+      Wait.assertEquals(2, server.locateQueue(enabledQueue)::getMessageCount);
+      Wait.assertEquals(1, server.locateQueue(disabledQueue)::getMessageCount);
+
+   }
+
    @Test
    public void testLimitOnMaxConsumers() throws Exception {
       SimpleString address = new SimpleString("test.address");

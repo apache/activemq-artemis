@@ -660,6 +660,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                changed = true;
                queue.setPurgeOnNoConsumers(queueConfiguration.isPurgeOnNoConsumers());
             }
+            if (queueConfiguration.isEnabled() != null && queue.isEnabled() != queueConfiguration.isEnabled().booleanValue()) {
+               changed = true;
+               queue.setEnabled(queueConfiguration.isEnabled());
+            }
             if (queueConfiguration.isExclusive() != null && queue.isExclusive() != queueConfiguration.isExclusive().booleanValue()) {
                changed = true;
                queue.setExclusive(queueConfiguration.isExclusive());

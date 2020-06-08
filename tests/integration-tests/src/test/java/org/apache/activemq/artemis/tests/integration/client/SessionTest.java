@@ -670,7 +670,27 @@ public class SessionTest extends ActiveMQTestBase {
          assertTrue(result.isPurgeOnNoConsumers());
          assertTrue(result.isExclusive());
          assertTrue(result.isLastValue());
+         assertTrue(result.isEnabled());
          server.destroyQueue(queueName);
+      }
+      {
+         if (!legacyCreateQueue) {
+            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true).setEnabled(false));
+            Queue result = server.locateQueue(queueName);
+            assertEquals(addressName, result.getAddress());
+            assertEquals(queueName, result.getName());
+            assertEquals(RoutingType.ANYCAST, result.getRoutingType());
+            assertEquals("filter", result.getFilter().getFilterString().toString());
+            assertTrue(result.isDurable());
+            assertTrue(result.isAutoCreated());
+            assertEquals(0, result.getMaxConsumers());
+            assertTrue(result.isPurgeOnNoConsumers());
+            assertTrue(result.isExclusive());
+            assertTrue(result.isLastValue());
+            assertFalse(result.isEnabled());
+            server.destroyQueue(queueName);
+         }
+
       }
    }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.core.server.impl;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
@@ -37,11 +38,12 @@ public class QueueConfigurationUtils {
       config.setRoutingType(config.getRoutingType() == null ? as.getDefaultQueueRoutingType() : config.getRoutingType());
       config.setPurgeOnNoConsumers(config.isPurgeOnNoConsumers() == null ? as.isDefaultPurgeOnNoConsumers() : config.isPurgeOnNoConsumers());
       config.setAutoCreateAddress(config.isAutoCreateAddress() == null ? as.isAutoCreateAddresses() : config.isAutoCreateAddress());
-
       // set the default auto-delete
       config.setAutoDelete(config.isAutoDelete() == null ? (config.isAutoCreated() && as.isAutoDeleteQueues()) || (!config.isAutoCreated() && as.isAutoDeleteCreatedQueues()) : config.isAutoDelete());
 
       config.setAutoDeleteDelay(config.getAutoDeleteDelay() == null ? as.getAutoDeleteQueuesDelay() : config.getAutoDeleteDelay());
       config.setAutoDeleteMessageCount(config.getAutoDeleteMessageCount() == null ? as.getAutoDeleteQueuesMessageCount() : config.getAutoDeleteMessageCount());
+
+      config.setEnabled(config.isEnabled() == null ? ActiveMQDefaultConfiguration.getDefaultEnabled() : config.isEnabled());
    }
 }

@@ -58,6 +58,10 @@ public interface QueueBindingInfo {
 
    void setPurgeOnNoConsumers(boolean purgeOnNoConsumers);
 
+   boolean isEnabled();
+
+   void setEnabled(boolean enabled);
+
    boolean isExclusive();
 
    void setExclusive(boolean exclusive);

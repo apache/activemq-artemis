@@ -527,6 +527,34 @@ Open the file `<broker-instance>/etc/broker.xml` for editing.
 </addresses>
 ```
 
+#### Disabled Queue
+
+If a user requires to statically configure a queue and disable routing to it,
+for example where a queue needs to be defined so a consumer can bind, 
+but you want to disable message routing to it for the time being.
+
+Or you need to stop message flow to the queue to allow investigation keeping the consumer bound, 
+but dont wish to have further messages routed to the queue to avoid message build up.
+  
+When **enabled** is set to **true**  the queue will have messages routed to it. (default)
+
+When **enabled** is set to **false**  the queue will NOT have messages routed to it.
+
+Open the file `<broker-instance>/etc/broker.xml` for editing.
+
+```xml
+<addresses>
+   <address name="foo.bar">
+      <multicast>
+         <queue name="orders1" enabled="false"/>
+      </multicast>
+   </address>
+</addresses>
+```
+
+Warning: Disabling all the queues on an address means that any message sent to that address will be silently dropped.
+
+
 ## Protocol Managers
 
 A "protocol manager" maps protocol-specific concepts down to the core

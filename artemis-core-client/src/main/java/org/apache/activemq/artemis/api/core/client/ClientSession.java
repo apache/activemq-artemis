@@ -173,6 +173,8 @@ public interface ClientSession extends XAResource, AutoCloseable {
       Long getAutoDeleteMessageCount();
 
       Long getRingSize();
+
+      Boolean isEnabled();
    }
 
    // Lifecycle operations ------------------------------------------
