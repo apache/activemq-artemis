@@ -39,6 +39,8 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
    private Boolean autoDelete;
    private Long autoDeleteDelay;
    private Long autoDeleteMessageCount;
+   private Long ringSize;
+   private Boolean enabled;
 
    public CreateSharedQueueMessage_V2(final QueueConfiguration queueConfiguration, boolean requiresResponse) {
       this(
@@ -61,6 +63,8 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          queueConfiguration.isAutoDelete(),
          queueConfiguration.getAutoDeleteDelay(),
          queueConfiguration.getAutoDeleteMessageCount(),
+         queueConfiguration.getRingSize(),
+         queueConfiguration.isEnabled(),
          requiresResponse
       );
    }
@@ -84,6 +88,8 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
                                       final Boolean autoDelete,
                                       final Long autoDeleteDelay,
                                       final Long autoDeleteMessageCount,
+                                      final Long ringSize,
+                                      final Boolean enabled,
                                       final boolean requiresResponse) {
       this();
 
@@ -106,6 +112,8 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       this.autoDelete = autoDelete;
       this.autoDeleteDelay = autoDeleteDelay;
       this.autoDeleteMessageCount = autoDeleteMessageCount;
+      this.ringSize = ringSize;
+      this.enabled = enabled;
       this.requiresResponse = requiresResponse;
    }
 
@@ -233,6 +241,22 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       this.autoDeleteMessageCount = autoDeleteMessageCount;
    }
 
+   public Long getRingSize() {
+      return ringSize;
+   }
+
+   public void setRingSize(Long ringSize) {
+      this.ringSize = ringSize;
+   }
+
+   public Boolean isEnabled() {
+      return enabled;
+   }
+
+   public void setEnabled(Boolean enabled) {
+      this.enabled = enabled;
+   }
+
    public QueueConfiguration toQueueConfiguration() {
       return new QueueConfiguration(queueName)
          .setAddress(address)
@@ -252,7 +276,9 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          .setLastValueKey(lastValueKey)
          .setAutoDelete(autoDelete)
          .setAutoDeleteDelay(autoDeleteDelay)
-         .setAutoDeleteMessageCount(autoDeleteMessageCount);
+         .setAutoDeleteMessageCount(autoDeleteMessageCount)
+         .setRingSize(ringSize)
+         .setEnabled(enabled);
    }
 
    @Override
@@ -277,6 +303,8 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       buff.append(", autoDelete=" + autoDelete);
       buff.append(", autoDeleteDelay=" + autoDeleteDelay);
       buff.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
+      buff.append(", ringSize=" + ringSize);
+      buff.append(", enabled=" + enabled);
       buff.append(", requiresResponse=" + requiresResponse);
       buff.append("]");
       return buff.toString();
@@ -304,6 +332,8 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       BufferHelper.writeNullableLong(buffer, autoDeleteDelay);
       BufferHelper.writeNullableLong(buffer, autoDeleteMessageCount);
       buffer.writeNullableSimpleString(groupFirstKey);
+      BufferHelper.writeNullableLong(buffer, ringSize);
+      BufferHelper.writeNullableBoolean(buffer, enabled);
    }
 
    @Override
@@ -334,6 +364,12 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       if (buffer.readableBytes() > 0) {
          groupFirstKey = buffer.readNullableSimpleString();
       }
+      if (buffer.readableBytes() > 0) {
+         ringSize = buffer.readNullableLong();
+      }
+      if (buffer.readableBytes() > 0) {
+         enabled = buffer.readNullableBoolean();
+      }
    }
 
    @Override
@@ -360,7 +396,8 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       result = prime * result + (autoDelete == null ? 0 : autoDelete.hashCode());
       result = prime * result + (autoDeleteDelay == null ? 0 : autoDeleteDelay.hashCode());
       result = prime * result + (autoDeleteMessageCount == null ? 0 : autoDeleteMessageCount.hashCode());
-
+      result = prime * result + (ringSize == null ? 0 : ringSize.hashCode());
+      result = prime * result + (enabled ? 1231 : 1237);
       return result;
    }
 
@@ -463,6 +500,16 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          if (other.autoDeleteMessageCount != null)
             return false;
       } else if (!autoDeleteMessageCount.equals(other.autoDeleteMessageCount))
+         return false;
+      if (ringSize == null) {
+         if (other.ringSize != null)
+            return false;
+      } else if (!ringSize.equals(other.ringSize))
+         return false;
+      if (enabled == null) {
+         if (other.enabled != null)
+            return false;
+      } else if (!enabled.equals(other.enabled))
          return false;
       return true;
    }

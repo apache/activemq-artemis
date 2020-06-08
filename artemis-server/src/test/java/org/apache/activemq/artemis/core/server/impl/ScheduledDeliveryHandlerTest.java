@@ -818,6 +818,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean isEnabled() {
+         return false;
+      }
+
+      @Override
+      public void setEnabled(boolean value) {
+
+      }
+
+      @Override
       public PagingStore getPagingStore() {
          return null;
       }

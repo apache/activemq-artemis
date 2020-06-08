@@ -1299,6 +1299,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       Boolean nonDestructive = null;
       Integer consumersBeforeDispatch = null;
       Long delayBeforeDispatch = null;
+      Boolean enabled = null;
       Long ringSize = ActiveMQDefaultConfiguration.getDefaultRingSize();
 
       NamedNodeMap attributes = node.getAttributes();
@@ -1327,6 +1328,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             consumersBeforeDispatch = Integer.parseInt(item.getNodeValue());
          } else if (item.getNodeName().equals("delay-before-dispatch")) {
             delayBeforeDispatch = Long.parseLong(item.getNodeValue());
+         } else if (item.getNodeName().equals("enabled")) {
+            enabled = Boolean.parseBoolean(item.getNodeValue());
          } else if (item.getNodeName().equals("ring-size")) {
             ringSize = Long.parseLong(item.getNodeValue());
          }
@@ -1363,6 +1366,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
               .setNonDestructive(nonDestructive)
               .setConsumersBeforeDispatch(consumersBeforeDispatch)
               .setDelayBeforeDispatch(delayBeforeDispatch)
+              .setEnabled(enabled)
               .setRingSize(ringSize);
    }
 

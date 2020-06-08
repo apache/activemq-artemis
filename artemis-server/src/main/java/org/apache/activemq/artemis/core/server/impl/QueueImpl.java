@@ -296,6 +296,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean purgeOnNoConsumers;
 
+   private volatile boolean enabled;
+
    private final AddressInfo addressInfo;
 
    private volatile RoutingType routingType;
@@ -633,6 +635,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.purgeOnNoConsumers = queueConfiguration.isPurgeOnNoConsumers() == null ? ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers() : queueConfiguration.isPurgeOnNoConsumers();
 
+      this.enabled = queueConfiguration.isEnabled() == null ? ActiveMQDefaultConfiguration.getDefaultEnabled() : queueConfiguration.isEnabled();
+
       this.consumersBeforeDispatch = queueConfiguration.getConsumersBeforeDispatch() == null ? ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch() : queueConfiguration.getConsumersBeforeDispatch();
 
       this.delayBeforeDispatch = queueConfiguration.getDelayBeforeDispatch() == null ? ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch() : queueConfiguration.getDelayBeforeDispatch();
@@ -797,6 +801,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void route(final Message message, final RoutingContext context) throws Exception {
+      if (!enabled) {
+         context.setReusable(false);
+         return;
+      }
       if (purgeOnNoConsumers) {
          context.setReusable(false);
          if (getConsumerCount() == 0) {
@@ -867,6 +875,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void setPurgeOnNoConsumers(boolean value) {
       this.purgeOnNoConsumers = value;
+   }
+
+   @Override
+   public boolean isEnabled() {
+      return enabled;
+   }
+
+   @Override
+   public synchronized void setEnabled(boolean value) {
+      this.enabled = value;
    }
 
    @Override
