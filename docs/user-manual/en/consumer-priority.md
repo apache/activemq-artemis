@@ -17,8 +17,8 @@ When using the JMS Client you can set the priority to be used, by using address 
 creating the destination used by the consumer.
 
 ```java
-Queue queue = session.createQueue("my.destination.name?consmer-priority=50");
-Topic topic = session.createTopic("my.destination.name?consmer-priority=50");
+Queue queue = session.createQueue("my.destination.name?consumer-priority=50");
+Topic topic = session.createTopic("my.destination.name?consumer-priority=50");
 
 consumer = session.createConsumer(queue);
 ```
