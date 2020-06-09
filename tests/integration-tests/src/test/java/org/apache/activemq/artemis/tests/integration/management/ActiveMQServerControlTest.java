@@ -472,6 +472,53 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testRemoveQueueFilter() throws Exception {
+
+      String address = RandomUtil.randomString();
+      QueueConfiguration queue1 = new QueueConfiguration("q1")
+              .setAddress(address)
+              .setFilterString("hello='world'");
+
+      QueueConfiguration queue2 = new QueueConfiguration("q2")
+              .setAddress(address)
+              .setFilterString("hello='darling'");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      serverControl.createAddress(address, "MULTICAST");
+
+      if (legacyCreateQueue) {
+         serverControl.createQueue(address, queue1.getName().toString(), queue1.getFilterString().toString(), queue1.isDurable());
+         serverControl.createQueue(address, queue2.getName().toString(), queue2.getFilterString().toString(), queue2.isDurable());
+      } else {
+         serverControl.createQueue(queue1.toJSON());
+         serverControl.createQueue(queue2.toJSON());
+      }
+
+      ServerLocator loc = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(loc);
+      ClientSession session = csf.createSession();
+      session.start();
+
+      ClientProducer producer = session.createProducer(address);
+      ClientConsumer consumer1 = session.createConsumer("q1");
+      ClientConsumer consumer2 = session.createConsumer("q2");
+
+      ClientMessage m = session.createMessage(true);
+      m.putStringProperty("hello", "world");
+      producer.send(m);
+
+      assertNotNull(consumer1.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
+
+      serverControl.updateQueue(queue2.setFilterString((String) null).toJSON());
+
+      producer.send(m);
+
+      assertNotNull(consumer1.receiveImmediate());
+      assertNotNull(consumer2.receiveImmediate());
+   }
+
+   @Test
    public void testCreateAndDestroyQueueClosingConsumers() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
