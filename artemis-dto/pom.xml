@@ -108,6 +108,13 @@
                            <exclude name="**/.git/**" />
                            <exclude name="**/.svn/**" />
                         </schemagen>
+                        <condition property="schema-namespace-replace-token" value="xmlns=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;"
+                                                                             else="xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;">
+                           <resourcecontains resource="${project.build.directory}/schema/org.apache.activemq/dto/activemq.xsd" substring="&lt;schema elementFormDefault" />
+                        </condition>
+                        <replace file="${project.build.directory}/schema/org.apache.activemq/dto/activemq.xsd"
+                                 token="xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;"
+                                 value="${schema-namespace-replace-token}"/>
                         <copy todir="${project.build.directory}/classes">
                            <fileset dir="${project.build.directory}/schema" />
                         </copy>
