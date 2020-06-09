@@ -16,22 +16,6 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
@@ -79,6 +63,7 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueConfigurationUtils;
 import org.apache.activemq.artemis.core.server.impl.QueueManagerImpl;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -96,6 +81,23 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This is the class that will make the routing to Queues and decide which consumer will get the messages
@@ -632,7 +634,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             boolean changed = false;
 
             //validate update
-            if (queueConfiguration.getMaxConsumers() != null && queueConfiguration.getMaxConsumers().intValue() != Queue.MAX_CONSUMERS_UNLIMITED) {
+            if (queueConfiguration.getMaxConsumers() != null && queueConfiguration.getMaxConsumers() != Queue.MAX_CONSUMERS_UNLIMITED) {
                final int consumerCount = queue.getConsumerCount();
                if (consumerCount > queueConfiguration.getMaxConsumers()) {
                   throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumersUpdate(queueConfiguration.getName().toString(), queueConfiguration.getMaxConsumers(), consumerCount);
@@ -647,74 +649,94 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                }
             }
 
-            //atomic update
-            if (queueConfiguration.getMaxConsumers() != null && queue.getMaxConsumers() != queueConfiguration.getMaxConsumers().intValue()) {
+            QueueConfigurationUtils.applyDynamicQueueDefaults(queueConfiguration, addressSettingsRepository.getMatch(queueConfiguration.getAddress().toString()));
+
+            // atomic update, reset to defaults if value == null
+            // maxConsumers
+            if (queue.getMaxConsumers() != queueConfiguration.getMaxConsumers()) {
                changed = true;
                queue.setMaxConsumer(queueConfiguration.getMaxConsumers());
             }
-            if (queueConfiguration.getRoutingType() != null && queue.getRoutingType() != queueConfiguration.getRoutingType()) {
+            // routingType
+            if (queue.getRoutingType() != queueConfiguration.getRoutingType()) {
                changed = true;
                queue.setRoutingType(queueConfiguration.getRoutingType());
             }
-            if (queueConfiguration.isPurgeOnNoConsumers() != null && queue.isPurgeOnNoConsumers() != queueConfiguration.isPurgeOnNoConsumers().booleanValue()) {
+            // purgeOnNoConsumers
+            if (queue.isPurgeOnNoConsumers() != queueConfiguration.isPurgeOnNoConsumers()) {
                changed = true;
                queue.setPurgeOnNoConsumers(queueConfiguration.isPurgeOnNoConsumers());
             }
-            if (queueConfiguration.isEnabled() != null && queue.isEnabled() != queueConfiguration.isEnabled().booleanValue()) {
+            // enabled
+            if (queue.isEnabled() != queueConfiguration.isEnabled()) {
                changed = true;
                queue.setEnabled(queueConfiguration.isEnabled());
             }
-            if (queueConfiguration.isExclusive() != null && queue.isExclusive() != queueConfiguration.isExclusive().booleanValue()) {
+            // exclusive
+            if (queue.isExclusive() != queueConfiguration.isExclusive()) {
                changed = true;
                queue.setExclusive(queueConfiguration.isExclusive());
             }
-            if (queueConfiguration.isGroupRebalance() != null && queue.isGroupRebalance() != queueConfiguration.isGroupRebalance().booleanValue()) {
+            // groupRebalance
+            if (queue.isGroupRebalance() != queueConfiguration.isGroupRebalance()) {
                changed = true;
                queue.setGroupRebalance(queueConfiguration.isGroupRebalance());
             }
-            if (queueConfiguration.getGroupBuckets() != null && queue.getGroupBuckets() != queueConfiguration.getGroupBuckets().intValue()) {
+            // groupBuckets
+            if (queue.getGroupBuckets() != queueConfiguration.getGroupBuckets()) {
                changed = true;
                queue.setGroupBuckets(queueConfiguration.getGroupBuckets());
             }
-            if (queueConfiguration.getGroupFirstKey() != null && !queueConfiguration.getGroupFirstKey().equals(queue.getGroupFirstKey())) {
+            // groupFirstKey
+            // Objects.equals() performs the null check for us
+            if (!Objects.equals(queue.getGroupFirstKey(), queueConfiguration.getGroupFirstKey())) {
                changed = true;
                queue.setGroupFirstKey(queueConfiguration.getGroupFirstKey());
             }
-            if (queueConfiguration.isNonDestructive() != null && queue.isNonDestructive() != queueConfiguration.isNonDestructive().booleanValue()) {
+            // nonDestructive
+            if (queue.isNonDestructive() != queueConfiguration.isNonDestructive()) {
                changed = true;
                queue.setNonDestructive(queueConfiguration.isNonDestructive());
             }
-            if (queueConfiguration.getConsumersBeforeDispatch() != null && !queueConfiguration.getConsumersBeforeDispatch().equals(queue.getConsumersBeforeDispatch())) {
+            // consumersBeforeDispatch
+            if (queue.getConsumersBeforeDispatch() != queueConfiguration.getConsumersBeforeDispatch()) {
                changed = true;
-               queue.setConsumersBeforeDispatch(queueConfiguration.getConsumersBeforeDispatch().intValue());
+               queue.setConsumersBeforeDispatch(queueConfiguration.getConsumersBeforeDispatch());
             }
-            if (queueConfiguration.getDelayBeforeDispatch() != null && !queueConfiguration.getDelayBeforeDispatch().equals(queue.getDelayBeforeDispatch())) {
+            // delayBeforeDispatch
+            if (queue.getDelayBeforeDispatch() != queueConfiguration.getDelayBeforeDispatch()) {
                changed = true;
-               queue.setDelayBeforeDispatch(queueConfiguration.getDelayBeforeDispatch().longValue());
+               queue.setDelayBeforeDispatch(queueConfiguration.getDelayBeforeDispatch());
             }
-            Filter filter = FilterImpl.createFilter(queueConfiguration.getFilterString());
-            if (filter != null && !filter.equals(queue.getFilter())) {
+            // filter
+            // There's no default ActiveMQDefaultConfiguration setting for a filter
+            final Filter newFilter = FilterImpl.createFilter(queueConfiguration.getFilterString());
+            if (!Objects.equals(queue.getFilter(), newFilter)) {
                changed = true;
-               queue.setFilter(filter);
+               queue.setFilter(newFilter);
             }
-            if (queueConfiguration.isConfigurationManaged() != null && !queueConfiguration.isConfigurationManaged().equals(queue.isConfigurationManaged())) {
-               changed = true;
+            // configurationManaged
+            if (queueConfiguration.isConfigurationManaged() != queue.isConfigurationManaged()) {
                queue.setConfigurationManaged(queueConfiguration.isConfigurationManaged());
+               changed = true;
             }
+            /* Why is this?
             if (logger.isDebugEnabled()) {
                if (queueConfiguration.getUser() == null && queue.getUser() != null) {
                   logger.debug("Ignoring updating Queue to a NULL user");
                }
             }
-            if (queueConfiguration.getUser() != null && !queueConfiguration.getUser().equals(queue.getUser())) {
+             */
+            // user
+            if (!Objects.equals(queue.getUser(), queueConfiguration.getUser())) {
                changed = true;
                queue.setUser(queueConfiguration.getUser());
             }
-            if (queueConfiguration.getRingSize() != null && !queueConfiguration.getRingSize().equals(queue.getRingSize())) {
+            // ringSize
+            if (queue.getRingSize() != queueConfiguration.getRingSize()) {
                changed = true;
                queue.setRingSize(queueConfiguration.getRingSize());
             }
-
             if (changed) {
                final long txID = storageManager.generateID();
                try {
