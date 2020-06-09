@@ -958,6 +958,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final long getExpiration() {
+      ensureMessageDataScanned();
       return expiration;
    }
 
