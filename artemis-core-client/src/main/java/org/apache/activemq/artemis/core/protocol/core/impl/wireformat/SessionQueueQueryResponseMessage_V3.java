@@ -501,10 +501,10 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
             return false;
       } else if (!ringSize.equals(other.ringSize))
          return false;
-      if (enabled == enabled) {
-         if (other.ringSize != null)
+      if (enabled == null) {
+         if (other.enabled != null)
             return false;
-      } else if (!enabled.equals(other.ringSize))
+      } else if (!enabled.equals(other.enabled))
          return false;
       if (defaultConsumerWindowSize == null) {
          if (other.defaultConsumerWindowSize != null)
