@@ -108,6 +108,9 @@
                            <exclude name="**/.git/**" />
                            <exclude name="**/.svn/**" />
                         </schemagen>
+                        <replace file="${project.build.directory}/schema/org.apache.activemq/dto/activemq.xsd"
+                                 token="xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;"
+                                 value="xmlns=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;"/>
                         <copy todir="${project.build.directory}/classes">
                            <fileset dir="${project.build.directory}/schema" />
                         </copy>
