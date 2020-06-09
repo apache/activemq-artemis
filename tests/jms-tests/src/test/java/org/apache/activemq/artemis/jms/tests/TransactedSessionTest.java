@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TransactedSessionTest extends JMSTestCase {
@@ -617,7 +618,9 @@ public class TransactedSessionTest extends JMSTestCase {
 
    }
 
-   public void _testSendCommitQueueCommitsInOrder() throws Exception {
+   @Test
+   @Ignore("jvm runs out of memory")
+   public void testSendCommitQueueCommitsInOrder() throws Exception {
       Connection conn = null;
 
       try {
