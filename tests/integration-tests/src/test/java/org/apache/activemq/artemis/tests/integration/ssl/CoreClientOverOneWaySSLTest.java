@@ -201,6 +201,25 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testOneWaySSLwithSNINegativeAndURL() throws Exception {
+      createCustomSslServer("myhost\\.com");
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616?" +
+                                                                                     TransportConstants.SSL_ENABLED_PROP_NAME + "=true;" +
+                                                                                     TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME + "=" + storeType + ";" +
+                                                                                     TransportConstants.TRUSTSTORE_PATH_PROP_NAME + "=" + CLIENT_SIDE_TRUSTSTORE +";" +
+                                                                                     TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME + "=" + PASSWORD + ";" +
+                                                                                     TransportConstants.SNIHOST_PROP_NAME + "=badhost.com"));
+
+      try {
+         ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+         fail("Should have failed due to unrecognized SNI host name");
+      } catch (Exception e) {
+         // ignore
+      }
+   }
+
+   @Test
    public void testOneWaySSLwithSNIOnlyOnTheClient() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
