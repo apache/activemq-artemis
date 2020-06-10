@@ -18,7 +18,9 @@ package org.apache.activemq.artemis.spi.core.remoting.ssl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
+import javax.net.ssl.SSLContext;
 
 /**
  * Provider that loads the SSLContextFactory services and return the one with the highest priority.
@@ -30,8 +32,25 @@ public class SSLContextFactoryProvider {
       ServiceLoader<SSLContextFactory> loader = ServiceLoader.load(SSLContextFactory.class, Thread.currentThread().getContextClassLoader());
       final List<SSLContextFactory> factories = new ArrayList<>();
       loader.forEach(factories::add);
-      Collections.sort(factories);
-      factory = factories.get(factories.size() - 1);
+      if (factories.isEmpty()) {
+         factory = new SSLContextFactory() {
+            @Override
+            public SSLContext getSSLContext(Map<String, Object> configuration,
+                  String keystoreProvider, String keystorePath, String keystorePassword,
+                  String truststoreProvider, String truststorePath, String truststorePassword,
+                  String crlPath, String trustManagerFactoryPlugin, boolean trustAll) throws Exception {
+               return SSLContext.getDefault();
+            }
+
+            @Override
+            public int getPriority() {
+               return -1;
+            }
+         };
+      } else {
+         Collections.sort(factories);
+         factory = factories.get(factories.size() - 1);
+      }
    }
    /**
     * @return the SSLContextFactory with the higher priority.
