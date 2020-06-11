@@ -95,7 +95,7 @@
       <jetty.version>9.4.26.v20200117</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
-      <mockito.version>2.25.0</mockito.version>
+      <mockito.version>3.3.3</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.48.Final</netty.version>
 
