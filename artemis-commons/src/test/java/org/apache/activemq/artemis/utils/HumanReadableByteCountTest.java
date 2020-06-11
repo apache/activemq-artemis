@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.utils;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,21 +28,46 @@ import static org.junit.Assert.assertEquals;
 public class HumanReadableByteCountTest {
 
    @Test
-   public void test() {
-      String[] suffixes = new String[] {"K", "M", "G", "T", "P", "E"};
-
-      assertEquals("0B", ByteUtil.getHumanReadableByteCount(0));
-      assertEquals("999.0B", ByteUtil.getHumanReadableByteCount(999));
-      assertEquals("500.0B", ByteUtil.getHumanReadableByteCount(500));
-
-      for (int i = 0, j = 3; i < 6; i++, j += 3) {
-         final long magnitude = (long) Math.pow(10, j);
-         assertEquals("1.0" + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude));
-         assertEquals("1.3" + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude + (long) (.25 * magnitude)));
-         assertEquals("1.5" + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude + (long) (.5 * magnitude)));
-         assertEquals("1.9" + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude + (long) (.9 * magnitude)));
-         assertEquals("4.2" + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude + (long) (3.2 * magnitude)));
-      }
+   public void testDefaultLocale() {
+      internalTest(Locale.getDefault());
    }
 
+   @Test
+   public void testEnglishLocale() {
+      internalTest(Locale.ENGLISH);
+   }
+
+   @Test
+   public void testFrenchLocale() {
+      // This locale will use commas instead of periods
+      internalTest(Locale.FRENCH);
+   }
+
+   private void internalTest(final Locale testLocale) {
+      // track the default
+      Locale defaultLocale = Locale.getDefault();
+
+      Locale.setDefault(testLocale);
+      DecimalFormat decimalFormat = new DecimalFormat("###.0", DecimalFormatSymbols.getInstance(testLocale));
+
+      try {
+         String[] suffixes = new String[]{"K", "M", "G", "T", "P", "E"};
+
+         assertEquals("0B", ByteUtil.getHumanReadableByteCount(0));
+         assertEquals(decimalFormat.format(999.0) + "B", ByteUtil.getHumanReadableByteCount(999));
+         assertEquals(decimalFormat.format(500.0) + "B", ByteUtil.getHumanReadableByteCount(500));
+
+         for (int i = 0, j = 3; i < 6; i++, j += 3) {
+            final long magnitude = (long) Math.pow(10, j);
+            assertEquals(decimalFormat.format(1.0) + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude));
+            assertEquals(decimalFormat.format(1.3) + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude + (long) (.25 * magnitude)));
+            assertEquals(decimalFormat.format(1.5) + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude + (long) (.5 * magnitude)));
+            assertEquals(decimalFormat.format(1.9) + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude + (long) (.9 * magnitude)));
+            assertEquals(decimalFormat.format(4.2) + suffixes[i] + "B", ByteUtil.getHumanReadableByteCount(magnitude + (long) (3.2 * magnitude)));
+         }
+      } finally {
+         // reset the default once the test is over
+         Locale.setDefault(defaultLocale);
+      }
+   }
 }
