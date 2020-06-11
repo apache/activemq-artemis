@@ -33,8 +33,7 @@
    <name>ActiveMQ Artemis Extra Tests</name>
 
    <properties>
-      <tools.jar>${java.home}/../lib/tools.jar</tools.jar>
-      <byteman.version>3.0.10</byteman.version>
+      <byteman.version>4.0.11</byteman.version>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
       <jboss-jts.version>4.17.13.Final</jboss-jts.version>
       <hornetq.version>2.4.7.Final</hornetq.version>
@@ -44,6 +43,10 @@
    </properties>
 
    <dependencies>
+      <dependency>
+          <groupId>com.google.errorprone</groupId>
+          <artifactId>error_prone_core</artifactId>
+      </dependency>
       <dependency>
          <groupId>org.jboss.byteman</groupId>
          <artifactId>byteman</artifactId>
@@ -78,13 +81,6 @@
                <artifactId>testng</artifactId>
             </exclusion>
          </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>com.sun</groupId>
-         <artifactId>tools</artifactId>
-         <version>1.7</version>
-         <scope>system</scope>
-         <systemPath>${tools.jar}</systemPath>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
