@@ -29,9 +29,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.security.Security;
-
-import com.sun.net.ssl.internal.ssl.Provider;
 
 /**
  * An example where a client will send a Stomp message on a TCP socket
@@ -45,7 +42,6 @@ public class StompDualAuthenticationExample {
 
       Connection connection = null;
       InitialContext initialContext = null;
-      Security.addProvider(new Provider());
 
       try {
          // set up SSL keystores for Stomp connection
