@@ -60,6 +60,19 @@ under the License.
       </pluginRepository>
    </pluginRepositories>
 
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+               <compilerArgs combine.self="override">
+               </compilerArgs>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
    <profiles>
       <profile>
          <!-- specify -PnoServer if you don't want to start the servers on the tests -->
