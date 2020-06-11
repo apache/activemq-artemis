@@ -207,7 +207,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616?" +
                                                                                      TransportConstants.SSL_ENABLED_PROP_NAME + "=true;" +
                                                                                      TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME + "=" + storeType + ";" +
-                                                                                     TransportConstants.TRUSTSTORE_PATH_PROP_NAME + "=" + CLIENT_SIDE_TRUSTSTORE +";" +
+                                                                                     TransportConstants.TRUSTSTORE_PATH_PROP_NAME + "=" + CLIENT_SIDE_TRUSTSTORE + ";" +
                                                                                      TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME + "=" + PASSWORD + ";" +
                                                                                      TransportConstants.SNIHOST_PROP_NAME + "=badhost.com"));
 
