@@ -1687,6 +1687,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void noMatchingBindingsOnDLAWithAutoCreateDLAResources(SimpleString address, String message);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222290, value = "Failed to find cluster-connection when handling cluster-connect packet. Ignoring: {0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void failedToFindClusterConnection(String packet);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
