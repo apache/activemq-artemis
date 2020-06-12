@@ -197,7 +197,7 @@ var ARTEMIS = (function(ARTEMIS) {
          var d = new Date(timestamp);
          // "yyyy-MM-dd HH:mm:ss"
          //add 1 to month as getmonth returns the position not the actual month
-         return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDay()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+         return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
       }
 
       var typeLabels = ["default", "1", "object", "text", "bytes", "map", "stream", "embedded"];
