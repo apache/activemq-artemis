@@ -901,7 +901,7 @@
          </build>
       </profile>
       <profile>
-         <id>jdk18</id>
+         <id>jdk8</id>
          <activation>
             <jdk>1.8</jdk>
          </activation>
@@ -911,9 +911,9 @@
           </properties>
       </profile>
       <profile>
-          <id>java9on</id>
+          <id>jdk11on</id>
           <activation>
-              <jdk>[9,)</jdk>
+              <jdk>[11,)</jdk>
           </activation>
           <properties>
               <maven.compiler.source>8</maven.compiler.source>
@@ -1013,7 +1013,6 @@
                <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-enforcer-plugin</artifactId>
-                  <version>1.4</version>
                   <executions>
                      <execution>
                         <id>enforce-java</id>
@@ -1022,9 +1021,9 @@
                         </goals>
                         <configuration>
                            <rules>
-                              <!-- we need java8 when building the release -->
                               <requireJavaVersion>
-                                 <version>1.8.0</version>
+                                 <version>[1.8, 9)</version>
+                                 <message>JDK 8 is required when building the release</message>
                               </requireJavaVersion>
                            </rules>
                         </configuration>
@@ -1562,7 +1561,6 @@
          <plugin>
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-enforcer-plugin</artifactId>
-           <version>1.4</version>
            <executions>
              <execution>
                <id>enforce-java</id>
@@ -1572,7 +1570,8 @@
                <configuration>
                  <rules>
                    <requireJavaVersion>
-                     <version>1.8.0</version>
+                     <version>[1.8, 9),[11,)</version>
+                     <message>You must use either JDK 8 or JDK 11+ when building</message>
                    </requireJavaVersion>
                  </rules>
                </configuration>
