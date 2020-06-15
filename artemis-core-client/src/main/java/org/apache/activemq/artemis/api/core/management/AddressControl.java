@@ -84,7 +84,7 @@ public interface AddressControl {
    String[] getQueueNames() throws Exception;
 
    /**
-    * Returns the names of both the local & remote queue(s) bound to this address.
+    * Returns the names of both the local and remote queue(s) bound to this address.
     */
    @Attribute(desc = "names of both the local & remote queue(s) bound to this address")
    String[] getAllQueueNames() throws Exception;

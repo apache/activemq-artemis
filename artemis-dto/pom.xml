@@ -36,6 +36,10 @@
 
    <dependencies>
       <dependency>
+          <groupId>com.google.errorprone</groupId>
+          <artifactId>error_prone_core</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
@@ -87,7 +91,7 @@
       <plugins>
          <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
+            <version>1.8</version>
             <executions>
                <execution>
                   <phase>generate-resources</phase>
@@ -104,6 +108,13 @@
                            <exclude name="**/.git/**" />
                            <exclude name="**/.svn/**" />
                         </schemagen>
+                        <condition property="schema-namespace-replace-token" value="xmlns=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;"
+                                                                             else="xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;">
+                           <resourcecontains resource="${project.build.directory}/schema/org.apache.activemq/dto/activemq.xsd" substring="&lt;schema elementFormDefault" />
+                        </condition>
+                        <replace file="${project.build.directory}/schema/org.apache.activemq/dto/activemq.xsd"
+                                 token="xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;"
+                                 value="${schema-namespace-replace-token}"/>
                         <copy todir="${project.build.directory}/classes">
                            <fileset dir="${project.build.directory}/schema" />
                         </copy>
@@ -129,6 +140,11 @@
                   <groupId>com.sun.xml.bind</groupId>
                   <artifactId>jaxb-jxc</artifactId>
                   <version>${version.jaxb}</version>
+               </dependency>
+               <dependency>
+                   <groupId>javax.activation</groupId>
+                   <artifactId>activation</artifactId>
+                   <version>${version.activation}</version>
                </dependency>
             </dependencies>
          </plugin>

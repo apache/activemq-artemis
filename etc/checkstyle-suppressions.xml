@@ -27,6 +27,7 @@ under the License.
 <suppressions>
 
    <!-- Suppress unfixable violations in JavaCC generated sources -->
-   <suppress checks="Indentation|Whitespace|Curly|Modifier|AvoidStarImport|EmptyStatement|ArrayTypeStyle|RegexpSingleline" files="[\\/]generated-sources[\\/]javacc[\\/]"/>
+   <suppress checks="Indentation|Whitespace|Curly|Modifier|AvoidStarImport|RedundantImport|UnusedImports|EmptyStatement|ArrayTypeStyle|RegexpSingleline" files="[\\/]generated-sources[\\/]javacc[\\/]"/>
+   <suppress checks="Indentation|Whitespace|Curly|Modifier|AvoidStarImport|RedundantImport|UnusedImports|EmptyStatement|ArrayTypeStyle|RegexpSingleline" files="[\\/]generated-sources[\\/]annotations[\\/]"/>
 
 </suppressions>

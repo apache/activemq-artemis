@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.jms.bridge;
 
 /**
- * <h3>Quality of server (QoS) levels</h3>
+ * <h2>Quality of server (QoS) levels</h2>
  *
- * <h4>QOS_AT_MOST_ONCE</h4>
+ * <h3>QOS_AT_MOST_ONCE</h3>
  *
  * With this QoS mode messages will reach the destination from the source at
  * most once. The messages are consumed from the source and acknowledged before
@@ -28,7 +28,7 @@ package org.apache.activemq.artemis.jms.bridge;
  * destination they could be lost. Hence delivery will occur at most once. This
  * mode is available for both persistent and non persistent messages.
  *
- * <h4>QOS_DUPLICATES_OK</h4>
+ * <h3>QOS_DUPLICATES_OK</h3>
  *
  * With this QoS mode, the messages are consumed from the source and then
  * acknowledged after they have been successfully sent to the destination.
@@ -38,7 +38,7 @@ package org.apache.activemq.artemis.jms.bridge;
  * failure. This mode is available for both persistent and non persistent
  * messages.
  *
- * <h4>QOS_ONCE_AND_ONLY_ONCE</h4>
+ * <h3>QOS_ONCE_AND_ONLY_ONCE</h3>
  *
  * This QoS mode ensures messages will reach the destination from the source
  * once and only once. (Sometimes this mode is known as "exactly once"). If both

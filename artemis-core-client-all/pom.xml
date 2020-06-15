@@ -44,7 +44,7 @@
          <plugin>
        <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-shade-plugin</artifactId>
-            <version>3.2.0</version>
+            <version>3.2.3</version>
             <executions>
                <execution>
                   <phase>package</phase>
@@ -97,8 +97,8 @@
                      </transformers>
                      <relocations>
                         <relocation>
-                           <pattern>org.apache.activemq</pattern>
-                           <shadedPattern>org.apache.activemq</shadedPattern>
+                            <pattern>org.apache.activemq</pattern>
+                            <shadedPattern>org.apache.activemq</shadedPattern>
                         </relocation>
                         <relocation>
                            <pattern>org.apache.geronimo</pattern>

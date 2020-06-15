@@ -22,7 +22,7 @@ package org.apache.activemq.artemis.utils.critical;
  * You update a long every time you enter a critical path
  * you update a different long with a System.nanoTime every time you leave that path.
  *
- * If the enterCritical > leaveCritical at any point, then you need to measure the timeout.
+ * If the enterCritical &gt; leaveCritical at any point, then you need to measure the timeout.
  * if the system stops responding, then you have something irresponsive at the system.
  */
 public interface CriticalComponent {

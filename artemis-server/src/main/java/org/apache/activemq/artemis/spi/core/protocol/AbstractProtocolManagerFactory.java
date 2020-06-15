@@ -51,7 +51,7 @@ public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> 
 
    /**
     * org.apache.commons.beanutils.BeanUtils will log all the parameters so we strip out any password parameters
-    * (e.g. passwords for SSL keystore & truststore)
+    * (e.g. passwords for SSL keystore and truststore)
     *
     * @param parameters
     */

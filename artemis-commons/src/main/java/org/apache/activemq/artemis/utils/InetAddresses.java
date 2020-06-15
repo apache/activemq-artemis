@@ -44,21 +44,21 @@ import static org.apache.activemq.artemis.utils.ByteUtil.intFromBytes;
  *
  * <p>Examples of IP addresses and their byte representations:
  * <ul>
- * <li>The IPv4 loopback address, {@code "127.0.0.1"}.<br/>
+ * <li>The IPv4 loopback address, {@code "127.0.0.1"}.<br>
  *   {@code 7f 00 00 01}
  *
- * <li>The IPv6 loopback address, {@code "::1"}.<br/>
+ * <li>The IPv6 loopback address, {@code "::1"}.<br>
  *   {@code 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01}
  *
  * <li>From the IPv6 reserved documentation prefix ({@code 2001:db8::/32}),
- *   {@code "2001:db8::1"}.<br/>
+ *   {@code "2001:db8::1"}.<br>
  *   {@code 20 01 0d b8 00 00 00 00 00 00 00 00 00 00 00 01}
  *
  * <li>An IPv6 "IPv4 compatible" (or "compat") address,
- *   {@code "::192.168.0.1"}.<br/>
+ *   {@code "::192.168.0.1"}.<br>
  *   {@code 00 00 00 00 00 00 00 00 00 00 00 00 c0 a8 00 01}
  *
- * <li>An IPv6 "IPv4 mapped" address, {@code "::ffff:192.168.0.1"}.<br/>
+ * <li>An IPv6 "IPv4 mapped" address, {@code "::ffff:192.168.0.1"}.<br>
  *   {@code 00 00 00 00 00 00 00 00 00 00 ff ff c0 a8 00 01}
  * </ul>
  *

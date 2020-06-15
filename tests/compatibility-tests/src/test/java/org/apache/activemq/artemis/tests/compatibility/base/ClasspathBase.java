@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.compatibility.base;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
@@ -33,29 +32,45 @@ import org.junit.rules.TemporaryFolder;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 
+
+
 public class ClasspathBase {
 
 
    @ClassRule
    public static TemporaryFolder serverFolder;
+   private static int javaVersion;
 
    static {
       File parent = new File("./target/tmp");
       parent.mkdirs();
       serverFolder = new TemporaryFolder(parent);
+      String version = System.getProperty("java.version");
+      if (version.startsWith("1.")) {
+         version = version.substring(2, 3);
+      } else {
+         int dot = version.indexOf(".");
+         if (dot != -1) {
+            version = version.substring(0, dot);
+         }
+      }
+      javaVersion = Integer.parseInt(version);
    }
 
    protected static Map<String, ClassLoader> loaderMap = new HashMap<>();
 
    private static HashSet<String> printed = new HashSet<>();
 
-   protected ClassLoader defineClassLoader(String classPath) throws MalformedURLException {
+   protected ClassLoader defineClassLoader(String classPath) throws Exception {
       String[] classPathArray = classPath.split(File.pathSeparator);
       URL[] elements = new URL[classPathArray.length];
       for (int i = 0; i < classPathArray.length; i++) {
          elements[i] = new File(classPathArray[i]).toPath().toUri().toURL();
       }
-
+      if (javaVersion > 8) {
+         ClassLoader parent = (ClassLoader) ClassLoader.class.getDeclaredMethod("getPlatformClassLoader").invoke(null);
+         return new URLClassLoader(elements, parent);
+      }
       return new URLClassLoader(elements, null);
    }
 

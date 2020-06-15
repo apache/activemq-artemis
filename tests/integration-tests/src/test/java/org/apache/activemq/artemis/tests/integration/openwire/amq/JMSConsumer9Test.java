@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -85,6 +86,8 @@ public class JMSConsumer9Test extends BasicOpenWireTest {
       assertEquals(4, counter.get());
    }
 
+   @Test
+   @Ignore
    public void testMessageListenerWithConsumer() throws Exception {
 
       final AtomicInteger counter = new AtomicInteger(0);

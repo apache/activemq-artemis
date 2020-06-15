@@ -247,6 +247,7 @@ public class LongHashSetTest {
       Assert.assertEquals(1, testSet.size());
    }
 
+   @SuppressWarnings("CollectionToArraySafeParameter")
    @Test(expected = ArrayStoreException.class)
    public void toArrayThrowsArrayStoreExceptionForWrongType() {
       testSet.toArray(new String[1]);
