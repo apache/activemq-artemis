@@ -92,7 +92,6 @@
 
          <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.1</version>
             <executions>
                <execution>
                   <id>javadoc-jar</id>
@@ -101,6 +100,7 @@
                      <goal>jar</goal>
                   </goals>
                   <configuration>
+                     <source>8</source>
                      <useStandardDocletOptions>true</useStandardDocletOptions>
                      <minmemory>128m</minmemory>
                      <maxmemory>512m</maxmemory>

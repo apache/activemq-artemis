@@ -208,7 +208,7 @@ public class AMQPMessageIdHelper {
     *        the object to be converted
     * @return the AMQP messageId style object
     *
-    * @throws IllegalArgument
+    * @throws ActiveMQAMQPIllegalStateException
     *         if the provided baseId String indicates an encoded type but can't
     *         be converted to that type.
     */

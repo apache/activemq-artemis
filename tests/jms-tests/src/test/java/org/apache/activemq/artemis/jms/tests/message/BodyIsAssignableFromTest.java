@@ -23,7 +23,6 @@ import javax.jms.Message;
 import javax.jms.MessageFormatException;
 import java.io.File;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +86,7 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
             Object receivedBody = msg.getBody(c);
             Assert.assertTrue("correct type " + c, c.isInstance(receivedBody));
             if (body.getClass().isAssignableFrom(byte[].class)) {
-               Arrays.equals((byte[]) body, (byte[]) receivedBody);
+               Assert.assertArrayEquals(byte[].class.cast(body), (byte[]) receivedBody);
             } else {
                Assert.assertEquals("clazz=" + c + ", bodies must match.. " + body.equals(receivedBody), body, receivedBody);
             }

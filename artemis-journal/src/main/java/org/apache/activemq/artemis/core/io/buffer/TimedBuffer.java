@@ -527,7 +527,6 @@ public final class TimedBuffer extends CriticalComponentImpl {
     * Sub classes (tests basically) can use this to override how the sleep is being done
     *
     * @param sleepNanos
-    * @throws InterruptedException
     */
    protected void sleep(long sleepNanos) {
       LockSupport.parkNanos(sleepNanos);

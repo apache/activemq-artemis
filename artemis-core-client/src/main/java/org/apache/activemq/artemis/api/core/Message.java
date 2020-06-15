@@ -179,7 +179,7 @@ public interface Message {
 
    byte STREAM_TYPE = 6;
 
-   /** The message will contain another message persisted through {@link org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil}*/
+   /** The message will contain another message persisted through {@literal org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil}*/
    byte EMBEDDED_TYPE = 7;
 
    /** This is to embedd Large Messages from other protocol */
@@ -676,7 +676,6 @@ public interface Message {
    /**
     * @see #usageUp()
     * @return
-    * @throws Exception
     */
    int usageDown();
 

@@ -30,7 +30,7 @@ import java.nio.ByteBuffer;
 public interface ByteBufferPool {
 
    /**
-    * It returns a {@link ByteBuffer} with {@link ByteBuffer#capacity()}>={@code size}.<br>
+    * It returns a {@link ByteBuffer} with {@link ByteBuffer#capacity()} &gt;= {@code size}.<br>
     * The {@code buffer} is zeroed until {@code size} if {@code zeroed=true}, with {@link ByteBuffer#position()}=0 and {@link ByteBuffer#limit()}={@code size}.
     */
    ByteBuffer borrow(int size, boolean zeroed);

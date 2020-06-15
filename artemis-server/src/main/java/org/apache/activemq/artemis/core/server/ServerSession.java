@@ -278,7 +278,7 @@ public interface ServerSession extends SecurityAuth {
     * This method invokes {@link ActiveMQServer#createQueue(QueueConfiguration)} with a few client-specific additions:
     * <p><ul>
     * <li>set the routing type based on the prefixes configured on the acceptor used by the client
-    * <li>strip any prefixes from the address & queue names (if applicable)
+    * <li>strip any prefixes from the address and queue names (if applicable)
     * <li>check authorization based on the client's credentials
     * <li>enforce queue creation resource limit
     * <li>set up callbacks to clean up temporary queues once the client disconnects

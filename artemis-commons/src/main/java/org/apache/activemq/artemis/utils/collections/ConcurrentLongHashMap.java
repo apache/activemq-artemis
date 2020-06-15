@@ -33,9 +33,9 @@ import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 /**
  * Map from long to an Object.
  *
- * Provides similar methods as a ConcurrentMap<long,Object> with 2 differences:
+ * Provides similar methods as a {@literal ConcurrentMap<long,Object>} with 2 differences:
  * <ol>
- * <li>No boxing/unboxing from long -> Long
+ * <li>No boxing/unboxing from {@literal long -> Long}
  * <li>Open hash map with linear probing, no node allocations to store the values
  * </ol>
  *

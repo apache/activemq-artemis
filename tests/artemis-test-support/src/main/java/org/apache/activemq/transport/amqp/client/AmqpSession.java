@@ -180,9 +180,9 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     *
     * @param address
     *        the address to which the sender will produce its messages.
-    * @param senderSettlementMode
+    * @param senderMode
     *        controls the settlement mode used by the created Sender
-    * @param receiverSettlementMode
+    * @param receiverMode
     *        controls the desired settlement mode used by the remote Receiver
     *
     * @return a newly created sender that is ready for use.
@@ -200,9 +200,9 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     *
     * @param address
     *        the address to which the sender will produce its messages.
-    * @param senderSettlementMode
+    * @param senderMode
     *        controls the settlement mode used by the created Sender
-    * @param receiverSettlementMode
+    * @param receiverMode
     *        controls the desired settlement mode used by the remote Receiver
     * @param outcomes
     *        specifies the outcomes supported by the sender
@@ -387,9 +387,9 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     *
     * @param address
     *        the address to which the receiver will subscribe for its messages.
-    * @param senderSettlementMode
+    * @param senderMode
     *        controls the desired settlement mode used by the remote Sender
-    * @param receiverSettlementMode
+    * @param receiverMode
     *        controls the settlement mode used by the created Receiver
     *
     * @return a newly created receiver that is ready for use.
@@ -491,9 +491,8 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    }
 
    /**
-    * Create a receiver instance using the given Source
+    * Create a receiver instance using the given receiverId
     *
-    * @param source the caller created and configured Source used to create the receiver link.
     * @return a newly created receiver that is ready for use.
     * @throws Exception if an error occurs while creating the receiver.
     */

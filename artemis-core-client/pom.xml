@@ -57,6 +57,10 @@
          <optional>true</optional>
       </dependency>
       <dependency>
+          <groupId>com.google.errorprone</groupId>
+          <artifactId>error_prone_core</artifactId>
+      </dependency>
+      <dependency>
           <groupId>org.wildfly.common</groupId>
           <artifactId>wildfly-common</artifactId>
          <scope>provided</scope>
@@ -142,7 +146,6 @@
                <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-javadoc-plugin</artifactId>
-                  <version>2.9</version>
                   <configuration>
                      <useStandardDocletOptions>true</useStandardDocletOptions>
                      <minmemory>128m</minmemory>
