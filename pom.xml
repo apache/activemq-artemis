@@ -885,7 +885,6 @@
                <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-compiler-plugin</artifactId>
-                  <version>3.8.1</version>
                   <configuration combine.self="override" />
                </plugin>
                <plugin>
@@ -911,6 +910,31 @@
           </properties>
       </profile>
       <profile>
+          <id>jdk8-errorprone</id>
+          <activation>
+              <jdk>1.8</jdk>
+              <property>
+                  <name>jdk8-errorprone</name>
+              </property>
+          </activation>
+          <build>
+              <plugins>
+                  <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <configuration>
+                          <fork>true</fork>
+                          <compilerArgs combine.children="append">
+                              <arg>-XDcompilePolicy=simple</arg>
+                              <arg>-J-Xbootclasspath/p:${settings.localRepository}/com/google/errorprone/javac/${javac.version}/javac-${javac.version}.jar</arg>
+                              <arg>-Xplugin:ErrorProne -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:WaitNotInLoop:ERROR -XepExcludedPaths:.*/generated-sources/.*</arg>
+                          </compilerArgs>
+                      </configuration>
+                  </plugin>
+              </plugins>
+          </build>
+      </profile>
+      <profile>
           <id>jdk11on</id>
           <activation>
               <jdk>[11,)</jdk>
@@ -926,12 +950,11 @@
                       <groupId>org.apache.maven.plugins</groupId>
                       <artifactId>maven-compiler-plugin</artifactId>
                       <configuration>
-                          <showWarnings>true</showWarnings>
                           <compilerArgs>
                               <arg>-Xdiags:verbose</arg>
                               <arg>--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
                               <arg>-XDcompilePolicy=simple</arg>
-                              <arg>-Xplugin:ErrorProne -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR  -Xep:SynchronizeOnNonFinalField:ERROR -Xep:WaitNotInLoop:ERROR -XepExcludedPaths:.*/generated-sources/.*</arg>
+                              <arg>-Xplugin:ErrorProne -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:WaitNotInLoop:ERROR -XepExcludedPaths:.*/generated-sources/.*</arg>
                           </compilerArgs>
                       </configuration>
                   </plugin>
@@ -1410,16 +1433,9 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-compiler-plugin</artifactId>
-               <!-- version 3.2 is having problems with the APT processor resulting in
-                    java.lang.IllegalStateException: endPosTable already set  -->
                <version>3.8.1</version>
-               <!-- Enable Google's Error-Prone https://github.com/google/error-prone -->
                <configuration>
                    <showWarnings>true</showWarnings>
-                   <compilerArgs combine.children="append">
-                       <arg>-J-Xbootclasspath/p:${settings.localRepository}/com/google/errorprone/javac/${javac.version}/javac-${javac.version}.jar -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticAccessedFromInstance:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:WaitNotInLoop:ERROR</arg>
-                       <arg>-Xdiags:verbose</arg>
-                   </compilerArgs>
                </configuration>
             </plugin>
             <plugin>

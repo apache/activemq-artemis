@@ -90,27 +90,6 @@
             </plugins>
          </build>
       </profile>
-<!--      <profile>
-          <id>java9on</id>
-          <activation>
-              <jdk>[9,)</jdk>
-          </activation>
-          <build>
-              <plugins>
-                  <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
-                      <artifactId>maven-compiler-plugin</artifactId>
-                      <configuration>
-                          <compilerArgs>
-                              <arg>-XDcompilePolicy=simple</arg>
-                               TODO: do this only for generated-sources 
-                              <arg>-Xplugin:ErrorProne -Xep:MissingOverride:WARN</arg>
-                          </compilerArgs>
-                      </configuration>
-                  </plugin>
-              </plugins>
-          </build>
-      </profile>-->
    </profiles>
 
    <build>
@@ -121,17 +100,6 @@
          </resource>
       </resources>
       <plugins>
-<!--         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-               <compilerArgs>
-                    <arg>-XDcompilePolicy=simple</arg>
-                   TODO: do this only for generated-sources 
-                  <arg>-Xplugin:ErrorProne -Xep:MissingOverride:WARN</arg>
-               </compilerArgs>
-            </configuration>
-         </plugin>-->
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>javacc-maven-plugin</artifactId>
