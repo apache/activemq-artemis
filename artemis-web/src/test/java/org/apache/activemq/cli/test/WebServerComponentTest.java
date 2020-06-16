@@ -408,20 +408,17 @@ public class WebServerComponentTest extends Assert {
       //create some garbage
       List<WebAppContext> contexts = webServerComponent.getWebContexts();
 
-      File targetDir = new File("./target");
-      File workDir = new File(targetDir, "web-work");
-      workDir.mkdir();
-
       WebInfConfiguration cfg = new WebInfConfiguration();
       assertEquals(1, contexts.size());
       WebAppContext ctxt = contexts.get(0);
       List<File> garbage = new ArrayList<>();
 
-      ctxt.setAttribute("javax.servlet.context.tempdir", new File(workDir, "jetty-context0"));
 
       cfg.resolveTempDirectory(ctxt);
+
       File tmpdir = ctxt.getTempDirectory();
       File testDir = tmpdir.getParentFile();
+
       createGarbagesInDir(testDir, garbage);
 
       assertTrue(garbage.size() > 0);
