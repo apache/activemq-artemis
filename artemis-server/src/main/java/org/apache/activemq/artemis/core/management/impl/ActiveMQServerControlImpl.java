@@ -952,7 +952,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.createQueue(new QueueConfiguration(name)
-                            .setName(name)
+                            .setAddress(address)
                             .setFilterString(filterStr)
                             .setDurable(durable));
       } finally {
