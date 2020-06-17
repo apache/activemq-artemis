@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.utils.Base64;
  */
 public class XmlDataExporterUtil {
 
-   static String convertProperty(final Object value) {
+   public static String convertProperty(final Object value) {
       if (value instanceof byte[]) {
          return encode((byte[]) value);
       } else {
@@ -35,7 +35,7 @@ public class XmlDataExporterUtil {
       }
    }
 
-   static String getPropertyType(final Object value) {
+   public static String getPropertyType(final Object value) {
       String stringValue = null;
 
       // if the value is null then we can't really know what it is so just set
@@ -88,7 +88,7 @@ public class XmlDataExporterUtil {
    /**
     * Base64 encode a ServerMessage body into the proper XML format
     */
-   static String encodeMessageBodyBase64(final Message message) throws Exception {
+   public static String encodeMessageBodyBase64(final Message message) throws Exception {
       Preconditions.checkNotNull(message, "ServerMessage can not be null");
 
       ActiveMQBuffer byteBuffer = message.toCore().getReadOnlyBodyBuffer();
