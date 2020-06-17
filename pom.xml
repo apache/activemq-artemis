@@ -1672,6 +1672,7 @@
                <excludes>
                   <exclude>.repository/**</exclude>
                   <exclude>.travis.yml</exclude>
+                  <exclude>.github/workflows/*</exclude>
                   <exclude>**/footer.html</exclude>
                   <exclude>**/*.txt</exclude>
                   <exclude>**/*.md</exclude>
