@@ -242,42 +242,71 @@ HA strategy Replication for `master`:
 
 - `check-for-live-server`
 
-  Whether to check the cluster for a (live) server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers.
+Whether to check the cluster for a (live) server using our own server
+ID when starting up. This is an important option to avoid split-brain
+when failover happens and the master is restarted. Default is `false`.
 
 - `cluster-name`
 
-  Name of the cluster configuration to use for replication. This setting is only necessary if you configure multiple cluster connections. If configured then the connector configuration of the cluster configuration with this name will be used when connecting to the cluster to discover if a live server is already running, see `check-for-live-server`. If unset then the default cluster connections configuration is used (the first one configured).
+Name of the cluster configuration to use for replication. This setting
+is only necessary if you configure multiple cluster connections. If
+configured then the connector configuration of the cluster
+configuration with this name will be used when connecting to the
+cluster to discover if a live server is already running, see
+`check-for-live-server`. If unset then the default cluster connections
+configuration is used (the first one configured).
 
 - `group-name`
 
-  If set, backup servers will only pair with live servers with matching group-name.
+If set, backup servers will only pair with live servers with matching
+group-name.
 
 - `initial-replication-sync-timeout`
 
-  The amount of time the replicating server will wait at the completion of the initial replication process for the replica to acknowledge it has received all the necessary data. The default is 30,000 milliseconds. **Note:** during this interval any journal related operations will be blocked.
+The amount of time the replicating server will wait at the completion of
+the initial replication process for the replica to acknowledge it has
+received all the necessary data. The default is 30,000 milliseconds.
+**Note:** during this interval any journal related operations will be
+blocked.
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Replication for `slave`:
 
 - `cluster-name`
 
-  Name of the cluster configuration to use for replication. This setting is only necessary if you configure multiple cluster connections. If configured then the connector configuration of the cluster configuration with this name will be used when connecting to the cluster to discover if a live server is already running, see `check-for-live-server`. If unset then the default cluster connections configuration is used (the first one configured)
+Name of the cluster configuration to use for replication. This setting
+is only necessary if you configure multiple cluster connections. If
+configured then the connector configuration of the cluster
+configuration with this name will be used when connecting to the
+cluster to discover if a live server is already running, see
+`check-for-live-server`. If unset then the default cluster connections
+configuration is used (the first one configured).
 
 - `group-name`
 
-  If set, backup servers will only pair with live servers with matching group-name
+If set, backup servers will only pair with live servers with matching
+group-name
 
 - `max-saved-replicated-journals-size`
 
-  This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back.
+This specifies how many times a replicated backup server can restart
+after moving its files on start. Once there are this number of backup
+journal files the server will stop permanently after if fails back.
 
 - `allow-failback`
 
-  Whether a server will automatically stop when another places a request to take over its place. The use case is when the backup has failed over
+Whether a server will automatically stop when another places a request
+to take over its place. The use case is when the backup has failed
+over.
 
 - `initial-replication-sync-timeout`
 
-  After failover and the slave has become live, this is set on the new live server. It represents the amount of time the replicating server will wait at the completion of the initial replication process for the replica to acknowledge it has received all the necessary data. The default is 30,000 milliseconds. **Note:** during this interval any journal related operations will be blocked.
+After failover and the slave has become live, this is set on the new
+live server. It represents the amount of time the replicating server
+will wait at the completion of the initial replication process for the
+replica to acknowledge it has received all the necessary data. The
+default is 30,000 milliseconds. **Note:** during this interval any
+journal related operations will be blocked.
 
 ### Shared Store
 
