@@ -101,7 +101,7 @@ public final class OpenWireMessageConverter {
    private static final SimpleString AMQ_MSG_DROPPABLE =  new SimpleString(AMQ_PREFIX + "DROPPABLE");
    private static final SimpleString AMQ_MSG_COMPRESSED = new SimpleString(AMQ_PREFIX + "COMPRESSED");
 
-   private OpenWireMessageConverter() {
+   public OpenWireMessageConverter() {
 
    }
 
