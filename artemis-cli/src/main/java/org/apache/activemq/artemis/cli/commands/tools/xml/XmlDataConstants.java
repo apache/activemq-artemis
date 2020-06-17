@@ -27,8 +27,8 @@ public final class XmlDataConstants {
    }
 
    public static final String XML_VERSION = "1.0";
-   static final String DOCUMENT_PARENT = "activemq-journal";
-   static final String BINDINGS_PARENT = "bindings";
+   public static final String DOCUMENT_PARENT = "activemq-journal";
+   public static final String BINDINGS_PARENT = "bindings";
 
    // used on importing data from 1.x
    static final String OLD_BINDING = "binding";
@@ -38,20 +38,20 @@ public final class XmlDataConstants {
 
 
 
-   static final String QUEUE_BINDINGS_CHILD = "queue-binding";
+   public static final String QUEUE_BINDINGS_CHILD = "queue-binding";
    static final String QUEUE_BINDING_ADDRESS = "address";
    static final String QUEUE_BINDING_FILTER_STRING = "filter-string";
    static final String QUEUE_BINDING_NAME = "name";
    static final String QUEUE_BINDING_ID = "id";
    static final String QUEUE_BINDING_ROUTING_TYPE = "routing-type";
 
-   static final String ADDRESS_BINDINGS_CHILD = "address-binding";
+   public static final String ADDRESS_BINDINGS_CHILD = "address-binding";
    static final String ADDRESS_BINDING_NAME = "name";
    static final String ADDRESS_BINDING_ID = "id";
    static final String ADDRESS_BINDING_ROUTING_TYPE = "routing-types";
 
    public static final String MESSAGES_PARENT = "messages";
-   static final String MESSAGES_CHILD = "message";
+   public static final String MESSAGES_CHILD = "message";
    static final String MESSAGE_ID = "id";
    static final String MESSAGE_PRIORITY = "priority";
    static final String MESSAGE_EXPIRATION = "expiration";
@@ -61,7 +61,7 @@ public final class XmlDataConstants {
    static final String MAP_TYPE_PRETTY = "map";
    static final String OBJECT_TYPE_PRETTY = "object";
    static final String STREAM_TYPE_PRETTY = "stream";
-   static final String TEXT_TYPE_PRETTY = "text";
+   public static final String TEXT_TYPE_PRETTY = "text";
    static final String MESSAGE_TYPE = "type";
    static final String MESSAGE_IS_LARGE = "isLarge";
    static final String MESSAGE_USER_ID = "user-id";
@@ -71,8 +71,8 @@ public final class XmlDataConstants {
    static final String PROPERTY_NAME = "name";
    static final String PROPERTY_VALUE = "value";
    static final String PROPERTY_TYPE = "type";
-   static final String QUEUES_PARENT = "queues";
-   static final String QUEUES_CHILD = "queue";
+   public static final String QUEUES_PARENT = "queues";
+   public static final String QUEUES_CHILD = "queue";
    public static final String QUEUE_NAME = "name";
    static final String PROPERTY_TYPE_BOOLEAN = "boolean";
    static final String PROPERTY_TYPE_BYTE = "byte";
