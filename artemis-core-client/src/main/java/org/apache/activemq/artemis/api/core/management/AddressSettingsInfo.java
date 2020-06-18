@@ -129,6 +129,14 @@ public final class AddressSettingsInfo {
 
    private final String expiryQueueSuffix;
 
+   private final long expiryDelay;
+
+   private final long minExpiryDelay;
+
+   private final long maxExpiryDelay;
+
+   private final boolean enableMetrics;
+
    // Static --------------------------------------------------------
 
    public static AddressSettingsInfo from(final String jsonString) {
@@ -185,7 +193,11 @@ public final class AddressSettingsInfo {
                                      object.getString("deadLetterQueueSuffix"),
                                      object.getBoolean("autoCreateExpiryResources"),
                                      object.getString("expiryQueuePrefix"),
-                                     object.getString("expiryQueueSuffix"));
+                                     object.getString("expiryQueueSuffix"),
+                                     object.getJsonNumber("expiryDelay").longValue(),
+                                     object.getJsonNumber("minExpiryDelay").longValue(),
+                                     object.getJsonNumber("maxExpiryDelay").longValue(),
+                                     object.getBoolean("enableMetrics"));
    }
 
    // Constructors --------------------------------------------------
@@ -242,7 +254,11 @@ public final class AddressSettingsInfo {
                               String deadLetterQueueSuffix,
                               boolean autoCreateExpiryResources,
                               String expiryQueuePrefix,
-                              String expiryQueueSuffix) {
+                              String expiryQueueSuffix,
+                              long expiryDelay,
+                              long minExpiryDelay,
+                              long maxExpiryDelay,
+                              boolean enableMetrics) {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
       this.maxSizeBytes = maxSizeBytes;
       this.pageSizeBytes = pageSizeBytes;
@@ -296,6 +312,10 @@ public final class AddressSettingsInfo {
       this.autoCreateExpiryResources = autoCreateExpiryResources;
       this.expiryQueuePrefix = expiryQueuePrefix;
       this.expiryQueueSuffix = expiryQueueSuffix;
+      this.expiryDelay = expiryDelay;
+      this.minExpiryDelay = minExpiryDelay;
+      this.maxExpiryDelay = maxExpiryDelay;
+      this.enableMetrics = enableMetrics;
    }
 
    // Public --------------------------------------------------------
@@ -518,6 +538,22 @@ public final class AddressSettingsInfo {
 
    public String getExpiryQueueSuffix() {
       return expiryQueueSuffix;
+   }
+
+   public long getExpiryDelay() {
+      return expiryDelay;
+   }
+
+   public long getMinExpiryDelay() {
+      return minExpiryDelay;
+   }
+
+   public long getMaxExpiryDelay() {
+      return maxExpiryDelay;
+   }
+
+   public boolean isEnableMetrics() {
+      return enableMetrics;
    }
 }
 

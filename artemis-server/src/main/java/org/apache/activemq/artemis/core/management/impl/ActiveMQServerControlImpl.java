@@ -2866,8 +2866,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
 
       return settings.add("expiryDelay", addressSettings.getExpiryDelay())
-            .add("minExpiryDelay", addressSettings.getExpiryDelay())
-            .add("maxExpiryDelay", addressSettings.getExpiryDelay())
+            .add("minExpiryDelay", addressSettings.getMinExpiryDelay())
+            .add("maxExpiryDelay", addressSettings.getMaxExpiryDelay())
             .add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts())
             .add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize())
             .add("maxSizeBytes", addressSettings.getMaxSizeBytes())
@@ -2919,6 +2919,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             .add("autoCreateExpiryResources", addressSettings.isAutoCreateExpiryResources())
             .add("expiryQueuePrefix", addressSettings.getExpiryQueuePrefix().toString())
             .add("expiryQueueSuffix", addressSettings.getExpiryQueueSuffix().toString())
+            .add("enableMetrics", addressSettings.isEnableMetrics())
             .build()
             .toString();
    }
@@ -3215,6 +3216,125 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final boolean autoCreateExpiryResources,
                                   final String expiryQueuePrefix,
                                   final String expiryQueueSuffix) throws Exception {
+      addAddressSettings(address,
+                         DLA,
+                         expiryAddress,
+                         expiryDelay,
+                         defaultLastValueQueue,
+                         maxDeliveryAttempts,
+                         maxSizeBytes,
+                         pageSizeBytes,
+                         pageMaxCacheSize,
+                         redeliveryDelay,
+                         redeliveryMultiplier,
+                         maxRedeliveryDelay,
+                         redistributionDelay,
+                         sendToDLAOnNoRoute,
+                         addressFullMessagePolicy,
+                         slowConsumerThreshold,
+                         slowConsumerCheckPeriod,
+                         slowConsumerPolicy,
+                         autoCreateJmsQueues,
+                         autoDeleteJmsQueues,
+                         autoCreateJmsTopics,
+                         autoDeleteJmsTopics,
+                         autoCreateQueues,
+                         autoDeleteQueues,
+                         autoCreateAddresses,
+                         autoDeleteAddresses,
+                         configDeleteQueues,
+                         configDeleteAddresses,
+                         maxSizeBytesRejectThreshold,
+                         defaultLastValueKey,
+                         defaultNonDestructive,
+                         defaultExclusiveQueue,
+                         defaultGroupRebalance,
+                         defaultGroupBuckets,
+                         defaultGroupFirstKey,
+                         defaultMaxConsumers,
+                         defaultPurgeOnNoConsumers,
+                         defaultConsumersBeforeDispatch,
+                         defaultDelayBeforeDispatch,
+                         defaultQueueRoutingType,
+                         defaultAddressRoutingType,
+                         defaultConsumerWindowSize,
+                         defaultRingSize,
+                         autoDeleteCreatedQueues,
+                         autoDeleteQueuesDelay,
+                         autoDeleteQueuesMessageCount,
+                         autoDeleteAddressesDelay,
+                         redeliveryCollisionAvoidanceFactor,
+                         retroactiveMessageCount,
+                         AddressSettings.DEFAULT_AUTO_CREATE_DEAD_LETTER_RESOURCES,
+                         AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.toString(),
+                         AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX.toString(),
+                         AddressSettings.DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES,
+                         AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX.toString(),
+                         AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX.toString(),
+                         AddressSettings.DEFAULT_MIN_EXPIRY_DELAY,
+                         AddressSettings.DEFAULT_MAX_EXPIRY_DELAY,
+                         AddressSettings.DEFAULT_ENABLE_METRICS);
+   }
+
+   @Override
+   public void addAddressSettings(final String address,
+                                  final String DLA,
+                                  final String expiryAddress,
+                                  final long expiryDelay,
+                                  final boolean defaultLastValueQueue,
+                                  final int maxDeliveryAttempts,
+                                  final long maxSizeBytes,
+                                  final int pageSizeBytes,
+                                  final int pageMaxCacheSize,
+                                  final long redeliveryDelay,
+                                  final double redeliveryMultiplier,
+                                  final long maxRedeliveryDelay,
+                                  final long redistributionDelay,
+                                  final boolean sendToDLAOnNoRoute,
+                                  final String addressFullMessagePolicy,
+                                  final long slowConsumerThreshold,
+                                  final long slowConsumerCheckPeriod,
+                                  final String slowConsumerPolicy,
+                                  final boolean autoCreateJmsQueues,
+                                  final boolean autoDeleteJmsQueues,
+                                  final boolean autoCreateJmsTopics,
+                                  final boolean autoDeleteJmsTopics,
+                                  final boolean autoCreateQueues,
+                                  final boolean autoDeleteQueues,
+                                  final boolean autoCreateAddresses,
+                                  final boolean autoDeleteAddresses,
+                                  final String configDeleteQueues,
+                                  final String configDeleteAddresses,
+                                  final long maxSizeBytesRejectThreshold,
+                                  final String defaultLastValueKey,
+                                  final boolean defaultNonDestructive,
+                                  final boolean defaultExclusiveQueue,
+                                  final boolean defaultGroupRebalance,
+                                  final int defaultGroupBuckets,
+                                  final String defaultGroupFirstKey,
+                                  final int defaultMaxConsumers,
+                                  final boolean defaultPurgeOnNoConsumers,
+                                  final int defaultConsumersBeforeDispatch,
+                                  final long defaultDelayBeforeDispatch,
+                                  final String defaultQueueRoutingType,
+                                  final String defaultAddressRoutingType,
+                                  final int defaultConsumerWindowSize,
+                                  final long defaultRingSize,
+                                  final boolean autoDeleteCreatedQueues,
+                                  final long autoDeleteQueuesDelay,
+                                  final long autoDeleteQueuesMessageCount,
+                                  final long autoDeleteAddressesDelay,
+                                  final double redeliveryCollisionAvoidanceFactor,
+                                  final long retroactiveMessageCount,
+                                  final boolean autoCreateDeadLetterResources,
+                                  final String deadLetterQueuePrefix,
+                                  final String deadLetterQueueSuffix,
+                                  final boolean autoCreateExpiryResources,
+                                  final String expiryQueuePrefix,
+                                  final String expiryQueueSuffix,
+                                  final long minExpiryDelay,
+                                  final long maxExpiryDelay,
+                                  final boolean enableMetrics) throws Exception {
       if (AuditLogger.isEnabled()) {
          AuditLogger.addAddressSettings(this.server, address, DLA, expiryAddress, expiryDelay, defaultLastValueQueue, maxDeliveryAttempts,
                   maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier,
@@ -3228,7 +3348,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                   defaultRingSize, autoDeleteCreatedQueues, autoDeleteQueuesDelay, autoDeleteQueuesMessageCount,
                   autoDeleteAddressesDelay, redeliveryCollisionAvoidanceFactor, retroactiveMessageCount, autoCreateDeadLetterResources,
                   deadLetterQueuePrefix, deadLetterQueueSuffix, autoCreateExpiryResources, expiryQueuePrefix,
-                  expiryQueueSuffix);
+                  expiryQueueSuffix, minExpiryDelay, maxExpiryDelay, enableMetrics);
       }
       checkStarted();
 
@@ -3245,6 +3365,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setDeadLetterAddress(DLA == null ? null : new SimpleString(DLA));
       addressSettings.setExpiryAddress(expiryAddress == null ? null : new SimpleString(expiryAddress));
       addressSettings.setExpiryDelay(expiryDelay);
+      addressSettings.setMinExpiryDelay(minExpiryDelay);
+      addressSettings.setMaxExpiryDelay(maxExpiryDelay);
       addressSettings.setDefaultLastValueQueue(defaultLastValueQueue);
       addressSettings.setMaxDeliveryAttempts(maxDeliveryAttempts);
       addressSettings.setPageCacheMaxSize(pageMaxCacheSize);
@@ -3296,6 +3418,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setAutoCreateExpiryResources(autoCreateExpiryResources);
       addressSettings.setExpiryQueuePrefix(expiryQueuePrefix == null ? null : new SimpleString(expiryQueuePrefix));
       addressSettings.setExpiryQueueSuffix(expiryQueueSuffix == null ? null : new SimpleString(expiryQueueSuffix));
+      addressSettings.setEnableMetrics(enableMetrics);
 
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
