@@ -811,7 +811,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String DLA = "someDLA";
       String expiryAddress = "someExpiry";
-      long expiryDelay = -1;
+      long expiryDelay = RandomUtil.randomPositiveLong();
+      long minExpiryDelay = RandomUtil.randomPositiveLong();
+      long maxExpiryDelay = RandomUtil.randomPositiveLong();
       boolean lastValueQueue = true;
       int deliveryAttempts = 1;
       long maxSizeBytes = 20;
@@ -863,6 +865,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       boolean autoCreateExpiryResources = RandomUtil.randomBoolean();
       String expiryQueuePrefix = RandomUtil.randomString();
       String expiryQueueSuffix = RandomUtil.randomString();
+      boolean enableMetrics = RandomUtil.randomBoolean();
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -918,7 +921,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                        deadLetterQueueSuffix,
                                        autoCreateExpiryResources,
                                        expiryQueuePrefix,
-                                       expiryQueueSuffix);
+                                       expiryQueueSuffix,
+                                       minExpiryDelay,
+                                       maxExpiryDelay,
+                                       enableMetrics);
 
       boolean ex = false;
       try {
@@ -976,7 +982,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                           deadLetterQueueSuffix,
                                           autoCreateExpiryResources,
                                           expiryQueuePrefix,
-                                          expiryQueueSuffix);
+                                          expiryQueueSuffix,
+                                          minExpiryDelay,
+                                          maxExpiryDelay,
+                                          enableMetrics);
       } catch (Exception expected) {
          ex = true;
       }
@@ -990,6 +999,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       assertEquals(DLA, info.getDeadLetterAddress());
       assertEquals(expiryAddress, info.getExpiryAddress());
+      assertEquals(expiryDelay, info.getExpiryDelay());
+      assertEquals(minExpiryDelay, info.getMinExpiryDelay());
+      assertEquals(maxExpiryDelay, info.getMaxExpiryDelay());
       assertEquals(lastValueQueue, info.isLastValueQueue());
       assertEquals(deliveryAttempts, info.getMaxDeliveryAttempts());
       assertEquals(maxSizeBytes, info.getMaxSizeBytes());
@@ -1041,6 +1053,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(autoCreateExpiryResources, info.isAutoCreateExpiryResources());
       assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
       assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
+      assertEquals(enableMetrics, info.isEnableMetrics());
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -1096,13 +1109,19 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                        deadLetterQueueSuffix,
                                        autoCreateExpiryResources,
                                        expiryQueuePrefix,
-                                       expiryQueueSuffix);
+                                       expiryQueueSuffix,
+                                       minExpiryDelay,
+                                       maxExpiryDelay,
+                                       enableMetrics);
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
       info = AddressSettingsInfo.from(jsonString);
 
       assertEquals(DLA, info.getDeadLetterAddress());
       assertEquals(expiryAddress, info.getExpiryAddress());
+      assertEquals(expiryDelay, info.getExpiryDelay());
+      assertEquals(minExpiryDelay, info.getMinExpiryDelay());
+      assertEquals(maxExpiryDelay, info.getMaxExpiryDelay());
       assertEquals(lastValueQueue, info.isLastValueQueue());
       assertEquals(deliveryAttempts, info.getMaxDeliveryAttempts());
       assertEquals(-1, info.getMaxSizeBytes());
@@ -1154,6 +1173,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(autoCreateExpiryResources, info.isAutoCreateExpiryResources());
       assertEquals(expiryQueuePrefix, info.getExpiryQueuePrefix());
       assertEquals(expiryQueueSuffix, info.getExpiryQueueSuffix());
+      assertEquals(enableMetrics, info.isEnableMetrics());
 
       ex = false;
       try {
@@ -1211,7 +1231,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                           deadLetterQueueSuffix,
                                           autoCreateExpiryResources,
                                           expiryQueuePrefix,
-                                          expiryQueueSuffix);
+                                          expiryQueueSuffix,
+                                          minExpiryDelay,
+                                          maxExpiryDelay,
+                                          enableMetrics);
       } catch (Exception e) {
          ex = true;
       }
