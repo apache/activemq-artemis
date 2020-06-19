@@ -525,8 +525,13 @@
                      <artifactId>maven-surefire-plugin</artifactId>
                      <configuration>
                         <excludes combine.children="append">
+                           <!-- These fail, likely due to due to isues with the old Kerberos test harness bits -->
                            <exclude>**/JMSSaslGssapiTest.java</exclude>
                            <exclude>**/SaslKrb5LDAPSecurityTest.java</exclude>
+
+                           <!-- This is no longer possible on JDK11 because the old KRB5 cipher suites it requires were
+                                removed from JDK11 while adding TLS 1.3 support http://openjdk.java.net/jeps/332 -->
+                           <exclude>**/CoreClientOverOneWaySSLKerb5Test.java</exclude>
                         </excludes>
                      </configuration>
                   </plugin>
