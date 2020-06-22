@@ -139,7 +139,7 @@ public class PostgresLargeObjectManager {
    public void seek(Object largeObject, int position) throws SQLException {
       if (shouldUseReflection) {
          try {
-            Method method = largeObject.getClass().getMethod("seek", Integer.class);
+            Method method = largeObject.getClass().getMethod("seek", int.class);
             method.invoke(largeObject, position);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObject", ex);
@@ -152,7 +152,7 @@ public class PostgresLargeObjectManager {
    public void truncate(Object largeObject, int position) throws SQLException {
       if (shouldUseReflection) {
          try {
-            Method method = largeObject.getClass().getMethod("truncate", Integer.class);
+            Method method = largeObject.getClass().getMethod("truncate", int.class);
             method.invoke(largeObject, position);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObject", ex);
