@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.JavaVersionUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -94,7 +95,9 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -151,6 +154,11 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
    @Rule
    public TemporaryFolder temporaryFolder;
    private String testDir;
+
+   @BeforeClass
+   public static void checkAssumptions() throws Exception {
+      Assume.assumeTrue("Test only runs on JDK 8", JavaVersionUtil.isJava8());
+   }
 
    @Before
    public void setUp() throws Exception {
