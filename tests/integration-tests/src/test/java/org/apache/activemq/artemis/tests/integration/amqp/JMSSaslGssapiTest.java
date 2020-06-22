@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASLFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.util.JavaVersionUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.hadoop.minikdc.MiniKdc;
@@ -54,7 +55,9 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.sasl.GssapiMechanism;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class JMSSaslGssapiTest extends JMSClientTestSupport {
@@ -71,6 +74,11 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
    }
    MiniKdc kdc = null;
    private final boolean debug = false;
+
+   @BeforeClass
+   public static void checkAssumptions() throws Exception {
+      Assume.assumeTrue("Test only runs on JDK 8", JavaVersionUtil.isJava8());
+   }
 
    @Before
    public void setUpKerberos() throws Exception {
