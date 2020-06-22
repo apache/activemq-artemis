@@ -45,7 +45,6 @@
         <maven-plugin-version>3.3</maven-plugin-version>
         <maven-source-plugin-version>2.1.2</maven-source-plugin-version>
         <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
-        <maven-surefire-plugin-version>2.19.1</maven-surefire-plugin-version>
         <servlet-api-version>2.5</servlet-api-version>
 
         <!-- use slf4j-api 1.6.x to be easy compatible with older Karaf/Camel releases -->
