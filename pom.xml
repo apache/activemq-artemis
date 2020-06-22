@@ -79,7 +79,7 @@
       <retryTests>false</retryTests>
       <logging.config>logging.properties</logging.config>
 
-      <activemq-artemis-native-version>1.0.1</activemq-artemis-native-version>
+      <activemq-artemis-native-version>1.0.2</activemq-artemis-native-version>
       <karaf.version>4.0.6</karaf.version>
       <pax.exam.version>4.9.1</pax.exam.version>
       <commons.config.version>2.7</commons.config.version>
