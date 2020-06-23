@@ -244,8 +244,8 @@ attribute `name` | N/A | X | A queue with new name will be deployed and the queu
 attribute `max-consumers` | If max-consumers > current consumers max-consumers will update on reload | max-consumers will be set back to the default `-1` | If max-consumers > current consumers max-consumers will update on reload
 attribute `purge-on-no-consumers` | On reload purge-on-no-consumers will be updated | Will be set back to the default `false` | On reload purge-on-no-consumers will be updated
 attribute `address` | N/A | No effect unless starting broker | No effect unless starting broker
-attribute `filter` | N/A | No effect unless starting broker | No effect unless starting broker
-attribute `durable` | N/A | No effect unless starting broker | No effect unless starting broker
+attribute `filter` | The filter will be added after reloading | The filter will be removed after reloading | The filter will be updated after reloading
+attribute `durable` | The queue durability will be set to the given value after reloading | The queue durability will be set to the default `true` after reloading | The queue durability will be set to the new value after reloading
 
 ### `<jms>` *(Deprecated)*
 

@@ -8,6 +8,17 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.14.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12348290).
+
+Highlights:
+- Removing `broker.xml` queue parameters now causes these to be reset to their default values.
+
+#### Upgrading from older versions
+
+Make sure the existing queues have their parameters set according to the `broker.xml` values before upgrading.
+
 ## 2.11.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12346258).
