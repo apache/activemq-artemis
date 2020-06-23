@@ -240,14 +240,14 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
       ClientProducer producer = addClientProducer(session.createProducer(moveFromAddress));
       producer.send(session.createMessage(true));
       producer.close();
-
+      Wait.assertEquals(1L, server.locateQueue(moveFromQueue)::getMessageCount, 2000, 100);
       server.locateQueue(moveFromQueue).moveReferences(null, addressA, null);
 
-      Wait.assertEquals(1L, () -> server.locateQueue(queueA).getMessageCount(), 2000, 100);
+      Wait.assertEquals(1L, server.locateQueue(queueA)::getMessageCount, 2000, 100);
 
       triggerDlaDelivery();
 
-      Wait.assertTrue(() -> server.locateQueue(dlqName).getMessageCount() == 1, 2000, 100);
+      Wait.assertEquals(1L, server.locateQueue(dlqName)::getMessageCount, 2000, 100);
 
       ClientConsumer consumer = session.createConsumer(dlqName);
       session.start();
