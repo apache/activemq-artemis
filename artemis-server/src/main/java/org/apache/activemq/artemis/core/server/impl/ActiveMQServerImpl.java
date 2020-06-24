@@ -3992,10 +3992,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          addressSettingsRepository.swap(configuration.getAddressesSettings().entrySet());
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
+         final Set<SimpleString> divertsToRemove = postOffice.getAllBindings().values().stream()
+                 .filter(binding -> binding instanceof DivertBinding)
+                 .map(Binding::getUniqueName)
+                 .collect(Collectors.toSet());
          for (DivertConfiguration divertConfig : configuration.getDivertConfigurations()) {
+            divertsToRemove.remove(SimpleString.toSimpleString(divertConfig.getName()));
             if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
                deployDivert(divertConfig);
             }
+         }
+         for (final SimpleString divertName : divertsToRemove) {
+            destroyDivert(divertName);
          }
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
