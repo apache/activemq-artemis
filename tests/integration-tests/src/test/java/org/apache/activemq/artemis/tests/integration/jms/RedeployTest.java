@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -52,6 +53,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -443,6 +445,63 @@ public class RedeployTest extends ActiveMQTestBase {
          assertEquals(queue.getUser(), null);
          assertEquals(queue.getRingSize(), ActiveMQDefaultConfiguration.getDefaultRingSize());
 
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testUndeployDivert() throws Exception {
+
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL baseConfig = RedeployTest.class.getClassLoader().getResource("reload-divert-undeploy-before.xml");
+      URL newConfig = RedeployTest.class.getClassLoader().getResource("reload-divert-undeploy-after.xml");
+      Files.copy(baseConfig.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      try {
+         DivertBinding divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
+                 .getBinding(new SimpleString("divert"));
+         assertNotNull(divertBinding);
+
+         Queue sourceQueue = (Queue) ActiveMQDestination.createDestination("queue://source", ActiveMQDestination.TYPE.QUEUE);
+         Queue targetQueue = (Queue) ActiveMQDestination.createDestination("queue://target", ActiveMQDestination.TYPE.QUEUE);
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+              MessageProducer sourceProducer = session.createProducer(sourceQueue);
+              MessageConsumer sourceConsumer = session.createConsumer(sourceQueue);
+              MessageConsumer targetConsumer = session.createConsumer(targetQueue)) {
+
+            connection.start();
+            Message message = session.createTextMessage("Hello world");
+            sourceProducer.send(message);
+            assertNotNull(sourceConsumer.receive(2000));
+            assertNotNull(targetConsumer.receive(2000));
+         }
+
+         deployBrokerConfig(embeddedActiveMQ, newConfig);
+
+         divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
+                 .getBinding(new SimpleString("divert"));
+         assertNull(divertBinding);
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+              MessageProducer sourceProducer = session.createProducer(sourceQueue);
+              MessageConsumer sourceConsumer = session.createConsumer(sourceQueue);
+              MessageConsumer targetConsumer = session.createConsumer(targetQueue)) {
+
+            connection.start();
+            Message message = session.createTextMessage("Hello world");
+            sourceProducer.send(message);
+            assertNotNull(sourceConsumer.receive(2000));
+            assertNull(targetConsumer.receive(2000));
+         }
       } finally {
          embeddedActiveMQ.stop();
       }
