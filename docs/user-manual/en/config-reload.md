@@ -161,10 +161,7 @@ and several sub-elements that defines the properties of a divert.
 
 > **Note:**
 >
-> Reloading `<diverts>` only resulting in deploying new diverts. Existing diverts
-> won’t get undeployed even if you delete a `<divert>` element. Nor an existing
-> divert will be updated if its element is updated after reloading.  To make
-> this happen you need a restart of the broker.
+> Existing diverts get undeployed if you delete their `<divert>` element.
 
 Below lists the effects of adding, deleting and updating of an
 element/attribute within the diverts element, whether a change can be done or
@@ -172,8 +169,8 @@ can’t be done.
 
 Operation | Add | Delete | Update
 ---|---|---|---
-`<diverts>` | X (no more than one can be present) | Deleting it means delete  (undeploy) all diverts in running broker. | N/A
-`<divert>` | Adding a new divert. It will be deployed after reloading | No effect on the deployed divert.(unless restarting broker, in which case the divert will no longer be deployed) | No effect on the deployed divert (unless restarting broker, in which case the divert will be redeployed)
+`<diverts>` | X (no more than one can be present) | Deleting it means delete (undeploy) all diverts in running broker. | N/A
+`<divert>` | Adding a new divert. It will be deployed after reloading | Deleting it means the divert will be undeployed after reloading | No effect on the deployed divert (unless restarting broker, in which case the divert will be redeployed)
 attribute `name` | N/A | X | A new divert with the name will be deployed. (if it is not already there in broker). Otherwise no effect.
 `<transformer-class-name>` | X (no more than one can be present) | No effect on the deployed divert.(unless restarting broker, in which case the divert will be deployed without the transformer class) | No effect on the deployed divert.(unless restarting broker, in which case the divert has the transformer class)
 `<exclusive>` | X (no more than one can be present) | No effect on the deployed divert.(unless restarting broker) | No effect on the deployed divert.(unless restarting broker)
