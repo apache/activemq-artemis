@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -140,7 +141,8 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       assertThat(artemisMetrics, containsInAnyOrder(
               // artemis.(un)routed.message.count is present twice, because of activemq.notifications address
-              new Metric("artemis.address.memory.usage", "Bytes used by all the addresses on broker for in-memory messages", 0.0),
+              new Metric("artemis.address.memory.usage", "Memory used by all the addresses on broker for in-memory messages", 0.0),
+              new Metric("artemis.address.memory.usage.percentage", "Memory used by all the addresses on broker as a percentage of the global-max-size", 0.0),
               new Metric("artemis.connection.count", "Number of clients connected to this server", 1.0),
               new Metric("artemis.consumer.count", "number of consumers consuming messages from this queue", 0.0),
               new Metric("artemis.delivering.durable.message.count", "number of durable messages that this queue is currently delivering to its consumers", 0.0),
