@@ -191,7 +191,7 @@ public class NodeCheck extends CheckAbstract {
          thresholdValue = diskUsage;
       }
 
-      checkNodeUsage(context, "getDiskStoreUsagePercentage", thresholdValue);
+      checkNodeUsage(context, "getDiskStoreUsage", thresholdValue);
    }
 
    private void checkNodeMemoryUsage(final CheckContext context) throws Exception {
