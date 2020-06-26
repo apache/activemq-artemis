@@ -263,7 +263,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public long getAddressSize() throws Exception {
+   public long getAddressSize() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getAddressSize(this.addressInfo);
       }
@@ -274,6 +274,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             return 0;
          }
          return pagingStore.getAddressSize();
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.debug("Failed to get address size", e);
+         return -1;
       } finally {
          blockOnIO();
       }
