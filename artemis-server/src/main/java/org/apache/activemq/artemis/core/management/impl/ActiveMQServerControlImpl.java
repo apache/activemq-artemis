@@ -134,8 +134,6 @@ import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
-import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.calculateUsage;
-
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
    // Constants -----------------------------------------------------
    private static final Logger logger = Logger.getLogger(ActiveMQServerControlImpl.class);
@@ -750,26 +748,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          return 0;
       }
       double result = (100D * memoryUsed) / globalMaxSize;
-      return (int) result;
-   }
-
-   @Override
-   public int getDiskStoreUsagePercentage() {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.getDiskStoreUsagePercentage(this.server);
-      }
-      long globalMaxSize = getGlobalMaxSize();
-      // no max size set implies 0% used
-      if (globalMaxSize <= 0) {
-         return 0;
-      }
-
-      long diskUsed = getDiskStoreUsage();
-      if (diskUsed <= 0) {
-         return 0;
-      }
-
-      double result = 100 * calculateUsage(diskUsed, globalMaxSize);
       return (int) result;
    }
 
