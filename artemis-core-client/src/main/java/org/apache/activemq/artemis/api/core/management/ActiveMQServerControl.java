@@ -455,12 +455,6 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "Memory used by all the addresses on broker as a percentage of global maximum limit")
    int getAddressMemoryUsagePercentage();
 
-   /**
-    * Returns the storage used by disk store
-    */
-   @Attribute(desc = "Memory used by the disk store")
-   int getDiskStoreUsagePercentage();
-
    // Operations ----------------------------------------------------
    @Operation(desc = "Isolate the broker", impact = MBeanOperationInfo.ACTION)
    boolean freezeReplication();
