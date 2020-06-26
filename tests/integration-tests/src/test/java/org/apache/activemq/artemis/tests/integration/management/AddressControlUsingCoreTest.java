@@ -64,7 +64,7 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
-         public long getAddressSize() throws Exception {
+         public long getAddressSize() {
             return (long) proxy.retrieveAttributeValue("addressSize");
          }
 

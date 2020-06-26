@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.management.AcceptorControl;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BaseBroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
@@ -93,6 +94,8 @@ import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.core.server.metrics.AddressMetricNames;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -232,8 +235,22 @@ public class ManagementServiceImpl implements ManagementService {
 
       registerInRegistry(ResourceNames.ADDRESS + addressInfo.getName(), addressControl);
 
+      registerAddressMeters(addressInfo, addressControl);
+
       if (logger.isDebugEnabled()) {
          logger.debug("registered address " + objectName);
+      }
+   }
+
+   @Override
+   public void registerAddressMeters(AddressInfo addressInfo, AddressControl addressControl) {
+      MetricsManager metricsManager = messagingServer.getMetricsManager();
+      if (metricsManager != null) {
+         metricsManager.registerAddressGauge(addressInfo.getName().toString(), builder -> {
+            builder.register(AddressMetricNames.ROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(addressInfo.getRoutedMessageCount()), AddressControl.ROUTED_MESSAGE_COUNT_DESCRIPTION);
+            builder.register(AddressMetricNames.UNROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(addressInfo.getUnRoutedMessageCount()), AddressControl.UNROUTED_MESSAGE_COUNT_DESCRIPTION);
+            builder.register(AddressMetricNames.ADDRESS_SIZE, this, metrics -> Double.valueOf(addressControl.getAddressSize()), AddressControl.ADDRESS_SIZE_DESCRIPTION);
+         });
       }
    }
 
@@ -243,6 +260,7 @@ public class ManagementServiceImpl implements ManagementService {
 
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.ADDRESS + address);
+      unregisterAddressMeters(address.toString());
    }
 
    public synchronized void registerQueue(final Queue queue,
@@ -539,6 +557,13 @@ public class ManagementServiceImpl implements ManagementService {
 
             registeredNames.remove(objectName);
          }
+      }
+   }
+
+   public void unregisterAddressMeters(String address) {
+      MetricsManager metricsManager = messagingServer.getMetricsManager();
+      if (metricsManager != null) {
+         metricsManager.remove(ResourceNames.ADDRESS + address);
       }
    }
 

@@ -40,12 +40,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -166,7 +165,9 @@ public class MetricsPluginTest extends ActiveMQTestBase {
               new Metric("artemis.scheduled.persistent.size", "persistent size of scheduled messages in this queue", 0.0),
               new Metric("artemis.total.connection.count", "Number of clients which have connected to this server since it was started", 1.0),
               new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 0.0),
-              new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 2.0)
+              new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 2.0),
+              new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
+              new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0)
       ));
    }
 

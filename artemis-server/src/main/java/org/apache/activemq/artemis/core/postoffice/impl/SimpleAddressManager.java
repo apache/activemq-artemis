@@ -259,11 +259,7 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public boolean reloadAddressInfo(AddressInfo addressInfo) {
-      boolean added = addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo) == null;
-      if (added) {
-         addressInfo.registerMeters(metricsManager);
-      }
-      return added;
+      return addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo) == null;
    }
 
    @Override
@@ -355,13 +351,7 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
-      final AddressInfo removed = addressInfoMap.remove(CompositeAddress.extractAddressName(address));
-
-      if (removed != null) {
-         removed.unregisterMeters(metricsManager);
-      }
-
-      return removed;
+      return addressInfoMap.remove(CompositeAddress.extractAddressName(address));
    }
 
    @Override
