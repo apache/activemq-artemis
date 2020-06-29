@@ -276,10 +276,12 @@ public final class XmlDataExporter extends DBOption {
       for (RecordInfo info : acks) {
          AckDescribe ack = (AckDescribe) DescribeJournal.newObjectEncoding(info, null);
          HashMap<Long, ReferenceDescribe> referenceDescribeHashMap = messageRefs.get(info.id);
-         referenceDescribeHashMap.remove(ack.refEncoding.queueID);
-         if (referenceDescribeHashMap.size() == 0) {
-            messages.remove(info.id);
-            messageRefs.remove(info.id);
+         if (referenceDescribeHashMap != null) {
+            referenceDescribeHashMap.remove(ack.refEncoding.queueID);
+            if (referenceDescribeHashMap.size() == 0) {
+               messages.remove(info.id);
+               messageRefs.remove(info.id);
+            }
          }
       }
    }
