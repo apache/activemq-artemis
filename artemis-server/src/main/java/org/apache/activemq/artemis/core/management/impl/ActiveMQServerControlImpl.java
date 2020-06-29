@@ -109,7 +109,6 @@ import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
-import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -711,22 +710,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public long getDiskStoreUsage() {
+   public double getDiskStoreUsage() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getDiskStoreUsage(this.server);
       }
       checkStarted();
       clearIO();
       try {
-         //this should not happen but if it does, return -1 to highlight it is not working
-         if (server.getPagingManager() == null) {
-            return -1L;
-         }
-
-         long usableSpace = server.getPagingManager().getDiskUsableSpace();
-         long totalSpace = server.getPagingManager().getDiskTotalSpace();
-
-         return (long) FileStoreMonitor.calculateUsage(usableSpace, totalSpace);
+         return server.getDiskStoreUsage();
       } finally {
          blockOnIO();
       }
