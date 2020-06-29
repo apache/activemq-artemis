@@ -104,7 +104,7 @@ public final class XmlDataImporter extends ActionAbstract {
    @Option(name = "--user", description = "User name used to import the data. (default null)")
    public String user = null;
 
-   @Option(name = "--password", description = "User name used to import the data. (default null)")
+   @Option(name = "--password", description = "Password used to import the data. (default null)")
    public String password = null;
 
    @Option(name = "--input", description = "The input file name (default=exp.dmp)", required = true)
@@ -115,6 +115,15 @@ public final class XmlDataImporter extends ActionAbstract {
 
    @Option(name = "--legacy-prefixes", description = "Do not remove prefixes from legacy imports")
    public boolean legacyPrefixes = false;
+   
+   @Option(name = "--sslEnabled", description = "This enable SSL and require trustStorePath / trustStorePassword parameter.(default false) ")
+   public boolean sslEnabled = false;
+   
+   @Option(name = "--trustStorePath", description = "Trust store file path.(default null) ")
+   public String trustStorePath= null;
+   
+   @Option(name = "--trustStorePassword", description = "Trust store password.(default null) ")
+   public String trustStorePassword= null;
 
    TreeSet<XMLMessageImporter.MessageInfo> messages;
 
@@ -192,6 +201,11 @@ public final class XmlDataImporter extends ActionAbstract {
       HashMap<String, Object> connectionParams = new HashMap<>();
       connectionParams.put(TransportConstants.HOST_PROP_NAME, host);
       connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.toString(port));
+      if(sslEnabled==true) {
+      connectionParams.put(TransportConstants.SSL_ENABLED_PROP_NAME, sslEnabled);
+      connectionParams.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, trustStorePath);
+      connectionParams.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, trustStorePassword);
+      }
       ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams));
       ClientSessionFactory sf = serverLocator.createSessionFactory();
 
