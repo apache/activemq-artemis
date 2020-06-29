@@ -880,4 +880,6 @@ public interface ActiveMQServer extends ServiceComponent {
    void removeAddressInfo(SimpleString address, SecurityAuth auth, boolean force) throws Exception;
 
    String getInternalNamingPrefix();
+
+   double getDiskStoreUsage();
 }

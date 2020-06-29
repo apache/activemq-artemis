@@ -445,10 +445,10 @@ public interface ActiveMQServerControl {
    long getAddressMemoryUsage();
 
    /**
-    * Returns the bytes used by the disk store
+    * Returns the percentage of total disk store use
     */
    @Attribute(desc = DISK_STORE_USAGE_DESCRIPTION)
-   long getDiskStoreUsage();
+   double getDiskStoreUsage();
 
    /**
     * Returns the memory used by all the addresses on broker as a percentage of the global-max-size
