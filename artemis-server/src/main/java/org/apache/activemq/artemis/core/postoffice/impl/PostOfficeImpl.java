@@ -1033,7 +1033,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public RoutingStatus route(final Message message,
                               final RoutingContext context,
                               final boolean direct) throws Exception {
-      return route(message, context, direct, true, null);
+      return route(message, context, direct, true, null, false);
    }
 
    @Override
@@ -1042,6 +1042,21 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                               final boolean direct,
                               boolean rejectDuplicates,
                               final Binding bindingMove) throws Exception {
+
+      return route(message, context, direct, rejectDuplicates, bindingMove, false);
+   }
+
+
+   /**
+    * The route can call itelf sending to DLA.
+    * if a DLA still not found, it should then use previous semantics.
+    * */
+   private RoutingStatus route(final Message message,
+                              final RoutingContext context,
+                              final boolean direct,
+                              boolean rejectDuplicates,
+                              final Binding bindingMove, boolean sendToDLA) throws Exception {
+
 
       RoutingStatus result;
       // Sanity check
@@ -1102,7 +1117,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
 
-            boolean sendToDLA = addressSettings.isSendToDLAOnNoRoute();
+
+            if (sendToDLA) {
+               // it's already been through here once, giving up now
+               sendToDLA = false;
+            } else {
+               sendToDLA = addressSettings.isSendToDLAOnNoRoute();
+            }
 
             if (sendToDLA) {
                // Send to the DLA for the address
@@ -1123,7 +1144,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                   message.reencode();
 
-                  route(message, context.getTransaction(), false);
+                  route(message, new RoutingContextImpl(context.getTransaction()), false, true, null, sendToDLA);
                   result = RoutingStatus.NO_BINDINGS_DLA;
                }
             } else {

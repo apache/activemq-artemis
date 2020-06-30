@@ -304,7 +304,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
                clearCache();
                wildcardMatches.remove(modMatch);
             } else {
-               cache.remove(modMatch);
+               clearCache();
                exactMatches.remove(modMatch);
             }
             onChange();
