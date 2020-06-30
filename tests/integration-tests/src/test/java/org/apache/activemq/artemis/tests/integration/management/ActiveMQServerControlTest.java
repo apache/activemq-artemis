@@ -1313,7 +1313,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    public void testRemoveAddressSettingsEffective() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       String addr = "test";
-      String root = "#";
+      String root = "test.#";
 
       String DLA = "someDLA";
       String expiryAddress = "someExpiry";
@@ -1322,8 +1322,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       long maxExpiryDelay = 20000;
       boolean lastValueQueue = true;
       int deliveryAttempts = 1;
-      long maxSizeBytes = 20;
-      int pageSizeBytes = 10;
+      long maxSizeBytes = 10 * 1024 * 1024;
+      int pageSizeBytes = 1024 * 1024;
       int pageMaxCacheSize = 7;
       long redeliveryDelay = 4;
       double redeliveryMultiplier = 1;
