@@ -720,15 +720,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                queue.setConfigurationManaged(queueConfiguration.isConfigurationManaged());
                changed = true;
             }
-            /* Why is this?
             if (logger.isDebugEnabled()) {
                if (queueConfiguration.getUser() == null && queue.getUser() != null) {
                   logger.debug("Ignoring updating Queue to a NULL user");
                }
             }
-             */
-            // user
-            if (!Objects.equals(queue.getUser(), queueConfiguration.getUser())) {
+            if (queueConfiguration.getUser() != null && !queueConfiguration.getUser().equals(queue.getUser())) {
                changed = true;
                queue.setUser(queueConfiguration.getUser());
             }
