@@ -485,6 +485,8 @@ public class RedeployTest extends ActiveMQTestBase {
 
          deployBrokerConfig(embeddedActiveMQ, newConfig);
 
+         Wait.waitFor(() -> embeddedActiveMQ.getActiveMQServer().getPostOffice()
+                         .getBinding(new SimpleString("divert")) == null);
          divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
                  .getBinding(new SimpleString("divert"));
          assertNull(divertBinding);
@@ -500,7 +502,7 @@ public class RedeployTest extends ActiveMQTestBase {
             Message message = session.createTextMessage("Hello world");
             sourceProducer.send(message);
             assertNotNull(sourceConsumer.receive(2000));
-            assertNull(targetConsumer.receive(2000));
+            assertNull(targetConsumer.receiveNoWait());
          }
       } finally {
          embeddedActiveMQ.stop();
