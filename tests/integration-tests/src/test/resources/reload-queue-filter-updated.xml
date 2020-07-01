@@ -25,6 +25,7 @@ under the License.
    <core xmlns="urn:activemq:core">
       <security-enabled>false</security-enabled>
       <persistence-enabled>false</persistence-enabled>
+      <configuration-file-refresh-period>100</configuration-file-refresh-period>
 
       <acceptors>
          <acceptor name="artemis">tcp://0.0.0.0:61616</acceptor>
