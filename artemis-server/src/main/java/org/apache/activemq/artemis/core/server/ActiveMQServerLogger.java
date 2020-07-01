@@ -1692,6 +1692,15 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void failedToFindClusterConnection(String packet);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222291, value = "The metrics-plugin element is deprecated and replaced by the metrics element", format = Message.Format.MESSAGE_FORMAT)
+   void metricsPluginElementDeprecated();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222292, value = "The metrics-plugin element is ignored because the metrics element is defined", format = Message.Format.MESSAGE_FORMAT)
+   void metricsPluginElementIgnored();
+
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
