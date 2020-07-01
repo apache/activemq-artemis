@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -758,6 +759,60 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       }
    }
 
+   @Test
+   public void testMetricsPlugin() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("metricsPlugin.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+
+      ActiveMQMetricsPlugin metricPlugin = fc.getMetricsConfiguration().getPlugin();
+      assertTrue(metricPlugin instanceof FakeMetricPlugin);
+
+      Map<String, String> metricPluginOptions = ((FakeMetricPlugin)metricPlugin).getOptions();
+      assertEquals("value1", metricPluginOptions.get("key1"));
+      assertEquals("value2", metricPluginOptions.get("key2"));
+      assertEquals("value3", metricPluginOptions.get("key3"));
+   }
+
+   @Test
+   public void testMetrics() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("metrics.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+
+
+      MetricsConfiguration metricsConfiguration = fc.getMetricsConfiguration();
+      assertTrue(metricsConfiguration.isJvmMemory());
+      assertTrue(metricsConfiguration.isJvmGc());
+      assertTrue(metricsConfiguration.isJvmThread());
+
+      ActiveMQMetricsPlugin metricPlugin = metricsConfiguration.getPlugin();
+      assertTrue(metricPlugin instanceof FakeMetricPlugin);
+
+      Map<String, String> metricPluginOptions = ((FakeMetricPlugin)metricPlugin).getOptions();
+      assertEquals("value1", metricPluginOptions.get("key1"));
+      assertEquals("value2", metricPluginOptions.get("key2"));
+      assertEquals("value3", metricPluginOptions.get("key3"));
+   }
+
+   @Test
+   public void testMetricsConflict() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("metricsConflict.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+
+      ActiveMQMetricsPlugin metricPlugin = fc.getMetricsConfiguration().getPlugin();
+      assertTrue(metricPlugin instanceof FakeMetricPlugin);
+
+      Map<String, String> metricPluginOptions = ((FakeMetricPlugin)metricPlugin).getOptions();
+      assertEquals("value1", metricPluginOptions.get("key1"));
+      assertEquals("value2", metricPluginOptions.get("key2"));
+      assertEquals("value3", metricPluginOptions.get("key3"));
+   }
+
    @Override
    protected Configuration createConfiguration() throws Exception {
       // This may be set for the entire testsuite, but on this test we need this out
@@ -783,5 +838,24 @@ public class FileConfigurationTest extends ConfigurationImplTest {
 
    public static class EmptyPlugin2 implements ActiveMQServerPlugin {
 
+   }
+
+   public static class FakeMetricPlugin implements ActiveMQMetricsPlugin {
+      private Map<String, String> options;
+
+      public Map<String, String> getOptions() {
+         return options;
+      }
+
+      @Override
+      public ActiveMQMetricsPlugin init(Map<String, String> options) {
+         this.options = options;
+         return this;
+      }
+
+      @Override
+      public MeterRegistry getRegistry() {
+         return null;
+      }
    }
 }
