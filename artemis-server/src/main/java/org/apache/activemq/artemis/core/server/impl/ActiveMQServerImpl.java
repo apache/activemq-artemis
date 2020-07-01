@@ -4003,7 +4003,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          }
          for (final SimpleString divertName : divertsToRemove) {
-            destroyDivert(divertName);
+            try {
+               destroyDivert(divertName);
+            } catch (Throwable e) {
+               logger.warn("Divert " + divertName + " could not be removed", e);
+            }
          }
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
