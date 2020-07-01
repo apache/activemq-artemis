@@ -711,14 +711,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       parseBrokerPlugins(e, config);
 
-      { // for backwards compatibility
-         NodeList metricsPlugin = e.getElementsByTagName("metrics-plugin");
-
-         if (metricsPlugin.getLength() != 0) {
-            parseMetricsPlugin(metricsPlugin.item(0), config);
-         }
-      }
-
       parseMetrics(e, config);
 
       NodeList connectorServiceConfigs = e.getElementsByTagName("connector-service");
@@ -816,11 +808,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
     * @param config
     */
    private void parseMetrics(final Element e, final Configuration config) {
-      NodeList elements = e.getElementsByTagName("metrics");
+      NodeList metrics = e.getElementsByTagName("metrics");
+      NodeList metricsPlugin = e.getElementsByTagName("metrics-plugin");
       MetricsConfiguration metricsConfiguration = new MetricsConfiguration();
 
-      if (elements.getLength() != 0) {
-         Element node = (Element) elements.item(0);
+      if (metrics.getLength() != 0) {
+         Element node = (Element) metrics.item(0);
          NodeList children = node.getChildNodes();
          for (int j = 0; j < children.getLength(); j++) {
             Node child = children.item(j);
@@ -833,6 +826,15 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             } else if (child.getNodeName().equals("plugin")) {
                metricsConfiguration.setPlugin(parseMetricsPlugin(child, config));
             }
+         }
+
+         if (metricsPlugin.getLength() != 0) {
+            ActiveMQServerLogger.LOGGER.metricsPluginElementIgnored();
+         }
+      } else { // for backwards compatibility
+         if (metricsPlugin.getLength() != 0) {
+            ActiveMQServerLogger.LOGGER.metricsPluginElementDeprecated();
+            metricsConfiguration.setPlugin(parseMetricsPlugin(metricsPlugin.item(0), config));
          }
       }
 
