@@ -790,6 +790,15 @@ public interface ActiveMQServer extends ServiceComponent {
     */
    Queue updateQueue(QueueConfiguration queueConfiguration) throws Exception;
 
+   /**
+    * @param queueConfiguration the {@code QueueConfiguration} to use
+    * @param forceUpdate If <code>true</code>, no <code>null</code> check is performed and unset queueConfiguration values are reset to <code>null</code>
+    * @return the updated {@code Queue} instance
+    * @throws Exception
+    * @see #updateQueue(QueueConfiguration)
+    */
+   Queue updateQueue(QueueConfiguration queueConfiguration, boolean forceUpdate) throws Exception;
+
    /*
             * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
             * replace any factories with the same protocol
