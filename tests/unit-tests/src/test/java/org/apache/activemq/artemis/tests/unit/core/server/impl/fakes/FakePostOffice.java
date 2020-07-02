@@ -84,6 +84,11 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public QueueBinding updateQueue(QueueConfiguration queueConfiguration) throws Exception {
+      return updateQueue(queueConfiguration, false);
+   }
+
+   @Override
+   public QueueBinding updateQueue(QueueConfiguration queueConfiguration, boolean forceUpdate) throws Exception {
       return null;
    }
 
