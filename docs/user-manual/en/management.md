@@ -115,6 +115,8 @@ The `ActiveMQServerControl` interface is the entry point for broker management.
   operations `createBridge()` and `destroyBridge()` (resp.  `createDivert()` and
   `destroyDivert()`).
 
+  Diverts can be updated using the management operation `updateDivert()`.
+  
 - It is possible to stop the server and force failover to occur with any
   currently attached clients.
 
