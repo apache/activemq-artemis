@@ -101,6 +101,14 @@ public interface PostOffice extends ActiveMQComponent {
 
    QueueBinding updateQueue(QueueConfiguration queueConfiguration) throws Exception;
 
+   /**
+    * @param queueConfiguration
+    * @param forceUpdate Setting to <code>true</code> will make <code>null</code> values override current values too
+    * @return
+    * @throws Exception
+    */
+   QueueBinding updateQueue(QueueConfiguration queueConfiguration, boolean forceUpdate) throws Exception;
+
    List<Queue> listQueuesForAddress(SimpleString address) throws Exception;
 
 

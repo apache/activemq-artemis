@@ -538,7 +538,9 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    private SimpleString createMetadata() {
       StringBuilder metadata = new StringBuilder();
-      metadata.append("user=").append(user).append(";");
+      if (user != null) {
+         metadata.append("user=").append(user).append(";");
+      }
       return SimpleString.toSimpleString(metadata.toString());
    }
 }

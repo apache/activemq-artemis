@@ -514,8 +514,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       producer.send(m);
 
-      assertNotNull(consumer1.receiveImmediate());
-      assertNotNull(consumer2.receiveImmediate());
+      assertNotNull(consumer1.receive(1000));
+      assertNotNull(consumer2.receive(1000));
    }
 
    @Test
