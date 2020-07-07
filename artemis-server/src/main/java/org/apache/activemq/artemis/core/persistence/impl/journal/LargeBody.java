@@ -431,6 +431,15 @@ public class LargeBody {
       public long getSize() throws ActiveMQException {
          return getBodySize();
       }
+
+      @Override
+      public boolean validateLargeMessage(long expectedSize) {
+         try {
+            return cFile.size() == expectedSize;
+         } catch (Exception e) {
+            return false;
+         }
+      }
    }
 
    public boolean hasPendingRecord() {

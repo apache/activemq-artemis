@@ -1302,6 +1302,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
                context.open();
 
+               if (!context.validateLargeMessage(sizePendingLargeMessage)) {
+                  ActiveMQServerLogger.LOGGER.errorLargeMessageFileSize(sizePendingLargeMessage, currentLargeMessage);
+                  finish();
+                  return true;
+               }
+
                sentInitialPacket = true;
 
                int packetSize = callback.sendLargeMessage(ref, currentLargeMessage.toMessage(), ServerConsumerImpl.this, context.getSize(), ref.getDeliveryCount());

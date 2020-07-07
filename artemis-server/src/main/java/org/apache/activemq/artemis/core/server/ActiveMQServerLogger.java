@@ -2100,4 +2100,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224104, value = "Error starting the Acceptor {0} {1}", format = Message.Format.MESSAGE_FORMAT)
    void errorStartingAcceptor(String name, Object configuration);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224105, value = "The large message file size does not match expected size {0}, it will be dropped. Message: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void errorLargeMessageFileSize(long sizePendingLargeMessage, LargeServerMessage currentLargeMessage);
 }

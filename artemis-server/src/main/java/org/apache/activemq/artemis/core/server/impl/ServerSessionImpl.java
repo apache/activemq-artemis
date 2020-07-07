@@ -2328,4 +2328,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public String toManagementString() {
       return "ServerSession [id=" + getConnectionID() + ":" + getName() + "]";
    }
+
+   @Override
+   public ActiveMQServer getServer() {
+      return server;
+   }
 }
