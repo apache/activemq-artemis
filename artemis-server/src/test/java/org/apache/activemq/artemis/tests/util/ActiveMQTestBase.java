@@ -149,6 +149,7 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.jboss.logging.Logger;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -2031,6 +2032,13 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
+   @AfterClass
+   public static void checkLibaio() throws Throwable {
+      if (!Wait.waitFor(() -> LibaioContext.getTotalMaxIO() == 0)) {
+         Assert.fail("test did not close all its files " + LibaioContext.getTotalMaxIO());
+      }
+   }
+
    private void checkFilesUsage() throws Exception {
       int invmSize = InVMRegistry.instance.size();
       if (invmSize > 0) {
@@ -2038,11 +2046,6 @@ public abstract class ActiveMQTestBase extends Assert {
          baseLog.info(threadDump("Thread dump"));
          fail("invm registry still had acceptors registered");
       }
-
-      if (!Wait.waitFor(() -> LibaioContext.getTotalMaxIO() == 0)) {
-         Assert.fail("test did not close all its files " + LibaioContext.getTotalMaxIO());
-      }
-
    }
 
    private void cleanupPools() {
