@@ -48,6 +48,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -3224,7 +3226,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
             // determine if there is an address::queue match; update it if so
             if (locateQueue(config.getName()) != null && locateQueue(config.getName()).getAddress().equals(config.getAddress())) {
-               updateQueue(config.setConfigurationManaged(true));
+               config.setConfigurationManaged(true);
+               setUnsetQueueParamsToDefaults(config);
+               updateQueue(config, true);
             } else {
                // if the address::queue doesn't exist then create it
                try {
@@ -3770,7 +3774,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public Queue updateQueue(QueueConfiguration queueConfiguration) throws Exception {
-      final QueueBinding queueBinding = this.postOffice.updateQueue(queueConfiguration);
+      return updateQueue(queueConfiguration, false);
+   }
+
+   @Override
+   public Queue updateQueue(QueueConfiguration queueConfiguration, boolean forceUpdate) throws Exception {
+      final QueueBinding queueBinding = this.postOffice.updateQueue(queueConfiguration, forceUpdate);
       if (queueBinding != null) {
          return queueBinding.getQueue();
       } else {
@@ -3981,6 +3990,33 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             deployReloadableConfigFromConfiguration();
          }
       }
+   }
+
+   private static <T> void setDefaultIfUnset(Supplier<T> getter, Consumer<T> setter, T defaultValue) {
+      if (getter.get() == null) {
+         setter.accept(defaultValue);
+      }
+   }
+
+   private static void setUnsetQueueParamsToDefaults(QueueConfiguration c) {
+      // Param list taken from PostOfficeImpl::updateQueue
+      setDefaultIfUnset(c::getMaxConsumers, c::setMaxConsumers, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
+      setDefaultIfUnset(c::getRoutingType, c::setRoutingType, ActiveMQDefaultConfiguration.getDefaultRoutingType());
+      setDefaultIfUnset(c::isPurgeOnNoConsumers, c::setPurgeOnNoConsumers, ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers());
+      setDefaultIfUnset(c::isEnabled, c::setEnabled, ActiveMQDefaultConfiguration.getDefaultEnabled());
+      setDefaultIfUnset(c::isExclusive, c::setExclusive, ActiveMQDefaultConfiguration.getDefaultExclusive());
+      setDefaultIfUnset(c::isGroupRebalance, c::setGroupRebalance, ActiveMQDefaultConfiguration.getDefaultGroupRebalance());
+      setDefaultIfUnset(c::getGroupBuckets, c::setGroupBuckets, ActiveMQDefaultConfiguration.getDefaultGroupBuckets());
+      setDefaultIfUnset(c::getGroupFirstKey, c::setGroupFirstKey, ActiveMQDefaultConfiguration.getDefaultGroupFirstKey());
+      setDefaultIfUnset(c::isNonDestructive, c::setNonDestructive, ActiveMQDefaultConfiguration.getDefaultNonDestructive());
+      setDefaultIfUnset(c::getConsumersBeforeDispatch, c::setConsumersBeforeDispatch, ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch());
+      setDefaultIfUnset(c::getDelayBeforeDispatch, c::setDelayBeforeDispatch, ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch());
+      setDefaultIfUnset(c::getFilterString, c::setFilterString, new SimpleString(""));
+      // Defaults to false automatically as per isConfigurationManaged() JavaDoc
+      setDefaultIfUnset(c::isConfigurationManaged, c::setConfigurationManaged, false);
+      // Setting to null might have side effects
+      setDefaultIfUnset(c::getUser, c::setUser, null);
+      setDefaultIfUnset(c::getRingSize, c::setRingSize, ActiveMQDefaultConfiguration.getDefaultRingSize());
    }
 
    private void deployReloadableConfigFromConfiguration() throws Exception {

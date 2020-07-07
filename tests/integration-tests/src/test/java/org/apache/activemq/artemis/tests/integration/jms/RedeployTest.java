@@ -39,6 +39,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -296,7 +297,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
       Files.copy(configFile.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
-
+      brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
       final ReusableLatch latch = new ReusableLatch(1);
       Runnable tick = latch::countDown;
       server.getActiveMQServer().getReloadManager().setTick(tick);
@@ -397,6 +398,40 @@ public class RedeployTest extends ActiveMQTestBase {
       doTestRemoveFilter(RedeployTest.class.getClassLoader().getResource("reload-queue-filter-removed.xml"));
    }
 
+   /**
+    * This one is here just to make sure it's possible to change queue parameters one by one without setting the others
+    * to <code>null</code>.
+    * @throws Exception
+    */
+   @Test
+   public void testQueuePartialReconfiguration() throws Exception {
+
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url = RedeployTest.class.getClassLoader().getResource("reload-empty.xml");
+      Files.copy(url.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      try {
+
+         embeddedActiveMQ.getActiveMQServer().createQueue(new QueueConfiguration("virtualQueue").setUser("bob"));
+         embeddedActiveMQ.getActiveMQServer().updateQueue(new QueueConfiguration("virtualQueue").setFilterString("foo"));
+
+         LocalQueueBinding queueBinding = (LocalQueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice()
+                 .getBinding(new SimpleString("virtualQueue"));
+         org.apache.activemq.artemis.core.server.Queue queue = queueBinding.getQueue();
+
+         assertEquals(new SimpleString("bob"), queue.getUser());
+         assertEquals(new SimpleString("foo"), queue.getFilter().getFilterString());
+
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+
+   }
+
    @Test
    public void testRedeployQueueDefaults() throws Exception {
 
@@ -413,37 +448,37 @@ public class RedeployTest extends ActiveMQTestBase {
                  .getBinding(new SimpleString("myQueue"));
          org.apache.activemq.artemis.core.server.Queue queue = queueBinding.getQueue();
 
-         assertNotEquals(queue.getMaxConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
-         assertNotEquals(queue.getRoutingType(), RoutingType.MULTICAST);
-         assertNotEquals(queue.isPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers());
-         assertNotEquals(queue.isEnabled(), ActiveMQDefaultConfiguration.getDefaultEnabled());
-         assertNotEquals(queue.isExclusive(), ActiveMQDefaultConfiguration.getDefaultExclusive());
-         assertNotEquals(queue.isGroupRebalance(), ActiveMQDefaultConfiguration.getDefaultGroupRebalance());
-         assertNotEquals(queue.getGroupBuckets(), ActiveMQDefaultConfiguration.getDefaultGroupBuckets());
-         assertNotEquals(queue.getGroupFirstKey(), ActiveMQDefaultConfiguration.getDefaultGroupFirstKey());
-         assertNotEquals(queue.isNonDestructive(), ActiveMQDefaultConfiguration.getDefaultNonDestructive());
-         assertNotEquals(queue.getConsumersBeforeDispatch(), ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch());
-         assertNotEquals(queue.getDelayBeforeDispatch(), ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch());
-         assertNotEquals(queue.getFilter(), null);
-         assertNotEquals(queue.getUser(), "jdoe");
-         assertNotEquals(queue.getRingSize(), ActiveMQDefaultConfiguration.getDefaultRingSize());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), queue.getMaxConsumers());
+         assertNotEquals(RoutingType.MULTICAST, queue.getRoutingType());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), queue.isPurgeOnNoConsumers());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultEnabled(), queue.isEnabled());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultExclusive(), queue.isExclusive());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultGroupRebalance(), queue.isGroupRebalance());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultGroupBuckets(), queue.getGroupBuckets());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultGroupFirstKey(), queue.getGroupFirstKey());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultNonDestructive(), queue.isNonDestructive());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch(), queue.getConsumersBeforeDispatch());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch(), queue.getDelayBeforeDispatch());
+         assertNotNull(queue.getFilter());
+         assertEquals(new SimpleString("jdoe"), queue.getUser());
+         assertNotEquals(ActiveMQDefaultConfiguration.getDefaultRingSize(), queue.getRingSize());
 
          deployBrokerConfig(embeddedActiveMQ, newConfig);
 
-         assertEquals(queue.getMaxConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
-         assertEquals(queue.getRoutingType(), RoutingType.MULTICAST);
-         assertEquals(queue.isPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers());
-         assertEquals(queue.isEnabled(), ActiveMQDefaultConfiguration.getDefaultEnabled());
-         assertEquals(queue.isExclusive(), ActiveMQDefaultConfiguration.getDefaultExclusive());
-         assertEquals(queue.isGroupRebalance(), ActiveMQDefaultConfiguration.getDefaultGroupRebalance());
-         assertEquals(queue.getGroupBuckets(), ActiveMQDefaultConfiguration.getDefaultGroupBuckets());
-         assertEquals(queue.getGroupFirstKey(), ActiveMQDefaultConfiguration.getDefaultGroupFirstKey());
-         assertEquals(queue.isNonDestructive(), ActiveMQDefaultConfiguration.getDefaultNonDestructive());
-         assertEquals(queue.getConsumersBeforeDispatch(), ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch());
-         assertEquals(queue.getDelayBeforeDispatch(), ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch());
-         assertEquals(queue.getFilter(), null);
-         assertEquals(queue.getUser(), null);
-         assertEquals(queue.getRingSize(), ActiveMQDefaultConfiguration.getDefaultRingSize());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), queue.getMaxConsumers());
+         assertEquals(RoutingType.MULTICAST, queue.getRoutingType());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), queue.isPurgeOnNoConsumers());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultEnabled(), queue.isEnabled());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultExclusive(), queue.isExclusive());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultGroupRebalance(), queue.isGroupRebalance());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultGroupBuckets(), queue.getGroupBuckets());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultGroupFirstKey(), queue.getGroupFirstKey());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultNonDestructive(), queue.isNonDestructive());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch(), queue.getConsumersBeforeDispatch());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch(), queue.getDelayBeforeDispatch());
+         assertNull(queue.getFilter());
+         assertNull(queue.getUser());
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultRingSize(), queue.getRingSize());
 
       } finally {
          embeddedActiveMQ.stop();

@@ -63,7 +63,6 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.server.impl.QueueConfigurationUtils;
 import org.apache.activemq.artemis.core.server.impl.QueueManagerImpl;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -619,6 +618,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public QueueBinding updateQueue(QueueConfiguration queueConfiguration) throws Exception {
+      return updateQueue(queueConfiguration, false);
+   }
+
+   @Override
+   public QueueBinding updateQueue(QueueConfiguration queueConfiguration, boolean forceUpdate) throws Exception {
       synchronized (this) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(queueConfiguration.getName());
          if (queueBinding == null) {
@@ -649,91 +653,71 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                }
             }
 
-            QueueConfigurationUtils.applyDynamicQueueDefaults(queueConfiguration, addressSettingsRepository.getMatch(queueConfiguration.getAddress().toString()));
-
-            // atomic update, reset to defaults if value == null
-            // maxConsumers
-            if (queue.getMaxConsumers() != queueConfiguration.getMaxConsumers()) {
+            //atomic update
+            if ((forceUpdate || queueConfiguration.getMaxConsumers() != null) && !Objects.equals(queue.getMaxConsumers(), queueConfiguration.getMaxConsumers())) {
                changed = true;
                queue.setMaxConsumer(queueConfiguration.getMaxConsumers());
             }
-            // routingType
-            if (queue.getRoutingType() != queueConfiguration.getRoutingType()) {
+            if ((forceUpdate || queueConfiguration.getRoutingType() != null) && !Objects.equals(queue.getRoutingType(), queueConfiguration.getRoutingType())) {
                changed = true;
                queue.setRoutingType(queueConfiguration.getRoutingType());
             }
-            // purgeOnNoConsumers
-            if (queue.isPurgeOnNoConsumers() != queueConfiguration.isPurgeOnNoConsumers()) {
+            if ((forceUpdate || queueConfiguration.isPurgeOnNoConsumers() != null) && !Objects.equals(queue.isPurgeOnNoConsumers(), queueConfiguration.isPurgeOnNoConsumers())) {
                changed = true;
                queue.setPurgeOnNoConsumers(queueConfiguration.isPurgeOnNoConsumers());
             }
-            // enabled
-            if (queue.isEnabled() != queueConfiguration.isEnabled()) {
+            if ((forceUpdate || queueConfiguration.isEnabled() != null) && !Objects.equals(queue.isEnabled(), queueConfiguration.isEnabled())) {
                changed = true;
                queue.setEnabled(queueConfiguration.isEnabled());
             }
-            // exclusive
-            if (queue.isExclusive() != queueConfiguration.isExclusive()) {
+            if ((forceUpdate || queueConfiguration.isExclusive() != null) && !Objects.equals(queue.isExclusive(), queueConfiguration.isExclusive())) {
                changed = true;
                queue.setExclusive(queueConfiguration.isExclusive());
             }
-            // groupRebalance
-            if (queue.isGroupRebalance() != queueConfiguration.isGroupRebalance()) {
+            if ((forceUpdate || queueConfiguration.isGroupRebalance() != null) && !Objects.equals(queue.isGroupRebalance(), queueConfiguration.isGroupRebalance())) {
                changed = true;
                queue.setGroupRebalance(queueConfiguration.isGroupRebalance());
             }
-            // groupBuckets
-            if (queue.getGroupBuckets() != queueConfiguration.getGroupBuckets()) {
+            if ((forceUpdate || queueConfiguration.getGroupBuckets() != null) && !Objects.equals(queue.getGroupBuckets(), queueConfiguration.getGroupBuckets())) {
                changed = true;
                queue.setGroupBuckets(queueConfiguration.getGroupBuckets());
             }
-            // groupFirstKey
-            // Objects.equals() performs the null check for us
-            if (!Objects.equals(queue.getGroupFirstKey(), queueConfiguration.getGroupFirstKey())) {
+            if ((forceUpdate || queueConfiguration.getGroupFirstKey() != null) && !Objects.equals(queueConfiguration.getGroupFirstKey(), queue.getGroupFirstKey())) {
                changed = true;
                queue.setGroupFirstKey(queueConfiguration.getGroupFirstKey());
             }
-            // nonDestructive
-            if (queue.isNonDestructive() != queueConfiguration.isNonDestructive()) {
+            if ((forceUpdate || queueConfiguration.isNonDestructive() != null) && !Objects.equals(queue.isNonDestructive(), queueConfiguration.isNonDestructive())) {
                changed = true;
                queue.setNonDestructive(queueConfiguration.isNonDestructive());
             }
-            // consumersBeforeDispatch
-            if (queue.getConsumersBeforeDispatch() != queueConfiguration.getConsumersBeforeDispatch()) {
+            if ((forceUpdate || queueConfiguration.getConsumersBeforeDispatch() != null) && !Objects.equals(queueConfiguration.getConsumersBeforeDispatch(), queue.getConsumersBeforeDispatch())) {
                changed = true;
                queue.setConsumersBeforeDispatch(queueConfiguration.getConsumersBeforeDispatch());
             }
-            // delayBeforeDispatch
-            if (queue.getDelayBeforeDispatch() != queueConfiguration.getDelayBeforeDispatch()) {
+            if ((forceUpdate || queueConfiguration.getDelayBeforeDispatch() != null) && !Objects.equals(queueConfiguration.getDelayBeforeDispatch(), queue.getDelayBeforeDispatch())) {
                changed = true;
                queue.setDelayBeforeDispatch(queueConfiguration.getDelayBeforeDispatch());
             }
-            // filter
-            // There's no default ActiveMQDefaultConfiguration setting for a filter
-            final Filter newFilter = FilterImpl.createFilter(queueConfiguration.getFilterString());
-            if (!Objects.equals(queue.getFilter(), newFilter)) {
+            final SimpleString empty = new SimpleString("");
+            Filter oldFilter = FilterImpl.createFilter(queue.getFilter() == null ? empty : queue.getFilter().getFilterString());
+            Filter newFilter = FilterImpl.createFilter(queueConfiguration.getFilterString() == null ? empty : queueConfiguration.getFilterString());
+            if ((forceUpdate || newFilter != oldFilter) && !Objects.equals(oldFilter, newFilter)) {
                changed = true;
                queue.setFilter(newFilter);
             }
-            // configurationManaged
-            if (queueConfiguration.isConfigurationManaged() != queue.isConfigurationManaged()) {
-               queue.setConfigurationManaged(queueConfiguration.isConfigurationManaged());
+            if ((forceUpdate || queueConfiguration.isConfigurationManaged() != null) && !Objects.equals(queueConfiguration.isConfigurationManaged(), queue.isConfigurationManaged())) {
                changed = true;
+               queue.setConfigurationManaged(queueConfiguration.isConfigurationManaged());
             }
-            if (logger.isDebugEnabled()) {
-               if (queueConfiguration.getUser() == null && queue.getUser() != null) {
-                  logger.debug("Ignoring updating Queue to a NULL user");
-               }
-            }
-            if (queueConfiguration.getUser() != null && !queueConfiguration.getUser().equals(queue.getUser())) {
+            if ((forceUpdate || queueConfiguration.getUser() != null) && !Objects.equals(queueConfiguration.getUser(), queue.getUser())) {
                changed = true;
                queue.setUser(queueConfiguration.getUser());
             }
-            // ringSize
-            if (queue.getRingSize() != queueConfiguration.getRingSize()) {
+            if ((forceUpdate || queueConfiguration.getRingSize() != null) && !Objects.equals(queueConfiguration.getRingSize(), queue.getRingSize())) {
                changed = true;
                queue.setRingSize(queueConfiguration.getRingSize());
             }
+
             if (changed) {
                final long txID = storageManager.generateID();
                try {
