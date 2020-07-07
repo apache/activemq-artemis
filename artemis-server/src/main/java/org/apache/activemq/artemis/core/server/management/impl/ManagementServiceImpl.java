@@ -263,13 +263,15 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public void registerAddressMeters(AddressInfo addressInfo, AddressControl addressControl) {
-      MetricsManager metricsManager = messagingServer.getMetricsManager();
-      if (metricsManager != null) {
-         metricsManager.registerAddressGauge(addressInfo.getName().toString(), builder -> {
-            builder.register(AddressMetricNames.ROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(addressInfo.getRoutedMessageCount()), AddressControl.ROUTED_MESSAGE_COUNT_DESCRIPTION);
-            builder.register(AddressMetricNames.UNROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(addressInfo.getUnRoutedMessageCount()), AddressControl.UNROUTED_MESSAGE_COUNT_DESCRIPTION);
-            builder.register(AddressMetricNames.ADDRESS_SIZE, this, metrics -> Double.valueOf(addressControl.getAddressSize()), AddressControl.ADDRESS_SIZE_DESCRIPTION);
-         });
+      if (messagingServer != null) { // it could be null on tests, but never on a real server
+         MetricsManager metricsManager = messagingServer.getMetricsManager();
+         if (metricsManager != null) {
+            metricsManager.registerAddressGauge(addressInfo.getName().toString(), builder -> {
+               builder.register(AddressMetricNames.ROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(addressInfo.getRoutedMessageCount()), AddressControl.ROUTED_MESSAGE_COUNT_DESCRIPTION);
+               builder.register(AddressMetricNames.UNROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(addressInfo.getUnRoutedMessageCount()), AddressControl.UNROUTED_MESSAGE_COUNT_DESCRIPTION);
+               builder.register(AddressMetricNames.ADDRESS_SIZE, this, metrics -> Double.valueOf(addressControl.getAddressSize()), AddressControl.ADDRESS_SIZE_DESCRIPTION);
+            });
+         }
       }
    }
 
