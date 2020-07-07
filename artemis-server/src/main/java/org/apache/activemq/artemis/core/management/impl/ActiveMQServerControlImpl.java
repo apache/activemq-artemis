@@ -109,7 +109,6 @@ import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
-import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -133,8 +132,6 @@ import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
-
-import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.calculateUsage;
 
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
    // Constants -----------------------------------------------------
@@ -713,22 +710,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public long getDiskStoreUsage() {
+   public double getDiskStoreUsage() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getDiskStoreUsage(this.server);
       }
       checkStarted();
       clearIO();
       try {
-         //this should not happen but if it does, return -1 to highlight it is not working
-         if (server.getPagingManager() == null) {
-            return -1L;
-         }
-
-         long usableSpace = server.getPagingManager().getDiskUsableSpace();
-         long totalSpace = server.getPagingManager().getDiskTotalSpace();
-
-         return (long) FileStoreMonitor.calculateUsage(usableSpace, totalSpace);
+         return server.getDiskStoreUsage();
       } finally {
          blockOnIO();
       }
@@ -750,26 +739,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          return 0;
       }
       double result = (100D * memoryUsed) / globalMaxSize;
-      return (int) result;
-   }
-
-   @Override
-   public int getDiskStoreUsagePercentage() {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.getDiskStoreUsagePercentage(this.server);
-      }
-      long globalMaxSize = getGlobalMaxSize();
-      // no max size set implies 0% used
-      if (globalMaxSize <= 0) {
-         return 0;
-      }
-
-      long diskUsed = getDiskStoreUsage();
-      if (diskUsed <= 0) {
-         return 0;
-      }
-
-      double result = 100 * calculateUsage(diskUsed, globalMaxSize);
       return (int) result;
    }
 
