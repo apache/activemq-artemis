@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.PendingTask;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -259,7 +260,8 @@ public class StompSession implements SessionCallback {
 
       Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(getCoreSession().removePrefix(address)).getRoutingTypes();
       boolean multicast = routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST);
-      if (multicast) {
+      // if the destination is FQQN then the queue will have already been created
+      if (multicast && !CompositeAddress.isFullyQualified(destination)) {
          // subscribes to a topic
          if (durableSubscriptionName != null) {
             if (clientID == null) {
