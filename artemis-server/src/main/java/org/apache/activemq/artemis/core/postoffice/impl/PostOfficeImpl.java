@@ -701,7 +701,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             final SimpleString empty = new SimpleString("");
             Filter oldFilter = FilterImpl.createFilter(queue.getFilter() == null ? empty : queue.getFilter().getFilterString());
             Filter newFilter = FilterImpl.createFilter(queueConfiguration.getFilterString() == null ? empty : queueConfiguration.getFilterString());
-            if ((forceUpdate || newFilter != null) && !Objects.equals(oldFilter, newFilter)) {
+            if ((forceUpdate || newFilter != oldFilter) && !Objects.equals(oldFilter, newFilter)) {
                changed = true;
                queue.setFilter(newFilter);
             }
