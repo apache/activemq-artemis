@@ -160,7 +160,6 @@ public class WildcardAddressManager extends SimpleAddressManager {
          //Remove from mappings so removeAndUpdateAddressMap processes and cleanup
          mappings.remove(address);
          removeAndUpdateAddressMap(new AddressImpl(removed.getName(), wildcardConfiguration));
-         removed.unregisterMeters(metricsManager);
       }
       return removed;
    }

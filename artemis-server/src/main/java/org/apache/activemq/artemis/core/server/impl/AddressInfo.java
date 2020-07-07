@@ -22,8 +22,6 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.management.AddressControl;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -31,8 +29,6 @@ import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.metrics.AddressMetricNames;
-import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.PrefixUtil;
@@ -339,20 +335,5 @@ public class AddressInfo {
    public AddressInfo setRepositoryChangeListener(HierarchicalRepositoryChangeListener repositoryChangeListener) {
       this.repositoryChangeListener = repositoryChangeListener;
       return this;
-   }
-
-   public void registerMeters(MetricsManager metricsManager) {
-      if (metricsManager != null) {
-         metricsManager.registerAddressGauge(name.toString(), builder -> {
-            builder.register(AddressMetricNames.ROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(getRoutedMessageCount()), AddressControl.ROUTED_MESSAGE_COUNT_DESCRIPTION);
-            builder.register(AddressMetricNames.UNROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(getUnRoutedMessageCount()), AddressControl.UNROUTED_MESSAGE_COUNT_DESCRIPTION);
-         });
-      }
-   }
-
-   public void unregisterMeters(MetricsManager metricsManager) {
-      if (metricsManager != null) {
-         metricsManager.remove(ResourceNames.ADDRESS + name);
-      }
    }
 }

@@ -25,6 +25,7 @@ import java.util.Map;
 public interface AddressControl {
    String ROUTED_MESSAGE_COUNT_DESCRIPTION = "number of messages routed to one or more bindings";
    String UNROUTED_MESSAGE_COUNT_DESCRIPTION = "number of messages not routed to any bindings";
+   String ADDRESS_SIZE_DESCRIPTION = "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking";
 
    /**
     * Returns the managed address.
@@ -60,10 +61,10 @@ public interface AddressControl {
    String getRolesAsJSON() throws Exception;
 
    /**
-    * Returns the number of estimated bytes being used by the queue(s), used to control paging and blocking.
+    * Returns the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking.
     */
-   @Attribute(desc = "the number of estimated bytes being used by the queue(s), used to control paging and blocking")
-   long getAddressSize() throws Exception;
+   @Attribute(desc = ADDRESS_SIZE_DESCRIPTION)
+   long getAddressSize();
 
    /**
     * Returns the sum of messages on queue(s), including messages in delivery.

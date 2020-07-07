@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
@@ -92,6 +93,8 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
    void unregisterFromRegistry(String resourceName);
 
    void registerAddress(AddressInfo addressInfo) throws Exception;
+
+   void registerAddressMeters(AddressInfo addressInfo, AddressControl addressControl) throws Exception;
 
    void unregisterAddress(SimpleString address) throws Exception;
 

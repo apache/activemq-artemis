@@ -43,8 +43,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -140,14 +140,15 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       assertThat(artemisMetrics, containsInAnyOrder(
               // artemis.(un)routed.message.count is present twice, because of activemq.notifications address
-              new Metric("artemis.address.memory.usage", "Bytes used by all the addresses on broker for in-memory messages", 0.0),
+              new Metric("artemis.address.memory.usage", "Memory used by all the addresses on broker for in-memory messages", 0.0),
+              new Metric("artemis.address.memory.usage.percentage", "Memory used by all the addresses on broker as a percentage of the global-max-size", 0.0),
               new Metric("artemis.connection.count", "Number of clients connected to this server", 1.0),
               new Metric("artemis.consumer.count", "number of consumers consuming messages from this queue", 0.0),
               new Metric("artemis.delivering.durable.message.count", "number of durable messages that this queue is currently delivering to its consumers", 0.0),
               new Metric("artemis.delivering.durable.persistent.size", "persistent size of durable messages that this queue is currently delivering to its consumers", 0.0),
               new Metric("artemis.delivering.message.count", "number of messages that this queue is currently delivering to its consumers", 0.0),
               new Metric("artemis.delivering.persistent_size", "persistent size of messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.disk.store.usage", "Memory used by the disk store", 0.0),
+              new Metric("artemis.disk.store.usage", "Percentage of total disk store used", 0.0),
               new Metric("artemis.durable.message.count", "number of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
               new Metric("artemis.durable.persistent.size", "persistent size of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
               new Metric("artemis.message.count", "number of messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
@@ -164,7 +165,9 @@ public class MetricsPluginTest extends ActiveMQTestBase {
               new Metric("artemis.scheduled.persistent.size", "persistent size of scheduled messages in this queue", 0.0),
               new Metric("artemis.total.connection.count", "Number of clients which have connected to this server since it was started", 1.0),
               new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 0.0),
-              new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 2.0)
+              new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 2.0),
+              new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
+              new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0)
       ));
    }
 
