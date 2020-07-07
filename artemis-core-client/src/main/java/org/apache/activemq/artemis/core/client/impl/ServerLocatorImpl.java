@@ -165,8 +165,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private TransportConfiguration clusterTransportConfiguration;
 
-   private boolean useTopologyForLoadBalancing;
-
    /** For tests only */
    public DiscoveryGroup getDiscoveryGroup() {
       return discoveryGroup;
@@ -422,7 +420,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       clusterTransportConfiguration = locator.clusterTransportConfiguration;
    }
 
-   private TransportConfiguration selectConnector() {
+   private synchronized Pair<TransportConfiguration, TransportConfiguration> selectConnector(boolean useInitConnector) {
       Pair<TransportConfiguration, TransportConfiguration>[] usedTopology;
 
       flushTopology();
@@ -432,14 +430,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
 
       synchronized (this) {
-         if (usedTopology != null && config.useTopologyForLoadBalancing) {
+         if (usedTopology != null && config.useTopologyForLoadBalancing && !useInitConnector) {
             if (logger.isTraceEnabled()) {
                logger.trace("Selecting connector from topology.");
             }
             int pos = loadBalancingPolicy.select(usedTopology.length);
             Pair<TransportConfiguration, TransportConfiguration> pair = usedTopology[pos];
 
-            return pair.getA();
+            return pair;
          } else {
             if (logger.isTraceEnabled()) {
                logger.trace("Selecting connector from initial connectors.");
@@ -447,7 +445,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
             int pos = loadBalancingPolicy.select(initialConnectors.length);
 
-            return initialConnectors[pos];
+            return new Pair(initialConnectors[pos], null);
          }
       }
    }
@@ -658,10 +656,19 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       synchronized (this) {
          boolean retry = true;
          int attempts = 0;
+         boolean topologyArrayTried = !config.useTopologyForLoadBalancing || topologyArray == null || topologyArray.length == 0;
+         boolean staticTried = false;
+         boolean shouldTryStatic = !config.useTopologyForLoadBalancing || !receivedTopology || topologyArray == null || topologyArray.length == 0;
+
          while (retry && !isClosed()) {
             retry = false;
 
-            TransportConfiguration tc = selectConnector();
+            /*
+             * The logic is: If receivedTopology is false, try static first.
+             * if receivedTopology is true, try topologyArray first
+             */
+            Pair<TransportConfiguration, TransportConfiguration> tc = selectConnector(shouldTryStatic);
+
             if (tc == null) {
                throw ActiveMQClientMessageBundle.BUNDLE.noTCForSessionFactory();
             }
@@ -682,12 +689,32 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                try {
                   if (e.getType() == ActiveMQExceptionType.NOT_CONNECTED) {
                      attempts++;
-
-                     int connectorsSize = getConnectorsSize();
                      int maxAttempts = config.initialConnectAttempts == 0 ? 1 : config.initialConnectAttempts;
 
-                     if (config.initialConnectAttempts >= 0 && attempts >= maxAttempts * connectorsSize) {
-                        throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
+                     if (shouldTryStatic) {
+                        //we know static is used
+                        if (config.initialConnectAttempts >= 0 && attempts >= maxAttempts * this.getNumInitialConnectors()) {
+                           if (topologyArrayTried) {
+                              //stop retry and throw exception
+                              throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
+                           } else {
+                              //lets try topologyArray
+                              staticTried = true;
+                              shouldTryStatic = false;
+                              attempts = 0;
+                           }
+                        }
+                     } else {
+                        //we know topologyArray is used
+                        if (config.initialConnectAttempts >= 0 && attempts >= maxAttempts * getConnectorsSize()) {
+                           if (staticTried) {
+                              throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
+                           } else {
+                              topologyArrayTried = true;
+                              shouldTryStatic = true;
+                              attempts = 0;
+                           }
+                        }
                      }
                      if (factory.waitForRetry(config.retryInterval)) {
                         throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
@@ -1414,7 +1441,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          if (topology.isEmpty()) {
             // Resetting the topology to its original condition as it was brand new
             receivedTopology = false;
-            topologyArray = null;
          } else {
             updateArraysAndPairs(eventTime);
 
@@ -1492,6 +1518,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       synchronized (topologyArrayGuard) {
          Collection<TopologyMemberImpl> membersCopy = topology.getMembers();
 
+         if (membersCopy.size() == 0) {
+            //it could happen when live is down, in that case we keeps the old copy
+            //and don't update
+            return;
+         }
+
          Pair<TransportConfiguration, TransportConfiguration>[] topologyArrayLocal = (Pair<TransportConfiguration, TransportConfiguration>[]) Array.newInstance(Pair.class, membersCopy.size());
 
          int count = 0;
@@ -1557,7 +1589,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       if (!clusterConnection && isEmpty) {
          receivedTopology = false;
-         topologyArray = null;
       }
    }
 
