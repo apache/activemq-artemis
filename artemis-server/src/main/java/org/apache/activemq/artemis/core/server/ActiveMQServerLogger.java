@@ -2100,4 +2100,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224104, value = "Error starting the Acceptor {0} {1}", format = Message.Format.MESSAGE_FORMAT)
    void errorStartingAcceptor(String name, Object configuration);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224105, value = "Connecting to cluster failed")
+   void failedConnectingToCluster(@Cause Exception e);
 }

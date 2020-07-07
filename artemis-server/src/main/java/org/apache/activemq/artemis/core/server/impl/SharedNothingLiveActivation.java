@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.ActiveMQAlreadyReplicatingException;
 import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -330,6 +331,10 @@ public class SharedNothingLiveActivation extends LiveActivation {
             // Just try connecting
             listener.latch.await(5, TimeUnit.SECONDS);
          } catch (Exception notConnected) {
+            if (!(notConnected instanceof ActiveMQException) || ActiveMQExceptionType.INTERNAL_ERROR.equals(((ActiveMQException) notConnected).getType())) {
+               // report all exceptions that aren't ActiveMQException and all INTERNAL_ERRORs
+               ActiveMQServerLogger.LOGGER.failedConnectingToCluster(notConnected);
+            }
             return false;
          }
 
