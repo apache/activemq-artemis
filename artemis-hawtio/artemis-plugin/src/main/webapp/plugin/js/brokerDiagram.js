@@ -104,20 +104,6 @@ var ARTEMIS = (function(ARTEMIS) {
          window.focus();
       }
 
-      $scope.connectToDestination = function () {
-         var selectedNode = $scope.selectedNode;
-         if (selectedNode) {
-            var container = selectedNode["brokerContainer"] || selectedNode;
-            var brokerName = selectedNode["brokerName"];
-            var destinationType = selectedNode["destinationType"] || selectedNode["typeLabel"];
-            var destinationName = selectedNode["destinationName"];
-            var postfix = null;
-            if (brokerName && destinationType && destinationName) {
-               postfix = "nid=root-" + artemisJmxDomain + "-Broker-" + brokerName + "-" + destinationType + "-" + destinationName;
-            }
-            connectToBroker(container, brokerName, postfix);
-         }
-      };
       $scope.$on('$destroy', function (event) {
          stopOldJolokia();
       });
@@ -228,7 +214,6 @@ var ARTEMIS = (function(ARTEMIS) {
                }
             }
             if (containerId) {
-               //var containerModel = "selectedNode" + (selectedNode['brokerContainer'] ? ".brokerContainer" : "");
                properties.splice(0, 0, {
                   key: "Container",
                   value: $compile('<div fabric-container-link="' + selectedNode['container'] + '"></div>')($scope)
@@ -258,14 +243,8 @@ var ARTEMIS = (function(ARTEMIS) {
          Core.$apply($scope);
       }
 
-      /**
-       * Generates the HTML for a link to the destination
-       */
       function createDestinationLink(destinationName, destinationType) {
-         if (destinationType === void 0) {
-            destinationType = "queue";
-         }
-         return $compile('<a target="destination" title="' + destinationName + '" ng-click="connectToDestination()">' + destinationName + '</a>')($scope);
+         return Core.escapeHtml(destinationName);
       }
 
       $scope.$watch("searchFilter", function (newValue, oldValue) {
@@ -413,7 +392,6 @@ var ARTEMIS = (function(ARTEMIS) {
                if ($scope.viewSettings.consumer) {
                   ARTEMISService.artemisConsole.getConsumers(mBean, containerJolokia, onSuccess(function (properties) {
                      consumers = properties.value;
-                     ARTEMIS.log.info(consumers);
                      angular.forEach(angular.fromJson(consumers), function (consumer) {
                         if (consumer) {
 
@@ -425,11 +403,10 @@ var ARTEMIS = (function(ARTEMIS) {
                                  return {
                                     typeLabel: "Consumer",
                                     brokerContainer: container,
-                                    //objectName: "null",
                                     jolokia: containerJolokia,
                                     popup: {
-                                       title: "Consumer: " + consumerId,
-                                       content: "<p>client: " + (consumer.connectionID || "") + "</p> " + brokerNameMarkup(broker.brokerId)
+                                       title: "Consumer: " + Core.escapeHtml(consumerId),
+                                       content: "<p>client: " + Core.escapeHtml(consumer.connectionID || "") + "</p> " + brokerNameMarkup(broker.brokerId)
                                     }
                                  };
                               });
@@ -531,15 +508,14 @@ var ARTEMIS = (function(ARTEMIS) {
                      objectName = artemisJmxDomain + ":broker=" + brokerName + ",component=addresses,address=" + addressName + ",subcomponent=queues,routing-type=" + routingType + ",queue=" + queueName;
                      
                   }
-                  ARTEMIS.log.info(objectName);
                   var answer = {
                      typeLabel: typeName,
                      brokerContainer: container,
                      objectName: objectName,
                      jolokia: containerJolokia,
                      popup: {
-                        title: "queue: " + queueName,
-                        content: "address:" + addressName
+                        title: "queue: " + Core.escapeHtml(queueName),
+                        content: "address:" + Core.escapeHtml(addressName)
                      }
                   };
                   if (!addressName) {
@@ -679,7 +655,6 @@ var ARTEMIS = (function(ARTEMIS) {
       }
 
       function addLinkIds(id1, id2, linkType) {
-         ARTEMIS.log.info("adding " + id1 + " to " + id2 + " " + linkType)
          if (id1 && id2) {
             graphBuilder.addLink(id1, id2, linkType);
          }
