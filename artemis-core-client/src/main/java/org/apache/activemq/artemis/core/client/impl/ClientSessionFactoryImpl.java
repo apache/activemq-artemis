@@ -163,6 +163,19 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    final ScheduledExecutorService scheduledThreadPool,
                                    final List<Interceptor> incomingInterceptors,
                                    final List<Interceptor> outgoingInterceptors) {
+      this(serverLocator, new Pair<>(connectorConfig, null),
+               locatorConfig, reconnectAttempts, threadPool,
+               scheduledThreadPool, incomingInterceptors, outgoingInterceptors);
+   }
+
+   ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
+                          final Pair<TransportConfiguration, TransportConfiguration> connectorConfig,
+                          final ServerLocatorConfig locatorConfig,
+                          final int reconnectAttempts,
+                          final Executor threadPool,
+                          final ScheduledExecutorService scheduledThreadPool,
+                          final List<Interceptor> incomingInterceptors,
+                          final List<Interceptor> outgoingInterceptors) {
       createTrace = new Exception();
 
       this.serverLocator = serverLocator;
@@ -171,11 +184,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       this.clientProtocolManager.setSessionFactory(this);
 
-      this.currentConnectorConfig = connectorConfig;
+      this.currentConnectorConfig = connectorConfig.getA();
 
-      connectorFactory = instantiateConnectorFactory(connectorConfig.getFactoryClassName());
+      connectorFactory = instantiateConnectorFactory(connectorConfig.getA().getFactoryClassName());
 
-      checkTransportKeys(connectorFactory, connectorConfig);
+      checkTransportKeys(connectorFactory, connectorConfig.getA());
 
       this.callTimeout = locatorConfig.callTimeout;
 
@@ -216,6 +229,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       confirmationWindowWarning = new ConfirmationWindowWarning(serverLocator.getConfirmationWindowSize() < 0);
 
       connectionReadyForWrites = true;
+
+      if (connectorConfig.getB() != null) {
+         this.backupConfig = connectorConfig.getB();
+      }
    }
 
    @Override

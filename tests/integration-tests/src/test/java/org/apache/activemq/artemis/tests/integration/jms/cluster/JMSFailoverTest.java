@@ -26,6 +26,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -41,6 +44,9 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
@@ -254,6 +260,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       jbcfLive.setBlockOnDurableSend(true);
 
       ActiveMQConnectionFactory jbcfBackup = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams));
+
       jbcfBackup.setBlockOnNonDurableSend(true);
       jbcfBackup.setBlockOnDurableSend(true);
       jbcfBackup.setInitialConnectAttempts(-1);
@@ -437,6 +444,74 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
    }
 
+   @Test
+   public void testCreateNewConnectionAfterFailover() throws Exception {
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
+      jbcf.setInitialConnectAttempts(5);
+      jbcf.setRetryInterval(1000);
+      jbcf.setReconnectAttempts(-1);
+
+      Connection conn1 = null, conn2 = null, conn3 = null;
+
+      try {
+         conn1 = JMSUtil.createConnectionAndWaitForTopology(jbcf, 2, 5);
+
+         conn2 = JMSUtil.createConnectionAndWaitForTopology(jbcf, 2, 5);
+
+         Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session sess2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         ClientSession coreSession1 = ((ActiveMQSession)sess1).getCoreSession();
+         ClientSession coreSession2 = ((ActiveMQSession)sess2).getCoreSession();
+
+         Topology fullTopology = jbcf.getServerLocator().getTopology();
+         Collection<TopologyMemberImpl> members = fullTopology.getMembers();
+         assertEquals(1, members.size());
+         TopologyMemberImpl member = members.iterator().next();
+         TransportConfiguration tcLive = member.getLive();
+         TransportConfiguration tcBackup = member.getBackup();
+
+         System.out.println("live tc: " + tcLive);
+         System.out.println("Backup tc: " + tcBackup);
+
+         JMSUtil.crash(liveServer, coreSession1, coreSession2);
+
+         waitForServerToStart(backupServer);
+
+         //now pretending that the live down event hasn't been propagated to client
+         simulateLiveDownHasNotReachClient((ServerLocatorImpl) jbcf.getServerLocator(), tcLive, tcBackup);
+
+         //now create a new connection after live is down
+         try {
+            conn3 = jbcf.createConnection();
+         } catch (Exception e) {
+            fail("The new connection should be established successfully after failover");
+         }
+      } finally {
+         if (conn1 != null) {
+            conn1.close();
+         }
+         if (conn2 != null) {
+            conn2.close();
+         }
+         if (conn3 != null) {
+            conn3.close();
+         }
+      }
+   }
+
+   private void simulateLiveDownHasNotReachClient(ServerLocatorImpl locator, TransportConfiguration tcLive, TransportConfiguration tcBackup) throws NoSuchFieldException, IllegalAccessException {
+      Field f = locator.getClass().getDeclaredField("topologyArray");
+      f.setAccessible(true);
+
+      Pair<TransportConfiguration, TransportConfiguration>[] value = (Pair<TransportConfiguration, TransportConfiguration>[]) f.get(locator);
+      assertEquals(1, value.length);
+      Pair<TransportConfiguration, TransportConfiguration> member = value[0];
+      member.setA(tcLive);
+      member.setB(tcBackup);
+      f.set(locator, value);
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
@@ -463,7 +538,10 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       backupParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      backupConf = createBasicConfig().addAcceptorConfiguration(backupAcceptortc).addConnectorConfiguration(livetc.getName(), livetc).addConnectorConfiguration(backuptc.getName(), backuptc).setSecurityEnabled(false).setJournalType(getDefaultJournalType()).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams)).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).setPersistenceEnabled(true).setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), livetc.getName()));
+      backuptc.getParams().put(TransportConstants.SERVER_ID_PROP_NAME, 1);
+      backupAcceptortc.getParams().put(TransportConstants.SERVER_ID_PROP_NAME, 1);
+
+      backupConf = createBasicConfig().addConnectorConfiguration(livetc.getName(), livetc).addConnectorConfiguration(backuptc.getName(), backuptc).setSecurityEnabled(false).setJournalType(getDefaultJournalType()).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams)).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).setPersistenceEnabled(true).setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), livetc.getName()));
 
       backupServer = addServer(new InVMNodeManagerServer(backupConf, nodeManager));
 
@@ -484,7 +562,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       liveJMSServer.setRegistry(new JndiBindingRegistry(ctx1));
 
       liveJMSServer.getActiveMQServer().setIdentity("JMSLive");
-      log.debug("Starting life");
+      log.debug("Starting live");
 
       liveJMSServer.start();
 
