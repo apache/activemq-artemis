@@ -21,7 +21,6 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -450,7 +449,6 @@ public class ByteUtil {
          i++;
       }
 
-      // Set locale to language/country neutral to avoid different behavior for non-US users
-      return String.format(Locale.ROOT, "%.1f%sB", bytes / BYTE_MAGNITUDES[i], BYTE_SUFFIXES[i]);
+      return String.format("%.1f%sB", bytes / BYTE_MAGNITUDES[i], BYTE_SUFFIXES[i]);
    }
 }
