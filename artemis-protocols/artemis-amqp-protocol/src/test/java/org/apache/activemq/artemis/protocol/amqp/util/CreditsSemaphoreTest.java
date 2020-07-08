@@ -60,12 +60,7 @@ public class CreditsSemaphoreTest {
 
       Assert.assertEquals(0, semaphore.getCredits());
 
-      long timeout = System.currentTimeMillis() + 1000;
-      while (!semaphore.hasQueuedThreads() && System.currentTimeMillis() < timeout) {
-         Thread.sleep(10);
-      }
-
-      Assert.assertTrue(semaphore.hasQueuedThreads());
+      validateQueuedThreads();
 
       semaphore.setCredits(2);
 
@@ -74,6 +69,21 @@ public class CreditsSemaphoreTest {
       Assert.assertEquals(12, acquired.get());
 
       Assert.assertFalse(semaphore.hasQueuedThreads());
+   }
+
+   private void validateQueuedThreads() throws InterruptedException {
+      boolean hasQueueThreads = false;
+      long timeout = System.currentTimeMillis() + 5000;
+      while (System.currentTimeMillis() < timeout) {
+
+         if (semaphore.hasQueuedThreads()) {
+            hasQueueThreads = true;
+            break;
+         }
+         Thread.sleep(10);
+      }
+
+      Assert.assertTrue(hasQueueThreads);
    }
 
    @Test
@@ -114,12 +124,7 @@ public class CreditsSemaphoreTest {
 
       Assert.assertEquals(0, semaphore.getCredits());
 
-      long timeout = System.currentTimeMillis() + 1000;
-      while (!semaphore.hasQueuedThreads() && System.currentTimeMillis() < timeout) {
-         Thread.sleep(10);
-      }
-
-      Assert.assertTrue(semaphore.hasQueuedThreads());
+      validateQueuedThreads();
 
       Assert.assertEquals(0, acquired.get());
 
