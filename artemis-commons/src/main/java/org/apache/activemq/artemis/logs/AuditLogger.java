@@ -2619,7 +2619,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601721, value = "User {0} has paused queue {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601721, value = "User {0} has resumed queue {1}", format = Message.Format.MESSAGE_FORMAT)
    void resumeQueueSuccess(String user, String queueName);
 
 
