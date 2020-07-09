@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.util.ServerUtil;
 
 /**
  * This example demonstrates how you can listen on failover event on the client side
- * <p/>
+ * <p>
  * In this example there are two nodes running in a cluster, both server will be running for start,
  * but after a while the first server will crash. This will trigger a fail-over event
  */
