@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 /**
  * example shows how to specify Exclusive Queue when auto creating the Queue from client.
  * <p>
- * Step 11 & 12 also shows that messages will be sent to consumer2 after consumer1 is closed (consumer1 is receiving
+ * Step 11 and 12 also shows that messages will be sent to consumer2 after consumer1 is closed (consumer1 is receiving
  * all messages before it is closed)
  */
 
