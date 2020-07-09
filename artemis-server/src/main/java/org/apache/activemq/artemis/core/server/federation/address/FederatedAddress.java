@@ -111,8 +111,6 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
          super.start();
          server.getPostOffice()
              .getAllBindings()
-             .values()
-             .stream()
              .filter(b -> b instanceof QueueBinding || b instanceof DivertBinding)
              .forEach(this::afterAddBinding);
       }
@@ -144,7 +142,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
             //if a new address is added we need to see if there are matching divert bindings
             server.getPostOffice()
                .getDirectBindings(addressInfo.getName())
-               .getBindings().stream().filter(binding -> binding instanceof DivertBinding)
+               .stream().filter(binding -> binding instanceof DivertBinding)
                .forEach(this::afterAddBinding);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.federationBindingsLookupError(e, addressInfo.getName());

@@ -82,6 +82,7 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -97,6 +98,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
+
+import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
 /**
  * This is the class that will make the routing to Queues and decide which consumer will get the messages
@@ -769,18 +773,16 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             server.callBrokerAddressPlugins(plugin -> plugin.beforeRemoveAddress(address));
          }
 
-         final Bindings bindingsForAddress = getDirectBindings(address);
+         final Collection<Binding> bindingsForAddress = getDirectBindings(address);
          if (force) {
-            for (Binding binding : bindingsForAddress.getBindings()) {
+            for (Binding binding : bindingsForAddress) {
                if (binding instanceof QueueBinding) {
                   ((QueueBinding)binding).getQueue().deleteQueue(true);
                }
             }
 
-         } else {
-            if (bindingsForAddress.getBindings().size() > 0) {
-               throw ActiveMQMessageBundle.BUNDLE.addressHasBindings(address);
-            }
+         } else if (!bindingsForAddress.isEmpty()) {
+            throw ActiveMQMessageBundle.BUNDLE.addressHasBindings(address);
          }
          managementService.unregisterAddress(address);
          final AddressInfo addressInfo = addressManager.removeAddressInfo(address);
@@ -969,17 +971,17 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public Bindings getMatchingBindings(final SimpleString address) throws Exception {
+   public Collection<Binding> getMatchingBindings(final SimpleString address) throws Exception {
       return addressManager.getMatchingBindings(address);
    }
 
    @Override
-   public Bindings getDirectBindings(final SimpleString address) throws Exception {
+   public Collection<Binding> getDirectBindings(final SimpleString address) throws Exception {
       return addressManager.getDirectBindings(address);
    }
 
    @Override
-   public Map<SimpleString, Binding> getAllBindings() {
+   public Stream<Binding> getAllBindings() {
       return addressManager.getBindings();
    }
 
@@ -1731,7 +1733,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       public void run() {
          // The reaper thread should be finished case the PostOffice is gone
          // This is to avoid leaks on PostOffice between stops and starts
-         for (Queue queue : getLocalQueues()) {
+         for (Queue queue : iterableOf(getLocalQueues())) {
             try {
                queue.expireReferences();
             } catch (Exception e) {
@@ -1753,11 +1755,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       @Override
       public void run() {
-         for (Queue queue : getLocalQueues()) {
+         getLocalQueues().forEach(queue -> {
             if (!queue.isInternalQueue() && QueueManagerImpl.isAutoDelete(queue) && QueueManagerImpl.consumerCountCheck(queue) && QueueManagerImpl.delayCheck(queue) && QueueManagerImpl.messageCountCheck(queue) && queueWasUsed(queue)) {
                QueueManagerImpl.performAutoDeleteQueue(server, queue);
             }
-         }
+         });
 
          Set<SimpleString> addresses = addressManager.getAddresses();
 
@@ -1796,19 +1798,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
    }
 
-   private List<Queue> getLocalQueues() {
-      Map<SimpleString, Binding> nameMap = addressManager.getBindings();
-
-      List<Queue> queues = new ArrayList<>();
-
-      for (Binding binding : nameMap.values()) {
-         if (binding.getType() == BindingType.LOCAL_QUEUE) {
-            Queue queue = (Queue) binding.getBindable();
-
-            queues.add(queue);
-         }
-      }
-      return queues;
+   private Stream<Queue> getLocalQueues() {
+      return addressManager.getBindings()
+         .filter(binding -> binding.getType() == BindingType.LOCAL_QUEUE)
+         .map(binding -> (Queue) binding.getBindable());
    }
 
    public static final class AddOperation implements TransactionOperation {
