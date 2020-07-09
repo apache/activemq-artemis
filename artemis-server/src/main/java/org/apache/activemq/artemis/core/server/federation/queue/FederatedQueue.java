@@ -94,8 +94,6 @@ public class FederatedQueue extends FederatedAbstract implements ActiveMQServerC
       super.start();
       server.getPostOffice()
             .getAllBindings()
-            .values()
-            .stream()
             .filter(b -> b instanceof QueueBinding)
             .map(b -> (QueueBinding) b)
             .forEach(b -> conditionalCreateRemoteConsumer(b.getQueue()));

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.broker.artemiswrapper;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -43,10 +47,6 @@ import org.apache.activemq.command.RemoveSubscriptionInfo;
 import org.apache.activemq.command.Response;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class RegionProxy implements Region {
    private final ActiveMQServer server;
@@ -77,21 +77,21 @@ public class RegionProxy implements Region {
 
    @Override
    public Map<ActiveMQDestination, Destination> getDestinationMap() {
-      return server.getPostOffice().getAllBindings().entrySet().stream()
-         .filter(e -> e.getValue() instanceof QueueBinding)
+      return server.getPostOffice().getAllBindings()
+         .filter(QueueBinding.class::isInstance)
          .filter(e -> {
-               final SimpleString address = ((QueueBinding) e.getValue()).getQueue().getAddress();
+               final SimpleString address = ((QueueBinding) e).getQueue().getAddress();
                return server.getAddressInfo(address).getRoutingType() == routingType;
             }
          )
          .collect(Collectors.toMap(
             e -> {
-               final String uniqueName = e.getValue().getUniqueName().toString();
+               final String uniqueName = e.getUniqueName().toString();
                return new ActiveMQQueue(uniqueName);
             },
             e -> {
-               final Queue queue = ((QueueBinding) e.getValue()).getQueue();
-               final String address = e.getValue().getAddress().toString();
+               final Queue queue = ((QueueBinding) e).getQueue();
+               final String address = e.getAddress().toString();
                return new DestinationProxy(queue, address, server);
             }));
    }

@@ -16,21 +16,22 @@
  */
 package org.apache.activemq.artemis.core.postoffice;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -135,11 +136,11 @@ public interface PostOffice extends ActiveMQComponent {
 
    Binding getBinding(SimpleString uniqueName);
 
-   Bindings getMatchingBindings(SimpleString address) throws Exception;
+   Collection<Binding> getMatchingBindings(SimpleString address) throws Exception;
 
-   Bindings getDirectBindings(SimpleString address) throws Exception;
+   Collection<Binding> getDirectBindings(SimpleString address) throws Exception;
 
-   Map<SimpleString, Binding> getAllBindings();
+   Stream<Binding> getAllBindings();
 
    SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
 

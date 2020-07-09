@@ -27,6 +27,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -100,7 +101,6 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContex
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
@@ -202,6 +202,8 @@ import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
 /**
  * The ActiveMQ Artemis server implementation
@@ -909,19 +911,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       int defaultConsumersBeforeDispatch = addressSettings.getDefaultConsumersBeforeDispatch();
       long defaultDelayBeforeDispatch = addressSettings.getDefaultDelayBeforeDispatch();
 
-      List<SimpleString> names = new ArrayList<>();
-
       // make an exception for the management address (see HORNETQ-29)
       ManagementService managementService = getManagementService();
       if (managementService != null) {
          if (realAddress.equals(managementService.getManagementAddress())) {
-            return new BindingQueryResult(true, null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers, defaultExclusive, defaultLastValue, defaultLastValueKey, defaultNonDestructive, defaultConsumersBeforeDispatch, defaultDelayBeforeDispatch);
+            return new BindingQueryResult(true, null, Collections.emptyList(), autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers, defaultExclusive, defaultLastValue, defaultLastValueKey, defaultNonDestructive, defaultConsumersBeforeDispatch, defaultDelayBeforeDispatch);
          }
       }
 
-      Bindings bindings = getPostOffice().getMatchingBindings(realAddress);
+      List<SimpleString> names = new ArrayList<>();
 
-      for (Binding binding : bindings.getBindings()) {
+      for (Binding binding : getPostOffice().getMatchingBindings(realAddress)) {
          if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE) {
             SimpleString name;
             if (!newFQQN && CompositeAddress.isFullyQualified(address.toString())) {
@@ -1593,11 +1593,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    public int getQueueCountForUser(String username) throws Exception {
-      Map<SimpleString, Binding> bindings = postOffice.getAllBindings();
-
       int queuesForUser = 0;
 
-      for (Binding binding : bindings.values()) {
+      for (Binding binding : iterableOf(postOffice.getAllBindings())) {
          if (binding instanceof LocalQueueBinding && ((LocalQueueBinding) binding).getQueue().getUser().equals(SimpleString.toSimpleString(username))) {
             queuesForUser++;
          }
@@ -1698,7 +1696,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public long getTotalMessageCount() {
       long total = 0;
 
-      for (Binding binding : postOffice.getAllBindings().values()) {
+      for (Binding binding : iterableOf(postOffice.getAllBindings())) {
          if (binding.getType() == BindingType.LOCAL_QUEUE) {
             total += ((LocalQueueBinding) binding).getQueue().getMessageCount();
          }
@@ -1711,7 +1709,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public long getTotalMessagesAdded() {
       long total = 0;
 
-      for (Binding binding : postOffice.getAllBindings().values()) {
+      for (Binding binding : iterableOf(postOffice.getAllBindings())) {
          if (binding.getType() == BindingType.LOCAL_QUEUE) {
             total += ((LocalQueueBinding) binding).getQueue().getMessagesAdded();
          }
@@ -1724,7 +1722,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public long getTotalMessagesAcknowledged() {
       long total = 0;
 
-      for (Binding binding : postOffice.getAllBindings().values()) {
+      for (Binding binding : iterableOf(postOffice.getAllBindings())) {
          if (binding.getType() == BindingType.LOCAL_QUEUE) {
             total += ((LocalQueueBinding) binding).getQueue().getMessagesAcknowledged();
          }
@@ -1737,7 +1735,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public long getTotalConsumerCount() {
       long total = 0;
 
-      for (Binding binding : postOffice.getAllBindings().values()) {
+      for (Binding binding : iterableOf(postOffice.getAllBindings())) {
          if (binding.getType() == BindingType.LOCAL_QUEUE) {
             total += ((LocalQueueBinding) binding).getQueue().getConsumerCount();
          }
@@ -4007,7 +4005,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          addressSettingsRepository.swap(configuration.getAddressesSettings().entrySet());
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
-         final Set<SimpleString> divertsToRemove = postOffice.getAllBindings().values().stream()
+         final Set<SimpleString> divertsToRemove = postOffice.getAllBindings()
                  .filter(binding -> binding instanceof DivertBinding)
                  .map(Binding::getUniqueName)
                  .collect(Collectors.toSet());

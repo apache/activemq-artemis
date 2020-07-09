@@ -114,6 +114,8 @@ import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.jboss.logging.Logger;
 import org.jctools.queues.MpscUnboundedArrayQueue;
 
+import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
+
 /**
  * Implementation of a Queue
  * <p>
@@ -3320,42 +3322,35 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       String targetNodeID = null;
       Binding targetBinding = null;
 
-      for (Map.Entry<SimpleString, Binding> entry : postOffice.getAllBindings().entrySet()) {
-         Binding binding = entry.getValue();
+      // we only care about the remote queue bindings
+      for (RemoteQueueBinding remoteQueueBinding : iterableOf(postOffice.getAllBindings()
+                                           .filter(RemoteQueueBinding.class::isInstance)
+                                           .map(RemoteQueueBinding.class::cast))) {
+         // does this remote queue binding point to the same queue as the message?
+         if (oldQueueID == remoteQueueBinding.getRemoteQueueID()) {
+            // get the name of this queue so we can find the corresponding remote queue binding pointing to the scale down target node
+            SimpleString oldQueueName = remoteQueueBinding.getRoutingName();
 
-         // we only care about the remote queue bindings
-         if (binding instanceof RemoteQueueBinding) {
-            RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) binding;
+            // parse the queue name of the remote queue binding to determine the node ID
+            String temp = remoteQueueBinding.getQueue().getName().toString();
+            targetNodeID = temp.substring(temp.lastIndexOf(".") + 1);
+            logger.debug("Message formerly destined for " + oldQueueName + " with ID: " + oldQueueID + " on address " + copyMessage.getAddressSimpleString() + " on node " + targetNodeID);
 
-            // does this remote queue binding point to the same queue as the message?
-            if (oldQueueID == remoteQueueBinding.getRemoteQueueID()) {
-               // get the name of this queue so we can find the corresponding remote queue binding pointing to the scale down target node
-               SimpleString oldQueueName = remoteQueueBinding.getRoutingName();
-
-               // parse the queue name of the remote queue binding to determine the node ID
-               String temp = remoteQueueBinding.getQueue().getName().toString();
+            // now that we have the name of the queue we need to look through all the bindings again to find the new remote queue binding
+            // again, we only care about the remote queue bindings
+            for (RemoteQueueBinding innerRemoteQueueBinding : iterableOf(postOffice.getAllBindings()
+                                                                 .filter(RemoteQueueBinding.class::isInstance)
+                                                                 .map(RemoteQueueBinding.class::cast))) {
+               temp = innerRemoteQueueBinding.getQueue().getName().toString();
                targetNodeID = temp.substring(temp.lastIndexOf(".") + 1);
-               logger.debug("Message formerly destined for " + oldQueueName + " with ID: " + oldQueueID + " on address " + copyMessage.getAddressSimpleString() + " on node " + targetNodeID);
-
-               // now that we have the name of the queue we need to look through all the bindings again to find the new remote queue binding
-               for (Map.Entry<SimpleString, Binding> entry2 : postOffice.getAllBindings().entrySet()) {
-                  binding = entry2.getValue();
-
-                  // again, we only care about the remote queue bindings
-                  if (binding instanceof RemoteQueueBinding) {
-                     remoteQueueBinding = (RemoteQueueBinding) binding;
-                     temp = remoteQueueBinding.getQueue().getName().toString();
-                     targetNodeID = temp.substring(temp.lastIndexOf(".") + 1);
-                     if (oldQueueName.equals(remoteQueueBinding.getRoutingName()) && targetNodeID.equals(queueSuffix.toString())) {
-                        targetBinding = remoteQueueBinding;
-                        if (logger.isDebugEnabled()) {
-                           logger.debug("Message now destined for " + remoteQueueBinding.getRoutingName() + " with ID: " + remoteQueueBinding.getRemoteQueueID() + " on address " + copyMessage.getAddress() + " on node " + targetNodeID);
-                        }
-                        break;
-                     } else {
-                        logger.debug("Failed to match: " + remoteQueueBinding);
-                     }
+               if (oldQueueName.equals(innerRemoteQueueBinding.getRoutingName()) && targetNodeID.equals(queueSuffix.toString())) {
+                  targetBinding = innerRemoteQueueBinding;
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("Message now destined for " + innerRemoteQueueBinding.getRoutingName() + " with ID: " + innerRemoteQueueBinding.getRemoteQueueID() + " on address " + copyMessage.getAddress() + " on node " + targetNodeID);
                   }
+                  break;
+               } else {
+                  logger.debug("Failed to match: " + innerRemoteQueueBinding);
                }
             }
          }

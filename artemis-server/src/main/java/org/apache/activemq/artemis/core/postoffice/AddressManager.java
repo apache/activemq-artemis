@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.core.postoffice;
 
+import java.util.Collection;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -45,9 +46,9 @@ public interface AddressManager {
 
    Bindings getBindingsForRoutingAddress(SimpleString address) throws Exception;
 
-   Bindings getMatchingBindings(SimpleString address) throws Exception;
+   Collection<Binding> getMatchingBindings(SimpleString address) throws Exception;
 
-   Bindings getDirectBindings(SimpleString address) throws Exception;
+   Collection<Binding> getDirectBindings(SimpleString address) throws Exception;
 
    SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
 
@@ -57,7 +58,7 @@ public interface AddressManager {
 
    Binding getBinding(SimpleString queueName);
 
-   Map<SimpleString, Binding> getBindings();
+   Stream<Binding> getBindings();
 
    Set<SimpleString> getAddresses();
 

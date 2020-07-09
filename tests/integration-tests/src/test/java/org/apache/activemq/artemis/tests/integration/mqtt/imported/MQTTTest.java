@@ -69,6 +69,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
+
 /**
  * MQTT Test imported from ActiveMQ MQTT component.
  */
@@ -149,10 +151,8 @@ public class MQTTTest extends MQTTTestSupport {
       subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
 
 
-      for (Binding b : server.getPostOffice().getAllBindings().values()) {
-         if (b instanceof QueueBinding) {
-            Assert.assertFalse("Queue " + ((QueueBinding) b).getQueue().getName(), ((QueueBinding)b).getQueue().isDirectDeliver());
-         }
+      for (Binding b : iterableOf(server.getPostOffice().getAllBindings().filter(QueueBinding.class::isInstance))) {
+         Assert.assertFalse("Queue " + ((QueueBinding) b).getQueue().getName(), ((QueueBinding)b).getQueue().isDirectDeliver());
       }
 
       subscriptionProvider.disconnect();
