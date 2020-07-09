@@ -413,6 +413,14 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          addressInfo.setPostOffice(server.getPostOffice());
          addressInfo.setStorageManager(server.getStorageManager());
          addressInfo.pause(persist);
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.pauseAddressSuccess(addressInfo.getName().toString());
+         }
+      } catch (Exception e) {
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.pauseAddressFailure(addressInfo.getName().toString());
+         }
+         throw e;
       } finally {
          blockOnIO();
       }
@@ -431,6 +439,14 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          addressInfo.setPostOffice(server.getPostOffice());
          addressInfo.setStorageManager(server.getStorageManager());
          addressInfo.resume();
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.resumeAddressSuccess(addressInfo.getName().toString());
+         }
+      } catch (Exception e) {
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.resumeAddressFailure(addressInfo.getName().toString());
+         }
+         throw e;
       } finally {
          blockOnIO();
       }
