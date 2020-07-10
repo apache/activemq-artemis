@@ -154,6 +154,12 @@ public class LastValueQueue extends QueueImpl {
 
             replaceLVQMessage(ref, hr);
 
+            if (isNonDestructive() && hr.isDelivered()) {
+               hr.resetDelivered();
+               resetAllIterators();
+               deliverAsync();
+            }
+
          } else {
             hr = new HolderReference(prop, ref);
 
@@ -163,6 +169,18 @@ public class LastValueQueue extends QueueImpl {
          }
       } else {
          super.addTail(ref, direct);
+      }
+   }
+
+
+   @Override
+   public long getMessageCount() {
+      if (pageSubscription != null) {
+         // messageReferences will have depaged messages which we need to discount from the counter as they are
+         // counted on the pageSubscription as well
+         return (long) pendingMetrics.getMessageCount() + getScheduledCount() + pageSubscription.getMessageCount();
+      } else {
+         return (long) pendingMetrics.getMessageCount() + getScheduledCount();
       }
    }
 
@@ -301,11 +319,22 @@ public class LastValueQueue extends QueueImpl {
 
       private final SimpleString prop;
 
+      private volatile boolean delivered = false;
+
       private volatile MessageReference ref;
 
       private long consumerID;
 
       private boolean hasConsumerID = false;
+
+
+      public void resetDelivered() {
+         delivered = false;
+      }
+
+      public boolean isDelivered() {
+         return delivered;
+      }
 
       HolderReference(final SimpleString prop, final MessageReference ref) {
          this.prop = prop;
@@ -324,6 +353,7 @@ public class LastValueQueue extends QueueImpl {
 
       @Override
       public void handled() {
+         delivered = true;
          // We need to remove the entry from the map just before it gets delivered
          ref.handled();
          if (!ref.getQueue().isNonDestructive()) {
