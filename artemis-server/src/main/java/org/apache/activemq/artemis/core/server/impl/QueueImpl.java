@@ -170,7 +170,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final PagingStore pagingStore;
 
-   private final PageSubscription pageSubscription;
+   protected final PageSubscription pageSubscription;
 
    private ReferenceCounter refCountForConsumers;
 
@@ -192,7 +192,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // The estimate of memory being consumed by this queue. Used to calculate instances of messages to depage
    private final AtomicInteger queueMemorySize = new AtomicInteger(0);
 
-   private final QueueMessageMetrics pendingMetrics = new QueueMessageMetrics(this, "pending");
+   protected final QueueMessageMetrics pendingMetrics = new QueueMessageMetrics(this, "pending");
 
    private final QueueMessageMetrics deliveringMetrics = new QueueMessageMetrics(this, "delivering");
 
