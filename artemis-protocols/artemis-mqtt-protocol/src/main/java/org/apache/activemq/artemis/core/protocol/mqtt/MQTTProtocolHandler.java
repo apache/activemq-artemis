@@ -259,8 +259,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          return;
       }
       MQTTUtil.logMessage(session.getSessionState(), message, false);
-      ctx.write(message);
-      ctx.flush();
+      ctx.writeAndFlush(message, ctx.voidPromise());
    }
 
    private int getMessageId(MqttMessage message) {
