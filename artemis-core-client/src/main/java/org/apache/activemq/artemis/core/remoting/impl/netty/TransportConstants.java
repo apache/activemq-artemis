@@ -181,6 +181,8 @@ public class TransportConstants {
 
    public static final String PROXY_PASSWORD_PROP_NAME = "socksPassword";
 
+   public static final String PROXY_REMOTE_DNS_PROP_NAME = "socksRemoteDNS";
+
    public static final boolean DEFAULT_SSL_ENABLED = false;
 
    public static final String DEFAULT_SSL_KRB5_CONFIG = null;
@@ -340,6 +342,8 @@ public class TransportConstants {
 
    public static final String DEFAULT_PROXY_PASSWORD = null;
 
+   public static final boolean DEFAULT_PROXY_REMOTE_DNS = false;
+
    private static int parseDefaultVariable(String variableName, int defaultValue) {
       try {
          String variable = System.getProperty(TransportConstants.class.getName() + "." + variableName);
@@ -461,6 +465,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.PROXY_VERSION_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.PROXY_USERNAME_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.PROXY_PASSWORD_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.PROXY_REMOTE_DNS_PROP_NAME);
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);
