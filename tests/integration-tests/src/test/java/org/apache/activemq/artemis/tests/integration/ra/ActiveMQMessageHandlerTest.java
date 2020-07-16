@@ -86,6 +86,59 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
    }
 
    @Test
+   public void testDurableTopicSubscriptionWith1xPrefixesOnSpec() throws Exception {
+      internalTestDurableTopicSubscriptionWith1xPrefixes(false);
+   }
+
+   @Test
+   public void testDurableTopicSubscriptionWith1xPrefixesOnRA() throws Exception {
+      internalTestDurableTopicSubscriptionWith1xPrefixes(true);
+   }
+
+   public void internalTestDurableTopicSubscriptionWith1xPrefixes(boolean ra) throws Exception {
+      server.getRemotingService().createAcceptor("test", "tcp://localhost:61617?anycastPrefix=jms.queue.;multicastPrefix=jms.topic.").start();
+      ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
+      if (ra) {
+         qResourceAdapter.setEnable1xPrefixes(true);
+      }
+      MyBootstrapContext ctx = new MyBootstrapContext();
+      qResourceAdapter.start(ctx);
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
+      spec.setSetupAttempts(1);
+      spec.setSetupInterval(500L);
+      spec.setResourceAdapter(qResourceAdapter);
+      spec.setUseJNDI(false);
+      spec.setDestinationType("javax.jms.Topic");
+      spec.setDestination("jms.topic.MyTopic");
+      if (!ra) {
+         spec.setEnable1xPrefixes(true);
+      }
+      spec.setSubscriptionDurability("Durable");
+      spec.setClientId("myClientId");
+      spec.setSubscriptionName("mySubscriptionName");
+      qResourceAdapter.setConnectorClassName(NETTY_CONNECTOR_FACTORY);
+      qResourceAdapter.setConnectionParameters("host=localhost;port=61617");
+      CountDownLatch latch = new CountDownLatch(1);
+      DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
+      DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
+      qResourceAdapter.endpointActivation(endpointFactory, spec);
+      ClientSession session = locator.createSessionFactory().createSession();
+      ClientProducer clientProducer = session.createProducer("MyTopic");
+      ClientMessage message = session.createMessage(true);
+      message.getBodyBuffer().writeString("teststring");
+      clientProducer.send(message);
+      session.close();
+      latch.await(5, TimeUnit.SECONDS);
+
+      assertNotNull(endpoint.lastMessage);
+      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+
+      qResourceAdapter.endpointDeactivation(endpointFactory, spec);
+
+      qResourceAdapter.stop();
+   }
+
+   @Test
    public void testObjectMessageReceiveSerializationControl() throws Exception {
       String blackList = "org.apache.activemq.artemis.tests.integration.ra";
       String whiteList = "*";
