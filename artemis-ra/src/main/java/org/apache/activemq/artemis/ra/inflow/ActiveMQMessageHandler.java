@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
@@ -140,7 +141,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
             boolean selectorChanged = selector == null && oldFilterString != null || oldFilterString == null && selector != null || (oldFilterString != null && selector != null && !oldFilterString.toString().equals(selector));
 
-            SimpleString oldTopicName = subResponse.getAddress();
+            SimpleString oldTopicName = (enable1XPrefix ? PacketImpl.OLD_TOPIC_PREFIX : SimpleString.toSimpleString("")).concat(subResponse.getAddress());
 
             boolean topicChanged = !oldTopicName.equals(activation.getAddress());
 
