@@ -139,10 +139,15 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
    @Override
    public ByteBuffer newBuffer(int size) {
+      return newBuffer(size, true);
+   }
+
+   @Override
+   public ByteBuffer newBuffer(int size, boolean zeroed) {
       if (!this.bufferPooling) {
          return allocateDirectBuffer(size);
       } else {
-         return bytesPool.borrow(size, true);
+         return bytesPool.borrow(size, zeroed);
       }
    }
 

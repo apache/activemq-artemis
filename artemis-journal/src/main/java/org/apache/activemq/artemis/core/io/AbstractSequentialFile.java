@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.jboss.logging.Logger;
 
 public abstract class AbstractSequentialFile implements SequentialFile {
@@ -256,12 +257,11 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       return file;
    }
 
-   protected ByteBuffer newBuffer(int size, int limit) {
-      size = factory.calculateBlockSize(size);
-      limit = factory.calculateBlockSize(limit);
+   protected ByteBuffer newBuffer(int requiredCapacity, boolean zeroed) {
+      final int alignedRequiredCapacity = factory.calculateBlockSize(requiredCapacity);
 
-      ByteBuffer buffer = factory.newBuffer(size);
-      buffer.limit(limit);
+      ByteBuffer buffer = factory.newBuffer(alignedRequiredCapacity, zeroed);
+      buffer.limit(alignedRequiredCapacity);
       return buffer;
    }
 
@@ -271,9 +271,15 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       public void flushBuffer(final ByteBuf byteBuf, final boolean requestedSync, final List<IOCallback> callbacks) {
          final int bytes = byteBuf.readableBytes();
          if (bytes > 0) {
-            final ByteBuffer buffer = newBuffer(byteBuf.capacity(), bytes);
+            final ByteBuffer buffer = newBuffer(bytes, false);
+            final int alignedLimit = buffer.limit();
+            assert alignedLimit == factory.calculateBlockSize(bytes);
             buffer.limit(bytes);
             byteBuf.getBytes(byteBuf.readerIndex(), buffer);
+            final int missingNonZeroedBytes = alignedLimit - bytes;
+            if (missingNonZeroedBytes > 0) {
+               ByteUtil.zeros(buffer, bytes, missingNonZeroedBytes);
+            }
             buffer.flip();
             writeDirect(buffer, requestedSync, new DelegateCallback(callbacks));
          } else {
