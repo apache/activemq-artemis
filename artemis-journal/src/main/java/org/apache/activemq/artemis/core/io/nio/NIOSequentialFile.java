@@ -388,12 +388,12 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    }
 
    @Override
-   protected ByteBuffer newBuffer(int size, final int limit) {
+   protected ByteBuffer newBuffer(int size, final int limit, boolean zeroed) {
       // For NIO, we don't need to allocate a buffer the entire size of the timed buffer, unlike AIO
 
       size = limit;
 
-      return super.newBuffer(size, limit);
+      return super.newBuffer(size, limit, zeroed);
    }
 
    private void internalWrite(final ByteBuffer bytes,

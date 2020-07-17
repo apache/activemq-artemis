@@ -256,11 +256,11 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       return file;
    }
 
-   protected ByteBuffer newBuffer(int size, int limit) {
+   protected ByteBuffer newBuffer(int size, int limit, boolean zeroed) {
       size = factory.calculateBlockSize(size);
       limit = factory.calculateBlockSize(limit);
 
-      ByteBuffer buffer = factory.newBuffer(size);
+      ByteBuffer buffer = factory.newBuffer(size, zeroed);
       buffer.limit(limit);
       return buffer;
    }
@@ -271,7 +271,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       public void flushBuffer(final ByteBuf byteBuf, final boolean requestedSync, final List<IOCallback> callbacks) {
          final int bytes = byteBuf.readableBytes();
          if (bytes > 0) {
-            final ByteBuffer buffer = newBuffer(byteBuf.capacity(), bytes);
+            final ByteBuffer buffer = newBuffer(byteBuf.capacity(), bytes, false);
             buffer.limit(bytes);
             byteBuf.getBytes(byteBuf.readerIndex(), buffer);
             buffer.flip();
