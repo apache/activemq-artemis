@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -27,7 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.proxy.Socks5ProxyHandler;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -44,7 +39,6 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -398,115 +392,5 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          threadPool.shutdownNow();
          scheduledThreadPool.shutdownNow();
       }
-   }
-
-   @Test
-   public void testSocksProxyHandlerAdded() throws Exception {
-      InetAddress address = getNonLoopbackAddress();
-      Assume.assumeTrue("Cannot find non-loopback address", address != null);
-
-      BufferHandler handler = (connectionID, buffer) -> {
-      };
-      Map<String, Object> params = new HashMap<>();
-
-      params.put(TransportConstants.HOST_PROP_NAME, address.getHostAddress());
-      params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
-
-      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
-         @Override
-         public void connectionException(final Object connectionID, final ActiveMQException me) {
-         }
-
-         @Override
-         public void connectionDestroyed(final Object connectionID) {
-         }
-
-         @Override
-         public void connectionCreated(final ActiveMQComponent component,
-                                       final Connection connection,
-                                       final ClientProtocolManager protocol) {
-         }
-
-         @Override
-         public void connectionReadyForWrites(Object connectionID, boolean ready) {
-         }
-      };
-
-      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
-
-      connector.start();
-      Assert.assertTrue(connector.isStarted());
-
-      ChannelPipeline pipeline = connector.getBootStrap().register().await().channel().pipeline();
-      Assert.assertNotNull(pipeline.get(Socks5ProxyHandler.class));
-
-      connector.close();
-      Assert.assertFalse(connector.isStarted());
-   }
-
-   private InetAddress getNonLoopbackAddress() throws SocketException {
-      Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
-      InetAddress addr = null;
-      for (; n.hasMoreElements(); ) {
-         NetworkInterface e = n.nextElement();
-         Enumeration<InetAddress> a = e.getInetAddresses();
-         boolean found = false;
-         for (; a.hasMoreElements(); ) {
-            addr = a.nextElement();
-            if (!addr.isLoopbackAddress()) {
-               found = true;
-               break;
-            }
-         }
-         if (found) {
-            break;
-         }
-      }
-      return addr;
-   }
-
-   @Test
-   public void testSocksProxyHandlerNotAddedForLocalhost() throws Exception {
-      BufferHandler handler = new BufferHandler() {
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
-      };
-      Map<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.HOST_PROP_NAME, "localhost");
-      params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
-
-      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
-         @Override
-         public void connectionException(final Object connectionID, final ActiveMQException me) {
-         }
-
-         @Override
-         public void connectionDestroyed(final Object connectionID) {
-         }
-
-         @Override
-         public void connectionCreated(final ActiveMQComponent component,
-                                       final Connection connection,
-                                       final ClientProtocolManager protocol) {
-         }
-
-         @Override
-         public void connectionReadyForWrites(Object connectionID, boolean ready) {
-         }
-      };
-
-      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
-
-      connector.start();
-      Assert.assertTrue(connector.isStarted());
-
-      ChannelPipeline pipeline = connector.getBootStrap().register().await().channel().pipeline();
-      Assert.assertNull(pipeline.get(Socks5ProxyHandler.class));
-
-      connector.close();
-      Assert.assertFalse(connector.isStarted());
    }
 }
