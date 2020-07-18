@@ -569,7 +569,7 @@ public class NettyConnector extends AbstractConnector {
          public void initChannel(Channel channel) throws Exception {
             final ChannelPipeline pipeline = channel.pipeline();
 
-            if (proxyEnabled && !isTargetLocalHost()) {
+            if (proxyEnabled && (proxyRemoteDNS || !isTargetLocalHost())) {
                InetSocketAddress proxyAddress = new InetSocketAddress(proxyHost, proxyPort);
                ProxyHandler proxyHandler;
                switch (proxyVersion) {
