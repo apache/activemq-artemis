@@ -98,6 +98,7 @@ import io.netty.handler.proxy.ProxyHandler;
 import io.netty.handler.proxy.Socks4ProxyHandler;
 import io.netty.handler.proxy.Socks5ProxyHandler;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.resolver.NoopAddressResolverGroup;
 import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.ResourceLeakDetector.Level;
@@ -209,6 +210,8 @@ public class NettyConnector extends AbstractConnector {
    private String proxyUsername;
 
    private String proxyPassword;
+
+   private boolean proxyRemoteDNS;
 
    private boolean useServlet;
 
@@ -354,6 +357,8 @@ public class NettyConnector extends AbstractConnector {
 
          proxyUsername = ConfigurationHelper.getStringProperty(TransportConstants.PROXY_USERNAME_PROP_NAME, TransportConstants.DEFAULT_PROXY_USERNAME, configuration);
          proxyPassword = ConfigurationHelper.getStringProperty(TransportConstants.PROXY_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_PROXY_PASSWORD, configuration);
+
+         proxyRemoteDNS = ConfigurationHelper.getBooleanProperty(TransportConstants.PROXY_REMOTE_DNS_PROP_NAME, TransportConstants.DEFAULT_PROXY_REMOTE_DNS, configuration);
       }
 
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
@@ -564,7 +569,7 @@ public class NettyConnector extends AbstractConnector {
          public void initChannel(Channel channel) throws Exception {
             final ChannelPipeline pipeline = channel.pipeline();
 
-            if (proxyEnabled && !isTargetLocalHost()) {
+            if (proxyEnabled && (proxyRemoteDNS || !isTargetLocalHost())) {
                InetSocketAddress proxyAddress = new InetSocketAddress(proxyHost, proxyPort);
                ProxyHandler proxyHandler;
                switch (proxyVersion) {
@@ -581,6 +586,10 @@ public class NettyConnector extends AbstractConnector {
                channel.pipeline().addLast(proxyHandler);
 
                logger.debug("Using a SOCKS proxy at " + proxyHost + ":" + proxyPort);
+
+               if (proxyRemoteDNS) {
+                  bootstrap.resolver(NoopAddressResolverGroup.INSTANCE);
+               }
             }
 
             if (sslEnabled && !useServlet) {
@@ -800,7 +809,12 @@ public class NettyConnector extends AbstractConnector {
          return null;
       }
 
-      InetSocketAddress remoteDestination = new InetSocketAddress(IPV6Util.stripBracketsAndZoneID(host), port);
+      InetSocketAddress remoteDestination;
+      if (proxyEnabled && proxyRemoteDNS) {
+         remoteDestination = InetSocketAddress.createUnresolved(IPV6Util.stripBracketsAndZoneID(host), port);
+      } else {
+         remoteDestination = new InetSocketAddress(IPV6Util.stripBracketsAndZoneID(host), port);
+      }
 
       logger.debug("Remote destination: " + remoteDestination);
 
