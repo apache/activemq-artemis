@@ -286,11 +286,10 @@ Go to https://repository.apache.org/#stagingRepositories and click the "Release"
 
 ## Web site update:
 
-Make sure you get a copy of the website at:
+Clone the website repository from:
 
-```sh
-svn co https://svn.apache.org/repos/infra/websites/production/activemq/content/artemis/
-```
+ https://gitbox.apache.org/repos/asf/activemq-website.git
+
 
 Once the mirrors are up-to-date then update the following:
 1. Copy release-notes-<old-version>.html to release-notes-<new-version>.html.
