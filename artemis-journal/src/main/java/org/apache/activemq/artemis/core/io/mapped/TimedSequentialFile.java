@@ -261,7 +261,7 @@ final class TimedSequentialFile implements SequentialFile {
             } else {
                //perform the copy on buffer
                releaseBuffer = true;
-               buffer = factory.newBuffer(byteBuf.capacity());
+               buffer = factory.newBuffer(byteBuf.capacity(), false);
                buffer.limit(bytes);
                byteBuf.getBytes(byteBuf.readerIndex(), buffer);
                buffer.flip();

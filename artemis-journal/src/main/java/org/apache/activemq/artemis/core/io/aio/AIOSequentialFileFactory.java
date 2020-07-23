@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -30,11 +31,12 @@ import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.nativo.jlibaio.SubmitInfo;
 import org.apache.activemq.artemis.nativo.jlibaio.util.CallbackCache;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.PowerOf2Util;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.jboss.logging.Logger;
@@ -181,14 +183,25 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    @Override
    public ByteBuffer newBuffer(int size) {
+      return newBuffer(size, true);
+   }
+
+   @Override
+   public ByteBuffer newBuffer(int size, boolean zeroed) {
       final int alignedSize = calculateBlockSize(size);
-      return buffersControl.newBuffer(alignedSize, true);
+      return buffersControl.newBuffer(alignedSize, zeroed);
    }
 
    @Override
    public void clearBuffer(final ByteBuffer directByteBuffer) {
       directByteBuffer.position(0);
-      libaioContext.memsetBuffer(directByteBuffer);
+      if (PlatformDependent.hasUnsafe()) {
+         // that's the same semantic of libaioContext.memsetBuffer: it hasn't any JNI cost
+         ByteUtil.zeros(directByteBuffer, 0, directByteBuffer.limit());
+      } else {
+         // JNI cost
+         libaioContext.memsetBuffer(directByteBuffer);
+      }
    }
 
    @Override
