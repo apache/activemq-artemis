@@ -119,6 +119,7 @@ fi
 
 exec "$JAVACMD" \
     $JAVA_ARGS \
+    -Dhawtio.role="$HAWTIO_ROLE" \
     -Xbootclasspath/a:"$LOG_MANAGER:$WILDFLY_COMMON" \
     -Djava.security.auth.login.config="$ARTEMIS_INSTANCE_ETC/login.config" \
     $ARTEMIS_CLUSTER_PROPS \
