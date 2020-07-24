@@ -1796,7 +1796,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       cf.setUseTopologyForLoadBalancing(raProperties.isUseTopologyForLoadBalancing());
 
       cf.setEnableSharedClientID(true);
-      cf.setEnable1xPrefixes(raProperties.isEnable1xPrefixes() == null ? false : raProperties.isEnable1xPrefixes());
+      cf.setEnable1xPrefixes(overrideProperties.isEnable1xPrefixes() != null ? overrideProperties.isEnable1xPrefixes() : raProperties.isEnable1xPrefixes() == null ? false : raProperties.isEnable1xPrefixes());
       setParams(cf, overrideProperties);
       return cf;
    }
