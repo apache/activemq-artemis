@@ -780,6 +780,29 @@ public class ArtemisTest extends CliTestBase {
    }
 
    @Test
+   public void testRoleWithSpaces() throws Exception {
+      String roleWithSpaces = "amq with spaces";
+      Run.setEmbedded(true);
+      File instanceRole = new File(temporaryFolder.getRoot(), "instance_role");
+      System.setProperty("java.security.auth.login.config", instanceRole.getAbsolutePath() + "/etc/login.config");
+      Artemis.main("create", instanceRole.getAbsolutePath(), "--silent", "--no-autotune", "--role", roleWithSpaces);
+      System.setProperty("artemis.instance", instanceRole.getAbsolutePath());
+
+      File roleFile = new File(instanceRole.getAbsolutePath() + "/etc/artemis-roles.properties");
+
+      ListUser listCmd = new ListUser();
+      TestActionContext context = new TestActionContext();
+      listCmd.execute(context);
+
+      String result = context.getStdout();
+      log.debug("output1:\n" + result);
+
+      assertTrue(result.contains("\"admin\"(" + roleWithSpaces + ")"));
+
+      checkRole("admin", roleFile, roleWithSpaces);
+   }
+
+   @Test
    public void testUserCommandResetViaManagementPlaintext() throws Exception {
       internalTestUserCommandResetViaManagement(true);
    }

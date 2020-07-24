@@ -23,6 +23,14 @@ rm -rf target
 mkdir target
 mkdir target/"$1"
 
+if [ -z "$2" ]
+  then
+    export ARTEMIS_ROLE=amq
+  else
+    export ARTEMIS_ROLE=$2
+fi
+
+echo with the role $ARTEMIS_ROLE
 
 # Setting the script to fail if anything goes wrong
 set -e
@@ -39,7 +47,7 @@ echo artemis instance is $ARTEMIS_HOME
 
 
 cd "$ARTEMIS_HOME/bin"
-./artemis create --silent --force "$ARTEMIS_INSTANCE"
+./artemis create --silent --force --role "$ARTEMIS_ROLE" "$ARTEMIS_INSTANCE"
 
 cd "$ARTEMIS_INSTANCE/bin"
 pwd
@@ -65,6 +73,15 @@ sleep 5
 
 ./artemis producer
 ./artemis consumer --receive-timeout 10000 --break-on-null
+
+export HTTP_CODE=$(curl -H "Origin:http://localhost" -u admin:admin --write-out '%{http_code}' --silent --output /dev/null http://localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker=%220.0.0.0%22/Version)
+
+if [[ "$HTTP_CODE" -ne 200 ]]
+  then
+    echo "Artemis Jolokia REST API check failed: " $HTTP_CODE
+  else
+    echo "Artemis Jolokia REST API check passed"
+fi
 
 ./artemis-service stop
 
