@@ -176,7 +176,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       largeMessagesFactory = new NIOSequentialFileFactory(config.getLargeMessagesLocation(), false, criticalErrorListener, 1);
 
-      if (config.getPageMaxConcurrentIO() != 1) {
+      // it doesn't make sense to limit paging concurrency < 0
+      if (config.getPageMaxConcurrentIO() >= 0) {
          pageMaxConcurrentIO = new Semaphore(config.getPageMaxConcurrentIO());
       } else {
          pageMaxConcurrentIO = null;
