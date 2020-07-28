@@ -20,15 +20,17 @@ import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public interface ResourceManager extends ActiveMQComponent {
 
-   boolean putTransaction(Xid xid, Transaction tx);
+   boolean putTransaction(Xid xid, Transaction tx, RemotingConnection remotingConnection) throws ActiveMQException;
 
    Transaction getTransaction(Xid xid);
 
-   Transaction removeTransaction(Xid xid);
+   Transaction removeTransaction(Xid xid, RemotingConnection remotingConnection) throws ActiveMQException;
 
    int getTimeoutSeconds();
 

@@ -31,9 +31,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class ResourceManagerImpl implements ResourceManager {
 
@@ -51,9 +54,13 @@ public class ResourceManagerImpl implements ResourceManager {
 
    private final ScheduledExecutorService scheduledThreadPool;
 
-   public ResourceManagerImpl(final int defaultTimeoutSeconds,
+   private final ActiveMQServer server;
+
+   public ResourceManagerImpl(final ActiveMQServer server,
+                              final int defaultTimeoutSeconds,
                               final long txTimeoutScanPeriod,
                               final ScheduledExecutorService scheduledThreadPool) {
+      this.server = server;
       this.defaultTimeoutSeconds = defaultTimeoutSeconds;
       this.txTimeoutScanPeriod = txTimeoutScanPeriod;
       this.scheduledThreadPool = scheduledThreadPool;
@@ -103,13 +110,33 @@ public class ResourceManagerImpl implements ResourceManager {
    }
 
    @Override
-   public boolean putTransaction(final Xid xid, final Transaction tx) {
-      return transactions.putIfAbsent(xid, tx) == null;
+   public boolean putTransaction(final Xid xid, final Transaction tx, RemotingConnection remotingConnection) throws ActiveMQException {
+      if (server.hasBrokerResourcePlugins()) {
+         server.callBrokerResourcePlugins(plugin -> plugin.beforePutTransaction(xid, tx, remotingConnection));
+      }
+
+      boolean result = transactions.putIfAbsent(xid, tx) == null;
+
+      if (server.hasBrokerResourcePlugins()) {
+         server.callBrokerResourcePlugins(plugin -> plugin.afterPutTransaction(xid, tx, remotingConnection));
+      }
+
+      return result;
    }
 
    @Override
-   public Transaction removeTransaction(final Xid xid) {
-      return transactions.remove(xid);
+   public Transaction removeTransaction(final Xid xid, RemotingConnection remotingConnection) throws ActiveMQException {
+      if (server.hasBrokerResourcePlugins()) {
+         server.callBrokerResourcePlugins(plugin -> plugin.beforeRemoveTransaction(xid, remotingConnection));
+      }
+
+      Transaction transaction = transactions.remove(xid);
+
+      if (server.hasBrokerResourcePlugins()) {
+         server.callBrokerResourcePlugins(plugin -> plugin.afterRemoveTransaction(xid, remotingConnection));
+      }
+
+      return transaction;
    }
 
    @Override
@@ -209,7 +236,12 @@ public class ResourceManagerImpl implements ResourceManager {
          for (Transaction tx : transactions.values()) {
 
             if (tx.hasTimedOut(now, defaultTimeoutSeconds)) {
-               Transaction removedTX = removeTransaction(tx.getXid());
+               Transaction removedTX = null;
+               try {
+                  removedTX = removeTransaction(tx.getXid(), null);
+               } catch (ActiveMQException e) {
+                  ActiveMQServerLogger.LOGGER.errorRemovingTX(e, tx.getXid());
+               }
                if (removedTX != null) {
                   ActiveMQServerLogger.LOGGER.timedOutXID(removedTX.getXid());
                   timedoutTransactions.add(removedTX);

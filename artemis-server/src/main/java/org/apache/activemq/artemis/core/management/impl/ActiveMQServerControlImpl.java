@@ -2043,7 +2043,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          for (Xid xid : xids) {
             if (XidImpl.toBase64String(xid).equals(transactionAsBase64)) {
-               Transaction transaction = resourceManager.removeTransaction(xid);
+               Transaction transaction = resourceManager.removeTransaction(xid, null);
                transaction.commit(false);
                long recordID = server.getStorageManager().storeHeuristicCompletion(xid, true);
                storageManager.waitOnOperations();
@@ -2071,7 +2071,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          for (Xid xid : xids) {
             if (XidImpl.toBase64String(xid).equals(transactionAsBase64)) {
-               Transaction transaction = resourceManager.removeTransaction(xid);
+               Transaction transaction = resourceManager.removeTransaction(xid, null);
                transaction.rollback();
                long recordID = server.getStorageManager().storeHeuristicCompletion(xid, false);
                server.getStorageManager().waitOnOperations();

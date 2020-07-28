@@ -2104,4 +2104,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224105, value = "Connecting to cluster failed")
    void failedConnectingToCluster(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224106, value = "failed to remove transaction, xid:{0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorRemovingTX(@Cause Exception e, Xid xid);
 }

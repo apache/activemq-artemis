@@ -165,6 +165,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlug
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerFederationPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
@@ -2379,6 +2380,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public List<ActiveMQServerResourcePlugin> getBrokerResourcePlugins() {
+      return configuration.getBrokerResourcePlugins();
+   }
+
+   @Override
    public void callBrokerPlugins(final ActiveMQPluginRunnable pluginRun) throws ActiveMQException {
       callBrokerPlugins(getBrokerPlugins(), pluginRun);
    }
@@ -2431,6 +2437,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public void callBrokerFederationPlugins(final ActiveMQPluginRunnable<ActiveMQServerFederationPlugin> pluginRun) throws ActiveMQException {
       callBrokerPlugins(getBrokerFederationPlugins(), pluginRun);
+   }
+
+   @Override
+   public void callBrokerResourcePlugins(final ActiveMQPluginRunnable<ActiveMQServerResourcePlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerResourcePlugins(), pluginRun);
    }
 
    private <P extends ActiveMQServerBasePlugin> void callBrokerPlugins(final List<P> plugins, final ActiveMQPluginRunnable<P> pluginRun) throws ActiveMQException {
@@ -2503,6 +2514,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public boolean hasBrokerFederationPlugins() {
       return !getBrokerFederationPlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerResourcePlugins() {
+      return !getBrokerResourcePlugins().isEmpty();
    }
 
    @Override
@@ -2879,7 +2895,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       pagingManager = createPagingManager();
 
-      resourceManager = new ResourceManagerImpl((int) (configuration.getTransactionTimeout() / 1000), configuration.getTransactionTimeoutScanPeriod(), scheduledPool);
+      resourceManager = new ResourceManagerImpl(this, (int) (configuration.getTransactionTimeout() / 1000), configuration.getTransactionTimeoutScanPeriod(), scheduledPool);
 
       /**
        * If there is no plugin configured we don't want to instantiate a MetricsManager. This keeps the dependency
