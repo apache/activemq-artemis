@@ -426,6 +426,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                }
             }
          }
+         closed = true;
       }
 
       //putting closing of consumers outside the sync block
@@ -463,7 +464,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             callback.closed();
          }
 
-         closed = true;
          //When the ServerSessionImpl is closed, need to create and send a SESSION_CLOSED notification.
          sendSessionNotification(CoreNotificationType.SESSION_CLOSED);
 
@@ -559,8 +559,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                filterString, browseOnly, supportLargeMessage));
       }
 
-      ServerConsumer consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, priority, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
-      consumers.put(consumer.getID(), consumer);
+      ServerConsumer consumer;
+      synchronized (this) {
+         if (closed) {
+            throw ActiveMQMessageBundle.BUNDLE.cannotCreateConsumerOnClosedSession(queueName);
+         }
+         consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, priority, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
+         consumers.put(consumer.getID(), consumer);
+      }
 
       if (server.hasBrokerConsumerPlugins()) {
          server.callBrokerConsumerPlugins(plugin -> plugin.afterCreateConsumer(consumer));

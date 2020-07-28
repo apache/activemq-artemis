@@ -492,4 +492,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229231, value = "Divert Does Not Exist: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQDivertDoesNotExistException divertDoesNotExist(String divert);
+
+   @Message(id = 229232, value = "Cannot create consumer on {0}. Session is closed.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIllegalStateException cannotCreateConsumerOnClosedSession(SimpleString queueName);
 }
