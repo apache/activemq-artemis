@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlug
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -1303,4 +1304,8 @@ public interface Configuration {
     */
    List<FederationConfiguration> getFederationConfigurations();
 
+   /**
+    * @return
+    */
+   List<ActiveMQServerResourcePlugin> getBrokerResourcePlugins();
 }

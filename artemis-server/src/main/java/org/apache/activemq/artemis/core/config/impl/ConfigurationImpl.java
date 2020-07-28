@@ -79,6 +79,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlug
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerFederationPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
@@ -283,6 +284,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private final List<ActiveMQServerBridgePlugin> brokerBridgePlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerCriticalPlugin> brokerCriticalPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerFederationPlugin> brokerFederationPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerResourcePlugin> brokerResourcePlugins = new CopyOnWriteArrayList<>();
 
    private Map<String, Set<String>> securityRoleNameMappings = new HashMap<>();
 
@@ -1540,6 +1542,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (plugin instanceof ActiveMQServerFederationPlugin) {
          brokerFederationPlugins.add((ActiveMQServerFederationPlugin) plugin);
       }
+      if (plugin instanceof ActiveMQServerResourcePlugin) {
+         brokerResourcePlugins.add((ActiveMQServerResourcePlugin) plugin);
+      }
    }
 
    @Override
@@ -1574,6 +1579,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
       }
       if (plugin instanceof ActiveMQServerFederationPlugin) {
          brokerFederationPlugins.remove(plugin);
+      }
+      if (plugin instanceof ActiveMQServerResourcePlugin) {
+         brokerResourcePlugins.remove(plugin);
       }
    }
 
@@ -1635,6 +1643,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public List<FederationConfiguration> getFederationConfigurations() {
       return federationConfigurations;
+   }
+
+   @Override
+   public List<ActiveMQServerResourcePlugin> getBrokerResourcePlugins() {
+      return brokerResourcePlugins;
    }
 
    @Override

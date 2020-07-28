@@ -1312,7 +1312,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                      logger.trace("xarollback into " + tx + " sending tx back as it was suspended");
                   }
                   // Put it back
-                  resourceManager.putTransaction(xid, tx);
+                  resourceManager.putTransaction(xid, tx, OpenWireConnection.this);
                   XAException ex = new XAException("Cannot commit transaction, it is suspended " + xid);
                   ex.errorCode = XAException.XAER_PROTO;
                   throw ex;
@@ -1466,7 +1466,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             } else {
                if (tx.getState() == Transaction.State.SUSPENDED) {
                   // Put it back
-                  resourceManager.putTransaction(xid, tx);
+                  resourceManager.putTransaction(xid, tx, OpenWireConnection.this);
                   XAException ex = new XAException("Cannot commit transaction, it is suspended " + xid);
                   ex.errorCode = XAException.XAER_PROTO;
                   throw ex;
@@ -1732,11 +1732,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       server.getStorageManager().clearContext();
    }
 
-   private Transaction lookupTX(TransactionId txID, AMQSession session) throws IllegalStateException {
+   private Transaction lookupTX(TransactionId txID, AMQSession session) throws Exception {
       return lookupTX(txID, session, false);
    }
 
-   private Transaction lookupTX(TransactionId txID, AMQSession session, boolean remove) throws IllegalStateException {
+   private Transaction lookupTX(TransactionId txID, AMQSession session, boolean remove) throws Exception {
       if (txID == null) {
          return null;
       }
@@ -1745,7 +1745,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       Transaction transaction;
       if (txID.isXATransaction()) {
          xid = OpenWireUtil.toXID(txID);
-         transaction = remove ? server.getResourceManager().removeTransaction(xid) : server.getResourceManager().getTransaction(xid);
+         transaction = remove ? server.getResourceManager().removeTransaction(xid, this) : server.getResourceManager().getTransaction(xid);
       } else {
          transaction = remove ? txMap.remove(txID) : txMap.get(txID);
       }
