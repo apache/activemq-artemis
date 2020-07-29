@@ -194,6 +194,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(conf.getJournalCompactMinFiles(), serverControl.getJournalCompactMinFiles());
       Assert.assertEquals(conf.getJournalCompactPercentage(), serverControl.getJournalCompactPercentage());
       Assert.assertEquals(conf.isPersistenceEnabled(), serverControl.isPersistenceEnabled());
+      Assert.assertTrue(serverControl.isActive());
    }
 
    @Test
