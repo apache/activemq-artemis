@@ -335,7 +335,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
       tx.setState(Transaction.State.PREPARED);
 
-      resourceManager.putTransaction(xid, tx);
+      resourceManager.putTransaction(xid, tx, null);
    }
 
    /**

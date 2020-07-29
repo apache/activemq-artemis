@@ -320,7 +320,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       counter = locateCounter(queue);
 
-      tx = server.getResourceManager().removeTransaction(xid);
+      tx = server.getResourceManager().removeTransaction(xid, null);
 
       assertNotNull(tx);
 

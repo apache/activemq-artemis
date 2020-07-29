@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlug
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerCriticalPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -260,6 +261,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    List<ActiveMQServerFederationPlugin> getBrokerFederationPlugins();
 
+   List<ActiveMQServerResourcePlugin> getBrokerResourcePlugins();
+
    void callBrokerPlugins(ActiveMQPluginRunnable pluginRun) throws ActiveMQException;
 
    void callBrokerConnectionPlugins(ActiveMQPluginRunnable<ActiveMQServerConnectionPlugin> pluginRun) throws ActiveMQException;
@@ -282,6 +285,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void callBrokerFederationPlugins(ActiveMQPluginRunnable<ActiveMQServerFederationPlugin> pluginRun) throws ActiveMQException;
 
+   void callBrokerResourcePlugins(ActiveMQPluginRunnable<ActiveMQServerResourcePlugin> pluginRun) throws ActiveMQException;
+
    boolean hasBrokerPlugins();
 
    boolean hasBrokerConnectionPlugins();
@@ -303,6 +308,8 @@ public interface ActiveMQServer extends ServiceComponent {
    boolean hasBrokerCriticalPlugins();
 
    boolean hasBrokerFederationPlugins();
+
+   boolean hasBrokerResourcePlugins();
 
    void checkQueueCreationLimit(String username) throws Exception;
 
