@@ -48,32 +48,7 @@ public class ServerUtil {
     * @throws Exception
     */
    public static Process startServer(String artemisInstance, String serverName, int id, int timeout) throws Exception {
-      boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
-
-      ProcessBuilder builder = null;
-      if (IS_WINDOWS) {
-         builder = new ProcessBuilder("cmd", "/c", "artemis.cmd", "run");
-      } else {
-         builder = new ProcessBuilder("./artemis", "run");
-      }
-
-      builder.directory(new File(artemisInstance + "/bin"));
-
-      final Process process = builder.start();
-      Runtime.getRuntime().addShutdownHook(new Thread() {
-         @Override
-         public void run() {
-            process.destroy();
-         }
-      });
-
-      ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), serverName, false);
-      outputLogger.start();
-
-      // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
-      // http://www.jboss.org/index.html?module=bb&op=viewtopic&t=151815
-      ProcessLogger errorLogger = new ProcessLogger(true, process.getErrorStream(), serverName, true);
-      errorLogger.start();
+      final Process process = internalStartServer(artemisInstance, serverName);
 
       // wait for start
       if (timeout != 0) {
@@ -81,6 +56,52 @@ public class ServerUtil {
       }
 
       return process;
+   }
+
+   public static Process startServer(String artemisInstance, String serverName, String uri, int timeout) throws Exception {
+      final Process process = internalStartServer(artemisInstance, serverName);
+
+      // wait for start
+      if (timeout != 0) {
+         waitForServerToStart(uri, timeout);
+      }
+
+      return process;
+   }
+
+   private static Process internalStartServer(String artemisInstance,
+                                              String serverName) throws IOException, ClassNotFoundException {
+      try {
+         boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
+
+         ProcessBuilder builder = null;
+         if (IS_WINDOWS) {
+            builder = new ProcessBuilder("cmd", "/c", "artemis.cmd", "run");
+         } else {
+            builder = new ProcessBuilder("./artemis", "run");
+         }
+
+         builder.directory(new File(artemisInstance + "/bin"));
+
+         final Process process = builder.start();
+         Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+               process.destroy();
+            }
+         });
+
+         ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), serverName, false);
+         outputLogger.start();
+
+         // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
+         // http://www.jboss.org/index.html?module=bb&op=viewtopic&t=151815
+         ProcessLogger errorLogger = new ProcessLogger(true, process.getErrorStream(), serverName, true);
+         errorLogger.start();
+         return process;
+      } catch (IOException e) {
+         throw new IOException("Cannot start server at " + artemisInstance, e);
+      }
    }
 
    public static boolean waitForServerToStart(int id, int timeout) throws InterruptedException {
@@ -119,7 +140,9 @@ public class ServerUtil {
             server.destroy();
          }
          server.waitFor();
-         Thread.sleep(1000);
+         if (!forcibly) {
+            Thread.sleep(1000);
+         }
       }
    }
 

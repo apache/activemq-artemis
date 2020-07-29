@@ -121,6 +121,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public boolean isActive() {
+            return (Boolean) proxy.retrieveAttributeValue("active");
+         }
+
+         @Override
          public String createQueue(String address,
                                    String routingType,
                                    String name,

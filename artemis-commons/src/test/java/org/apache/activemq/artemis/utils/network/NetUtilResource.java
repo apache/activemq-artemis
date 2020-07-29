@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.util.network;
+package org.apache.activemq.artemis.utils.network;
 
 import org.junit.rules.ExternalResource;
 

@@ -70,4 +70,10 @@ public class SmokeTestBase extends ActiveMQTestBase {
       return process;
    }
 
+   public Process startServer(String serverName, String uri, int timeout) throws Exception {
+      Process process = ServerUtil.startServer(getServerLocation(serverName), serverName, uri, timeout);
+      addProcess(process);
+      return process;
+   }
+
 }
