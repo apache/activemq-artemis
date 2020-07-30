@@ -210,6 +210,7 @@
          <jvm-memory>false</jvm-memory>
          <jvm-gc>true</jvm-gc>
          <jvm-threads>true</jvm-threads>
+         <netty-pool>true</netty-pool>
          <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin">
             <property key="foo" value="x"/>
             <property key="bar" value="y"/>

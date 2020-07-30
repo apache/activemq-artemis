@@ -630,6 +630,9 @@ public final class ActiveMQDefaultConfiguration {
    // Number of concurrent workers for a core bridge
    public static int DEFAULT_BRIDGE_CONCURRENCY = 1;
 
+   // Whether or not to report Netty pool metrics
+   private static final boolean DEFAULT_NETTY_POOL_METRICS = false;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1720,5 +1723,12 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultBridgeConcurrency() {
       return DEFAULT_BRIDGE_CONCURRENCY;
+   }
+
+   /**
+    * Whether or not to report Netty pool metrics
+    */
+   public static Boolean getDefaultNettyPoolMetrics() {
+      return DEFAULT_NETTY_POOL_METRICS;
    }
 }

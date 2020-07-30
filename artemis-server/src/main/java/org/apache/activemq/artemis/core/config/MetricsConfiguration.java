@@ -27,6 +27,7 @@ public class MetricsConfiguration implements Serializable {
    private boolean jvmMemory = ActiveMQDefaultConfiguration.getDefaultJvmMemoryMetrics();
    private boolean jvmGc = ActiveMQDefaultConfiguration.getDefaultJvmGcMetrics();
    private boolean jvmThread = ActiveMQDefaultConfiguration.getDefaultJvmThreadMetrics();
+   private boolean nettyPool = ActiveMQDefaultConfiguration.getDefaultNettyPoolMetrics();
    private ActiveMQMetricsPlugin plugin;
 
    public boolean isJvmMemory() {
@@ -53,6 +54,15 @@ public class MetricsConfiguration implements Serializable {
 
    public MetricsConfiguration setJvmThread(boolean jvmThread) {
       this.jvmThread = jvmThread;
+      return this;
+   }
+
+   public boolean isNettyPool() {
+      return nettyPool;
+   }
+
+   public MetricsConfiguration setNettyPool(boolean nettyPool) {
+      this.nettyPool = nettyPool;
       return this;
    }
 

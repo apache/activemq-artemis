@@ -82,8 +82,9 @@ message count). However, these metrics can be deduced by aggregating the
 lower level metrics (e.g. aggregate the message.count metrics from all queues
 to get the total).
 
-JVM memory metrics are also exported by default and GC and thread metrics can
-be configured
+JVM memory metrics are also exported by default and GC, thread metrics, and 
+[Netty](https://netty.io/4.1/api/io/netty/buffer/PooledByteBufAllocatorMetric.html)
+metrics can be configured
 
 ## Configuration
 
@@ -100,6 +101,7 @@ JVM metrics:
    <jvm-memory>true</jvm-memory> <!-- defaults to true -->
    <jvm-gc>true</jvm-gc> <!-- defaults to false -->
    <jvm-threads>true</jvm-threads> <!-- defaults to false -->
+   <netty-pool>true</netty-pool> <!-- defaults to false -->
    <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.LoggingMetricsPlugin"/>
 </metrics>
 ```

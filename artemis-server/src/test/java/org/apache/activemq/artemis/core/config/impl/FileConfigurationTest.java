@@ -494,6 +494,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertFalse(metricsConfiguration.isJvmMemory());
       assertTrue(metricsConfiguration.isJvmGc());
       assertTrue(metricsConfiguration.isJvmThread());
+      assertTrue(metricsConfiguration.isNettyPool());
    }
 
    private void verifyAddresses() {
@@ -797,6 +798,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertTrue(metricsConfiguration.isJvmMemory());
       assertTrue(metricsConfiguration.isJvmGc());
       assertTrue(metricsConfiguration.isJvmThread());
+      assertTrue(metricsConfiguration.isNettyPool());
 
       ActiveMQMetricsPlugin metricPlugin = metricsConfiguration.getPlugin();
       assertTrue(metricPlugin instanceof FakeMetricPlugin);
