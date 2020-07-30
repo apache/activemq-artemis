@@ -208,6 +208,21 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public boolean isActive() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getVersion(this.server);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return server.isActive();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public boolean isBackup() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.isBackup(this.server);

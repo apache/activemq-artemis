@@ -1127,23 +1127,21 @@ public abstract class ActiveMQTestBase extends Assert {
       assertFalse(store.isPaging());
    }
 
-   protected Topology waitForTopology(final ActiveMQServer server, final int nodes) throws Exception {
+   protected static Topology waitForTopology(final ActiveMQServer server, final int nodes) throws Exception {
       return waitForTopology(server, nodes, -1, WAIT_TIMEOUT);
    }
 
-   protected Topology waitForTopology(final ActiveMQServer server,
+   protected static Topology waitForTopology(final ActiveMQServer server,
                                       final int nodes,
                                       final int backups) throws Exception {
       return waitForTopology(server, nodes, backups, WAIT_TIMEOUT);
    }
 
-   protected Topology waitForTopology(final ActiveMQServer server,
+   protected static Topology waitForTopology(final ActiveMQServer server,
                                       final int liveNodes,
                                       final int backupNodes,
                                       final long timeout) throws Exception {
       logger.debug("waiting for " + liveNodes + " on the topology for server = " + server);
-
-      long start = System.currentTimeMillis();
 
       Set<ClusterConnection> ccs = server.getClusterManager().getClusterConnections();
 
@@ -1152,6 +1150,15 @@ public abstract class ActiveMQTestBase extends Assert {
       }
 
       Topology topology = server.getClusterManager().getDefaultConnection(null).getTopology();
+
+      return waitForTopology(topology, timeout, liveNodes, backupNodes);
+   }
+
+   protected static Topology waitForTopology(Topology topology,
+                                    long timeout,
+                                    int liveNodes,
+                                    int backupNodes) throws Exception {
+      final long start = System.currentTimeMillis();
 
       int liveNodesCount = 0;
 

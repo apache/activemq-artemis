@@ -37,6 +37,10 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "Server's version")
    String getVersion();
 
+
+   @Attribute(desc = "Server is active")
+   boolean isActive();
+
    /**
     * Returns the number of clients connected to this server.
     */
