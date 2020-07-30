@@ -2619,7 +2619,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601721, value = "User {0} has paused queue {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601721, value = "User {0} has resumed queue {1}", format = Message.Format.MESSAGE_FORMAT)
    void resumeQueueSuccess(String user, String queueName);
 
 
@@ -2695,5 +2695,38 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601730, value = "User {0} is enabling on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void enable(String user, Object source, Object... args);
 
+   static void pauseAddressSuccess(String queueName) {
+      RESOURCE_LOGGER.pauseAddressSuccess(getCaller(), queueName);
+   }
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601731, value = "User {0} has paused address {1}", format = Message.Format.MESSAGE_FORMAT)
+   void pauseAddressSuccess(String user, String queueName);
+
+
+   static void pauseAddressFailure(String queueName) {
+      RESOURCE_LOGGER.pauseAddressFailure(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601732, value = "User {0} failed to pause address {1}", format = Message.Format.MESSAGE_FORMAT)
+   void pauseAddressFailure(String user, String queueName);
+
+
+   static void resumeAddressSuccess(String queueName) {
+      RESOURCE_LOGGER.resumeAddressSuccess(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601733, value = "User {0} has resumed address {1}", format = Message.Format.MESSAGE_FORMAT)
+   void resumeAddressSuccess(String user, String queueName);
+
+
+   static void resumeAddressFailure(String queueName) {
+      RESOURCE_LOGGER.resumeAddressFailure(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601734, value = "User {0} failed to resume address {1}", format = Message.Format.MESSAGE_FORMAT)
+   void resumeAddressFailure(String user, String queueName);
 }
