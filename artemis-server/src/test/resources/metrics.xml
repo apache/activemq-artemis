@@ -23,6 +23,7 @@
          <jvm-memory>true</jvm-memory>
          <jvm-gc>true</jvm-gc>
          <jvm-threads>true</jvm-threads>
+         <netty-pool>true</netty-pool>
          <plugin class-name="org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$FakeMetricPlugin">
             <property key="key1" value="value1"/>
             <property key="key2" value="value2"/>
