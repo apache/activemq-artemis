@@ -24,5 +24,7 @@ import org.apache.activemq.artemis.core.server.ServiceComponent;
  */
 public interface Broker extends ServiceComponent {
 
+   void createComponents() throws Exception;
+
    ActiveMQServer getServer();
 }
