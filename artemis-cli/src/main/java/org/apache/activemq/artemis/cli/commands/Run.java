@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli.commands;
 import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
@@ -49,6 +50,8 @@ public class Run extends LockAbstract {
    public static final ReusableLatch latchRunning = new ReusableLatch(0);
 
    private ManagementContext managementContext;
+
+   private Timer shutdownTimer;
 
    /**
     * This will disable the System.exit at the end of the server.stop, as that means there are other things
@@ -81,6 +84,9 @@ public class Run extends LockAbstract {
          server = BrokerFactory.createServer(broker.server, security);
 
          managementContext.start();
+         server.createComponents();
+         AtomicBoolean serverActivationFailed = new AtomicBoolean(false);
+         server.getServer().registerActivationFailureListener(exception -> serverActivationFailed.set(true));
          server.start();
          server.getServer().addExternalComponent(managementContext);
 
@@ -92,8 +98,12 @@ public class Run extends LockAbstract {
             Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
             ExternalComponent component = (ExternalComponent) clazz.newInstance();
             component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
-            component.start();
             server.getServer().addExternalComponent(component);
+            component.start();
+         }
+
+         if (serverActivationFailed.get()) {
+            stop();
          }
       } catch (Throwable t) {
          t.printStackTrace();
@@ -123,8 +133,8 @@ public class Run extends LockAbstract {
          }
       }
 
-      final Timer timer = new Timer("ActiveMQ Artemis Server Shutdown Timer", true);
-      timer.scheduleAtFixedRate(new TimerTask() {
+      shutdownTimer = new Timer("ActiveMQ Artemis Server Shutdown Timer", true);
+      shutdownTimer.scheduleAtFixedRate(new TimerTask() {
          @Override
          public void run() {
             if (allowKill && fileKill.exists()) {
@@ -138,7 +148,7 @@ public class Run extends LockAbstract {
             if (file.exists()) {
                try {
                   stop();
-                  timer.cancel();
+                  shutdownTimer.cancel();
                } finally {
                   System.out.println("Server stopped!");
                   System.out.flush();
@@ -167,6 +177,9 @@ public class Run extends LockAbstract {
          }
          if (managementContext != null) {
             managementContext.stop();
+         }
+         if (shutdownTimer != null) {
+            shutdownTimer.cancel();
          }
       } catch (Exception e) {
          e.printStackTrace();
