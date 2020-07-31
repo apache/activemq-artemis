@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.postoffice.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -36,7 +37,7 @@ public class AddressImpl implements Address {
 
    private final boolean containsWildCard;
 
-   private final List<Address> linkedAddresses = new ArrayList<>();
+   private List<Address> linkedAddresses = null;
 
    private final WildcardConfiguration wildcardConfiguration;
 
@@ -68,11 +69,14 @@ public class AddressImpl implements Address {
 
    @Override
    public List<Address> getLinkedAddresses() {
-      return linkedAddresses;
+      return linkedAddresses == null ? Collections.emptyList() : linkedAddresses;
    }
 
    @Override
    public void addLinkedAddress(final Address address) {
+      if (linkedAddresses == null) {
+         linkedAddresses = new ArrayList<>(1);
+      }
       if (!linkedAddresses.contains(address)) {
          linkedAddresses.add(address);
       }
@@ -80,6 +84,9 @@ public class AddressImpl implements Address {
 
    @Override
    public void removeLinkedAddress(final Address actualAddress) {
+      if (linkedAddresses == null) {
+         return;
+      }
       linkedAddresses.remove(actualAddress);
    }
 

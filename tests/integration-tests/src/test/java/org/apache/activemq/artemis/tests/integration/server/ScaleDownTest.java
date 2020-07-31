@@ -46,14 +46,16 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
 @RunWith(value = Parameterized.class)
 public class ScaleDownTest extends ClusterTestBase {
@@ -243,13 +245,13 @@ public class ScaleDownTest extends ClusterTestBase {
 
       // find and pause the sf queue so no messages actually move from node 0 to node 1
       String sfQueueName = null;
-      for (Map.Entry<SimpleString, Binding> entry : servers[0].getPostOffice().getAllBindings().entrySet()) {
-         String temp = entry.getValue().getAddress().toString();
+      for (Binding binding : iterableOf(servers[0].getPostOffice().getAllBindings())) {
+         String temp = binding.getAddress().toString();
 
          if (temp.startsWith(servers[1].getInternalNamingPrefix() + "sf.") && temp.endsWith(servers[1].getNodeID().toString())) {
             // we found the sf queue for the other node
             // need to pause the sfQueue here
-            ((LocalQueueBinding) entry.getValue()).getQueue().pause();
+            ((LocalQueueBinding) binding).getQueue().pause();
             sfQueueName = temp;
          }
       }

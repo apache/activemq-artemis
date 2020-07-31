@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -39,9 +38,8 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       try {
          subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
 
-         Map<SimpleString, Binding> allBindings = server.getPostOffice().getAllBindings();
-         assertEquals(1, allBindings.size());
-         Binding b = allBindings.values().iterator().next();
+         assertEquals(1, server.getPostOffice().getAllBindings().count());
+         Binding b = server.getPostOffice().getAllBindings().iterator().next();
          //check that query using bare queue name works as before
          QueueQueryResult result = server.queueQuery(b.getUniqueName());
          assertTrue(result.isExists());
@@ -132,9 +130,8 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       try {
          subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
 
-         Map<SimpleString, Binding> allBindings = server.getPostOffice().getAllBindings();
-         assertEquals(1, allBindings.size());
-         Binding b = allBindings.values().iterator().next();
+         assertEquals(1, server.getPostOffice().getAllBindings().count());
+         Binding b = server.getPostOffice().getAllBindings().iterator().next();
 
          //check ::queue
          QueueQueryResult result = server.queueQuery(new SimpleString("::" + b.getUniqueName()));

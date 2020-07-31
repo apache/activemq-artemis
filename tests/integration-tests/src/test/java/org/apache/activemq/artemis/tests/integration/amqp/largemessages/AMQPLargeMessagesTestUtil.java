@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
 import java.util.NoSuchElementException;
 
-import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -33,11 +32,9 @@ public class AMQPLargeMessagesTestUtil {
 
 
    public static void validateAllTemporaryBuffers(ActiveMQServer server) {
-      for (Binding binding : server.getPostOffice().getAllBindings().values()) {
-         if (binding instanceof QueueBinding) {
-            validateTemporaryBuffers(((QueueBinding)binding).getQueue());
-         }
-      }
+      server.getPostOffice().getAllBindings()
+         .filter(QueueBinding.class::isInstance)
+         .forEach(binding -> validateTemporaryBuffers(((QueueBinding) binding).getQueue()));
    }
 
    public static void validateTemporaryBuffers(Queue serverQueue) {

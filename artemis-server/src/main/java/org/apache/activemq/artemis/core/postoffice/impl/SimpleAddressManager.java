@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -35,7 +38,6 @@ import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
@@ -59,10 +61,7 @@ public class SimpleAddressManager implements AddressManager {
     */
    protected final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
 
-   /**
-    * {@code HashMap<QueueName, Binding>}
-    */
-   private final ConcurrentMap<SimpleString, Binding> nameMap = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, Pair<Binding, Address>> nameMap = new ConcurrentHashMap<>();
 
    private final BindingsFactory bindingsFactory;
 
@@ -87,7 +86,8 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public boolean addBinding(final Binding binding) throws Exception {
-      if (nameMap.putIfAbsent(binding.getUniqueName(), binding) != null) {
+      final Pair<Binding, Address> bindingAddressPair = new Pair<>(binding, new AddressImpl(binding.getAddress(), wildcardConfiguration));
+      if (nameMap.putIfAbsent(binding.getUniqueName(), bindingAddressPair) != null) {
          throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
       }
 
@@ -100,15 +100,15 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public Binding removeBinding(final SimpleString uniqueName, Transaction tx) throws Exception {
-      final Binding binding = nameMap.remove(uniqueName);
+      final Pair<Binding, Address> binding = nameMap.remove(uniqueName);
 
       if (binding == null) {
          return null;
       }
 
-      removeBindingInternal(binding.getAddress(), uniqueName);
+      removeBindingInternal(binding.getA().getAddress(), uniqueName);
 
-      return binding;
+      return binding.getA();
    }
 
    @Override
@@ -118,42 +118,40 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public Binding getBinding(final SimpleString bindableName) {
-      return nameMap.get(CompositeAddress.extractQueueName(bindableName));
+      final Pair<Binding, Address> bindingAddressPair = nameMap.get(CompositeAddress.extractQueueName(bindableName));
+      return bindingAddressPair == null ? null : bindingAddressPair.getA();
    }
 
    @Override
-   public Map<SimpleString, Binding> getBindings() {
-      return nameMap;
+   public Stream<Binding> getBindings() {
+      return nameMap.values().stream().map(pair -> pair.getA());
    }
 
    @Override
-   public Bindings getMatchingBindings(final SimpleString address) throws Exception {
+   public Collection<Binding> getMatchingBindings(final SimpleString address) throws Exception {
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
       Address add = new AddressImpl(realAddress, wildcardConfiguration);
 
-      Bindings bindings = bindingsFactory.createBindings(realAddress);
-
-      for (Binding binding : nameMap.values()) {
-         Address addCheck = new AddressImpl(binding.getAddress(), wildcardConfiguration);
-
+      Collection<Binding> bindings = new ArrayList<>();
+      nameMap.forEach((bindingUniqueName, bindingAddressPair) -> {
+         final Address addCheck = bindingAddressPair.getB();
          if (addCheck.matches(add)) {
-            bindings.addBinding(binding);
+            bindings.add(bindingAddressPair.getA());
          }
-      }
-
+      });
       return bindings;
    }
 
    @Override
-   public Bindings getDirectBindings(final SimpleString address) throws Exception {
+   public Collection<Binding> getDirectBindings(final SimpleString address) throws Exception {
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
-      Bindings bindings = bindingsFactory.createBindings(realAddress);
+      Collection<Binding> bindings = new ArrayList<>();
 
-      for (Binding binding : nameMap.values()) {
-         if (binding.getAddress().equals(realAddress)) {
-            bindings.addBinding(binding);
+      nameMap.forEach((bindingUniqueName, bindingAddressPair) -> {
+         if (bindingAddressPair.getA().getAddress().equals(realAddress)) {
+            bindings.add(bindingAddressPair.getA());
          }
-      }
+      });
 
       return bindings;
    }

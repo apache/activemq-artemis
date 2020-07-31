@@ -72,6 +72,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
+
 @RunWith(Parameterized.class)
 public class StompTest extends StompTestBase {
 
@@ -2026,10 +2028,8 @@ public class StompTest extends StompTestBase {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
 
-      for (Binding b : server.getPostOffice().getAllBindings().values()) {
-         if (b instanceof QueueBinding) {
-            Assert.assertFalse("Queue " + ((QueueBinding) b).getQueue().getName(), ((QueueBinding)b).getQueue().isDirectDeliver());
-         }
+      for (Binding b : iterableOf(server.getPostOffice().getAllBindings().filter(QueueBinding.class::isInstance))) {
+         Assert.assertFalse("Queue " + ((QueueBinding) b).getQueue().getName(), ((QueueBinding)b).getQueue().isDirectDeliver());
       }
 
       // Send MQTT Message

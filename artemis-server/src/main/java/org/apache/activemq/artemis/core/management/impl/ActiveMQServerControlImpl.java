@@ -2184,7 +2184,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         for (Binding binding : postOffice.getMatchingBindings(SimpleString.toSimpleString(address)).getBindings()) {
+         for (Binding binding : postOffice.getMatchingBindings(SimpleString.toSimpleString(address))) {
             if (binding instanceof LocalQueueBinding) {
                Queue queue = ((LocalQueueBinding) binding).getQueue();
                for (Consumer consumer : queue.getConsumers()) {
