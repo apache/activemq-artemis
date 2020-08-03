@@ -20,7 +20,7 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
-      <name>live</name>
+      <name>backup</name>
 
       <bindings-directory>./data/bindings</bindings-directory>
 
@@ -30,25 +30,31 @@ under the License.
 
       <paging-directory>./data/paging</paging-directory>
 
+      <network-check-list>PINGPLACE</network-check-list>
+
+      <network-check-period>1000</network-check-period>
+
+      <network-check-timeout>200</network-check-timeout>
+
       <ha-policy>
          <replication>
-            <master>
+            <slave>
                <group-name>a</group-name>
-               <check-for-live-server>true</check-for-live-server>
-               <vote-on-replication-failure>true</vote-on-replication-failure>
-            </master>
+               <allow-failback>true</allow-failback>
+            </slave>
          </replication>
       </ha-policy>
 
       <connectors>
          <!-- Connector used to be announced through cluster connections and notifications -->
-         <connector name="artemis">tcp://FIRST:61616</connector>
-         <connector name="backup">tcp://SECOND:61716</connector>
+         <connector name="artemis">tcp://SECOND:61716</connector>
+         <connector name="main">tcp://FIRST:61616</connector>
       </connectors>
+
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="artemis">tcp://0.0.0.0:61616</acceptor>
+         <acceptor name="artemis">tcp://0.0.0.0:61716</acceptor>
       </acceptors>
 
       <cluster-user>admin</cluster-user>
@@ -61,7 +67,7 @@ under the License.
             <message-load-balancing>OFF</message-load-balancing>
             <max-hops>1</max-hops>
             <static-connectors>
-               <connector-ref>backup</connector-ref>
+               <connector-ref>main</connector-ref>
             </static-connectors>
          </cluster-connection>
       </cluster-connections>

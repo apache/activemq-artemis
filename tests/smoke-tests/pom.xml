@@ -270,6 +270,48 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
+                  <id>create-dnsswitch-main-withping</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <configuration>${basedir}/target/classes/servers/dnsswitch-replicated-main-withping</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/dnsswitch-replicated-main-withping</instance>
+                     <args>
+                        <arg>--java-options</arg>
+                        <!-- notice these files are only available on dnsswitch, so this is not a copy and paste error
+                             where I really meant dnsswitch here -->
+                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security -Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-dnsswitch-backup-withping</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <configuration>${basedir}/target/classes/servers/dnsswitch-replicated-backup-withping</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/dnsswitch-replicated-backup-withping</instance>
+                     <args>
+                        <arg>--java-options</arg>
+                        <!-- notice these files are only available on dnsswitch, so this is not a copy and paste error
+                             where I really meant dnsswitch here -->
+                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security -Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
                   <id>create-dnsswitch-main-noretrydns</id>
                   <goals>
                      <goal>create</goal>

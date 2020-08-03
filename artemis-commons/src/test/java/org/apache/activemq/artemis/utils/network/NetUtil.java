@@ -109,6 +109,10 @@ public class NetUtil {
 
    public static void netUp(String ip) throws Exception {
       String deviceID = "lo:" + nextDevice.incrementAndGet();
+      netUp(ip, deviceID);
+   }
+
+   public static void netUp(String ip, String deviceID) throws Exception {
       if (osUsed == OS.MAC) {
          if (runCommand("sudo", "-n", "ifconfig", "lo0", "alias", ip) != 0) {
             Assert.fail("Cannot sudo ifconfig for ip " + ip);
@@ -138,7 +142,9 @@ public class NetUtil {
       netDown(ip, device, force);
    }
 
-   private static void netDown(String ip, String device, boolean force) throws Exception {
+   public static void netDown(String ip, String device, boolean force) throws Exception {
+      networks.remove(ip);
+
       if (osUsed == OS.MAC) {
          if (runCommand("sudo", "-n", "ifconfig", "lo0", "-alias", ip) != 0) {
             if (!force) {

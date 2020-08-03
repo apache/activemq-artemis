@@ -41,14 +41,14 @@ under the License.
 
       <connectors>
          <!-- Connector used to be announced through cluster connections and notifications -->
-         <connector name="artemis">tcp://SECOND:61616</connector>
+         <connector name="artemis">tcp://SECOND:61716</connector>
          <connector name="main">tcp://FIRST:61616</connector>
       </connectors>
 
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="artemis">tcp://SECOND:61616</acceptor>
+         <acceptor name="artemis">tcp://0.0.0.0:61716</acceptor>
       </acceptors>
 
       <cluster-user>admin</cluster-user>
@@ -58,6 +58,8 @@ under the License.
       <cluster-connections>
          <cluster-connection name="my-cluster">
             <connector-ref>artemis</connector-ref>
+            <check-period>100</check-period>
+            <connection-ttl>500</connection-ttl>
             <message-load-balancing>OFF</message-load-balancing>
             <max-hops>1</max-hops>
             <static-connectors>

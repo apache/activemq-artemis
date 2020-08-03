@@ -70,7 +70,7 @@ public abstract class AbstractControl extends StandardMBean {
 
    protected void blockOnIO() {
       // the storage manager could be null on the backup on certain components
-      if (storageManager != null) {
+      if (storageManager != null && storageManager.isStarted()) {
          try {
             storageManager.waitOnOperations();
             storageManager.clearContext();
