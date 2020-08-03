@@ -1,11 +1,10 @@
 # Logging
 
 Apache ActiveMQ Artemis uses the JBoss Logging framework to do its logging and is
-configurable via the `logging.properties` file found in the
-configuration directories. This is configured by Default to log to both
-the console and to a file.
+configurable via the `logging.properties` file found in the `etc` directory. This
+is configured by default to log to both the console and to a file.
 
-There are 9 loggers available which are as follows:
+There are a handful of general loggers available:
 
 Logger | Description
 ---|---
@@ -19,6 +18,34 @@ org.apache.activemq.audit.base|audit log. Disabled by default
 org.apache.activemq.audit.resource|resource audit log. Disabled by default
 org.apache.activemq.audit.message|message audit log. Disabled by default
 
+## Activating TRACE for a specific logger
+
+Sometimes it is necessary to get more detailed logs from a particular logger. For
+example, when you're trying to troublshoot an issue. Say you needed to get TRACE
+logging from the logger `org.foo`. First you would need to add `org.foo` to the
+`loggers` list at the top of `logging.properties`, e.g.:
+
+```
+loggers=...,org.foo
+```
+
+Then you need to configure the logging level for the `org.foo` logger to `TRACE`,
+e.g.:
+
+```
+logger.org.foo.level=TRACE
+```
+
+Lastly, you would need to update the `level` of the necessary `handler` to allow
+the `TRACE` logging through, e.g.:
+
+```
+handler.CONSOLE.level=TRACE
+```
+or
+```
+handler.FILE.level=TRACE
+```
 
 ## Logging in a client or with an Embedded server
 
@@ -30,12 +57,12 @@ the simplest way is to use the "all" client jar.
 <dependency>
    <groupId>org.jboss.logmanager</groupId>
    <artifactId>jboss-logmanager</artifactId>
-   <version>2.0.3.Final</version>
+   <version>2.1.10.Final</version>
 </dependency>
 <dependency>
    <groupId>org.apache.activemq</groupId>
-   <artifactId>activemq-core-client</artifactId>
-   <version>2.5.0</version>
+   <artifactId>activemq-core-client-all</artifactId>
+   <version>2.14.0</version>
 </dependency>
 ```
 
@@ -52,7 +79,7 @@ this is done via the `-Dlogging.configuration` for instance
 >
 > The `logging.configuration` system property needs to be valid URL
 
-The following is a typical `logging.properties for a client`
+The following is a typical `logging.properties` for a client
 
 ```
 # Root logger option
