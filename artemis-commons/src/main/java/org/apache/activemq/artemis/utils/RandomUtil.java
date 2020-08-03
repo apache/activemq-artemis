@@ -79,10 +79,13 @@ public class RandomUtil {
    }
 
    public static int randomInterval(final int min, final int max) {
+      if (min == max) return max;
       return min + random.nextInt(max - min);
    }
 
    public static int randomMax(final int max) {
+      assert max > 0;
+
       int value = randomPositiveInt() % max;
 
       if (value == 0) {
