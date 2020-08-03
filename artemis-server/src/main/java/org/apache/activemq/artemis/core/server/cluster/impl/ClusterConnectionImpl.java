@@ -1283,17 +1283,25 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          RemoteQueueBinding existingBinding = (RemoteQueueBinding) postOffice.getBinding(clusterName);
 
          if (existingBinding != null) {
-            if (!existingBinding.isConnected()) {
-               existingBinding.connect();
+            if (queueID.equals(existingBinding.getRemoteQueueID())) {
+               if (!existingBinding.isConnected()) {
+                  existingBinding.connect();
+                  return;
+               }
+               // Sanity check - this means the binding has already been added via another bridge, probably max
+               // hops is too high
+               // or there are multiple cluster connections for the same address
+
+               ActiveMQServerLogger.LOGGER.remoteQueueAlreadyBoundOnClusterConnection(this, clusterName);
                return;
             }
-            // Sanity check - this means the binding has already been added via another bridge, probably max
-            // hops is too high
-            // or there are multiple cluster connections for the same address
-
-            ActiveMQServerLogger.LOGGER.remoteQueueAlreadyBoundOnClusterConnection(this, clusterName);
-
-            return;
+            //this could happen during jms non-durable failover while the qname doesn't change but qid
+            //will be re-generated in backup. In that case a new remote binding will be created
+            //and put it to the map and old binding removed.
+            if (logger.isTraceEnabled()) {
+               logger.trace("Removing binding because qid changed " + queueID + " old: " + existingBinding.getRemoteQueueID());
+            }
+            removeBinding(clusterName);
          }
 
          RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), queueAddress, clusterName, routingName, queueID, filterString, queue, bridge.getName(), distance + 1, messageLoadBalancingType);
