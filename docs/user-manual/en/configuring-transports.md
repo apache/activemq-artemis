@@ -543,3 +543,30 @@ additional properties:
 - `httpRequiresSessionId`. If `true` the client will wait after the first call
   to receive a session id. Used the http connector is connecting to servlet
   acceptor (not recommended)
+
+
+### Configuring Netty SOCKS Proxy
+
+All these parameters are only applicable to a `connector` and/or client URL.
+
+**Note:** Using a loop-back address (e.g. `localhost` or `127.0.0.1`) as the
+target of the `connector` or URL will circumvent the application of these
+configuration properties. In other words, no SOCKS proxy support will be
+configured even if these properties are set.
+
+- `socksEnabled`. Whether or not to enable SOCKS support on the `connector`.
+
+- `socksHost`. The name of the SOCKS server to use.
+
+- `socksPort`. The port of the SOCKS server to use.
+
+- `socksVersion`. The version of SOCKS to use. Must be an integer. Default is
+  `5`.
+
+- `socksUsername`. The username to use when connecting to the `socksHost`.
+
+- `socksPassword`. The password to use when connecting to the `socksHost`. Only
+  applicable if the `socksVersion` is `5`.
+
+- `socksRemoteDNS`. Whether or not to create remote destination socket
+  unresolved and disable DNS resolution. Default is `false`.
