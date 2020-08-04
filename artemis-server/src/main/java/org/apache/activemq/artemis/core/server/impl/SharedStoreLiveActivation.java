@@ -82,7 +82,7 @@ public final class SharedStoreLiveActivation extends LiveActivation {
 
          activeMQServer.initialisePart2(false);
 
-         activeMQServer.completeActivation();
+         activeMQServer.completeActivation(false);
 
          ActiveMQServerLogger.LOGGER.serverIsLive();
       } catch (Exception e) {

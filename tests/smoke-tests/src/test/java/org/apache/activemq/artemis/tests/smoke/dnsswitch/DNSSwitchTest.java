@@ -650,8 +650,83 @@ public class DNSSwitchTest extends SmokeTestBase {
 
          Assert.assertTrue(ok);
 
-         //connectAndWaitBackup();
+      } finally {
+         if (serverBackup != null) {
+            serverBackup.destroyForcibly();
+         }
+         if (serverLive != null) {
+            serverLive.destroyForcibly();
+         }
 
+
+      }
+
+   }
+
+
+   @Test
+   public void testWithoutPing() throws Throwable {
+      spawnRun(serverLocation, "testWithoutPing", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
+   }
+
+   public static void testWithoutPing(String[] args) throws Throwable {
+      NetUtil.netUp(FIRST_IP, "lo:first");
+      NetUtil.netUp(SECOND_IP, "lo:second");
+
+      // notice there's no THIRD_IP anywhere
+      saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
+
+      Process serverLive = null;
+      Process serverBackup = null;
+
+      try {
+         serverLive = ServerUtil.startServer(args[1], "live", "tcp://FIRST:61616", 0);
+         ActiveMQServerControl liveControl = getServerControl(liveURI, liveNameBuilder, 20_000);
+
+         Wait.assertTrue(liveControl::isStarted);
+
+         // notice the first server does not know about this server at all
+         serverBackup = ServerUtil.startServer(args[2], "backup", "tcp://SECOND:61716", 0);
+         ActiveMQServerControl backupControl = getServerControl(backupURI, backupNameBuilder, 20_000);
+
+         Wait.assertTrue(backupControl::isStarted);
+         Wait.assertTrue(backupControl::isReplicaSync);
+
+         logger.debug("shutdown the Network now");
+
+         // this will remove all the DNS information
+         // I need the pingers to stop responding.
+         // That will only happen if I stop both devices on Linux.
+         // On mac that works regardless
+         NetUtil.netDown(FIRST_IP, "lo:first", false);
+         NetUtil.netDown(SECOND_IP, "lo:second", false);
+         saveConf(hostsFile);
+
+         Wait.assertTrue(backupControl::isActive);
+
+         logger.debug("Starting the network");
+
+         NetUtil.netUp(FIRST_IP, "lo:first");
+         NetUtil.netUp(SECOND_IP, "lo:second");
+         saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
+
+         // I must wait some time for the backup to have a chance to retry here
+         Thread.sleep(2000);
+
+         logger.debug("Going down now");
+
+         System.out.println("*******************************************************************************************************************************");
+         System.out.println("Forcing backup down and restarting it");
+         System.out.println("*******************************************************************************************************************************");
+
+         serverBackup.destroyForcibly();
+
+         cleanupData(SERVER_BACKUP);
+
+         serverBackup = ServerUtil.startServer(args[2], "backup", "tcp://SECOND:61716", 0);
+         backupControl = getServerControl(backupURI, backupNameBuilder, 20_000);
+         Wait.assertTrue(backupControl::isStarted);
+         Wait.assertTrue(backupControl::isReplicaSync);
       } finally {
          if (serverBackup != null) {
             serverBackup.destroyForcibly();

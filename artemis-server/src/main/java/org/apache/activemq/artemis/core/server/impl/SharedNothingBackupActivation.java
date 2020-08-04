@@ -126,9 +126,7 @@ public final class SharedNothingBackupActivation extends Activation {
             return;
          }
 
-         logger.trace("Waiting for a synchronize now...");
          synchronized (this) {
-            logger.trace("Entered a synchronized");
             if (closed)
                return;
             backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getNodeManager(), activeMQServer.getScheduledPool(), networkHealthCheck, replicaPolicy.getQuorumSize(), replicaPolicy.getVoteRetries(), replicaPolicy.getVoteRetryWait(), replicaPolicy.getQuorumVoteWait(), attemptFailBack);
@@ -154,24 +152,16 @@ public final class SharedNothingBackupActivation extends Activation {
 
          clusterController.addIncomingInterceptorForReplication(new ReplicationError(nodeLocator));
 
-         // nodeManager.startBackup();
-         if (logger.isTraceEnabled()) {
-            logger.trace("Starting backup manager");
-         }
+         logger.debug("Starting backup manager");
          activeMQServer.getBackupManager().start();
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Set backup Quorum");
-         }
+         logger.debug("Set backup Quorum");
          replicationEndpoint.setBackupQuorum(backupQuorum);
 
          replicationEndpoint.setExecutor(activeMQServer.getExecutorFactory().getExecutor());
          EndpointConnector endpointConnector = new EndpointConnector();
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Starting Backup Server");
-         }
-
+         logger.debug("Starting Backup Server");
          ActiveMQServerLogger.LOGGER.backupServerStarted(activeMQServer.getVersion().getFullVersion(), activeMQServer.getNodeManager().getNodeId());
          activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
 
@@ -180,11 +170,8 @@ public final class SharedNothingBackupActivation extends Activation {
 
          SharedNothingBackupQuorum.BACKUP_ACTIVATION signal;
          do {
-
             if (closed) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Activation is closed, so giving up");
-               }
+               logger.debug("Activation is closed, so giving up");
                return;
             }
 
@@ -195,15 +182,13 @@ public final class SharedNothingBackupActivation extends Activation {
             nodeLocator.locateNode();
             Pair<TransportConfiguration, TransportConfiguration> possibleLive = nodeLocator.getLiveConfiguration();
             nodeID = nodeLocator.getNodeID();
-
-            if (logger.isTraceEnabled()) {
-               logger.trace("nodeID = " + nodeID);
+            if (logger.isDebugEnabled()) {
+               logger.debug("Connecting towards a possible live, connection information=" + possibleLive + ", nodeID=" + nodeID);
             }
+
             //in a normal (non failback) scenario if we couldn't find our live server we should fail
             if (!attemptFailBack) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("attemptFailback=false, nodeID=" + nodeID);
-               }
+               logger.debug("attemptFailback=false, nodeID=" + nodeID);
 
                //this shouldn't happen
                if (nodeID == null) {
@@ -348,7 +333,7 @@ public final class SharedNothingBackupActivation extends Activation {
 
             logger.trace("completeActivation at the end");
 
-            activeMQServer.completeActivation();
+            activeMQServer.completeActivation(true);
          }
       } catch (Exception e) {
          if (logger.isTraceEnabled()) {

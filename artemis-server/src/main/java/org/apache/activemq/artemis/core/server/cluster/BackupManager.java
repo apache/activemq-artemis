@@ -88,11 +88,15 @@ public class BackupManager implements ActiveMQComponent {
          return;
       //deploy the backup connectors using the cluster configuration
       for (ClusterConnectionConfiguration config : configuration.getClusterConfigurations()) {
+         logger.debug("deploy backup config " + config);
          deployBackupConnector(config);
       }
       //start each connector and if we are backup and shared store announce ourselves. NB with replication we don't do this
       //as we wait for replication to start and be notified by the replication manager.
       for (BackupConnector conn : backupConnectors) {
+         if (logger.isDebugEnabled()) {
+            logger.debugf("****** BackupManager connecting to %s", conn);
+         }
          conn.start();
          if (server.getHAPolicy().isBackup() && server.getHAPolicy().isSharedStore()) {
             conn.informTopology();
@@ -191,6 +195,11 @@ public class BackupManager implements ActiveMQComponent {
       private boolean stopping = false;
       private boolean announcingBackup;
       private boolean backupAnnounced = false;
+
+      @Override
+      public String toString() {
+         return "BackupConnector{" + "name='" + name + '\'' + ", connector=" + connector + '}';
+      }
 
       private BackupConnector(String name,
                               TransportConfiguration connector,

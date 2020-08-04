@@ -1700,6 +1700,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222292, value = "The metrics-plugin element is ignored because the metrics element is defined", format = Message.Format.MESSAGE_FORMAT)
    void metricsPluginElementIgnored();
 
+   @LogMessage(level = Logger.Level.WARN) // I really want emphasis on this logger, so adding the stars
+   @Message(id = 222294, value = "\n**************************************************************************************************************************************************************************************************************************************************************\n" +
+                                 "There is a possible split brain on nodeID {0}, coming from connectors {1}. Topology update ignored.\n" +
+                                 "**************************************************************************************************************************************************************************************************************************************************************", format = Message.Format.MESSAGE_FORMAT)
+   void possibleSplitBrain(String nodeID, String connectionPairInformation);
+
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)

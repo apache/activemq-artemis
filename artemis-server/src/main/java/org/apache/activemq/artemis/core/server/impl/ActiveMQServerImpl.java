@@ -141,6 +141,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.federation.FederationManager;
@@ -3080,8 +3081,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return fileStoreMonitor;
    }
 
-   public void completeActivation() throws Exception {
+   public void completeActivation(boolean replicated) throws Exception {
       setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
+      if (replicated) {
+         if (getClusterManager() != null) {
+            for (ClusterConnection clusterConnection : getClusterManager().getClusterConnections()) {
+               // we need to avoid split brain on topology for replication
+               clusterConnection.setSplitBrainDetection(true);
+            }
+         }
+      }
       getRemotingService().startAcceptors();
       activationLatch.countDown();
       callActivationCompleteCallbacks();
