@@ -682,6 +682,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                changed = true;
                queue.setGroupRebalance(queueConfiguration.isGroupRebalance());
             }
+            if ((forceUpdate || queueConfiguration.isGroupRebalancePauseDispatch() != null) && !Objects.equals(queue.isGroupRebalancePauseDispatch(), queueConfiguration.isGroupRebalancePauseDispatch())) {
+               changed = true;
+               queue.setGroupRebalancePauseDispatch(queueConfiguration.isGroupRebalancePauseDispatch());
+            }
             if ((forceUpdate || queueConfiguration.getGroupBuckets() != null) && !Objects.equals(queue.getGroupBuckets(), queueConfiguration.getGroupBuckets())) {
                changed = true;
                queue.setGroupBuckets(queueConfiguration.getGroupBuckets());

@@ -927,6 +927,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean isGroupRebalancePauseDispatch() {
+         return false;
+      }
+
+      @Override
+      public void setGroupRebalancePauseDispatch(boolean groupRebalancePauseDisptach) {
+
+      }
+
+      @Override
       public SimpleString getGroupFirstKey() {
          return null;
       }

@@ -2729,4 +2729,12 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601734, value = "User {0} failed to resume address {1}", format = Message.Format.MESSAGE_FORMAT)
    void resumeAddressFailure(String user, String queueName);
+
+   static void isGroupRebalancePauseDispatch(Object source) {
+      LOGGER.isGroupRebalancePauseDispatch(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601735, value = "User {0} is getting group rebalance pause dispatch property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void isGroupRebalancePauseDispatch(String user, Object source, Object... args);
 }

@@ -534,6 +534,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_GROUP_REBALANCE = false;
 
+   public static final boolean DEFAULT_GROUP_REBALANCE_PAUSE_DISPATCH = false;
+
    public static final SimpleString DEFAULT_GROUP_FIRST_KEY = null;
 
    public static final RoutingType DEFAULT_ROUTING_TYPE = RoutingType.MULTICAST;
@@ -1501,6 +1503,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean getDefaultGroupRebalance() {
       return DEFAULT_GROUP_REBALANCE;
+   }
+
+   public static boolean getDefaultGroupRebalancePauseDispatch() {
+      return DEFAULT_GROUP_REBALANCE_PAUSE_DISPATCH;
    }
 
    public static SimpleString getDefaultGroupFirstKey() {

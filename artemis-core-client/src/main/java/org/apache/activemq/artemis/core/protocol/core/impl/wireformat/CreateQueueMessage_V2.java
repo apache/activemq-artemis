@@ -37,6 +37,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
 
    private Boolean groupRebalance;
 
+   private Boolean groupRebalancePauseDispatch;
+
    private Integer groupBuckets;
 
    private SimpleString groupFirstKey;
@@ -81,6 +83,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          requiresResponse,
          queueAttributes.getExclusive(),
          queueAttributes.getGroupRebalance(),
+         queueAttributes.getGroupRebalancePauseDispatch(),
          queueAttributes.getGroupBuckets(),
          queueAttributes.getGroupFirstKey(),
          queueAttributes.getLastValue(),
@@ -111,6 +114,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          requiresResponse,
          queueConfiguration.isExclusive(),
          queueConfiguration.isGroupRebalance(),
+         queueConfiguration.isGroupRebalancePauseDispatch(),
          queueConfiguration.getGroupBuckets(),
          queueConfiguration.getGroupFirstKey(),
          queueConfiguration.isLastValue(),
@@ -138,6 +142,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
                                 final boolean requiresResponse,
                                 final Boolean exclusive,
                                 final Boolean groupRebalance,
+                                final Boolean groupRebalancePauseDispatch,
                                 final Integer groupBuckets,
                                 final SimpleString groupFirstKey,
                                 final Boolean lastValue,
@@ -164,6 +169,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.exclusive = exclusive;
       this.groupRebalance = groupRebalance;
+      this.groupRebalancePauseDispatch = groupRebalancePauseDispatch;
       this.groupBuckets = groupBuckets;
       this.groupFirstKey = groupFirstKey;
       this.lastValue = lastValue;
@@ -191,6 +197,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          .setRoutingType(routingType)
          .setExclusive(exclusive)
          .setGroupRebalance(groupRebalance)
+         .setGroupRebalancePauseDispatch(groupRebalancePauseDispatch)
          .setNonDestructive(nonDestructive)
          .setLastValue(lastValue)
          .setFilterString(filterString)
@@ -219,6 +226,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
       buff.append(", exclusive=" + exclusive);
       buff.append(", groupRebalance=" + groupRebalance);
+      buff.append(", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch);
       buff.append(", groupBuckets=" + groupBuckets);
       buff.append(", groupFirstKey=" + groupFirstKey);
       buff.append(", lastValue=" + lastValue);
@@ -324,6 +332,14 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.groupRebalance = groupRebalance;
    }
 
+   public Boolean isGroupRebalancePauseDispatch() {
+      return groupRebalancePauseDispatch;
+   }
+
+   public void setGroupRebalancePauseDispatch(Boolean groupRebalancePauseDispatch) {
+      this.groupRebalancePauseDispatch = groupRebalancePauseDispatch;
+   }
+
    public Integer getGroupBuckets() {
       return groupBuckets;
    }
@@ -401,6 +417,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       buffer.writeNullableSimpleString(groupFirstKey);
       BufferHelper.writeNullableLong(buffer, ringSize);
       BufferHelper.writeNullableBoolean(buffer, enabled);
+      BufferHelper.writeNullableBoolean(buffer, groupRebalancePauseDispatch);
    }
 
    @Override
@@ -434,6 +451,9 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       if (buffer.readableBytes() > 0) {
          enabled = BufferHelper.readNullableBoolean(buffer);
       }
+      if (buffer.readableBytes() > 0) {
+         groupRebalancePauseDispatch = BufferHelper.readNullableBoolean(buffer);
+      }
    }
 
    @Override
@@ -446,6 +466,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       result = prime * result + (purgeOnNoConsumers ? 1231 : 1237);
       result = prime * result + (exclusive == null ? 0 : exclusive ? 1231 : 1237);
       result = prime * result + (groupRebalance == null ? 0 : groupRebalance ? 1231 : 1237);
+      result = prime * result + (groupRebalancePauseDispatch == null ? 0 : groupRebalancePauseDispatch ? 1231 : 1237);
       result = prime * result + (groupBuckets == null ? 0 : groupBuckets.hashCode());
       result = prime * result + (groupFirstKey == null ? 0 : groupFirstKey.hashCode());
       result = prime * result + (lastValue == null ? 0 : lastValue ? 1231 : 1237);
@@ -485,6 +506,11 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          if (other.groupRebalance != null)
             return false;
       } else if (!groupRebalance.equals(other.groupRebalance))
+         return false;
+      if (groupRebalancePauseDispatch == null) {
+         if (other.groupRebalancePauseDispatch != null)
+            return false;
+      } else if (!groupRebalancePauseDispatch.equals(other.groupRebalancePauseDispatch))
          return false;
       if (groupBuckets == null) {
          if (other.groupBuckets != null)

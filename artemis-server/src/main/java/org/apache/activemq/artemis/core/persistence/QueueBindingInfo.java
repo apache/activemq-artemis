@@ -92,6 +92,8 @@ public interface QueueBindingInfo {
 
    boolean isGroupRebalance();
 
+   boolean isGroupRebalancePauseDispatch();
+
    int getGroupBuckets();
 
    SimpleString getGroupFirstKey();

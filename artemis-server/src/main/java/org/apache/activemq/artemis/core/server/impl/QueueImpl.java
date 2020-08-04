@@ -254,6 +254,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean groupRebalance;
 
+   private volatile boolean groupRebalancePauseDispatch;
+
    private volatile int groupBuckets;
 
    private volatile SimpleString groupFirstKey;
@@ -641,6 +643,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.groupRebalance = queueConfiguration.isGroupRebalance() == null ? ActiveMQDefaultConfiguration.getDefaultGroupRebalance() : queueConfiguration.isGroupRebalance();
 
+      this.groupRebalancePauseDispatch = queueConfiguration.isGroupRebalancePauseDispatch() == null ? ActiveMQDefaultConfiguration.getDefaultGroupRebalancePauseDispatch() : queueConfiguration.isGroupRebalancePauseDispatch();
+
       this.groupBuckets = queueConfiguration.getGroupBuckets() == null ? ActiveMQDefaultConfiguration.getDefaultGroupBuckets() : queueConfiguration.getGroupBuckets();
 
       this.groups = groupMap(this.groupBuckets);
@@ -915,6 +919,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void setGroupRebalance(boolean groupRebalance) {
       this.groupRebalance = groupRebalance;
+   }
+
+   @Override
+   public boolean isGroupRebalancePauseDispatch() {
+      return groupRebalancePauseDispatch;
+   }
+
+   @Override
+   public synchronized void setGroupRebalancePauseDispatch(boolean groupRebalancePauseDispatch) {
+      this.groupRebalancePauseDispatch = groupRebalancePauseDispatch;
    }
 
    @Override
@@ -1330,14 +1344,30 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (canDispatch) {
          return true;
       } else {
+
+         //Dont change that we can dispatch until inflight's are handled avoids issues with out of order messages.
+         if (inFlightMessages()) {
+            return false;
+         }
+
+         if (consumers.size() >= consumersBeforeDispatch) {
+            if (dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(false), BooleanUtil.toInt(true))) {
+               dispatchStartTimeUpdater.set(this, System.currentTimeMillis());
+            }
+            return true;
+         }
+
          long currentDispatchStartTime = dispatchStartTimeUpdater.get(this);
          if (currentDispatchStartTime != -1 && currentDispatchStartTime < System.currentTimeMillis()) {
             dispatchingUpdater.set(this, BooleanUtil.toInt(true));
             return true;
-         } else {
-            return false;
          }
+         return false;
       }
+   }
+
+   private boolean inFlightMessages() {
+      return consumers.stream().mapToInt(c -> c.consumer().getDeliveringMessages().size()).sum() != 0;
    }
 
    @Override
@@ -1362,21 +1392,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             cancelRedistributor();
+
+            if (groupRebalance) {
+               if (groupRebalancePauseDispatch) {
+                  stopDispatch();
+               }
+               groups.removeAll();
+            }
+
             ConsumerHolder<Consumer> newConsumerHolder = new ConsumerHolder<>(consumer);
             if (consumers.add(newConsumerHolder)) {
-               int currentConsumerCount = consumers.size();
                if (delayBeforeDispatch >= 0) {
                   dispatchStartTimeUpdater.compareAndSet(this,-1, delayBeforeDispatch + System.currentTimeMillis());
                }
-               if (currentConsumerCount >= consumersBeforeDispatch) {
-                  if (dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(false), BooleanUtil.toInt(true))) {
-                     dispatchStartTimeUpdater.set(this, System.currentTimeMillis());
-                  }
-               }
-            }
 
-            if (groupRebalance) {
-               groups.removeAll();
             }
 
             if (refCountForConsumers != null) {
@@ -1423,9 +1452,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (consumerRemoved) {
                consumerRemovedTimestampUpdater.set(this, System.currentTimeMillis());
-               boolean stopped = dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(true), BooleanUtil.toInt(consumers.size() != 0));
-               if (stopped) {
-                  dispatchStartTimeUpdater.set(this, -1);
+               if (consumers.size() == 0) {
+                  stopDispatch();
                }
             }
 
@@ -1443,6 +1471,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
       } finally {
          leaveCritical(CRITICAL_CONSUMER);
+      }
+   }
+
+   private void stopDispatch() {
+      boolean stopped = dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(true), BooleanUtil.toInt(false));
+      if (stopped) {
+         dispatchStartTimeUpdater.set(this, -1);
       }
    }
 

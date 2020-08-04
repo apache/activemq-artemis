@@ -56,6 +56,7 @@ public class QueueConfiguration implements Serializable {
    public static final String MAX_CONSUMERS = "max-consumers";
    public static final String EXCLUSIVE = "exclusive";
    public static final String GROUP_REBALANCE = "group-rebalance";
+   public static final String GROUP_REBALANCE_PAUSE_DISPATCH = "group-rebalance-pause-dispatch";
    public static final String GROUP_BUCKETS = "group-buckets";
    public static final String GROUP_FIRST_KEY = "group-first-key";
    public static final String LAST_VALUE = "last-value";
@@ -87,6 +88,7 @@ public class QueueConfiguration implements Serializable {
    private Integer maxConsumers;
    private Boolean exclusive;
    private Boolean groupRebalance;
+   private Boolean groupRebalancePauseDispatch;
    private Integer groupBuckets;
    private SimpleString groupFirstKey;
    private Boolean lastValue;
@@ -459,6 +461,15 @@ public class QueueConfiguration implements Serializable {
       return this;
    }
 
+   public Boolean isGroupRebalancePauseDispatch() {
+      return groupRebalancePauseDispatch;
+   }
+
+   public QueueConfiguration setGroupRebalancePauseDispatch(Boolean groupRebalancePauseDispatch) {
+      this.groupRebalancePauseDispatch = groupRebalancePauseDispatch;
+      return this;
+   }
+
    public Integer getGroupBuckets() {
       return groupBuckets;
    }
@@ -630,6 +641,9 @@ public class QueueConfiguration implements Serializable {
       if (isGroupRebalance() != null) {
          builder.add(GROUP_REBALANCE, isGroupRebalance());
       }
+      if (isGroupRebalancePauseDispatch() != null) {
+         builder.add(GROUP_REBALANCE_PAUSE_DISPATCH, isGroupRebalancePauseDispatch());
+      }
       if (getGroupBuckets() != null) {
          builder.add(GROUP_BUCKETS, getGroupBuckets());
       }
@@ -746,6 +760,8 @@ public class QueueConfiguration implements Serializable {
          return false;
       if (!Objects.equals(groupRebalance, that.groupRebalance))
          return false;
+      if (!Objects.equals(groupRebalancePauseDispatch, that.groupRebalancePauseDispatch))
+         return false;
       if (!Objects.equals(groupBuckets, that.groupBuckets))
          return false;
       if (!Objects.equals(groupFirstKey, that.groupFirstKey))
@@ -802,6 +818,7 @@ public class QueueConfiguration implements Serializable {
       result = 31 * result + Objects.hashCode(maxConsumers);
       result = 31 * result + Objects.hashCode(exclusive);
       result = 31 * result + Objects.hashCode(groupRebalance);
+      result = 31 * result + Objects.hashCode(groupRebalancePauseDispatch);
       result = 31 * result + Objects.hashCode(groupBuckets);
       result = 31 * result + Objects.hashCode(groupFirstKey);
       result = 31 * result + Objects.hashCode(lastValue);
@@ -838,6 +855,7 @@ public class QueueConfiguration implements Serializable {
          + ", maxConsumers=" + maxConsumers
          + ", exclusive=" + exclusive
          + ", groupRebalance=" + groupRebalance
+         + ", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch
          + ", groupBuckets=" + groupBuckets
          + ", groupFirstKey=" + groupFirstKey
          + ", lastValue=" + lastValue

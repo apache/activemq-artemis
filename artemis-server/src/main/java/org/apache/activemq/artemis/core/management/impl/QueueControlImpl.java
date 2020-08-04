@@ -1808,6 +1808,21 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public boolean isGroupRebalancePauseDispatch() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isGroupRebalancePauseDispatch(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isGroupRebalancePauseDispatch();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public int getGroupBuckets() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getGroupBuckets(queue);

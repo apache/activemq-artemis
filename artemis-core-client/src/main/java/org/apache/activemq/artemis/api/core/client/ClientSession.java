@@ -162,6 +162,8 @@ public interface ClientSession extends XAResource, AutoCloseable {
 
       Boolean isGroupRebalance();
 
+      Boolean isGroupRebalancePauseDispatch();
+
       Integer getGroupBuckets();
 
       SimpleString getGroupFirstKey();
