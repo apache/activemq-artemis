@@ -13,7 +13,12 @@ This chapter provides the following information for each release:
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12348290).
 
 Highlights:
-- Removing `broker.xml` queue parameters now causes these to be reset to their default values.
+- Management methods to update diverts
+- Ability to "disabled" a queue so that messages are not routed to it
+- Support JVM GC & thread metrics
+- Support for resetting queue properties by unsetting them in `broker.xml`
+- Undeploy diverts by removing them from `broker.xml`
+- Add `addressMemoryUsagePercentage` and `addressSize` as metrics
 
 #### Upgrading from older versions
 
