@@ -49,7 +49,7 @@ public class JournalImplConcurrencyTest extends JournalImplTestBase {
                targetMethod = "readLock()",
                targetLocation = "EXIT",
                condition = "Thread.currentThread().getName().contains(\"ArtemisIOThread\")",
-               action = "throw RuntimeException(\"Injected exception\");"
+               action = "Thread.currentThread().interrupt();"
          )
    })
    public void testTryDelete() throws Exception {
@@ -63,8 +63,7 @@ public class JournalImplConcurrencyTest extends JournalImplTestBase {
          tryDelete(1);
          Assert.fail("Expected to throw exception injected by a byteman rule");
       } catch (ExecutionException e) {
-         Assert.assertTrue(e.getCause() instanceof RuntimeException);
-         Assert.assertEquals("Injected exception", e.getCause().getMessage());
+         Assert.assertTrue(e.getCause() instanceof InterruptedException);
       }
 
       stopJournal();

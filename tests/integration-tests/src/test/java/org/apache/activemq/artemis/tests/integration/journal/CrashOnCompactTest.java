@@ -72,6 +72,7 @@ public class CrashOnCompactTest extends SpawnedTestBase {
       });
 
       Assert.assertEquals(900, info.size());
+      journal.stop();
    }
 
    private static void addJournal(File folder, boolean crash) throws Exception {

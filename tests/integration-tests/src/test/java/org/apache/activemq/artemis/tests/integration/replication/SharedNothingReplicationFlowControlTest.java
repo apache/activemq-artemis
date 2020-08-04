@@ -191,6 +191,8 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
          }
       });
 
+      liveMessageJournal.stop();
+
       // read backup's journal
       File backupJournalDir = brokersFolder.getRoot().toPath().resolve("backup").resolve("data").resolve("journal").toFile();
       fileFactory = new MappedSequentialFileFactory(backupConfiguration.getJournalLocation(), backupConfiguration.getJournalFileSize(), false, backupConfiguration.getJournalBufferSize_NIO(), backupConfiguration.getJournalBufferTimeout_NIO(), null);
@@ -210,6 +212,8 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
             replicationCounter.incrementAndGet();
          }
       });
+
+      backupMessageJournal.stop();
 
       logger.infof("expected %d messages, live=%d, backup=%d", j, liveJournalCounter.get(), replicationCounter.get());
       Assert.assertEquals("Live lost journal record", j, liveJournalCounter.get());
