@@ -19,6 +19,78 @@ Highlights:
 
 Make sure the existing queues have their parameters set according to the `broker.xml` values before upgrading.
 
+## 2.13.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12348088).
+
+Highlights:
+- Management methods for an address' duplicate ID cache to check the cache's size and clear it
+- Support for [min/max expiry-delay](message-expiry.md#configuring-expiry-delay)
+- [Per-acceptor security domains](security.md#per-acceptor-security-domains)
+- Command-line `check` tool for checking the health of a broker
+- Support disabling metrics per address via the [`enable-metrics` address setting](address-model.md#configuring-addresses-and-queues-via-address-settings)
+- Improvements to the [audit logging](logging.md#configuring-audit-logging)
+- Speed optimizations for the `HierarchicalObjectRepository`, an internal object used to store address and security settings
+
+#### Upgrading from older versions
+
+Version 2.13.0 added new [audit logging](logging.md#configuring-audit-logging)
+which is logged at `INFO` level and can be very verbose. The
+`logging.properties` shipped with this new version is set up to filter this out
+by default. If your `logging.properties` isn't updated appropriately this audit
+logging will likely appear in your console and `artemis.log` file assuming
+you're using a logging configuration close to the default. Add this to your
+`logging.properties`:
+
+```
+# to enable audit change the level to INFO
+logger.org.apache.activemq.audit.base.level=ERROR
+logger.org.apache.activemq.audit.base.handlers=AUDIT_FILE
+logger.org.apache.activemq.audit.base.useParentHandlers=false
+
+logger.org.apache.activemq.audit.resource.level=ERROR
+logger.org.apache.activemq.audit.resource.handlers=AUDIT_FILE
+logger.org.apache.activemq.audit.resource.useParentHandlers=false
+
+logger.org.apache.activemq.audit.message.level=ERROR
+logger.org.apache.activemq.audit.message.handlers=AUDIT_FILE
+logger.org.apache.activemq.audit.message.useParentHandlers=false
+
+...
+
+#Audit logger
+handler.AUDIT_FILE=org.jboss.logmanager.handlers.PeriodicRotatingFileHandler
+handler.AUDIT_FILE.level=INFO
+handler.AUDIT_FILE.properties=suffix,append,autoFlush,fileName
+handler.AUDIT_FILE.suffix=.yyyy-MM-dd
+handler.AUDIT_FILE.append=true
+handler.AUDIT_FILE.autoFlush=true
+handler.AUDIT_FILE.fileName=${artemis.instance}/log/audit.log
+handler.AUDIT_FILE.formatter=AUDIT_PATTERN
+
+formatter.AUDIT_PATTERN=org.jboss.logmanager.formatters.PatternFormatter
+formatter.AUDIT_PATTERN.properties=pattern
+formatter.AUDIT_PATTERN.pattern=%d [AUDIT](%t) %s%E%n
+```
+
+## 2.12.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12346675).
+
+Highlights:
+- Support for [SOCKS proxy](configuring-transports.md#configuring-netty-socks-proxy)
+- Real [large message](large-messages.md) support for AMQP
+- [Automatic creation of dead-letter resources](undelivered-messages.md#automatically-creating-dead-letter-resources) akin to ActiveMQ 5's individual dead-letter strategy
+- [Automatic creation of expiry resources](message-expiry.md#configuring-automatic-creation-of-expiry-resources)
+- Improved API for queue creation
+- Allow users to override JAVA_ARGS via environment variable
+- Reduce heap usage during journal loading during broker start-up
+- Allow `server` header in STOMP `CONNECTED` frame to be disabled
+- Support disk store used percentage as an exportable metric (e.g. to be monitored by tools like Prometheus, etc.)
+- Ability to configure a "[customizer](https://www.eclipse.org/jetty/javadoc/9.4.26.v20200117/org/eclipse/jetty/server/HttpConfiguration.Customizer.html)" for the embedded web server
+- Improved logging for errors when starting an `acceptor` to more easily identify the `acceptor` which has the problem.
+- The CLI will now read the `broker.xml` to find the default `connector` URL for commands which require it (e.g. `consumer`, `producer`, etc.)
+
 ## 2.11.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12346258).
