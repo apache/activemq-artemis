@@ -152,10 +152,13 @@ via the management API or managment console by invoking `resetAllGroups`
 
 By setting `group-rebalance` to `true` at the queue level, every time a consumer is added it will trigger a rebalance/reset of the groups.
 
+As noted above, when group rebalance is done, there is a risk you may have inflight messages being processed, by default the broker will continue to dispatch whilst rebalance is occuring. To ensure that inflight messages are processed before dispatch of new messages post rebalance, 
+to different consumers, you can set `group-rebalance-pause-dispatch` to `true` which will cause the dispatch to pause whilst rebalance occurs, until all inflight messages are processed.   
+
 ```xml
 <address name="foo.bar">
    <multicast>
-      <queue name="orders1" group-rebalance="true"/>
+      <queue name="orders1" group-rebalance="true" group-rebalance-pause-dispatch="true"/>
    </multicast>
 </address>
 ```
@@ -164,8 +167,8 @@ Or on auto-create when using the JMS Client by using address parameters when
 creating the destination used by the consumer.
 
 ```java
-Queue queue = session.createQueue("my.destination.name?group-rebalance=true");
-Topic topic = session.createTopic("my.destination.name?group-rebalance=true");
+Queue queue = session.createQueue("my.destination.name?group-rebalance=true&group-rebalance-pause-dispatch=true");
+Topic topic = session.createTopic("my.destination.name?group-rebalance=true&group-rebalance-pause-dispatch=true");
 ```
 
 Also the default for all queues under and address can be defaulted using the 
@@ -174,11 +177,13 @@ Also the default for all queues under and address can be defaulted using the
 ```xml
 <address-setting match="my.address">
    <default-group-rebalance>true</default-group-rebalance>
+   <default-group-rebalance-pause-dispatch>true</default-group-rebalance-pause-dispatch>
 </address-setting>
 ```
 
 
 By default, `default-group-rebalance` is `false` meaning this is disabled/off.
+By default, `default-group-rebalance-pause-dispatch` is `false` meaning this is disabled/off.
 
 
 #### Group Buckets

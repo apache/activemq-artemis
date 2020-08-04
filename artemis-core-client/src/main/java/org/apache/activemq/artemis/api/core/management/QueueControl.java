@@ -702,6 +702,12 @@ public interface QueueControl {
    boolean isGroupRebalance();
 
    /**
+    * Returns whether the dispatch is paused when groups of this queue are automatically rebalanced.
+    */
+   @Attribute(desc = "whether the dispatch is paused when groups of this queue are automatically rebalanced")
+   boolean isGroupRebalancePauseDispatch();
+
+   /**
     * Will return the group buckets.
     */
    @Attribute(desc = "Get the group buckets")

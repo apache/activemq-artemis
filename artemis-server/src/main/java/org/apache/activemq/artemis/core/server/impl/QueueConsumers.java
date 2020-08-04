@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.utils.collections.RepeatableIterator;
 import org.apache.activemq.artemis.utils.collections.ResettableIterator;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 public interface QueueConsumers<T extends PriorityAware> extends Iterable<T>, RepeatableIterator<T>, ResettableIterator<T> {
 
@@ -33,5 +34,7 @@ public interface QueueConsumers<T extends PriorityAware> extends Iterable<T>, Re
    int size();
 
    boolean isEmpty();
+
+   Stream<T> stream();
 
 }

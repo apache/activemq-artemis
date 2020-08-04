@@ -216,6 +216,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DEFAULT_GROUP_REBALANCE = "default-group-rebalance";
 
+   private static final String DEFAULT_GROUP_REBALANCE_PAUSE_DISPATCH = "default-group-rebalance-pause-dispatch";
+
    private static final String DEFAULT_GROUP_BUCKETS = "default-group-buckets";
 
    private static final String DEFAULT_GROUP_FIRST_KEY = "default-group-first-key";
@@ -1149,6 +1151,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setDefaultExclusiveQueue(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_GROUP_REBALANCE.equalsIgnoreCase(name)) {
             addressSettings.setDefaultGroupRebalance(XMLUtil.parseBoolean(child));
+         } else if (DEFAULT_GROUP_REBALANCE_PAUSE_DISPATCH.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultGroupRebalancePauseDispatch(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_GROUP_BUCKETS.equalsIgnoreCase(name)) {
             addressSettings.setDefaultGroupBuckets(XMLUtil.parseInt(child));
          } else if (DEFAULT_GROUP_FIRST_KEY.equalsIgnoreCase(name)) {
@@ -1294,6 +1298,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       String user = null;
       Boolean exclusive = null;
       Boolean groupRebalance = null;
+      Boolean groupRebalancePauseDispatch = null;
       Integer groupBuckets = null;
       String groupFirstKey = null;
       Boolean lastValue = null;
@@ -1316,6 +1321,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             exclusive = Boolean.parseBoolean(item.getNodeValue());
          } else if (item.getNodeName().equals("group-rebalance")) {
             groupRebalance = Boolean.parseBoolean(item.getNodeValue());
+         } else if (item.getNodeName().equals("group-rebalance-pause-dispatch")) {
+            groupRebalancePauseDispatch = Boolean.parseBoolean(item.getNodeValue());
          } else if (item.getNodeName().equals("group-buckets")) {
             groupBuckets = Integer.parseInt(item.getNodeValue());
          } else if (item.getNodeName().equals("group-first-key")) {
@@ -1361,6 +1368,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
               .setUser(user)
               .setExclusive(exclusive)
               .setGroupRebalance(groupRebalance)
+              .setGroupRebalancePauseDispatch(groupRebalancePauseDispatch)
               .setGroupBuckets(groupBuckets)
               .setGroupFirstKey(groupFirstKey)
               .setLastValue(lastValue)

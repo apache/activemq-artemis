@@ -2881,6 +2881,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             .add("defaultNonDestructive", addressSettings.isDefaultNonDestructive())
             .add("defaultExclusiveQueue", addressSettings.isDefaultExclusiveQueue())
             .add("defaultGroupRebalance", addressSettings.isDefaultGroupRebalance())
+            .add("defaultGroupRebalancePauseDispatch", addressSettings.isDefaultGroupRebalancePauseDispatch())
             .add("defaultGroupBuckets", addressSettings.getDefaultGroupBuckets())
             .add("defaultGroupFirstKey", addressSettings.getDefaultGroupFirstKey() == null ? "" : addressSettings.getDefaultGroupFirstKey().toString())
             .add("defaultMaxConsumers", addressSettings.getDefaultMaxConsumers())

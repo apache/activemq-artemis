@@ -29,6 +29,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
    private Boolean purgeOnNoConsumers;
    private Boolean exclusive;
    private Boolean groupRebalance;
+   private Boolean groupRebalancePauseDispatch;
    private Integer groupBuckets;
    private SimpleString groupFirstKey;
    private Boolean lastValue;
@@ -53,6 +54,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          queueConfiguration.isPurgeOnNoConsumers(),
          queueConfiguration.isExclusive(),
          queueConfiguration.isGroupRebalance(),
+         queueConfiguration.isGroupRebalancePauseDispatch(),
          queueConfiguration.getGroupBuckets(),
          queueConfiguration.getGroupFirstKey(),
          queueConfiguration.isLastValue(),
@@ -78,6 +80,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
                                       final Boolean purgeOnNoConsumers,
                                       final Boolean exclusive,
                                       final Boolean groupRebalance,
+                                      final Boolean groupRebalancePauseDispatch,
                                       final Integer groupBuckets,
                                       final SimpleString groupFirstKey,
                                       final Boolean lastValue,
@@ -102,6 +105,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.exclusive = exclusive;
       this.groupRebalance = groupRebalance;
+      this.groupRebalancePauseDispatch = groupRebalancePauseDispatch;
       this.groupBuckets = groupBuckets;
       this.groupFirstKey = groupFirstKey;
       this.lastValue = lastValue;
@@ -201,6 +205,14 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       this.groupRebalance = groupRebalance;
    }
 
+   public Boolean isGroupRebalancePauseDispatch() {
+      return groupRebalancePauseDispatch;
+   }
+
+   public void setGroupRebalancePauseDispatch(Boolean groupRebalancePauseDispatch) {
+      this.groupRebalancePauseDispatch = groupRebalancePauseDispatch;
+   }
+
    public Integer getGroupBuckets() {
       return groupBuckets;
    }
@@ -264,6 +276,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          .setRoutingType(routingType)
          .setExclusive(exclusive)
          .setGroupRebalance(groupRebalance)
+         .setGroupRebalancePauseDispatch(groupRebalancePauseDispatch)
          .setNonDestructive(nonDestructive)
          .setLastValue(lastValue)
          .setFilterString(filterString)
@@ -293,6 +306,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
       buff.append(", exclusive=" + exclusive);
       buff.append(", groupRebalance=" + groupRebalance);
+      buff.append(", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch);
       buff.append(", groupBuckets=" + groupBuckets);
       buff.append(", groupFirstKey=" + groupFirstKey);
       buff.append(", lastValue=" + lastValue);
@@ -334,6 +348,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       buffer.writeNullableSimpleString(groupFirstKey);
       BufferHelper.writeNullableLong(buffer, ringSize);
       BufferHelper.writeNullableBoolean(buffer, enabled);
+      BufferHelper.writeNullableBoolean(buffer, groupRebalancePauseDispatch);
    }
 
    @Override
@@ -370,6 +385,9 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       if (buffer.readableBytes() > 0) {
          enabled = buffer.readNullableBoolean();
       }
+      if (buffer.readableBytes() > 0) {
+         groupRebalancePauseDispatch = buffer.readNullableBoolean();
+      }
    }
 
    @Override
@@ -386,6 +404,7 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       result = prime * result + (purgeOnNoConsumers == null ? 0 : purgeOnNoConsumers ? 1231 : 1237);
       result = prime * result + (exclusive == null ? 0 : exclusive ? 1231 : 1237);
       result = prime * result + (groupRebalance == null ? 0 : groupRebalance ? 1231 : 1237);
+      result = prime * result + (groupRebalancePauseDispatch == null ? 0 : groupRebalancePauseDispatch ? 1231 : 1237);
       result = prime * result + (groupBuckets == null ? 0 : groupBuckets.hashCode());
       result = prime * result + (groupFirstKey == null ? 0 : groupFirstKey.hashCode());
       result = prime * result + (lastValue == null ? 0 : lastValue ? 1231 : 1237);
@@ -450,6 +469,11 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          if (other.groupRebalance != null)
             return false;
       } else if (!groupRebalance.equals(other.groupRebalance))
+         return false;
+      if (groupRebalancePauseDispatch == null) {
+         if (other.groupRebalancePauseDispatch != null)
+            return false;
+      } else if (!groupRebalancePauseDispatch.equals(other.groupRebalancePauseDispatch))
          return false;
       if (groupBuckets == null) {
          if (other.groupBuckets != null)

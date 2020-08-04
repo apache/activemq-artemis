@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * This class's purpose is to hold the consumers.
@@ -102,6 +103,11 @@ public class QueueConsumersImpl<T extends PriorityAware> implements QueueConsume
    @Override
    public boolean isEmpty() {
       return consumers.isEmpty();
+   }
+
+   @Override
+   public Stream<T> stream() {
+      return unmodifiableConsumers.stream();
    }
 
    @Override

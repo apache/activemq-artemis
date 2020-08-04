@@ -188,6 +188,16 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public boolean isGroupRebalancePauseDispatch() {
+      return false;
+   }
+
+   @Override
+   public void setGroupRebalancePauseDispatch(boolean groupRebalancePauseDisptach) {
+
+   }
+
+   @Override
    public SimpleString getGroupFirstKey() {
       return null;
    }

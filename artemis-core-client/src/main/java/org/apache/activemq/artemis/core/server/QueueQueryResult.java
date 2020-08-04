@@ -51,6 +51,8 @@ public class QueueQueryResult {
 
    private Boolean groupRebalance;
 
+   private Boolean groupRebalancePauseDispatch;
+
    private Integer groupBuckets;
 
    private SimpleString groupFirstKey;
@@ -92,6 +94,7 @@ public class QueueQueryResult {
                            final int maxConsumers,
                            final Boolean exclusive,
                            final Boolean groupRebalance,
+                           final Boolean groupRebalancePauseDispatch,
                            final Integer groupBuckets,
                            final SimpleString groupFirstKey,
                            final Boolean lastValue,
@@ -134,6 +137,8 @@ public class QueueQueryResult {
       this.exclusive = exclusive;
 
       this.groupRebalance = groupRebalance;
+
+      this.groupRebalancePauseDispatch = groupRebalancePauseDispatch;
 
       this.groupBuckets = groupBuckets;
 
@@ -248,6 +253,10 @@ public class QueueQueryResult {
 
    public Boolean isGroupRebalance() {
       return groupRebalance;
+   }
+
+   public Boolean isGroupRebalancePauseDispatch() {
+      return groupRebalancePauseDispatch;
    }
 
    public Integer getGroupBuckets() {

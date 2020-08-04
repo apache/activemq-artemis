@@ -96,6 +96,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isGroupRebalancePauseDispatch() {
+            return (Boolean) proxy.retrieveAttributeValue("groupRebalancePauseDispatch");
+         }
+
+         @Override
          public int getGroupBuckets() {
             return (Integer) proxy.retrieveAttributeValue("groupBuckets", Integer.class);
          }
