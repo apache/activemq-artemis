@@ -69,9 +69,8 @@ public class RandomUtilDistributionTest {
       // Be careful removing it (make sure you know what you're doing in case you do so)
       int minimumExpected = (int) ((iterations * numberOfStarts) * 0.80);
 
-      log.debug("value=" + value + ", minimum expected = " + minimumExpected);
-      Assert.assertTrue("The Random distribution is pretty bad. All tries have returned duplicated randoms. value=" + value + ", minimum expected = " + minimumExpected, value > minimumExpected);
-
+      log.debug("values = " + value + ", minimum expected = " + minimumExpected);
+      Assert.assertTrue("The Random distribution is pretty bad. Many tries have returned duplicated randoms. Number of different values=" + value + ", minimum expected = " + minimumExpected, value >= minimumExpected);
    }
 
    private int internalDistributionTest(int numberOfTries) throws Exception {
