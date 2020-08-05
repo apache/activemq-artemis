@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -32,6 +33,7 @@ public class AutoDeleteCreatedQueueTest extends ActiveMQTestBase {
 
    public final SimpleString addressA = new SimpleString("addressA");
    public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueConfigurationManaged = new SimpleString("queueConfigurationManaged");
 
    private ServerLocator locator;
    private ActiveMQServer server;
@@ -58,5 +60,23 @@ public class AutoDeleteCreatedQueueTest extends ActiveMQTestBase {
       assertTrue(server.locateQueue(queueA).isAutoDelete());
       cf.createSession().createConsumer(queueA).close();
       Wait.assertTrue(() -> server.locateQueue(queueA) == null);
+   }
+
+
+   @Test
+   public void testAutoDeleteCreatedQueueDoesNOTDeleteConfigurationManagedQueuesOnLastConsumerClose() throws Exception {
+      server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoDeleteCreatedQueues(true));
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).setAutoCreated(false));
+      server.createQueue(new QueueConfiguration(queueConfigurationManaged).setAddress(queueConfigurationManaged).setRoutingType(RoutingType.MULTICAST).setAutoCreated(false).setConfigurationManaged(true));
+      assertNotNull(server.locateQueue(queueA));
+      assertNotNull(server.locateQueue(queueConfigurationManaged));
+      assertTrue(server.locateQueue(queueA).isAutoDelete());
+      assertFalse(server.locateQueue(queueConfigurationManaged).isAutoDelete());
+      cf.createSession().createConsumer(queueA).close();
+      cf.createSession().createConsumer(queueConfigurationManaged).close();
+      //Make sure the reaper has run by checking the queueA should be removed.
+      Wait.assertTrue(() -> server.locateQueue(queueA) == null);
+      //Check that our configuration managed queue is not removed.
+      assertNotNull(server.locateQueue(queueConfigurationManaged));
    }
 }
