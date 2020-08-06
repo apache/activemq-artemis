@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -49,7 +50,6 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -361,7 +361,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       // authentication should succeed now, but authorization for sending should still fail
       try {
          ClientSession session = cf.createSession("third", "secret", false, true, true, false, 0);
-         ClientProducer producer = session.createProducer(SimpleString.toSimpleString(queue));
+         ClientProducer producer = session.createProducer(queue);
          producer.send(session.createMessage(true));
          Assert.fail("Producing here should fail due to the original security data.");
       } catch (ActiveMQException e) {
@@ -377,8 +377,103 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       }
 
       ClientSession session = cf.createSession("third", "secret", false, true, true, false, 0);
-      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(queue));
+      ClientProducer producer = session.createProducer(queue);
       producer.send(session.createMessage(true));
+
+      cf.close();
+   }
+
+   @Test
+   public void testNewUserAndRoleWithNewDestination() throws Exception {
+      server.getConfiguration().setSecurityInvalidationInterval(0);
+      server.start();
+      ClientSessionFactory cf = locator.createSessionFactory();
+
+      // these queue names actually matter based on what's in the ldif
+      String goodQueue = "queue3";
+      String badQueue = "queue4";
+
+      // authentication should fail
+      try {
+         cf.createSession("third", "secret", false, true, true, false, 0);
+         Assert.fail("Creating a session here should fail due to the original security data.");
+      } catch (ActiveMQException e) {
+         Assert.assertTrue(e.getMessage().contains("229031")); // authentication exception
+      }
+
+      { // add new user
+         DirContext ctx = getContext();
+         BasicAttributes basicAttributes = new BasicAttributes();
+         basicAttributes.put("userPassword", "secret");
+         Attribute objclass = new BasicAttribute("objectclass");
+         objclass.add("top");
+         objclass.add("simpleSecurityObject");
+         objclass.add("account");
+         basicAttributes.put(objclass);
+         ctx.bind("uid=third,ou=system", null, basicAttributes);
+      }
+
+      { // add new role
+         DirContext ctx = getContext();
+         BasicAttributes basicAttributes = new BasicAttributes();
+         basicAttributes.put("member", "uid=third,ou=system");
+         Attribute objclass = new BasicAttribute("objectclass");
+         objclass.add("top");
+         objclass.add("groupOfNames");
+         basicAttributes.put(objclass);
+         ctx.bind("cn=role3,ou=system", null, basicAttributes);
+      }
+
+      // authentication should succeed now, but authorization for sending should still fail
+      try {
+         ClientSession session = cf.createSession("third", "secret", false, true, true, false, 0);
+         ClientProducer producer = session.createProducer(goodQueue);
+         producer.send(session.createMessage(true));
+         Assert.fail("Producing here should fail due to the original security data.");
+      } catch (ActiveMQException e) {
+         Assert.assertTrue(e.getMessage().contains("229032")); // authorization exception
+      }
+
+      { // add new destination
+         DirContext ctx = getContext();
+         BasicAttributes basicAttributes = new BasicAttributes();
+         Attribute objclass = new BasicAttribute("objectclass");
+         objclass.add("top");
+         objclass.add("applicationProcess");
+         basicAttributes.put(objclass);
+         ctx.bind("cn=" + goodQueue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system", null, basicAttributes);
+      }
+
+      { // add permissions for new destination
+         DirContext ctx = getContext();
+         BasicAttributes basicAttributes = new BasicAttributes();
+         basicAttributes.put("uniquemember", "cn=role3");
+         Attribute objclass = new BasicAttribute("objectclass");
+         objclass.add("top");
+         objclass.add("groupOfUniqueNames");
+         basicAttributes.put(objclass);
+         ctx.bind("cn=write,cn=" + goodQueue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system", null, basicAttributes);
+      }
+
+      server.createQueue(new QueueConfiguration(goodQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+
+      ClientSession session = cf.createSession("third", "secret", false, true, true, false, 0);
+      ClientProducer producer = session.createProducer(goodQueue);
+      producer.send(session.createMessage(true));
+      session.close();
+      producer.close();
+
+      server.createQueue(new QueueConfiguration(badQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+
+      // authorization for sending should fail for the new queue
+      try {
+         session = cf.createSession("third", "secret", false, true, true, false, 0);
+         producer = session.createProducer(badQueue);
+         producer.send(session.createMessage(true));
+         Assert.fail("Producing here should fail.");
+      } catch (ActiveMQException e) {
+         Assert.assertTrue(e.getMessage().contains("229032")); // authorization exception
+      }
 
       cf.close();
    }

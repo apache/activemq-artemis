@@ -63,6 +63,12 @@ public interface HierarchicalRepository<T> {
    void setDefault(T defaultValue);
 
    /**
+    *
+    * @return the default match for this repo
+    */
+   T getDefault();
+
+   /**
     * remove a match from the repository
     *
     * @param match the match to remove

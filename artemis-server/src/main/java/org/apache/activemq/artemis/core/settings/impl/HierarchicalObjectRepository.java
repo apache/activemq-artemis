@@ -348,6 +348,15 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       defaultmatch = defaultValue;
    }
 
+   /**
+    *
+    * @return the default match for this repo
+    */
+   @Override
+   public T getDefault() {
+      return defaultmatch;
+   }
+
    @Override
    public void clear() {
       lock.writeLock().lock();
