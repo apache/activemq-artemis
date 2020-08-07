@@ -521,13 +521,25 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public boolean updateMember(long uniqueEventID, String nodeId, TopologyMemberImpl memberInput) {
       if (splitBrainDetection && nodeId.equals(nodeManager.getNodeId().toString())) {
-         TopologyMemberImpl member = topology.getMember(nodeId);
-         if (member != null) {
-            if (member.getLive() != null && memberInput.getLive() != null && !member.getLive().isSameParams(connector)) {
-               ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId, memberInput.toString());
-            }
+         if (memberInput.getLive() != null && !memberInput.getLive().isSameParams(connector)) {
+            ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId, memberInput.toString());
          }
          memberInput.setLive(connector);
+      }
+      return true;
+   }
+
+   /**
+    * From topologyManager
+    * @param uniqueEventID
+    * @param nodeId
+    * @return
+    */
+   @Override
+   public boolean removeMember(final long uniqueEventID, final String nodeId) {
+      if (splitBrainDetection && nodeId.equals(nodeManager.getNodeId().toString())) {
+         ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId, nodeId);
+         return false;
       }
       return true;
    }

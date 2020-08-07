@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.dto.BrokerDTO;
 @Command(name = "stop", description = "stops the broker instance")
 public class Stop extends Configurable {
 
+   public static final String STOP_FILE_NAME = "STOP_ME";
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
@@ -31,7 +32,7 @@ public class Stop extends Configurable {
 
       File file = broker.server.getConfigurationFile().getParentFile();
 
-      File stopFile = new File(file, "STOP_ME");
+      File stopFile = new File(file, STOP_FILE_NAME);
 
       stopFile.createNewFile();
 
