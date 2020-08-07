@@ -118,31 +118,6 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
    }
 
    @Test
-   public void testFlushAppendsAndDeletes() throws Exception {
-      setup(10, 10 * 1024, true);
-      createJournal();
-      startJournal();
-      load();
-      byte[] record = new byte[1000];
-      for (int i = 0; i < record.length; i++) {
-         record[i] = (byte) 'a';
-      }
-      // Appending records after restart should be valid (not throwing any
-      // exceptions)
-      for (int i = 0; i < 10_000; i++) {
-         journal.appendAddRecord(i, (byte) 1, new SimpleEncoding(2, (byte) 'a'), false);
-         journal.appendDeleteRecord(i, false);
-      }
-      stopJournal();
-
-      List<String> files = fileFactory.listFiles(fileExtension);
-
-      // I am allowing one extra as a possible race with pushOpenFiles. I have not seen it happening on my test
-      // but it wouldn't be a problem if it happened
-      Assert.assertTrue("Supposed to have up to 10 files", files.size() <= 11);
-   }
-
-   @Test
    public void testParams() throws Exception {
       try {
          new JournalImpl(JournalImpl.MIN_FILE_SIZE - 1, 10, 10, 0, 0, fileFactory, filePrefix, fileExtension, 1);
