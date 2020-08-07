@@ -94,11 +94,16 @@ public class DNSSwitchTest extends SmokeTestBase {
    private static final String SERVER_LIVE_NORETRYDNS = "dnsswitch-replicated-main-noretrydns";
    private static final String SERVER_BACKUP = "dnsswitch-replicated-backup";
 
+   private static final String SERVER_LIVE_PING = "dnsswitch-replicated-main-withping";
+   private static final String SERVER_BACKUP_PING = "dnsswitch-replicated-backup-withping";
+
    // 192.0.2.0 is reserved for documentation (and testing on this case).
    private static final String FIRST_IP = "192.0.2.0";
    private static final String SECOND_IP = "192.0.3.0";
    private static final String THIRD_IP = "192.0.3.0";
    private static final String FOURTH_IP = "192.0.4.0";
+
+   private static final String INVALID_IP = "203.0.113.0";
 
    private static String serverLocation;
 
@@ -122,7 +127,6 @@ public class DNSSwitchTest extends SmokeTestBase {
             serverControl.isActive(); // making one call to make sure it's working
             return serverControl;
          } catch (Throwable e) {
-            System.err.println("Retrying error : " + e.getMessage());
             lastException = e;
             Thread.sleep(500);
          }
@@ -235,23 +239,19 @@ public class DNSSwitchTest extends SmokeTestBase {
       cleanupData(SERVER_LIVE);
       cleanupData(SERVER_LIVE_NORETRYDNS);
       cleanupData(SERVER_BACKUP);
+      cleanupData(SERVER_LIVE_PING);
+      cleanupData(SERVER_BACKUP_PING);
    }
 
    @Test
    public void testBackupRedefinition() throws Throwable {
-      System.out.println(System.getProperty("java.security.properties"));
-
       spawnRun(serverLocation, "testBackupRedefinition", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
    }
 
    public static void testBackupRedefinition(String[] args) throws Throwable {
-      NetUtil.netUp(FIRST_IP);
-      NetUtil.netUp(SECOND_IP);
-      // NetUtil.netUp(THIRD_IP);
+      NetUtil.netUp(FIRST_IP, "lo:first");
+      NetUtil.netUp(SECOND_IP, "lo:second");
       saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
-
-      //System.out.println("Waiting here");
-      //Thread.sleep(300_000);
 
       Process serverLive = null;
       Process serverBackup = null;
@@ -263,7 +263,7 @@ public class DNSSwitchTest extends SmokeTestBase {
          connectAndWaitBackup();
          saveConf(hostsFile, FIRST_IP, "FIRST", THIRD_IP, "SECOND");
 
-         NetUtil.netDown(SECOND_IP, true);
+         NetUtil.netDown(SECOND_IP, "lo:second", true);
          serverBackup.destroyForcibly();
 
          Thread.sleep(1000); // wait some time at least until a reconnection is in place
@@ -280,11 +280,6 @@ public class DNSSwitchTest extends SmokeTestBase {
 
          connectAndWaitBackup();
 
-         //waitForTopology(connectionFactory.getServerLocator().getTopology(), 60_000, 1, 1);
-
-         //System.out.println("I'm here!!!");
-         //Thread.sleep(300_000);
-
          ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://FIRST:61616?ha=true");
          Assert.assertTrue(connectionFactory.getServerLocator().isHA());
          Connection connection = connectionFactory.createConnection();
@@ -299,7 +294,7 @@ public class DNSSwitchTest extends SmokeTestBase {
          producer.send(session.createTextMessage("hello"));
          session.commit();
 
-         NetUtil.netUp(THIRD_IP);
+         NetUtil.netUp(THIRD_IP, "lo:third");
          serverLive.destroyForcibly();
 
          Wait.assertTrue(backupControl::isActive);
@@ -320,7 +315,7 @@ public class DNSSwitchTest extends SmokeTestBase {
                errors++;
                Assert.assertTrue(errors < 20); // I would accept one or two errors, but the code must connect itself
                connection.close();
-               connectionFactory = new ActiveMQConnectionFactory("tcp://SECOND:61616?ha=true");
+               connectionFactory = new ActiveMQConnectionFactory("tcp://SECOND:61716?ha=true");
                connection = connectionFactory.createConnection();
                connection.start();
                session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -342,19 +337,14 @@ public class DNSSwitchTest extends SmokeTestBase {
 
    @Test
    public void testBackupRedefinition2() throws Throwable {
-      System.out.println(System.getProperty("java.security.properties"));
-
       spawnRun(serverLocation, "testBackupRedefinition2", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
    }
 
    public static void testBackupRedefinition2(String[] args) throws Throwable {
-      NetUtil.netUp(FIRST_IP);
-      NetUtil.netUp(SECOND_IP);
-      NetUtil.netUp(THIRD_IP);
+      NetUtil.netUp(FIRST_IP, "lo:first");
+      NetUtil.netUp(SECOND_IP, "lo:second");
+      NetUtil.netUp(THIRD_IP, "lo:third");
       saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
-
-      //System.out.println("Waiting here");
-      //Thread.sleep(300_000);
 
       Process serverLive = null;
       Process serverBackup = null;
@@ -366,7 +356,7 @@ public class DNSSwitchTest extends SmokeTestBase {
          connectAndWaitBackup();
          saveConf(hostsFile, FIRST_IP, "FIRST", THIRD_IP, "SECOND");
 
-         NetUtil.netDown(SECOND_IP, true);
+         NetUtil.netDown(SECOND_IP, "lo:second", true);
          serverBackup.destroyForcibly();
 
          Thread.sleep(1000); // wait some time at least until a reconnection is in place
@@ -391,11 +381,6 @@ public class DNSSwitchTest extends SmokeTestBase {
          Wait.assertTrue(backupControl::isStarted);
          Wait.assertTrue(backupControl::isReplicaSync);
 
-         //waitForTopology(connectionFactory.getServerLocator().getTopology(), 60_000, 1, 1);
-
-         //System.out.println("I'm here!!!");
-         //Thread.sleep(300_000);
-
          ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://FIRST:61616?ha=true");
          Assert.assertTrue(connectionFactory.getServerLocator().isHA());
          Connection connection = connectionFactory.createConnection();
@@ -410,7 +395,7 @@ public class DNSSwitchTest extends SmokeTestBase {
          producer.send(session.createTextMessage("hello"));
          session.commit();
 
-         NetUtil.netUp(THIRD_IP);
+         NetUtil.netUp(THIRD_IP, "lo:third");
          serverLive.destroyForcibly();
 
          Wait.assertTrue(backupControl::isActive);
@@ -431,7 +416,7 @@ public class DNSSwitchTest extends SmokeTestBase {
                errors++;
                Assert.assertTrue(errors < 20); // I would accept one or two errors, but the code must connect itself
                connection.close();
-               connectionFactory = new ActiveMQConnectionFactory("tcp://SECOND:61616?ha=true");
+               connectionFactory = new ActiveMQConnectionFactory("tcp://SECOND:61716?ha=true");
                connection = connectionFactory.createConnection();
                connection.start();
                session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -452,19 +437,14 @@ public class DNSSwitchTest extends SmokeTestBase {
 
    @Test
    public void testBackupRedefinition3() throws Throwable {
-      System.out.println(System.getProperty("java.security.properties"));
-
       spawnRun(serverLocation, "testBackupRedefinition2", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
    }
 
    public static void testBackupRedefinition3(String[] args) throws Throwable {
-      NetUtil.netUp(FIRST_IP);
-      NetUtil.netUp(SECOND_IP);
-      NetUtil.netUp(THIRD_IP);
+      NetUtil.netUp(FIRST_IP, "lo:first");
+      NetUtil.netUp(SECOND_IP, "lo:second");
+      NetUtil.netUp(THIRD_IP, "lo:third");
       saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
-
-      //System.out.println("Waiting here");
-      //Thread.sleep(300_000);
 
       Process serverLive = null;
       Process serverBackup = null;
@@ -476,7 +456,7 @@ public class DNSSwitchTest extends SmokeTestBase {
          connectAndWaitBackup();
          saveConf(hostsFile, FIRST_IP, "FIRST", THIRD_IP, "SECOND");
 
-         NetUtil.netDown(SECOND_IP, true);
+         NetUtil.netDown(SECOND_IP, "lo:second", true);
          serverBackup.destroyForcibly();
 
          Thread.sleep(1000); // wait some time at least until a reconnection is in place
@@ -501,11 +481,6 @@ public class DNSSwitchTest extends SmokeTestBase {
          Wait.assertTrue(backupControl::isStarted);
          Wait.assertTrue(backupControl::isReplicaSync);
 
-         //waitForTopology(connectionFactory.getServerLocator().getTopology(), 60_000, 1, 1);
-
-         //System.out.println("I'm here!!!");
-         //Thread.sleep(300_000);
-
          ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://FIRST:61616?ha=true");
          Assert.assertTrue(connectionFactory.getServerLocator().isHA());
          Connection connection = connectionFactory.createConnection();
@@ -520,7 +495,7 @@ public class DNSSwitchTest extends SmokeTestBase {
          producer.send(session.createTextMessage("hello"));
          session.commit();
 
-         NetUtil.netUp(THIRD_IP);
+         NetUtil.netUp(THIRD_IP, "lo:third");
          serverLive.destroyForcibly();
 
          Wait.assertTrue(backupControl::isActive);
@@ -564,14 +539,12 @@ public class DNSSwitchTest extends SmokeTestBase {
 
    @Test
    public void testCantReachBack() throws Throwable {
-      System.out.println(System.getProperty("java.security.properties"));
-
       spawnRun(serverLocation, "testCantReachBack", getServerLocation(SERVER_LIVE_NORETRYDNS), getServerLocation(SERVER_BACKUP));
    }
 
    public static void testCantReachBack(String[] args) throws Throwable {
-      NetUtil.netUp(FIRST_IP);
-      NetUtil.netUp(SECOND_IP);
+      NetUtil.netUp(FIRST_IP, "lo:first");
+      NetUtil.netUp(SECOND_IP, "lo:second");
 
       // notice there's no THIRD_IP anywhere
       saveConf(hostsFile, FIRST_IP, "FIRST", THIRD_IP, "SECOND");
@@ -595,6 +568,165 @@ public class DNSSwitchTest extends SmokeTestBase {
 
          connectAndWaitBackup();
 
+      } finally {
+         if (serverBackup != null) {
+            serverBackup.destroyForcibly();
+         }
+         if (serverLive != null) {
+            serverLive.destroyForcibly();
+         }
+      }
+
+   }
+
+
+   @Test
+   public void testWithPing() throws Throwable {
+      spawnRun(serverLocation, "testWithPing", getServerLocation(SERVER_LIVE_PING), getServerLocation(SERVER_BACKUP_PING));
+   }
+
+   public static void testWithPing(String[] args) throws Throwable {
+      NetUtil.netUp(FIRST_IP, "lo:first");
+      NetUtil.netUp(SECOND_IP, "lo:second");
+      NetUtil.netUp(THIRD_IP, "lo:third");
+
+      // notice there's no THIRD_IP anywhere
+      saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND", THIRD_IP, "PINGPLACE");
+
+      Process serverLive = null;
+      Process serverBackup = null;
+
+      try {
+         serverLive = ServerUtil.startServer(args[1], "live", "tcp://FIRST:61616", 30_000);
+         ActiveMQServerControl liveControl = getServerControl(liveURI, liveNameBuilder, 20_000);
+
+         Wait.assertTrue(liveControl::isStarted);
+
+         // notice the first server does not know about this server at all
+         serverBackup = ServerUtil.startServer(args[2], "backup", "tcp://SECOND:61716", 0);
+         ActiveMQServerControl backupControl = getServerControl(backupURI, backupNameBuilder, 20_000);
+
+         Wait.assertTrue(backupControl::isStarted);
+         Wait.assertTrue(backupControl::isReplicaSync);
+         // Removing PINGPLACE from DNS
+         saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND", INVALID_IP, "PINGPLACE");
+
+         Wait.assertFalse(liveControl::isStarted);
+
+         serverBackup.destroyForcibly();
+
+
+         //Thread.sleep(10_000);
+         serverLive.destroyForcibly();
+         serverLive = ServerUtil.startServer(args[1], "live", "tcp://FIRST:61616", 0);
+
+         Thread.sleep(1_000);
+
+
+         logger.debug("going to re-enable ping");
+         // Enable the address just for ping now
+         saveConf(hostsFile, THIRD_IP, "PINGPLACE");
+         liveControl = getServerControl(liveURI, liveNameBuilder, 20_000);
+         Wait.assertTrue(liveControl::isStarted);
+
+         // Waiting some time as to the retry logic to kick in
+         Thread.sleep(5_000);
+
+         // the backup will know about the live, but live doesn't have a direct DNS to backup.. lets see what happens
+         saveConf(hostsFile, FIRST_IP, "FIRST", THIRD_IP, "PINGPLACE");
+
+         boolean ok = false;
+         for (int i = 0; i < 5; i++) {
+            serverBackup = ServerUtil.startServer(args[2], "backup", "tcp://SECOND:61716", 0);
+            backupControl = getServerControl(backupURI, backupNameBuilder, 20_000);
+            Wait.assertTrue(backupControl::isStarted);
+            if (!Wait.waitFor(backupControl::isReplicaSync, 5000, 100)) {
+               serverBackup.destroyForcibly();
+            } else {
+               ok = true;
+               break;
+            }
+         }
+
+         Assert.assertTrue(ok);
+
+      } finally {
+         if (serverBackup != null) {
+            serverBackup.destroyForcibly();
+         }
+         if (serverLive != null) {
+            serverLive.destroyForcibly();
+         }
+
+
+      }
+
+   }
+
+
+   @Test
+   public void testWithoutPing() throws Throwable {
+      spawnRun(serverLocation, "testWithoutPing", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
+   }
+
+   public static void testWithoutPing(String[] args) throws Throwable {
+      NetUtil.netUp(FIRST_IP, "lo:first");
+      NetUtil.netUp(SECOND_IP, "lo:second");
+
+      // notice there's no THIRD_IP anywhere
+      saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
+
+      Process serverLive = null;
+      Process serverBackup = null;
+
+      try {
+         serverLive = ServerUtil.startServer(args[1], "live", "tcp://FIRST:61616", 0);
+         ActiveMQServerControl liveControl = getServerControl(liveURI, liveNameBuilder, 20_000);
+
+         Wait.assertTrue(liveControl::isStarted);
+
+         // notice the first server does not know about this server at all
+         serverBackup = ServerUtil.startServer(args[2], "backup", "tcp://SECOND:61716", 0);
+         ActiveMQServerControl backupControl = getServerControl(backupURI, backupNameBuilder, 20_000);
+
+         Wait.assertTrue(backupControl::isStarted);
+         Wait.assertTrue(backupControl::isReplicaSync);
+
+         logger.debug("shutdown the Network now");
+
+         // this will remove all the DNS information
+         // I need the pingers to stop responding.
+         // That will only happen if I stop both devices on Linux.
+         // On mac that works regardless
+         NetUtil.netDown(FIRST_IP, "lo:first", false);
+         NetUtil.netDown(SECOND_IP, "lo:second", false);
+         saveConf(hostsFile);
+
+         Wait.assertTrue(backupControl::isActive);
+
+         logger.debug("Starting the network");
+
+         NetUtil.netUp(FIRST_IP, "lo:first");
+         NetUtil.netUp(SECOND_IP, "lo:second");
+         saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
+
+         // I must wait some time for the backup to have a chance to retry here
+         Thread.sleep(2000);
+
+         logger.debug("Going down now");
+
+         System.out.println("*******************************************************************************************************************************");
+         System.out.println("Forcing backup down and restarting it");
+         System.out.println("*******************************************************************************************************************************");
+
+         serverBackup.destroyForcibly();
+
+         cleanupData(SERVER_BACKUP);
+
+         serverBackup = ServerUtil.startServer(args[2], "backup", "tcp://SECOND:61716", 0);
+         backupControl = getServerControl(backupURI, backupNameBuilder, 20_000);
+         Wait.assertTrue(backupControl::isStarted);
+         Wait.assertTrue(backupControl::isReplicaSync);
       } finally {
          if (serverBackup != null) {
             serverBackup.destroyForcibly();
@@ -752,8 +884,8 @@ public class DNSSwitchTest extends SmokeTestBase {
 
       String securityProperties = System.getProperty("java.security.properties");
 
-      if (securityProperties != null && securityProperties.equals(location + "/etc/zerocache.security3")) {
-         System.out.println("No need to spawn a VM, the zerocache is already in place");
+      if (securityProperties != null && securityProperties.equals(location + "/etc/zerocache.security")) {
+         logger.info("No need to spawn a VM, the zerocache is already in place");
          System.setProperty("artemis.config.location", location);
          USING_SPAWN = false;
          main(args);

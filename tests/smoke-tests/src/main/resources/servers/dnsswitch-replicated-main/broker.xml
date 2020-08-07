@@ -43,12 +43,12 @@ under the License.
       <connectors>
          <!-- Connector used to be announced through cluster connections and notifications -->
          <connector name="artemis">tcp://FIRST:61616</connector>
-         <connector name="backup">tcp://SECOND:61616</connector>
+         <connector name="backup">tcp://SECOND:61716</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="artemis">tcp://FIRST:61616</acceptor>
+         <acceptor name="artemis">tcp://0.0.0.0:61616</acceptor>
       </acceptors>
 
       <cluster-user>admin</cluster-user>

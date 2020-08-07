@@ -48,6 +48,13 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
    void removeClusterTopologyListener(ClusterTopologyListener listener);
 
    /**
+    * This is needed on replication, however we don't need it on shared storage.
+    * */
+   void setSplitBrainDetection(boolean splitBrainDetection);
+
+   boolean isSplitBrainDetection();
+
+   /**
     * Only used for tests?
     *
     * @return a Map of node ID and addresses

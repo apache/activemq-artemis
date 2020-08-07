@@ -323,6 +323,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                         }
                      });
                   } catch (RejectedExecutionException ignored) {
+                     logger.debug(ignored.getMessage(), ignored);
                      // this could happen during a shutdown and we don't care, if we lost a nodeDown during a shutdown
                      // what can we do anyways?
                   }

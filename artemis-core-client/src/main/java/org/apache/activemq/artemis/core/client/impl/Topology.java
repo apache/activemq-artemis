@@ -50,6 +50,8 @@ public final class Topology {
     */
    private volatile Object owner;
 
+   private final TopologyManager manager;
+
    /**
     * topology describes the other cluster nodes that this server knows about:
     *
@@ -80,6 +82,11 @@ public final class Topology {
       }
       this.executor = executor;
       this.owner = owner;
+      if (owner instanceof TopologyManager) {
+         manager = (TopologyManager)owner;
+      } else {
+         manager = null;
+      }
       if (logger.isTraceEnabled()) {
          logger.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE", new Exception("trace"));
       }
@@ -193,6 +200,11 @@ public final class Topology {
                          ", memberInput=" +
                          memberInput +
                          " being rejected as there was a delete done after that");
+         return false;
+      }
+
+      if (manager != null && !manager.updateMember(uniqueEventID, nodeId, memberInput)) {
+         logger.debugf("TopologyManager rejected the update towards %s", memberInput);
          return false;
       }
 

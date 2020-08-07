@@ -40,6 +40,12 @@ under the License.
          </replication>
       </ha-policy>
 
+      <network-check-list>PINGPLACE</network-check-list>
+
+      <network-check-period>1000</network-check-period>
+
+      <network-check-timeout>200</network-check-timeout>
+
       <connectors>
          <!-- Connector used to be announced through cluster connections and notifications -->
          <connector name="artemis">tcp://FIRST:61616</connector>
@@ -60,9 +66,9 @@ under the License.
             <connector-ref>artemis</connector-ref>
             <message-load-balancing>OFF</message-load-balancing>
             <max-hops>1</max-hops>
-            <static-connectors>
+            <!--<static-connectors>
                <connector-ref>backup</connector-ref>
-            </static-connectors>
+            </static-connectors> -->
          </cluster-connection>
       </cluster-connections>
 

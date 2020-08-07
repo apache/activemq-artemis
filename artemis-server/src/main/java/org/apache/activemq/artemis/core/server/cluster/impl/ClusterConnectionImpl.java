@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.TopologyManager;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -74,7 +75,7 @@ import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
-public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener {
+public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener, TopologyManager {
 
    private static final Logger logger = Logger.getLogger(ClusterConnectionImpl.class);
 
@@ -173,6 +174,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    private final int clusterNotificationAttempts;
 
    private final String storeAndForwardPrefix;
+
+   private boolean splitBrainDetection;
 
    public ClusterConnectionImpl(final ClusterManager manager,
                                 final TransportConfiguration[] staticTranspConfigs,
@@ -506,6 +509,37 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       } else {
          topology.updateMember(uniqueEventID, nodeID, newMember);
       }
+   }
+
+   /** This is the implementation of TopologyManager. It is used to reject eventual updates from a split brain server.
+    *
+    * @param uniqueEventID
+    * @param nodeId
+    * @param memberInput
+    * @return
+    */
+   @Override
+   public boolean updateMember(long uniqueEventID, String nodeId, TopologyMemberImpl memberInput) {
+      if (splitBrainDetection && nodeId.equals(nodeManager.getNodeId().toString())) {
+         TopologyMemberImpl member = topology.getMember(nodeId);
+         if (member != null) {
+            if (member.getLive() != null && memberInput.getLive() != null && !member.getLive().isSameParams(connector)) {
+               ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId, memberInput.toString());
+            }
+         }
+         memberInput.setLive(connector);
+      }
+      return true;
+   }
+
+   @Override
+   public void setSplitBrainDetection(boolean splitBrainDetection) {
+      this.splitBrainDetection = splitBrainDetection;
+   }
+
+   @Override
+   public boolean isSplitBrainDetection() {
+      return splitBrainDetection;
    }
 
    @Override
