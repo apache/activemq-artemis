@@ -310,6 +310,12 @@ public final class Topology {
    boolean removeMember(final long uniqueEventID, final String nodeId) {
       TopologyMemberImpl member;
 
+
+      if (manager != null && !manager.removeMember(uniqueEventID, nodeId)) {
+         logger.debugf("TopologyManager rejected the update towards %s", nodeId);
+         return false;
+      }
+
       synchronized (this) {
          member = topology.get(nodeId);
          if (member != null) {

@@ -18,12 +18,15 @@
 package org.apache.activemq.artemis.tests.smoke.common;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.activemq.artemis.cli.commands.Stop;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.junit.After;
+import org.junit.Assert;
 
 public class SmokeTestBase extends ActiveMQTestBase {
    Set<Process> processes = new HashSet<>();
@@ -49,6 +52,13 @@ public class SmokeTestBase extends ActiveMQTestBase {
       } catch (Throwable e) {
          e.printStackTrace();
       }
+   }
+
+   protected static void stopServerWithFile(String serverLocation) throws IOException {
+      File serverPlace = new File(serverLocation);
+      File etcPlace = new File(serverPlace, "etc");
+      File stopMe = new File(etcPlace, Stop.STOP_FILE_NAME);
+      Assert.assertTrue(stopMe.createNewFile());
    }
 
    public static String getServerLocation(String serverName) {
