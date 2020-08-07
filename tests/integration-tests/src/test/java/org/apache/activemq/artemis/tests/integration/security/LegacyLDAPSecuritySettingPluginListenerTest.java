@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
@@ -183,7 +184,14 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       ctx.modifyAttributes("cn=write,cn=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system", DirContext.REPLACE_ATTRIBUTE, basicAttributes);
       ctx.close();
 
-      producer2.send(name, session.createMessage(true));
+      Wait.assertTrue(() -> {
+         try {
+            producer2.send(name, session.createMessage(true));
+            return true;
+         } catch (Exception e) {
+            return false;
+         }
+      }, 2000, 100);
 
       try {
          producer.send(name, session.createMessage(true));
@@ -207,7 +215,6 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       ClientConsumer consumer = session.createConsumer(queue);
       consumer.receiveImmediate();
       consumer.close();
-      ClientConsumer consumer2 = null;
 
       try {
          session2.createConsumer(queue);
@@ -222,9 +229,16 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       ctx.modifyAttributes("cn=read,cn=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system", DirContext.REPLACE_ATTRIBUTE, basicAttributes);
       ctx.close();
 
-      consumer2 = session2.createConsumer(queue);
-      consumer2.receiveImmediate();
-      consumer2.close();
+      Wait.assertTrue(() -> {
+         try {
+            ClientConsumer consumer2 = session2.createConsumer(queue);
+            consumer2.receiveImmediate();
+            consumer2.close();
+            return true;
+         } catch (Exception e) {
+            return false;
+         }
+      }, 2000, 100);
 
       try {
          session.createConsumer(queue);
@@ -244,7 +258,6 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
-      ClientConsumer consumer;
 
       try {
          session.createConsumer(queue);
@@ -262,8 +275,15 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       basicAttributes.put(objclass);
       ctx.bind("cn=read,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system", null, basicAttributes);
 
-      consumer = session.createConsumer(queue);
-      consumer.receiveImmediate();
+      Wait.assertTrue(() -> {
+         try {
+            ClientConsumer consumer = session.createConsumer(queue);
+            consumer.receiveImmediate();
+            return true;
+         } catch (Exception e) {
+            return false;
+         }
+      }, 2000, 100);
 
       ctx.unbind("cn=read,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system");
       ctx.close();
@@ -304,7 +324,15 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       basicAttributes.put(objclass);
       ctx.bind("cn=write,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system", null, basicAttributes);
 
-      producer.send(session.createMessage(true));
+      Wait.assertTrue(() -> {
+         try {
+            producer.send(session.createMessage(true));
+            return true;
+         } catch (Exception e) {
+            return false;
+         }
+      }, 2000, 100);
+
 
       ctx.unbind("cn=write,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system");
       ctx.close();
