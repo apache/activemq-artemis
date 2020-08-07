@@ -444,11 +444,11 @@ public class JournalFilesRepository {
          pushOpen();
 
          nextFile = openedFiles.poll(journalFileOpenTimeout, TimeUnit.SECONDS);
-      } else {
-         if (openedFiles.isEmpty()) {
-            // if empty, push to open one.
-            pushOpen();
-         }
+      }
+
+      if (openedFiles.isEmpty()) {
+         // if empty, push to open one.
+         pushOpen();
       }
 
       if (nextFile == null) {
