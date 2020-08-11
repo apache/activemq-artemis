@@ -28,4 +28,8 @@ public interface ChannelHandler {
     * @param packet the packet received
     */
    void handlePacket(Packet packet);
+
+   default void endOfBatch() {
+
+   }
 }

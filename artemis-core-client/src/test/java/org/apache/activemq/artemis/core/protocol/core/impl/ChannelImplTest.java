@@ -375,6 +375,11 @@ public class ChannelImplTest {
             }
 
             @Override
+            public void write(ActiveMQBuffer buffer, boolean requestFlush) {
+
+            }
+
+            @Override
             public void write(ActiveMQBuffer buffer, boolean flush, boolean batched) {
 
             }
