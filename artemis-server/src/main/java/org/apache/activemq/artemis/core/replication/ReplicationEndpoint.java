@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +52,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournal
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageInSync;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
@@ -73,6 +75,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage.SyncDataType;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -98,6 +101,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private final SharedNothingBackupActivation activation;
    private final boolean noSync = false;
    private Channel channel;
+   private boolean supportResponseBatching;
 
    private Journal[] journals;
    private final JournalLoadInformation[] journalLoadInformation = new JournalLoadInformation[2];
@@ -130,6 +134,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private List<Interceptor> outgoingInterceptors = null;
 
+   private final ArrayList<Packet> pendingPackets;
+
 
    // Constructors --------------------------------------------------
    public ReplicationEndpoint(final ActiveMQServerImpl server,
@@ -140,6 +146,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       this.criticalErrorListener = criticalErrorListener;
       this.wantedFailBack = wantedFailBack;
       this.activation = activation;
+      this.pendingPackets = new ArrayList<>();
+      this.supportResponseBatching = false;
    }
 
    // Public --------------------------------------------------------
@@ -242,15 +250,31 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          if (logger.isTraceEnabled()) {
             logger.trace("Returning " + response);
          }
-
-         sendResponse(response);
+         if (supportResponseBatching) {
+            pendingPackets.add(response);
+         } else {
+            channel.send(response);
+         }
       } else {
          logger.trace("Response is null, ignoring response");
       }
    }
 
-   protected void sendResponse(PacketImpl response) {
-      channel.send(response);
+   @Override
+   public void endOfBatch() {
+      final ArrayList<Packet> pendingPackets = this.pendingPackets;
+      if (pendingPackets.isEmpty()) {
+         return;
+      }
+      try {
+         for (int i = 0, size = pendingPackets.size(); i < size; i++) {
+            final Packet packet = pendingPackets.get(i);
+            final boolean isLast = i == (size - 1);
+            channel.send(packet, isLast);
+         }
+      } finally {
+         pendingPackets.clear();
+      }
    }
 
    /**
@@ -365,6 +389,21 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    public void setChannel(final Channel channel) {
       this.channel = channel;
+      if (channel == null) {
+         supportResponseBatching = false;
+      } else {
+         try {
+            final CoreRemotingConnection connection = channel.getConnection();
+            if (connection != null) {
+               this.supportResponseBatching = connection.getTransportConnection() instanceof NettyConnection;
+            } else {
+               this.supportResponseBatching = false;
+            }
+         } catch (Throwable t) {
+            logger.warn("Error while checking the channel connection", t);
+            this.supportResponseBatching = false;
+         }
+      }
 
       if (this.channel != null && outgoingInterceptors != null) {
          if (channel.getConnection() instanceof RemotingConnectionImpl)  {
@@ -551,7 +590,10 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             registerJournal(journalContent.typeByte, syncJournal);
 
             // We send a response now, to avoid a situation where we handle votes during the deactivation of the live during a failback.
-            sendResponse(replicationResponseMessage);
+            if (supportResponseBatching) {
+               endOfBatch();
+            }
+            channel.send(replicationResponseMessage);
             replicationResponseMessage = null;
 
             // This needs to be done after the response is sent, to avoid voting shutting it down for any reason.

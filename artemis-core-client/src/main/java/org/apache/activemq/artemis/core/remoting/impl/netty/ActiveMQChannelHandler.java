@@ -77,6 +77,12 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
    }
 
    @Override
+   public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+      super.channelReadComplete(ctx);
+      handler.endOfBatch(channelId(ctx.channel()));
+   }
+
+   @Override
    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
       synchronized (this) {
          if (active) {

@@ -232,6 +232,79 @@ public final class ChannelImpl implements Channel {
    }
 
    @Override
+   public boolean send(Packet packet, boolean flushConnection) {
+      if (invokeInterceptors(packet, interceptors, connection) != null) {
+         return false;
+      }
+
+      final ResponseCache responseAsyncCache = this.responseAsyncCache;
+
+      synchronized (sendLock) {
+         packet.setChannelID(id);
+
+         if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+            packet.setCorrelationID(responseAsyncCache.nextCorrelationID());
+         }
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Sending packet nonblocking " + packet + " on channelID=" + id);
+         }
+
+         ActiveMQBuffer buffer = packet.encode(connection);
+
+         lock.lock();
+
+         try {
+            if (failingOver) {
+               waitForFailOver("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " timed-out waiting for fail-over condition on non-blocking send");
+            }
+
+            // Sanity check
+            if (transferring) {
+               throw ActiveMQClientMessageBundle.BUNDLE.cannotSendPacketDuringFailover();
+            }
+
+            if (resendCache != null && packet.isRequiresConfirmations()) {
+               addResendPacket(packet);
+            }
+
+         } finally {
+            lock.unlock();
+         }
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " Writing buffer for channelID=" + id);
+         }
+
+         //We do this outside the lock as ResponseCache is threadsafe and allows responses to come in,
+         //As the send could block if the response cache cannot add, preventing responses to be handled.
+         if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+            while (!responseAsyncCache.add(packet)) {
+               try {
+                  Thread.sleep(1);
+               } catch (Exception e) {
+                  // Ignore
+               }
+            }
+         }
+
+         // The actual send must be outside the lock, or with OIO transport, the write can block if the tcp
+         // buffer is full, preventing any incoming buffers being handled and blocking failover
+         try {
+            connection.getTransportConnection().write(buffer, flushConnection);
+         } catch (Throwable t) {
+            //If runtime exception, we must remove from the cache to avoid filling up the cache causing it to be full.
+            //The client would get still know about this as the exception bubbles up the call stack instead.
+            if (responseAsyncCache != null && packet.isRequiresResponse() && packet.isResponseAsync()) {
+               responseAsyncCache.remove(packet.getCorrelationID());
+            }
+            throw t;
+         }
+         return true;
+      }
+   }
+
+   @Override
    public boolean sendAndFlush(final Packet packet) {
       return send(packet, -1, true, false);
    }
@@ -545,6 +618,15 @@ public final class ChannelImpl implements Channel {
    @Override
    public ChannelHandler getHandler() {
       return handler;
+   }
+
+   @Override
+   public void endOfBatch() {
+      ChannelHandler handler = this.handler;
+      if (handler == null) {
+         return;
+      }
+      handler.endOfBatch();
    }
 
    @Override

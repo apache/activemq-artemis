@@ -32,4 +32,8 @@ public interface BufferHandler {
     * @param buffer       the buffer to decode
     */
    void bufferReceived(Object connectionID, ActiveMQBuffer buffer);
+
+   default void endOfBatch(Object connectionID) {
+
+   }
 }

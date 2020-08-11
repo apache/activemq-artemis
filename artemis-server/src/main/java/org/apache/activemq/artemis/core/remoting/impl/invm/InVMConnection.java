@@ -176,6 +176,11 @@ public class InVMConnection implements Connection {
    }
 
    @Override
+   public void write(ActiveMQBuffer buffer, boolean requestFlush) {
+      write(buffer, false, false, null);
+   }
+
+   @Override
    public void write(final ActiveMQBuffer buffer) {
       write(buffer, false, false, null);
    }

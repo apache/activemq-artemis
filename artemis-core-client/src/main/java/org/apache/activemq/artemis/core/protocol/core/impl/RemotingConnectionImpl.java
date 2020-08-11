@@ -392,6 +392,15 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    }
 
    @Override
+   public void endOfBatch(Object connectionID) {
+      super.endOfBatch(connectionID);
+      // TODO we really need a lock here?
+      synchronized (transferLock) {
+         channels.forEach((channelID, channel) -> channel.endOfBatch());
+      }
+   }
+
+   @Override
    public String getTransportLocalAddress() {
       return getTransportConnection().getLocalAddress();
    }
