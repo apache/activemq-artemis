@@ -52,6 +52,8 @@ public class TransientQueueManagerImpl extends ReferenceCounterUtil implements T
    }
 
    public TransientQueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
+      super(server.getExecutorFactory().getExecutor());
+
       this.server = server;
 
       this.queueName = queueName;

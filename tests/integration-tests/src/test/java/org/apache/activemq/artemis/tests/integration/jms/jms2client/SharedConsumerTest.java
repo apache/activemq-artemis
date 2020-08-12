@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -111,8 +112,7 @@ public class SharedConsumerTest extends JMSTestBase {
          Binding binding = server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon"));
          assertNotNull(binding);
          con2.close();
-         binding = server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon"));
-         assertNull(binding);
+         Wait.assertTrue(() -> server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon")) == null, 2000, 100);
          con1 = context.createSharedConsumer(topic2, "mySharedCon");
       } finally {
          context.close();
