@@ -26,6 +26,7 @@ public interface AddressControl {
    String ROUTED_MESSAGE_COUNT_DESCRIPTION = "number of messages routed to one or more bindings";
    String UNROUTED_MESSAGE_COUNT_DESCRIPTION = "number of messages not routed to any bindings";
    String ADDRESS_SIZE_DESCRIPTION = "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking";
+   String NUMBER_OF_PAGES_DESCRIPTION = "number of pages used by this address";
 
    /**
     * Returns the managed address.
@@ -93,8 +94,8 @@ public interface AddressControl {
    /**
     * Returns the number of pages used by this address.
     */
-   @Attribute(desc = "number of pages used by this address")
-   int getNumberOfPages() throws Exception;
+   @Attribute(desc = NUMBER_OF_PAGES_DESCRIPTION)
+   int getNumberOfPages();
 
    /**
     * Returns whether this address is paging.

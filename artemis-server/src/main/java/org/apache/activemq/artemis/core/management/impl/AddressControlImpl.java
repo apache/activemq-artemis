@@ -324,7 +324,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public int getNumberOfPages() throws Exception {
+   public int getNumberOfPages() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getNumberOfPages(this.addressInfo);
       }
@@ -337,6 +337,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          } else {
             return pageStore.getNumberOfPages();
          }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.debug("Failed to get number of pages", e);
+         return -1;
       } finally {
          blockOnIO();
       }
