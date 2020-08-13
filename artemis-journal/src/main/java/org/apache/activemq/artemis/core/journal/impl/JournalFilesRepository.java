@@ -88,11 +88,14 @@ public class JournalFilesRepository {
    private final Runnable pushOpenRunnable = new Runnable() {
       @Override
       public void run() {
-         try {
-            pushOpenedFile();
-         } catch (Exception e) {
-            ActiveMQJournalLogger.LOGGER.errorPushingFile(e);
-            fileFactory.onIOError(e, "unable to open ", null);
+         // if there's already an opened file there is no need to push a new one
+         if (openedFiles.isEmpty()) {
+            try {
+               pushOpenedFile();
+            } catch (Exception e) {
+               ActiveMQJournalLogger.LOGGER.errorPushingFile(e);
+               fileFactory.onIOError(e, "unable to open ", null);
+            }
          }
       }
    };
@@ -444,11 +447,11 @@ public class JournalFilesRepository {
          pushOpen();
 
          nextFile = openedFiles.poll(journalFileOpenTimeout, TimeUnit.SECONDS);
-      }
-
-      if (openedFiles.isEmpty()) {
-         // if empty, push to open one.
-         pushOpen();
+      } else {
+         if (openedFiles.isEmpty()) {
+            // if empty, push to open one.
+            pushOpen();
+         }
       }
 
       if (nextFile == null) {
