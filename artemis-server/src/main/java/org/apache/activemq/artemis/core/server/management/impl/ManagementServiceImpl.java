@@ -270,6 +270,7 @@ public class ManagementServiceImpl implements ManagementService {
                builder.register(AddressMetricNames.ROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(addressInfo.getRoutedMessageCount()), AddressControl.ROUTED_MESSAGE_COUNT_DESCRIPTION);
                builder.register(AddressMetricNames.UNROUTED_MESSAGE_COUNT, this, metrics -> Double.valueOf(addressInfo.getUnRoutedMessageCount()), AddressControl.UNROUTED_MESSAGE_COUNT_DESCRIPTION);
                builder.register(AddressMetricNames.ADDRESS_SIZE, this, metrics -> Double.valueOf(addressControl.getAddressSize()), AddressControl.ADDRESS_SIZE_DESCRIPTION);
+               builder.register(AddressMetricNames.PAGES_COUNT, this, metrics -> Double.valueOf(addressControl.getNumberOfPages()), AddressControl.NUMBER_OF_PAGES_DESCRIPTION);
             });
          }
       }

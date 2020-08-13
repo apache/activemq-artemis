@@ -89,7 +89,7 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
-         public int getNumberOfPages() throws Exception {
+         public int getNumberOfPages() {
             return (int) proxy.retrieveAttributeValue("numberOfPages", Integer.class);
          }
 
