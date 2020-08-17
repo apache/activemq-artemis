@@ -47,7 +47,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.io.DummyCallback;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -841,7 +840,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(addRecordEncodeSize, maxRecordSize);
       }
 
-      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(callback);
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
@@ -933,7 +932,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                            Object record,
                                            boolean sync,
                                            IOCompletion callback) throws InterruptedException, java.util.concurrent.ExecutionException {
-      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(callback);
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
@@ -1017,7 +1016,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    private void internalAppendDeleteRecord(long id,
                                            boolean sync,
                                            IOCompletion callback) throws InterruptedException, java.util.concurrent.ExecutionException {
-      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(callback);
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
@@ -1064,12 +1063,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       result.get();
    }
 
-   private static SimpleFuture newSyncAndCallbackResult(IOCompletion callback) {
-      if (callback != null && callback != DummyCallback.getInstance()) {
-         return SimpleFuture.dumb();
-      } else {
-         return new SimpleFutureImpl<>();
-      }
+   private static SimpleFuture newSyncAndCallbackResult(boolean sync, IOCompletion callback) {
+      return (sync && callback == null) ? new SimpleFutureImpl<>() : SimpleFuture.dumb();
    }
 
    @Override
@@ -1295,7 +1290,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          logger.trace("scheduling appendPrepareRecord::txID=" + txID);
       }
 
-      final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(callback);
+      final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(sync, callback);
 
       appendExecutor.execute(new Runnable() {
          @Override
@@ -1381,7 +1376,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
 
-      final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(callback);
+      final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(sync, callback);
 
       appendExecutor.execute(new Runnable() {
          @Override
@@ -1435,7 +1430,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
 
 
-      final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(callback);
+      final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
          @Override
          public void run() {

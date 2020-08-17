@@ -1227,6 +1227,27 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             logger.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
          }
       }
+
+      @Override
+      public void endOfBatch(final Object connectionID) {
+         RemotingConnection theConn = connection;
+
+         if (theConn != null && connectionID.equals(theConn.getID())) {
+            try {
+               theConn.endOfBatch(connectionID);
+            } catch (final RuntimeException e) {
+               ActiveMQClientLogger.LOGGER.disconnectOnErrorDecoding(e);
+               threadPool.execute(new Runnable() {
+                  @Override
+                  public void run() {
+                     theConn.fail(new ActiveMQException(e.getMessage()));
+                  }
+               });
+            }
+         } else {
+            logger.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
+         }
+      }
    }
 
    private final class DelegatingFailureListener implements FailureListener {

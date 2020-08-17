@@ -77,6 +77,15 @@ public interface Connection {
    Object getID();
 
    /**
+    * writes the buffer to the connection and if flush is true request to flush the buffer
+    * (and any previous un-flushed ones) into the wire.
+    *
+    * @param buffer       the buffer to write
+    * @param requestFlush whether to request flush onto the wire
+    */
+   void write(ActiveMQBuffer buffer, boolean requestFlush);
+
+   /**
     * writes the buffer to the connection and if flush is true returns only when the buffer has been physically written to the connection.
     *
     * @param buffer  the buffer to write

@@ -282,6 +282,17 @@ public class NettyConnection implements Connection {
    }
 
    @Override
+   public void write(ActiveMQBuffer buffer, boolean requestFlush) {
+      final Channel channel = this.channel;
+      final ByteBuf bytes = buffer.byteBuf();
+      if (requestFlush) {
+         channel.writeAndFlush(bytes, channel.voidPromise());
+      } else {
+         channel.write(bytes, channel.voidPromise());
+      }
+   }
+
+   @Override
    public final void write(ActiveMQBuffer buffer, final boolean flush, final boolean batched) {
       write(buffer, flush, batched, null);
    }

@@ -195,6 +195,11 @@ public class BackupSyncDelay implements Interceptor {
       }
 
       @Override
+      public boolean send(Packet packet, boolean flushConnection) {
+         return channel.send(packet, flushConnection);
+      }
+
+      @Override
       public String toString() {
          return "ChannelWrapper(" + channel + ")";
       }
@@ -234,6 +239,11 @@ public class BackupSyncDelay implements Interceptor {
 
       @Override
       public ChannelHandler getHandler() {
+         throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public void endOfBatch() {
          throw new UnsupportedOperationException();
       }
 

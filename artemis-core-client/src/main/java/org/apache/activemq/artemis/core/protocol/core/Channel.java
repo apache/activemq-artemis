@@ -85,6 +85,18 @@ public interface Channel {
    boolean sendBatched(Packet packet);
 
    /**
+    * Sends a packet on this channel, but request it to be flushed (along with the un-flushed previous ones) only iff
+    * {@code flushConnection} is {@code true}.
+    *
+    * @param packet       the packet to send
+    * @param flushConnection if {@code true} requests this {@code packet} and any un-flushed previous sent one to be flushed
+    *                     to the underlying connection
+    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
+    * successful
+    */
+   boolean send(Packet packet, boolean flushConnection);
+
+   /**
     * Sends a packet on this channel and then blocks until it has been written to the connection.
     *
     * @param packet the packet to send
@@ -130,6 +142,8 @@ public interface Channel {
     * @return the current channel handler
     */
    ChannelHandler getHandler();
+
+   void endOfBatch();
 
    /**
     * Closes this channel.
