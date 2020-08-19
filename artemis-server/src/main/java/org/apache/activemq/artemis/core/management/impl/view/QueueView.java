@@ -65,6 +65,7 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add("lastValue", toString(queue.isLastValue()))
          .add("scheduledCount", toString(queue.getScheduledCount()))
          .add("groupRebalance", toString(queue.isGroupRebalance()))
+         .add("groupRebalancePauseDispatch", toString(queue.isGroupRebalancePauseDispatch()))
          .add("groupBuckets", toString(queue.getGroupBuckets()))
          .add("groupFirstKey", toString(queue.getGroupFirstKey()));
       return obj;
@@ -122,6 +123,8 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
             return q.getScheduledCount();
          case "groupRebalance":
             return queue.isGroupRebalance();
+         case "groupRebalancePauseDispatch":
+            return queue.isGroupRebalancePauseDispatch();
          case "groupBuckets":
             return queue.getGroupBuckets();
          case "groupFirstKey":

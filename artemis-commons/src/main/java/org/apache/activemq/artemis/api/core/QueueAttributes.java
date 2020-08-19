@@ -28,6 +28,7 @@ public class QueueAttributes implements Serializable {
    public static final String MAX_CONSUMERS = "max-consumers";
    public static final String EXCLUSIVE = "exclusive";
    public static final String GROUP_REBALANCE = "group-rebalance";
+   public static final String GROUP_REBALANCE_PAUSE_DISPATCH = "group-rebalance-pause-dispatch";
    public static final String GROUP_BUCKETS = "group-buckets";
    public static final String GROUP_FIRST_KEY = "group-first-key";
    public static final String LAST_VALUE = "last-value";
@@ -49,6 +50,7 @@ public class QueueAttributes implements Serializable {
    private Integer maxConsumers;
    private Boolean exclusive;
    private Boolean groupRebalance;
+   private Boolean groupRebalancePauseDispatch;
    private Integer groupBuckets;
    private SimpleString groupFirstKey;
    private Boolean lastValue;
@@ -93,6 +95,8 @@ public class QueueAttributes implements Serializable {
             setConsumerPriority(Integer.valueOf(value));
          } else if (key.equals(GROUP_REBALANCE)) {
             setGroupRebalance(Boolean.valueOf(value));
+         } else if (key.equals(GROUP_REBALANCE_PAUSE_DISPATCH)) {
+            setGroupRebalancePauseDispatch(Boolean.valueOf(value));
          } else if (key.equals(GROUP_BUCKETS)) {
             setGroupBuckets(Integer.valueOf(value));
          } else if (key.equals(GROUP_FIRST_KEY)) {
@@ -119,6 +123,7 @@ public class QueueAttributes implements Serializable {
          .setRingSize(this.getRingSize())
          .setEnabled(this.isEnabled())
          .setGroupRebalance(this.getGroupRebalance())
+         .setGroupRebalancePauseDispatch(this.getGroupRebalancePauseDispatch())
          .setNonDestructive(this.getNonDestructive())
          .setLastValue(this.getLastValue())
          .setFilterString(this.getFilterString())
@@ -146,6 +151,7 @@ public class QueueAttributes implements Serializable {
             .setRingSize(queueConfiguration.getRingSize())
             .setEnabled(queueConfiguration.isEnabled())
             .setGroupRebalance(queueConfiguration.isGroupRebalance())
+            .setGroupRebalancePauseDispatch(queueConfiguration.isGroupRebalancePauseDispatch())
             .setNonDestructive(queueConfiguration.isNonDestructive())
             .setLastValue(queueConfiguration.isLastValue())
             .setFilterString(queueConfiguration.getFilterString())
@@ -277,6 +283,15 @@ public class QueueAttributes implements Serializable {
 
    public QueueAttributes setGroupRebalance(Boolean groupRebalance) {
       this.groupRebalance = groupRebalance;
+      return this;
+   }
+
+   public Boolean getGroupRebalancePauseDispatch() {
+      return groupRebalancePauseDispatch;
+   }
+
+   public QueueAttributes setGroupRebalancePauseDispatch(Boolean groupRebalancePauseDispatch) {
+      this.groupRebalancePauseDispatch = groupRebalancePauseDispatch;
       return this;
    }
 

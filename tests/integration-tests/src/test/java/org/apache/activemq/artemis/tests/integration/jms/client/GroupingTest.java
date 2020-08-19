@@ -518,6 +518,155 @@ public class GroupingTest extends JMSTestBase {
       ctx.close();
    }
 
+   /**
+    * This tests ensures that when we have group rebalance and pause dispatch,
+    * the broker pauses dispatch of new messages to consumers whilst rebalance and awaits existing inflight messages to be handled before restarting dispatch with new reblanced group allocations,
+    * this allows us to provide a guarantee of message ordering even with rebalance, at the expense that during rebalance dispatch will pause till all consumers with inflight messages are handled.
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testGroupRebalancePauseDispatch() throws Exception {
+      ConnectionFactory fact = getCF();
+      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
+      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+      String testQueueName = getName() + "_group_rebalance";
+
+      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupRebalancePauseDispatch(true));
+
+      JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
+
+      Queue testQueue = ctx.createQueue(testQueueName);
+
+
+      final String groupID1 = "groupA";
+      final String groupID2 = "groupB";
+      final String groupID3 = "groupC";
+
+
+      JMSProducer producer1 = ctx.createProducer().setProperty("JMSXGroupID", groupID1);
+      JMSProducer producer2 = ctx.createProducer().setProperty("JMSXGroupID", groupID2);
+      JMSProducer producer3 = ctx.createProducer().setProperty("JMSXGroupID", groupID3);
+
+      JMSConsumer consumer1 = ctx.createConsumer(testQueue);
+      JMSConsumer consumer2 = ctx.createConsumer(testQueue);
+
+      ctx.start();
+
+      for (int j = 0; j < 10; j++) {
+         send(ctx, testQueue, groupID1, producer1, j);
+      }
+      for (int j = 10; j < 20; j++) {
+         send(ctx, testQueue, groupID2, producer2, j);
+      }
+      for (int j = 20; j < 30; j++) {
+         send(ctx, testQueue, groupID3, producer3, j);
+      }
+
+      ctx.commit();
+
+      //First set of msgs should go to the first consumer only
+      for (int j = 0; j < 10; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + j, tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+      }
+      ctx.commit();
+
+
+      //Second set of msgs should go to the second consumers only
+      for (int j = 10; j < 20; j++) {
+         TextMessage tm = (TextMessage) consumer2.receive(10000);
+
+         assertNotNull(tm);
+
+         tm.acknowledge();
+
+         assertEquals("Message" + j, tm.getText());
+
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+      }
+      ctx.commit();
+
+
+      //Add new consumer but where third set we have not consumed so should inflight, that should cause rebalance
+      JMSConsumer consumer3 = ctx.createConsumer(testQueue);
+
+      //Send next set of messages
+      for (int j = 0; j < 10; j++) {
+         send(ctx, testQueue, groupID1, producer1, j);
+      }
+      for (int j = 10; j < 20; j++) {
+         send(ctx, testQueue, groupID2, producer2, j);
+      }
+      for (int j = 20; j < 30; j++) {
+         send(ctx, testQueue, groupID3, producer3, j);
+      }
+      ctx.commit();
+
+      //Ensure we dont get anything on the other consumers, whilst we rebalance and there is inflight messages. - e.g. ensure ordering guarentee.
+      assertNull(consumer2.receiveNoWait());
+      assertNull(consumer3.receiveNoWait());
+
+      //Ensure the inflight set of msgs should go to the first consumer only
+      for (int j = 20; j < 30; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+
+         assertNotNull(tm);
+
+         tm.acknowledge();
+
+         assertEquals("Message" + j, tm.getText());
+
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+      }
+      ctx.commit();
+
+      //Now we cleared the "inflightm messages" expect that consumers 1,2 and 3 are rebalanced and the messages sent earlier are received.
+
+      //First set of msgs should go to the first consumer only
+      for (int j = 0; j < 10; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+         assertNotNull(tm);
+         tm.acknowledge();
+         assertEquals("Message" + j, tm.getText());
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+      }
+
+      //Second set of msgs should go to the second consumers only
+      for (int j = 10; j < 20; j++) {
+         TextMessage tm = (TextMessage) consumer2.receive(10000);
+
+         assertNotNull(tm);
+
+         tm.acknowledge();
+
+         assertEquals("Message" + j, tm.getText());
+
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+      }
+
+      //Third set of msgs should now go to the third consumer now
+      for (int j = 20; j < 30; j++) {
+         TextMessage tm = (TextMessage) consumer3.receive(10000);
+
+         assertNotNull(tm);
+
+         tm.acknowledge();
+
+         assertEquals("Message" + j, tm.getText());
+
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+      }
+
+      ctx.commit();
+
+      ctx.close();
+   }
+
+
 
    @Test
    public void testGroupFirstKey() throws Exception {
