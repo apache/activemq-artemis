@@ -26,15 +26,37 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
+import org.jboss.logging.Logger;
 import org.junit.Assume;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 
 
 
 public class ClasspathBase {
+
+
+   private final Logger instanceLog = Logger.getLogger(this.getClass());
+
+   @Rule
+   public TestRule watcher = new TestWatcher() {
+
+      @Override
+      protected void starting(Description description) {
+         instanceLog.info(String.format("**** start #test %s() ***", ClasspathBase.this.getClass().getName() + "::" + description.getMethodName()));
+      }
+
+      @Override
+      protected void finished(Description description) {
+         instanceLog.info(String.format("**** end #test %s() ***", ClasspathBase.this.getClass().getName() + "::" + description.getMethodName()));
+      }
+   };
 
 
    @ClassRule
