@@ -218,7 +218,17 @@ public class DNSSwitchTest extends SmokeTestBase {
 
       Assert.assertTrue("You must send pairs as overrideParameters", overrideParameters.length % 2 == 0);
 
-      File security = new File(System.getProperty("java.home") + File.separator + "lib" + File.separator + "security" + File.separator + "java.security");
+
+      String javaVersion = System.getProperty("java.version");
+
+      File security;
+
+      if (javaVersion.startsWith("1.8")) {
+         security = new File(System.getProperty("java.home") + File.separator + "lib" + File.separator + "security" + File.separator + "java.security");
+      } else {
+         security = new File(System.getProperty("java.home") + File.separator + "conf" + File.separator + "security" + File.separator + "java.security");
+      }
+
       Properties securityProperties = new Properties();
       securityProperties.load(new FileInputStream(security));
 
