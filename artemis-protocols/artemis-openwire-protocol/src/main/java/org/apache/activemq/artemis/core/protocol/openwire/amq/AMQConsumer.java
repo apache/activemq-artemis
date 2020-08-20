@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.command.ConsumerControl;
 import org.apache.activemq.command.ConsumerId;
@@ -213,7 +214,17 @@ public class AMQConsumer {
             session.getCoreSession().createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selector).setInternal(internalAddress));
          }
       } else {
-         queueName = new SimpleString(UUID.randomUUID().toString());
+         /*
+          * The consumer may be using FQQN in which case the queue might already exist.
+          */
+         if (CompositeAddress.isFullyQualified(physicalName)) {
+            queueName = CompositeAddress.extractQueueName(SimpleString.toSimpleString(physicalName));
+            if (session.getCoreServer().locateQueue(queueName) != null) {
+               return queueName;
+            }
+         } else {
+            queueName = new SimpleString(UUID.randomUUID().toString());
+         }
 
          session.getCoreSession().createQueue(new QueueConfiguration(queueName).setAddress(address).setFilterString(selector).setDurable(false).setTemporary(true).setInternal(internalAddress));
       }

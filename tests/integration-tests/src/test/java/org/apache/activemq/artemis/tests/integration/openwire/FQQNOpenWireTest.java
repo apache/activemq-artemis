@@ -124,6 +124,47 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
    }
 
    @Test
+   public void testTopicFQQNSendAndConsumeAutoCreate() throws Exception {
+      internalTopicFQQNSendAndConsume(true);
+   }
+
+   @Test
+   public void testTopicFQQNSendAndConsumeManualCreate() throws Exception {
+      internalTopicFQQNSendAndConsume(false);
+   }
+
+   private void internalTopicFQQNSendAndConsume(boolean autocreate) throws Exception {
+      if (autocreate) {
+         server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(true).setAutoCreateQueues(true));
+      } else {
+         server.createQueue(new QueueConfiguration(anycastQ1).setAddress(multicastAddress).setDurable(false));
+      }
+
+      try (Connection connection = factory.createConnection()) {
+         connection.setClientID("FQQNconn");
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(CompositeAddress.toFullyQualified(multicastAddress, anycastQ1).toString());
+
+         MessageConsumer consumer1 = session.createConsumer(topic);
+         MessageConsumer consumer2 = session.createConsumer(topic);
+         MessageConsumer consumer3 = session.createConsumer(topic);
+
+         MessageProducer producer = session.createProducer(topic);
+
+         producer.send(session.createMessage());
+
+         //only 1 consumer receives the message as they're all connected to the same FQQN
+         Message m = consumer1.receive(2000);
+         assertNotNull(m);
+         m = consumer2.receiveNoWait();
+         assertNull(m);
+         m = consumer3.receiveNoWait();
+         assertNull(m);
+      }
+   }
+
+   @Test
    public void testQueueConsumerReceiveTopicUsingFQQN() throws Exception {
 
       SimpleString queueName1 = new SimpleString("sub.queue1");

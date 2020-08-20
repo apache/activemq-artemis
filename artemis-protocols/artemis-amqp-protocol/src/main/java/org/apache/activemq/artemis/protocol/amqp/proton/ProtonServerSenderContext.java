@@ -524,7 +524,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
    private SimpleString getMatchingQueue(SimpleString queueName, SimpleString address, RoutingType routingType) throws Exception {
       if (queueName != null) {
-         QueueQueryResult result = sessionSPI.queueQuery(queueName, routingType, false);
+         QueueQueryResult result = sessionSPI.queueQuery(CompositeAddress.toFullyQualified(address, queueName), routingType, true);
          if (!result.isExists()) {
             throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist");
          } else {
