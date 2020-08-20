@@ -37,6 +37,22 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
+/**
+ * This utility class will use sudo commands to start "fake" network cards on a given address.
+ * It's used on tests that need to emmulate network outages and split brains.
+ *
+ * If you write a new test using this class, please make special care on undoing the config,
+ * especially in case of failures.
+ *
+ * Usually the class {@link NetUtilResource} is pretty accurate on undoing this, but you also need to *test your test* well.
+ *
+ * You need special sudo authorizations on your system to let this class work:
+ *
+ * Add the following at the end of your /etc/sudoers (use the sudo visudo command)");
+ * # ------------------------------------------------------- ");
+ * yourUserName ALL = NOPASSWD: /sbin/ifconfig");
+ * # ------------------------------------------------------- ");
+ * */
 public class NetUtil {
 
    public static boolean checkIP(String ip) throws Exception {

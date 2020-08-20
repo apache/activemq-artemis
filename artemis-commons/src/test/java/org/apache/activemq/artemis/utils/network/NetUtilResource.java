@@ -19,6 +19,9 @@ package org.apache.activemq.artemis.utils.network;
 
 import org.junit.rules.ExternalResource;
 
+/**
+ * Just a rule where you can use to automate cleanup on NetUtil.
+ * */
 public class NetUtilResource extends ExternalResource {
 
    @Override
