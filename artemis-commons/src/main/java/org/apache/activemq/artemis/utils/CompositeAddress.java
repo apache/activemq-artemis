@@ -23,11 +23,22 @@ public class CompositeAddress {
    public static String SEPARATOR = "::";
 
    public static String toFullyQualified(String address, String qName) {
-      return new StringBuilder().append(address).append(SEPARATOR).append(qName).toString();
+      return toFullyQualified(SimpleString.toSimpleString(address), SimpleString.toSimpleString(qName)).toString();
    }
 
    public static SimpleString toFullyQualified(SimpleString address, SimpleString qName) {
-      return address.concat(SEPARATOR).concat(qName);
+      SimpleString result;
+      if (address == null && qName == null) {
+         result = null;
+      } else if (address != null && qName == null) {
+         result = address;
+      } else if (address == null && qName != null) {
+         result = qName;
+      } else {
+         result = address.concat(SEPARATOR).concat(qName);
+      }
+
+      return result;
    }
 
    public static boolean isFullyQualified(String address) {

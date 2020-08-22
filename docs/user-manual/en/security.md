@@ -139,6 +139,36 @@ By not inheriting permissions, it allows you to effectively deny permissions in
 more specific security-setting blocks by simply not specifying them. Otherwise
 it would not be possible to deny permissions in sub-groups of addresses.
 
+### Fine-grained security using fully qualified queue name
+
+In certain situations it may be necessary to configure security that is more
+fine-grained that simply across an entire address. For example, consider an
+address with multiple queues:
+
+```xml
+<addresses>
+   <address name="foo">
+      <anycast>
+         <queue name="q1" />
+         <queue name="q2" />
+      </anycast>
+   </address>
+</addresses>
+```
+
+You may want to limit consumption from `q1` to one role and consumption from
+`q2` to another role. You can do this using the fully qualified queue name (i.e.
+fqqn") in the `match` of the `security-setting`, e.g.:
+
+```xml
+<security-setting match="foo::q1">
+   <permission type="consume" roles="q1Role"/>
+</security-setting>
+<security-setting match="foo::q2">
+   <permission type="consume" roles="q2Role"/>
+</security-setting>
+```
+
 ## Security Setting Plugin
 
 Aside from configuring sets of permissions via XML these permissions can

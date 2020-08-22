@@ -2195,13 +2195,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
 
          if (session != null) {
-
-            if (queue.isDurable()) {
-               // make sure the user has privileges to delete this queue
-               securityStore.check(address, queueName, CheckType.DELETE_DURABLE_QUEUE, session);
-            } else {
-               securityStore.check(address, queueName, CheckType.DELETE_NON_DURABLE_QUEUE, session);
-            }
+            // make sure the user has privileges to delete this queue
+            securityStore.check(address, queueName, queue.isDurable() ? CheckType.DELETE_DURABLE_QUEUE : CheckType.DELETE_NON_DURABLE_QUEUE, session);
          }
 
          // This check is only valid if checkConsumerCount == true
