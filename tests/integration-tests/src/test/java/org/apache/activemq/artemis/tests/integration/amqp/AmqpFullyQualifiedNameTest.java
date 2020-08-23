@@ -68,6 +68,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    @Test
    public void testFQQNTopicWhenQueueDoesNotExist() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(false));
       Exception e = null;
       String queueName = "testQueue";
 
@@ -85,6 +86,47 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       }
       assertNotNull(e);
       assertTrue(e.getMessage().contains("Queue: '" + queueName + "' does not exist"));
+   }
+
+   @Test
+   public void testTopicFQQNSendAndConsumeAutoCreate() throws Exception {
+      internalTopicFQQNSendAndConsume(true);
+   }
+
+   @Test
+   public void testTopicFQQNSendAndConsumeManualCreate() throws Exception {
+      internalTopicFQQNSendAndConsume(false);
+   }
+
+   private void internalTopicFQQNSendAndConsume(boolean autocreate) throws Exception {
+      if (autocreate) {
+         server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(true).setAutoCreateQueues(true));
+      } else {
+         server.createQueue(new QueueConfiguration(anycastQ1).setAddress(multicastAddress).setDurable(false));
+      }
+
+      try (Connection connection = createConnection(false)) {
+         connection.setClientID("FQQNconn");
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(CompositeAddress.toFullyQualified(multicastAddress, anycastQ1).toString());
+
+         MessageConsumer consumer1 = session.createConsumer(topic);
+         MessageConsumer consumer2 = session.createConsumer(topic);
+         MessageConsumer consumer3 = session.createConsumer(topic);
+
+         MessageProducer producer = session.createProducer(topic);
+
+         producer.send(session.createMessage());
+
+         //only 1 consumer receives the message as they're all connected to the same FQQN
+         Message m = consumer1.receive(2000);
+         assertNotNull(m);
+         m = consumer2.receiveNoWait();
+         assertNull(m);
+         m = consumer3.receiveNoWait();
+         assertNull(m);
+      }
    }
 
    @Test

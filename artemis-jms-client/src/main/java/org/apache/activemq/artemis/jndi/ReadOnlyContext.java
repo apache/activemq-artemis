@@ -215,7 +215,7 @@ public class ReadOnlyContext implements Context, Serializable {
       }
       if (result == null) {
          int pos = name.indexOf(':');
-         if (pos > 0) {
+         if (pos > 0 && !name.contains("::")) {
             String scheme = name.substring(0, pos);
             Context ctx = NamingManager.getURLContext(scheme, environment);
             if (ctx == null) {

@@ -383,7 +383,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    void checkDestination(ActiveMQDestination destination) throws JMSException {
       SimpleString address = destination.getSimpleAddress();
-      // TODO: What to do with FQQN
       if (!destination.isCreated()) {
          try {
             ClientSession.AddressQuery addressQuery = session.addressQuery(address);
@@ -414,6 +413,19 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                         createTemporaryQueue(destination, RoutingType.ANYCAST, address, null, addressQuery);
                      } else {
                         createQueue(destination, RoutingType.ANYCAST, address, null, true, true, addressQuery);
+                     }
+                  } else {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist, address exists but autoCreateQueues=" + addressQuery.isAutoCreateQueues());
+                  }
+               }
+            } else if (CompositeAddress.isFullyQualified(address)) { // it could be a topic using FQQN
+               ClientSession.QueueQuery queueQuery = session.queueQuery(address);
+               if (!queueQuery.isExists()) {
+                  if (addressQuery.isAutoCreateQueues()) {
+                     if (destination.isTemporary()) {
+                        createTemporaryQueue(destination, RoutingType.MULTICAST, address, null, addressQuery);
+                     } else {
+                        createQueue(destination, RoutingType.MULTICAST, address, null, true, true, addressQuery);
                      }
                   } else {
                      throw new InvalidDestinationException("Destination " + address + " does not exist, address exists but autoCreateQueues=" + addressQuery.isAutoCreateQueues());
@@ -837,7 +849,22 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
                queueName = new SimpleString(UUID.randomUUID().toString());
 
-               createTemporaryQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, response);
+               if (!CompositeAddress.isFullyQualified(dest.getAddress())) {
+                  createTemporaryQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, response);
+               } else {
+                  if (!response.isExists() || !response.getQueueNames().contains(getCoreQueueName(dest))) {
+                     if (response.isAutoCreateQueues()) {
+                        try {
+                           createQueue(dest, RoutingType.MULTICAST, dest.getSimpleAddress(), null, true, true, response);
+                        } catch (ActiveMQQueueExistsException e) {
+                           // The queue was created by another client/admin between the query check and send create queue packet
+                        }
+                     } else {
+                        throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
+                     }
+                  }
+                  queueName = CompositeAddress.extractQueueName(dest.getSimpleAddress());
+               }
 
                consumer = createClientConsumer(dest, queueName, null);
                autoDeleteQueueName = queueName;

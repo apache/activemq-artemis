@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Assert;
 import org.junit.Before;
@@ -509,7 +510,17 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testJAASSecurityManagerAuthorizationSameAddressDifferentQueues() throws Exception {
+   // this is for backwards compatibility with the pre-FQQN syntax from ARTEMIS-592
+   public void testJAASSecurityManagerAuthorizationSameAddressDifferentQueuesDotSyntax() throws Exception {
+      internalJAASSecurityManagerAuthorizationSameAddressDifferentQueues(false);
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationSameAddressDifferentQueuesFqqnSyntax() throws Exception {
+      internalJAASSecurityManagerAuthorizationSameAddressDifferentQueues(true);
+   }
+
+   private void internalJAASSecurityManagerAuthorizationSameAddressDifferentQueues(boolean fqqnSyntax) throws Exception {
       final SimpleString ADDRESS = new SimpleString("address");
       final SimpleString QUEUE_A = new SimpleString("a");
       final SimpleString QUEUE_B = new SimpleString("b");
@@ -518,10 +529,18 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> aRoles = new HashSet<>();
       aRoles.add(new Role(QUEUE_A.toString(), false, true, false, false, false, false, false, false, false, false));
-      server.getConfiguration().putSecurityRoles(ADDRESS.concat(".").concat(QUEUE_A).toString(), aRoles);
+      if (fqqnSyntax) {
+         server.getConfiguration().putSecurityRoles(CompositeAddress.toFullyQualified(ADDRESS, QUEUE_A).toString(), aRoles);
+      } else {
+         server.getConfiguration().putSecurityRoles(ADDRESS.concat(".").concat(QUEUE_A).toString(), aRoles);
+      }
       Set<Role> bRoles = new HashSet<>();
       bRoles.add(new Role(QUEUE_B.toString(), false, true, false, false, false, false, false, false, false, false));
-      server.getConfiguration().putSecurityRoles(ADDRESS.concat(".").concat(QUEUE_B).toString(), bRoles);
+      if (fqqnSyntax) {
+         server.getConfiguration().putSecurityRoles(CompositeAddress.toFullyQualified(ADDRESS, QUEUE_B).toString(), bRoles);
+      } else {
+         server.getConfiguration().putSecurityRoles(ADDRESS.concat(".").concat(QUEUE_B).toString(), bRoles);
+      }
       server.start();
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(QUEUE_A).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));

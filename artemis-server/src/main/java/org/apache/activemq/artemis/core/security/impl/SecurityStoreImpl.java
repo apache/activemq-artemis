@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
@@ -201,17 +202,28 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          }
 
          String user = session.getUsername();
-         if (checkCached(address, user, checkType)) {
-            // OK
+         // bypass permission checks for management cluster user
+         if (managementClusterUser.equals(user) && session.getPassword().equals(managementClusterPassword)) {
             return;
          }
 
          String saddress = address.toString();
-
          Set<Role> roles = securityRepository.getMatch(saddress);
 
-         // bypass permission checks for management cluster user
-         if (managementClusterUser.equals(user) && session.getPassword().equals(managementClusterPassword)) {
+         /*
+          * If a valid queue is passed in and there's an exact match for the FQQN then use the FQQN instead of the address
+          */
+         boolean isFullyQualified = false;
+         SimpleString fqqn = null;
+         if (queue != null) {
+            fqqn = CompositeAddress.toFullyQualified(address, queue);
+            if (securityRepository.containsExactMatch(fqqn.toString())) {
+               roles = securityRepository.getMatch(fqqn.toString());
+               isFullyQualified = true;
+            }
+         }
+
+         if (checkCached(isFullyQualified ? fqqn : address, user, checkType)) {
             return;
          }
 
@@ -257,8 +269,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          if (act != null) {
             set = act;
          }
-         set.add(address);
-
+         set.add(isFullyQualified ? fqqn : address);
       }
    }
 
