@@ -26,11 +26,7 @@ If everything is successful follow these next steps to build and publish artifac
 
 ## Key to Sign the Release
 
-If you don't have a key to sign the release artifacts you can generate one using this command:
-
-```
-gpg --gen-key
-```
+If you don't have a key to sign the release artifacts, follow the instruction at [apache release signing](https://infra.apache.org/release-signing.html). 
 
 Ensure that your key is listed at https://dist.apache.org/repos/dist/release/activemq/KEYS.
 If not, generate the key information, e.g.:
