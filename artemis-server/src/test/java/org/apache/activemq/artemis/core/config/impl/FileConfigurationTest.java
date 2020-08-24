@@ -102,6 +102,8 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(54321, conf.getThreadPoolMaxSize());
       Assert.assertEquals(false, conf.isSecurityEnabled());
       Assert.assertEquals(5423, conf.getSecurityInvalidationInterval());
+      Assert.assertEquals(333, conf.getAuthenticationCacheSize());
+      Assert.assertEquals(444, conf.getAuthorizationCacheSize());
       Assert.assertEquals(true, conf.isWildcardRoutingEnabled());
       Assert.assertEquals(new SimpleString("Giraffe"), conf.getManagementAddress());
       Assert.assertEquals(new SimpleString("Whatever"), conf.getManagementNotificationAddress());

@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.jms.example;
 
+import javax.security.auth.Subject;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,28 +26,23 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
 
-public class JAASSecurityManagerWrapper implements ActiveMQSecurityManager4 {
+public class JAASSecurityManagerWrapper implements ActiveMQSecurityManager5 {
    ActiveMQJAASSecurityManager activeMQJAASSecurityManager;
 
    @Override
-   public String validateUser(String user, String password, RemotingConnection remotingConnection, String securityDomain) {
-      System.out.println("validateUser(" + user + ", " + password + ", " + remotingConnection.getRemoteAddress() + ")");
-      return activeMQJAASSecurityManager.validateUser(user, password, remotingConnection, securityDomain);
+   public Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) {
+      System.out.println("authenticate(" + user + ", " + password + ", " + remotingConnection.getRemoteAddress() + ")");
+      return activeMQJAASSecurityManager.authenticate(user, password, remotingConnection, securityDomain);
    }
 
-
    @Override
-   public String validateUserAndRole(String user,
-                              String password,
-                              Set<Role> roles,
-                              CheckType checkType,
-                              String address,
-                              RemotingConnection remotingConnection,
-                              String securityDomain) {
-      System.out.println("validateUserAndRole(" + user + ", " + password + ", " + roles + ", " + checkType + ", " + address + ", " + remotingConnection.getRemoteAddress() + ")");
-      return activeMQJAASSecurityManager.validateUserAndRole(user, password, roles, checkType, address, remotingConnection, securityDomain);
+   public boolean authorize(Subject subject,
+                            Set<Role> roles,
+                            CheckType checkType) {
+      System.out.println("authorize(" + subject + ", " + roles + ", " + checkType + ")");
+      return activeMQJAASSecurityManager.authorize(subject, roles, checkType);
    }
 
    @Override

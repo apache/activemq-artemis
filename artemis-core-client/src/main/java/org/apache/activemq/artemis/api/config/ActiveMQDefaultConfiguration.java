@@ -160,6 +160,12 @@ public final class ActiveMQDefaultConfiguration {
    // how long (in ms) to wait before invalidating the security cache
    private static long DEFAULT_SECURITY_INVALIDATION_INTERVAL = 10000;
 
+   // how large to make the authentication cache
+   private static long DEFAULT_AUTHENTICATION_CACHE_SIZE = 1000;
+
+   // how large to make the authorization cache
+   private static long DEFAULT_AUTHORIZATION_CACHE_SIZE = 1000;
+
    // how long (in ms) to wait to acquire a file lock on the journal
    private static long DEFAULT_JOURNAL_LOCK_ACQUISITION_TIMEOUT = -1;
 
@@ -678,6 +684,20 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static long getDefaultSecurityInvalidationInterval() {
       return DEFAULT_SECURITY_INVALIDATION_INTERVAL;
+   }
+
+   /**
+    * how large to make the authentication cache
+    */
+   public static long getDefaultAuthenticationCacheSize() {
+      return DEFAULT_AUTHENTICATION_CACHE_SIZE;
+   }
+
+   /**
+    * how large to make the authorization cache
+    */
+   public static long getDefaultAuthorizationCacheSize() {
+      return DEFAULT_AUTHORIZATION_CACHE_SIZE;
    }
 
    /**

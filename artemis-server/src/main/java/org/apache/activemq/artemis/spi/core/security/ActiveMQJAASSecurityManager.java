@@ -34,7 +34,6 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
-import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
@@ -45,7 +44,7 @@ import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCerts
  * The {@link Subject} returned by the login context is expecting to have a set of {@link RolePrincipal} for each
  * role of the user.
  */
-public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager4 {
+public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
 
    private static final Logger logger = Logger.getLogger(ActiveMQJAASSecurityManager.class);
 
@@ -95,26 +94,15 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager4 {
    }
 
    @Override
-   public String validateUser(final String user, final String password, RemotingConnection remotingConnection, final String securityDomain) {
+   public Subject authenticate(final String user, final String password, RemotingConnection remotingConnection, final String securityDomain) {
       try {
-         return getUserFromSubject(getAuthenticatedSubject(user, password, remotingConnection, securityDomain));
+         return getAuthenticatedSubject(user, password, remotingConnection, securityDomain);
       } catch (LoginException e) {
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
          }
          return null;
       }
-   }
-
-   public String getUserFromSubject(Subject subject) {
-      String validatedUser = "";
-      Set<UserPrincipal> users = subject.getPrincipals(UserPrincipal.class);
-
-      // should only ever be 1 UserPrincipal
-      for (UserPrincipal userPrincipal : users) {
-         validatedUser = userPrincipal.getName();
-      }
-      return validatedUser;
    }
 
    @Override
@@ -123,32 +111,18 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager4 {
    }
 
    @Override
-   public String validateUserAndRole(final String user,
-                                     final String password,
-                                     final Set<Role> roles,
-                                     final CheckType checkType,
-                                     final String address,
-                                     final RemotingConnection remotingConnection,
-                                     final String securityDomain) {
-      Subject localSubject;
-      try {
-         localSubject = getAuthenticatedSubject(user, password, remotingConnection, securityDomain);
-      } catch (LoginException e) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Couldn't validate user", e);
-         }
-         return null;
-      }
-
+   public boolean authorize(final Subject subject,
+                            final Set<Role> roles,
+                            final CheckType checkType) {
       boolean authorized = false;
 
-      if (localSubject != null) {
+      if (subject != null) {
          Set<RolePrincipal> rolesWithPermission = getPrincipalsInRole(checkType, roles);
 
          // Check the caller's roles
          Set<Principal> rolesForSubject = new HashSet<>();
          try {
-            rolesForSubject.addAll(localSubject.getPrincipals(Class.forName(rolePrincipalClass).asSubclass(Principal.class)));
+            rolesForSubject.addAll(subject.getPrincipals(Class.forName(rolePrincipalClass).asSubclass(Principal.class)));
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.failedToFindRolesForTheSubject(e);
          }
@@ -169,11 +143,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager4 {
          }
       }
 
-      if (authorized) {
-         return getUserFromSubject(localSubject);
-      } else {
-         return null;
-      }
+      return authorized;
    }
 
    private Subject getAuthenticatedSubject(final String user,

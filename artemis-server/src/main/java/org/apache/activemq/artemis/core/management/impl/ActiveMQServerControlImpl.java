@@ -91,6 +91,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -755,6 +756,22 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       double result = (100D * memoryUsed) / globalMaxSize;
       return (int) result;
+   }
+
+   @Override
+   public long getAuthenticationCacheSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAuthenticationCacheSize(this.server);
+      }
+      return ((SecurityStoreImpl)server.getSecurityStore()).getAuthenticationCacheSize();
+   }
+
+   @Override
+   public long getAuthorizationCacheSize() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAuthorizationCacheSize(this.server);
+      }
+      return ((SecurityStoreImpl)server.getSecurityStore()).getAuthorizationCacheSize();
    }
 
    @Override

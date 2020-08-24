@@ -198,6 +198,32 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testSecurityCacheSizes() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      Assert.assertEquals(usingCore() ? 1 : 0, serverControl.getAuthenticationCacheSize());
+      Assert.assertEquals(usingCore() ? 7 : 0, serverControl.getAuthorizationCacheSize());
+
+      ServerLocator loc = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(loc);
+      ClientSession session = csf.createSession("myUser", "myPass", false, true, false, false, 0);
+      session.start();
+
+      final String address = "ADDRESS";
+
+      serverControl.createAddress(address, "MULTICAST");
+
+      ClientProducer producer = session.createProducer(address);
+
+      ClientMessage m = session.createMessage(true);
+      m.putStringProperty("hello", "world");
+      producer.send(m);
+
+      Assert.assertEquals(usingCore() ? 2 : 1, serverControl.getAuthenticationCacheSize());
+      Assert.assertEquals(usingCore() ? 8 : 1, serverControl.getAuthorizationCacheSize());
+   }
+
+   @Test
    public void testGetConnectors() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 

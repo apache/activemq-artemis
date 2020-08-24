@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import javax.security.auth.Subject;
 import java.lang.management.ManagementFactory;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -46,13 +47,14 @@ public class StompWithClientIdValidationTest extends StompTestBase {
          .setSecurityEnabled(isSecurityEnabled())
          .setPersistenceEnabled(isPersistenceEnabled())
          .addAcceptorConfiguration("stomp", "tcp://localhost:61613?enabledProtocols=STOMP")
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
+         .setSecurityInvalidationInterval(0); // disable caching
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration()) {
          @Override
-         public String validateUser(String user, String password, RemotingConnection remotingConnection, String securityDomain) {
+         public Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) {
 
-            String validatedUser = super.validateUser(user, password, remotingConnection, securityDomain);
+            Subject validatedUser = super.authenticate(user, password, remotingConnection, securityDomain);
             if (validatedUser == null) {
                return null;
             }

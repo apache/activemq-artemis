@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -66,6 +67,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1412,6 +1414,9 @@ public class SecurityTest extends ActiveMQTestBase {
 
       securityManager.getConfiguration().addRole("auser", "receiver");
 
+      // invalidate the authentication cache so the new role will be picked up
+      ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthenticationCache();
+
       session.createConsumer(SecurityTest.queueA);
 
       // Removing the Role... the check should be cached, so the next createConsumer shouldn't fail
@@ -1483,7 +1488,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testSendMessageUpdateSender() throws Exception {
-      Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true).setSecurityInvalidationInterval(-1);
+      Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true).setSecurityInvalidationInterval(1000);
       ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -1518,7 +1523,14 @@ public class SecurityTest extends ActiveMQTestBase {
 
       securityManager.getConfiguration().addRole("auser", "receiver");
 
-      session.createConsumer(SecurityTest.queueA);
+      Wait.assertTrue(() -> {
+         try {
+            session.createConsumer(SecurityTest.queueA);
+            return true;
+         } catch (Exception e) {
+            return false;
+         }
+      }, 2000, 100);
 
       // Removing the Role... the check should be cached... but we used
       // setSecurityInvalidationInterval(0), so the

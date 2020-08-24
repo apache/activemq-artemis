@@ -769,6 +769,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public long getAuthenticationCacheSize() {
+            return (Long) proxy.retrieveAttributeValue("AuthenticationCacheSize", Long.class);
+         }
+
+         @Override
+         public long getAuthorizationCacheSize() {
+            return (Long) proxy.retrieveAttributeValue("AuthorizationCacheSize", Long.class);
+         }
+
+         @Override
          public double getDiskStoreUsage() {
             try {
                return (Double) proxy.invokeOperation("getDiskStoreUsage");

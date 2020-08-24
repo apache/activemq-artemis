@@ -212,6 +212,28 @@ public interface Configuration {
    Configuration setSecurityInvalidationInterval(long interval);
 
    /**
+    * Sets the size of the authentication cache.
+    */
+   Configuration setAuthenticationCacheSize(long size);
+
+   /**
+    * Returns the configured size of the authentication cache. <br>
+    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_AUTHENTICATION_CACHE_SIZE}.
+    */
+   long getAuthenticationCacheSize();
+
+   /**
+    * Sets the size of the authorization cache.
+    */
+   Configuration setAuthorizationCacheSize(long size);
+
+   /**
+    * Returns the configured size of the authorization cache. <br>
+    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_AUTHORIZATION_CACHE_SIZE}.
+    */
+   long getAuthorizationCacheSize();
+
+   /**
     * Returns whether security is enabled for this server. <br>
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_ENABLED}.
     */

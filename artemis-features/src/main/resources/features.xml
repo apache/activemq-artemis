@@ -71,6 +71,7 @@
 		<bundle dependency="true">mvn:org.apache.commons/commons-text/${commons.text.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang.version}</bundle>
 		<bundle dependency="true">mvn:org.jctools/jctools-core/${jctools.version}</bundle>
+		<bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
 		<!-- Micrometer can't be included until it supports OSGi. It is currently an "optional" Maven dependency. -->
 		<!--bundle dependency="true">mvn:io.micrometer/micrometer-core/${version.micrometer}</bundle-->
 

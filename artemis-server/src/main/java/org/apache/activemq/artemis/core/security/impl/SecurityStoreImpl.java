@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.core.security.impl;
 
+import javax.security.auth.Subject;
 import javax.security.cert.X509Certificate;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
@@ -41,6 +44,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -57,11 +62,9 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    private final ActiveMQSecurityManager securityManager;
 
-   private final ConcurrentMap<String, ConcurrentHashSet<SimpleString>> cache = new ConcurrentHashMap<>();
+   private final Cache<String, ConcurrentHashSet<SimpleString>> authorizationCache;
 
-   private final long invalidationInterval;
-
-   private volatile long lastCheck;
+   private final Cache<String, Pair<Boolean, Subject>> authenticationCache;
 
    private boolean securityEnabled;
 
@@ -82,14 +85,23 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                             final boolean securityEnabled,
                             final String managementClusterUser,
                             final String managementClusterPassword,
-                            final NotificationService notificationService) {
+                            final NotificationService notificationService,
+                            final long authenticationCacheSize,
+                            final long authorizationCacheSize) {
       this.securityRepository = securityRepository;
       this.securityManager = securityManager;
-      this.invalidationInterval = invalidationInterval;
       this.securityEnabled = securityEnabled;
       this.managementClusterUser = managementClusterUser;
       this.managementClusterPassword = managementClusterPassword;
       this.notificationService = notificationService;
+      authenticationCache = CacheBuilder.newBuilder()
+                                        .maximumSize(authenticationCacheSize)
+                                        .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
+                                        .build();
+      authorizationCache = CacheBuilder.newBuilder()
+                                       .maximumSize(authorizationCacheSize)
+                                       .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
+                                       .build();
       this.securityRepository.registerListener(this);
    }
 
@@ -142,23 +154,40 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
          String validatedUser = null;
          boolean userIsValid = false;
+         boolean check = true;
 
-         if (securityManager instanceof ActiveMQSecurityManager4) {
-            validatedUser = ((ActiveMQSecurityManager4) securityManager).validateUser(user, password, connection, securityDomain);
-         } else if (securityManager instanceof ActiveMQSecurityManager3) {
-            validatedUser = ((ActiveMQSecurityManager3) securityManager).validateUser(user, password, connection);
-         } else if (securityManager instanceof ActiveMQSecurityManager2) {
-            userIsValid = ((ActiveMQSecurityManager2) securityManager).validateUser(user, password, CertificateUtil.getCertsFromConnection(connection));
-         } else {
-            userIsValid = securityManager.validateUser(user, password);
+         Pair<Boolean, Subject> cacheEntry = authenticationCache.getIfPresent(createAuthenticationCacheKey(user, password, connection));
+         if (cacheEntry != null) {
+            if (!cacheEntry.getA()) {
+               // cached authentication failed previously so don't check again
+               check = false;
+            } else {
+               // cached authentication succeeded previously so don't check again
+               check = false;
+               userIsValid = true;
+               validatedUser = getUserFromSubject(cacheEntry.getB());
+            }
          }
 
-         if (!userIsValid && validatedUser == null) {
-            String certSubjectDN = "unavailable";
-            X509Certificate[] certs = CertificateUtil.getCertsFromConnection(connection);
-            if (certs != null && certs.length > 0 && certs[0] != null) {
-               certSubjectDN = certs[0].getSubjectDN().getName();
+         if (check) {
+            if (securityManager instanceof ActiveMQSecurityManager5) {
+               Subject subject = ((ActiveMQSecurityManager5) securityManager).authenticate(user, password, connection, securityDomain);
+               authenticationCache.put(createAuthenticationCacheKey(user, password, connection), new Pair<>(subject != null, subject));
+               validatedUser = getUserFromSubject(subject);
+            } else if (securityManager instanceof ActiveMQSecurityManager4) {
+               validatedUser = ((ActiveMQSecurityManager4) securityManager).validateUser(user, password, connection, securityDomain);
+            } else if (securityManager instanceof ActiveMQSecurityManager3) {
+               validatedUser = ((ActiveMQSecurityManager3) securityManager).validateUser(user, password, connection);
+            } else if (securityManager instanceof ActiveMQSecurityManager2) {
+               userIsValid = ((ActiveMQSecurityManager2) securityManager).validateUser(user, password, CertificateUtil.getCertsFromConnection(connection));
+            } else {
+               userIsValid = securityManager.validateUser(user, password);
             }
+         }
+
+         // authentication failed, send a notification & throw an exception
+         if (!userIsValid && validatedUser == null) {
+            String certSubjectDN = getCertSubjectDN(connection);
 
             if (notificationService != null) {
                TypedProperties props = new TypedProperties();
@@ -184,6 +213,15 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       return null;
    }
 
+   public String getCertSubjectDN(RemotingConnection connection) {
+      String certSubjectDN = "unavailable";
+      X509Certificate[] certs = CertificateUtil.getCertsFromConnection(connection);
+      if (certs != null && certs.length > 0 && certs[0] != null) {
+         certSubjectDN = certs[0].getSubjectDN().getName();
+      }
+      return certSubjectDN;
+   }
+
    @Override
    public void check(final SimpleString address,
                      final CheckType checkType,
@@ -201,8 +239,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             logger.trace("checking access permissions to " + address);
          }
 
-         String user = session.getUsername();
          // bypass permission checks for management cluster user
+         String user = session.getUsername();
          if (managementClusterUser.equals(user) && session.getPassword().equals(managementClusterPassword)) {
             return;
          }
@@ -223,20 +261,20 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             }
          }
 
-         if (checkCached(isFullyQualified ? fqqn : address, user, checkType)) {
+         if (checkAuthorizationCache(isFullyQualified ? fqqn : address, user, checkType)) {
             return;
          }
 
-         final boolean validated;
-         if (securityManager instanceof ActiveMQSecurityManager4) {
-            final ActiveMQSecurityManager4 securityManager4 = (ActiveMQSecurityManager4) securityManager;
-            validated = securityManager4.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection(), session.getSecurityDomain()) != null;
+         final Boolean validated;
+         if (securityManager instanceof ActiveMQSecurityManager5) {
+            Subject subject = getSubjectForAuthorization(session, ((ActiveMQSecurityManager5) securityManager));
+            validated = ((ActiveMQSecurityManager5) securityManager).authorize(subject, roles, checkType);
+         } else if (securityManager instanceof ActiveMQSecurityManager4) {
+            validated = ((ActiveMQSecurityManager4) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection(), session.getSecurityDomain()) != null;
          } else if (securityManager instanceof ActiveMQSecurityManager3) {
-            final ActiveMQSecurityManager3 securityManager3 = (ActiveMQSecurityManager3) securityManager;
-            validated = securityManager3.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection()) != null;
+            validated = ((ActiveMQSecurityManager3) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection()) != null;
          } else if (securityManager instanceof ActiveMQSecurityManager2) {
-            final ActiveMQSecurityManager2 securityManager2 = (ActiveMQSecurityManager2) securityManager;
-            validated = securityManager2.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection());
+            validated = ((ActiveMQSecurityManager2) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection());
          } else {
             validated = securityManager.validateUserAndRole(user, session.getPassword(), roles, checkType);
          }
@@ -263,11 +301,16 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             AuditLogger.securityFailure(ex);
             throw ex;
          }
+
          // if we get here we're granted, add to the cache
-         ConcurrentHashSet<SimpleString> set = new ConcurrentHashSet<>();
-         ConcurrentHashSet<SimpleString> act = cache.putIfAbsent(user + "." + checkType.name(), set);
+         ConcurrentHashSet<SimpleString> set;
+         String key = createAuthorizationCacheKey(user, checkType);
+         ConcurrentHashSet<SimpleString> act = authorizationCache.getIfPresent(key);
          if (act != null) {
             set = act;
+         } else {
+            set = new ConcurrentHashSet<>();
+            authorizationCache.put(key, set);
          }
          set.add(isFullyQualified ? fqqn : address);
       }
@@ -275,39 +318,78 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    @Override
    public void onChange() {
-      invalidateCache();
+      invalidateAuthorizationCache();
+      // we don't invalidate the authentication cache here because it's not necessary
    }
 
-   // Public --------------------------------------------------------
+   public static String getUserFromSubject(Subject subject) {
+      if (subject == null) {
+         return null;
+      }
 
-   // Protected -----------------------------------------------------
+      String validatedUser = "";
+      Set<UserPrincipal> users = subject.getPrincipals(UserPrincipal.class);
 
-   // Package Private -----------------------------------------------
-
-   // Private -------------------------------------------------------
-   private void invalidateCache() {
-      cache.clear();
+      // should only ever be 1 UserPrincipal
+      for (UserPrincipal userPrincipal : users) {
+         validatedUser = userPrincipal.getName();
+      }
+      return validatedUser;
    }
 
-   private boolean checkCached(final SimpleString dest, final String user, final CheckType checkType) {
-      long now = System.currentTimeMillis();
+   /**
+    * Get the cached Subject. If the Subject is not in the cache then authenticate again to retrieve it.
+    *
+    * @param auth contains the authentication data
+    * @param securityManager used to authenticate the user if the Subject is not in the cache
+    * @return the authenticated Subject with all associated role principals
+    */
+   private Subject getSubjectForAuthorization(SecurityAuth auth, ActiveMQSecurityManager5 securityManager) {
+      Pair<Boolean, Subject> cached = authenticationCache.getIfPresent(createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection()));
+      /*
+       * We don't need to worry about the cached boolean being false as users always have to
+       * successfully authenticate before requesting authorization for anything.
+       */
+      if (cached == null) {
+         return securityManager.authenticate(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection(), auth.getSecurityDomain());
+      }
+      return cached.getB();
+   }
 
+   // public for testing purposes
+   public void invalidateAuthorizationCache() {
+      authorizationCache.invalidateAll();
+   }
+
+   // public for testing purposes
+   public void invalidateAuthenticationCache() {
+      authenticationCache.invalidateAll();
+   }
+
+   public long getAuthenticationCacheSize() {
+      return authenticationCache.size();
+   }
+
+   public long getAuthorizationCacheSize() {
+      return authorizationCache.size();
+   }
+
+   private boolean checkAuthorizationCache(final SimpleString dest, final String user, final CheckType checkType) {
       boolean granted = false;
 
-      if (now - lastCheck > invalidationInterval) {
-         invalidateCache();
-
-         lastCheck = now;
-      } else {
-         ConcurrentHashSet<SimpleString> act = cache.get(user + "." + checkType.name());
-         if (act != null) {
-            granted = act.contains(dest);
-         }
+      ConcurrentHashSet<SimpleString> act = authorizationCache.getIfPresent(createAuthorizationCacheKey(user, checkType));
+      if (act != null) {
+         granted = act.contains(dest);
       }
 
       return granted;
    }
 
-   // Inner class ---------------------------------------------------
+   private String createAuthenticationCacheKey(String username, String password, RemotingConnection connection) {
+      return username + password + getCertSubjectDN(connection);
+   }
 
+   private String createAuthorizationCacheKey(String user, CheckType checkType) {
+      return user + "." + checkType.name();
+   }
 }
