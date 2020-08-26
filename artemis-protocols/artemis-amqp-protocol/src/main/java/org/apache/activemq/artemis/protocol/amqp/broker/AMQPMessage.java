@@ -1638,15 +1638,14 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public String toString() {
-      /* return "AMQPMessage [durable=" + isDurable() +
+      return "AMQPMessage [durable=" + isDurable() +
          ", messageID=" + getMessageID() +
          ", address=" + getAddress() +
          ", size=" + getEncodeSize() +
-         ", applicationProperties=" + applicationProperties +
+         ", applicationProperties=" + getApplicationPropertiesMap(false) +
          ", properties=" + properties +
          ", extraProperties = " + getExtraProperties() +
-         "]"; */
-      return super.toString();
+         "]";
    }
 
    @Override
