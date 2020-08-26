@@ -460,6 +460,18 @@ public interface ActiveMQServerControl {
    @Attribute(desc = ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION)
    int getAddressMemoryUsagePercentage();
 
+   /**
+    * Returns the runtime size of the authentication cache
+    */
+   @Attribute(desc = "The runtime size of the authentication cache")
+   long getAuthenticationCacheSize();
+
+   /**
+    * Returns the runtime size of the authorization cache
+    */
+   @Attribute(desc = "The runtime size of the authorization cache")
+   long getAuthorizationCacheSize();
+
    // Operations ----------------------------------------------------
    @Operation(desc = "Isolate the broker", impact = MBeanOperationInfo.ACTION)
    boolean freezeReplication();

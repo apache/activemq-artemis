@@ -2737,4 +2737,20 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601735, value = "User {0} is getting group rebalance pause dispatch property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void isGroupRebalancePauseDispatch(String user, Object source, Object... args);
+
+   static void getAuthenticationCacheSize(Object source) {
+      LOGGER.getAuthenticationCacheSize(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601736, value = "User {0} is getting authentication cache size on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getAuthenticationCacheSize(String user, Object source, Object... args);
+
+   static void getAuthorizationCacheSize(Object source) {
+      LOGGER.getAuthorizationCacheSize(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601737, value = "User {0} is getting authorization cache size on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getAuthorizationCacheSize(String user, Object source, Object... args);
 }

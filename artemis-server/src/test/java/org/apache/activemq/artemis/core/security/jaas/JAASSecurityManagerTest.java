@@ -16,8 +16,11 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
+import javax.security.auth.Subject;
+
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.jboss.logging.Logger;
 import org.junit.Rule;
@@ -38,6 +41,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class JAASSecurityManagerTest {
@@ -80,18 +84,17 @@ public class JAASSecurityManagerTest {
          }
          ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
 
-         String result = securityManager.validateUser("first", "secret", null, null);
+         Subject result = securityManager.authenticate("first", "secret", null, null);
 
          assertNotNull(result);
-         assertEquals("first", result);
+         assertEquals("first", SecurityStoreImpl.getUserFromSubject(result));
 
          Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
          Set<Role> roles = new HashSet<>();
          roles.add(role);
-         result = securityManager.validateUserAndRole("first", "secret", roles, CheckType.SEND, "someaddress", null, null);
+         boolean authorizationResult = securityManager.authorize(result, roles, CheckType.SEND);
 
-         assertNotNull(result);
-         assertEquals("first", result);
+         assertTrue(authorizationResult);
 
       } finally {
          Thread.currentThread().setContextClassLoader(existingLoader);

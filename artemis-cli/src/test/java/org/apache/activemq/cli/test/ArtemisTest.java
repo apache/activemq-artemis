@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
@@ -621,6 +622,7 @@ public class ArtemisTest extends CliTestBase {
          activeMQServerControl.addSecuritySettings("myAddress", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole", "myRole");
          // change properties files which should cause another "reload" event
          activeMQServerControl.addUser("foo", "bar", "myRole", true);
+         ((SecurityStoreImpl)activeMQServer.getSecurityStore()).invalidateAuthenticationCache();
          ClientSession session = sessionFactory.createSession("foo", "bar", false, false, false, false, 0);
          session.createQueue("myAddress", RoutingType.ANYCAST, "myQueue", true);
          ClientProducer producer = session.createProducer("myAddress");
