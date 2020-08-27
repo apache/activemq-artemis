@@ -2419,13 +2419,13 @@ public interface AuditLogger extends BasicLogger {
     *
     * */
    //hot path log using a different logger
-   static void coreSendMessage(String user, Object context) {
-      MESSAGE_LOGGER.sendMessage(getCaller(user), context);
+   static void coreSendMessage(String user, String messageToString, Object context) {
+      MESSAGE_LOGGER.logCoreSendMessage(getCaller(user), messageToString, context);
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601500, value = "User {0} is sending a core message with Context: {1}", format = Message.Format.MESSAGE_FORMAT)
-   void sendMessage(String user, Object context);
+   @Message(id = 601500, value = "User {0} is sending a message {1}, with Context: {2}", format = Message.Format.MESSAGE_FORMAT)
+   void logCoreSendMessage(String user, String messageToString, Object context);
 
    //hot path log using a different logger
    static void coreConsumeMessage(String queue) {
