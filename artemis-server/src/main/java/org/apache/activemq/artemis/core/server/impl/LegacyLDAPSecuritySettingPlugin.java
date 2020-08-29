@@ -66,6 +66,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    public static final String WRITE_PERMISSION_VALUE = "writePermissionValue";
    public static final String ENABLE_LISTENER = "enableListener";
    public static final String MAP_ADMIN_TO_MANAGE = "mapAdminToManage";
+   public static final String ALLOW_QUEUE_ADMIN_ON_READ = "allowQueueAdminOnRead";
 
    private String initialContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
    private String connectionURL = "ldap://localhost:1024";
@@ -81,6 +82,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    private String writePermissionValue = "write";
    private boolean enableListener = true;
    private boolean mapAdminToManage = false;
+   private boolean allowQueueAdminOnRead = false;
 
    private DirContext context;
    private EventDirContext eventContext;
@@ -104,6 +106,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          writePermissionValue = getOption(options, WRITE_PERMISSION_VALUE, writePermissionValue);
          enableListener = getOption(options, ENABLE_LISTENER, Boolean.TRUE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
          mapAdminToManage = getOption(options, MAP_ADMIN_TO_MANAGE, Boolean.FALSE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
+         allowQueueAdminOnRead = getOption(options, ALLOW_QUEUE_ADMIN_ON_READ, Boolean.FALSE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
       }
 
       return this;
@@ -241,6 +244,15 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
 
    public LegacyLDAPSecuritySettingPlugin setMapAdminToManage(boolean mapAdminToManage) {
       this.mapAdminToManage = mapAdminToManage;
+      return this;
+   }
+
+   public boolean isAllowQueueAdminOnRead() {
+      return allowQueueAdminOnRead;
+   }
+
+   public LegacyLDAPSecuritySettingPlugin setAllowQueueAdminOnRead(boolean allowQueueAdminOnRead) {
+      this.allowQueueAdminOnRead = allowQueueAdminOnRead;
       return this;
    }
 
@@ -405,18 +417,20 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          if (logger.isDebugEnabled()) {
             logMessage.append("\n\tRole name: ").append(roleName);
          }
+         boolean write = permissionType.equalsIgnoreCase(writePermissionValue);
+         boolean read = permissionType.equalsIgnoreCase(readPermissionValue);
+         boolean admin = permissionType.equalsIgnoreCase(adminPermissionValue);
          Role role = new Role(roleName,
-                              permissionType.equalsIgnoreCase(writePermissionValue), // send
-                              permissionType.equalsIgnoreCase(readPermissionValue),  // consume
-                              permissionType.equalsIgnoreCase(adminPermissionValue), // createDurableQueue
-                              permissionType.equalsIgnoreCase(adminPermissionValue), // deleteDurableQueue
-                              permissionType.equalsIgnoreCase(adminPermissionValue), // createNonDurableQueue
-                              permissionType.equalsIgnoreCase(adminPermissionValue), // deleteNonDurableQueue
-                              mapAdminToManage ? permissionType.equalsIgnoreCase(adminPermissionValue) : false, // manage - map to admin based on configuration
-                              permissionType.equalsIgnoreCase(readPermissionValue),  // browse
-                              permissionType.equalsIgnoreCase(adminPermissionValue), // createAddress
-                              permissionType.equalsIgnoreCase(adminPermissionValue)  // deleteAddress
-                              );
+                              write,                                     // send
+                              read,                                      // consume
+                              (allowQueueAdminOnRead && read) || admin,  // createDurableQueue
+                              (allowQueueAdminOnRead && read) || admin,  // deleteDurableQueue
+                              (allowQueueAdminOnRead && read) || admin,  // createNonDurableQueue
+                              admin,                                     // deleteNonDurableQueue
+                              mapAdminToManage ? admin : false,          // manage - map to admin based on configuration
+                              read,                                      // browse
+                              admin,                                     // createAddress
+                              admin);                                    // deleteAddress
          roles.add(role);
       }
 

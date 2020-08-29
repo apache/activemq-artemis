@@ -300,6 +300,12 @@ and Security Layer (SASL) authentication is currently not supported.
   `manage` permission. See details of the mapping semantics below. The default
    value is `false`.
 
+- `allowQueueAdminOnRead`. Whether or not to map the legacy `read` permission to
+  the `createDurableQueue`, `createNonDurableQueue`, and `deleteDurableQueue`
+  permissions so that JMS clients can create durable and non-durable subscriptions
+  without needing the `admin` permission. This was allowed in ActiveMQ 5.x. The
+  default value is `false`.
+
 The name of the queue or topic defined in LDAP will serve as the "match" for
 the security-setting, the permission value will be mapped from the ActiveMQ 5.x
 type to the Artemis type, and the role will be mapped as-is.

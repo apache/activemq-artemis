@@ -39,6 +39,13 @@ objectClass: account
 objectClass: simpleSecurityObject
 objectClass: top
 
+dn: uid=third,ou=system
+uid: third
+userPassword: secret
+objectClass: account
+objectClass: simpleSecurityObject
+objectClass: top
+
 dn: cn=role1,ou=system
 cn: role1
 member: uid=first,ou=system
@@ -48,6 +55,12 @@ objectClass: top
 dn: cn=role2,ou=system
 cn: role2
 member: uid=second,ou=system
+objectClass: groupOfNames
+objectClass: top
+
+dn: cn=role3,ou=system
+cn: role3
+member: uid=third,ou=system
 objectClass: groupOfNames
 objectClass: top
 
@@ -61,6 +74,11 @@ objectclass: organizationalUnit
 objectclass: top
 ou: queues
 
+dn: ou=topics,ou=destinations,o=ActiveMQ,ou=system
+objectclass: organizationalUnit
+objectclass: top
+ou: topics
+
 dn: cn=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system
 objectclass: applicationProcess
 objectclass: top
@@ -70,6 +88,11 @@ dn: cn=queue2,ou=queues,ou=destinations,o=ActiveMQ,ou=system
 objectclass: applicationProcess
 objectclass: top
 cn: queue2
+
+dn: cn=topic1,ou=topics,ou=destinations,o=ActiveMQ,ou=system
+objectclass: applicationProcess
+objectclass: top
+cn: topic1
 
 dn: cn=activemq.management,ou=queues,ou=destinations,o=ActiveMQ,ou=system
 objectclass: applicationProcess
@@ -111,6 +134,12 @@ objectclass: groupOfUniqueNames
 objectclass: top
 cn: admin
 uniquemember: cn=role1
+
+dn: cn=read,cn=topic1,ou=topics,ou=destinations,o=ActiveMQ,ou=system
+objectclass: groupOfUniqueNames
+objectclass: top
+cn: read
+uniquemember: cn=role3
 
 ## group with member identified just by DN from SASL external tls certificate subject DN
 dn: cn=widgets,ou=system
