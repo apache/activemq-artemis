@@ -235,8 +235,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                      final CheckType checkType,
                      final SecurityAuth session) throws Exception {
       if (securityEnabled) {
+         SimpleString bareAddress = CompositeAddress.extractAddressName(address);
+         SimpleString bareQueue = CompositeAddress.extractQueueName(queue);
+
          if (logger.isTraceEnabled()) {
-            logger.trace("checking access permissions to " + address);
+            logger.trace("checking access permissions to " + bareAddress);
          }
 
          // bypass permission checks for management cluster user
@@ -245,23 +248,22 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             return;
          }
 
-         String saddress = address.toString();
-         Set<Role> roles = securityRepository.getMatch(saddress);
+         Set<Role> roles = securityRepository.getMatch(bareAddress.toString());
 
          /*
           * If a valid queue is passed in and there's an exact match for the FQQN then use the FQQN instead of the address
           */
          boolean isFullyQualified = false;
          SimpleString fqqn = null;
-         if (queue != null) {
-            fqqn = CompositeAddress.toFullyQualified(address, queue);
+         if (bareQueue != null) {
+            fqqn = CompositeAddress.toFullyQualified(bareAddress, bareQueue);
             if (securityRepository.containsExactMatch(fqqn.toString())) {
                roles = securityRepository.getMatch(fqqn.toString());
                isFullyQualified = true;
             }
          }
 
-         if (checkAuthorizationCache(isFullyQualified ? fqqn : address, user, checkType)) {
+         if (checkAuthorizationCache(isFullyQualified ? fqqn : bareAddress, user, checkType)) {
             return;
          }
 
@@ -270,11 +272,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             Subject subject = getSubjectForAuthorization(session, ((ActiveMQSecurityManager5) securityManager));
             validated = ((ActiveMQSecurityManager5) securityManager).authorize(subject, roles, checkType);
          } else if (securityManager instanceof ActiveMQSecurityManager4) {
-            validated = ((ActiveMQSecurityManager4) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection(), session.getSecurityDomain()) != null;
+            validated = ((ActiveMQSecurityManager4) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection(), session.getSecurityDomain()) != null;
          } else if (securityManager instanceof ActiveMQSecurityManager3) {
-            validated = ((ActiveMQSecurityManager3) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection()) != null;
+            validated = ((ActiveMQSecurityManager3) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection()) != null;
          } else if (securityManager instanceof ActiveMQSecurityManager2) {
-            validated = ((ActiveMQSecurityManager2) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection());
+            validated = ((ActiveMQSecurityManager2) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection());
          } else {
             validated = securityManager.validateUserAndRole(user, session.getPassword(), roles, checkType);
          }
@@ -283,7 +285,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             if (notificationService != null) {
                TypedProperties props = new TypedProperties();
 
-               props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, address);
+               props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, bareAddress);
                props.putSimpleStringProperty(ManagementHelper.HDR_CHECK_TYPE, new SimpleString(checkType.toString()));
                props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
 
@@ -293,10 +295,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             }
 
             Exception ex;
-            if (queue == null) {
-               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, saddress);
+            if (bareQueue == null) {
+               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, bareAddress);
             } else {
-               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissionsQueue(session.getUsername(), checkType, queue.toString(), saddress);
+               ex = ActiveMQMessageBundle.BUNDLE.userNoPermissionsQueue(session.getUsername(), checkType, bareQueue, bareAddress);
             }
             AuditLogger.securityFailure(ex);
             throw ex;
@@ -312,7 +314,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             set = new ConcurrentHashSet<>();
             authorizationCache.put(key, set);
          }
-         set.add(isFullyQualified ? fqqn : address);
+         set.add(isFullyQualified ? fqqn : bareAddress);
       }
    }
 
