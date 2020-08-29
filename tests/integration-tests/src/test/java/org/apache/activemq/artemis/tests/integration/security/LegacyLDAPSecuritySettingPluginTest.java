@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
+import javax.jms.Topic;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
@@ -44,7 +49,9 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -319,5 +326,39 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
 
       session.close();
       cf.close();
+   }
+
+   @Test
+   public void testJmsTopicSubscriberReadPermissionOnly() throws Exception {
+      internalJmsTopicSubscriberReadPermissionOnly(false);
+   }
+
+   @Test
+   public void testJmsTopicDurableSubscriberReadPermissionOnly() throws Exception {
+      internalJmsTopicSubscriberReadPermissionOnly(true);
+   }
+
+   private void internalJmsTopicSubscriberReadPermissionOnly(boolean durable) throws Exception {
+      ((LegacyLDAPSecuritySettingPlugin)server.getConfiguration().getSecuritySettingPlugins().get(0)).setAllowQueueAdminOnRead(true);
+      server.start();
+
+      // The address needs to exist already otherwise the "admin" permission is required to create it
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("topic1"), RoutingType.MULTICAST));
+
+      ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
+      try (Connection connection = cf.createConnection("third", "secret")) {
+         Session session = connection.createSession();
+         Topic topic = session.createTopic("topic1");
+         if (durable) {
+            MessageConsumer consumer = session.createSharedDurableConsumer(topic, "foo");
+            consumer.close();
+            session.unsubscribe("foo");
+         } else {
+            session.createConsumer(topic);
+         }
+      } catch (Exception e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception here");
+      }
    }
 }
