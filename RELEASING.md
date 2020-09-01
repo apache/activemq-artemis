@@ -37,7 +37,8 @@ gpg --list-sigs username@apache.org > /tmp/key; gpg --armor --export username@ap
 
 Then send the key information in `/tmp/key` to `private@activemq.apache.org` so it can be added.
 
-Add your key id (available via `gpg --fingerprint <key>`) to the `OpenPGP Public Key Primary Fingerprint` field at 
+Ensure that your key is listed at https://home.apache.org/keys/committer/.
+If not add your key id (available via `gpg --fingerprint <key>`) to the `OpenPGP Public Key Primary Fingerprint` field at 
 https://id.apache.org/. Note: this is just the key id, not the whole fingerprint.
 
 ## Checking out a new empty git repository
@@ -106,20 +107,31 @@ bump the version in the test/extra-tests/pom.xml to the next development version
 
 ## Uploading to nexus
 
+Ensure that your environment is ready to deploy to the ASF Nexus repository as described at
+[Publishing Maven Artifacts](https://infra.apache.org/publishing-maven-artifacts.html)
+
+Copy the file release.properties, that is generated at the root of the project during the release,
+before starting the upload. You could need it if the upload fails.
+
 To upload it to nexus, perform this command:
 
 ```sh
 mvn release:perform -Prelease
 ```
 
-Note: this can take quite awhile depending on the speed for your Internet connection.
-
+Note: this can take quite a while depending on the speed for your Internet connection.
+If the upload fails or is interrupted, remove the incomplete repository
+using the "Drop" button on [Nexus website](https://repository.apache.org/#stagingRepositories).
+Before starting the upload again, check the release.properties at the root of the project.
 
 ### Resuming release upload
 
 If something happened during the release upload to nexus, you may need to eventually redo the upload.
+Remove the incomplete repository using the "Drop" button on [Nexus website](https://repository.apache.org/#stagingRepositories).
+Before starting the upload again, check the release.properties at the root of the project.
 
-There is a release.properties file that is generated at the root of the project during the release. In case you want to upload a previously tagged release, add this file as follows:
+There is a release.properties file that is generated at the root of the project during the release.
+In case you want to upload a previously tagged release, add this file as follows:
 
 - release.properties
 ```
@@ -130,7 +142,7 @@ scm.tag=1.4.0
 
 ## Removing additional files
 
-The last step before closing the staging repository is removing the activemq-pom-&lt;version>-source-release.zip.  At 
+The last step before closing the staging repository is removing the `artemis-pom-&lt;version>-source-release.zip` file.  At 
 the moment this artifact is uploaded automatically by the Apache release plugin. In future versions the ActiveMQ Artemis
 pom will be updated to take this into account.
 
@@ -143,7 +155,7 @@ Once the file is removed close the staging repo using the "Close" button on Nexu
 
 ## Stage the release to the dist dev area
 
-Use the closed staging repo contents to populate the the dist dev svn area
+Use the closed staging repo contents to populate the dist dev svn area
 with the official release artifacts for voting. Use the script already present
 in the repo to download the files and populate a new ${CURRENT-RELEASE} dir:
 
@@ -161,9 +173,10 @@ svn commit
 
 Old staged releases can be cleaned out periodically.
 
-## Generate the git-report and cleanup JIRA
 
-Please, include the git-commit-report as part of the release proces. To generate it follow these steps:
+## Generate the git-report
+
+Please, include the git-commit-report as part of the release process. To generate it, follow these steps:
 
 - Download [git-release-report](https://github.com/clebertsuconic/git-release-report/releases)
 - Execute the following command:
@@ -176,8 +189,19 @@ real example used on [2.6.1](http://activemq.apache.org/artemis/commit-report-2.
 $ java -jar git-release-report.jar /work/apache-checkout/activemq-artemis commit-report-2.6.1.html 2.6.0 2.6.1 true
 ```
 - This will parse all the git commits between the previous release, and current release tags while looking at current JIRA status.
-- Use this report to do some JIRA cleanup making sure your commits and JIRA are accurate.
-- Regenerate the report once you cleared JIRA.
+
+
+## Cleanup JIRA
+
+Use the git-report to do some JIRA cleanup making sure your commits and JIRA are accurate:
+- Close as done all JIRA related at the commits included in the git-report
+  but exclude all JIRA related to a commit reverted by a commit included in the same git-report.
+  You can execute a bulk change on all JIRA related at the commits included in the git-report
+  using the link `JIRAS on this Report` at the bottom of the report.
+- Ensure that the version next the version being released exists checking the [ActiveMQ Artemis Releases page](https://issues.apache.org/jira/projects/ARTEMIS?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page).
+  If not, you need an administrator account to create it using the `Manage Versions` button at the [ActiveMQ Artemis Releases page](https://issues.apache.org/jira/projects/ARTEMIS?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page)
+- Move all JIRA not closed to the next release setting the `Fix Version` field.
+- Regenerate the report once you cleared JIRA, to check your job.
 
 
 ## Locate Release Notes
@@ -241,7 +265,7 @@ informing the list about the voting results, e.g.:
 ```
 Results of the Apache ActiveMQ Artemis <version> release vote.
 
-Vote passes with 2 +1 binding votes.
+Vote passes with 3 votes, 2 binding and 1 non binding.
 
 The following votes were received:
 
@@ -255,8 +279,8 @@ Non Binding:
 Thank you to everyone who contributed and took the time to review the
 release candidates and vote.
 
-I'll move forward with the getting the release out and updating the
-relevant documentation.
+I'll update the website as soon as the mirrors are updated (I will
+wait 24 hours after I update SVN).
 
 Regards
 ```
@@ -268,8 +292,13 @@ After a successful vote, populate the dist release area using the staged
 files from the dist dev area to allow them to mirror. Note: this can only
 be done by a PMC member.
 
+Use the script already present in the repo to copy the staged files
+from the dist dev area to the dist release area:
+
 ```sh
-svn cp -m "add files for activemq-artemis-${CURRENT-RELEASE}" https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/${CURRENT-RELEASE} https://dist.apache.org/repos/dist/release/activemq/activemq-artemis/${CURRENT-RELEASE}
+svn co https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/
+cd activemq-artemis
+./promote-release.sh ${CURRENT-RELEASE}
 ```
 
 Good mirror coverage can take up to 24 hours. Mirror status can be viewed [here](https://www.apache.org/mirrors/).
@@ -282,36 +311,43 @@ Go to https://repository.apache.org/#stagingRepositories and click the "Release"
 
 ## Web site update:
 
+Wait 24 hours after updating SVN to get a good mirror coverage, before proceeding.
+Mirror status can be viewed [here](https://www.apache.org/mirrors/).
+
 Clone the website repository from:
 
- https://gitbox.apache.org/repos/asf/activemq-website.git
-
+```sh
+git clone https://gitbox.apache.org/repos/asf/activemq-website.git
+```
 
 Once the mirrors are up-to-date then update the following:
-1. Copy release-notes-<old-version>.html to release-notes-<new-version>.html.
-2. Update release-notes-<new-version>.html. Delete the existing list of bugs, features, improvements, etc. and replace it
-   with the HTML from the bottom of the release notes link you sent out with your VOTE email.
-3. Update past-releases.html. Copy the block of HTML dealing with the 2nd-to-last release, paste it above the original, 
+1. Copy `src/components/artemis/download/release-notes-<old-version>.md` to `src/components/artemis/download/release-notes-<new-version>.md`
+   and update it deleting the existing list of bugs, features, improvements, etc. and replacing it
+   with the HTML from the bottom of the release notes url you sent out with your VOTE email (appending `&styleName=Text`).
+2. Update `src/components/artemis/download/past-releases.md`. Copy the block of HTML dealing with the 2nd-to-last release, paste it above the original, 
    and modify the version numbers for the last release.
-4. Update download.html. Modify the block of HTML dealing with the last release so that the version numbers are for
+3. Update `src/components/artemis/download/index.md`. Modify the block of HTML dealing with the last release so that the version numbers are for
    the new release.
-5. Copy docs/latest to docs/<old-version>.
-6. Create docs/latest and copy these files into it:
-    1. contents of user-manual from <new-version>
-    2. book.pdf version of user-manual (generated with `gitbook pdf`)
-    3. book.epub version of user-manual (generated with `gitbook epub`)
-    4. book.mobi version of user-manual (generated with `gitbook mobi`)
-    5. hacking-guide directory from <new-version>
-    6. book.pdf version of hacking-guide (generated with `gitbook pdf`)        
-7. Copy docs/javadocs/javadoc-latest to docs/javadocs/javadoc-<old-version>.
-8. Create docs/javadocs/javadoc-latest and copy the contents of <new-release>/web/api into it.
-9. Update previous-docs.html. Copy the block of HTML dealing with the 2nd-to-last release, paste it above the original, 
+4. Copy `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
+5. Create `src/components/artemis/documentation/latest` and copy these files into it:
+    1. the contents of user-manual from `apache-artemis-<new-version>/web/user-manual`
+    2. book.pdf version of user-manual (generated from the new version sources with the command `gitbook pdf`)
+    3. book.epub version of user-manual (generated from the new version sources with the command `gitbook epub`)
+    4. book.mobi version of user-manual (generated from the new version sources with the command `gitbook mobi`)
+6. Create `src/components/artemis/documentation/hacking-guide` and copy these files into it: 
+    1. the contents of user-manual from `apache-artemis-<new-version>/web/hacking-guide`
+    2. book.pdf version of hacking-guide (generated with `gitbook pdf`)        
+7. Copy `src/components/artemis/documentation/javadocs/javadoc-latest` to `src/components/artemis/documentation/javadocs/javadoc-<old-version>`.
+8. Create `src/components/artemis/documentation/javadocs/javadoc-latest` and copy the contents of `apache-artemis-<new-version>/web/api` into it.
+9. Update `src/components/artemis/documentation/previous-docs.md`. Copy the block of HTML dealing with the 2nd-to-last release, paste it above the original, 
    and modify the version numbers for the last release.
    
 Run `svn add` for all the added directories & files and then `svn commit -m "updates for <version> release"`.
+The changes should be published automatically by the `jekyll_websites` builder of the [apache buildbot](https://ci2.apache.org/#/builders). 
 
-Note: Generating PDFs, etc. with gitbook requires the installation of [Calibre](https://calibre-ebook.com). You can
-install this manually, but it is recommended you use your platform's package management to install (e.g. `sudo apt-get install calibre`).
+Note: Generating PDFs, etc. with gitbook requires the installation of [Calibre](https://calibre-ebook.com).
+You can install this manually, but it is recommended you use your platform's package management to install
+(e.g. `sudo apt-get install calibre`).
 
 
 ## Send announcement to user list
