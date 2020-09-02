@@ -76,6 +76,24 @@ public class WebSocketFrameEncoderTest {
    }
 
    @Test
+   public void testBufferIsReleased() throws Exception {
+      String content = "Content MSG length less than max frame payload length: " + maxFramePayloadLength;
+      ByteBuf msg = Unpooled.copiedBuffer(content, StandardCharsets.UTF_8);
+      ArgumentCaptor<WebSocketFrame> frameCaptor = ArgumentCaptor.forClass(WebSocketFrame.class);
+
+      spy.write(ctx, msg, promise); //test
+
+      assertEquals(0, msg.refCnt());
+      assertEquals(0, msg.readableBytes());
+      verify(ctx).writeAndFlush(frameCaptor.capture(), eq(promise));
+      WebSocketFrame frame = frameCaptor.getValue();
+      assertTrue(frame instanceof BinaryWebSocketFrame);
+      assertTrue(frame.isFinalFragment());
+      assertEquals(content, frame.content().toString(StandardCharsets.UTF_8));
+   }
+
+   
+   @Test
    public void testWriteSingleFrame() throws Exception {
       String content = "Content MSG length less than max frame payload length: " + maxFramePayloadLength;
       ByteBuf msg = Unpooled.copiedBuffer(content, StandardCharsets.UTF_8);
