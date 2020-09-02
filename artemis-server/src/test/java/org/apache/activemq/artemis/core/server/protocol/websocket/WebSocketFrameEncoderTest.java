@@ -29,6 +29,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,9 +78,13 @@ public class WebSocketFrameEncoderTest {
    }
 
    @Test
-   public void testBufferIsReleased() throws Exception {
-      String content = "Content MSG length less than max frame payload length: " + maxFramePayloadLength;
-      ByteBuf msg = Unpooled.copiedBuffer(content, StandardCharsets.UTF_8);
+   public void testWriteReleaseBuffer() throws Exception {
+      String content = "Using direct buffer";
+
+      int utf8Bytes = ByteBufUtil.utf8Bytes(content);
+      ByteBuf msg = Unpooled.directBuffer(utf8Bytes);
+      ByteBufUtil.reserveAndWriteUtf8(msg, content, utf8Bytes);
+
       ArgumentCaptor<WebSocketFrame> frameCaptor = ArgumentCaptor.forClass(WebSocketFrame.class);
 
       spy.write(ctx, msg, promise); //test
@@ -92,7 +98,7 @@ public class WebSocketFrameEncoderTest {
       assertEquals(content, frame.content().toString(StandardCharsets.UTF_8));
    }
 
-   
+
    @Test
    public void testWriteSingleFrame() throws Exception {
       String content = "Content MSG length less than max frame payload length: " + maxFramePayloadLength;
