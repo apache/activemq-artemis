@@ -134,8 +134,13 @@ public class PropertiesLoginModuleConfigurator {
    }
 
    public void save() throws Exception {
-      userBuilder.save();
-      roleBuilder.save();
+      ReloadableProperties.LOCK.writeLock().lock();
+      try {
+         userBuilder.save();
+         roleBuilder.save();
+      } finally {
+         ReloadableProperties.LOCK.writeLock().unlock();
+      }
    }
 
    public void removeUser(String username) {

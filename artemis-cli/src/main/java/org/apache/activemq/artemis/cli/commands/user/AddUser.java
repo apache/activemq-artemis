@@ -18,45 +18,53 @@ package org.apache.activemq.artemis.cli.commands.user;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.util.HashUtil;
-import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Adding a new user, example:
- * ./artemis user add --user guest --role admin --password ***
+ * ./artemis user add --user-command-user guest --role admin --user-command-password ***
  */
 @Command(name = "add", description = "Add a new user")
 public class AddUser extends PasswordAction {
 
-   @Option(name = "--plaintext", description = "using plaintext (Default false)")
+   @Option(name = "--plaintext", description = "store the password in plaintext (Default: false)")
    boolean plaintext = false;
 
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-
       checkInputUser();
       checkInputPassword();
       checkInputRole();
-
-      String hash = plaintext ? password : HashUtil.tryHash(context, password);
-      add(hash, StringUtils.split(role, ","));
-
+      add();
       return null;
    }
 
    /**
-    * Adding a new user
-    * @param hash the password
-    * @param role the role
-    * @throws IllegalArgumentException if user exists
+    * Add a new user
+    *
+    * @throws Exception if communication with the broker fails
     */
-   private void add(String hash, String... role) throws Exception {
-      PropertiesLoginModuleConfigurator config = new PropertiesLoginModuleConfigurator(entry, getBrokerEtc());
-      config.addNewUser(username, hash, role);
-      config.save();
-      context.out.println("User added successfully.");
+   private void add() throws Exception {
+      performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
+         @Override
+         public void setUpInvocation(ClientMessage message) throws Exception {
+            ManagementHelper.putOperationInvocation(message, "broker", "addUser", userCommandUser, userCommandPassword, role, plaintext);
+         }
+
+         @Override
+         public void requestSuccessful(ClientMessage reply) throws Exception {
+            context.out.println(userCommandUser + " added successfully.");
+         }
+
+         @Override
+         public void requestFailed(ClientMessage reply) throws Exception {
+            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+            context.err.println("Failed to add user " + userCommandUser + ". Reason: " + errMsg);
+         }
+      });
    }
 }

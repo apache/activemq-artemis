@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -33,6 +35,9 @@ import org.jboss.logging.Logger;
 public class ReloadableProperties {
 
    private static final Logger logger = Logger.getLogger(ReloadableProperties.class);
+
+   // use this whenever writing to the underlying properties files from another component
+   public static final ReadWriteLock LOCK = new ReentrantReadWriteLock();
 
    private Properties props = new Properties();
    private Map<String, String> invertedProps;
@@ -121,6 +126,7 @@ public class ReloadableProperties {
    }
 
    private void load(final File source, Properties props) throws IOException {
+      LOCK.readLock().lock();
       try (FileInputStream in = new FileInputStream(source)) {
          props.load(in);
          //            if (key.isDecrypt()) {
@@ -132,7 +138,8 @@ public class ReloadableProperties {
          //                    ActiveMQServerLogger.LOGGER.info("jasypt is not on the classpath: password decryption disabled.");
          //                }
          //            }
-
+      } finally {
+         LOCK.readLock().unlock();
       }
    }
 

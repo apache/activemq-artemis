@@ -17,22 +17,19 @@
 package org.apache.activemq.artemis.cli.commands.user;
 
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.cli.commands.InputAbstract;
+import org.apache.activemq.artemis.cli.commands.AbstractAction;
 
-public abstract class UserAction extends InputAbstract {
+public abstract class UserAction extends AbstractAction {
 
    @Option(name = "--role", description = "user's role(s), comma separated")
    String role;
 
-   @Option(name = "--user", description = "The user name (Default: input)")
-   String username = null;
-
-   @Option(name = "--entry", description = "The appConfigurationEntry (default: activemq)")
-   String entry = "activemq";
+   @Option(name = "--user-command-user", description = "The username to use for the chosen user command (Default: input)")
+   String userCommandUser = null;
 
    void checkInputUser() {
-      if (username == null) {
-         username = input("--user", "Please provider the userName:", null);
+      if (userCommandUser == null) {
+         userCommandUser = input("--user-command-user", "Please provide the username to use for the chosen user command:", null);
       }
    }
 
@@ -42,8 +39,8 @@ public abstract class UserAction extends InputAbstract {
       }
    }
 
-   public void setUsername(String username) {
-      this.username = username;
+   public void setUserCommandUser(String userCommandUser) {
+      this.userCommandUser = userCommandUser;
    }
 
    public void setRole(String role) {

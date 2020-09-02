@@ -16,12 +16,15 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import java.util.Map;
-import java.util.Set;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
 import io.airlift.airline.Command;
+import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
 
 /**
  * list existing users, example:
@@ -40,20 +43,41 @@ public class ListUser extends UserAction {
    }
 
    /**
-    * list a single user or all users
-    * if username is not specified
+    * List a single user or all users if username is not specified
+    *
+    * @throws Exception if communication with the broker fails
     */
    private void list() throws Exception {
-      PropertiesLoginModuleConfigurator config = new PropertiesLoginModuleConfigurator(entry, getBrokerEtc());
-      Map<String, Set<String>> result = config.listUser(username);
       StringBuilder logMessage = new StringBuilder("--- \"user\"(roles) ---\n");
       int userCount = 0;
-      for (Map.Entry<String, Set<String>> entry : result.entrySet()) {
-         logMessage.append("\"").append(entry.getKey()).append("\"(");
-         int roleCount = 0;
-         for (String role : entry.getValue()) {
-            logMessage.append(role);
-            if (++roleCount < entry.getValue().size()) {
+      final String[] result = new String[1];
+
+      performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
+         @Override
+         public void setUpInvocation(ClientMessage message) throws Exception {
+            ManagementHelper.putOperationInvocation(message, "broker", "listUser", userCommandUser);
+         }
+
+         @Override
+         public void requestSuccessful(ClientMessage reply) throws Exception {
+            result[0] = (String) ManagementHelper.getResult(reply, String.class);
+         }
+
+         @Override
+         public void requestFailed(ClientMessage reply) throws Exception {
+            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+            context.err.println("Failed to list user " + userCommandUser + ". Reason: " + errMsg);
+         }
+      });
+
+      // process the JSON results from the broker
+      JsonArray array = JsonUtil.readJsonArray(result[0]);
+      for (JsonObject object : array.getValuesAs(JsonObject.class)) {
+         logMessage.append("\"").append(object.getString("username")).append("\"").append("(");
+         JsonArray roles = object.getJsonArray("roles");
+         for (int i = 0; i < roles.size(); i++) {
+            logMessage.append(roles.getString(i));
+            if ((i + 1) < roles.size()) {
                logMessage.append(",");
             }
          }
