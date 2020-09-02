@@ -17,8 +17,10 @@
 package org.apache.activemq.artemis.cli.commands.user;
 
 import io.airlift.airline.Command;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
 
 /**
  * Remove a user, example:
@@ -36,10 +38,23 @@ public class RemoveUser extends UserAction {
    }
 
    private void remove() throws Exception {
-      PropertiesLoginModuleConfigurator config = new PropertiesLoginModuleConfigurator(entry, getBrokerEtc());
-      config.removeUser(username);
-      config.save();
-      context.out.println("User removed.");
+      performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
+         @Override
+         public void setUpInvocation(ClientMessage message) throws Exception {
+            ManagementHelper.putOperationInvocation(message, "broker", "removeUser", userCommandUser);
+         }
+
+         @Override
+         public void requestSuccessful(ClientMessage reply) throws Exception {
+            context.out.println(userCommandUser + " removed successfully.");
+         }
+
+         @Override
+         public void requestFailed(ClientMessage reply) throws Exception {
+            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+            context.err.println("Failed to remove user " + userCommandUser + ". Reason: " + errMsg);
+         }
+      });
    }
 
 }

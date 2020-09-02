@@ -21,17 +21,17 @@ import io.airlift.airline.Option;
 
 public class PasswordAction extends UserAction {
 
-   @Option(name = "--password", description = "the password (Default: input)")
-   String password;
+   @Option(name = "--user-command-password", description = "The password to use for the chosen user command (Default: input)")
+   String userCommandPassword;
 
    void checkInputPassword() {
-      if (password == null) {
-         password = inputPassword("--password", "Please provide the password:", null);
+      if (userCommandPassword == null) {
+         userCommandPassword = inputPassword("--user-command-password", "Please provide the password to use for the chosen user command:", null);
       }
    }
 
-   public void setPassword(String password) {
-      this.password = password;
+   public void setUserCommandPassword(String userCommandPassword) {
+      this.userCommandPassword = userCommandPassword;
    }
 
 }

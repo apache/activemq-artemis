@@ -344,144 +344,163 @@ public class ArtemisTest extends CliTestBase {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
       System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
-      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--require-login");
       System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Artemis.internalExecute("run");
 
-      File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
-      File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
-
-      ListUser listCmd = new ListUser();
-      TestActionContext context = new TestActionContext();
-      listCmd.execute(context);
-
-      String result = context.getStdout();
-      log.debug("output1:\n" + result);
-
-      //default only one user admin with role amq
-      assertTrue(result.contains("\"admin\"(amq)"));
-      checkRole("admin", roleFile, "amq");
-
-      //add a simple user
-      AddUser addCmd = new AddUser();
-      addCmd.setUsername("guest");
-      addCmd.setPassword("guest123");
-      addCmd.setRole("admin");
-      addCmd.execute(new TestActionContext());
-
-      //verify use list cmd
-      context = new TestActionContext();
-      listCmd.execute(context);
-      result = context.getStdout();
-      log.debug("output2:\n" + result);
-
-      assertTrue(result.contains("\"admin\"(amq)"));
-      assertTrue(result.contains("\"guest\"(admin)"));
-
-      checkRole("guest", roleFile, "admin");
-      assertTrue(checkPassword("guest", "guest123", userFile));
-
-      //add a user with 2 roles
-      addCmd = new AddUser();
-      addCmd.setUsername("scott");
-      addCmd.setPassword("tiger");
-      addCmd.setRole("admin,operator");
-      addCmd.execute(ActionContext.system());
-
-      //verify
-      context = new TestActionContext();
-      listCmd.execute(context);
-      result = context.getStdout();
-      log.debug("output3:\n" + result);
-
-      assertTrue(result.contains("\"admin\"(amq)"));
-      assertTrue(result.contains("\"guest\"(admin)"));
-      assertTrue(result.contains("\"scott\"(admin,operator)"));
-
-      checkRole("scott", roleFile, "admin", "operator");
-      assertTrue(checkPassword("scott", "tiger", userFile));
-
-      //add an existing user
-      addCmd = new AddUser();
-      addCmd.setUsername("scott");
-      addCmd.setPassword("password");
-      addCmd.setRole("visitor");
       try {
+         File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
+         File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
+
+         ListUser listCmd = new ListUser();
+         TestActionContext context = new TestActionContext();
+         listCmd.setUser("admin");
+         listCmd.setPassword("admin");
+         listCmd.execute(context);
+
+         String result = context.getStdout();
+         log.debug("output1:\n" + result);
+
+         //default only one user admin with role amq
+         assertTrue(result.contains("\"admin\"(amq)"));
+         checkRole("admin", roleFile, "amq");
+
+         //add a simple user
+         AddUser addCmd = new AddUser();
+         addCmd.setUserCommandUser("guest");
+         addCmd.setUserCommandPassword("guest123");
+         addCmd.setRole("admin");
+         addCmd.setUser("admin");
+         addCmd.setPassword("admin");
+         addCmd.execute(new TestActionContext());
+
+         //verify use list cmd
+         context = new TestActionContext();
+         listCmd.execute(context);
+         result = context.getStdout();
+         log.debug("output2:\n" + result);
+
+         assertTrue(result.contains("\"admin\"(amq)"));
+         assertTrue(result.contains("\"guest\"(admin)"));
+
+         checkRole("guest", roleFile, "admin");
+         assertTrue(checkPassword("guest", "guest123", userFile));
+
+         //add a user with 2 roles
+         addCmd = new AddUser();
+         addCmd.setUserCommandUser("scott");
+         addCmd.setUserCommandPassword("tiger");
+         addCmd.setRole("admin,operator");
+         addCmd.setUser("admin");
+         addCmd.setPassword("admin");
          addCmd.execute(ActionContext.system());
-         fail("should throw an exception if adding a existing user");
-      } catch (IllegalArgumentException expected) {
-      }
 
-      //check existing users are intact
-      context = new TestActionContext();
-      listCmd.execute(context);
-      result = context.getStdout();
-      log.debug("output4:\n" + result);
+         //verify
+         context = new TestActionContext();
+         listCmd.execute(context);
+         result = context.getStdout();
+         log.debug("output3:\n" + result);
 
-      assertTrue(result.contains("\"admin\"(amq)"));
-      assertTrue(result.contains("\"guest\"(admin)"));
-      assertTrue(result.contains("\"scott\"(admin,operator)"));
+         assertTrue(result.contains("\"admin\"(amq)"));
+         assertTrue(result.contains("\"guest\"(admin)"));
+         assertTrue(result.contains("\"scott\"(admin,operator)"));
 
-      //remove a user
-      RemoveUser rmCmd = new RemoveUser();
-      rmCmd.setUsername("guest");
-      rmCmd.execute(ActionContext.system());
+         checkRole("scott", roleFile, "admin", "operator");
+         assertTrue(checkPassword("scott", "tiger", userFile));
 
-      //check
-      context = new TestActionContext();
-      listCmd.execute(context);
-      result = context.getStdout();
-      log.debug("output5:\n" + result);
+         //add an existing user
+         addCmd = new AddUser();
+         addCmd.setUserCommandUser("scott");
+         addCmd.setUserCommandPassword("password");
+         addCmd.setRole("visitor");
+         addCmd.setUser("admin");
+         addCmd.setPassword("admin");
+         context = new TestActionContext();
+         addCmd.execute(context);
+         result = context.getStderr();
+         assertTrue(result.contains("Failed to add user scott. Reason: AMQ229223: User scott already exists"));
 
-      assertTrue(result.contains("\"admin\"(amq)"));
-      assertFalse(result.contains("\"guest\"(admin)"));
-      assertTrue(result.contains("\"scott\"(admin,operator)") || result.contains("\"scott\"(operator,admin)"));
-      assertTrue(result.contains("Total: 2"));
+         //check existing users are intact
+         context = new TestActionContext();
+         listCmd.execute(context);
+         result = context.getStdout();
+         log.debug("output4:\n" + result);
 
-      //remove another
-      rmCmd = new RemoveUser();
-      rmCmd.setUsername("scott");
-      rmCmd.execute(ActionContext.system());
+         assertTrue(result.contains("\"admin\"(amq)"));
+         assertTrue(result.contains("\"guest\"(admin)"));
+         assertTrue(result.contains("\"scott\"(admin,operator)"));
 
-      //check
-      context = new TestActionContext();
-      listCmd.execute(context);
-      result = context.getStdout();
-      log.debug("output6:\n" + result);
-
-      assertTrue(result.contains("\"admin\"(amq)"));
-      assertFalse(result.contains("\"guest\"(admin)"));
-      assertFalse(result.contains("\"scott\"(admin,operator)") || result.contains("\"scott\"(operator,admin)"));
-      assertTrue(result.contains("Total: 1"));
-
-      //remove non-exist
-      rmCmd = new RemoveUser();
-      rmCmd.setUsername("alien");
-      try {
+         //remove a user
+         RemoveUser rmCmd = new RemoveUser();
+         rmCmd.setUserCommandUser("guest");
+         rmCmd.setUser("admin");
+         rmCmd.setPassword("admin");
          rmCmd.execute(ActionContext.system());
-         fail("should throw exception when removing a non-existing user");
-      } catch (IllegalArgumentException expected) {
+
+         //check
+         context = new TestActionContext();
+         listCmd.execute(context);
+         result = context.getStdout();
+         log.debug("output5:\n" + result);
+
+         assertTrue(result.contains("\"admin\"(amq)"));
+         assertFalse(result.contains("\"guest\"(admin)"));
+         assertTrue(result.contains("\"scott\"(admin,operator)") || result.contains("\"scott\"(operator,admin)"));
+         assertTrue(result.contains("Total: 2"));
+
+         //remove another
+         rmCmd = new RemoveUser();
+         rmCmd.setUserCommandUser("scott");
+         rmCmd.setUser("admin");
+         rmCmd.setPassword("admin");
+         rmCmd.execute(ActionContext.system());
+
+         //check
+         context = new TestActionContext();
+         listCmd.execute(context);
+         result = context.getStdout();
+         log.debug("output6:\n" + result);
+
+         assertTrue(result.contains("\"admin\"(amq)"));
+         assertFalse(result.contains("\"guest\"(admin)"));
+         assertFalse(result.contains("\"scott\"(admin,operator)") || result.contains("\"scott\"(operator,admin)"));
+         assertTrue(result.contains("Total: 1"));
+
+         //remove non-exist
+         rmCmd = new RemoveUser();
+         rmCmd.setUserCommandUser("alien");
+         rmCmd.setUser("admin");
+         rmCmd.setPassword("admin");
+         context = new TestActionContext();
+         rmCmd.execute(context);
+         result = context.getStderr();
+         assertTrue(result.contains("Failed to remove user alien. Reason: AMQ229224: User alien does not exist"));
+
+         //check
+         context = new TestActionContext();
+         listCmd.execute(context);
+         result = context.getStdout();
+         log.debug("output7:\n" + result);
+         assertTrue(result.contains("\"admin\"(amq)"));
+         assertTrue(result.contains("Total: 1"));
+
+         //now remove last
+         rmCmd = new RemoveUser();
+         rmCmd.setUserCommandUser("admin");
+         rmCmd.setUser("admin");
+         rmCmd.setPassword("admin");
+         rmCmd.execute(ActionContext.system());
+
+         //check
+         context = new TestActionContext();
+         listCmd.execute(context);
+         result = context.getStdout();
+         log.debug("output8:\n" + result);
+
+         assertTrue(result.contains("Total: 0"));
+      } finally {
+         stopServer();
       }
-
-      //check
-      context = new TestActionContext();
-      listCmd.execute(context);
-      result = context.getStdout();
-      log.debug("output7:\n" + result);
-      assertTrue(result.contains("\"admin\"(amq)"));
-      assertTrue(result.contains("Total: 1"));
-
-      //now remove last
-      rmCmd = new RemoveUser();
-      rmCmd.setUsername("admin");
-      rmCmd.execute(ActionContext.system());
-
-      //check
-      context = new TestActionContext();
-      listCmd.execute(context);
-      result = context.getStdout();
-      log.debug("output8:\n" + result);
-
-      assertTrue(result.contains("Total: 0"));
    }
 
    @Test
@@ -687,98 +706,223 @@ public class ArtemisTest extends CliTestBase {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
       System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
-      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--require-login");
       System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Artemis.internalExecute("run");
 
-      File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
-      File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
+      try {
+         File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
+         File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
 
-      ListUser listCmd = new ListUser();
-      TestActionContext context = new TestActionContext();
-      listCmd.execute(context);
+         ListUser listCmd = new ListUser();
+         listCmd.setUser("admin");
+         listCmd.setPassword("admin");
+         TestActionContext context = new TestActionContext();
+         listCmd.execute(context);
 
-      String result = context.getStdout();
-      log.debug("output1:\n" + result);
+         String result = context.getStdout();
+         log.debug("output1:\n" + result);
 
-      //default only one user admin with role amq
-      assertTrue(result.contains("\"admin\"(amq)"));
+         //default only one user admin with role amq
+         assertTrue(result.contains("\"admin\"(amq)"));
 
-      //remove a user
-      RemoveUser rmCmd = new RemoveUser();
-      rmCmd.setUsername("admin");
-      rmCmd.execute(ActionContext.system());
+         //remove a user
+         RemoveUser rmCmd = new RemoveUser();
+         rmCmd.setUserCommandUser("admin");
+         rmCmd.setUser("admin");
+         rmCmd.setPassword("admin");
+         rmCmd.execute(ActionContext.system());
 
-      //check
-      context = new TestActionContext();
-      listCmd.execute(context);
-      result = context.getStdout();
-      log.debug("output8:\n" + result);
+         //check
+         context = new TestActionContext();
+         listCmd.execute(context);
+         result = context.getStdout();
+         log.debug("output8:\n" + result);
 
-      assertTrue(result.contains("Total: 0"));
+         assertTrue(result.contains("Total: 0"));
 
-      //add some users
-      AddUser addCmd = new AddUser();
-      addCmd.setUsername("guest");
-      addCmd.setPassword("guest123");
-      addCmd.setRole("admin");
-      addCmd.execute(new TestActionContext());
+         //add some users
+         AddUser addCmd = new AddUser();
+         addCmd.setUserCommandUser("guest");
+         addCmd.setUserCommandPassword("guest123");
+         addCmd.setRole("admin");
+         addCmd.setUser("admin");
+         addCmd.setPassword("admin");
+         addCmd.execute(new TestActionContext());
 
-      addCmd.setUsername("user1");
-      addCmd.setPassword("password1");
-      addCmd.setRole("admin,manager");
-      addCmd.execute(new TestActionContext());
-      assertTrue(checkPassword("user1", "password1", userFile));
+         addCmd.setUserCommandUser("user1");
+         addCmd.setUserCommandPassword("password1");
+         addCmd.setRole("admin,manager");
+         addCmd.execute(new TestActionContext());
+         assertTrue(checkPassword("user1", "password1", userFile));
 
-      addCmd.setUsername("user2");
-      addCmd.setPassword("password2");
-      addCmd.setRole("admin,manager,master");
-      addCmd.execute(new TestActionContext());
+         addCmd.setUserCommandUser("user2");
+         addCmd.setUserCommandPassword("password2");
+         addCmd.setRole("admin,manager,master");
+         addCmd.execute(new TestActionContext());
 
-      addCmd.setUsername("user3");
-      addCmd.setPassword("password3");
-      addCmd.setRole("system,master");
-      addCmd.execute(new TestActionContext());
+         addCmd.setUserCommandUser("user3");
+         addCmd.setUserCommandPassword("password3");
+         addCmd.setRole("system,master");
+         addCmd.execute(new TestActionContext());
 
-      //verify use list cmd
-      context = new TestActionContext();
-      listCmd.execute(context);
-      result = context.getStdout();
-      log.debug("output2:\n" + result);
+         //verify use list cmd
+         context = new TestActionContext();
+         listCmd.execute(context);
+         result = context.getStdout();
+         log.debug("output2:\n" + result);
 
-      assertTrue(result.contains("Total: 4"));
-      assertTrue(result.contains("\"guest\"(admin)"));
-      assertTrue(Pattern.compile("\"user1\"\\((admin|manager),(admin|manager)\\)").matcher(result).find());
-      assertTrue(Pattern.compile("\"user2\"\\((admin|manager|master),(admin|manager|master),(admin|manager|master)\\)").matcher(result).find());
-      assertTrue(Pattern.compile("\"user3\"\\((master|system),(master|system)\\)").matcher(result).find());
+         assertTrue(result.contains("Total: 4"));
+         assertTrue(result.contains("\"guest\"(admin)"));
+         assertTrue(Pattern
+                       .compile("\"user1\"\\((admin|manager),(admin|manager)\\)")
+                       .matcher(result)
+                       .find());
+         assertTrue(Pattern
+                       .compile("\"user2\"\\((admin|manager|master),(admin|manager|master),(admin|manager|master)\\)")
+                       .matcher(result)
+                       .find());
+         assertTrue(Pattern
+                       .compile("\"user3\"\\((master|system),(master|system)\\)")
+                       .matcher(result)
+                       .find());
 
-      checkRole("user1", roleFile, "admin", "manager");
+         checkRole("user1", roleFile, "admin", "manager");
 
-      //reset password
-      context = new TestActionContext();
-      ResetUser resetCommand = new ResetUser();
-      resetCommand.setUsername("user1");
-      resetCommand.setPassword("newpassword1");
-      resetCommand.execute(context);
+         //reset password
+         context = new TestActionContext();
+         ResetUser resetCommand = new ResetUser();
+         resetCommand.setUserCommandUser("user1");
+         resetCommand.setUserCommandPassword("newpassword1");
+         resetCommand.setUser("admin");
+         resetCommand.setPassword("admin");
+         resetCommand.execute(context);
 
-      checkRole("user1", roleFile, "admin", "manager");
-      assertFalse(checkPassword("user1", "password1", userFile));
-      assertTrue(checkPassword("user1", "newpassword1", userFile));
+         checkRole("user1", roleFile, "admin", "manager");
+         assertFalse(checkPassword("user1", "password1", userFile));
+         assertTrue(checkPassword("user1", "newpassword1", userFile));
 
-      //reset role
-      resetCommand.setUsername("user2");
-      resetCommand.setRole("manager,master,operator");
-      resetCommand.execute(new TestActionContext());
+         //reset role
+         resetCommand.setUserCommandUser("user2");
+         resetCommand.setRole("manager,master,operator");
+         resetCommand.execute(new TestActionContext());
 
-      checkRole("user2", roleFile, "manager", "master", "operator");
+         checkRole("user2", roleFile, "manager", "master", "operator");
 
-      //reset both
-      resetCommand.setUsername("user3");
-      resetCommand.setPassword("newpassword3");
-      resetCommand.setRole("admin,system");
-      resetCommand.execute(new ActionContext());
+         //reset both
+         resetCommand.setUserCommandUser("user3");
+         resetCommand.setUserCommandPassword("newpassword3");
+         resetCommand.setRole("admin,system");
+         resetCommand.execute(new ActionContext());
 
-      checkRole("user3", roleFile, "admin", "system");
-      assertTrue(checkPassword("user3", "newpassword3", userFile));
+         checkRole("user3", roleFile, "admin", "system");
+         assertTrue(checkPassword("user3", "newpassword3", userFile));
+      } finally {
+         stopServer();
+      }
+   }
+
+   @Test
+   public void testConcurrentUserAdministration() throws Exception {
+      Run.setEmbedded(true);
+      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", instance1.getAbsolutePath());
+      Artemis.internalExecute("run");
+
+      try {
+         File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
+         File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
+
+         TestActionContext context = new TestActionContext();
+         ListUser listCmd = new ListUser();
+         listCmd.setUser("admin");
+         listCmd.setPassword("admin");
+         listCmd.execute(context);
+
+         String result = context.getStdout();
+         log.debug("output1:\n" + result);
+
+         assertTrue(result.contains("Total: 1"));
+         assertTrue(result.contains("\"admin\"(amq)"));
+
+         int nThreads = 4;
+
+         UserAdmin[] userAdminThreads = new UserAdmin[nThreads];
+         for (int j = 0; j < 25; j++) {
+
+            for (int i = 0; i < nThreads; i++) {
+               userAdminThreads[i] = new UserAdmin();
+            }
+
+            for (int i = 0; i < nThreads; i++) {
+               userAdminThreads[i].start();
+            }
+
+            for (UserAdmin userAdmin : userAdminThreads) {
+               userAdmin.join();
+            }
+         }
+
+         context = new TestActionContext();
+         listCmd = new ListUser();
+         listCmd.setUser("admin");
+         listCmd.setPassword("admin");
+         listCmd.execute(context);
+
+         result = context.getStdout();
+         log.debug("output2:\n" + result);
+
+         // make sure the admin user is still in tact (i.e. that the file wasn't corrupted via concurrent access)
+         assertTrue(result.contains("\"admin\"(amq)"));
+         checkRole("admin", roleFile, "amq");
+         checkPassword("admin", "admin", userFile);
+      } finally {
+         stopServer();
+      }
+   }
+
+   private class UserAdmin extends Thread {
+      @Override
+      public void run() {
+         //remove "myuser""
+         RemoveUser rmCmd = new RemoveUser();
+         rmCmd.setUserCommandUser("myuser");
+         rmCmd.setUser("admin");
+         rmCmd.setPassword("admin");
+         try {
+            rmCmd.execute(new TestActionContext());
+         } catch (Exception e) {
+            // this could fail if the user doesn't exist
+         }
+
+         //create user 'myuser' with password 'mypassword'
+         AddUser addCmd = new AddUser();
+         addCmd.setUserCommandUser("myuser");
+         addCmd.setUserCommandPassword("mypassword");
+         addCmd.setRole("foo");
+         addCmd.setUser("admin");
+         addCmd.setPassword("admin");
+         try {
+            addCmd.execute(new TestActionContext());
+         } catch (Exception e) {
+            // this could fail if the user already exists
+         }
+
+         //reset 'myuser' with role 'myrole'
+         ResetUser resetCmd = new ResetUser();
+         resetCmd.setUserCommandUser("myuser");
+         resetCmd.setUserCommandPassword("mypassword");
+         resetCmd.setRole("myrole");
+         resetCmd.setUser("admin");
+         resetCmd.setPassword("admin");
+         try {
+            resetCmd.execute(new TestActionContext());
+         } catch (Exception e) {
+            // this could fail if the user doesn't exist
+         }
+      }
    }
 
    @Test
@@ -787,21 +931,28 @@ public class ArtemisTest extends CliTestBase {
       Run.setEmbedded(true);
       File instanceRole = new File(temporaryFolder.getRoot(), "instance_role");
       System.setProperty("java.security.auth.login.config", instanceRole.getAbsolutePath() + "/etc/login.config");
-      Artemis.main("create", instanceRole.getAbsolutePath(), "--silent", "--no-autotune", "--role", roleWithSpaces);
+      Artemis.main("create", instanceRole.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--require-login", "--role", roleWithSpaces);
       System.setProperty("artemis.instance", instanceRole.getAbsolutePath());
+      Artemis.internalExecute("run");
 
-      File roleFile = new File(instanceRole.getAbsolutePath() + "/etc/artemis-roles.properties");
+      try {
+         File roleFile = new File(instanceRole.getAbsolutePath() + "/etc/artemis-roles.properties");
 
-      ListUser listCmd = new ListUser();
-      TestActionContext context = new TestActionContext();
-      listCmd.execute(context);
+         ListUser listCmd = new ListUser();
+         listCmd.setUser("admin");
+         listCmd.setPassword("admin");
+         TestActionContext context = new TestActionContext();
+         listCmd.execute(context);
 
-      String result = context.getStdout();
-      log.debug("output1:\n" + result);
+         String result = context.getStdout();
+         log.debug("output1:\n" + result);
 
-      assertTrue(result.contains("\"admin\"(" + roleWithSpaces + ")"));
+         assertTrue(result.contains("\"admin\"(" + roleWithSpaces + ")"));
 
-      checkRole("admin", roleFile, roleWithSpaces);
+         checkRole("admin", roleFile, roleWithSpaces);
+      } finally {
+         stopServer();
+      }
    }
 
    @Test

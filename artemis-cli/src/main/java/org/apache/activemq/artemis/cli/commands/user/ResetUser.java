@@ -18,10 +18,10 @@ package org.apache.activemq.artemis.cli.commands.user;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.util.HashUtil;
-import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Reset a user's password or roles, example:
@@ -30,37 +30,35 @@ import org.apache.commons.lang3.StringUtils;
 @Command(name = "reset", description = "Reset user's password or roles")
 public class ResetUser extends PasswordAction {
 
-   @Option(name = "--plaintext", description = "using plaintext (Default false)")
+   @Option(name = "--plaintext", description = "store the password in plaintext (Default: false)")
    boolean plaintext = false;
 
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-
       checkInputUser();
       checkInputPassword();
-
-      if (password != null) {
-         password = plaintext ? password : HashUtil.tryHash(context, password);
-      }
-
-      String[] roles = null;
-      if (role != null) {
-         roles = StringUtils.split(role, ",");
-      }
-
-      reset(password, roles);
+      reset();
       return null;
    }
 
-   private void reset(String password, String[] roles) throws Exception {
-      if (password == null && roles == null) {
-         context.err.println("Nothing to update.");
-         return;
-      }
-      PropertiesLoginModuleConfigurator config = new PropertiesLoginModuleConfigurator(entry, getBrokerEtc());
-      config.updateUser(username, password, roles);
-      config.save();
-      context.out.println("User updated");
+   private void reset() throws Exception {
+      performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
+         @Override
+         public void setUpInvocation(ClientMessage message) throws Exception {
+            ManagementHelper.putOperationInvocation(message, "broker", "resetUser", userCommandUser, userCommandPassword, role, plaintext);
+         }
+
+         @Override
+         public void requestSuccessful(ClientMessage reply) throws Exception {
+            context.out.println(userCommandUser + " reset successfully.");
+         }
+
+         @Override
+         public void requestFailed(ClientMessage reply) throws Exception {
+            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+            context.err.println("Failed to reset user " + userCommandUser + ". Reason: " + errMsg);
+         }
+      });
    }
 }
