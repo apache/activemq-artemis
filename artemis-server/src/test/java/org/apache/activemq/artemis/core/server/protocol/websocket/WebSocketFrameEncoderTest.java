@@ -78,7 +78,7 @@ public class WebSocketFrameEncoderTest {
 
    @Test
    public void testWriteReleaseBuffer() throws Exception {
-      String content = "Using direct buffer";
+      String content = "Buffer should be released";
 
       int utf8Bytes = ByteBufUtil.utf8Bytes(content);
       ByteBuf msg = Unpooled.directBuffer(utf8Bytes);
