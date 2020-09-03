@@ -29,7 +29,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
 import org.junit.Before;
 import org.junit.Test;
