@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import io.netty.buffer.ByteBufUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,6 +75,28 @@ public class WebSocketFrameEncoderTest {
       verifyNoMoreInteractions(spy, ctx);
       verifyZeroInteractions(promise);
    }
+
+   @Test
+   public void testWriteReleaseBuffer() throws Exception {
+      String content = "Buffer should be released";
+
+      int utf8Bytes = ByteBufUtil.utf8Bytes(content);
+      ByteBuf msg = Unpooled.directBuffer(utf8Bytes);
+      ByteBufUtil.reserveAndWriteUtf8(msg, content, utf8Bytes);
+
+      ArgumentCaptor<WebSocketFrame> frameCaptor = ArgumentCaptor.forClass(WebSocketFrame.class);
+
+      spy.write(ctx, msg, promise); //test
+
+      assertEquals(0, msg.refCnt());
+      assertEquals(0, msg.readableBytes());
+      verify(ctx).writeAndFlush(frameCaptor.capture(), eq(promise));
+      WebSocketFrame frame = frameCaptor.getValue();
+      assertTrue(frame instanceof BinaryWebSocketFrame);
+      assertTrue(frame.isFinalFragment());
+      assertEquals(content, frame.content().toString(StandardCharsets.UTF_8));
+   }
+
 
    @Test
    public void testWriteSingleFrame() throws Exception {

@@ -63,5 +63,7 @@ public class WebSocketFrameEncoder extends ChannelOutboundHandlerAdapter {
          byteBuf.readBytes(fragment, length);
          ctx.writeAndFlush(new ContinuationWebSocketFrame(finalFragment, 0, fragment), promise);
       }
+
+      byteBuf.release();
    }
 }
