@@ -16,19 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
-import java.lang.management.ManagementFactory;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.JMSSecurityException;
 import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.security.cert.X509Certificate;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQSslConnectionFactory;
@@ -58,6 +61,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -583,6 +587,70 @@ public class SecurityTest extends ActiveMQTestBase {
       } catch (ActiveMQException e) {
          assertTrue(e instanceof ActiveMQSecurityException);
       }
+   }
+
+   @Test
+   public void testJAASSecurityManagerFQQNAuthorizationWithJMS() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("address");
+      final SimpleString QUEUE_A = new SimpleString("a");
+      final SimpleString QUEUE_B = new SimpleString("b");
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+
+      Set<Role> aRoles = new HashSet<>();
+      aRoles.add(new Role(QUEUE_A.toString(), false, true, true, false, false, false, false, false, true, false));
+      server.getConfiguration().putSecurityRoles(CompositeAddress.toFullyQualified(ADDRESS, QUEUE_A).toString(), aRoles);
+
+      Set<Role> bRoles = new HashSet<>();
+      bRoles.add(new Role(QUEUE_B.toString(), false, true, true, false, false, false, false, false, true, false));
+      server.getConfiguration().putSecurityRoles(CompositeAddress.toFullyQualified(ADDRESS, QUEUE_B).toString(), bRoles);
+
+      server.start();
+
+      ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
+      Connection aConnection = cf.createConnection("a", "a");
+      Session aSession = aConnection.createSession();
+      Connection bConnection = cf.createConnection("b", "b");
+      Session bSession = bConnection.createSession();
+
+      javax.jms.Queue queueA = aSession.createQueue(CompositeAddress.toFullyQualified(ADDRESS, QUEUE_A).toString());
+      javax.jms.Queue queueB = bSession.createQueue(CompositeAddress.toFullyQualified(ADDRESS, QUEUE_B).toString());
+
+      // client A CONSUME from queue A
+      try {
+         aSession.createConsumer(queueA);
+      } catch (JMSException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception here");
+      }
+
+      // client B CONSUME from queue A
+      try {
+         bSession.createConsumer(queueA);
+         Assert.fail("should throw exception here");
+      } catch (JMSException e) {
+         assertTrue(e instanceof JMSSecurityException);
+      }
+
+      // client B CONSUME from queue B
+      try {
+         bSession.createConsumer(queueB);
+      } catch (JMSException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception here");
+      }
+
+      // client A CONSUME from queue B
+      try {
+         aSession.createConsumer(queueB);
+         Assert.fail("should throw exception here");
+      } catch (JMSException e) {
+         assertTrue(e instanceof JMSSecurityException);
+      }
+
+      aConnection.close();
+      bConnection.close();
    }
 
    @Test
