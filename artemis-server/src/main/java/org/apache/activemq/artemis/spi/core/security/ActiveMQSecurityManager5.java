@@ -42,7 +42,7 @@ public interface ActiveMQSecurityManager5 extends ActiveMQSecurityManager {
     * @param password the user's password
     * @param remotingConnection the user's connection which contains any corresponding SSL certs
     * @param securityDomain the name of the JAAS security domain to use (can be null)
-    * @return the Subject of the authenticated user or null if the user isn't authenticated
+    * @return the Subject of the authenticated user, else null
     */
    Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain);
 
@@ -55,7 +55,8 @@ public interface ActiveMQSecurityManager5 extends ActiveMQSecurityManager {
     * @param subject    the Subject to authorize
     * @param roles      the roles configured in the security-settings
     * @param checkType  which permission to validate
+    * @param address    the address (or FQQN) to grant access to
     * @return true if the user is authorized, else false
     */
-   boolean authorize(Subject subject, Set<Role> roles, CheckType checkType);
+   boolean authorize(Subject subject, Set<Role> roles, CheckType checkType, String address);
 }
