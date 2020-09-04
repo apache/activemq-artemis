@@ -632,7 +632,21 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                connector = null;
 
-               reconnectSessions(oldConnection, reconnectAttempts, me);
+               boolean allSessionReconnected;
+               int failedReconnectSessionsCounter = 0;
+               do {
+                  allSessionReconnected = reconnectSessions(oldConnection, reconnectAttempts, me);
+                  if (oldConnection != null) {
+                     oldConnection.destroy();
+                  }
+
+                  if (!allSessionReconnected) {
+                     failedReconnectSessionsCounter++;
+                     oldConnection = connection;
+                     connection = null;
+                  }
+               }
+               while ((reconnectAttempts == -1 || failedReconnectSessionsCounter < reconnectAttempts) && !allSessionReconnected);
 
                if (oldConnection != null) {
                   oldConnection.destroy();
@@ -750,7 +764,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    /*
     * Re-attach sessions all pre-existing sessions to the new remoting connection
     */
-   private void reconnectSessions(final RemotingConnection oldConnection,
+   private boolean reconnectSessions(final RemotingConnection oldConnection,
                                   final int reconnectAttempts,
                                   final ActiveMQException cause) {
       HashSet<ClientSessionInternal> sessionsToFailover;
@@ -768,7 +782,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          if (!clientProtocolManager.isAlive())
             ActiveMQClientLogger.LOGGER.failedToConnectToServer();
 
-         return;
+         return true;
       }
 
       List<FailureListener> oldListeners = oldConnection.getFailureListeners();
@@ -790,11 +804,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       for (ClientSessionInternal session : sessionsToFailover) {
          if (!session.handleFailover(connection, cause)) {
-            connection.destroy();
-            this.connection = null;
-            return;
+            return false;
          }
       }
+
+      return true;
    }
 
    private void getConnectionWithRetry(final int reconnectAttempts, RemotingConnection oldConnection) {
