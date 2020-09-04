@@ -113,7 +113,8 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
    @Override
    public boolean authorize(final Subject subject,
                             final Set<Role> roles,
-                            final CheckType checkType) {
+                            final CheckType checkType,
+                            final String address) {
       boolean authorized = false;
 
       if (subject != null) {

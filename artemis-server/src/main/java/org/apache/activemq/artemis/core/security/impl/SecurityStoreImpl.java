@@ -270,7 +270,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          final Boolean validated;
          if (securityManager instanceof ActiveMQSecurityManager5) {
             Subject subject = getSubjectForAuthorization(session, ((ActiveMQSecurityManager5) securityManager));
-            validated = ((ActiveMQSecurityManager5) securityManager).authorize(subject, roles, checkType);
+            validated = ((ActiveMQSecurityManager5) securityManager).authorize(subject, roles, checkType, isFullyQualified ? fqqn.toString() : bareAddress.toString());
          } else if (securityManager instanceof ActiveMQSecurityManager4) {
             validated = ((ActiveMQSecurityManager4) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection(), session.getSecurityDomain()) != null;
          } else if (securityManager instanceof ActiveMQSecurityManager3) {

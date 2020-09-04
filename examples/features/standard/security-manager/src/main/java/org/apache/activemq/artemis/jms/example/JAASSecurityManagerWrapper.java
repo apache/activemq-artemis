@@ -33,16 +33,17 @@ public class JAASSecurityManagerWrapper implements ActiveMQSecurityManager5 {
 
    @Override
    public Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) {
-      System.out.println("authenticate(" + user + ", " + password + ", " + remotingConnection.getRemoteAddress() + ")");
+      System.out.println("authenticate(" + user + ", " + password + ", " + remotingConnection.getRemoteAddress() + ", " + securityDomain + ")");
       return activeMQJAASSecurityManager.authenticate(user, password, remotingConnection, securityDomain);
    }
 
    @Override
    public boolean authorize(Subject subject,
                             Set<Role> roles,
-                            CheckType checkType) {
-      System.out.println("authorize(" + subject + ", " + roles + ", " + checkType + ")");
-      return activeMQJAASSecurityManager.authorize(subject, roles, checkType);
+                            CheckType checkType,
+                            String address) {
+      System.out.println("authorize(" + subject + ", " + roles + ", " + checkType + ", " + address + ")");
+      return activeMQJAASSecurityManager.authorize(subject, roles, checkType, address);
    }
 
    @Override

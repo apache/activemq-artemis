@@ -92,7 +92,7 @@ public class JAASSecurityManagerTest {
          Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
          Set<Role> roles = new HashSet<>();
          roles.add(role);
-         boolean authorizationResult = securityManager.authorize(result, roles, CheckType.SEND);
+         boolean authorizationResult = securityManager.authorize(result, roles, CheckType.SEND, "someaddress");
 
          assertTrue(authorizationResult);
 
