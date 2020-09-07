@@ -62,7 +62,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)})
+@CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)}, allowAnonymousAccess = true)
 @ApplyLdifFiles("test.ldif")
 public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
@@ -227,6 +227,52 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
          return;
       }
       fail("Should have failed authenticating");
+      assertTrue("sessions still active after logout", waitFor(() -> ldapServer.getLdapSessionManager().getSessions().length == 0));
+   }
+
+
+   @Test
+   public void testAuthenticatedViaBindOnAnonConnection() throws Exception {
+      LoginContext context = new LoginContext("AnonBindCheckUserLDAPLogin", new CallbackHandler() {
+         @Override
+         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            for (int i = 0; i < callbacks.length; i++) {
+               if (callbacks[i] instanceof NameCallback) {
+                  ((NameCallback) callbacks[i]).setName("first");
+               } else if (callbacks[i] instanceof PasswordCallback) {
+                  ((PasswordCallback) callbacks[i]).setPassword("wrongSecret".toCharArray());
+               } else {
+                  throw new UnsupportedCallbackException(callbacks[i]);
+               }
+            }
+         }
+      });
+      try {
+         context.login();
+         fail("Should have failed authenticating");
+      } catch (FailedLoginException expected) {
+      }
+      assertTrue("sessions still active after logout", waitFor(() -> ldapServer.getLdapSessionManager().getSessions().length == 0));
+   }
+
+   @Test
+   public void testAuthenticatedOkViaBindOnAnonConnection() throws Exception {
+      LoginContext context = new LoginContext("AnonBindCheckUserLDAPLogin", new CallbackHandler() {
+         @Override
+         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            for (int i = 0; i < callbacks.length; i++) {
+               if (callbacks[i] instanceof NameCallback) {
+                  ((NameCallback) callbacks[i]).setName("first");
+               } else if (callbacks[i] instanceof PasswordCallback) {
+                  ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+               } else {
+                  throw new UnsupportedCallbackException(callbacks[i]);
+               }
+            }
+         }
+      });
+      context.login();
+      context.logout();
       assertTrue("sessions still active after logout", waitFor(() -> ldapServer.getLdapSessionManager().getSessions().length == 0));
    }
 

@@ -769,7 +769,7 @@ system. It is implemented by
 
 - `authenticateUser` - boolean flag to disable authentication. Useful as an
   optimisation when this module is used just for role mapping of a Subject's
-  existing authenticated principals; default is `false`.
+  existing authenticated principals; default is `true`.
 
 - `referral` - specify how to handle referrals; valid values: `ignore`,
   `follow`, `throw`; default is `ignore`.
