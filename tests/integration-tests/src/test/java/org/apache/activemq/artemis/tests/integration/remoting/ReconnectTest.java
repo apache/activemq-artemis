@@ -361,7 +361,7 @@ public class ReconnectTest extends ActiveMQTestBase {
 
       final long retryInterval = 50;
       final double retryMultiplier = 1d;
-      final int reconnectAttempts = 10;
+      final int reconnectAttempts = 1;
       ServerLocator locator = createFactory(true).setCallTimeout(2000).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(-1);
       ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
       final CountDownLatch latch = new CountDownLatch(1);
