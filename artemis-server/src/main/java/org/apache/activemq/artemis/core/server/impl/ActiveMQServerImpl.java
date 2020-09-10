@@ -490,6 +490,24 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return this;
    }
 
+   private void configureJdbcNetworkTimeout() {
+      if (configuration.isPersistenceEnabled()) {
+         if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+            DatabaseStorageConfiguration databaseStorageConfiguration = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
+            databaseStorageConfiguration.setConnectionProviderNetworkTimeout(threadPool, databaseStorageConfiguration.getJdbcNetworkTimeout());
+         }
+      }
+   }
+
+   private void clearJdbcNetworkTimeout() {
+      if (configuration.isPersistenceEnabled()) {
+         if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+            DatabaseStorageConfiguration databaseStorageConfiguration = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
+            databaseStorageConfiguration.clearConnectionProviderNetworkTimeout();
+         }
+      }
+   }
+
    /*
     * Can be overridden for tests
     */
@@ -580,6 +598,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       try {
          checkJournalDirectory();
+
+         // this would create the connection provider while setting the JDBC global network timeout
+         configureJdbcNetworkTimeout();
 
          nodeManager = createNodeManager(configuration.getNodeManagerLockLocation(), false);
 
@@ -1220,16 +1241,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          securitySettingPlugin.stop();
       }
 
-      if (threadPool != null && !threadPoolSupplied) {
-         shutdownPool(threadPool);
-      }
-
       if (ioExecutorPool != null) {
          shutdownPool(ioExecutorPool);
       }
 
-      if (!threadPoolSupplied)
-         threadPool = null;
       if (!scheduledPoolSupplied)
          scheduledPool = null;
 
@@ -1267,6 +1282,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, activation.getClass().getName());
          }
       }
+
+      // JDBC journal can use this thread pool to configure the network timeout on a pooled connection:
+      // better to stop it after closing activation (and JDBC node manager on it)
+      final ExecutorService threadPool = this.threadPool;
+      if (threadPool != null && !threadPoolSupplied) {
+         shutdownPool(threadPool);
+      }
+      if (!threadPoolSupplied) {
+         this.threadPool = null;
+      }
+
+      // given that threadPool can be garbage collected, need to clear anything that would make it leaks
+      clearJdbcNetworkTimeout();
 
       if (activationThread != null) {
          try {

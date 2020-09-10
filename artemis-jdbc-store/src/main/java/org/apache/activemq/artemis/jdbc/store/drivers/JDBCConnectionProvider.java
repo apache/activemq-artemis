@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.jdbc.store.drivers;
 
-import org.apache.activemq.artemis.jdbc.store.logging.LoggingConnection;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
-import org.jboss.logging.Logger;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,17 +23,23 @@ import java.sql.SQLException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.jdbc.store.logging.LoggingConnection;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jboss.logging.Logger;
+
 public class JDBCConnectionProvider {
 
    private static final Logger logger = Logger.getLogger(JDBCConnectionProvider.class);
    private DataSource dataSource;
    private Executor networkTimeoutExecutor;
    private int networkTimeoutMillis;
+   private boolean supportNetworkTimeout;
 
    public JDBCConnectionProvider(DataSource dataSource) {
       this.dataSource = dataSource;
       this.networkTimeoutExecutor = null;
       this.networkTimeoutMillis = -1;
+      this.supportNetworkTimeout = true;
       addDerbyShutdownHook();
    }
 
@@ -58,14 +60,18 @@ public class JDBCConnectionProvider {
       }
 
       if (this.networkTimeoutMillis >= 0 && this.networkTimeoutExecutor != null) {
-         try {
-            connection.setNetworkTimeout(this.networkTimeoutExecutor, this.networkTimeoutMillis);
-         } catch (SQLException e) {
-            logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
-            ActiveMQJournalLogger.LOGGER.warn("Unable to set a network timeout on the JDBC connection");
-         } catch (Throwable throwable) {
-            //it included SecurityExceptions and UnsupportedOperationException
-            logger.warn("Unable to set a network timeout on the JDBC connection", throwable);
+         if (supportNetworkTimeout) {
+            try {
+               connection.setNetworkTimeout(this.networkTimeoutExecutor, this.networkTimeoutMillis);
+            } catch (SQLException e) {
+               supportNetworkTimeout = false;
+               logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
+               ActiveMQJournalLogger.LOGGER.warn("Unable to set a network timeout on the JDBC connection: won't retry again in the future");
+            } catch (Throwable throwable) {
+               supportNetworkTimeout = false;
+               //it included SecurityExceptions and UnsupportedOperationException
+               logger.warn("Unable to set a network timeout on the JDBC connection: won't retry again in the future", throwable);
+            }
          }
       }
       return connection;

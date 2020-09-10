@@ -116,6 +116,8 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       if (useAuthentication) {
          System.setProperty("derby.connection.requireAuthentication", "true");
          System.setProperty("derby.user." + getJdbcUser(), getJdbcPassword());
+         dbConf.setJdbcUser(getJdbcUser());
+         dbConf.setJdbcPassword(getJdbcPassword());
       }
       sqlProvider = JDBCUtils.getSQLProvider(
          dbConf.getJdbcDriverClassName(),
