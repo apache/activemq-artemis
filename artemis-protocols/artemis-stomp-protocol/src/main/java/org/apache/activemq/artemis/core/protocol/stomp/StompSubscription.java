@@ -19,9 +19,6 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class StompSubscription {
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private final String subID;
 
@@ -32,18 +29,15 @@ public class StompSubscription {
    // whether or not this subscription follows multicast semantics (e.g. for a JMS topic)
    private final boolean multicast;
 
-   // Static --------------------------------------------------------
+   private final int consumerWindowSize;
 
-   // Constructors --------------------------------------------------
-
-   public StompSubscription(String subID, String ack, SimpleString queueName, boolean multicast) {
+   public StompSubscription(String subID, String ack, SimpleString queueName, boolean multicast, int consumerWindowSize) {
       this.subID = subID;
       this.ack = ack;
       this.queueName = queueName;
       this.multicast = multicast;
+      this.consumerWindowSize = consumerWindowSize;
    }
-
-   // Public --------------------------------------------------------
 
    public String getAck() {
       return ack;
@@ -61,9 +55,13 @@ public class StompSubscription {
       return multicast;
    }
 
+   public int getConsumerWindowSize() {
+      return consumerWindowSize;
+   }
+
    @Override
    public String toString() {
-      return "StompSubscription[id=" + subID + ", ack=" + ack + ", queueName=" + queueName + ", multicast=" + multicast + "]";
+      return "StompSubscription[id=" + subID + ", ack=" + ack + ", queueName=" + queueName + ", multicast=" + multicast + ", consumerWindowSize=" + consumerWindowSize + "]";
    }
 
 }

@@ -157,6 +157,13 @@ public interface Stomp {
           */
          String ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME = "activemq.subscriptionName";
 
+         /**
+          * Backwards compatibility for STOMP clients that were using 5.x
+          */
+         String ACTIVEMQ_PREFETCH_SIZE = "activemq.prefetchSize";
+
+         String CONSUMER_WINDOW_SIZE = "consumer-window-size";
+
          String SUBSCRIPTION_TYPE = "subscription-type";
 
          String NO_LOCAL = "no-local";

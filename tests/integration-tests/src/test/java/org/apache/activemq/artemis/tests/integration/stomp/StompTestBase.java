@@ -178,7 +178,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
     * @throws Exception
     */
    protected ActiveMQServer createServer() throws Exception {
-      String stompAcceptorURI = "tcp://" + TransportConstants.DEFAULT_HOST + ":" + TransportConstants.DEFAULT_STOMP_PORT + "?" + TransportConstants.STOMP_CONSUMERS_CREDIT + "=-1";
+      String stompAcceptorURI = "tcp://" + TransportConstants.DEFAULT_HOST + ":" + TransportConstants.DEFAULT_STOMP_PORT + "?" + TransportConstants.STOMP_CONSUMER_WINDOW_SIZE + "=-1";
       if (isEnableStompMessageId()) {
          stompAcceptorURI += ";" + TransportConstants.STOMP_ENABLE_MESSAGE_ID + "=true";
       }
@@ -391,12 +391,36 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    public static ClientStompFrame subscribe(StompClientConnection conn,
-                                     String subscriptionId,
-                                     String ack,
-                                     String durableId,
-                                     String selector,
-                                     String destination,
-                                     boolean receipt) throws IOException, InterruptedException {
+                                            String subscriptionId,
+                                            String ack,
+                                            String durableId,
+                                            String selector,
+                                            String destination,
+                                            boolean receipt) throws IOException, InterruptedException {
+      return subscribe(conn, subscriptionId, ack, durableId, selector, destination, receipt, null);
+   }
+
+   public static ClientStompFrame subscribe(StompClientConnection conn,
+                                            String subscriptionId,
+                                            String ack,
+                                            String durableId,
+                                            String selector,
+                                            String destination,
+                                            boolean receipt,
+                                            Integer consumerWindowSize) throws IOException, InterruptedException {
+      return subscribe(conn, subscriptionId, ack, durableId, selector, destination, receipt, consumerWindowSize, Stomp.Headers.Subscribe.CONSUMER_WINDOW_SIZE);
+   }
+
+   public static ClientStompFrame subscribe(StompClientConnection conn,
+                                            String subscriptionId,
+                                            String ack,
+                                            String durableId,
+                                            String selector,
+                                            String destination,
+                                            boolean receipt,
+                                            Integer consumerWindowSize,
+                                            String consumerWindowSizeHeader) throws IOException, InterruptedException {
+
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
                                    .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, RoutingType.ANYCAST.toString())
                                    .addHeader(Stomp.Headers.Subscribe.DESTINATION, destination);
@@ -411,6 +435,9 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       }
       if (selector != null) {
          frame.addHeader(Stomp.Headers.Subscribe.SELECTOR, selector);
+      }
+      if (consumerWindowSize != null) {
+         frame.addHeader(consumerWindowSizeHeader, consumerWindowSize.toString());
       }
 
       String uuid = UUID.randomUUID().toString();

@@ -274,7 +274,13 @@ public abstract class VersionedStompFrameHandler {
       } else if (frame.hasHeader(Stomp.Headers.Subscribe.ACTIVEMQ_NO_LOCAL)) {
          noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
       }
-      return connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
+      Integer consumerWindowSize = null;
+      if (frame.hasHeader(Headers.Subscribe.CONSUMER_WINDOW_SIZE)) {
+         consumerWindowSize = Integer.parseInt(frame.getHeader(Stomp.Headers.Subscribe.CONSUMER_WINDOW_SIZE));
+      } else if (frame.hasHeader(Headers.Subscribe.ACTIVEMQ_PREFETCH_SIZE)) {
+         consumerWindowSize = Integer.parseInt(frame.getHeader(Stomp.Headers.Subscribe.ACTIVEMQ_PREFETCH_SIZE));
+      }
+      return connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType, consumerWindowSize);
    }
 
    public String getDestination(StompFrame request) throws Exception {

@@ -723,12 +723,13 @@ public final class StompConnection implements RemotingConnection {
    }
 
    StompPostReceiptFunction subscribe(String destination,
-                  String selector,
-                  String ack,
-                  String id,
-                  String durableSubscriptionName,
-                  boolean noLocal,
-                  RoutingType subscriptionType) throws ActiveMQStompException {
+                                      String selector,
+                                      String ack,
+                                      String id,
+                                      String durableSubscriptionName,
+                                      boolean noLocal,
+                                      RoutingType subscriptionType,
+                                      Integer consumerWindowSize) throws ActiveMQStompException {
       autoCreateDestinationIfPossible(destination, subscriptionType);
       checkDestination(destination);
       checkRoutingSemantics(destination, subscriptionType);
@@ -756,7 +757,7 @@ public final class StompConnection implements RemotingConnection {
       }
 
       try {
-         return manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
+         return manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal, consumerWindowSize);
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
