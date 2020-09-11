@@ -94,7 +94,7 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
                                                                  Object protocolDataStart,
                                                                  Object protocolDataEnd);
 
-   void acknowledge(Transaction tx, long messageID) throws Exception;
+   List<Long> acknowledge(Transaction tx, long messageID) throws Exception;
 
    void individualAcknowledge(Transaction tx, long messageID) throws Exception;
 
