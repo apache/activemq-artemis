@@ -4373,7 +4373,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       @Override
       public void onChange() {
-         AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
+         AddressSettings settings = addressSettingsRepository.getMatch(((ActiveMQServerImpl)server).getRuntimeTempQueueNamespace(temporary) + address.toString());
          configureExpiry(settings);
          checkDeadLetterAddressAndExpiryAddress(settings);
          configureSlowConsumerReaper(settings);

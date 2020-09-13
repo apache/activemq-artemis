@@ -294,6 +294,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="temporary-queue-namespace" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the namespace to use for looking up address settings for temporary queues
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="async-connection-execution-enabled" type="xsd:boolean" default="true" maxOccurs="1"
                       minOccurs="0">
             <xsd:annotation>

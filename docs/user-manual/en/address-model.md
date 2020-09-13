@@ -554,6 +554,41 @@ Open the file `<broker-instance>/etc/broker.xml` for editing.
 
 Warning: Disabling all the queues on an address means that any message sent to that address will be silently dropped.
 
+### Temporary Queues
+
+For some protocols and APIs which only support monolithic "destinations"
+without the address/queue separation (e.g. AMQP, JMS, etc.) temporary queues
+are created by the broker using a UUID (i.e universally unique identifier) as
+the name for both the address and the queue. Because the name is a UUID it is
+impossible to create an `address-setting` for it whose `match` is anything but
+`#`.
+
+To solve this problem one can specify the `temporary-queue-namespace` in
+`broker.xml` and then create an `address-setting` whose `match` value
+corresponds to the configured `temporary-queue-namespace`. When the
+`temporary-queue-namespace` is set and a temporary queue is created then the
+broker will prepend the `temporary-queue-namespace` value along with the
+`delimiter` value configured in `wildcard-addresses` (defaults to `.`) to the
+address name and use that to lookup the associated `address-setting` values.
+
+Here's a simple example configuration:
+
+```xml
+<temporary-queue-namespace>temp</temporary-queue-namespace>
+
+<address-settings>
+   <address-setting match="temp.#">
+      <enable-metrics>false</enable-metrics>
+   </address-setting>
+</address-settings>
+```
+
+Using this configuration any temporary queue will have metrics disabled.
+
+> **Note:**
+>
+> This setting does *not* change the actual name of the temporary queue. It
+> only changes the name used to *lookup* the address-settings.
 
 ## Protocol Managers
 
