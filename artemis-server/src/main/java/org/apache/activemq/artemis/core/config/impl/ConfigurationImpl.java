@@ -352,6 +352,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private int pageSyncTimeout = ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio();
 
+   private String temporaryQueueNamespace = ActiveMQDefaultConfiguration.getDefaultTemporaryQueueNamespace();
+
    /**
     * Parent folder for all data folders.
     */
@@ -2493,6 +2495,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
       } catch (Exception e) {
          throw new RuntimeException(e);
       }
+   }
+
+   @Override
+   public String getTemporaryQueueNamespace() {
+      return temporaryQueueNamespace;
+   }
+
+   @Override
+   public ConfigurationImpl setTemporaryQueueNamespace(final String temporaryQueueNamespace) {
+      this.temporaryQueueNamespace = temporaryQueueNamespace;
+      return this;
    }
 
 }

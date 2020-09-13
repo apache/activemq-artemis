@@ -1330,4 +1330,8 @@ public interface Configuration {
     * @return
     */
    List<ActiveMQServerResourcePlugin> getBrokerResourcePlugins();
+
+   String getTemporaryQueueNamespace();
+
+   Configuration setTemporaryQueueNamespace(String temporaryQueueNamespace);
 }

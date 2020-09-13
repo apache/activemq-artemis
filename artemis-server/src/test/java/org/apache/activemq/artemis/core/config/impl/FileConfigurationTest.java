@@ -150,6 +150,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(false, conf.isRejectEmptyValidatedUser());
       Assert.assertEquals(98765, conf.getConnectionTtlCheckInterval());
       Assert.assertEquals(1234567, conf.getConfigurationFileRefreshPeriod());
+      Assert.assertEquals("TEMP", conf.getTemporaryQueueNamespace());
 
       Assert.assertEquals("127.0.0.1", conf.getNetworkCheckList());
       Assert.assertEquals("some-nick", conf.getNetworkCheckNIC());
