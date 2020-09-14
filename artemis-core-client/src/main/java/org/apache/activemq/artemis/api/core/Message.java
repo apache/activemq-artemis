@@ -656,6 +656,16 @@ public interface Message {
    int getEncodeSize();
 
    /**
+    * Return an estimate of the size of the message on the wire.
+    * for LargeMessages this will contain whatever is needed to encode properties and the body size of large messages.
+    * For AMQP this will return the whole body size of the message as the body will contain all the data including properties.
+    * @return
+    */
+   default long getWholeMessageSize() {
+      return getEncodeSize();
+   }
+
+   /**
     * Returns all the names of the properties for this message.
     */
    Set<SimpleString> getPropertyNames();

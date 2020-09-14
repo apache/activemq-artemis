@@ -189,6 +189,17 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
       }
    }
 
+
+   @Override
+   public long getWholeMessageSize() {
+      try {
+         return getEncodeSize() + largeBody.getBodySize();
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+         return getEncodeSize();
+      }
+   }
+
    public void encode(final ActiveMQBuffer buffer1) {
       super.encodeHeadersAndProperties(buffer1.byteBuf());
    }

@@ -104,6 +104,18 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       this.storageManager = storageManager;
    }
 
+   public AMQPLargeMessage(long id,
+                           long messageFormat,
+                           TypedProperties extraProperties,
+                           CoreMessageObjectPools coreMessageObjectPools,
+                           StorageManager storageManager,
+                           LargeBody largeBody) {
+      super(messageFormat, extraProperties, coreMessageObjectPools);
+      this.setMessageID(id);
+      this.largeBody = largeBody;
+      this.storageManager = storageManager;
+   }
+
    /**
     * Copy constructor
     */
@@ -372,6 +384,16 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    @Override
    public int getEncodeSize() {
       return 0;
+   }
+
+   @Override
+   public long getWholeMessageSize() {
+      try {
+         return largeBody.getBodySize();
+      } catch (Exception e) {
+         logger.warn(e.getMessage());
+         return -1;
+      }
    }
 
 
