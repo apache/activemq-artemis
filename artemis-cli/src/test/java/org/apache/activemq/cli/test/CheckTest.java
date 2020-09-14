@@ -381,7 +381,7 @@ public class CheckTest extends CliTestBase {
 
          queueControl = (QueueControl)server.getManagementService().
             getResource(ResourceNames.QUEUE + queueName);
-         Assert.assertEquals(messages, queueControl.getMessageCount());
+         Wait.assertEquals(messages, queueControl::getMessageCount);
       } finally {
          stopServer();
       }
