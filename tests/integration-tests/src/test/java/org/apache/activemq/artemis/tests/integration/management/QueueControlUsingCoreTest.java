@@ -50,6 +50,15 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public int getPreparedTransactionMessageCount() {
+            try {
+               return (Integer) proxy.invokeOperation("getPreparedTransactionMessageCount");
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
          public void resetAllGroups() {
             try {
                proxy.invokeOperation("resetAllGroups");

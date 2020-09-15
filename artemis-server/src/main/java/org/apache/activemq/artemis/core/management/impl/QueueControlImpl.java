@@ -22,6 +22,7 @@ import javax.json.JsonObjectBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.openmbean.CompositeData;
+import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -50,8 +51,12 @@ import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
@@ -1849,6 +1854,48 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          SimpleString groupFirstKey = queue.getGroupFirstKey();
 
          return groupFirstKey != null ? groupFirstKey.toString() : null;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getPreparedTransactionMessageCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getPreparedTransactionMessageCount(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         int count = 0;
+
+         ResourceManager resourceManager = server.getResourceManager();
+
+         if (resourceManager != null) {
+            List<Xid> preparedTransactions = resourceManager.getPreparedTransactions();
+
+            for (Xid preparedTransaction : preparedTransactions) {
+               Transaction transaction = resourceManager.getTransaction(preparedTransaction);
+
+               if (transaction != null) {
+                  List<TransactionOperation> allOperations = transaction.getAllOperations();
+
+                  for (TransactionOperation operation : allOperations) {
+                     if (operation instanceof RefsOperation) {
+                        RefsOperation refsOperation = (RefsOperation) operation;
+                        List<MessageReference> references = refsOperation.getReferencesToAcknowledge();
+                        for (MessageReference reference : references) {
+                           if (reference != null && reference.getQueue().getName().equals(queue.getName())) {
+                              count++;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         return count;
       } finally {
          blockOnIO();
       }
