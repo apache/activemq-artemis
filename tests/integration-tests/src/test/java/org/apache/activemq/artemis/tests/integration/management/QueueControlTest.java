@@ -23,6 +23,7 @@ import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.TabularDataSupport;
 import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -109,6 +110,126 @@ public class QueueControlTest extends ManagementTestBase {
       this.durable = durable;
    }
 
+   @Test
+   public void testGetPreparedTransactionMessageCount() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      ClientProducer producer = session.createProducer(address);
+
+      for (int i = 0; i < 10; i++) {
+         producer.send(session.createMessage(true));
+      }
+
+      producer.close();
+
+      ClientSession xaSession = locator.createSessionFactory().createXASession();
+
+      ClientConsumer consumer = xaSession.createConsumer(queue);
+
+      Xid xid = newXID();
+
+      xaSession.start(xid, XAResource.TMNOFLAGS);
+
+      xaSession.start();
+
+      for (int i = 0; i < 10; i++) {
+         ClientMessage receive = consumer.receive();
+         receive.acknowledge();
+      }
+
+      xaSession.end(xid, XAResource.TMSUCCESS);
+
+      xaSession.prepare(xid);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      int count = queueControl.getPreparedTransactionMessageCount();
+
+      Assert.assertEquals(10, count);
+
+      consumer.close();
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testGetPreparedTransactionMessageCountDifferentQueues() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address2 = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString queue2 = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      session.createQueue(new QueueConfiguration(queue2).setAddress(address2).setDurable(durable));
+
+      ClientProducer producer = session.createProducer(address);
+      ClientProducer producer2 = session.createProducer(address2);
+
+      for (int i = 0; i < 10; i++) {
+         producer.send(session.createMessage(true));
+         producer2.send(session.createMessage(true));
+      }
+
+      producer.close();
+      producer2.close();
+
+      ClientSession xaSession = locator.createSessionFactory().createXASession();
+
+      ClientConsumer consumer = xaSession.createConsumer(queue);
+
+      ClientConsumer consumer2 = xaSession.createConsumer(queue2);
+
+      Xid xid = newXID();
+
+      xaSession.start(xid, XAResource.TMNOFLAGS);
+
+      xaSession.start();
+
+      for (int i = 0; i < 10; i++) {
+         ClientMessage receive = consumer.receive();
+         receive.acknowledge();
+         receive = consumer2.receive();
+         receive.acknowledge();
+      }
+
+      xaSession.end(xid, XAResource.TMSUCCESS);
+
+      xaSession.prepare(xid);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      int count = queueControl.getPreparedTransactionMessageCount();
+
+      Assert.assertEquals(10, count);
+
+      consumer.close();
+
+      consumer2.close();
+
+      session.deleteQueue(queue);
+
+      session.deleteQueue(queue2);
+   }
+
+   @Test
+   public void testGetPreparedTransactionMessageCountNoTX() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      int count = queueControl.getPreparedTransactionMessageCount();
+
+      Assert.assertEquals(0, count);
+
+      session.deleteQueue(queue);
+   }
 
    @Test
    public void testAttributes() throws Exception {

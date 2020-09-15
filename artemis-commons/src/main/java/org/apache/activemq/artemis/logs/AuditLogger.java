@@ -2414,6 +2414,14 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601513, value = "User {0} is getting file property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getFile(String user, Object source, Object... args);
 
+   static void getPreparedTransactionMessageCount(Object source) {
+      LOGGER.getPreparedTransactionMessageCount(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601514, value = "User {0} is getting preparedTransactionMessageCount property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getPreparedTransactionMessageCount(String user, Object source, Object... args);
+
    /*
     * This logger is for message production and consumption and is on the hot path so enabled independently
     *
