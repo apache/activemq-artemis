@@ -718,4 +718,10 @@ public interface QueueControl {
     */
    @Attribute(desc = "Get the header key to notify a consumer of a group change")
    String getGroupFirstKey();
+
+   /**
+    * Will return the number of messages stuck in prepared transactions
+    */
+   @Attribute(desc = "return how many messages are stuck in prepared transactions")
+   int getPreparedTransactionMessageCount();
 }
