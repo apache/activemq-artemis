@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.rest.HttpHeaderProperty;
 import org.apache.activemq.artemis.rest.queue.push.xml.XmlLink;
 import org.apache.activemq.artemis.rest.topic.PushTopicRegistration;
 import org.apache.activemq.artemis.rest.topic.TopicDeployment;
+import org.apache.activemq.artemis.utils.Wait;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
@@ -207,33 +208,27 @@ public class SelectorTest extends MessageTestBase {
       order.setName("1");
       order.setAmount("$5.00");
       publish(prefixedTopicName, order, null, "1");
-      Thread.sleep(200);
-      Assert.assertEquals(order, PushReceiver.oneOrder);
+      Wait.assertEquals(order, () -> PushReceiver.oneOrder);
 
       order.setName("2");
       publish(prefixedTopicName, order, null, "2");
-      Thread.sleep(200);
-      Assert.assertEquals(order, PushReceiver.twoOrder);
+      Wait.assertEquals(order, () -> PushReceiver.twoOrder);
 
       order.setName("3");
       publish(prefixedTopicName, order, null, "2");
-      Thread.sleep(200);
-      Assert.assertEquals(order, PushReceiver.twoOrder);
+      Wait.assertEquals(order, () -> PushReceiver.twoOrder);
 
       order.setName("4");
       publish(prefixedTopicName, order, null, "1");
-      Thread.sleep(200);
-      Assert.assertEquals(order, PushReceiver.oneOrder);
+      Wait.assertEquals(order, () -> PushReceiver.oneOrder);
 
       order.setName("5");
       publish(prefixedTopicName, order, null, "1");
-      Thread.sleep(200);
-      Assert.assertEquals(order, PushReceiver.oneOrder);
+      Wait.assertEquals(order, () -> PushReceiver.oneOrder);
 
       order.setName("6");
       publish(prefixedTopicName, order, null, "1");
-      Thread.sleep(200);
-      Assert.assertEquals(order, PushReceiver.oneOrder);
+      Wait.assertEquals(order, () -> PushReceiver.oneOrder);
 
       response = oneSubscription.request().delete();
       response.releaseConnection();
