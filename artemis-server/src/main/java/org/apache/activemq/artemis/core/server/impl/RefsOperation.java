@@ -138,15 +138,13 @@ public class RefsOperation extends TransactionOperationAbstract {
                   if (durableRefCount == 1) {
                      storageManager.storeMessageTransactional(ackedTX.getID(), message);
                   }
-                  Queue queue = ref.getQueue();
 
                   storageManager.storeReferenceTransactional(ackedTX.getID(), queue.getID(), message.getMessageID());
 
                   ackedTX.setContainsPersistent();
                }
 
-               // TODO-NOW: THIS MUST BE SOLVED BEFORE MERGED, DO NOT LET ME COMMIT THIS WITHOUT REVIEW
-               queue.refUp(message);
+               ref.getQueue().refUp(message);
             }
             ackedTX.commit(true);
          } catch (Exception e) {
