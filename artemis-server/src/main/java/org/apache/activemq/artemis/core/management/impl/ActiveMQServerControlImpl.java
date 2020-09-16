@@ -155,9 +155,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    private final NotificationBroadcasterSupport broadcaster;
 
    private final AtomicLong notifSeq = new AtomicLong(0);
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
+   private final Object userLock = new Object();
 
    public ActiveMQServerControlImpl(final PostOffice postOffice,
                                     final Configuration configuration,
@@ -4183,18 +4182,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void addUser(String username, String password, String roles, boolean plaintext) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.addUser(this.server, username, "****", roles, plaintext);
+      synchronized (userLock) {
+         if (AuditLogger.isEnabled()) {
+            AuditLogger.addUser(this.server, username, "****", roles, plaintext);
+         }
+         tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
+            PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
+            config.addNewUser(username, plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password), roles.split(","));
+            config.save();
+         });
       }
-
-      tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalAddUser(username, password, roles, plaintext));
-   }
-
-   private void internalAddUser(String username, String password, String roles, boolean plaintext) throws Exception {
-      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
-      config.addNewUser(username, plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password), roles.split(","));
-      config.save();
-
    }
 
    private String getSecurityDomain() {
@@ -4203,62 +4200,65 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listUser(String username) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.listUser(this.server, username);
-      }
-
-      return (String) tcclCall(ActiveMQServerControlImpl.class.getClassLoader(), () -> internaListUser(username));
-   }
-
-   private String internaListUser(String username) throws Exception {
-      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
-      Map<String, Set<String>> info = config.listUser(username);
-      JsonArrayBuilder users = JsonLoader.createArrayBuilder();
-      for (Entry<String, Set<String>> entry : info.entrySet()) {
-         JsonObjectBuilder user = JsonLoader.createObjectBuilder();
-         user.add("username", entry.getKey());
-         JsonArrayBuilder roles = JsonLoader.createArrayBuilder();
-         for (String role : entry.getValue()) {
-            roles.add(role);
+      synchronized (userLock) {
+         if (AuditLogger.isEnabled()) {
+            AuditLogger.listUser(this.server, username);
          }
-         user.add("roles", roles);
-         users.add(user);
+
+         return (String) tcclCall(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
+            PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
+            Map<String, Set<String>> info = config.listUser(username);
+            JsonArrayBuilder users = JsonLoader.createArrayBuilder();
+            for (Entry<String, Set<String>> entry : info.entrySet()) {
+               JsonObjectBuilder user = JsonLoader.createObjectBuilder();
+               user.add("username", entry.getKey());
+               JsonArrayBuilder roles = JsonLoader.createArrayBuilder();
+               for (String role : entry.getValue()) {
+                  roles.add(role);
+               }
+               user.add("roles", roles);
+               users.add(user);
+            }
+            return users.build().toString();
+         });
       }
-      return users.build().toString();
    }
 
    @Override
    public void removeUser(String username) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.removeUser(this.server, username);
+      synchronized (userLock) {
+         if (AuditLogger.isEnabled()) {
+            AuditLogger.removeUser(this.server, username);
+         }
+         tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
+            PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
+            config.removeUser(username);
+            config.save();
+         });
       }
-      tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalRemoveUser(username));
-   }
-
-   private void internalRemoveUser(String username) throws Exception {
-      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
-      config.removeUser(username);
-      config.save();
    }
 
    @Override
    public void resetUser(String username, String password, String roles, boolean plaintext) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.resetUser(this.server, username, "****", roles, plaintext);
+      synchronized (userLock) {
+         if (AuditLogger.isEnabled()) {
+            AuditLogger.resetUser(this.server, username, "****", roles, plaintext);
+         }
+         tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
+            PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
+            // don't hash a null password even if plaintext = false
+            config.updateUser(username, password == null ? password : plaintext ? password : PasswordMaskingUtil
+               .getHashProcessor()
+               .hash(password), roles == null ? null : roles.split(","));
+            config.save();
+         });
       }
-      tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalresetUser(username, password, roles, plaintext));
    }
 
    @Override
    public void resetUser(String username, String password, String roles) throws Exception {
+      // no need to synchronize here because the method we call is synchronized
       resetUser(username, password, roles, true);
-   }
-
-   private void internalresetUser(String username, String password, String roles, boolean plaintext) throws Exception {
-      PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
-      // don't hash a null password even if plaintext = false
-      config.updateUser(username, password == null ? password : plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password), roles == null ? null : roles.split(","));
-      config.save();
    }
 
    private PropertiesLoginModuleConfigurator getPropertiesLoginModuleConfigurator() throws Exception {
