@@ -30,15 +30,15 @@ The `web` element has the following attributes:
 - `clientAuth` Whether or not clients should present an SSL certificate when
   they connect. Only applicable when using `https`.
 - `passwordCodec` The custom coded to use for unmasking the `keystorePassword`
-  and `truststorePassword`.
-- `keystorePath` The location on disk of the keystore. Only applicable when
+  and `trustStorePassword`.
+- `keyStorePath` The location on disk of the keystore. Only applicable when
   using `https`.
-- `keystorePassword` The password to the keystore. Only applicable when using
+- `keyStorePassword` The password to the keystore. Only applicable when using
   `https`. Can be masked using `ENC()` syntax or by defining `passwordCodec`.
   See more in the [password masking](masking-passwords.md) chapter.
-- `truststorePath` The location on disk fo the truststore. Only applicable when
+- `trustStorePath` The location on disk for the truststore. Only applicable when
   using `https`.
-- `truststorePassword` The password to the truststore. Only applicable when
+- `trustStorePassword` The password to the truststore. Only applicable when
   using `https`. Can be masked using `ENC()` syntax or by defining
   `passwordCodec`. See more in the [password masking](masking-passwords.md)
   chapter.
