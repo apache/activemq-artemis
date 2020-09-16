@@ -3489,7 +3489,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      QueueConfigurationUtils.applyDynamicQueueDefaults(queueConfiguration, addressSettingsRepository.getMatch(queueConfiguration.getAddress().toString()));
+      QueueConfigurationUtils.applyDynamicQueueDefaults(queueConfiguration, addressSettingsRepository.getMatch(getRuntimeTempQueueNamespace(queueConfiguration.isTemporary()) + queueConfiguration.getAddress().toString()));
 
       AddressInfo info = postOffice.getAddressInfo(queueConfiguration.getAddress());
       if (queueConfiguration.isAutoCreateAddress() || queueConfiguration.isTemporary()) {
@@ -3570,6 +3570,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       callPostQueueCreationCallbacks(queue.getName());
 
       return queue;
+   }
+
+   public String getRuntimeTempQueueNamespace(boolean temporary) {
+      StringBuilder runtimeTempQueueNamespace = new StringBuilder();
+      if (temporary && configuration.getTemporaryQueueNamespace() != null && configuration.getTemporaryQueueNamespace().length() > 0) {
+         runtimeTempQueueNamespace.append(configuration.getTemporaryQueueNamespace()).append(configuration.getWildcardConfiguration().getDelimiterString());
+      }
+      return runtimeTempQueueNamespace.toString();
    }
 
    private void copyRetroactiveMessages(Queue queue) throws Exception {

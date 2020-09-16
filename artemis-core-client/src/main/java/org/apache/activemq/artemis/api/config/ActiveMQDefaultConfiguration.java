@@ -619,6 +619,8 @@ public final class ActiveMQDefaultConfiguration {
    // Whether or not to report JVM thread metrics
    private static final boolean DEFAULT_JVM_THREAD_METRICS = false;
 
+   public static final String DEFAULT_TEMPORARY_QUEUE_NAMESPACE = "";
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1692,4 +1694,7 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_JVM_THREAD_METRICS;
    }
 
+   public static String getDefaultTemporaryQueueNamespace() {
+      return DEFAULT_TEMPORARY_QUEUE_NAMESPACE;
+   }
 }

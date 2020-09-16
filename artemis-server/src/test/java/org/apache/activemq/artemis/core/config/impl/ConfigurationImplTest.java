@@ -92,6 +92,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertNull(conf.getJournalDeviceBlockSize());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultReadWholePage(), conf.isReadWholePage());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio(), conf.getPageSyncTimeout());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTemporaryQueueNamespace(), conf.getTemporaryQueueNamespace());
    }
 
    @Test
