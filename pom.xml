@@ -1678,6 +1678,7 @@
                   <exclude>etc/ide-settings/**</exclude>
                   <exclude>docs/**/*.json</exclude>
                   <exclude>docs/**/_book/</exclude>
+                  <exclude>docs/**/_layouts/</exclude>
                   <exclude>**/target/</exclude>
                   <exclude>**/META-INF/services/*</exclude>
                   <exclude>**/META-INF/MANIFEST.MF</exclude>
