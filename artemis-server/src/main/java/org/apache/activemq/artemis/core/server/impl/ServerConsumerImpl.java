@@ -888,10 +888,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public synchronized void acknowledge(Transaction tx, final long messageID) throws Exception {
+   public synchronized List<Long> acknowledge(Transaction tx, final long messageID) throws Exception {
       if (browseOnly) {
-         return;
+         return null;
       }
+
+      List<Long> ackedRefs = null;
 
       // Acknowledge acknowledges all refs delivered by the consumer up to and including the one explicitly
       // acknowledged
@@ -909,6 +911,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       try {
 
          MessageReference ref;
+         ackedRefs = new ArrayList<>();
          do {
             synchronized (lock) {
                ref = deliveringRefs.poll();
@@ -925,6 +928,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             }
 
             ref.acknowledge(tx, this);
+            ackedRefs.add(ref.getMessageID());
 
             acks++;
          }
@@ -950,6 +954,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
          throw activeMQIllegalStateException;
       }
+
+      return ackedRefs;
    }
 
    @Override

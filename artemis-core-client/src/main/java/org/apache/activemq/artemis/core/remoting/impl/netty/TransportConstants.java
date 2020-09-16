@@ -165,9 +165,12 @@ public class TransportConstants {
 
    public static final String CLUSTER_CONNECTION = "clusterConnection";
 
+   @Deprecated
    public static final String STOMP_CONSUMERS_CREDIT = "stompConsumerCredits";
 
-   public static final int STOMP_DEFAULT_CONSUMERS_CREDIT = 10 * 1024; // 10K
+   public static final String STOMP_CONSUMER_WINDOW_SIZE = "stompConsumerWindowSize";
+
+   public static final int STOMP_DEFAULT_CONSUMER_WINDOW_SIZE = 10 * 1024; // 10K
 
    public static final String PROXY_ENABLED_PROP_NAME = "socksEnabled";
 
@@ -396,6 +399,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.DIRECT_DELIVER);
       allowableAcceptorKeys.add(TransportConstants.CLUSTER_CONNECTION);
       allowableAcceptorKeys.add(TransportConstants.STOMP_CONSUMERS_CREDIT);
+      allowableAcceptorKeys.add(TransportConstants.STOMP_CONSUMER_WINDOW_SIZE);
       allowableAcceptorKeys.add(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE_DEPRECATED);
       allowableAcceptorKeys.add(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE);
       allowableAcceptorKeys.add(TransportConstants.CONNECTION_TTL);

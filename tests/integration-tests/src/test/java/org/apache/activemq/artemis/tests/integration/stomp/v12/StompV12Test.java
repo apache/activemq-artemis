@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -2366,6 +2367,174 @@ public class StompV12Test extends StompTestBase {
       unsubscribe(conn, "ID\\cMYMACHINE-50616-635482262727823605-1\\c1\\c1\\c1");
 
       conn.disconnect();
+   }
+
+   @Test
+   public void testSubscribeWithZeroConsumerWindowSize() throws Exception {
+      internalSubscribeWithZeroConsumerWindowSize(Stomp.Headers.Subscribe.CONSUMER_WINDOW_SIZE, true);
+   }
+
+   @Test
+   public void testSubscribeWithZeroConsumerWindowSizeLegacyHeader() throws Exception {
+      internalSubscribeWithZeroConsumerWindowSize(Stomp.Headers.Subscribe.ACTIVEMQ_PREFETCH_SIZE, true);
+   }
+
+   @Test
+   public void testSubscribeWithZeroConsumerWindowSizeAndNack() throws Exception {
+      internalSubscribeWithZeroConsumerWindowSize(Stomp.Headers.Subscribe.CONSUMER_WINDOW_SIZE, false);
+   }
+
+   @Test
+   public void testSubscribeWithZeroConsumerWindowSizeLegacyHeaderAndNack() throws Exception {
+      internalSubscribeWithZeroConsumerWindowSize(Stomp.Headers.Subscribe.ACTIVEMQ_PREFETCH_SIZE, false);
+   }
+
+   private void internalSubscribeWithZeroConsumerWindowSize(String consumerWindowSizeHeader, boolean ack) throws Exception {
+      final int TIMEOUT = 1000;
+      conn.connect(defUser, defPass);
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.CLIENT_INDIVIDUAL, null, null, getQueuePrefix() + getQueueName(), true, 0, consumerWindowSizeHeader);
+
+      sendJmsMessage(getName());
+      sendJmsMessage(getName());
+      ClientStompFrame frame1 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNotNull(frame1);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame1.getCommand());
+      String messageID = frame1.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      ClientStompFrame frame2 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNull(frame2);
+      if (ack) {
+         ack(conn, messageID);
+      } else {
+         nack(conn, messageID);
+      }
+
+      ClientStompFrame frame3 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNotNull(frame3);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame3.getCommand());
+      messageID = frame3.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      if (ack) {
+         ack(conn, messageID);
+      } else {
+         nack(conn, messageID);
+      }
+
+      conn.disconnect();
+
+      MessageConsumer consumer = session.createConsumer(queue);
+      Message message = consumer.receive(TIMEOUT);
+      Assert.assertNull(message);
+   }
+
+   @Test
+   public void testSubscribeWithNonZeroConsumerWindowSize() throws Exception {
+      internalSubscribeWithNonZeroConsumerWindowSize(Stomp.Headers.Subscribe.CONSUMER_WINDOW_SIZE, true);
+   }
+
+   @Test
+   public void testSubscribeWithNonZeroConsumerWindowSizeLegacyHeader() throws Exception {
+      internalSubscribeWithNonZeroConsumerWindowSize(Stomp.Headers.Subscribe.ACTIVEMQ_PREFETCH_SIZE, true);
+   }
+
+   @Test
+   public void testSubscribeWithNonZeroConsumerWindowSizeAndNack() throws Exception {
+      internalSubscribeWithNonZeroConsumerWindowSize(Stomp.Headers.Subscribe.CONSUMER_WINDOW_SIZE, false);
+   }
+
+   @Test
+   public void testSubscribeWithNonZeroConsumerWindowSizeLegacyHeaderAndNack() throws Exception {
+      internalSubscribeWithNonZeroConsumerWindowSize(Stomp.Headers.Subscribe.ACTIVEMQ_PREFETCH_SIZE, false);
+   }
+
+   private void internalSubscribeWithNonZeroConsumerWindowSize(String consumerWindowSizeHeader, boolean ack) throws Exception {
+      // the size of each message was determined from the DEBUG logging from org.apache.activemq.artemis.core.protocol.stomp.StompConnection
+      final int MESSAGE_SIZE = 270;
+      final int TIMEOUT = 1000;
+      final String MESSAGE = "foo-foo-foo";
+
+      conn.connect(defUser, defPass);
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.CLIENT_INDIVIDUAL, null, null, getQueuePrefix() + getQueueName(), true, MESSAGE_SIZE * 2, consumerWindowSizeHeader);
+
+      sendJmsMessage(MESSAGE);
+      sendJmsMessage(MESSAGE);
+      sendJmsMessage(MESSAGE);
+      ClientStompFrame frame1 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNotNull(frame1);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame1.getCommand());
+      String messageID1 = frame1.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      ClientStompFrame frame2 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNotNull(frame2);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame2.getCommand());
+      String messageID2 = frame2.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      ClientStompFrame frame3 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNull(frame3);
+      if (ack) {
+         ack(conn, messageID1);
+         ack(conn, messageID2);
+      } else {
+         nack(conn, messageID1);
+         nack(conn, messageID2);
+      }
+
+      ClientStompFrame frame4 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNotNull(frame4);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame4.getCommand());
+      String messageID4 = frame4.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      if (ack) {
+         ack(conn, messageID4);
+      } else {
+         nack(conn, messageID4);
+      }
+
+      conn.disconnect();
+
+      MessageConsumer consumer = session.createConsumer(queue);
+      Message message = consumer.receive(TIMEOUT);
+      Assert.assertNull(message);
+   }
+
+   @Test
+   public void testSubscribeWithNonZeroConsumerWindowSizeAndClientAck() throws Exception {
+      org.jboss.logmanager.Logger.getLogger(StompConnection.class.getName()).setLevel(org.jboss.logmanager.Level.DEBUG);
+      // the size of each message was determined from the DEBUG logging from org.apache.activemq.artemis.core.protocol.stomp.StompConnection
+      final int MESSAGE_SIZE = 270;
+      final int TIMEOUT = 1000;
+      final String MESSAGE = "foo-foo-foo";
+
+      conn.connect(defUser, defPass);
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.CLIENT, null, null, getQueuePrefix() + getQueueName(), true, MESSAGE_SIZE * 2, Stomp.Headers.Subscribe.CONSUMER_WINDOW_SIZE);
+
+      sendJmsMessage(MESSAGE);
+      sendJmsMessage(MESSAGE);
+      sendJmsMessage(MESSAGE);
+      sendJmsMessage(MESSAGE);
+
+      ClientStompFrame frame1 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNotNull(frame1);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame1.getCommand());
+      ClientStompFrame frame2 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNotNull(frame2);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame2.getCommand());
+      String messageID2 = frame2.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      ClientStompFrame frame3 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNull(frame3);
+      // this should clear the first 2 messages since we're using CLIENT ack mode
+      ack(conn, messageID2);
+
+      ClientStompFrame frame4 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNotNull(frame4);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame4.getCommand());
+      ClientStompFrame frame5 = conn.receiveFrame(TIMEOUT);
+      Assert.assertNotNull(frame5);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame5.getCommand());
+      String messageID5 = frame5.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+      // this should clear the next 2 messages
+      ack(conn, messageID5);
+
+      conn.disconnect();
+
+      MessageConsumer consumer = session.createConsumer(queue);
+      Message message = consumer.receive(TIMEOUT);
+      Assert.assertNull(message);
    }
 
    private void ack(StompClientConnection conn, ClientStompFrame frame) throws IOException, InterruptedException {

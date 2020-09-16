@@ -77,12 +77,19 @@ public class StompFrame {
 
    @Override
    public String toString() {
-      return new StringBuilder()
+      StringBuilder result = new StringBuilder()
          .append("StompFrame[command=").append(command)
-         .append(", headers=").append(headers)
-         .append(", content= ").append(this.body)
-         .append(", bytes= ").append(Arrays.toString(bytesBody))
-         .toString();
+         .append(", headers=").append(headers);
+
+      if (command.equals(Stomp.Responses.MESSAGE) || command.equals(Stomp.Responses.ERROR) || command.equals(Stomp.Commands.SEND)) {
+         result.append(", body=").append(this.getBody())
+               .append(", body-bytes=").append(Arrays.toString(bytesBody))
+               .append(", size=").append(size);
+      }
+
+      result.append("]");
+
+      return result.toString();
    }
 
    public boolean isPing() {

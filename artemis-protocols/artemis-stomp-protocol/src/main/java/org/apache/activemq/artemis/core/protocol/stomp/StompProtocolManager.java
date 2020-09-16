@@ -341,12 +341,13 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    // Inner classes -------------------------------------------------
 
    public StompPostReceiptFunction subscribe(StompConnection connection,
-                         String subscriptionID,
-                         String durableSubscriptionName,
-                         String destination,
-                         String selector,
-                         String ack,
-                         boolean noLocal) throws Exception {
+                                             String subscriptionID,
+                                             String durableSubscriptionName,
+                                             String destination,
+                                             String selector,
+                                             String ack,
+                                             boolean noLocal,
+                                             Integer consumerWindowSize) throws Exception {
       StompSession stompSession = getSession(connection);
       stompSession.setNoLocal(noLocal);
       if (stompSession.containsSubscription(subscriptionID)) {
@@ -354,7 +355,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
             ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
       }
       long consumerID = server.getStorageManager().generateID();
-      return stompSession.addSubscription(consumerID, subscriptionID, connection.getClientID(), durableSubscriptionName, destination, selector, ack);
+      return stompSession.addSubscription(consumerID, subscriptionID, connection.getClientID(), durableSubscriptionName, destination, selector, ack, consumerWindowSize);
    }
 
    public void unsubscribe(StompConnection connection,

@@ -1191,8 +1191,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public void acknowledge(final long consumerID, final long messageID) throws Exception {
+   public List<Long> acknowledge(final long consumerID, final long messageID) throws Exception {
       ServerConsumer consumer = findConsumer(consumerID);
+      List<Long> ackedRefs = null;
 
       if (tx != null && tx.getState() == State.ROLLEDBACK) {
          // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
@@ -1200,7 +1201,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          // The tx has already timed out, so we need to ack and rollback immediately
          Transaction newTX = newTransaction();
          try {
-            consumer.acknowledge(newTX, messageID);
+            ackedRefs = consumer.acknowledge(newTX, messageID);
          } catch (Exception e) {
             // just ignored
             // will log it just in case
@@ -1209,8 +1210,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
          newTX.rollback();
       } else {
-         consumer.acknowledge(autoCommitAcks ? null : tx, messageID);
+         ackedRefs = consumer.acknowledge(autoCommitAcks ? null : tx, messageID);
       }
+
+      return ackedRefs;
    }
 
    @Override

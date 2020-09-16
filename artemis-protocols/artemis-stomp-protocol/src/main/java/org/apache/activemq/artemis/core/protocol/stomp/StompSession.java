@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -71,13 +72,10 @@ public class StompSession implements SessionCallback {
 
    private volatile boolean noLocal = false;
 
-   private final int consumerCredits;
-
    StompSession(final StompConnection connection, final StompProtocolManager manager, OperationContext sessionContext) {
       this.connection = connection;
       this.manager = manager;
       this.sessionContext = sessionContext;
-      this.consumerCredits = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_CONSUMERS_CREDIT, TransportConstants.STOMP_DEFAULT_CONSUMERS_CREDIT, connection.getAcceptorUsed().getConfiguration());
    }
 
    @Override
@@ -216,14 +214,13 @@ public class StompSession implements SessionCallback {
 
    public void acknowledge(String messageID, String subscriptionID) throws Exception {
       long id = Long.parseLong(messageID);
-      Pair<Long, Integer> pair = messagesToAck.remove(id);
+      Pair<Long, Integer> pair = messagesToAck.get(id);
 
       if (pair == null) {
          throw BUNDLE.failToAckMissingID(id).setHandler(connection.getFrameHandler());
       }
 
       long consumerID = pair.getA();
-      int credits = pair.getB();
 
       StompSubscription sub = subscriptions.get(consumerID);
 
@@ -233,30 +230,45 @@ public class StompSession implements SessionCallback {
          }
       }
 
-      if (this.consumerCredits != -1) {
-         session.receiveConsumerCredits(consumerID, credits);
-      }
-
       if (sub.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.CLIENT_INDIVIDUAL)) {
          session.individualAcknowledge(consumerID, id);
+
+         if (sub.getConsumerWindowSize() != -1) {
+            session.receiveConsumerCredits(consumerID, messagesToAck.remove(id).getB());
+         }
       } else {
-         session.acknowledge(consumerID, id);
+         List<Long> ackedRefs = session.acknowledge(consumerID, id);
+
+         if (sub.getConsumerWindowSize() != -1) {
+            for (Long ackedID : ackedRefs) {
+               session.receiveConsumerCredits(consumerID, messagesToAck.remove(ackedID).getB());
+            }
+         }
       }
 
       session.commit();
    }
 
    public StompPostReceiptFunction addSubscription(long consumerID,
-                               String subscriptionID,
-                               String clientID,
-                               String durableSubscriptionName,
-                               String destination,
-                               String selector,
-                               String ack) throws Exception {
+                                                   String subscriptionID,
+                                                   String clientID,
+                                                   String durableSubscriptionName,
+                                                   String destination,
+                                                   String selector,
+                                                   String ack,
+                                                   Integer consumerWindowSize) throws Exception {
       SimpleString address = SimpleString.toSimpleString(destination);
       SimpleString queueName = SimpleString.toSimpleString(destination);
       SimpleString selectorSimple = SimpleString.toSimpleString(selector);
-      final int receiveCredits = ack.equals(Stomp.Headers.Subscribe.AckModeValues.AUTO) ? -1 : consumerCredits;
+      final int finalConsumerWindowSize;
+
+      if (consumerWindowSize != null) {
+         finalConsumerWindowSize = consumerWindowSize;
+      } else if (ack.equals(Stomp.Headers.Subscribe.AckModeValues.AUTO)) {
+         finalConsumerWindowSize = -1;
+      } else {
+         finalConsumerWindowSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_CONSUMER_WINDOW_SIZE, ConfigurationHelper.getIntProperty(TransportConstants.STOMP_CONSUMERS_CREDIT, TransportConstants.STOMP_DEFAULT_CONSUMER_WINDOW_SIZE, connection.getAcceptorUsed().getConfiguration()), connection.getAcceptorUsed().getConfiguration());
+      }
 
       Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(getCoreSession().removePrefix(address)).getRoutingTypes();
       boolean multicast = routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST);
@@ -281,10 +293,14 @@ public class StompSession implements SessionCallback {
          }
       }
       final ServerConsumer consumer = session.createConsumer(consumerID, queueName, multicast ? null : selectorSimple, false, false, 0);
-      StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, multicast);
+      StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, multicast, finalConsumerWindowSize);
       subscriptions.put(consumerID, subscription);
       session.start();
-      return () -> consumer.receiveCredits(receiveCredits);
+      /*
+       * If the consumerWindowSize is 0 then we need to supply at least 1 credit otherwise messages will *never* flow.
+       * See org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl#startSlowConsumer()
+       */
+      return () -> consumer.receiveCredits(finalConsumerWindowSize == 0 ? 1 : finalConsumerWindowSize);
    }
 
    public boolean unsubscribe(String id, String durableSubscriptionName, String clientID) throws Exception {

@@ -367,3 +367,49 @@ parameter on the acceptor.
 
 The `stomp-websockets` example shows how to configure an Apache ActiveMQ
 Artemis broker to have web browsers and Java applications exchanges messages.
+
+## Flow Control
+
+STOMP clients can use the `consumer-window-size` header on the `SUBSCRIBE`
+frame to control the flow of messages to clients. This is broadly discussed in
+the [Flow Control](flow-control.md) chapter.
+
+This ability is similiar to the `activemq.prefetchSize` header supported by
+ActiveMQ 5.x. However, that header specifies the size in terms of *messages*
+whereas `consumer-window-size` specifies the size in terms of *bytes*. ActiveMQ
+Artemis supports the `activemq.prefetchSize` header for backwards compatibility
+but the value will be interpreted as *bytes* just like `consumer-window-size`
+would be. If both `activemq.prefetchSize` and `consumer-window-size` are set
+then the value for `consumer-window-size` will be used.
+
+Setting `consumer-window-size` to `0` will ensure that once a STOMP client
+receives a message that it will *not* receive another one until it sends the
+appropriate `ACK` or `NACK` frame for the message it already has.
+
+Setting `consumer-window-size` to a value *greater than* `0` will allow it to
+receive messages until the cumulative bytes of those messages reaches the
+configured size. Once that happens the client will not receive any more
+messages until it sends the appropriate `ACK` or `NACK` frame for the messages
+it already has.
+
+Setting `consumer-window-size` to `-1` means there is no flow control and the
+broker will dispatch messages to clients as fast as it can.
+
+Flow control can be configured at the `acceptor` as well using the
+`stompConsumerWindowSize` URL parameter. This value is `10240` (i.e. 10K) by
+default for clients using `client` and `client-individual` acknowledgement
+modes. It is `-1` for clients using the `auto` acknowledgement mode. Even
+if `stompConsumerWindowSize` is set on the STOMP `acceptor` it will be
+overriden by the value provided by individual clients using the
+`consumer-window-size` header on their `SUBSCRIBE` frame.
+
+> **Note:**
+>
+> The `stompConsumerWindowSize` URL parameter used to be called
+> `stompConsumerCredits` but was changed to be more consistent with the new
+> header name (i.e. `consumer-window-size`). The `stompConsumerCredits`
+> parameter is deprecated but it will still work for the time being.
+
+Using the [DEBUG logging](#logging) mentioned earlier it is possible to see the
+size of the `MESSAGE` frames dispatched to clients. This can help when trying
+to determine the best `consumer-window-size` setting.
