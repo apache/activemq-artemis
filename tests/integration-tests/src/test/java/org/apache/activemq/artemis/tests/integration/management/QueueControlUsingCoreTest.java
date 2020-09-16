@@ -52,7 +52,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public int getPreparedTransactionMessageCount() {
             try {
-               return (Integer) proxy.invokeOperation("getPreparedTransactionMessageCount");
+               return (Integer) proxy.invokeOperation(Integer.class, "getPreparedTransactionMessageCount");
             } catch (Exception e) {
                throw new RuntimeException(e.getMessage(), e);
             }
