@@ -309,6 +309,37 @@
             </messagelistener>
          </messageadapter>
       </inbound-resourceadapter>
-
+      <adminobject>
+         <adminobject-interface>javax.jms.Queue</adminobject-interface>
+         <adminobject-class>org.apache.activemq.artemis.jms.client.ActiveMQQueue</adminobject-class>
+         <config-property>
+            <config-property-name>Address</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+         </config-property>
+      </adminobject>
+      <adminobject>
+         <adminobject-interface>javax.jms.Topic</adminobject-interface>
+         <adminobject-class>org.apache.activemq.artemis.jms.client.ActiveMQTopic</adminobject-class>
+         <config-property>
+            <config-property-name>Address</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+         </config-property>
+      </adminobject>
+      <adminobject>
+         <adminobject-interface>javax.jms.ConnectionFactory</adminobject-interface>
+         <adminobject-class>org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory</adminobject-class>
+         <config-property>
+            <config-property-name>BrokerURL</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+         </config-property>
+      </adminobject>
+      <adminobject>
+         <adminobject-interface>javax.jms.XAConnectionFactory</adminobject-interface>
+         <adminobject-class>org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory</adminobject-class>
+         <config-property>
+            <config-property-name>BrokerURL</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+         </config-property>
+      </adminobject>
    </resourceadapter>
 </connector>
