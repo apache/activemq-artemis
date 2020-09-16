@@ -87,16 +87,28 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
    @Test
    public void testDurableTopicSubscriptionWith1xPrefixesOnSpec() throws Exception {
-      internalTestDurableTopicSubscriptionWith1xPrefixes(false);
+      internalTestDurableTopicSubscriptionWith1xPrefixes(false, true);
    }
 
    @Test
    public void testDurableTopicSubscriptionWith1xPrefixesOnRA() throws Exception {
-      internalTestDurableTopicSubscriptionWith1xPrefixes(true);
+      internalTestDurableTopicSubscriptionWith1xPrefixes(true, true);
    }
 
-   public void internalTestDurableTopicSubscriptionWith1xPrefixes(boolean ra) throws Exception {
-      server.getRemotingService().createAcceptor("test", "tcp://localhost:61617?anycastPrefix=jms.queue.;multicastPrefix=jms.topic.").start();
+   @Test
+   public void testDurableTopicSubscriptionWith1xPrefixesOnSpecWithoutBrokerPrefixes() throws Exception {
+      internalTestDurableTopicSubscriptionWith1xPrefixes(false, false);
+   }
+
+   @Test
+   public void testDurableTopicSubscriptionWith1xPrefixesOnRAWithoutBrokerPrefixes() throws Exception {
+      internalTestDurableTopicSubscriptionWith1xPrefixes(true, false);
+   }
+
+   public void internalTestDurableTopicSubscriptionWith1xPrefixes(boolean ra, boolean definePrefixesOnBroker) throws Exception {
+      if (definePrefixesOnBroker) {
+         server.getRemotingService().createAcceptor("test", "tcp://localhost:61617?anycastPrefix=jms.queue.;multicastPrefix=jms.topic.").start();
+      }
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       if (ra) {
          qResourceAdapter.setEnable1xPrefixes(true);
@@ -117,13 +129,21 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       spec.setClientId("myClientId");
       spec.setSubscriptionName("mySubscriptionName");
       qResourceAdapter.setConnectorClassName(NETTY_CONNECTOR_FACTORY);
-      qResourceAdapter.setConnectionParameters("host=localhost;port=61617");
+      String port = "61616";
+      if (definePrefixesOnBroker) {
+         port = "61617";
+      }
+      qResourceAdapter.setConnectionParameters("host=localhost;port=" + port);
       CountDownLatch latch = new CountDownLatch(1);
       DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = locator.createSessionFactory().createSession();
-      ClientProducer clientProducer = session.createProducer("MyTopic");
+      String topic = "MyTopic";
+      if (!definePrefixesOnBroker) {
+         topic = "jms.topic." + topic;
+      }
+      ClientProducer clientProducer = session.createProducer(topic);
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString("teststring");
       clientProducer.send(message);
