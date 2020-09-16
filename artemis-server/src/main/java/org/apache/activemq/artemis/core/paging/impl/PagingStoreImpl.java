@@ -844,8 +844,6 @@ public class PagingStoreImpl implements PagingStore {
                return false;
             }
 
-            message.setAddress(address);
-
             final long transactionID = tx == null ? -1 : tx.getID();
             PagedMessage pagedMessage = new PagedMessageImpl(message, routeQueues(tx, listCtx), transactionID);
 

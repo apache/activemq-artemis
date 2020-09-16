@@ -233,7 +233,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
       server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
 
-      log.debugv("Added connector {} to broker", getProtocolScheme());
+      log.debug("Added CORE connector to broker");
    }
 
    protected void addMQTTConnector() throws Exception {
@@ -243,7 +243,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
 
       server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:");
 
-      log.debugv("Added connector {} to broker", getProtocolScheme());
+      log.debug("Added MQTT connector to broker");
    }
 
    public void stopBroker() throws Exception {
