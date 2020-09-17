@@ -522,9 +522,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                         PostOffice postOffice,
                         StorageManager storageManager,
                         HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                        ActiveMQServer server,
                         ArtemisExecutor executor) {
             super(id, address, name, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor,
-                  postOffice, storageManager, addressSettingsRepository, executor, null, null);
+                  postOffice, storageManager, addressSettingsRepository, executor, server, null);
          }
 
          @Override
@@ -549,7 +550,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
          final ExecutorFactory execFactory;
 
-         NoPostACKQueueFactory(StorageManager storageManager,
+         final ActiveMQServer server;
+
+         NoPostACKQueueFactory(ActiveMQServer server,
+                               StorageManager storageManager,
                                PostOffice postOffice,
                                ScheduledExecutorService scheduledExecutor,
                                HierarchicalRepository<AddressSettings> addressSettingsRepository,
@@ -559,16 +563,17 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
             this.scheduledExecutor = scheduledExecutor;
             this.addressSettingsRepository = addressSettingsRepository;
             this.execFactory = execFactory;
+            this.server = server;
          }
 
          @Override
          public Queue createQueueWith(final QueueConfig config) {
-            return new NoPostACKQueue(config.id(), config.address(), config.name(), config.filter(), config.user(), config.pageSubscription(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, execFactory.getExecutor());
+            return new NoPostACKQueue(config.id(), config.address(), config.name(), config.filter(), config.user(), config.pageSubscription(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, server, execFactory.getExecutor());
          }
 
          @Override
          public Queue createQueueWith(QueueConfiguration config, PagingManager pagingManager) throws Exception {
-            return new NoPostACKQueue(config.getId(), config.getAddress(), config.getName(), FilterImpl.createFilter(config.getFilterString()), config.getUser(), QueueFactoryImpl.getPageSubscription(config, pagingManager), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, execFactory.getExecutor());
+            return new NoPostACKQueue(config.getId(), config.getAddress(), config.getName(), FilterImpl.createFilter(config.getFilterString()), config.getUser(), QueueFactoryImpl.getPageSubscription(config, pagingManager), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, server, execFactory.getExecutor());
          }
 
          @Deprecated
@@ -583,7 +588,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                                   boolean temporary,
                                   boolean autoCreated) {
 
-            return new NoPostACKQueue(persistenceID, address, name, filter, user, pageSubscription, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, execFactory.getExecutor());
+            return new NoPostACKQueue(persistenceID, address, name, filter, user, pageSubscription, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, server, execFactory.getExecutor());
          }
 
          /* (non-Javadoc)
@@ -604,7 +609,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       QueueFactory original = server.getQueueFactory();
 
-      ((ActiveMQServerImpl) server).replaceQueueFactory(new NoPostACKQueueFactory(server.getStorageManager(), server.getPostOffice(), server.getScheduledPool(), server.getAddressSettingsRepository(), server.getExecutorFactory()));
+      ((ActiveMQServerImpl) server).replaceQueueFactory(new NoPostACKQueueFactory(server, server.getStorageManager(), server.getPostOffice(), server.getScheduledPool(), server.getAddressSettingsRepository(), server.getExecutorFactory()));
 
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
 
