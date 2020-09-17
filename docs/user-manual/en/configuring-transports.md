@@ -260,6 +260,9 @@ simple TCP:
   value. When set value to zero or negative integer this feature is turned off.
   Changing value needs to restart server to take effect.
 
+- `autoStart`. Determines whether or not an acceptor will start automatically
+  when the broker is started. Default value is `true`.
+
 ### Configuring Netty Native Transport
 
 Netty Native Transport support exists for selected OS platforms.  This allows

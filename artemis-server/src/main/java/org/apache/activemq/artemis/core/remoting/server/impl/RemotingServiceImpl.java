@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
@@ -310,6 +311,9 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       if (isStarted()) {
          for (Acceptor a : acceptors.values()) {
             try {
+               if (a instanceof NettyAcceptor && !((NettyAcceptor)a).isAutoStart()) {
+                  continue;
+               }
                a.start();
             } catch (Throwable t) {
                ActiveMQServerLogger.LOGGER.errorStartingAcceptor(a.getName(), a.getConfiguration());

@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -111,4 +112,15 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       Assert.assertTrue(PortCheckRule.checkAvailable(TransportConstants.DEFAULT_PORT));
    }
 
+   @Test
+   public void testAutoStart() throws Exception {
+      ActiveMQServer server = createServer(false, createDefaultInVMConfig());
+      server.getConfiguration().addAcceptorConfiguration("default", "tcp://127.0.0.1:61617");
+      server.getConfiguration().addAcceptorConfiguration("start", "tcp://127.0.0.1:61618?autoStart=true");
+      server.getConfiguration().addAcceptorConfiguration("noStart", "tcp://127.0.0.1:61619?autoStart=false");
+      server.start();
+      assertTrue(server.getRemotingService().getAcceptor("default").isStarted());
+      assertTrue(server.getRemotingService().getAcceptor("start").isStarted());
+      assertFalse(server.getRemotingService().getAcceptor("noStart").isStarted());
+   }
 }
