@@ -102,6 +102,12 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
       }
    }
 
+   public MessageCounter getMessageCounter(String counter) {
+      synchronized (messageCounters) {
+         return messageCounters.get(counter);
+      }
+   }
+
    public Set<MessageCounter> getMessageCounters() {
       synchronized (messageCounters) {
          return new HashSet<>(messageCounters.values());
