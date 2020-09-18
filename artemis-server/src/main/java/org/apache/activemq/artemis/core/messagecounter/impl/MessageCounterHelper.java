@@ -53,7 +53,7 @@ public class MessageCounterHelper {
          return null;
       }
 
-      String ret0 = "<table class=\"activemq-message-counter\">\n" + "<tr>" + "<th>Type</th>" + "<th>Name</th>" + "<th>Subscription</th>" + "<th>Durable</th>" + "<th>Count</th>" + "<th>CountDelta</th>" + "<th>Depth</th>" + "<th>DepthDelta</th>" + "<th>Last Add</th>" + "<th>Last Update</th>" + "</tr>\n";
+      String ret0 = "<table class=\"activemq-message-counter\">\n" + "<tr>" + "<th>Type</th>" + "<th>Name</th>" + "<th>Subscription</th>" + "<th>Durable</th>" + "<th>Count</th>" + "<th>CountDelta</th>" + "<th>Depth</th>" + "<th>DepthDelta</th>" + "<th>Last Add</th>" + "<th>Last Ack</th>" + "<th>Last Update</th>" + "</tr>\n";
       StringBuilder ret = new StringBuilder(ret0);
       for (int i = 0; i < counters.length; i++) {
          MessageCounter counter = counters[i];
@@ -77,6 +77,7 @@ public class MessageCounterHelper {
          ret.append("<td>" + MessageCounterHelper.prettify(counter.getMessageCount()) + "</td>");
          ret.append("<td>" + MessageCounterHelper.prettify(counter.getMessageCountDelta()) + "</td>");
          ret.append("<td>" + MessageCounterHelper.asDate(counter.getLastAddedMessageTime()) + "</td>");
+         ret.append("<td>" + MessageCounterHelper.asDate(counter.getLastAckedMessageTime()) + "</td>");
          ret.append("<td>" + MessageCounterHelper.asDate(counter.getLastUpdate()) + "</td>");
 
          ret.append("</tr>\n");

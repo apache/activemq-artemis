@@ -42,6 +42,8 @@ public final class MessageCounterInfo {
 
    private final String lastAddTimestamp;
 
+   private final String lastAckTimestamp;
+
    private final String updateTimestamp;
 
    /**
@@ -58,9 +60,10 @@ public final class MessageCounterInfo {
       int depth = data.getInt("messageCount");
       int depthDelta = data.getInt("messageCountDelta");
       String lastAddTimestamp = data.getString("lastAddTimestamp");
+      String lastAckTimestamp = data.getString("lastAckTimestamp");
       String updateTimestamp = data.getString("updateTimestamp");
 
-      return new MessageCounterInfo(name, subscription, durable, count, countDelta, depth, depthDelta, lastAddTimestamp, updateTimestamp);
+      return new MessageCounterInfo(name, subscription, durable, count, countDelta, depth, depthDelta, lastAddTimestamp, lastAckTimestamp, updateTimestamp);
    }
 
    // Constructors --------------------------------------------------
@@ -73,6 +76,7 @@ public final class MessageCounterInfo {
                              final int depth,
                              final int depthDelta,
                              final String lastAddTimestamp,
+                             final String lastAckTimestamp,
                              final String udpateTimestamp) {
       this.name = name;
       this.subscription = subscription;
@@ -82,6 +86,7 @@ public final class MessageCounterInfo {
       this.depth = depth;
       this.depthDelta = depthDelta;
       this.lastAddTimestamp = lastAddTimestamp;
+      this.lastAckTimestamp = lastAckTimestamp;
       this.updateTimestamp = udpateTimestamp;
    }
 
@@ -141,6 +146,13 @@ public final class MessageCounterInfo {
     */
    public String getLastAddTimestamp() {
       return lastAddTimestamp;
+   }
+
+   /**
+    * Returns the timestamp of the last time a message from the queue was acknolwedged.
+    */
+   public String getLastAckTimestamp() {
+      return lastAckTimestamp;
    }
 
    /**
