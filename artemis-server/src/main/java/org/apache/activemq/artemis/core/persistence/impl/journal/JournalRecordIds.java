@@ -47,6 +47,8 @@ public final class JournalRecordIds {
 
    public static final byte SECURITY_RECORD = 26;
 
+   public static final byte DIVERT_RECORD = 27;
+
    // Message journal record types
 
    /**

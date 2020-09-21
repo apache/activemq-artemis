@@ -93,6 +93,7 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JDBCJournalStorageManager;
@@ -3363,6 +3364,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          Set<Role> setRoles = SecurityFormatter.createSecurity(roleItem.getSendRoles(), roleItem.getConsumeRoles(), roleItem.getCreateDurableQueueRoles(), roleItem.getDeleteDurableQueueRoles(), roleItem.getCreateNonDurableQueueRoles(), roleItem.getDeleteNonDurableQueueRoles(), roleItem.getManageRoles(), roleItem.getBrowseRoles(), roleItem.getCreateAddressRoles(), roleItem.getDeleteAddressRoles());
 
          securityRepository.addMatch(roleItem.getAddressMatch().toString(), setRoles);
+      }
+
+      List<PersistedDivertConfiguration> persistedDivertConfigurations = storageManager.recoverDivertConfigurations();
+
+      if (persistedDivertConfigurations != null) {
+         for (PersistedDivertConfiguration persistedDivertConfiguration : persistedDivertConfigurations) {
+            configuration.getDivertConfigurations().add(persistedDivertConfiguration.getDivertConfiguration());
+         }
       }
    }
 

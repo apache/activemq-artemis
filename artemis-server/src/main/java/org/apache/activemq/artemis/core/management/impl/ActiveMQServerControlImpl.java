@@ -82,6 +82,7 @@ import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -3535,6 +3536,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          TransformerConfiguration transformerConfiguration = transformerClassName == null ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
          DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType));
          server.deployDivert(config);
+         storageManager.storeDivertConfiguration(new PersistedDivertConfiguration(config));
       } finally {
          blockOnIO();
       }
