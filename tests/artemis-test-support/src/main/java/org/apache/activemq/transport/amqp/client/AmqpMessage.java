@@ -32,6 +32,7 @@ import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
+import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.message.Message;
 
@@ -609,6 +610,25 @@ public class AmqpMessage {
       checkReadOnly();
       AmqpValue body = new AmqpValue(value);
       getWrappedMessage().setBody(body);
+   }
+
+   /**
+    * Attempts to retrieve the message body as a String from an AmqpValue body.
+    *
+    * @return the string
+    * @throws NoSuchElementException if the body does not contain a AmqpValue with String.
+    */
+   public String getText() throws NoSuchElementException {
+      Section body = getWrappedMessage().getBody();
+      if (body instanceof AmqpValue) {
+         AmqpValue value = (AmqpValue) body;
+
+         if (value.getValue() instanceof String) {
+            return (String) value.getValue();
+         }
+      }
+
+      throw new NoSuchElementException("Message does not contain a String body");
    }
 
    /**

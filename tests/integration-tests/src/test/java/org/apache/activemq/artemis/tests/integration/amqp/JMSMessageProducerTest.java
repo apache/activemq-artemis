@@ -37,6 +37,35 @@ import org.junit.Test;
 public class JMSMessageProducerTest extends JMSClientTestSupport {
 
    @Test(timeout = 30000)
+   public void testAnonymousProducerWithQueueAutoCreation() throws Exception {
+      Connection connection = createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         String queueName = UUID.randomUUID().toString() + ":" + getQueueName();
+         Queue queue = session.createQueue(queueName);
+         MessageProducer p = session.createProducer(null);
+
+         TextMessage message = session.createTextMessage();
+         message.setText(getTestName());
+         // This will auto-create the address, and be retained for subsequent consumption
+         p.send(queue, message);
+
+         {
+            MessageConsumer consumer = session.createConsumer(queue);
+            p.send(queue, message);
+            Message msg = consumer.receive(2000);
+            assertNotNull(msg);
+            assertTrue(msg instanceof TextMessage);
+            assertEquals(getTestName(), ((TextMessage)msg).getText());
+            consumer.close();
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
    public void testAnonymousProducer() throws Exception {
       Connection connection = createConnection();
 
@@ -71,25 +100,32 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
    }
 
    @Test(timeout = 30000)
-   public void testAnonymousProducerWithAutoCreation() throws Exception {
+   public void testAnonymousProducerWithTopicAutoCreation() throws Exception {
       Connection connection = createConnection();
 
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Topic topic = session.createTopic(UUID.randomUUID().toString());
+         String topicName = UUID.randomUUID().toString() + ":" + getQueueName();
+         Topic topic = session.createTopic(topicName);
          MessageProducer p = session.createProducer(null);
 
          TextMessage message = session.createTextMessage();
-         message.setText("hello");
-         // this will auto-create the address
+         message.setText("creating-topic-address");
+         // This will auto-create the address, but msg will be discarded as there are no consumers
          p.send(topic, message);
 
          {
+            // This will create a new consumer, on the topic address, verifying it can attach
+            // and then receives a further sent message
             MessageConsumer consumer = session.createConsumer(topic);
-            p.send(topic, message);
+            Message message2 = message = session.createTextMessage(getTestName());
+
+            p.send(topic, message2);
+
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
             assertTrue(msg instanceof TextMessage);
+            assertEquals(getTestName(), ((TextMessage)msg).getText());
             consumer.close();
          }
       } finally {
