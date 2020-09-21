@@ -17,12 +17,17 @@
 package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
+import org.apache.activemq.artemis.utils.BufferHelper;
+import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public class DivertConfiguration implements Serializable {
+public class DivertConfiguration implements Serializable, EncodingSupport {
 
    private static final long serialVersionUID = 6910543740464269629L;
 
@@ -207,5 +212,70 @@ public class DivertConfiguration implements Serializable {
       } else if (!routingType.equals(other.routingType))
          return false;
       return true;
+   }
+
+
+   @Override
+   public int getEncodeSize() {
+      int transformerSize = 0;
+      if (transformerConfiguration != null) {
+         transformerSize += BufferHelper.sizeOfNullableString(transformerConfiguration.getClassName());
+         transformerSize += DataConstants.INT;
+         Map<String, String> properties = transformerConfiguration.getProperties();
+         for (Map.Entry<String, String> entry : properties.entrySet()) {
+            transformerSize += BufferHelper.sizeOfNullableString(entry.getKey());
+            transformerSize += BufferHelper.sizeOfNullableString(entry.getValue());
+         }
+      }
+      int size =  BufferHelper.sizeOfNullableString(name) +
+            BufferHelper.sizeOfNullableString(address) +
+            BufferHelper.sizeOfNullableString(forwardingAddress) +
+            BufferHelper.sizeOfNullableString(routingName) +
+            BufferHelper.sizeOfNullableBoolean(exclusive) +
+            BufferHelper.sizeOfNullableString(filterString) +
+            DataConstants.SIZE_BYTE + transformerSize;
+      return size;
+   }
+
+   @Override
+   public void encode(ActiveMQBuffer buffer) {
+      buffer.writeNullableString(name);
+      buffer.writeNullableString(address);
+      buffer.writeNullableString(forwardingAddress);
+      buffer.writeNullableString(routingName);
+      buffer.writeBoolean(exclusive);
+      buffer.writeNullableString(filterString);
+      buffer.writeByte(routingType != null ? routingType.getType() : ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType()).getType());
+      if (transformerConfiguration != null) {
+         buffer.writeString(transformerConfiguration.getClassName());
+         Map<String, String> properties = transformerConfiguration.getProperties();
+         buffer.writeInt(properties.size());
+         for (Map.Entry<String, String> entry : properties.entrySet()) {
+            buffer.writeNullableString(entry.getKey());
+            buffer.writeNullableString(entry.getValue());
+         }
+      } else {
+         buffer.writeNullableString(null);
+      }
+   }
+
+   @Override
+   public void decode(ActiveMQBuffer buffer) {
+      name = buffer.readNullableString();
+      address = buffer.readNullableString();
+      forwardingAddress = buffer.readNullableString();
+      routingName = buffer.readNullableString();
+      exclusive = buffer.readBoolean();
+      filterString = buffer.readNullableString();
+      routingType = ComponentConfigurationRoutingType.getType(buffer.readByte());
+      String transformerClassName = buffer.readNullableString();
+      if (transformerClassName != null) {
+         transformerConfiguration = new TransformerConfiguration(transformerClassName);
+         int propsSize = buffer.readInt();
+         for (int i = 0; i < propsSize; i++) {
+            transformerConfiguration.getProperties().put(buffer.readNullableString(), buffer.readNullableString());
+         }
+
+      }
    }
 }

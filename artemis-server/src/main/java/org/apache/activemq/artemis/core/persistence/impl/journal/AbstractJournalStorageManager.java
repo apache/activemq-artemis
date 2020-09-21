@@ -74,6 +74,7 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AddressStatusEncoding;
@@ -197,6 +198,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    protected final Map<SimpleString, PersistedRoles> mapPersistedRoles = new ConcurrentHashMap<>();
 
    protected final Map<SimpleString, PersistedAddressSetting> mapPersistedAddressSettings = new ConcurrentHashMap<>();
+
+   protected final Map<String, PersistedDivertConfiguration> mapPersistedDivertConfigurations = new ConcurrentHashMap<>();
 
    protected final ConcurrentLongHashMap<LargeServerMessage> largeMessagesToDelete = new ConcurrentLongHashMap<>();
 
@@ -781,6 +784,38 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       } finally {
          readUnLock();
       }
+   }
+
+   @Override
+   public void storeDivertConfiguration(PersistedDivertConfiguration persistedDivertConfiguration) throws Exception {
+      deleteDivertConfiguration(persistedDivertConfiguration.getName());
+      readLock();
+      try {
+         final long id = idGenerator.generateID();
+         persistedDivertConfiguration.setStoreId(id);
+         bindingsJournal.appendAddRecord(id, JournalRecordIds.DIVERT_RECORD, persistedDivertConfiguration, true);
+         mapPersistedDivertConfigurations.put(persistedDivertConfiguration.getName(), persistedDivertConfiguration);
+      } finally {
+         readUnLock();
+      }
+   }
+
+   @Override
+   public void deleteDivertConfiguration(String divertName) throws Exception {
+      PersistedDivertConfiguration oldDivert = mapPersistedDivertConfigurations.remove(divertName);
+      if (oldDivert != null) {
+         readLock();
+         try {
+            bindingsJournal.appendDeleteRecord(oldDivert.getStoreId(), false);
+         } finally {
+            readUnLock();
+         }
+      }
+   }
+
+   @Override
+   public List<PersistedDivertConfiguration> recoverDivertConfigurations() {
+      return new ArrayList<>(mapPersistedDivertConfigurations.values());
    }
 
    @Override
@@ -1548,6 +1583,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   ActiveMQServerLogger.LOGGER.infoNoAddressWithID(statusEncoding.getAddressId(), statusEncoding.getId());
                   this.deleteAddressStatus(statusEncoding.getId());
                }
+            } else if (rec == JournalRecordIds.DIVERT_RECORD) {
+               PersistedDivertConfiguration divertConfiguration = newDivertEncoding(id, buffer);
+               mapPersistedDivertConfigurations.put(divertConfiguration.getName(), divertConfiguration);
             } else {
                // unlikely to happen
                ActiveMQServerLogger.LOGGER.invalidRecordType(rec, new Exception("invalid record type " + rec));
@@ -2030,6 +2068,12 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       return addressStatus;
    }
 
+   static PersistedDivertConfiguration newDivertEncoding(long id, ActiveMQBuffer buffer) {
+      PersistedDivertConfiguration persistedDivertConfiguration = new PersistedDivertConfiguration();
+      persistedDivertConfiguration.decode(buffer);
+      persistedDivertConfiguration.setStoreId(id);
+      return persistedDivertConfiguration;
+   }
    /**
     * @param id
     * @param buffer
