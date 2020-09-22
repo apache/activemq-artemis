@@ -179,6 +179,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
    private final int minLargeMessageSize;
 
+   private RoutingType defRoutingType;
+
    public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI,
                                       AMQPConnectionContext connection,
                                       AMQPSessionContext protonSession,
@@ -229,8 +231,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       // We don't currently support SECOND so enforce that the answer is anlways FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
-      RoutingType defRoutingType;
-
       if (target != null) {
          if (target.getDynamic()) {
             // if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
@@ -252,9 +252,12 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             // the target will have an address unless the remote is requesting an anonymous
             // relay in which case the address in the incoming message's to field will be
             // matched on receive of the message.
-            address = SimpleString.toSimpleString(target.getAddress());
+            String targetAddress = target.getAddress();
+            if (targetAddress != null && !targetAddress.isEmpty()) {
+               address = SimpleString.toSimpleString(targetAddress);
+            }
 
-            if (address != null && !address.isEmpty()) {
+            if (address != null) {
                defRoutingType = getRoutingType(target.getCapabilities(), address);
                try {
                   if (!sessionSPI.checkAddressAndAutocreateIfPossible(address, defRoutingType)) {
@@ -318,6 +321,10 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          }
       }
       flow();
+   }
+
+   public RoutingType getDefRoutingType() {
+      return defRoutingType;
    }
 
    public RoutingType getRoutingType(Receiver receiver, SimpleString address) {
