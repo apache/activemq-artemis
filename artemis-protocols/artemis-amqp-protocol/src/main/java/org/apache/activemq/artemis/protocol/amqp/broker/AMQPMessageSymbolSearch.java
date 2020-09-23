@@ -80,7 +80,7 @@ final class AMQPMessageSymbolSearch {
          while (data.hasRemaining()) {
             TypeConstructor<?> constructor = decoder.readConstructor();
             final Class<?> typeClass = constructor.getTypeClass();
-            if (MSG_ANNOTATIONS_STOPSET.containsKey(typeClass)) {
+            if (stopSet.containsKey(typeClass)) {
                if (section.equals(typeClass)) {
                   final int start = data.position();
                   constructor.skipValue();
