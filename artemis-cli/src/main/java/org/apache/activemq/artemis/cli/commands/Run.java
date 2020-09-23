@@ -88,7 +88,7 @@ public class Run extends LockAbstract {
          AtomicBoolean serverActivationFailed = new AtomicBoolean(false);
          server.getServer().registerActivationFailureListener(exception -> serverActivationFailed.set(true));
          server.start();
-         server.getServer().addExternalComponent(managementContext);
+         server.getServer().addExternalComponent(managementContext, false);
 
          if (broker.web != null) {
             broker.components.add(broker.web);
@@ -98,8 +98,8 @@ public class Run extends LockAbstract {
             Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
             ExternalComponent component = (ExternalComponent) clazz.newInstance();
             component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
-            server.getServer().addExternalComponent(component);
-            component.start();
+            server.getServer().addExternalComponent(component, true);
+            assert component.isStarted();
          }
 
          if (serverActivationFailed.get()) {

@@ -837,9 +837,23 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.mbeanServer = mbeanServer;
    }
 
+   private void validateAddExternalComponent(ActiveMQComponent externalComponent) {
+      final SERVER_STATE state = this.state;
+      if (state == SERVER_STATE.STOPPED || state == SERVER_STATE.STOPPING) {
+         throw new IllegalStateException("cannot add " + externalComponent.getClass().getSimpleName() +
+                                            " if state is " + state);
+      }
+   }
+
    @Override
-   public void addExternalComponent(ActiveMQComponent externalComponent) {
-      externalComponents.add(externalComponent);
+   public void addExternalComponent(ActiveMQComponent externalComponent, boolean start) throws Exception {
+      synchronized (externalComponents) {
+         validateAddExternalComponent(externalComponent);
+         externalComponents.add(externalComponent);
+         if (start) {
+            externalComponent.start();
+         }
+      }
    }
 
    @Override
@@ -1261,17 +1275,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       connectedClientIds.clear();
 
-      for (ActiveMQComponent externalComponent : externalComponents) {
-         try {
-            if (externalComponent instanceof ServiceComponent) {
-               ((ServiceComponent)externalComponent).stop(isShutdown || criticalIOError);
-            } else {
-               externalComponent.stop();
-            }
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorStoppingComponent(e, externalComponent.getClass().getName());
-         }
-      }
+      stopExternalComponents(isShutdown || criticalIOError);
 
       try {
          this.analyzer.clear();
@@ -4065,7 +4069,25 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public List<ActiveMQComponent> getExternalComponents() {
-      return externalComponents;
+      synchronized (externalComponents) {
+         return new ArrayList<>(externalComponents);
+      }
+   }
+
+   private void stopExternalComponents(boolean shutdown) {
+      synchronized (externalComponents) {
+         for (ActiveMQComponent externalComponent : externalComponents) {
+            try {
+               if (externalComponent instanceof ServiceComponent) {
+                  ((ServiceComponent) externalComponent).stop(shutdown);
+               } else {
+                  externalComponent.stop();
+               }
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorStoppingComponent(e, externalComponent.getClass().getName());
+            }
+         }
+      }
    }
 
 }
