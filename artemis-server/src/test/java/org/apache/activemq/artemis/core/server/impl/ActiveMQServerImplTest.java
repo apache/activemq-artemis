@@ -26,7 +26,33 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+
 public class ActiveMQServerImplTest extends ActiveMQTestBase {
+
+   @Test
+   public void testCannotAddExternalComponentsIfNotStarting() throws Exception {
+      ActiveMQServer server = createServer(false);
+      try {
+         server.addExternalComponent(new EmbeddedServerTest.FakeExternalComponent());
+         Assert.fail();
+      } catch (IllegalStateException ex) {
+         Assert.assertThat(server.getExternalComponents(), empty());
+      }
+   }
+
+   @Test
+   public void testCannotAddExternalComponentsIfStopped() throws Exception {
+      ActiveMQServer server = createServer(false);
+      server.start();
+      server.stop();
+      try {
+         server.addExternalComponent(new EmbeddedServerTest.FakeExternalComponent());
+         Assert.fail();
+      } catch (IllegalStateException ex) {
+         Assert.assertThat(server.getExternalComponents(), empty());
+      }
+   }
 
    @Test
    public void testScheduledPoolGC() throws Exception {

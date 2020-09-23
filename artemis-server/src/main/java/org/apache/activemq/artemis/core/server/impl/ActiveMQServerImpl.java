@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -347,7 +348,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private Date startDate;
 
-   private final List<ActiveMQComponent> externalComponents = new ArrayList<>();
+   private final CopyOnWriteArrayList<ActiveMQComponent> externalComponents = new CopyOnWriteArrayList<>();
 
    private final ConcurrentMap<String, AtomicInteger> connectedClientIds = new ConcurrentHashMap();
 
@@ -837,9 +838,24 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.mbeanServer = mbeanServer;
    }
 
+   private void validateAddExternalComponent() {
+      final SERVER_STATE state = this.state;
+      if (state == SERVER_STATE.STOPPED || state == SERVER_STATE.STOPPING) {
+         throw new IllegalStateException("cannot add an external component while state is " + state);
+      }
+   }
+
    @Override
    public void addExternalComponent(ActiveMQComponent externalComponent) {
+      validateAddExternalComponent();
       externalComponents.add(externalComponent);
+      try {
+         validateAddExternalComponent();
+      } catch (Throwable t) {
+         // repair first!
+         externalComponents.remove(externalComponent);
+         throw t;
+      }
    }
 
    @Override

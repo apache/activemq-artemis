@@ -833,6 +833,12 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void setMBeanServer(MBeanServer mBeanServer);
 
+   /**
+    * Adding external components is allowed only if the state
+    * isn't {@link SERVER_STATE#STOPPED} or {@link SERVER_STATE#STOPPING}.
+    *
+    * @throw IllegalStateException if the state is {@link SERVER_STATE#STOPPED} or {@link SERVER_STATE#STOPPING}
+    */
    void addExternalComponent(ActiveMQComponent externalComponent);
 
    List<ActiveMQComponent> getExternalComponents();
