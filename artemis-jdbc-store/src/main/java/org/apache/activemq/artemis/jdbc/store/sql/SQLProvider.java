@@ -44,6 +44,8 @@ public interface SQLProvider {
 
    String getSelectFileByFileName();
 
+   String getReplaceLargeObjectSQL();
+
    String getAppendToLargeObjectSQL();
 
    String getReadLargeObjectSQL();

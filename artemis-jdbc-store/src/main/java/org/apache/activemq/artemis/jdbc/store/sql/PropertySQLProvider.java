@@ -137,6 +137,11 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
+   public String getReplaceLargeObjectSQL() {
+      return format(sql("replace-file"), tableName);
+   }
+
+   @Override
    public String getAppendToLargeObjectSQL() {
       return format(sql("append-to-file"), tableName);
    }

@@ -19,12 +19,15 @@ package org.apache.activemq.artemis.jdbc.store.file;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public final class Db2SequentialFileDriver extends JDBCSequentialFileFactoryDriver {
+
+   private PreparedStatement replaceLargeObject;
 
    public Db2SequentialFileDriver() {
       super();
@@ -46,22 +49,24 @@ public final class Db2SequentialFileDriver extends JDBCSequentialFileFactoryDriv
       this.copyFileRecord = connection.prepareStatement(sqlProvider.getCopyFileRecordByIdSQL());
       this.renameFile = connection.prepareStatement(sqlProvider.getUpdateFileNameByIdSQL());
       this.readLargeObject = connection.prepareStatement(sqlProvider.getReadLargeObjectSQL());
+      this.replaceLargeObject = connection.prepareStatement(sqlProvider.getReplaceLargeObjectSQL());
       this.appendToLargeObject = connection.prepareStatement(sqlProvider.getAppendToLargeObjectSQL());
       this.selectFileNamesByExtension = connection.prepareStatement(sqlProvider.getSelectFileNamesByExtensionSQL());
    }
 
    @Override
-   public int writeToFile(JDBCSequentialFile file, byte[] data) throws SQLException {
+   public int writeToFile(JDBCSequentialFile file, byte[] data, boolean append) throws SQLException {
       if (data == null || data.length == 0) {
          return 0;
       }
+      final PreparedStatement largeObjectStatement = append ? appendToLargeObject : replaceLargeObject;
       synchronized (connection) {
          try {
             connection.setAutoCommit(false);
             int bytesWritten;
-            appendToLargeObject.setBytes(1, data);
-            appendToLargeObject.setLong(2, file.getId());
-            final int updatesFiles = appendToLargeObject.executeUpdate();
+            largeObjectStatement.setBytes(1, data);
+            largeObjectStatement.setLong(2, file.getId());
+            final int updatesFiles = largeObjectStatement.executeUpdate();
             assert updatesFiles <= 1;
             connection.commit();
             if (updatesFiles == 0) {
