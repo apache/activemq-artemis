@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.interop;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -45,7 +48,7 @@ public class AmqpCoreTest extends JMSClientTestSupport {
       super.setUp();
    }
 
-   @Test
+   @Test(timeout = 60000)
    public void testMultipleCoreReceiving() throws Exception {
 
       Connection coreJmsConn = this.createCoreConnection();
@@ -71,11 +74,9 @@ public class AmqpCoreTest extends JMSClientTestSupport {
 
          sendAmqpMessages("exampleQueueAddress", total);
 
-         assertTrue("not enough message received: " + handler1.getNumMsg() + " expected: " + total, handler1.waitForMessages(total));
-         assertTrue("not enough message received: " + handler2.getNumMsg() + " expected: " + total, handler2.waitForMessages(total));
-         assertTrue("not enough message received: " + handler3.getNumMsg() + " expected: " + total, handler3.waitForMessages(total));
-
-
+         handler1.assertMessagesReceived(total);
+         handler2.assertMessagesReceived(total);
+         handler3.assertMessagesReceived(total);
       } finally {
          coreJmsConn.close();
       }
@@ -99,8 +100,8 @@ public class AmqpCoreTest extends JMSClientTestSupport {
 
    private class CoreMessageHandler implements MessageHandler {
       int id;
-      int numMsg = 0;
-      volatile boolean zeroLen = false;
+      AtomicInteger numMsg = new AtomicInteger();
+      AtomicBoolean zeroLen = new AtomicBoolean();
 
       CoreMessageHandler(int id) {
          this.id = id;
@@ -111,23 +112,16 @@ public class AmqpCoreTest extends JMSClientTestSupport {
          instanceLog.debug("received: " + message.getBodySize());
          if (message.getBodySize() == 0) {
             instanceLog.debug("xxx found zero len message!");
-            zeroLen = true;
+            zeroLen.set(true);
          }
-         addMessage(message);
+
+         instanceLog.debug("[receiver " + id + "] recieved: " + numMsg.incrementAndGet());
       }
 
-      private synchronized void addMessage(ClientMessage message) {
-         numMsg++;
-         instanceLog.debug("[receiver " + id + "] recieved: " + numMsg);
-      }
+      public void assertMessagesReceived(int num) throws Exception {
+         Wait.assertEquals(num, numMsg::get, 30000);
 
-      public synchronized boolean waitForMessages(int num) throws Exception {
-         assertFalse(zeroLen);
-         return Wait.waitFor(() -> numMsg == num, 30000);
-      }
-
-      public int getNumMsg() {
-         return numMsg;
+         assertFalse(zeroLen.get());
       }
    }
 

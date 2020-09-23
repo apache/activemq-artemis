@@ -52,10 +52,10 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getQueueName());
-
       Queue queueView = getProxyToQueue(getQueueName());
-      assertEquals(1, queueView.getMessageCount());
+      Wait.assertEquals(1L, queueView::getMessageCount, 5000, 10);
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       receiver.flow(1);
       AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
@@ -124,10 +124,10 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getQueueName());
-
       Queue queueView = getProxyToQueue(getQueueName());
-      assertEquals(1, queueView.getMessageCount());
+      Wait.assertEquals(1L, queueView::getMessageCount, 5000, 10);
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       receiver.flow(1);
       AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
@@ -156,11 +156,10 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getQueueName());
-
       Queue queueView = getProxyToQueue(getQueueName());
-      assertEquals(1, queueView.getMessageCount());
+      Wait.assertEquals(1L, queueView::getMessageCount, 5000, 10);
 
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(receive);
@@ -187,10 +186,10 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getQueueName());
-
       Queue queueView = getProxyToQueue(getQueueName());
-      assertEquals(1, queueView.getMessageCount());
+      Wait.assertEquals(1L, queueView::getMessageCount, 5000, 10);
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       receiver.flow(1);
       AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
@@ -220,10 +219,10 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
 
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getQueueName());
-
       Queue queueView = getProxyToQueue(getQueueName());
-      assertEquals(10, queueView.getMessageCount());
+      Wait.assertEquals(10L, queueView::getMessageCount, 5000, 10);
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       receiver.flow(10);
       for (int i = 9; i >= 0; --i) {
@@ -234,7 +233,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       }
       receiver.close();
 
-      Wait.assertEquals(0, queueView::getMessageCount);
+      Wait.assertEquals(0L, queueView::getMessageCount, 5000, 10);
 
       connection.close();
    }
