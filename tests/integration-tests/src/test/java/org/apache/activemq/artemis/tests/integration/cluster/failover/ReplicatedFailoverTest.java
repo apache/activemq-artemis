@@ -176,7 +176,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          backupServer.getServer().getNetworkHealthCheck().parseURIList("http://localhost:8787");
          Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
-         backupServer.getServer().addExternalComponent(webServerComponent);
+         backupServer.getServer().addExternalComponent(webServerComponent, false);
          // this is called when backup servers go from live back to backup
          backupServer.getServer().fail(true);
          Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());

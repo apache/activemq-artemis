@@ -26,7 +26,58 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+
 public class ActiveMQServerImplTest extends ActiveMQTestBase {
+
+   @Test
+   public void testAddingAndStartingExternalComponent() throws Exception {
+      ActiveMQServer server = createServer(false);
+      server.start();
+      EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
+      server.addExternalComponent(component, true);
+      Assert.assertTrue(component.isStarted());
+      Assert.assertThat(server.getExternalComponents(), hasItem(component));
+   }
+
+   @Test
+   public void testAddingWithoutStartingExternalComponent() throws Exception {
+      ActiveMQServer server = createServer(false);
+      server.start();
+      EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
+      server.addExternalComponent(component, false);
+      Assert.assertFalse(component.isStarted());
+      Assert.assertThat(server.getExternalComponents(), hasItem(component));
+   }
+
+   @Test
+   public void testCannotAddExternalComponentsIfNotStarting() throws Exception {
+      ActiveMQServer server = createServer(false);
+      EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
+      try {
+         server.addExternalComponent(component, false);
+         Assert.fail();
+      } catch (IllegalStateException ex) {
+         Assert.assertFalse(component.isStarted());
+         Assert.assertThat(server.getExternalComponents(), empty());
+      }
+   }
+
+   @Test
+   public void testCannotAddExternalComponentsIfStopped() throws Exception {
+      ActiveMQServer server = createServer(false);
+      server.start();
+      server.stop();
+      EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
+      try {
+         server.addExternalComponent(component, false);
+         Assert.fail();
+      } catch (IllegalStateException ex) {
+         Assert.assertFalse(component.isStarted());
+         Assert.assertThat(server.getExternalComponents(), empty());
+      }
+   }
 
    @Test
    public void testScheduledPoolGC() throws Exception {
