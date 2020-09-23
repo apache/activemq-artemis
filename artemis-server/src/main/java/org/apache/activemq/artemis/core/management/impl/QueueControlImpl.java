@@ -271,17 +271,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
-   public float getProducedRate() {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.getProducedRate(queue);
-      }
-      checkStarted();
-
-      // This is an attribute, no need to blockOnIO
-      return queue.getRate();
-   }
-
-   @Override
    public long getPersistentSize() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getPersistentSize(queue);
