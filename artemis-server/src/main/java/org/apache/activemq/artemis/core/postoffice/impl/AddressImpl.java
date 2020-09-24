@@ -49,7 +49,11 @@ public class AddressImpl implements Address {
       this.address = address;
       this.wildcardConfiguration = wildcardConfiguration;
       addressParts = address.split(wildcardConfiguration.getDelimiter());
-      containsWildCard = address.contains(wildcardConfiguration.getSingleWord()) || address.contains(wildcardConfiguration.getAnyWords());
+      containsWildCard = isContainsWildCard(address, wildcardConfiguration);
+   }
+
+   public static boolean isContainsWildCard(SimpleString address, WildcardConfiguration wildcardConfiguration) {
+      return address.contains(wildcardConfiguration.getSingleWord()) || address.contains(wildcardConfiguration.getAnyWords());
    }
 
    @Override
