@@ -308,7 +308,7 @@ public class PropertySQLProvider implements SQLProvider {
          ORACLE("oracle", "oracle"),
          POSTGRESQL("postgresql", "postgres"),
          DERBY("derby", "derby"),
-         MYSQL("mysql", "mysql"),
+         MYSQL("mysql", "mysql", "mariadb"),
          DB2("db2", "db2"),
          HSQL("hsql", "hsql", "hypersonic"),
          H2("h2", "h2"),
