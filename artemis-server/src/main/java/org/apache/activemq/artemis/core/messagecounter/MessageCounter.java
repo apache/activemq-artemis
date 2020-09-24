@@ -64,12 +64,16 @@ public class MessageCounter {
 
    private long timeLastAdd;
 
+   private long timeLastAck;
+
    // per hour day counter history
    private int dayCounterMax;
 
    private final List<DayCounter> dayCounters;
 
    private long lastMessagesAdded;
+
+   private long lastMessagesAcked;
 
    // Static --------------------------------------------------------
 
@@ -111,19 +115,28 @@ public class MessageCounter {
       @Override
       public void run() {
          long latestMessagesAdded = serverQueue.getMessagesAdded();
+         long latestMessagesAcked = serverQueue.getMessagesAcknowledged();
 
          long newMessagesAdded = latestMessagesAdded - lastMessagesAdded;
+         long newMessagesAcked = latestMessagesAcked - lastMessagesAcked;
 
          countTotal += newMessagesAdded;
 
          lastMessagesAdded = latestMessagesAdded;
+         lastMessagesAcked = latestMessagesAcked;
+
+         long timestamp = System.currentTimeMillis();
 
          if (newMessagesAdded > 0) {
-            timeLastAdd = System.currentTimeMillis();
+            timeLastAdd = timestamp;
+         }
+
+         if (newMessagesAcked > 0) {
+            timeLastAck = timestamp;
          }
 
          // update timestamp
-         timeLastUpdate = System.currentTimeMillis();
+         timeLastUpdate = timestamp;
 
          // update message history
          updateHistory(newMessagesAdded);
@@ -208,12 +221,17 @@ public class MessageCounter {
       return timeLastAdd;
    }
 
+   public long getLastAckedMessageTime() {
+      return timeLastAck;
+   }
+
    public void resetCounter() {
       countTotal = 0;
       countTotalLast = 0;
       depthLast = 0;
       timeLastUpdate = 0;
       timeLastAdd = 0;
+      timeLastAck = 0;
    }
 
    private void setHistoryLimit(final int daycountmax) {
@@ -320,6 +338,7 @@ public class MessageCounter {
    public String toJSon() {
       DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
       String lastAddTimestamp = dateFormat.format(new Date(this.getLastAddedMessageTime()));
+      String lastAckTimestamp = dateFormat.format(new Date(this.getLastAckedMessageTime()));
       String updateTimestamp = dateFormat.format(new Date(this.getLastUpdate()));
       return JsonLoader
          .createObjectBuilder()
@@ -331,6 +350,7 @@ public class MessageCounter {
          .add("messageCount", this.getMessageCount())
          .add("messageCountDelta", this.getMessageCountDelta())
          .add("lastAddTimestamp", lastAddTimestamp)
+         .add("lastAckTimestamp", lastAckTimestamp)
          .add("updateTimestamp", updateTimestamp)
          .build()
          .toString();

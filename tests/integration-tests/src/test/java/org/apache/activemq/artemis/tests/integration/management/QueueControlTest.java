@@ -2721,7 +2721,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       serverControl.enableMessageCounters();
-      serverControl.setMessageCounterSamplePeriod(100);
+      serverControl.setMessageCounterSamplePeriod(99999);
 
       String jsonString = queueControl.listMessageCounter();
       MessageCounterInfo info = MessageCounterInfo.fromJSON(jsonString);
@@ -2731,34 +2731,44 @@ public class QueueControlTest extends ManagementTestBase {
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(durable));
+      Wait.assertTrue(() -> server.locateQueue(queue).getMessageCount() == 1);
 
-      Thread.sleep(200);
+      ((MessageCounterManagerImpl)server.getManagementService().getMessageCounterManager()).getMessageCounter(queue.toString()).onTimer();
+      Thread.sleep(50);
       jsonString = queueControl.listMessageCounter();
       info = MessageCounterInfo.fromJSON(jsonString);
       Assert.assertEquals(1, info.getDepth());
       Assert.assertEquals(1, info.getDepthDelta());
       Assert.assertEquals(1, info.getCount());
       Assert.assertEquals(1, info.getCountDelta());
+      Assert.assertEquals(info.getUpdateTimestamp(), info.getLastAddTimestamp());
+      Assert.assertEquals("12/31/69, 6:00:00 PM", info.getLastAckTimestamp()); // no acks received yet
 
       producer.send(session.createMessage(durable));
+      Wait.assertTrue(() -> server.locateQueue(queue).getMessageCount() == 2);
 
-      Thread.sleep(200);
+      ((MessageCounterManagerImpl)server.getManagementService().getMessageCounterManager()).getMessageCounter(queue.toString()).onTimer();
+      Thread.sleep(50);
       jsonString = queueControl.listMessageCounter();
       info = MessageCounterInfo.fromJSON(jsonString);
       Assert.assertEquals(2, info.getDepth());
       Assert.assertEquals(1, info.getDepthDelta());
       Assert.assertEquals(2, info.getCount());
       Assert.assertEquals(1, info.getCountDelta());
+      Assert.assertEquals(info.getUpdateTimestamp(), info.getLastAddTimestamp());
+      Assert.assertEquals("12/31/69, 6:00:00 PM", info.getLastAckTimestamp()); // no acks received yet
 
       consumeMessages(2, session, queue);
 
-      Thread.sleep(200);
+      ((MessageCounterManagerImpl)server.getManagementService().getMessageCounterManager()).getMessageCounter(queue.toString()).onTimer();
+      Thread.sleep(50);
       jsonString = queueControl.listMessageCounter();
       info = MessageCounterInfo.fromJSON(jsonString);
       Assert.assertEquals(0, info.getDepth());
       Assert.assertEquals(-2, info.getDepthDelta());
       Assert.assertEquals(2, info.getCount());
       Assert.assertEquals(0, info.getCountDelta());
+      Assert.assertEquals(info.getUpdateTimestamp(), info.getLastAckTimestamp());
 
       session.deleteQueue(queue);
    }
