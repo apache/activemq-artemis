@@ -72,6 +72,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -111,6 +112,32 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          sessions.add(session);
       }
 
+      connection.close();
+   }
+
+   @Test
+   public void testDuplicateTemporaryDestination() throws Exception {
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination queue = session.createTemporaryQueue();
+      for (int i = 0; i < 10; i++) {
+         MessageProducer producer = session.createProducer(queue);
+         producer.close();
+      }
+
+      int tempDestinationCount = 0;
+      for (RemotingConnection remotingConnection : server.getRemotingService().getConnections()) {
+         if (remotingConnection instanceof OpenWireConnection) {
+            OpenWireConnection openWireConnection = (OpenWireConnection) remotingConnection;
+            if (openWireConnection.getState() != null && openWireConnection.getState().getTempDestinations() != null) {
+               tempDestinationCount += openWireConnection.getState().getTempDestinations().size();
+            }
+         }
+      }
+
+      assertTrue(tempDestinationCount <= 1);
+
+      session.close();
       connection.close();
    }
 
