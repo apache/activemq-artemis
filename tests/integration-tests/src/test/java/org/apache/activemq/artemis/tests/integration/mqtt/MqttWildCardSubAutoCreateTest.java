@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTTestSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -69,8 +70,8 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
 
    @Override
    protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration) {
-      configuration.getAddressesSettings().remove("#");
-      configuration.getAddressesSettings().put("#", new AddressSettings().setPageSizeBytes(5).setMaxSizeBytes(10).setPageStoreName(new SimpleString("news-bag")));
+      configuration.getAddressesSettings().put("A.#", new AddressSettings().setPageSizeBytes(5).setMaxSizeBytes(10).setPageStoreName(new SimpleString("a-bag")));
+      configuration.getAddressesSettings().put("news.#", new AddressSettings().setPageSizeBytes(5).setMaxSizeBytes(10).setPageStoreName(new SimpleString("news-bag")));
       configuration.setGlobalMaxSize(15);
       return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, 10);
    }
@@ -231,4 +232,25 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
       messageWrestlingNews.setStringProperty("stuff", new String(new byte[1024]));
    }
 
+
+   @Test
+   public void testWarnOnWildcardWithNoMatchingPageStoreName() throws Exception {
+
+      try {
+         AssertionLoggerHandler.startCapture();
+
+         ConnectionFactory cf = new ActiveMQConnectionFactory();
+         Connection connection = cf.createConnection();
+         connection.setClientID("some-sensible-identity");
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer messageConsumer = session.createDurableConsumer(session.createTopic("b.c.#"), "w-a-warn");
+         messageConsumer.close();
+
+         connection.close();
+         Assert.assertTrue(AssertionLoggerHandler.findText("222295"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+   }
 }

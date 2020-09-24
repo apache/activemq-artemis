@@ -1706,6 +1706,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
                                  "**************************************************************************************************************************************************************************************************************************************************************", format = Message.Format.MESSAGE_FORMAT)
    void possibleSplitBrain(String nodeID, String connectionPairInformation);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222295, value = "Subscription {0} uses wildcard address {1} but no matching address-setting has configured the shared page-store-name; counters may be inaccurate", format = Message.Format.MESSAGE_FORMAT)
+   void wildcardRoutingWithoutSharedPageStore(SimpleString queueName, SimpleString address);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
