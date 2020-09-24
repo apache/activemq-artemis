@@ -853,9 +853,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
 
       if (dest.isTemporary()) {
-         //Openwire needs to store the DestinationInfo in order to send
-         //Advisory messages to clients
-         this.state.addTempDestination(info);
+         //Openwire needs to store the DestinationInfo in order to send Advisory messages to clients
+         if (!tempDestinationExists(info.getDestination().getPhysicalName())) {
+            this.state.addTempDestination(info);
+            if (logger.isDebugEnabled()) {
+               logger.debug(this + " added temp destination to state: " + info.getDestination().getPhysicalName() + "; " + state.getTempDestinations().size());
+            }
+         }
       }
 
       if (created && !AdvisorySupport.isAdvisoryTopic(dest)) {
@@ -963,6 +967,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void tempQueueDeleted(SimpleString bindingName) {
       ActiveMQDestination dest = new ActiveMQTempQueue(bindingName.toString());
       state.removeTempDestination(dest);
+      if (logger.isDebugEnabled()) {
+         logger.debug(this + " removed temp destination from state: " + bindingName + "; " + state.getTempDestinations().size());
+      }
 
       if (!AdvisorySupport.isAdvisoryTopic(dest)) {
          AMQConnectionContext context = getContext();
@@ -1119,6 +1126,19 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       for (ConsumerState consumerState : sessionState.getConsumerStates()) {
          consumerState.getInfo().setLastDeliveredSequenceId(lastDeliveredSequenceId);
       }
+   }
+
+   private boolean tempDestinationExists(String name) {
+      boolean result = false;
+
+      for (DestinationInfo destinationInfo : state.getTempDestinations()) {
+         if (destinationInfo.getDestination().getPhysicalName().equals(name)) {
+            result = true;
+            break;
+         }
+      }
+
+      return result;
    }
 
    CommandProcessor commandProcessorInstance = new CommandProcessor();
