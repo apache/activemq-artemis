@@ -78,8 +78,8 @@ public class EmbeddedServerTest {
       FakeExternalComponent normalComponent = new FakeExternalComponent();
       FakeExternalServiceComponent serviceComponent = new FakeExternalServiceComponent();
 
-      server.addExternalComponent(normalComponent);
-      server.addExternalComponent(serviceComponent);
+      server.addExternalComponent(normalComponent, false);
+      server.addExternalComponent(serviceComponent, false);
 
       server.stop(false);
       assertTrue(normalComponent.stopCalled);
@@ -98,7 +98,7 @@ public class EmbeddedServerTest {
       assertTrue(serviceComponent.exitCalled);
    }
 
-   private class FakeExternalComponent implements ActiveMQComponent {
+   public static class FakeExternalComponent implements ActiveMQComponent {
 
       volatile boolean startCalled;
       volatile boolean stopCalled;
@@ -124,7 +124,7 @@ public class EmbeddedServerTest {
       }
    }
 
-   private class FakeExternalServiceComponent extends FakeExternalComponent implements ServiceComponent {
+   public static class FakeExternalServiceComponent extends FakeExternalComponent implements ServiceComponent {
 
       volatile boolean exitCalled;
 
