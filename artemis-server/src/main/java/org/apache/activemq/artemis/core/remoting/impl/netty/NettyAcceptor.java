@@ -229,6 +229,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private Map<String, Object> extraConfigs;
 
+   private final boolean autoStart;
+
 
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
@@ -341,6 +343,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED, configuration);
 
       connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED, TransportConstants.DEFAULT_CONNECTIONS_ALLOWED, configuration);
+
+      autoStart = ConfigurationHelper.getBooleanProperty(TransportConstants.AUTO_START, TransportConstants.DEFAULT_AUTO_START, configuration);
    }
 
    @Override
@@ -1016,5 +1020,9 @@ public class NettyAcceptor extends AbstractAcceptor {
          }
          return (list.size() < 2 ? throwable : list.get(list.size() - 1));
       }
+   }
+
+   public boolean isAutoStart() {
+      return autoStart;
    }
 }

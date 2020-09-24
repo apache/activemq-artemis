@@ -186,6 +186,10 @@ public class TransportConstants {
 
    public static final String PROXY_REMOTE_DNS_PROP_NAME = "socksRemoteDNS";
 
+   public static final String AUTO_START = "autoStart";
+
+   public static final boolean DEFAULT_AUTO_START = true;
+
    public static final boolean DEFAULT_SSL_ENABLED = false;
 
    public static final String DEFAULT_SSL_KRB5_CONFIG = null;
@@ -420,6 +424,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.SHUTDOWN_TIMEOUT);
       allowableAcceptorKeys.add(TransportConstants.QUIET_PERIOD);
       allowableAcceptorKeys.add(TransportConstants.DISABLE_STOMP_SERVER_HEADER);
+      allowableAcceptorKeys.add(TransportConstants.AUTO_START);
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
