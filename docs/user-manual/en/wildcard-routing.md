@@ -20,5 +20,18 @@ This functionality is enabled by default. To turn it off add the following to th
 </wildcard-addresses>
 ```
 
+## Paging with wild card addresses
+Paging occurs at the address level and queue subscriptions access messages for an address through paging.
+When wildcard routing is in play, it is normal for a queue to access multiple addresses and hence, potentially
+multiple page stores.
+To avoid the problems inherent in referencing multiple page stores, it is necessary to configure a wild card addresses
+hierarchy with a single shared page store via an address setting called `page-store-name`.
+
+```xml
+<address-setting match="news.#">
+   <page-store-name>news-wildcard</page-store-name>
+</address-setting>
+```
+
 For more information on the wild card syntax and how to configure it, take a look at [wildcard syntax](wildcard-syntax.md) chapter,
 also see the topic hierarchy example in the [examples](examples.md).

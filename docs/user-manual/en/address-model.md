@@ -781,6 +781,38 @@ the client-side. If the value is `BLOCK` then client message producers will
 block when they try and send further messages.  See the [Flow
 Control](flow-control.md) and [Paging](paging.md) chapters for more info.
 
+`page-store-name` defines the name of the shared page store for matching addresses.
+It is typically unused because the page store name maps to an address name by default.
+However when addresses are hierarchical and subscriptions use 
+[wildcards](wildcard-routing.md), this setting is **required** to support [paging](paging.md).
+Subscriptions assume a single page store for cursor management and resource usage
+calculations. Using an explicitly configured `page-store-name` that will match the
+root address of the hierarchy, paging can coalesce to a single page store and 
+the required assumptions will hold.
+
+For example, with a MULTICAST address hierarchy of:
+ - ticker.stock.us.apple
+ - ticker.stock.us.orange
+ - ticker.stock.eu.pear
+ 
+ and with wildcard subscriptions on:
+  - ticker.stock.#
+  - ticker.stock.eu.#
+  
+ an address setting of: 
+ 
+ ```xml
+ <address-settings>
+    <address-setting match="ticker.stock.#">
+       <page-store-name>ticker.stock.#</page-store-name>
+       ...
+ ```
+ will ensure that all paged messages coalesce into a single page store named `ticker.stock.#`.
+ The name does not need to be the same as the `match` attribute, it can be any string value.
+ What **is** important is that the `match` attribute captures the root of the hierarchy that will
+ support wildcards subscriptions.
+ 
+ 
 `message-counter-history-day-limit` is the number of days to keep message
 counter history for this address assuming that `message-counter-enabled` is
 `true`. Default is `0`.

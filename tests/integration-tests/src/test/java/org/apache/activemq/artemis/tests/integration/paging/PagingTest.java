@@ -6592,6 +6592,92 @@ public class PagingTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testHierarchicalPagingStoreNotDestroyed() throws Exception {
+      clearDataRecreateServerDirs();
+
+      final SimpleString pageAddress = new SimpleString("A.#");
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+      config.getAddressesSettings().put("A.#", new AddressSettings().setPageStoreName(pageAddress));
+
+      server = createServer(true, config, 100, 500);
+
+      server.start();
+
+      final int numberOfMessages = 10;
+      final int messageSize = 100;
+
+      locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, false, false);
+
+      final SimpleString addressA = new SimpleString("A.a.#");
+      session.createQueue(new QueueConfiguration(addressA));
+
+      final SimpleString addressB = new SimpleString("A.b.#");
+      session.createQueue(new QueueConfiguration(addressB));
+
+      final SimpleString produceAddressA = new SimpleString("A.a.a");
+      ClientProducer producerA = session.createProducer(produceAddressA);
+
+      final SimpleString produceAddressB = new SimpleString("A.b.a");
+      ClientProducer producerB = session.createProducer(produceAddressB);
+
+      ClientMessage message = null;
+
+      byte[] body = new byte[messageSize];
+
+      ByteBuffer bb = ByteBuffer.wrap(body);
+
+      for (int j = 1; j <= messageSize; j++) {
+         bb.put(getSamplebyte(j));
+      }
+
+      for (int i = 0; i < numberOfMessages; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(body);
+
+         producerA.send(message);
+         producerB.send(message);
+         session.commit();
+      }
+      session.commit();
+      producerA.close();
+      producerB.close();
+
+      assertTrue(Arrays.asList(server.getPagingManager().getStoreNames()).contains(pageAddress));
+      assertTrue(server.getPagingManager().getPageStore(pageAddress).isPaging());
+
+      session.deleteQueue(addressA);
+      session.deleteQueue(addressB);
+
+      session.close();
+
+      System.err.println("storeNames: " + Arrays.asList(server.getPagingManager().getStoreNames()));
+
+      server.getPagingManager().deletePageStore(produceAddressA);
+      server.getPagingManager().deletePageStore(produceAddressB);
+
+      sf.close();
+      locator.close();
+      locator = null;
+      sf = null;
+      assertTrue(Arrays.asList(server.getPagingManager().getStoreNames()).contains(pageAddress));
+      // Ensure wildcard store is still there
+      server.getPagingManager().reloadStores();
+      assertTrue(Arrays.asList(server.getPagingManager().getStoreNames()).contains(pageAddress));
+      server.stop();
+
+      server.start();
+      assertTrue(Arrays.asList(server.getPagingManager().getStoreNames()).contains(pageAddress));
+      server.stop();
+   }
+
+   @Test
    public void testStopPagingWithoutConsumersIfTwoPages() throws Exception {
       testStopPagingWithoutConsumersOnOneQueue(true);
    }
