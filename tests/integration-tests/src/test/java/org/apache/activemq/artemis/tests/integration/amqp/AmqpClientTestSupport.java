@@ -154,6 +154,10 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    }
 
    protected ActiveMQServer createServer(int port) throws Exception {
+      return createServer(port, true);
+   }
+
+   protected ActiveMQServer createServer(int port, boolean start) throws Exception {
 
       final ActiveMQServer server = this.createServer(true, true);
 
@@ -163,6 +167,13 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       server.getConfiguration().setJournalDirectory(server.getConfiguration().getJournalDirectory() + port);
       server.getConfiguration().setBindingsDirectory(server.getConfiguration().getBindingsDirectory() + port);
       server.getConfiguration().setPagingDirectory(server.getConfiguration().getPagingDirectory() + port);
+      if (port == AMQP_PORT) {
+         // we use the default large directory if the default port
+         // as some tests will assert number of files
+         server.getConfiguration().setLargeMessagesDirectory(server.getConfiguration().getLargeMessagesDirectory());
+      } else {
+         server.getConfiguration().setLargeMessagesDirectory(server.getConfiguration().getLargeMessagesDirectory() + port);
+      }
       server.getConfiguration().setJMXManagementEnabled(true);
       server.getConfiguration().setMessageExpiryScanPeriod(100);
       server.setMBeanServer(mBeanServer);
@@ -179,10 +190,13 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       // Add extra configuration
       addConfiguration(server);
 
-      server.start();
+      if (start) {
+         server.start();
 
-      // Prepare all addresses and queues for client tests.
-      createAddressAndQueues(server);
+         // Prepare all addresses and queues for client tests.
+         createAddressAndQueues(server);
+      }
+
 
       return server;
    }
