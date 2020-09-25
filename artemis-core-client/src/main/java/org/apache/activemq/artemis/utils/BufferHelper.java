@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
 
 /**
  * Helper methods to read and write from ActiveMQBuffer.
@@ -155,5 +156,31 @@ public class BufferHelper {
       }
    }
 
+   public static int sizeOfNullableString(String s) {
+      if (s == null) {
+         return DataConstants.SIZE_BOOLEAN;
+      }
+      return DataConstants.SIZE_BOOLEAN + sizeOfString(s);
+   }
+
+   public static int sizeOfString(String s) {
+      int len = s.length();
+      if (len < 9) {
+         return DataConstants.SIZE_INT + (len * DataConstants.SIZE_SHORT);
+      }
+      // 4095 == 0xfff
+      if (len < 4095) {
+         // beware: this one has O(n) cost: look at UTF8Util::saveUTF
+         final int expectedEncodedUTF8Len = UTF8Util.calculateUTFSize(s);
+         if (expectedEncodedUTF8Len > 65535) {
+            throw ActiveMQUtilBundle.BUNDLE.stringTooLong(len);
+         }
+         return DataConstants.SIZE_INT + DataConstants.SIZE_SHORT + expectedEncodedUTF8Len;
+      }
+      // it seems weird but this SIZE_INT is required due to how UTF8Util is encoding UTF strings
+      // so this SIZE_INT is required
+      // perhaps we could optimize it and remove it, but that would break compatibility with older clients and journal
+      return DataConstants.SIZE_INT + sizeOfSimpleString(s);
+   }
 }
 

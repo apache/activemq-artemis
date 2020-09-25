@@ -61,6 +61,7 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -705,6 +706,21 @@ public class SendAckFailTest extends SpawnedTestBase {
       @Override
       public List<PersistedRoles> recoverPersistedRoles() throws Exception {
          return manager.recoverPersistedRoles();
+      }
+
+      @Override
+      public void storeDivertConfiguration(PersistedDivertConfiguration persistedDivertConfiguration) throws Exception {
+
+      }
+
+      @Override
+      public void deleteDivertConfiguration(String divertName) throws Exception {
+
+      }
+
+      @Override
+      public List<PersistedDivertConfiguration> recoverDivertConfigurations() {
+         return null;
       }
 
       @Override

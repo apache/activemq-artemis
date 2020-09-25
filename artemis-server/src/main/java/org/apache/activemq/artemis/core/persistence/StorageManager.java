@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -359,6 +360,11 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    List<PersistedRoles> recoverPersistedRoles() throws Exception;
 
+   void storeDivertConfiguration(PersistedDivertConfiguration persistedDivertConfiguration) throws Exception;
+
+   void deleteDivertConfiguration(String divertName) throws Exception;
+
+   List<PersistedDivertConfiguration> recoverDivertConfigurations();
    /**
     * @return The ID with the stored counter
     */
