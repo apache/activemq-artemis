@@ -146,86 +146,95 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
 
    @Test
    public void testCoreHierarchicalTopic() throws Exception {
-      ConnectionFactory cf = new ActiveMQConnectionFactory();
 
-      Connection connection = cf.createConnection();
-      connection.setClientID("CLI-ID");
+      try {
+         AssertionLoggerHandler.startCapture();
 
-      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         ConnectionFactory cf = new ActiveMQConnectionFactory();
 
-      Topic topicSubscribe = ActiveMQJMSClient.createTopic("news.europe.#");
+         Connection connection = cf.createConnection();
+         connection.setClientID("CLI-ID");
 
-      MessageConsumer messageConsumer = session.createDurableConsumer(topicSubscribe, "news-eu");
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      MessageProducer producer = session.createProducer(null);
+         Topic topicSubscribe = ActiveMQJMSClient.createTopic("news.europe.#");
 
-      Topic topicNewsUsaWrestling = ActiveMQJMSClient.createTopic("news.usa.wrestling");
-      Topic topicNewsEuropeSport = ActiveMQJMSClient.createTopic("news.europe.sport");
-      Topic topicNewsEuropeEntertainment = ActiveMQJMSClient.createTopic("news.europe.entertainment");
+         MessageConsumer messageConsumer = session.createDurableConsumer(topicSubscribe, "news-eu");
 
-      TextMessage messageWrestlingNews = session.createTextMessage("Hulk Hogan starts ballet classes");
-      addSizeProp(messageWrestlingNews);
-      producer.send(topicNewsUsaWrestling, messageWrestlingNews);
+         MessageProducer producer = session.createProducer(null);
 
-      TextMessage messageEuropeSport = session.createTextMessage("Lewis Hamilton joins European synchronized swimming team");
-      producer.send(topicNewsEuropeSport, messageEuropeSport);
+         Topic topicNewsUsaWrestling = ActiveMQJMSClient.createTopic("news.usa.wrestling");
+         Topic topicNewsEuropeSport = ActiveMQJMSClient.createTopic("news.europe.sport");
+         Topic topicNewsEuropeEntertainment = ActiveMQJMSClient.createTopic("news.europe.entertainment");
 
-      TextMessage messageEuropeEntertainment = session.createTextMessage("John Lennon resurrected from dead");
-      producer.send(topicNewsEuropeEntertainment, messageEuropeEntertainment);
+         TextMessage messageWrestlingNews = session.createTextMessage("Hulk Hogan starts ballet classes");
+         addSizeProp(messageWrestlingNews);
+         producer.send(topicNewsUsaWrestling, messageWrestlingNews);
 
-      connection.start();
+         TextMessage messageEuropeSport = session.createTextMessage("Lewis Hamilton joins European synchronized swimming team");
+         producer.send(topicNewsEuropeSport, messageEuropeSport);
 
-      // second consumer to page to different address
-      Topic topicSubscribeAllNews = ActiveMQJMSClient.createTopic("news.#");
+         TextMessage messageEuropeEntertainment = session.createTextMessage("John Lennon resurrected from dead");
+         producer.send(topicNewsEuropeEntertainment, messageEuropeEntertainment);
 
-      MessageConsumer messageConsumerAllNews = session.createDurableConsumer(topicSubscribeAllNews, "news-all");
+         connection.start();
 
-      producer.send(topicNewsUsaWrestling, messageWrestlingNews);
-      producer.send(topicNewsEuropeEntertainment, messageEuropeEntertainment);
+         // second consumer to page to different address
+         Topic topicSubscribeAllNews = ActiveMQJMSClient.createTopic("news.#");
 
-      MessageConsumer messageConsumerEuEnt = session.createDurableConsumer(topicNewsEuropeEntertainment, "news-eu-ent");
+         MessageConsumer messageConsumerAllNews = session.createDurableConsumer(topicSubscribeAllNews, "news-all");
 
-      producer.send(topicNewsUsaWrestling, messageWrestlingNews);
-      producer.send(topicNewsEuropeEntertainment, messageEuropeEntertainment);
+         producer.send(topicNewsUsaWrestling, messageWrestlingNews);
+         producer.send(topicNewsEuropeEntertainment, messageEuropeEntertainment);
 
-      System.out.println("Usage " + server.getPagingManager().getGlobalSize());
+         MessageConsumer messageConsumerEuEnt = session.createDurableConsumer(topicNewsEuropeEntertainment, "news-eu-ent");
 
-      TextMessage msg = (TextMessage) messageConsumerAllNews.receive(5000);
+         producer.send(topicNewsUsaWrestling, messageWrestlingNews);
+         producer.send(topicNewsEuropeEntertainment, messageEuropeEntertainment);
 
-      System.out.println("1 All received message: " + msg.getText() + ", dest: " + msg.getJMSDestination());
+         System.out.println("Usage " + server.getPagingManager().getGlobalSize());
 
-      msg = (TextMessage) messageConsumerAllNews.receive(5000);
+         TextMessage msg = (TextMessage) messageConsumerAllNews.receive(5000);
 
-      System.out.println("2 All received message: " + msg.getText() + ", dest: " + msg.getJMSDestination());
+         System.out.println("1 All received message: " + msg.getText() + ", dest: " + msg.getJMSDestination());
 
-      msg = (TextMessage) messageConsumerEuEnt.receive(5000);
+         msg = (TextMessage) messageConsumerAllNews.receive(5000);
 
-      System.out.println("3 EuEnt received message: " + msg.getText() + ", dest: " + msg.getJMSDestination());
+         System.out.println("2 All received message: " + msg.getText() + ", dest: " + msg.getJMSDestination());
 
-      TextMessage messageReceived1 = (TextMessage) messageConsumer.receive(5000);
+         msg = (TextMessage) messageConsumerEuEnt.receive(5000);
 
-      System.out.println("4 Received message: " + messageReceived1.getText() + ", dest: " + messageReceived1.getJMSDestination());
+         System.out.println("3 EuEnt received message: " + msg.getText() + ", dest: " + msg.getJMSDestination());
 
-      TextMessage messageReceived2 = (TextMessage) messageConsumer.receive(5000);
+         TextMessage messageReceived1 = (TextMessage) messageConsumer.receive(5000);
 
-      System.out.println("5 Received message: " + messageReceived2.getText() + ", dest: " + messageReceived2.getJMSDestination());
+         System.out.println("4 Received message: " + messageReceived1.getText() + ", dest: " + messageReceived1.getJMSDestination());
 
-      // verify messageConsumer gets messageEuropeEntertainment
-      msg = (TextMessage) messageConsumer.receive(5000);
+         TextMessage messageReceived2 = (TextMessage) messageConsumer.receive(5000);
 
-      System.out.println("6 Eu received message: " + msg.getText() + ", dest: " + msg.getJMSDestination());
+         System.out.println("5 Received message: " + messageReceived2.getText() + ", dest: " + messageReceived2.getJMSDestination());
 
-      assertEquals(topicNewsEuropeSport, messageReceived1.getJMSDestination());
-      assertEquals(topicNewsEuropeEntertainment, messageReceived2.getJMSDestination());
-      assertEquals(topicNewsEuropeEntertainment, msg.getJMSDestination());
+         // verify messageConsumer gets messageEuropeEntertainment
+         msg = (TextMessage) messageConsumer.receive(5000);
 
-      messageConsumer.close();
-      messageConsumerAllNews.close();
+         System.out.println("6 Eu received message: " + msg.getText() + ", dest: " + msg.getJMSDestination());
 
-      int countOfPageStores = server.getPagingManager().getStoreNames().length;
-      assertEquals("there should only be one", 1, countOfPageStores);
+         assertEquals(topicNewsEuropeSport, messageReceived1.getJMSDestination());
+         assertEquals(topicNewsEuropeEntertainment, messageReceived2.getJMSDestination());
+         assertEquals(topicNewsEuropeEntertainment, msg.getJMSDestination());
 
-      connection.close();
+         messageConsumer.close();
+         messageConsumerAllNews.close();
+
+         int countOfPageStores = server.getPagingManager().getStoreNames().length;
+         assertEquals("there should only be one", 1, countOfPageStores);
+
+         connection.close();
+
+         Assert.assertFalse(AssertionLoggerHandler.findText("222295"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
    }
 
    private void addSizeProp(TextMessage messageWrestlingNews) throws JMSException {
