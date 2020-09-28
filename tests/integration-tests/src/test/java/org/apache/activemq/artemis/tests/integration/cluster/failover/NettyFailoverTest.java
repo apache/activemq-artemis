@@ -116,10 +116,7 @@ public class NettyFailoverTest extends FailoverTest {
             executors.add(executor);
             final DatabaseStorageConfiguration dbConf = createDefaultDatabaseStorageConfiguration();
             final ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
-            return JdbcNodeManager.with(dbConf, scheduledExecutorService, executorFactory, (code, message, file) -> {
-               code.printStackTrace();
-               Assert.fail(message);
-            });
+            return JdbcNodeManager.with(dbConf, scheduledExecutorService, executorFactory);
          default:
             throw new AssertionError("enum type not supported!");
       }

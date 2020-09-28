@@ -20,13 +20,13 @@ package org.apache.activemq.artemis.core.server.impl.jdbc;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
+import org.apache.activemq.artemis.core.server.NodeManager.LockListener;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.jboss.logging.Logger;
 
 /**
- * Default implementation of a {@link ScheduledLeaseLock}: see {@link ScheduledLeaseLock#of(ScheduledExecutorService, ArtemisExecutor, String, LeaseLock, long, IOCriticalErrorListener)}.
+ * Default implementation of a {@link ScheduledLeaseLock}: see {@link ScheduledLeaseLock#of(ScheduledExecutorService, ArtemisExecutor, String, LeaseLock, long, LockListener)}.
  */
 final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implements ScheduledLeaseLock {
 
@@ -36,14 +36,14 @@ final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implem
    private final LeaseLock lock;
    private long lastLockRenewStart;
    private final long renewPeriodMillis;
-   private final IOCriticalErrorListener ioCriticalErrorListener;
+   private final LockListener lockListener;
 
    ActiveMQScheduledLeaseLock(ScheduledExecutorService scheduledExecutorService,
                               ArtemisExecutor executor,
                               String lockName,
                               LeaseLock lock,
                               long renewPeriodMillis,
-                              IOCriticalErrorListener ioCriticalErrorListener) {
+                              LockListener lockListener) {
       super(scheduledExecutorService, executor, 0, renewPeriodMillis, TimeUnit.MILLISECONDS, false);
       if (renewPeriodMillis >= lock.expirationMillis()) {
          throw new IllegalArgumentException("renewPeriodMillis must be < lock's expirationMillis");
@@ -51,9 +51,14 @@ final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implem
       this.lockName = lockName;
       this.lock = lock;
       this.renewPeriodMillis = renewPeriodMillis;
-      //already expired start time
+      // already expired start time
       this.lastLockRenewStart = System.nanoTime() - TimeUnit.MILLISECONDS.toNanos(lock.expirationMillis());
-      this.ioCriticalErrorListener = ioCriticalErrorListener;
+      this.lockListener = lockListener;
+   }
+
+   @Override
+   public String lockName() {
+      return lockName;
    }
 
    @Override
@@ -84,37 +89,55 @@ final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implem
    }
 
    @Override
-   public void run() {
+   public synchronized void run() {
+      if (!isStarted()) {
+         return;
+      }
       final long lastRenewStart = this.lastLockRenewStart;
       final long renewStart = System.nanoTime();
+      boolean lockLost = true;
       try {
-         if (!this.lock.renew()) {
-            ioCriticalErrorListener.onIOException(new IllegalStateException(lockName + " lock can't be renewed"), "Critical error while on " + lockName + " renew", null);
-         }
+         lockLost = !this.lock.renew();
       } catch (Throwable t) {
-         ioCriticalErrorListener.onIOException(t, "Critical error while on " + lockName + " renew", null);
-         throw t;
+         LOGGER.warnf(t, "%s lock renew has failed", lockName);
+         if (lock.localExpirationTime() > 0) {
+            final long millisBeforeExpiration = (lock.localExpirationTime() - System.currentTimeMillis());
+            // there is enough time to retry to renew it?
+            if (millisBeforeExpiration >= this.renewPeriodMillis) {
+               lockLost = false;
+            }
+         }
+      }
+      // a failed attempt to renew is treated as a lost lock
+      if (lockLost) {
+         try {
+            lockListener.lostLock();
+         } catch (Throwable t) {
+            LOGGER.warnf(t, "Errored while notifying %s lock listener", lockName);
+         }
       }
       //logic to detect slowness of DB and/or the scheduled executor service
-      detectAndReportRenewSlowness(lockName, lastRenewStart, renewStart, renewPeriodMillis, lock.expirationMillis());
+      detectAndReportRenewSlowness(lockName, lockLost, lastRenewStart,
+                                   renewStart, renewPeriodMillis, lock.expirationMillis());
       this.lastLockRenewStart = renewStart;
    }
 
    private static void detectAndReportRenewSlowness(String lockName,
+                                                    boolean lostLock,
                                                     long lastRenewStart,
                                                     long renewStart,
                                                     long expectedRenewPeriodMillis,
                                                     long expirationMillis) {
       final long elapsedMillisToRenew = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - renewStart);
       if (elapsedMillisToRenew > expectedRenewPeriodMillis) {
-         LOGGER.error(lockName + " lock renew tooks " + elapsedMillisToRenew + " ms, while is supposed to take <" + expectedRenewPeriodMillis + " ms");
+         LOGGER.errorf("%s lock %s renew tooks %d ms, while is supposed to take <%d ms", lockName, lostLock ? "failed" : "successful", elapsedMillisToRenew, expectedRenewPeriodMillis);
       }
       final long measuredRenewPeriodNanos = renewStart - lastRenewStart;
       final long measuredRenewPeriodMillis = TimeUnit.NANOSECONDS.toMillis(measuredRenewPeriodNanos);
       if (measuredRenewPeriodMillis - expirationMillis > 100) {
-         LOGGER.error(lockName + " lock renew period lasted " + measuredRenewPeriodMillis + " ms instead of " + expectedRenewPeriodMillis + " ms");
+         LOGGER.errorf("%s lock %s renew period lasted %d ms instead of %d ms", lockName, lostLock ? "failed" : "successful", measuredRenewPeriodMillis, expectedRenewPeriodMillis);
       } else if (measuredRenewPeriodMillis - expectedRenewPeriodMillis > 100) {
-         LOGGER.warn(lockName + " lock renew period lasted " + measuredRenewPeriodMillis + " ms instead of " + expectedRenewPeriodMillis + " ms");
+         LOGGER.warnf("%s lock %s renew period lasted %d ms instead of %d ms", lockName, lostLock ? "failed" : "successful", measuredRenewPeriodMillis, expectedRenewPeriodMillis);
       }
    }
 }

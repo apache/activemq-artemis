@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ColocatedActivation;
 import org.apache.activemq.artemis.core.server.impl.LiveActivation;
@@ -91,8 +92,8 @@ public class ColocatedPolicy implements HAPolicy<LiveActivation> {
    public LiveActivation createActivation(ActiveMQServerImpl server,
                                           boolean wasLive,
                                           Map<String, Object> activationParams,
-                                          ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception {
-      return new ColocatedActivation(server, this, livePolicy.createActivation(server, wasLive, activationParams, shutdownOnCriticalIO));
+                                          IOCriticalErrorListener ioCriticalErrorListener) throws Exception {
+      return new ColocatedActivation(server, this, livePolicy.createActivation(server, wasLive, activationParams, ioCriticalErrorListener));
    }
 
    @Override

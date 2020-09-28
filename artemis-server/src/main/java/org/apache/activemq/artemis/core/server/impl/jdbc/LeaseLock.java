@@ -41,6 +41,8 @@ interface LeaseLock extends AutoCloseable {
       boolean keepRunning();
    }
 
+   long localExpirationTime();
+
    interface Pauser {
 
       void idle();

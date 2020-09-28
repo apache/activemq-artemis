@@ -39,6 +39,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    private static final int MAX_SETUP_ATTEMPTS = 20;
    private final String holderId;
    private final long lockExpirationMillis;
+   private final long queryTimeoutMillis;
    private JdbcLeaseLock liveLock;
    private JdbcLeaseLock backupLock;
    private String readNodeId;
@@ -48,10 +49,19 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    private String writeState;
 
    public static JdbcSharedStateManager usingConnectionProvider(String holderId,
-                                                        long locksExpirationMillis,
-                                                        JDBCConnectionProvider connectionProvider,
-                                                        SQLProvider provider) {
-      final JdbcSharedStateManager sharedStateManager = new JdbcSharedStateManager(holderId, locksExpirationMillis);
+                                                                long locksExpirationMillis,
+                                                                JDBCConnectionProvider connectionProvider,
+                                                                SQLProvider provider) {
+      return usingConnectionProvider(holderId, locksExpirationMillis, -1, connectionProvider, provider);
+   }
+
+   public static JdbcSharedStateManager usingConnectionProvider(String holderId,
+                                                                long locksExpirationMillis,
+                                                                long queryTimeoutMillis,
+                                                                JDBCConnectionProvider connectionProvider,
+                                                                SQLProvider provider) {
+      final JdbcSharedStateManager sharedStateManager = new JdbcSharedStateManager(holderId, locksExpirationMillis,
+                                                                                   queryTimeoutMillis);
       sharedStateManager.setJdbcConnectionProvider(connectionProvider);
       sharedStateManager.setSqlProvider(provider);
       try {
@@ -76,20 +86,35 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
                                        JDBCConnectionProvider connectionProvider,
                                        SQLProvider sqlProvider,
                                        long expirationMillis) {
-      return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquireLiveLockSQL(), sqlProvider.tryReleaseLiveLockSQL(), sqlProvider.renewLiveLockSQL(), sqlProvider.isLiveLockedSQL(), sqlProvider.currentTimestampSQL(), expirationMillis, "LIVE");
+      return createLiveLock(holderId, connectionProvider, sqlProvider, expirationMillis, -1);
+   }
+
+   static JdbcLeaseLock createLiveLock(String holderId,
+                                       JDBCConnectionProvider connectionProvider,
+                                       SQLProvider sqlProvider,
+                                       long expirationMillis,
+                                       long queryTimeoutMillis) {
+      return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquireLiveLockSQL(),
+                               sqlProvider.tryReleaseLiveLockSQL(), sqlProvider.renewLiveLockSQL(),
+                               sqlProvider.isLiveLockedSQL(), sqlProvider.currentTimestampSQL(),
+                               expirationMillis, queryTimeoutMillis, "LIVE");
    }
 
    static JdbcLeaseLock createBackupLock(String holderId,
                                          JDBCConnectionProvider connectionProvider,
                                          SQLProvider sqlProvider,
-                                         long expirationMillis) {
-      return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquireBackupLockSQL(), sqlProvider.tryReleaseBackupLockSQL(), sqlProvider.renewBackupLockSQL(), sqlProvider.isBackupLockedSQL(), sqlProvider.currentTimestampSQL(), expirationMillis, "BACKUP");
+                                         long expirationMillis,
+                                         long queryTimeoutMillis) {
+      return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquireBackupLockSQL(),
+                               sqlProvider.tryReleaseBackupLockSQL(), sqlProvider.renewBackupLockSQL(),
+                               sqlProvider.isBackupLockedSQL(), sqlProvider.currentTimestampSQL(),
+                               expirationMillis, queryTimeoutMillis, "BACKUP");
    }
 
    @Override
    protected void prepareStatements() {
-      this.liveLock = createLiveLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis);
-      this.backupLock = createBackupLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis);
+      this.liveLock = createLiveLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis, queryTimeoutMillis);
+      this.backupLock = createBackupLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis, queryTimeoutMillis);
       this.readNodeId = sqlProvider.readNodeIdSQL();
       this.writeNodeId = sqlProvider.writeNodeIdSQL();
       this.initializeNodeId = sqlProvider.initializeNodeIdSQL();
@@ -97,9 +122,10 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       this.readState = sqlProvider.readStateSQL();
    }
 
-   private JdbcSharedStateManager(String holderId, long lockExpirationMillis) {
+   private JdbcSharedStateManager(String holderId, long lockExpirationMillis, long queryTimeoutMillis) {
       this.holderId = holderId;
       this.lockExpirationMillis = lockExpirationMillis;
+      this.queryTimeoutMillis = queryTimeoutMillis;
    }
 
    @Override

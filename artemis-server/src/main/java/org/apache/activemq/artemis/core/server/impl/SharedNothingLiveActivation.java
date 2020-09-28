@@ -317,7 +317,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
       SimpleString nodeId0;
       try {
          nodeId0 = activeMQServer.getNodeManager().readNodeId();
-      } catch (ActiveMQIllegalStateException e) {
+      } catch (NodeManager.NodeManagerException e) {
          nodeId0 = null;
       }
 

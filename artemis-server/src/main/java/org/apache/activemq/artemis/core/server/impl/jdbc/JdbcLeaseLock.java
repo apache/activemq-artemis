@@ -44,8 +44,10 @@ final class JdbcLeaseLock implements LeaseLock {
    private final String isLocked;
    private final String currentDateTime;
    private final long expirationMillis;
+   private final int queryTimeout;
    private boolean maybeAcquired;
    private final String lockName;
+   private long localExpirationTime;
 
    /**
     * The lock will be responsible (ie {@link #close()}) of all the {@link PreparedStatement}s used by it, but not of the {@link Connection},
@@ -59,6 +61,7 @@ final class JdbcLeaseLock implements LeaseLock {
                  String isLocked,
                  String currentDateTime,
                  long expirationMIllis,
+                 long queryTimeoutMillis,
                  String lockName) {
       if (holderId.length() > MAX_HOLDER_ID_LENGTH) {
          throw new IllegalArgumentException("holderId length must be <=" + MAX_HOLDER_ID_LENGTH);
@@ -73,10 +76,28 @@ final class JdbcLeaseLock implements LeaseLock {
       this.maybeAcquired = false;
       this.connectionProvider = connectionProvider;
       this.lockName = lockName;
+      this.localExpirationTime = -1;
+      int expectedTimeout = (int) (queryTimeoutMillis > 0 ? TimeUnit.MILLISECONDS.toSeconds(queryTimeoutMillis) : -1);
+      if (queryTimeoutMillis >= 0) {
+         LOGGER.warn("queryTimeoutMillis is too low: it's suggested to configure a multi-seconds value. Disabling it because too low.");
+         expectedTimeout = -1;
+      }
+      this.queryTimeout = expectedTimeout;
+
    }
 
    public String holderId() {
       return holderId;
+   }
+
+   /**
+    * Given that many DBMS won't support standard SQL queries to collect CURRENT_TIMESTAMP at milliseconds granularity,
+    * this value is stripped of the milliseconds part, making it less optimistic then the reality, if >= 0.<p>
+    * It's commonly used as an hard deadline for JDBC operations, hence is fine to not have a high precision.
+    */
+   @Override
+   public long localExpirationTime() {
+      return localExpirationTime;
    }
 
    @Override
@@ -115,17 +136,24 @@ final class JdbcLeaseLock implements LeaseLock {
    }
 
    private long dbCurrentTimeMillis(Connection connection) throws SQLException {
-      final long start = System.nanoTime();
       try (PreparedStatement currentDateTime = connection.prepareStatement(this.currentDateTime)) {
+         if (queryTimeout >= 0) {
+            currentDateTime.setQueryTimeout(queryTimeout);
+         }
+         final long startTime = stripMilliseconds(System.currentTimeMillis());
          try (ResultSet resultSet = currentDateTime.executeQuery()) {
             resultSet.next();
+            final long endTime = stripMilliseconds(System.currentTimeMillis());
             final Timestamp currentTimestamp = resultSet.getTimestamp(1);
-            final long elapsedTime = System.nanoTime() - start;
-            if (LOGGER.isDebugEnabled()) {
-               LOGGER.debugf("[%s] %s query currentTimestamp = %s tooks %d ms",
-                       lockName, holderId, currentTimestamp, TimeUnit.NANOSECONDS.toMillis(elapsedTime));
+            final long currentTime = currentTimestamp.getTime();
+            final long currentTimeMillis = stripMilliseconds(currentTime);
+            if (currentTimeMillis < startTime) {
+               LOGGER.warnf("[%s] %s query currentTimestamp = %s on database should happen AFTER %s on broker", lockName, holderId, currentTimestamp, new Timestamp(startTime));
             }
-            return currentTimestamp.getTime();
+            if (currentTimeMillis > endTime) {
+               LOGGER.warnf("[%s] %s query currentTimestamp = %s on database should happen BEFORE %s on broker", lockName, holderId, currentTimestamp, new Timestamp(endTime));
+            }
+            return currentTime;
          }
       }
    }
@@ -138,7 +166,8 @@ final class JdbcLeaseLock implements LeaseLock {
          connection.setAutoCommit(false);
          try (PreparedStatement preparedStatement = connection.prepareStatement(this.renewLock)) {
             final long now = dbCurrentTimeMillis(connection);
-            final Timestamp expirationTime = new Timestamp(now + expirationMillis);
+            final long localExpirationTime = now + expirationMillis;
+            final Timestamp expirationTime = new Timestamp(localExpirationTime);
             if (LOGGER.isDebugEnabled()) {
                LOGGER.debugf("[%s] %s is renewing lock with expirationTime = %s",
                              lockName, holderId, expirationTime);
@@ -151,11 +180,13 @@ final class JdbcLeaseLock implements LeaseLock {
             final boolean renewed = updatedRows == 1;
             connection.commit();
             if (!renewed) {
+               this.localExpirationTime = -1;
                if (LOGGER.isDebugEnabled()) {
                   LOGGER.debugf("[%s] %s has failed to renew lock: lock status = { %s }",
                                 lockName, holderId, readableLockStatus());
                }
             } else {
+               this.localExpirationTime = stripMilliseconds(localExpirationTime);
                LOGGER.debugf("[%s] %s has renewed lock", lockName, holderId);
             }
             return renewed;
@@ -170,6 +201,10 @@ final class JdbcLeaseLock implements LeaseLock {
       }
    }
 
+   private static long stripMilliseconds(long time) {
+      return (time / 1000) * 1000;
+   }
+
    @Override
    public boolean tryAcquire() {
       try (Connection connection = connectionProvider.getConnection()) {
@@ -179,7 +214,8 @@ final class JdbcLeaseLock implements LeaseLock {
          try (PreparedStatement preparedStatement = connection.prepareStatement(this.tryAcquireLock)) {
             final long now = dbCurrentTimeMillis(connection);
             preparedStatement.setString(1, holderId);
-            final Timestamp expirationTime = new Timestamp(now + expirationMillis);
+            final long localExpirationTime = now + expirationMillis;
+            final Timestamp expirationTime = new Timestamp(localExpirationTime);
             preparedStatement.setTimestamp(2, expirationTime);
             preparedStatement.setTimestamp(3, expirationTime);
             LOGGER.debugf("[%s] %s is trying to acquire lock with expirationTime %s",
@@ -188,6 +224,7 @@ final class JdbcLeaseLock implements LeaseLock {
             connection.commit();
             if (acquired) {
                this.maybeAcquired = true;
+               this.localExpirationTime = stripMilliseconds(localExpirationTime);
                LOGGER.debugf("[%s] %s has acquired lock", lockName, holderId);
             } else {
                if (LOGGER.isDebugEnabled()) {
@@ -272,6 +309,7 @@ final class JdbcLeaseLock implements LeaseLock {
             preparedStatement.setString(1, holderId);
             final boolean released = preparedStatement.executeUpdate() == 1;
             //consider it as released to avoid on finalize to be reclaimed
+            this.localExpirationTime = -1;
             this.maybeAcquired = false;
             connection.commit();
             if (!released) {
