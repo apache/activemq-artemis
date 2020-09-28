@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.cluster.ha;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.LiveActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
@@ -91,8 +92,8 @@ public class SharedStoreMasterPolicy implements HAPolicy<LiveActivation> {
    public LiveActivation createActivation(ActiveMQServerImpl server,
                                           boolean wasLive,
                                           Map<String, Object> activationParams,
-                                          ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) {
-      return new SharedStoreLiveActivation(server, this);
+                                          IOCriticalErrorListener ioCriticalErrorListener) {
+      return new SharedStoreLiveActivation(server, this, ioCriticalErrorListener);
    }
 
    @Override

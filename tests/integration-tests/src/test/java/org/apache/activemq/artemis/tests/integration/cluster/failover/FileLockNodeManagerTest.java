@@ -147,10 +147,7 @@ public class FileLockNodeManagerTest extends FailoverTestBase {
             executors.add(executor);
             final DatabaseStorageConfiguration dbConf = createDefaultDatabaseStorageConfiguration();
             final ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
-            return JdbcNodeManager.with(dbConf, scheduledExecutorService, executorFactory, (code, message, file) -> {
-               code.printStackTrace();
-               Assert.fail(message);
-            });
+            return JdbcNodeManager.with(dbConf, scheduledExecutorService, executorFactory);
          case File:
             final Configuration config = createDefaultInVMConfig();
             if (useSeparateLockFolder) {

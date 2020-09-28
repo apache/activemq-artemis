@@ -509,6 +509,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorStoppingReplication(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222015, value = "Error restarting server: stopping forever", format = Message.Format.MESSAGE_FORMAT)
+   void errorRestartingServer(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222016, value = "Cannot deploy a connector with no name specified.", format = Message.Format.MESSAGE_FORMAT)
    void connectorWithNoName();
 

@@ -105,6 +105,9 @@ public interface Configuration {
 
    Configuration setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy policy);
 
+   Configuration setRestartAllowed(boolean value);
+
+   boolean isRestartAllowed();
 
    /**
     * Returns whether this server is clustered. <br>

@@ -100,7 +100,7 @@ public class CriticalCrashTest extends SpawnedTestBase {
          @Override
          protected StorageManager createStorageManager() {
 
-            JournalStorageManager storageManager = new JournalStorageManager(conf, getCriticalAnalyzer(), executorFactory, scheduledPool, ioExecutorFactory, shutdownOnCriticalIO) {
+            JournalStorageManager storageManager = new JournalStorageManager(conf, getCriticalAnalyzer(), executorFactory, scheduledPool, ioExecutorFactory, ioCriticalErrorListener) {
                @Override
                public void readLock() {
                   super.readLock();

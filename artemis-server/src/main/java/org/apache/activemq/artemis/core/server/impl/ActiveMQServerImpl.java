@@ -25,6 +25,7 @@ import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -329,7 +330,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final Map<String, Object> activationParams = new HashMap<>();
 
-   protected final ShutdownOnCriticalErrorListener shutdownOnCriticalIO = new ShutdownOnCriticalErrorListener();
+   protected IOCriticalErrorListener ioCriticalErrorListener;
 
    private final ActiveMQServer parentServer;
 
@@ -522,7 +523,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                throw new IllegalArgumentException("replicatingBackup is not supported yet while using JDBC persistence");
             }
             final DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
-            manager = JdbcNodeManager.with(dbConf, scheduledPool, executorFactory, shutdownOnCriticalIO);
+            manager = JdbcNodeManager.with(dbConf, scheduledPool, executorFactory);
          } else if (haType == null || haType == HAPolicyConfiguration.TYPE.LIVE_ONLY) {
             if (logger.isDebugEnabled()) {
                logger.debug("Detected no Shared Store HA options on JDBC store");
@@ -597,6 +598,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       OperationContextImpl.clearContext();
 
       try {
+         ioCriticalErrorListener = new DefaultCriticalErrorListener(configuration.isRestartAllowed());
+
          checkJournalDirectory();
 
          // this would create the connection provider while setting the JDBC global network timeout
@@ -610,7 +613,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          final boolean wasLive = !haPolicy.isBackup();
          if (!haPolicy.isBackup()) {
-            activation = haPolicy.createActivation(this, false, activationParams, shutdownOnCriticalIO);
+            activation = haPolicy.createActivation(this, false, activationParams, ioCriticalErrorListener);
 
             if (afterActivationCreated != null) {
                try {
@@ -636,9 +639,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          // checking again here
          if (haPolicy.isBackup()) {
             if (haPolicy.isSharedStore()) {
-               activation = haPolicy.createActivation(this, false, activationParams, shutdownOnCriticalIO);
+               activation = haPolicy.createActivation(this, false, activationParams, ioCriticalErrorListener);
             } else {
-               activation = haPolicy.createActivation(this, wasLive, activationParams, shutdownOnCriticalIO);
+               activation = haPolicy.createActivation(this, wasLive, activationParams, ioCriticalErrorListener);
             }
 
             if (afterActivationCreated != null) {
@@ -906,6 +909,44 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       thread.start();
    }
 
+   /**
+    * Restart the server in a different thread.
+    */
+   private void restartTheServer() {
+      Thread thread = new Thread() {
+         @Override
+         public void run() {
+            final Duration lingerTimeBeforeRestart = getNodeManager().lingerTimeBeforeRestart();
+            try {
+               // trying to communicate failover, if needed
+               ActiveMQServerImpl.this.stop(true, true, false, false, false);
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorStoppingServer(e);
+            }
+            logger.infof("Lingering for %s ms before starting.", lingerTimeBeforeRestart.toMillis());
+            try {
+               TimeUnit.NANOSECONDS.sleep(lingerTimeBeforeRestart.toNanos());
+            } catch (InterruptedException e) {
+               logger.warn("Interrupted before restarting server", e);
+            }
+            try {
+               // this would force the server to read it from the config again: useful in case of SharedStore backup
+               ActiveMQServerImpl.this.setHAPolicy(null);
+               ActiveMQServerImpl.this.start();
+            } catch (Throwable t) {
+               ActiveMQServerLogger.LOGGER.errorRestartingServer(t);
+               try {
+                  ActiveMQServerImpl.this.stop(false, true, false);
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.errorStoppingServer(e);
+               }
+            }
+         }
+      };
+
+      thread.start();
+   }
+
    @Override
    public void stop() throws Exception {
       stop(true);
@@ -1094,12 +1135,23 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.stop(failoverOnServerShutdown, criticalIOError, restarting, false);
    }
 
+   private void stop(boolean failoverOnServerShutdown,
+                     final boolean criticalIOError,
+                     boolean restarting,
+                     boolean isShutdown) {
+      stop(failoverOnServerShutdown, criticalIOError, isShutdown || criticalIOError, restarting, isShutdown);
+   }
+
    /**
     * Stops the server
     *
     * @param criticalIOError whether we have encountered an IO error with the journal etc
     */
-   void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting, boolean isShutdown) {
+   private void stop(boolean failoverOnServerShutdown,
+                     final boolean criticalIOError,
+                     boolean shutdownExternalComponents,
+                     boolean restarting,
+                     boolean isShutdown) {
 
       if (logger.isDebugEnabled()) {
          logger.debug("Stopping server " + this);
@@ -1321,7 +1373,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       connectedClientIds.clear();
 
-      stopExternalComponents(isShutdown || criticalIOError);
+      stopExternalComponents(shutdownExternalComponents);
 
       try {
          this.analyzer.clear();
@@ -2771,9 +2823,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    protected PagingStoreFactory getPagingStoreFactory() throws Exception {
       if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
          DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
-         return new PagingStoreFactoryDatabase(dbConf, storageManager, configuration.getPageSyncTimeout(), scheduledPool, ioExecutorFactory, false, shutdownOnCriticalIO, configuration.isReadWholePage());
+         return new PagingStoreFactoryDatabase(dbConf, storageManager, configuration.getPageSyncTimeout(), scheduledPool, ioExecutorFactory, false, ioCriticalErrorListener, configuration.isReadWholePage());
       }
-      return new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), configuration.getPageSyncTimeout(), scheduledPool, ioExecutorFactory, configuration.isJournalSyncNonTransactional(), shutdownOnCriticalIO, configuration.isReadWholePage());
+      return new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), configuration.getPageSyncTimeout(), scheduledPool, ioExecutorFactory, configuration.isJournalSyncNonTransactional(), ioCriticalErrorListener, configuration.isReadWholePage());
    }
 
    /**
@@ -2782,12 +2834,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    protected StorageManager createStorageManager() {
       if (configuration.isPersistenceEnabled()) {
          if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
-            JDBCJournalStorageManager journal = new JDBCJournalStorageManager(configuration, getCriticalAnalyzer(), getScheduledPool(), executorFactory, ioExecutorFactory, shutdownOnCriticalIO);
+            JDBCJournalStorageManager journal = new JDBCJournalStorageManager(configuration, getCriticalAnalyzer(), getScheduledPool(), executorFactory, ioExecutorFactory, ioCriticalErrorListener);
             this.getCriticalAnalyzer().add(journal);
             return journal;
          } else {
             // Default to File Based Storage Manager, (Legacy default configuration).
-            JournalStorageManager journal = new JournalStorageManager(configuration, getCriticalAnalyzer(), executorFactory, scheduledPool, ioExecutorFactory, shutdownOnCriticalIO);
+            JournalStorageManager journal = new JournalStorageManager(configuration, getCriticalAnalyzer(), executorFactory, scheduledPool, ioExecutorFactory, ioCriticalErrorListener);
             this.getCriticalAnalyzer().add(journal);
             return journal;
          }
@@ -3109,7 +3161,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (configuration.getMaxDiskUsage() != -1) {
          try {
-            injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f, shutdownOnCriticalIO));
+            injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f, ioCriticalErrorListener));
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.unableToInjectMonitor(e);
          }
@@ -3905,22 +3957,31 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    // Inner classes
    // --------------------------------------------------------------------------------
 
-   public final class ShutdownOnCriticalErrorListener implements IOCriticalErrorListener {
+   public final class DefaultCriticalErrorListener implements IOCriticalErrorListener {
 
-      boolean failedAlready = false;
+      private final AtomicBoolean failedAlready = new AtomicBoolean();
+      private final boolean restart;
+
+      public DefaultCriticalErrorListener(boolean restart) {
+         this.restart = restart;
+      }
 
       @Override
       public synchronized void onIOException(Throwable cause, String message, SequentialFile file) {
-         if (!failedAlready) {
-            failedAlready = true;
+         if (!failedAlready.compareAndSet(false, true)) {
+            return;
+         }
 
-            if (file == null) {
-               ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, "NULL", cause);
-            } else {
-               ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, file.toString(), cause);
-            }
+         if (file == null) {
+            ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, "NULL", cause);
+         } else {
+            ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, file.toString(), cause);
+         }
 
+         if (!restart) {
             stopTheServer(true);
+         } else {
+            restartTheServer();
          }
       }
    }

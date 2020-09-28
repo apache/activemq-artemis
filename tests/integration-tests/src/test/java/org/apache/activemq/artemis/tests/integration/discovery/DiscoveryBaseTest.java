@@ -175,38 +175,38 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
    protected final class FakeNodeManager extends NodeManager {
 
       public FakeNodeManager(String nodeID) {
-         super(false, null);
+         super(false);
          this.setNodeID(nodeID);
       }
 
       @Override
-      public void awaitLiveNode() throws Exception {
+      public void awaitLiveNode() {
       }
 
       @Override
-      public void awaitLiveStatus() throws Exception {
+      public void awaitLiveStatus() {
       }
 
       @Override
-      public void startBackup() throws Exception {
+      public void startBackup() {
       }
 
       @Override
-      public ActivateCallback startLiveNode() throws Exception {
+      public ActivateCallback startLiveNode() {
          return new CleaningActivateCallback() {
          };
       }
 
       @Override
-      public void pauseLiveServer() throws Exception {
+      public void pauseLiveServer() {
       }
 
       @Override
-      public void crashLiveServer() throws Exception {
+      public void crashLiveServer() {
       }
 
       @Override
-      public void releaseBackup() throws Exception {
+      public void releaseBackup() {
       }
 
       @Override
@@ -215,12 +215,12 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean isAwaitingFailback() throws Exception {
+      public boolean isAwaitingFailback() {
          return false;
       }
 
       @Override
-      public boolean isBackupLive() throws Exception {
+      public boolean isBackupLive() {
          return false;
       }
 

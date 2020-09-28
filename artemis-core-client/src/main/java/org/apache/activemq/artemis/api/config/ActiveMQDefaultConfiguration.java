@@ -495,6 +495,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final int DEFAULT_MAX_DISK_USAGE;
 
+   public static final boolean DEFAULT_RESTART_ALLOWED = false;
+
    static {
       int maxDisk;
       try {
@@ -777,6 +779,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static Boolean isDefaultMaskPassword() {
       return DEFAULT_MASK_PASSWORD;
+   }
+
+   /**
+    * This option controls whether the server is allowed to restart itself in case of I/O failures.
+    */
+   public static boolean isDefaultRestartAllowed() {
+      return DEFAULT_RESTART_ALLOWED;
    }
 
    /**

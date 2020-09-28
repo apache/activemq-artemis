@@ -75,6 +75,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="restart-allowed" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  that means the server can restart itself in case of I/O critical errors.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="journal-datasync" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

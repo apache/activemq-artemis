@@ -346,6 +346,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private CriticalAnalyzerPolicy criticalAnalyzerPolicy = ActiveMQDefaultConfiguration.getCriticalAnalyzerPolicy();
 
+   private boolean restartAllowed = ActiveMQDefaultConfiguration.isDefaultRestartAllowed();
+
    private long criticalAnalyzerTimeout = ActiveMQDefaultConfiguration.getCriticalAnalyzerTimeout();
 
    private long criticalAnalyzerCheckPeriod = 0; // non set
@@ -2452,6 +2454,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public Configuration setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy policy) {
       this.criticalAnalyzerPolicy = policy;
+      return this;
+   }
+
+   @Override
+   public boolean isRestartAllowed() {
+      return restartAllowed;
+   }
+
+   @Override
+   public Configuration setRestartAllowed(boolean value) {
+      restartAllowed = value;
       return this;
    }
 

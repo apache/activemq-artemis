@@ -630,6 +630,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
+      config.setRestartAllowed(getBoolean(e, "restart-allowed", config.isRestartAllowed()));
+
       config.setJournalDatasync(getBoolean(e, "journal-datasync", config.isJournalDatasync()));
 
       config.setJournalSyncTransactional(getBoolean(e, "journal-sync-transactional", config.isJournalSyncTransactional()));

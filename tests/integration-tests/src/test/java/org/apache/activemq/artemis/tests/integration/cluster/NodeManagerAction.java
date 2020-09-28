@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster;
 
-import java.io.File;
+import java.util.Arrays;
 
 import org.apache.activemq.artemis.core.server.NodeManager;
-import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
+import org.apache.activemq.artemis.utils.UUID;
 
 public class NodeManagerAction {
 
@@ -35,6 +35,7 @@ public class NodeManagerAction {
    public static final int HAS_BACKUP = 11;
    public static final int DOESNT_HAVE_LIVE = 12;
    public static final int DOESNT_HAVE_BACKUP = 13;
+   public static final int CHECK_ID = 14;
 
    private final int[] work;
 
@@ -82,7 +83,6 @@ public class NodeManagerAction {
                }
                break;
             case HAS_BACKUP:
-
                if (!hasBackupLock) {
                   throw new IllegalStateException("backup lock not held");
                }
@@ -93,37 +93,50 @@ public class NodeManagerAction {
                }
                break;
             case DOESNT_HAVE_BACKUP:
-
                if (hasBackupLock) {
                   throw new IllegalStateException("backup lock held");
+               }
+               break;
+            case CHECK_ID:
+               nodeManager.start();
+               UUID id1 = nodeManager.getUUID();
+               nodeManager.stop();
+               nodeManager.start();
+               if (!Arrays.equals(id1.asBytes(), nodeManager.getUUID().asBytes())) {
+                  throw new IllegalStateException("getUUID should be the same on restart");
                }
                break;
          }
       }
    }
 
-   public String[] getWork() {
-      String[] strings = new String[work.length];
-      for (int i = 0, stringsLength = strings.length; i < stringsLength; i++) {
-         strings[i] = "" + work[i];
-      }
-      return strings;
+   public int works() {
+      return work.length;
    }
 
-   public static void main(String[] args) throws Exception {
+   public int getWork(String[] works, int start) {
+      final int workLength = work.length;
+      for (int i = 0; i < workLength; i++) {
+         works[i + start] = Integer.toString(work[i]);
+      }
+      return workLength;
+   }
+
+   public static void execute(String[] args, NodeManager nodeManager) throws Exception {
       int[] work1 = new int[args.length];
       for (int i = 0; i < args.length; i++) {
          work1[i] = Integer.parseInt(args[i]);
 
       }
       NodeManagerAction nodeManagerAction = new NodeManagerAction(work1);
-      FileLockNodeManager nodeManager = new FileLockNodeManager(new File("."), false);
       nodeManager.start();
       try {
          nodeManagerAction.performWork(nodeManager);
       } catch (Exception e) {
          e.printStackTrace();
          System.exit(9);
+      } finally {
+         nodeManager.stop();
       }
    }
 
