@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -105,17 +104,9 @@ public class JdbcNodeManagerTest extends ActiveMQTestBase {
 
    @Test
    public void shouldStartAndStopGracefullyTest() throws Exception {
-      final AtomicReference<String> criticalError = new AtomicReference<>();
-      final JdbcNodeManager nodeManager = JdbcNodeManager.with(dbConf, leaseLockExecutor, null, (code, message, file) -> criticalError.lazySet(message));
-      try {
-         nodeManager.start();
-      } finally {
-         nodeManager.stop();
-         final String error = criticalError.get();
-         if (error != null) {
-            Assert.fail(error);
-         }
-      }
+      final JdbcNodeManager nodeManager = JdbcNodeManager.with(dbConf, leaseLockExecutor, null);
+      nodeManager.start();
+      nodeManager.stop();
    }
 
 }

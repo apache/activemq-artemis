@@ -522,6 +522,7 @@ public abstract class ActiveMQTestBase extends Assert {
       dbStorageConfiguration.setJdbcLockAcquisitionTimeoutMillis(getJdbcLockAcquisitionTimeoutMillis());
       dbStorageConfiguration.setJdbcLockExpirationMillis(getJdbcLockExpirationMillis());
       dbStorageConfiguration.setJdbcLockRenewPeriodMillis(getJdbcLockRenewPeriodMillis());
+      dbStorageConfiguration.setJdbcNetworkTimeout(-1);
       return dbStorageConfiguration;
    }
 
@@ -530,11 +531,11 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected long getJdbcLockExpirationMillis() {
-      return Long.getLong("jdbc.lock.expiration", ActiveMQDefaultConfiguration.getDefaultJdbcLockExpirationMillis());
+      return Long.getLong("jdbc.lock.expiration", 4_000);
    }
 
    protected long getJdbcLockRenewPeriodMillis() {
-      return Long.getLong("jdbc.lock.renew", ActiveMQDefaultConfiguration.getDefaultJdbcLockRenewPeriodMillis());
+      return Long.getLong("jdbc.lock.renew", 200);
    }
 
    public void destroyTables(List<String> tableNames) throws Exception {

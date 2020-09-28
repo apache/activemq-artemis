@@ -17,14 +17,10 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
-import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.FAILING_BACK;
@@ -39,7 +35,7 @@ import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State
  * multiple servers are run inside the same VM and File Locks can not be shared in the
  * same VM (it would cause a shared lock violation).
  */
-public final class InVMNodeManager extends NodeManager {
+public final class InVMNodeManager extends FileBasedNodeManager {
 
    private final Semaphore liveLock;
 
@@ -67,7 +63,7 @@ public final class InVMNodeManager extends NodeManager {
    }
 
    @Override
-   public void awaitLiveNode() throws Exception {
+   public void awaitLiveNode() throws InterruptedException {
       do {
          while (state == NOT_STARTED) {
             Thread.sleep(10);
@@ -92,51 +88,47 @@ public final class InVMNodeManager extends NodeManager {
    }
 
    @Override
-   public void awaitLiveStatus() throws Exception {
+   public void awaitLiveStatus() throws InterruptedException {
       while (state != LIVE) {
          Thread.sleep(10);
       }
    }
 
    @Override
-   public void startBackup() throws Exception {
+   public void startBackup() throws InterruptedException {
       backupLock.acquire();
    }
 
    @Override
-   public ActivateCallback startLiveNode() throws Exception {
+   public ActivateCallback startLiveNode() throws InterruptedException {
       state = FAILING_BACK;
       liveLock.acquire();
       return new CleaningActivateCallback() {
          @Override
          public void activationComplete() {
-            try {
-               state = LIVE;
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-            }
+            state = LIVE;
          }
       };
    }
 
    @Override
-   public void pauseLiveServer() throws Exception {
+   public void pauseLiveServer() {
       state = PAUSED;
       liveLock.release();
    }
 
    @Override
-   public void crashLiveServer() throws Exception {
+   public void crashLiveServer() {
       liveLock.release();
    }
 
    @Override
-   public boolean isAwaitingFailback() throws Exception {
+   public boolean isAwaitingFailback() {
       return state == FAILING_BACK;
    }
 
    @Override
-   public boolean isBackupLive() throws Exception {
+   public boolean isBackupLive() {
       return liveLock.availablePermits() == 0;
    }
 
@@ -151,7 +143,7 @@ public final class InVMNodeManager extends NodeManager {
    }
 
    @Override
-   public SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException {
+   public SimpleString readNodeId() {
       return getNodeId();
    }
 }
