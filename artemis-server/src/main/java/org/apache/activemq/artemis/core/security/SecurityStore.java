@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.security;
 
+import javax.security.auth.Subject;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
@@ -34,4 +35,6 @@ public interface SecurityStore {
    void setSecurityEnabled(boolean securityEnabled);
 
    void stop();
+
+   Subject getSessionSubject(SecurityAuth session);
 }
