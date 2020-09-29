@@ -43,6 +43,7 @@ under the License.
          <modules>
             <module>auto-closeable</module>
             <module>browser</module>
+            <module>broker-msg-auth-plugin</module>
             <module>broker-plugin</module>
             <module>camel</module>
             <module>cdi</module>

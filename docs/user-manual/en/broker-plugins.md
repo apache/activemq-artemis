@@ -126,3 +126,26 @@ In the example below both `SEND_CONNECTION_NOTIFICATIONS` and
 </broker-plugins>
 ```
 
+## Using the BrokerMessageAuthorizationPlugin
+
+The `BrokerMessageAuthorizationPlugin` filters messages sent to consumers based on if they have a role that matches the value specified in a message property.
+
+You can select which property will be used to specify the required role for consuming a message by setting the following configuration.
+
+Property|Property Description|Default Value
+---|---|---
+`ROLE_PROPERTY`|Property name used to determine the role required to consume a message.|`requiredRole`.
+
+
+If the message does not have a property matching the configured `ROLE_PROPERTY` then the message will be sent to any consumer.
+
+To configure the plugin, you can add the following configuration to the broker.
+In the example below `ROLE_PROPERTY` is set to `permissions` when that property is present messages will only be sent to consumers with a role matching its value.
+
+```xml
+<broker-plugins>
+   <broker-plugin class-name="org.apache.activemq.artemis.core.server.plugin.impl.BrokerMessageAuthorizationPlugin">
+      <property key="ROLE_PROPERTY" value="permissions" />
+   </broker-plugin>
+</broker-plugins>
+```

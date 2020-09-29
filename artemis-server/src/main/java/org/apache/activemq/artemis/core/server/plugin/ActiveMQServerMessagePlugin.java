@@ -165,6 +165,17 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     * @param reference message reference
     * @throws ActiveMQException
     */
+   default boolean canAccept(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
+      return true;
+   }
+
+   /**
+    * Before a message is delivered to a client consumer
+    *
+    * @param consumer the consumer the message will be delivered to
+    * @param reference message reference
+    * @throws ActiveMQException
+    */
    default void beforeDeliver(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
       //by default call the old method for backwards compatibility
       this.beforeDeliver(reference);

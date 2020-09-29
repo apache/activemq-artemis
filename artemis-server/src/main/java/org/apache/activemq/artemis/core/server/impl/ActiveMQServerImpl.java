@@ -131,6 +131,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.LoggingConfigurationFileReloader;
 import org.apache.activemq.artemis.core.server.MemoryManager;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.PostQueueCreationCallback;
@@ -139,6 +140,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
@@ -2557,6 +2559,27 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public void callBrokerMessagePlugins(final ActiveMQPluginRunnable<ActiveMQServerMessagePlugin> pluginRun) throws ActiveMQException {
       callBrokerPlugins(getBrokerMessagePlugins(), pluginRun);
+   }
+
+   @Override
+   public boolean callBrokerMessagePluginsCanAccept(ServerConsumer serverConsumer, MessageReference messageReference) throws ActiveMQException {
+      for (ActiveMQServerMessagePlugin plugin : getBrokerMessagePlugins()) {
+         try {
+            //if ANY plugin returned false the message will not be accepted for that consumer
+            if (!plugin.canAccept(serverConsumer, messageReference)) {
+               return false;
+            }
+         } catch (Throwable e) {
+            if (e instanceof ActiveMQException) {
+               logger.debug("plugin " + plugin + " is throwing ActiveMQException");
+               throw (ActiveMQException) e;
+            } else {
+               logger.warn("Internal error on plugin " + plugin, e.getMessage(), e);
+            }
+         }
+      }
+      //if ALL plugins have returned true consumer can accept message
+      return true;
    }
 
    @Override

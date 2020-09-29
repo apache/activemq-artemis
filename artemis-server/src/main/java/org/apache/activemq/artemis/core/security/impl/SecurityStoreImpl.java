@@ -350,6 +350,22 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    }
 
    /**
+    * Get the cached Subject. If the Subject is not in the cache then authenticate again to retrieve
+    * it.
+    *
+    * @param session contains the authentication data
+    * @return the authenticated Subject with all associated role principals or null if not
+    * authenticated or JAAS is not supported by the SecurityManager.
+    */
+   @Override
+   public Subject getSessionSubject(SecurityAuth session) {
+      if (securityManager instanceof ActiveMQSecurityManager5) {
+         return getSubjectForAuthorization(session, (ActiveMQSecurityManager5) securityManager);
+      }
+      return null;
+   }
+
+   /**
     * Get the cached Subject. If the Subject is not in the cache then authenticate again to retrieve it.
     *
     * @param auth contains the authentication data
