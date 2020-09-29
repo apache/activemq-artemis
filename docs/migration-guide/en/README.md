@@ -1,4 +1,4 @@
-![ActiveMQ Artemis logo](images/artemis-logo.png)
+![ActiveMQ Artemis logo](images/activemq-logo.png)
 
 Apache ActiveMQ Artemis Migration Guide
 =======================================
