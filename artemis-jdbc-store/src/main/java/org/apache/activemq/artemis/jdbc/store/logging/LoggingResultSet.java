@@ -824,14 +824,14 @@ public class LoggingResultSet implements ResultSet {
    @Override
    public Blob getBlob(int columnIndex) throws SQLException {
       Blob x = resultSet.getBlob(columnIndex);
-      logger.logf(level, "%s.getBlob(%s) = %s (length: %d)", resultSetID, columnIndex, x, x.length());
+      logger.logf(level, "%s.getBlob(%s) = %s (length: %d)", resultSetID, columnIndex, x, x == null ? null : x.length());
       return x;
    }
 
    @Override
    public Clob getClob(int columnIndex) throws SQLException {
       Clob x = resultSet.getClob(columnIndex);
-      logger.logf(level, "%s.getClob(%s) = %s (length: %d)", resultSetID, columnIndex, x, x.length());
+      logger.logf(level, "%s.getClob(%s) = %s (length: %d)", resultSetID, columnIndex, x, x == null ? null : x.length());
       return x;
    }
 
@@ -859,14 +859,14 @@ public class LoggingResultSet implements ResultSet {
    @Override
    public Blob getBlob(String columnLabel) throws SQLException {
       Blob x = resultSet.getBlob(columnLabel);
-      logger.logf(level, "%s.getBlob(%s) = %s (length: %d)", resultSetID, columnLabel, x, x.length());
+      logger.logf(level, "%s.getBlob(%s) = %s (length: %d)", resultSetID, columnLabel, x, x == null ? null : x.length());
       return x;
    }
 
    @Override
    public Clob getClob(String columnLabel) throws SQLException {
       Clob x = resultSet.getClob(columnLabel);
-      logger.logf(level, "%s.getClob(%s) = %s (length: %d)", resultSetID, columnLabel, x, x.length());
+      logger.logf(level, "%s.getClob(%s) = %s (length: %d)", resultSetID, columnLabel, x, x == null ? null : x.length());
       return x;
    }
 
