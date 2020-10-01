@@ -77,6 +77,40 @@ public class LVQTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testSimpleRestart() throws Exception {
+      ClientProducer producer = clientSession.createProducer(address);
+      ClientMessage m1 = createTextMessage(clientSession, "m1");
+      SimpleString rh = new SimpleString("SMID1");
+      m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+      producer.send(m1);
+      ClientMessage m2 = createTextMessage(clientSession, "m2");
+      m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+      producer.send(m2);
+      assertEquals(1, server.locateQueue(qName1).getMessageCount());
+      clientSession.close();
+
+      server.stop();
+      server.start();
+
+      assertEquals(1, server.locateQueue(qName1).getMessageCount());
+      ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
+      ClientSessionFactory sf = createSessionFactory(locator);
+      clientSession = addClientSession(sf.createSession(false, true, true));
+      producer = clientSession.createProducer(address);
+      ClientMessage m3 = createTextMessage(clientSession, "m3");
+      m3.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+      producer.send(m3);
+      assertEquals(1, server.locateQueue(qName1).getMessageCount());
+
+      ClientConsumer consumer = clientSession.createConsumer(qName1);
+      clientSession.start();
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals("m3", m.getBodyBuffer().readString());
+   }
+
+   @Test
    public void testMultipleMessages() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
