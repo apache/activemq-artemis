@@ -17,14 +17,14 @@ Go to `$ARTEMIS_HOME` where you prepared the binary with Docker files.
 
 From within the `$ARTEMIS_HOME` folder:
 ```
-$ docker build -f ./docker/Dockerfile-debian -t artemis-debian .
+$ docker build -f ./artemis-docker/Dockerfile-debian -t artemis-debian .
 ```
 
 ## For CentOS
 
 From within the `$ARTEMIS_HOME` folder:
 ```
-$ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
+$ docker build -f ./artemis-docker/Dockerfile-centos -t artemis-centos .
 ```
 
 **Note:**
