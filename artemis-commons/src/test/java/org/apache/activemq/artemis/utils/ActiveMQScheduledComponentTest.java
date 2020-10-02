@@ -79,6 +79,22 @@ public class ActiveMQScheduledComponentTest {
    }
 
    @Test
+   public void testSubMillisDelay() throws InterruptedException {
+      final CountDownLatch triggered = new CountDownLatch(2);
+      final long nsInterval = TimeUnit.MICROSECONDS.toNanos(900);
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(scheduledExecutorService, executorService, nsInterval, TimeUnit.NANOSECONDS, false) {
+
+         @Override
+         public void run() {
+            triggered.countDown();
+         }
+      };
+      local.start();
+      Assert.assertTrue(triggered.await(10, TimeUnit.SECONDS));
+      local.stop();
+   }
+
+   @Test
    public void testVerifyInitialDelayChanged() {
       final long initialDelay = 10;
       final long period = 100;
