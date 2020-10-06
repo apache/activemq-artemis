@@ -16,10 +16,8 @@
  */
 package org.apache.activemq.artemis.jdbc.store.file;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +30,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -53,7 +52,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    private final IOCriticalErrorListener criticalErrorListener;
 
-   public JDBCSequentialFileFactory(final DataSource dataSource,
+   public JDBCSequentialFileFactory(final JDBCConnectionProvider connectionProvider,
                                     final SQLProvider sqlProvider,
                                     Executor executor,
                                     IOCriticalErrorListener criticalErrorListener) throws Exception {
@@ -62,38 +61,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
       this.criticalErrorListener = criticalErrorListener;
 
       try {
-         this.dbDriver = JDBCFileUtils.getDBFileDriver(dataSource, sqlProvider);
-      } catch (SQLException e) {
-         criticalErrorListener.onIOException(e, "Failed to start JDBC Driver", null);
-      }
-   }
-
-   public JDBCSequentialFileFactory(final String connectionUrl,
-                                    String userName,
-                                    String password,
-                                    final String className,
-                                    final SQLProvider sqlProvider,
-                                    Executor executor,
-                                    IOCriticalErrorListener criticalErrorListener) throws Exception {
-      this.executor = executor;
-      this.criticalErrorListener = criticalErrorListener;
-      try {
-         this.dbDriver = JDBCFileUtils.getDBFileDriver(className, connectionUrl, userName, password, sqlProvider);
-      } catch (SQLException e) {
-         criticalErrorListener.onIOException(e, "Failed to start JDBC Driver", null);
-      }
-
-   }
-
-   public JDBCSequentialFileFactory(final Connection connection,
-                                    final SQLProvider sqlProvider,
-                                    final Executor executor,
-                                    final IOCriticalErrorListener criticalErrorListener) throws Exception {
-      this.executor = executor;
-      this.criticalErrorListener = criticalErrorListener;
-
-      try {
-         this.dbDriver = JDBCFileUtils.getDBFileDriver(connection, sqlProvider);
+         this.dbDriver = JDBCFileUtils.getDBFileDriver(connectionProvider, sqlProvider);
       } catch (SQLException e) {
          criticalErrorListener.onIOException(e, "Failed to start JDBC Driver", null);
       }
@@ -101,14 +69,6 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    public JDBCSequentialFileFactoryDriver getDbDriver() {
       return dbDriver;
-   }
-
-   /**
-    * @see Connection#setNetworkTimeout(Executor, int)
-    **/
-   public JDBCSequentialFileFactory setNetworkTimeout(Executor executor, int milliseconds) {
-      this.dbDriver.setNetworkTimeout(executor, milliseconds);
-      return this;
    }
 
    @Override

@@ -1738,6 +1738,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          password = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), password, mainConfig.getPasswordCodec());
       }
       conf.setJdbcPassword(password);
+      conf.setDataSourceClassName(getString(storeNode, "data-source-class-name", conf.getDataSourceClassName(), Validators.NO_CHECK));
+      if (parameterExists(storeNode, "data-source-properties")) {
+         NodeList propertyNodeList = storeNode.getElementsByTagName("data-source-property");
+         for (int i = 0; i < propertyNodeList.getLength(); i++) {
+            Element propertyNode = (Element) propertyNodeList.item(i);
+            conf.addDataSourceProperty(propertyNode.getAttributeNode("key").getValue(), propertyNode.getAttributeNode("value").getValue());
+         }
+      }
+      //conf.initDataSource();
+
       return conf;
    }
 

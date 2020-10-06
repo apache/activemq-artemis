@@ -455,6 +455,9 @@ public final class ActiveMQDefaultConfiguration {
    // Default JDBC Driver class name, derby by default just for demo purposes
    private static String DEFAULT_JDBC_DRIVER_CLASS_NAME = "org.apache.derby.jdbc.EmbeddedDriver";
 
+   // Default JDBC Driver class name. DBCP2 BasicDataSource is used by default.
+   private static String DEFAULT_JDBC_DATA_SOURCE_CLASS_NAME = "org.apache.commons.dbcp2.BasicDataSource";
+
    // Default message table name, used with Database storage type
    private static String DEFAULT_MESSAGE_TABLE_NAME = "MESSAGES";
 
@@ -1390,6 +1393,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String getDefaultDriverClassName() {
       return DEFAULT_JDBC_DRIVER_CLASS_NAME;
+   }
+
+   public static String getDefaultDataSourceClassName() {
+      return DEFAULT_JDBC_DATA_SOURCE_CLASS_NAME;
    }
 
    public static String getDefaultLargeMessagesTableName() {

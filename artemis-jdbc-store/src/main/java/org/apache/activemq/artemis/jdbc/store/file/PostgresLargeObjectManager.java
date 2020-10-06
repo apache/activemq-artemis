@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import org.postgresql.PGConnection;
 import org.postgresql.largeobject.LargeObject;
 
@@ -43,11 +44,10 @@ public class PostgresLargeObjectManager {
     */
    public static final int READWRITE = READ | WRITE;
 
-   private final Connection realConnection;
    private boolean shouldUseReflection;
 
-   public PostgresLargeObjectManager(Connection connection) throws SQLException {
-      this.realConnection = unwrap(connection);
+
+   public PostgresLargeObjectManager() {
       try {
          this.getClass().getClassLoader().loadClass("org.postgresql.PGConnection");
          shouldUseReflection = false;
@@ -56,9 +56,9 @@ public class PostgresLargeObjectManager {
       }
    }
 
-   public final Long createLO() throws SQLException {
+   public final Long createLO(Connection connection) throws SQLException {
       if (shouldUseReflection) {
-         Object largeObjectManager = getLargeObjectManager();
+         Object largeObjectManager = getLargeObjectManager(connection);
          try {
             Method method = largeObjectManager.getClass().getMethod("createLO");
             return (Long) method.invoke(largeObjectManager);
@@ -66,13 +66,13 @@ public class PostgresLargeObjectManager {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObjectManager", ex);
          }
       } else {
-         return ((PGConnection) realConnection).getLargeObjectAPI().createLO();
+         return ((PGConnection) unwrap(connection)).getLargeObjectAPI().createLO();
       }
    }
 
-   public Object open(long oid, int mode) throws SQLException {
+   public Object open(Connection connection, long oid, int mode) throws SQLException {
       if (shouldUseReflection) {
-         Object largeObjectManager = getLargeObjectManager();
+         Object largeObjectManager = getLargeObjectManager(connection);
          try {
             Method method = largeObjectManager.getClass().getMethod("open", long.class, int.class);
             return method.invoke(largeObjectManager, oid, mode);
@@ -80,7 +80,7 @@ public class PostgresLargeObjectManager {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObjectManager", ex);
          }
       } else {
-         return ((PGConnection) realConnection).getLargeObjectAPI().open(oid, mode);
+         return ((PGConnection) unwrap(connection)).getLargeObjectAPI().open(oid, mode);
       }
    }
 
@@ -162,22 +162,22 @@ public class PostgresLargeObjectManager {
       }
    }
 
-   private Object getLargeObjectManager() throws SQLException {
+   private Object getLargeObjectManager(Connection connection) throws SQLException {
       if (shouldUseReflection) {
          try {
-            Method method = realConnection.getClass().getMethod("getLargeObjectAPI");
-            return method.invoke(realConnection);
+            Connection conn = unwrap(connection);
+            Method method = conn.getClass().getMethod("getLargeObjectAPI");
+            return method.invoke(conn);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObjectManager", ex);
          }
       } else {
-         return ((PGConnection) realConnection).getLargeObjectAPI();
+         return ((PGConnection) unwrap(connection)).getLargeObjectAPI();
       }
    }
 
    public final Connection unwrap(Connection connection) throws SQLException {
-      Connection conn = connection.unwrap(Connection.class);
-      return unwrapIronJacamar(unwrapDbcp(unwrapSpring(conn)));
+      return unwrapIronJacamar(unwrapDbcp(unwrapDbcp2(unwrapSpring(connection.unwrap(Connection.class)))));
    }
 
    private Connection unwrapIronJacamar(Connection conn) {
@@ -192,6 +192,15 @@ public class PostgresLargeObjectManager {
    private Connection unwrapDbcp(Connection conn) {
       try {
          Method method = conn.getClass().getMethod("getDelegate");
+         return (Connection) method.invoke(conn);
+      } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+         return conn;
+      }
+   }
+
+   private Connection unwrapDbcp2(Connection conn) {
+      try {
+         Method method = conn.getClass().getMethod("getInnermostDelegateInternal");
          return (Connection) method.invoke(conn);
       } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
          return conn;

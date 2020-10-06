@@ -16,28 +16,28 @@
  */
 package org.apache.activemq.artemis.core.server.impl.jdbc;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.junit.Assert;
 
 public class TestJDBCDriver extends AbstractJDBCDriver {
 
-   public static TestJDBCDriver usingConnectionUrl(String jdbcConnectionUrl,
-                                                   String jdbcDriverClass,
-                                                   SQLProvider provider) {
-      return usingConnectionUrl(jdbcConnectionUrl, jdbcDriverClass, provider, false);
+   public static TestJDBCDriver usingDbConf(DatabaseStorageConfiguration dbConf,
+                                            SQLProvider provider) {
+      return usingDbConf(dbConf, provider, false);
    }
 
-   public static TestJDBCDriver usingConnectionUrl(String jdbcConnectionUrl,
-                                                   String jdbcDriverClass,
-                                                   SQLProvider provider,
-                                                   boolean initialize) {
+   public static TestJDBCDriver usingDbConf(DatabaseStorageConfiguration dbConf,
+                                            SQLProvider provider,
+                                            boolean initialize) {
+
       TestJDBCDriver driver = new TestJDBCDriver(initialize);
       driver.setSqlProvider(provider);
-      driver.setJdbcConnectionUrl(jdbcConnectionUrl);
-      driver.setJdbcDriverClass(jdbcDriverClass);
+      driver.setJdbcConnectionProvider(dbConf.getConnectionProvider());
       return driver;
    }
 
@@ -48,12 +48,11 @@ public class TestJDBCDriver extends AbstractJDBCDriver {
    }
 
    @Override
-   protected void prepareStatements() throws SQLException {
-   }
+   protected void prepareStatements() { }
 
    @Override
-   protected void createSchema() throws SQLException {
-      try {
+   protected void createSchema() {
+      try (Connection connection = getJdbcConnectionProvider().getConnection()) {
          connection.createStatement().execute(sqlProvider.createNodeManagerStoreTableSQL());
          if (initialize) {
             connection.createStatement().execute(sqlProvider.createNodeIdSQL());

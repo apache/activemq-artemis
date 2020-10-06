@@ -22,10 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
 import org.jboss.logging.Logger;
 
@@ -363,7 +365,15 @@ public class PropertySQLProvider implements SQLProvider {
       }
 
       public Factory(DataSource dataSource) {
-         this(investigateDialect(dataSource));
+         this(new JDBCConnectionProvider(dataSource));
+      }
+
+      public Factory(Map<String, Object> dataSourceProperties) {
+         this(investigateDialect(dataSourceProperties));
+      }
+
+      public Factory(JDBCConnectionProvider connectionProvider) {
+         this(investigateDialect(connectionProvider));
       }
 
       public static SQLDialect investigateDialect(Connection connection) {
@@ -388,8 +398,21 @@ public class PropertySQLProvider implements SQLProvider {
          return dialect;
       }
 
-      private static SQLDialect investigateDialect(DataSource dataSource) {
-         try (Connection connection = dataSource.getConnection()) {
+      public static SQLDialect investigateDialect(Map<String, Object> dataSourceProperties) {
+         SQLDialect dialect = null;
+         for (Object entry : dataSourceProperties.values()) {
+            if (entry instanceof String) {
+               dialect = identifyDialect((String) entry);
+               if (dialect != null) {
+                  return dialect;
+               }
+            }
+         }
+         return dialect;
+      }
+
+      private static SQLDialect investigateDialect(JDBCConnectionProvider connectionProvider) {
+         try (Connection connection = connectionProvider.getConnection()) {
             return investigateDialect(connection);
          } catch (Exception e) {
             logger.debug("Unable to read JDBC metadata.", e);
