@@ -76,6 +76,7 @@ public class Create extends InputAbstract {
 
    public static final String BIN_ARTEMIS_CMD = "bin/artemis.cmd";
    public static final String BIN_ARTEMIS_SERVICE_EXE = "bin/artemis-service.exe";
+   public static final String BIN_ARTEMIS_SERVICE_EXE_CONFIG = "bin/artemis-service.exe.config";
    public static final String BIN_ARTEMIS_SERVICE_XML = "bin/artemis-service.xml";
    public static final String ETC_ARTEMIS_PROFILE_CMD = "artemis.profile.cmd";
    public static final String BIN_ARTEMIS = "bin/artemis";
@@ -803,6 +804,7 @@ public class Create extends InputAbstract {
       if (IS_WINDOWS) {
          write(BIN_ARTEMIS_CMD, filters, false);
          write(BIN_ARTEMIS_SERVICE_EXE);
+         write(BIN_ARTEMIS_SERVICE_EXE_CONFIG);
          write(BIN_ARTEMIS_SERVICE_XML, filters, false);
          writeEtc(ETC_ARTEMIS_PROFILE_CMD, etcFolder, filters, false);
       }
