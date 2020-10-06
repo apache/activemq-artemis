@@ -17,15 +17,15 @@
 package org.apache.activemq.artemis.core.config.storage;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCDataSourceUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class DatabaseStorageConfiguration implements StoreConfiguration {
 
@@ -183,6 +183,19 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
       }
       return connectionProvider;
    }
+
+   public DatabaseStorageConfiguration setConnectionProviderNetworkTimeout(Executor executor, int ms) {
+      getConnectionProvider().setNetworkTimeout(executor, ms);
+      return this;
+   }
+
+   public DatabaseStorageConfiguration clearConnectionProviderNetworkTimeout() {
+      if (connectionProvider != null) {
+         connectionProvider.setNetworkTimeout(null, -1);
+      }
+      return this;
+   }
+
    public void addDataSourceProperty(String key, String value) {
       if (value.toLowerCase().equals("true") || value.toLowerCase().equals("false")) {
          dataSourceProperties.put(key, Boolean.parseBoolean(value.toLowerCase()));

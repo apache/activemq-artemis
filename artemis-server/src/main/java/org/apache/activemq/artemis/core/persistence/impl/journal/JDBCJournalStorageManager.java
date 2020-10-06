@@ -57,10 +57,6 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
       try {
          final DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) config.getStoreConfiguration();
          final JDBCConnectionProvider connectionProvider = dbConf.getConnectionProvider();
-         final int networkTimeout = dbConf.getJdbcNetworkTimeout();
-         if (networkTimeout >= 0) {
-            connectionProvider.setNetworkTimeout(executorFactory.getExecutor(), networkTimeout);
-         }
          final JDBCJournalImpl bindingsJournal;
          final JDBCJournalImpl messageJournal;
          final JDBCSequentialFileFactory largeMessagesFactory;

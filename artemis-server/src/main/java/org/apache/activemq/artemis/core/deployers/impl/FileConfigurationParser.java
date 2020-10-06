@@ -1746,7 +1746,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             conf.addDataSourceProperty(propertyNode.getAttributeNode("key").getValue(), propertyNode.getAttributeNode("value").getValue());
          }
       }
-      //conf.initDataSource();
 
       return conf;
    }

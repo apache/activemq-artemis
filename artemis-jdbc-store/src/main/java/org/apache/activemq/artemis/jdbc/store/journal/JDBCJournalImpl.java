@@ -189,70 +189,67 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
       TransactionHolder holder;
 
-      try (Connection connection = connectionProvider.getConnection()) {
+      try (Connection connection = connectionProvider.getConnection();
+           PreparedStatement deleteJournalRecords = connection.prepareStatement(this.deleteJournalRecords);
+           PreparedStatement deleteJournalTxRecords = connection.prepareStatement(this.deleteJournalTxRecords);
+           PreparedStatement insertJournalRecords = connection.prepareStatement(this.insertJournalRecords)) {
 
-         try (PreparedStatement deleteJournalRecords = connection.prepareStatement(this.deleteJournalRecords);
-              PreparedStatement deleteJournalTxRecords = connection.prepareStatement(this.deleteJournalTxRecords);
-              PreparedStatement insertJournalRecords = connection.prepareStatement(this.insertJournalRecords)) {
+         connection.setAutoCommit(false);
 
-            connection.setAutoCommit(false);
+         for (JDBCJournalRecord record : recordRef) {
 
-            for (JDBCJournalRecord record : recordRef) {
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("sync::preparing JDBC statement for " + record);
-               }
-
-
-               switch (record.getRecordType()) {
-                  case JDBCJournalRecord.DELETE_RECORD:
-                     // Standard SQL Delete Record, Non transactional delete
-                     deletedRecords.add(record.getId());
-                     record.writeDeleteRecord(deleteJournalRecords);
-                     break;
-                  case JDBCJournalRecord.ROLLBACK_RECORD:
-                     // Roll back we remove all records associated with this TX ID.  This query is always performed last.
-                     deleteJournalTxRecords.setLong(1, record.getTxId());
-                     deleteJournalTxRecords.addBatch();
-                     break;
-                  case JDBCJournalRecord.COMMIT_RECORD:
-                     // We perform all the deletes and add the commit record in the same Database TX
-                     holder = transactions.get(record.getTxId());
-                     for (RecordInfo info : holder.recordsToDelete) {
-                        deletedRecords.add(record.getId());
-                        deletedRecords.add(info.id);
-                        deleteJournalRecords.setLong(1, info.id);
-                        deleteJournalRecords.addBatch();
-                     }
-                     record.writeRecord(insertJournalRecords);
-                     committedTransactions.add(record.getTxId());
-                     break;
-                  default:
-                     // Default we add a new record to the DB
-                     record.writeRecord(insertJournalRecords);
-                     break;
-               }
-            }
-
-            insertJournalRecords.executeBatch();
-            deleteJournalRecords.executeBatch();
-            deleteJournalTxRecords.executeBatch();
-
-            connection.commit();
             if (logger.isTraceEnabled()) {
-               logger.trace("JDBC commit worked");
+               logger.trace("sync::preparing JDBC statement for " + record);
             }
 
-            if (cleanupTxRecords(deletedRecords, committedTransactions)) {
-               deleteJournalTxRecords.executeBatch();
-               connection.commit();
-               logger.trace("JDBC commit worked on cleanupTxRecords");
+
+            switch (record.getRecordType()) {
+               case JDBCJournalRecord.DELETE_RECORD:
+                  // Standard SQL Delete Record, Non transactional delete
+                  deletedRecords.add(record.getId());
+                  record.writeDeleteRecord(deleteJournalRecords);
+                  break;
+               case JDBCJournalRecord.ROLLBACK_RECORD:
+                  // Roll back we remove all records associated with this TX ID.  This query is always performed last.
+                  deleteJournalTxRecords.setLong(1, record.getTxId());
+                  deleteJournalTxRecords.addBatch();
+                  break;
+               case JDBCJournalRecord.COMMIT_RECORD:
+                  // We perform all the deletes and add the commit record in the same Database TX
+                  holder = transactions.get(record.getTxId());
+                  for (RecordInfo info : holder.recordsToDelete) {
+                     deletedRecords.add(record.getId());
+                     deletedRecords.add(info.id);
+                     deleteJournalRecords.setLong(1, info.id);
+                     deleteJournalRecords.addBatch();
+                  }
+                  record.writeRecord(insertJournalRecords);
+                  committedTransactions.add(record.getTxId());
+                  break;
+               default:
+                  // Default we add a new record to the DB
+                  record.writeRecord(insertJournalRecords);
+                  break;
             }
-            executeCallbacks(recordRef, true);
-
-            return recordRef.size();
-
          }
+
+         insertJournalRecords.executeBatch();
+         deleteJournalRecords.executeBatch();
+         deleteJournalTxRecords.executeBatch();
+
+         connection.commit();
+         if (logger.isTraceEnabled()) {
+            logger.trace("JDBC commit worked");
+         }
+
+         if (cleanupTxRecords(deletedRecords, committedTransactions, deleteJournalTxRecords)) {
+            deleteJournalTxRecords.executeBatch();
+            connection.commit();
+            logger.trace("JDBC commit worked on cleanupTxRecords");
+         }
+         executeCallbacks(recordRef, true);
+
+         return recordRef.size();
       } catch (Exception e) {
          handleException(recordRef, e);
          return 0;
@@ -276,7 +273,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
       we remove the Tx Records (i.e. PREPARE, COMMIT). */
-   private synchronized boolean cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx) throws SQLException {
+   private synchronized boolean cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx,
+                                                 PreparedStatement deleteJournalTxRecords) throws SQLException {
       List<RecordInfo> iterableCopy;
       List<TransactionHolder> iterableCopyTx = new ArrayList<>();
       iterableCopyTx.addAll(transactions.values());
@@ -285,27 +283,23 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          transactions.get(txId).committed = true;
       }
       boolean hasDeletedJournalTxRecords = false;
+      // TODO (mtaylor) perhaps we could store a reverse mapping of IDs to prevent this O(n) loop
+      for (TransactionHolder h : iterableCopyTx) {
 
-      try (Connection connection = connectionProvider.getConnection();
-           PreparedStatement deleteJournalTxRecords = connection.prepareStatement(this.deleteJournalTxRecords)) {
-         // TODO (mtaylor) perhaps we could store a reverse mapping of IDs to prevent this O(n) loop
-         for (TransactionHolder h : iterableCopyTx) {
+         iterableCopy = new ArrayList<>();
+         iterableCopy.addAll(h.recordInfos);
 
-            iterableCopy = new ArrayList<>();
-            iterableCopy.addAll(h.recordInfos);
-
-            for (RecordInfo info : iterableCopy) {
-               if (deletedRecords.contains(info.id)) {
-                  h.recordInfos.remove(info);
-               }
+         for (RecordInfo info : iterableCopy) {
+            if (deletedRecords.contains(info.id)) {
+               h.recordInfos.remove(info);
             }
+         }
 
-            if (h.recordInfos.isEmpty() && h.committed) {
-               deleteJournalTxRecords.setLong(1, h.transactionID);
-               deleteJournalTxRecords.addBatch();
-               hasDeletedJournalTxRecords = true;
-               transactions.remove(h.transactionID);
-            }
+         if (h.recordInfos.isEmpty() && h.committed) {
+            deleteJournalTxRecords.setLong(1, h.transactionID);
+            deleteJournalTxRecords.addBatch();
+            hasDeletedJournalTxRecords = true;
+            transactions.remove(h.transactionID);
          }
       }
       return hasDeletedJournalTxRecords;
