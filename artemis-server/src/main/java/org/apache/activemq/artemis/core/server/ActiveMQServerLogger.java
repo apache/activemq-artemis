@@ -2117,4 +2117,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224106, value = "failed to remove transaction, xid:{0}", format = Message.Format.MESSAGE_FORMAT)
    void errorRemovingTX(@Cause Exception e, Xid xid);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224107, value = "The Critical Analyzer detected slow paths on the broker.  It is recommended that you enable trace logs on org.apache.activemq.artemis.utils.critical while you troubleshoot this issue. You should disable the trace logs when you have finished troubleshooting.", format = Message.Format.MESSAGE_FORMAT)
+   void enableTraceForCriticalAnalyzer();
 }
