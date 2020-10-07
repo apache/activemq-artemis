@@ -65,7 +65,7 @@ public class CriticalMeasure {
          if (analyzer != null) {
             long nanoTimeout = analyzer.getTimeoutNanoSeconds();
             if (checkExpiration(nanoTimeout, false)) {
-               logger.trace("Path " + id + " on component " + getComponentName() + " is taking too long, leaving at", new Exception("entered"));
+               logger.trace("Path " + id + " on component " + getComponentName() + " is taking too long, leaving at", new Exception("left"));
                logger.trace("Path " + id + " on component " + getComponentName() + " is taking too long, entered at", traceEnter);
             }
          }

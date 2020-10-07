@@ -699,6 +699,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          case HALT:
             criticalAction = criticalComponent -> {
 
+               checkCriticalAnalyzerLogging();
                ActiveMQServerLogger.LOGGER.criticalSystemHalt(criticalComponent);
 
                threadDump();
@@ -711,6 +712,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          case SHUTDOWN:
             criticalAction = criticalComponent -> {
 
+               checkCriticalAnalyzerLogging();
                ActiveMQServerLogger.LOGGER.criticalSystemShutdown(criticalComponent);
 
                threadDump();
@@ -736,6 +738,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             break;
          case LOG:
             criticalAction = criticalComponent -> {
+               checkCriticalAnalyzerLogging();
                ActiveMQServerLogger.LOGGER.criticalSystemLog(criticalComponent);
                threadDump();
                sendCriticalNotification(criticalComponent);
@@ -744,6 +747,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       analyzer.addAction(criticalAction);
+   }
+
+   private static void checkCriticalAnalyzerLogging() {
+      Logger criticalLogger = Logger.getLogger("org.apache.activemq.artemis.utils.critical");
+      if (!criticalLogger.isTraceEnabled()) {
+         ActiveMQServerLogger.LOGGER.enableTraceForCriticalAnalyzer();
+      }
    }
 
    private void sendCriticalNotification(final CriticalComponent criticalComponent) {
