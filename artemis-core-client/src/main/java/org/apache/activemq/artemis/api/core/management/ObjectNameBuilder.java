@@ -82,7 +82,7 @@ public final class ObjectNameBuilder {
     * Returns the ObjectName used by the single {@link ActiveMQServerControl}.
     */
    public ObjectName getActiveMQServerObjectName() throws Exception {
-      return ObjectName.getInstance(domain + ":" + getBrokerProperties());
+      return ObjectName.getInstance(getActiveMQServerName());
    }
 
    /**
@@ -91,7 +91,7 @@ public final class ObjectNameBuilder {
     * @see AddressControl
     */
    public ObjectName getAddressObjectName(final SimpleString address) throws Exception {
-      return ObjectName.getInstance(String.format("%s:broker=%s,component=addresses,address=%s", domain, ObjectName.quote(brokerName), ObjectName.quote(address.toString())));
+      return ObjectName.getInstance(String.format("%s,component=addresses,address=%s", getActiveMQServerName(), ObjectName.quote(address.toString())));
    }
 
    /**
@@ -100,7 +100,7 @@ public final class ObjectNameBuilder {
     * @see QueueControl
     */
    public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name, RoutingType routingType) throws Exception {
-      return ObjectName.getInstance(String.format("%s:broker=%s,component=addresses,address=%s,subcomponent=queues,routing-type=%s,queue=%s", domain, ObjectName.quote(brokerName), ObjectName.quote(address.toString()), ObjectName.quote(routingType.toString().toLowerCase()), ObjectName.quote(name.toString())));
+      return ObjectName.getInstance(String.format("%s,component=addresses,address=%s,subcomponent=queues,routing-type=%s,queue=%s", getActiveMQServerName(), ObjectName.quote(address.toString()), ObjectName.quote(routingType.toString().toLowerCase()), ObjectName.quote(name.toString())));
    }
 
 
@@ -110,7 +110,7 @@ public final class ObjectNameBuilder {
     * @see DivertControl
     */
    public ObjectName getDivertObjectName(final String name, String address) throws Exception {
-      return ObjectName.getInstance(String.format("%s:broker=%s,component=addresses,address=%s,subcomponent=diverts,divert=%s", domain, ObjectName.quote(brokerName), ObjectName.quote(address.toString()), ObjectName.quote(name.toString())));
+      return ObjectName.getInstance(String.format("%s,component=addresses,address=%s,subcomponent=diverts,divert=%s", getActiveMQServerName(), ObjectName.quote(address.toString()), ObjectName.quote(name.toString())));
    }
 
    /**
@@ -150,15 +150,11 @@ public final class ObjectNameBuilder {
    }
 
    private ObjectName createObjectName(final String type, final String name) throws Exception {
-      return ObjectName.getInstance(String.format("%s:broker=%s,component=%ss,name=%s", domain, ObjectName.quote(brokerName), type, ObjectName.quote(name)));
+      return ObjectName.getInstance(String.format("%s,component=%ss,name=%s", getActiveMQServerName(), type, ObjectName.quote(name)));
    }
 
-   private String getBrokerProperties() {
-      if (jmxUseBrokerName && brokerName != null) {
-         return String.format("broker=%s", ObjectName.quote(brokerName));
-      } else {
-         return "";
-      }
+   private String getActiveMQServerName() {
+      return String.format("%s:broker=%s", domain, (jmxUseBrokerName && brokerName != null) ? ObjectName.quote(brokerName) : "artemis");
    }
 
    public ObjectName getManagementContextObjectName() throws Exception {

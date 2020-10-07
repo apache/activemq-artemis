@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,11 +30,25 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(value = Parameterized.class)
 public class JMXDomainTest extends ManagementTestBase {
 
-   ActiveMQServer server_0 = null;
-   ActiveMQServer server_1 = null;
+   private ActiveMQServer server_0 = null;
+   private ActiveMQServer server_1 = null;
+   private boolean jmxUseBrokerName;
+
+   @Parameterized.Parameters(name = "jmxUseBrokerName={0}")
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][] {{true}, {false}});
+   }
+
+   public JMXDomainTest(boolean jmxUseBrokerName) {
+      super();
+      this.jmxUseBrokerName = jmxUseBrokerName;
+   }
 
    @Test
    public void test2ActiveMQServersManagedFrom1MBeanServer() throws Exception {
@@ -42,13 +58,13 @@ public class JMXDomainTest extends ManagementTestBase {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
-      Configuration config_1 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params)).setJMXDomain(jmxDomain_1);
+      Configuration config_1 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params)).setJMXDomain(jmxDomain_1).setJMXUseBrokerName(jmxUseBrokerName);
 
       server_0 = addServer(ActiveMQServers.newActiveMQServer(config_0, mbeanServer, false));
       server_1 = addServer(ActiveMQServers.newActiveMQServer(config_1, mbeanServer, false));
 
       ObjectNameBuilder builder_0 = ObjectNameBuilder.DEFAULT;
-      ObjectNameBuilder builder_1 = ObjectNameBuilder.create(jmxDomain_1, "localhost");
+      ObjectNameBuilder builder_1 = ObjectNameBuilder.create(jmxDomain_1, "localhost", jmxUseBrokerName);
 
       checkNoResource(builder_0.getActiveMQServerObjectName());
       checkNoResource(builder_1.getActiveMQServerObjectName());
