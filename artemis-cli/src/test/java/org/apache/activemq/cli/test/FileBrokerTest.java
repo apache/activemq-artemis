@@ -50,7 +50,7 @@ public class FileBrokerTest {
       serverDTO.configuration = "broker-nojms.xml";
       FileBroker broker = null;
       try {
-         broker = new FileBroker(serverDTO, new ActiveMQJAASSecurityManager());
+         broker = new FileBroker(serverDTO, new ActiveMQJAASSecurityManager(), null);
          broker.start();
          JMSServerManagerImpl jmsServerManager = (JMSServerManagerImpl) broker.getComponents().get("jms");
          Assert.assertNull(jmsServerManager);
@@ -70,8 +70,8 @@ public class FileBrokerTest {
       ServerDTO serverDTO2 = new ServerDTO();
       serverDTO1.configuration = "FileBrokerTest-broker1.xml";
       serverDTO2.configuration = "FileBrokerTest-broker2.xml";
-      FileBroker broker1 = new FileBroker(serverDTO1, new ActiveMQJAASSecurityManager());
-      FileBroker broker2 = new FileBroker(serverDTO2, new ActiveMQJAASSecurityManager());
+      FileBroker broker1 = new FileBroker(serverDTO1, new ActiveMQJAASSecurityManager(), null);
+      FileBroker broker2 = new FileBroker(serverDTO2, new ActiveMQJAASSecurityManager(), null);
       try {
          broker1.start();
          Assert.assertTrue(broker1.isStarted());
@@ -115,7 +115,7 @@ public class FileBrokerTest {
          securityConfiguration.addUser("myUser", "myPass");
          securityConfiguration.addRole("myUser", "guest");
          ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
-         broker = new FileBroker(serverDTO, securityManager);
+         broker = new FileBroker(serverDTO, securityManager, null);
          broker.start();
          ActiveMQServerImpl activeMQServer = (ActiveMQServerImpl) broker.getComponents().get("core");
          Assert.assertNotNull(activeMQServer);

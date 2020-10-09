@@ -91,7 +91,7 @@ public class OsgiBroker {
       FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(configurationUrl);
       fileDeploymentManager.addDeployable(configuration).addDeployable(jmsConfiguration).readConfiguration();
 
-      components = fileDeploymentManager.buildService(security, ManagementFactory.getPlatformMBeanServer());
+      components = fileDeploymentManager.buildService(security, ManagementFactory.getPlatformMBeanServer(), null);
 
       final ActiveMQServer server = (ActiveMQServer) components.get("core");
 

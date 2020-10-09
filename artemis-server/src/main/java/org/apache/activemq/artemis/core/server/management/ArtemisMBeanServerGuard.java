@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.management;
 
 
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
 import javax.management.Attribute;
@@ -25,6 +26,7 @@ import javax.management.JMException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import java.io.IOException;
@@ -61,7 +63,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       } else if ("setAttributes".equals(method.getName())) {
          handleSetAttributes((MBeanServer) proxy, objectName, (AttributeList) args[1]);
       } else if ("invoke".equals(method.getName())) {
-         handleInvoke(objectName, (String) args[1], (Object[]) args[2], (String[]) args[3]);
+         handleInvoke(objectName, (String) args[1]);
       }
 
       return null;
@@ -78,7 +80,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       if (prefix == null) {
          //ActiveMQServerLogger.LOGGER.debug("Attribute " + attributeName + " can not be found for MBean " + objectName.toString());
       } else {
-         handleInvoke(objectName, prefix + attributeName, new Object[]{}, new String[]{});
+         handleInvoke(objectName, prefix + attributeName);
       }
    }
 
@@ -101,7 +103,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       if (dataType == null)
          throw new IllegalStateException("Attribute data type can not be found");
 
-      handleInvoke(objectName, "set" + attribute.getName(), new Object[]{attribute.getValue()}, new String[]{dataType});
+      handleInvoke(objectName, "set" + attribute.getName());
    }
 
    private void handleSetAttributes(MBeanServer proxy, ObjectName objectName, AttributeList attributes) throws JMException, IOException {
@@ -114,11 +116,32 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       return jmxAccessControlList.isInWhiteList(objectName);
    }
 
-   void handleInvoke(ObjectName objectName, String operationName, Object[] params, String[] signature) throws IOException {
+   public boolean canInvoke(String object, String operationName) {
+      ObjectName objectName = null;
+      try {
+         objectName = ObjectName.getInstance(object);
+      } catch (MalformedObjectNameException e) {
+         ActiveMQServerLogger.LOGGER.debug("can't check invoke rights as object name invalid: " + objectName);
+         return false;
+      }
+      if (canBypassRBAC(objectName)) {
+         return true;
+      }
+      List<String> requiredRoles = getRequiredRoles(objectName, operationName);
+      for (String role : requiredRoles) {
+         if (currentUserHasRole(role)) {
+            return true;
+         }
+      }
+      ActiveMQServerLogger.LOGGER.info(object + " " + operationName + " " + false);
+      return false;
+   }
+
+   void handleInvoke(ObjectName objectName, String operationName) throws IOException {
       if (canBypassRBAC(objectName)) {
          return;
       }
-      List<String> requiredRoles = getRequiredRoles(objectName, operationName, params, signature);
+      List<String> requiredRoles = getRequiredRoles(objectName, operationName);
       for (String role : requiredRoles) {
          if (currentUserHasRole(role))
             return;
@@ -129,7 +152,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       throw new SecurityException("Insufficient roles/credentials for operation");
    }
 
-   List<String> getRequiredRoles(ObjectName objectName, String methodName, Object[] params, String[] signature) throws IOException {
+   List<String> getRequiredRoles(ObjectName objectName, String methodName) {
       return jmxAccessControlList.getRolesForObject(objectName, methodName);
    }
 

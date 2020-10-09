@@ -740,7 +740,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public int getAddressMemoryUsagePercentage() {
+   public int  getAddressMemoryUsagePercentage() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getAddressMemoryUsagePercentage(this.server);
       }
@@ -756,6 +756,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       double result = (100D * memoryUsed) / globalMaxSize;
       return (int) result;
+   }
+
+   @Override
+   public String getHAPolicy() {
+      return configuration.getHAPolicyConfiguration().getType().getName();
    }
 
    @Override

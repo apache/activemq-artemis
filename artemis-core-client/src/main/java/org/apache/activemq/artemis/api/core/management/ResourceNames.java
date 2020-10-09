@@ -28,6 +28,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 public final class ResourceNames {
    public static final String BROKER = "broker";
 
+   public static final String MANAGEMENT_SECURITY = "managementsecurity";
+
    public static final String QUEUE = "queue.";
 
    public static final String ADDRESS = "address.";

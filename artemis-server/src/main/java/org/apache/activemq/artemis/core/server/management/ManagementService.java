@@ -132,4 +132,8 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
    Object[] getResources(Class<?> resourceType);
 
    ICoreMessage handleMessage(Message message) throws Exception;
+
+   void registerHawtioSecurity(ArtemisMBeanServerGuard securityMBean) throws Exception;
+
+   void unregisterHawtioSecurity() throws Exception;
 }

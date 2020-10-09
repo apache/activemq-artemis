@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.activemq.artemis.cli.ConfigurationException;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.Broker;
@@ -53,7 +54,7 @@ public class BrokerFactory {
       return createBrokerConfiguration(new URI(configuration), artemisHome, artemisInstance, artemisURIInstance);
    }
 
-   public static Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security) throws Exception {
+   public static Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security, ActivateCallback activateCallback) throws Exception {
       if (brokerDTO.configuration != null) {
          BrokerHandler handler;
          URI configURI = brokerDTO.getConfigurationURI();
@@ -65,7 +66,7 @@ public class BrokerFactory {
             throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
          }
 
-         return handler.createServer(brokerDTO, security);
+         return handler.createServer(brokerDTO, security, activateCallback);
       }
       return null;
    }

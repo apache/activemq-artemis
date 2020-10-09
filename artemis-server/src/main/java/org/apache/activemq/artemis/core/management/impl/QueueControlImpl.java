@@ -1479,10 +1479,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public CompositeData[] browse(int page, int pageSize) throws Exception {
+      return browse(page, pageSize, null);
+   }
+
+   @Override
+   public CompositeData[] browse(int page, int pageSize, String filter) throws Exception {
       if (AuditLogger.isEnabled()) {
          AuditLogger.browse(queue, page, pageSize);
       }
-      String filter = null;
       checkStarted();
 
       clearIO();

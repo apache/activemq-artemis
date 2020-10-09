@@ -160,4 +160,8 @@ public final class ObjectNameBuilder {
          return "";
       }
    }
+
+   public ObjectName getManagementContextObjectName() throws Exception {
+      return ObjectName.getInstance(String.format("hawtio:type=security,area=jmx,name=ArtemisJMXSecurity"));
+   }
 }

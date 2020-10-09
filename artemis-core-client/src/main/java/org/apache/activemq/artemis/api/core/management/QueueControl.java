@@ -627,6 +627,11 @@ public interface QueueControl {
    CompositeData[] browse(@Parameter(name = "page", desc = "Current page") int page,
                           @Parameter(name = "pageSize", desc = "Page size") int pageSize) throws Exception;
 
+   @Operation(desc = "Browse Messages", impact = MBeanOperationInfo.ACTION)
+   CompositeData[] browse(@Parameter(name = "page", desc = "Current page") int page,
+                          @Parameter(name = "pageSize", desc = "Page size") int pageSize,
+                          @Parameter(name = "filter", desc = "filter") String filter) throws Exception;
+
    /**
     * Resets the MessagesAdded property
     */

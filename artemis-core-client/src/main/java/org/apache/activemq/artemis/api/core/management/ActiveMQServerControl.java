@@ -460,6 +460,9 @@ public interface ActiveMQServerControl {
    @Attribute(desc = ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION)
    int getAddressMemoryUsagePercentage();
 
+   @Attribute(desc = "Returns the HA Policy of this broker as a String")
+   String getHAPolicy();
+
    /**
     * Returns the runtime size of the authentication cache
     */

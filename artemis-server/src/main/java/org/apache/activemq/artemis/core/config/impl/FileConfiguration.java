@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.core.deployers.Deployable;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -75,8 +76,12 @@ public final class FileConfiguration extends ConfigurationImpl implements Deploy
    public void buildService(ActiveMQSecurityManager securityManager,
                             MBeanServer mBeanServer,
                             Map<String, Deployable> deployables,
-                            Map<String, ActiveMQComponent> components) {
-      components.put(getRootElement(), new ActiveMQServerImpl(this, mBeanServer, securityManager));
+                            Map<String, ActiveMQComponent> components, ActivateCallback activateCallback) {
+      ActiveMQServerImpl activeMQServer = new ActiveMQServerImpl(this, mBeanServer, securityManager);
+      if (activateCallback != null) {
+         activeMQServer.registerActivateCallback(activateCallback);
+      }
+      components.put(getRootElement(), activeMQServer);
    }
 
    @Override
