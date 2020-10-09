@@ -405,7 +405,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          }
       }
 
-      if (this.channel != null && outgoingInterceptors != null) {
+      if (channel != null && outgoingInterceptors != null) {
          if (channel.getConnection() instanceof RemotingConnectionImpl)  {
             try {
                RemotingConnectionImpl impl = (RemotingConnectionImpl) channel.getConnection();

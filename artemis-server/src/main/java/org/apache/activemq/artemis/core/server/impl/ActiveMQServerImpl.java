@@ -1262,7 +1262,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          try {
             securityStore.stop();
          } catch (Throwable t) {
-            ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, managementService.getClass().getName());
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, securityStore.getClass().getName());
          }
       }
 
