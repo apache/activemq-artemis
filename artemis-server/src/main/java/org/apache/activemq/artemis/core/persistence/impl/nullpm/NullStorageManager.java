@@ -49,7 +49,9 @@ import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
-import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
+import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -438,7 +440,7 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public List<PersistedRoles> recoverPersistedRoles() throws Exception {
+   public List<PersistedSecuritySetting> recoverSecuritySettings() throws Exception {
       return Collections.emptyList();
    }
 
@@ -456,7 +458,33 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public void storeSecurityRoles(final PersistedRoles persistedRoles) throws Exception {
+   public void storeUser(PersistedUser persistedUser) throws Exception {
+   }
+
+   @Override
+   public void deleteUser(String username) throws Exception {
+   }
+
+   @Override
+   public Map<String, PersistedUser> getPersistedUsers() {
+      return null;
+   }
+
+   @Override
+   public void storeRole(PersistedRole persistedRole) throws Exception {
+   }
+
+   @Override
+   public void deleteRole(String role) throws Exception {
+   }
+
+   @Override
+   public Map<String, PersistedRole> getPersistedRoles() {
+      return null;
+   }
+
+   @Override
+   public void storeSecuritySetting(final PersistedSecuritySetting persistedRoles) throws Exception {
    }
 
    @Override
@@ -464,7 +492,7 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public void deleteSecurityRoles(final SimpleString addressMatch) throws Exception {
+   public void deleteSecuritySetting(final SimpleString addressMatch) throws Exception {
    }
 
    @Override

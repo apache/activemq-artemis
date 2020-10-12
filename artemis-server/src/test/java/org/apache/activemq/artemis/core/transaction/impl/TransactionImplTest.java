@@ -48,7 +48,9 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
-import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
+import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -597,17 +599,17 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void storeSecurityRoles(PersistedRoles persistedRoles) throws Exception {
+      public void storeSecuritySetting(PersistedSecuritySetting persistedRoles) throws Exception {
 
       }
 
       @Override
-      public void deleteSecurityRoles(SimpleString addressMatch) throws Exception {
+      public void deleteSecuritySetting(SimpleString addressMatch) throws Exception {
 
       }
 
       @Override
-      public List<PersistedRoles> recoverPersistedRoles() throws Exception {
+      public List<PersistedSecuritySetting> recoverSecuritySettings() throws Exception {
          return null;
       }
 
@@ -623,6 +625,36 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
       @Override
       public List<PersistedDivertConfiguration> recoverDivertConfigurations() {
+         return null;
+      }
+
+      @Override
+      public void storeUser(PersistedUser persistedUser) throws Exception {
+
+      }
+
+      @Override
+      public void deleteUser(String username) throws Exception {
+
+      }
+
+      @Override
+      public Map<String, PersistedUser> getPersistedUsers() {
+         return null;
+      }
+
+      @Override
+      public void storeRole(PersistedRole persistedRole) throws Exception {
+
+      }
+
+      @Override
+      public void deleteRole(String role) throws Exception {
+
+      }
+
+      @Override
+      public Map<String, PersistedRole> getPersistedRoles() {
          return null;
       }
 

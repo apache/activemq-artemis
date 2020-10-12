@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.spi.core.security.UserManagement;
 import org.apache.activemq.artemis.utils.StringUtil;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
@@ -37,7 +38,7 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.ROLE_FILE_PROP_NAME;
 import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.USER_FILE_PROP_NAME;
 
-public class PropertiesLoginModuleConfigurator {
+public class PropertiesLoginModuleConfigurator implements UserManagement {
 
    private static final String LICENSE_HEADER =
            "## ---------------------------------------------------------------------------\n" +
@@ -125,7 +126,8 @@ public class PropertiesLoginModuleConfigurator {
       }
    }
 
-   public void addNewUser(String username, String hash, String... roles) throws Exception {
+   @Override
+   public void addNewUser(String username, String hash, String... roles) {
       if (userConfig.getString(username) != null) {
          throw ActiveMQMessageBundle.BUNDLE.userAlreadyExists(username);
       }
@@ -143,6 +145,7 @@ public class PropertiesLoginModuleConfigurator {
       }
    }
 
+   @Override
    public void removeUser(String username) {
       if (userConfig.getProperty(username) == null) {
          throw ActiveMQMessageBundle.BUNDLE.userDoesNotExist(username);
@@ -151,6 +154,7 @@ public class PropertiesLoginModuleConfigurator {
       removeRoles(username);
    }
 
+   @Override
    public Map<String, Set<String>> listUser(String username) {
       Map<String, Set<String>> result = new HashMap<>();
 
@@ -166,7 +170,8 @@ public class PropertiesLoginModuleConfigurator {
       return result;
    }
 
-   public void updateUser(String username, String password, String[] roles) {
+   @Override
+   public void updateUser(String username, String password, String... roles) {
       String oldPassword = (String) userConfig.getProperty(username);
       if (oldPassword == null) {
          throw ActiveMQMessageBundle.BUNDLE.userDoesNotExist(username);

@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.management.impl.HawtioSecurityControlImpl;
 
 import javax.management.NotCompliantMBeanException;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 public class ManagementContext implements ServiceComponent {
    private AtomicBoolean isStarted = new AtomicBoolean(false);
@@ -32,6 +33,7 @@ public class ManagementContext implements ServiceComponent {
    private JMXConnectorConfiguration jmxConnectorConfiguration;
    private ManagementConnector mBeanServer;
    private ArtemisMBeanServerGuard guardHandler;
+   private ActiveMQSecurityManager securityManager;
 
    @Override
    public void start() throws Exception {
@@ -44,7 +46,7 @@ public class ManagementContext implements ServiceComponent {
       }
 
       if (jmxConnectorConfiguration != null) {
-         mBeanServer = new ManagementConnector(jmxConnectorConfiguration);
+         mBeanServer = new ManagementConnector(jmxConnectorConfiguration, securityManager);
          mBeanServer.start();
       }
       isStarted.set(true);
@@ -98,5 +100,17 @@ public class ManagementContext implements ServiceComponent {
 
    public ArtemisMBeanServerGuard getArtemisMBeanServerGuard() {
       return guardHandler;
+   }
+
+   public void setSecurityManager(ActiveMQSecurityManager securityManager) {
+      this.securityManager = securityManager;
+   }
+
+   public ActiveMQSecurityManager getSecurityManager() {
+      return securityManager;
+   }
+
+   public ManagementConnector getManagementConnector() {
+      return mBeanServer;
    }
 }

@@ -62,7 +62,9 @@ import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
-import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
+import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -694,18 +696,18 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public void storeSecurityRoles(PersistedRoles persistedRoles) throws Exception {
-         manager.storeSecurityRoles(persistedRoles);
+      public void storeSecuritySetting(PersistedSecuritySetting persistedRoles) throws Exception {
+         manager.storeSecuritySetting(persistedRoles);
       }
 
       @Override
-      public void deleteSecurityRoles(SimpleString addressMatch) throws Exception {
-         manager.deleteSecurityRoles(addressMatch);
+      public void deleteSecuritySetting(SimpleString addressMatch) throws Exception {
+         manager.deleteSecuritySetting(addressMatch);
       }
 
       @Override
-      public List<PersistedRoles> recoverPersistedRoles() throws Exception {
-         return manager.recoverPersistedRoles();
+      public List<PersistedSecuritySetting> recoverSecuritySettings() throws Exception {
+         return manager.recoverSecuritySettings();
       }
 
       @Override
@@ -721,6 +723,36 @@ public class SendAckFailTest extends SpawnedTestBase {
       @Override
       public List<PersistedDivertConfiguration> recoverDivertConfigurations() {
          return null;
+      }
+
+      @Override
+      public void storeUser(PersistedUser persistedUser) throws Exception {
+         manager.storeUser(persistedUser);
+      }
+
+      @Override
+      public void deleteUser(String username) throws Exception {
+         manager.deleteUser(username);
+      }
+
+      @Override
+      public Map<String, PersistedUser> getPersistedUsers() {
+         return manager.getPersistedUsers();
+      }
+
+      @Override
+      public void storeRole(PersistedRole persistedRole) throws Exception {
+         manager.storeRole(persistedRole);
+      }
+
+      @Override
+      public void deleteRole(String role) throws Exception {
+         manager.deleteRole(role);
+      }
+
+      @Override
+      public Map<String, PersistedRole> getPersistedRoles() {
+         return manager.getPersistedRoles();
       }
 
       @Override

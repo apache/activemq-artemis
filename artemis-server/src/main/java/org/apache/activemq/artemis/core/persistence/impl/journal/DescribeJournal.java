@@ -88,9 +88,11 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_TRANSACTION;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.QUEUE_BINDING_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.QUEUE_STATUS_RECORD;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SECURITY_RECORD;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ROLE_RECORD;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SECURITY_SETTING_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.UPDATE_DELIVERY_COUNT;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.USER_RECORD;
 
 /**
  * Outputs a String description of the Journals contents.
@@ -685,7 +687,7 @@ public final class DescribeJournal {
          case ADDRESS_SETTING_RECORD:
             return AbstractJournalStorageManager.newAddressEncoding(id, buffer);
 
-         case SECURITY_RECORD:
+         case SECURITY_SETTING_RECORD:
             return AbstractJournalStorageManager.newSecurityRecord(id, buffer);
 
          case ADDRESS_BINDING_RECORD:
@@ -693,6 +695,12 @@ public final class DescribeJournal {
 
          case ADDRESS_STATUS_RECORD:
             return AbstractJournalStorageManager.newAddressStatusEncoding(id, buffer);
+
+         case USER_RECORD:
+            return AbstractJournalStorageManager.newUserEncoding(id, buffer);
+
+         case ROLE_RECORD:
+            return AbstractJournalStorageManager.newRoleEncoding(id, buffer);
 
          default:
             return null;
