@@ -37,6 +37,18 @@ public final class PasswordMaskingUtil {
 
    /**
     * This method deals with password masking and returns the password in its plain text form.
+    * @param password : the original value of password string; interpreted as masked if wrapped in ENC()
+    *                 or as plain text otherwise.
+    * @param codecClass : the codec used to decode the password. Only when the password is interpreted
+    *              as masked will this codec be used. Ignored otherwise.
+    * @return
+    */
+   public static String resolveMask(String password, String codecClass) throws Exception {
+      return resolveMask(null, password, codecClass);
+   }
+
+   /**
+    * This method deals with password masking and returns the password in its plain text form.
     * @param maskPassword : explicit mask flag. If it's true, the password is interpreted as
     *                     masked. If it is false, the password is interpreted as plain text.
     *                     if it is null, the password will be interpreted as masked if the
@@ -109,7 +121,7 @@ public final class PasswordMaskingUtil {
    }
 
    //stored password takes 2 forms, ENC() or plain text
-   public static HashProcessor getHashProcessor(String storedPassword) throws Exception {
+   public static HashProcessor getHashProcessor(String storedPassword) {
 
       if (!isEncoded(storedPassword)) {
          return LazyPlainTextProcessorHolder.INSTANCE;

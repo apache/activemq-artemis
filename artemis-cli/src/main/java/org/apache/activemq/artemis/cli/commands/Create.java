@@ -107,6 +107,8 @@ public class Create extends InputAbstract {
    public static final String ETC_PING_TXT = "etc/ping-settings.txt";
    public static final String ETC_COMMENTED_PING_TXT = "etc/commented-ping-settings.txt";
    public static final String ETC_DATABASE_STORE_TXT = "etc/database-store.txt";
+   public static final String ETC_JAAS_SECURITY_MANAGER_TXT = "etc/jaas-security-manager.txt";
+   public static final String ETC_BASIC_SECURITY_MANAGER_TXT = "etc/basic-security-manager.txt";
 
    public static final String ETC_GLOBAL_MAX_SPECIFIED_TXT = "etc/global-max-specified.txt";
    public static final String ETC_GLOBAL_MAX_DEFAULT_TXT = "etc/global-max-default.txt";
@@ -288,6 +290,9 @@ public class Create extends InputAbstract {
          return staticNode.split(",");
       }
    }
+
+   @Option(name = "--security-manager", description = "Which security manager to use - jaas or basic (Default: jaas)")
+   private String securityManager = "jaas";
 
    @Option(name = "--jdbc-bindings-table-name", description = "Name of the jdbc bindigns table")
    private String jdbcBindings = ActiveMQDefaultConfiguration.getDefaultBindingsTableName();
@@ -821,6 +826,11 @@ public class Create extends InputAbstract {
 
       // we want this variable to remain unchanged so that it will use the value set in the profile
       filters.remove("${artemis.instance}");
+      if (SecurityManagerType.getType(securityManager) == SecurityManagerType.BASIC) {
+         filters.put("${security-manager-settings}", readTextFile(ETC_BASIC_SECURITY_MANAGER_TXT, filters));
+      } else {
+         filters.put("${security-manager-settings}", readTextFile(ETC_JAAS_SECURITY_MANAGER_TXT, filters));
+      }
       writeEtc(ETC_BOOTSTRAP_XML, etcFolder, filters, false);
       writeEtc(ETC_MANAGEMENT_XML, etcFolder, filters, false);
 
@@ -1191,6 +1201,22 @@ public class Create extends InputAbstract {
       while (c >= 0) {
          os.write(buffer, 0, c);
          c = is.read(buffer);
+      }
+   }
+
+   private enum SecurityManagerType {
+      JAAS, BASIC;
+
+      public static SecurityManagerType getType(String type) {
+         type = type.toLowerCase();
+         switch (type) {
+            case "jaas":
+               return JAAS;
+            case "basic":
+               return BASIC;
+            default:
+               return null;
+         }
       }
    }
 }

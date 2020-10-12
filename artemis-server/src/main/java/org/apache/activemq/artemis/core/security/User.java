@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.core.security;
 
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+
 public class User {
 
    final String user;
 
-   final String password;
+   String password;
 
    public User(final String user, final String password) {
       this.user = user;
@@ -54,7 +56,8 @@ public class User {
       if (user == null) {
          return false;
       }
-      return this.user.equals(user) && this.password.equals(password);
+
+      return this.user.equals(user) && PasswordMaskingUtil.getHashProcessor(this.password).compare(password != null ? password.toCharArray() : null, this.password);
    }
 
    public String getUser() {
@@ -63,5 +66,9 @@ public class User {
 
    public String getPassword() {
       return password;
+   }
+
+   public void setPassword(String password) {
+      this.password = password;
    }
 }

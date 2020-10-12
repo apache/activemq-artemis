@@ -41,7 +41,9 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
-import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
+import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -354,17 +356,30 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    List<PersistedAddressSetting> recoverAddressSettings() throws Exception;
 
-   void storeSecurityRoles(PersistedRoles persistedRoles) throws Exception;
+   void storeSecuritySetting(PersistedSecuritySetting persistedRoles) throws Exception;
 
-   void deleteSecurityRoles(SimpleString addressMatch) throws Exception;
+   void deleteSecuritySetting(SimpleString addressMatch) throws Exception;
 
-   List<PersistedRoles> recoverPersistedRoles() throws Exception;
+   List<PersistedSecuritySetting> recoverSecuritySettings() throws Exception;
 
    void storeDivertConfiguration(PersistedDivertConfiguration persistedDivertConfiguration) throws Exception;
 
    void deleteDivertConfiguration(String divertName) throws Exception;
 
    List<PersistedDivertConfiguration> recoverDivertConfigurations();
+
+   void storeUser(PersistedUser persistedUser) throws Exception;
+
+   void deleteUser(String username) throws Exception;
+
+   Map<String, PersistedUser> getPersistedUsers();
+
+   void storeRole(PersistedRole persistedRole) throws Exception;
+
+   void deleteRole(String role) throws Exception;
+
+   Map<String, PersistedRole> getPersistedRoles();
+
    /**
     * @return The ID with the stored counter
     */

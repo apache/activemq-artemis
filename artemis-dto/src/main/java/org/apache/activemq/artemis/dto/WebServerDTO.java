@@ -83,7 +83,7 @@ public class WebServerDTO extends ComponentDTO {
    }
 
    private String getPassword(String password) throws Exception {
-      return PasswordMaskingUtil.resolveMask(null, password, this.passwordCodec);
+      return PasswordMaskingUtil.resolveMask(password, this.passwordCodec);
    }
 
    public void setKeyStorePassword(String keyStorePassword) {

@@ -352,15 +352,22 @@ the Transport](configuring-transports.md).
 
 ## User credentials
 
-Apache ActiveMQ Artemis ships with two security manager implementations:
-
-- The legacy, deprecated `ActiveMQSecurityManager` that reads user credentials,
-  i.e. user names, passwords and role information from properties files on the
-  classpath called `artemis-users.properties` and `artemis-roles.properties`.
+Apache ActiveMQ Artemis ships with three security manager implementations:
 
 - The flexible, pluggable `ActiveMQJAASSecurityManager` which supports any
   standard JAAS login module. Artemis ships with several login modules which
   will be discussed further down. This is the default security manager.
+
+- The `ActiveMQBasicSecurityManager` which doesn't use JAAS and only supports
+  auth via username & password credentials. It also supports adding, removing,
+  and updating users via the management API. All user & role data is stored
+  in the broker's bindings journal which means any changes made to a live
+  broker will be available on its backup.
+
+- The legacy, deprecated `ActiveMQSecurityManagerImpl` that reads user
+  credentials, i.e. user names, passwords and role information from properties
+  files on the classpath called `artemis-users.properties` and
+  `artemis-roles.properties`.
 
 ### JAAS Security Manager
 
@@ -1098,6 +1105,90 @@ cypher suites offered by rfc2712 are dated and insecure and rfc2712 has been
 superseded by SASL GSSAPI. However, for clients that don't support SASL (core
 client), using TLS can provide Kerberos authentication over an *unsecure*
 channel.
+
+### Basic Security Manager
+
+As the name suggests, the `ActiveMQBasicSecurityManager` is _basic_. It is not
+pluggable like the JAAS security manager and it _only_ supports authentication
+via username and password credentials. Furthermore, the the Hawtio-based web
+console requires JAAS. Therefore you will *still need* to configure a
+`login.config` if you plan on using the web console. However, this security
+manager *may* still may have a couple of advantages depending on your use-case.
+
+All user & role data is stored in the bindings journal (or bindings table if
+using JDBC). The advantage here is that in a live/backup use-case any user
+management performed on the live broker will be reflected on the backup upon
+failover. Typically LDAP would be employed for this kind of use-case, but not
+everyone wants or is able to administer an independent LDAP server.
+
+User management is provided by the broker's management API. This includes the
+ability to add, list, update, and remove users & roles. As with all management
+functions, this is available via JMX, management messages, HTTP (via Jolokia),
+web console, etc. These functions are also available from the ActiveMQ Artemis
+command-line interface. Having the broker store this data directly means that
+it must be running in order to manage users. There is no way to modify the
+bindings data manually.
+
+To be clear, any management access via HTTP (e.g. web console or Jolokia) will
+go through Hawtio JAAS. MBean access via JConsole or other remote JMX tool will
+go through the basic security manager. Management messages will also go through
+the basic security manager.
+
+#### Configuration
+
+The configuration for the `ActiveMQBasicSecurityManager` happens in
+`bootstrap.xml` just like it does for all security manager implementations.
+Here's an example:
+
+```xml
+<broker xmlns="http://activemq.org/schema">
+
+   <security-manager class-name="org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager">
+      <property key="bootstrapUser" value="myUser"/>
+      <property key="bootstrapPassword" value="myPass"/>
+      <property key="bootstrapRole" value="myRole"/>
+   </security-manager>
+   
+   ...
+</broker>
+```
+
+Because the bindings data which holds the user & role data cannot be modified
+manually and because the broker must be running to manage users and because
+the broker often needs to be secured from first boot the
+`ActiveMQBasicSecurityManager` has 3 properties to define a user whose
+credentials can then be used to add other users.
+
+- `bootstrapUser` - the name of the bootstrap user
+- `bootstrapPassword` - the password for the bootstrap user; supports masking
+- `bootstrapRole` - the role of the bootstrap user
+
+The value specified in the `bootstrapRole` will need the following permissions
+on the `activemq.management` address:
+
+- `createNonDurableQueue`
+- `createAddress`
+- `consume`
+- `manage`
+- `send`
+
+For example:
+
+```xml
+<security-setting match="activemq.management.#">
+   <permission type="createNonDurableQueue" roles="myRole"/>
+   <permission type="createAddress" roles="myRole"/>
+   <permission type="consume" roles="myRole"/>
+   <permission type="manage" roles="myRole"/>
+   <permission type="send" roles="myRole"/>
+</security-setting>
+```
+
+> **Note:**
+>
+> If the 3 `bootstrap` properties are defined then those credentials will be
+> set whenever you start the broker no matter what changes may have been made
+> to them at runtime previously.
 
 ## Mapping external roles
 Roles from external authentication providers (i.e. LDAP) can be mapped to internally used roles. The is done through role-mapping entries in the security-settings block:

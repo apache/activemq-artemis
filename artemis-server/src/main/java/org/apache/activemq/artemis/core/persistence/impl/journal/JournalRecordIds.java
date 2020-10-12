@@ -45,7 +45,7 @@ public final class JournalRecordIds {
 
    public static final byte ADDRESS_SETTING_RECORD = 25;
 
-   public static final byte SECURITY_RECORD = 26;
+   public static final byte SECURITY_SETTING_RECORD = 26;
 
    public static final byte DIVERT_RECORD = 27;
 
@@ -91,5 +91,9 @@ public final class JournalRecordIds {
    public static final byte ADD_MESSAGE_PROTOCOL = 45;
 
    public static final byte ADDRESS_STATUS_RECORD = 46;
+
+   public static final byte USER_RECORD = 47;
+
+   public static final byte ROLE_RECORD = 48;
 
 }
