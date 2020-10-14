@@ -76,12 +76,12 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void refUp(Message message) {
+   public void refUp(MessageReference messageReference) {
 
    }
 
    @Override
-   public void refDown(Message message) {
+   public void refDown(MessageReference messageReference) {
 
    }
 

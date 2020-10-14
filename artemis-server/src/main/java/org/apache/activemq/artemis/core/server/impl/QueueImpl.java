@@ -970,36 +970,37 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public int durableUp(Message message) {
-      int count = message.durableUp();
-      if (pagingStore != null) {
-         pagingStore.durableUp(message, count);
-      }
-      return count;
+      return message.durableUp();
    }
 
    @Override
    public int durableDown(Message message) {
-      int count = message.durableDown();
-      if (pagingStore != null) {
-         pagingStore.durableDown(message, count);
-      }
-      return count;
+      return message.durableDown();
    }
 
    @Override
-   public void refUp(Message message) {
-      int count = message.refUp();
-      if (pagingStore != null) {
-         pagingStore.refUp(message, count);
+   public void refUp(MessageReference messageReference) {
+      int count = messageReference.getMessage().refUp();
+      if (count == 1) {
+         if (messageReference.getOwner() != null) {
+            messageReference.getOwner().addSize(messageReference.getMessageMemoryEstimate());
+         }
       }
-
+      if (pagingStore != null) {
+         pagingStore.refUp(messageReference.getMessage(), count);
+      }
    }
 
    @Override
-   public void refDown(Message message) {
-      int count = message.refDown();
+   public void refDown(MessageReference messageReference) {
+      int count = messageReference.getMessage().refDown();
+      if (count == 0) {
+         if (messageReference.getOwner() != null) {
+            messageReference.getOwner().addSize(-messageReference.getMessageMemoryEstimate());
+         }
+      }
       if (pagingStore != null) {
-         pagingStore.refDown(message, count);
+         pagingStore.refDown(messageReference.getMessage(), count);
       }
    }
 
@@ -3826,6 +3827,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (message == null || (nonDestructive && reason == AckReason.NORMAL))
          return;
 
+      queue.refDown(ref);
+
       boolean durableRef = message.isDurable() && queue.isDurable();
 
       if (durableRef) {
@@ -3854,8 +3857,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                ActiveMQServerLogger.LOGGER.errorRemovingMessage(e, message.getMessageID());
             }
          }
-      } else {
-         queue.refDown(message);
       }
    }
 

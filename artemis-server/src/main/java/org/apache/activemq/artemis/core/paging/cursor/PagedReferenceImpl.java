@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -403,6 +404,16 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
          }
       }
       return messageSize;
+   }
+
+   @Override
+   public PagingStore getOwner() {
+      return null;
+   }
+
+   @Override
+   public void setOwner(PagingStore owner) {
+
    }
 
    @Override
