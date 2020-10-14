@@ -250,7 +250,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
                            long nextMessageID,
                            long nextScheduledTime,
                            boolean tail) {
-      MessageReferenceImpl refImpl = new MessageReferenceImpl(new FakeMessage(nextMessageID), null);
+      MessageReferenceImpl refImpl = new MessageReferenceImpl(new FakeMessage(nextMessageID), null, null);
       refImpl.setScheduledDeliveryTime(nextScheduledTime);
       handler.addInPlace(nextScheduledTime, refImpl, tail);
    }
@@ -260,7 +260,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
                                  long nextScheduledTime,
                                  boolean tail,
                                  Queue queue) {
-      MessageReferenceImpl refImpl = new MessageReferenceImpl(new FakeMessage(nextMessageID), queue);
+      MessageReferenceImpl refImpl = new MessageReferenceImpl(new FakeMessage(nextMessageID), queue, null);
       refImpl.setScheduledDeliveryTime(nextScheduledTime);
       handler.checkAndSchedule(refImpl, tail);
    }
@@ -808,6 +808,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       public long getPersistentSize() throws ActiveMQException {
          return 0;
       }
+
    }
 
    public class FakeQueueForScheduleUnitTest extends CriticalComponentImpl implements Queue {
@@ -843,12 +844,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void refUp(Message message) {
+      public void refUp(MessageReference messageReference) {
 
       }
 
       @Override
-      public void refDown(Message message) {
+      public void refDown(MessageReference messageReference) {
 
       }
 

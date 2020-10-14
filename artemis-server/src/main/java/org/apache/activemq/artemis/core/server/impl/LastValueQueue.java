@@ -538,6 +538,16 @@ public class LastValueQueue extends QueueImpl {
       public long getPersistentSize() throws ActiveMQException {
          return ref.getPersistentSize();
       }
+
+      @Override
+      public PagingStore getOwner() {
+         return ref.getOwner();
+      }
+
+      @Override
+      public void setOwner(PagingStore owner) {
+         ref.setOwner(owner);
+      }
    }
 
    @Override

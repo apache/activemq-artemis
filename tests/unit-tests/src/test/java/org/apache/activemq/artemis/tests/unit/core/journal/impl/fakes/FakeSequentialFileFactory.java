@@ -312,11 +312,10 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
 
       @Override
       public void delete() {
+         fileMap.remove(fileName);
          if (open) {
             close();
          }
-
-         fileMap.remove(fileName);
       }
 
       @Override

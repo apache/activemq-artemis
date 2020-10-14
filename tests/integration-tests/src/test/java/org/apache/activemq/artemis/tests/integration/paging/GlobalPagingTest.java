@@ -334,7 +334,7 @@ public class GlobalPagingTest extends PagingTest {
                int id = 1000;
                try (ClientConsumer consumer = session.createConsumer(replyQueue)) {
                   final Queue queue = server.locateQueue(replyQueue);
-                  final MessageReference reference = MessageReference.Factory.createReference(session.createMessage(false), queue);
+                  final MessageReference reference = MessageReference.Factory.createReference(session.createMessage(false), queue, null);
                   reference.getMessage().setMessageID(id++);
                   //it will cause QueueImpl::directDeliver -> false
                   queue.addHead(reference, false);
