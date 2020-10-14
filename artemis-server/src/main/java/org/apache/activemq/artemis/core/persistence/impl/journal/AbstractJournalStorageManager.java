@@ -1232,7 +1232,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          }
 
          for (LargeServerMessage msg : largeMessages) {
-            if (msg.toMessage().getRefCount() == 0) {
+            if (msg.toMessage().getRefCount() == 0 && msg.toMessage().getDurableCount() == 0) {
                ActiveMQServerLogger.LOGGER.largeMessageWithNoRef(msg.getMessageID());
                msg.toMessage().usageDown();
             }
