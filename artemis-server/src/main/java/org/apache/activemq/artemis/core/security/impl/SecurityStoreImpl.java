@@ -253,24 +253,22 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          /*
           * If a valid queue is passed in and there's an exact match for the FQQN then use the FQQN instead of the address
           */
-         boolean isFullyQualified = false;
          SimpleString fqqn = null;
          if (bareQueue != null) {
             fqqn = CompositeAddress.toFullyQualified(bareAddress, bareQueue);
             if (securityRepository.containsExactMatch(fqqn.toString())) {
                roles = securityRepository.getMatch(fqqn.toString());
-               isFullyQualified = true;
             }
          }
 
-         if (checkAuthorizationCache(isFullyQualified ? fqqn : bareAddress, user, checkType)) {
+         if (checkAuthorizationCache(fqqn != null  ? fqqn : bareAddress, user, checkType)) {
             return;
          }
 
          final Boolean validated;
          if (securityManager instanceof ActiveMQSecurityManager5) {
             Subject subject = getSubjectForAuthorization(session, ((ActiveMQSecurityManager5) securityManager));
-            validated = ((ActiveMQSecurityManager5) securityManager).authorize(subject, roles, checkType, isFullyQualified ? fqqn.toString() : bareAddress.toString());
+            validated = ((ActiveMQSecurityManager5) securityManager).authorize(subject, roles, checkType, fqqn != null ? fqqn.toString() : bareAddress.toString());
          } else if (securityManager instanceof ActiveMQSecurityManager4) {
             validated = ((ActiveMQSecurityManager4) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection(), session.getSecurityDomain()) != null;
          } else if (securityManager instanceof ActiveMQSecurityManager3) {
@@ -314,7 +312,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             set = new ConcurrentHashSet<>();
             authorizationCache.put(key, set);
          }
-         set.add(isFullyQualified ? fqqn : bareAddress);
+         set.add(fqqn != null ? fqqn : bareAddress);
       }
    }
 
