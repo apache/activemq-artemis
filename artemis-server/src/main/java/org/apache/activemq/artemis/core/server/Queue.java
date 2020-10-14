@@ -68,9 +68,9 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int durableDown(Message message);
 
-   void refUp(Message message);
+   void refUp(MessageReference messageReference);
 
-   void refDown(Message message);
+   void refDown(MessageReference messageReference);
 
 
    /**
