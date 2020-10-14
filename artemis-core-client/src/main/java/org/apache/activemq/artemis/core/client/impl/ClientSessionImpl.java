@@ -1146,7 +1146,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public int getVersion() {
-      return sessionContext.getServerVersion();
+      return sessionContext.getCompatibleVersion();
    }
 
    @Override

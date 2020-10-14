@@ -340,7 +340,7 @@ public abstract class SessionContext {
     */
    public abstract int recoverSessionTimeout() throws ActiveMQException;
 
-   public abstract int getServerVersion();
+   public abstract int getCompatibleVersion();
 
    public abstract void recreateSession(String username,
                                         String password,

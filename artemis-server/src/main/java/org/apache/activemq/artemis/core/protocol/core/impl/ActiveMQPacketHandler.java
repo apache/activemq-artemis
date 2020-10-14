@@ -180,7 +180,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
          // TODO - where is this removed?
          protocolManager.addSessionHandler(request.getName(), handler);
 
-         response = new CreateSessionResponseMessage(server.getVersion().getIncrementingVersion());
+         response = new CreateSessionResponseMessage(request.getVersion());
       } catch (ActiveMQClusterSecurityException | ActiveMQSecurityException e) {
          response = new ActiveMQExceptionMessage(e);
       } catch (ActiveMQException e) {

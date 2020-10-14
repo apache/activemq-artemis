@@ -134,7 +134,7 @@ public class ActiveMQSessionContext extends SessionContext {
    private static final Logger logger = Logger.getLogger(ActiveMQSessionContext.class);
 
    private final Channel sessionChannel;
-   private final int serverVersion;
+   private final int compatibleVersion;
    private int confirmationWindow;
    private String name;
    private boolean killed;
@@ -160,13 +160,13 @@ public class ActiveMQSessionContext extends SessionContext {
    public ActiveMQSessionContext(String name,
                                  RemotingConnection remotingConnection,
                                  Channel sessionChannel,
-                                 int serverVersion,
+                                 int compatibleVersion,
                                  int confirmationWindow) {
       super(remotingConnection);
 
       this.name = name;
       this.sessionChannel = sessionChannel;
-      this.serverVersion = serverVersion;
+      this.compatibleVersion = compatibleVersion;
       this.confirmationWindow = confirmationWindow;
 
       ChannelHandler handler = new ClientSessionPacketHandler();
@@ -400,21 +400,21 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public int getServerVersion() {
-      return serverVersion;
+   public int getCompatibleVersion() {
+      return compatibleVersion;
    }
 
    @Override
    public ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
-      if (sessionChannel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V4, getServerVersion())) {
+      if (sessionChannel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V4, getCompatibleVersion())) {
          Packet packet = sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP_V4);
          SessionBindingQueryResponseMessage_V4 response = (SessionBindingQueryResponseMessage_V4) packet;
          return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateQueues(), response.isAutoCreateAddresses(), response.isDefaultPurgeOnNoConsumers(), response.getDefaultMaxConsumers(), response.isDefaultExclusive(), response.isDefaultLastValue(), response.getDefaultLastValueKey(), response.isDefaultNonDestructive(), response.getDefaultConsumersBeforeDispatch(), response.getDefaultDelayBeforeDispatch());
-      } else if (sessionChannel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3, getServerVersion())) {
+      } else if (sessionChannel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3, getCompatibleVersion())) {
          Packet packet = sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP_V3);
          SessionBindingQueryResponseMessage_V3 response = (SessionBindingQueryResponseMessage_V3) packet;
          return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateQueues(), response.isAutoCreateAddresses(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), null, null, null, null, null, null);
-      } else if (sessionChannel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2, getServerVersion())) {
+      } else if (sessionChannel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2, getCompatibleVersion())) {
          Packet packet = sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP_V2);
          SessionBindingQueryResponseMessage_V2 response = (SessionBindingQueryResponseMessage_V2) packet;
          return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateQueues(), false, ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), null, null, null, null, null, null);
@@ -893,7 +893,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                                    boolean autoCommitSends,
                                                    boolean autoCommitAcks,
                                                    boolean preAcknowledge) {
-      return new CreateSessionMessage(name, sessionChannel.getID(), getServerVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, null);
+      return new CreateSessionMessage(name, sessionChannel.getID(), getCompatibleVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, null);
    }
 
    @Override
