@@ -1201,7 +1201,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public MessageReference reload(final Message message, final Queue queue, final Transaction tx) throws Exception {
 
-      MessageReference reference = MessageReference.Factory.createReference(message, queue);
+      MessageReference reference = MessageReference.Factory.createReference(message, queue, pagingManager.getPageStore(message.getAddressSimpleString()));
 
       Long scheduledDeliveryTime;
       if (message.hasScheduledDeliveryTime()) {
@@ -1211,6 +1211,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
       }
 
+      queue.refUp(reference);
       queue.durableUp(message);
 
       if (tx == null) {
@@ -1455,8 +1456,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          deliveryTime = message.getScheduledDeliveryTime();
       }
 
+      PagingStore owningStore = pagingManager.getPageStore(message.getAddressSimpleString());
       for (Map.Entry<SimpleString, RouteContextList> entry : context.getContexListing().entrySet()) {
-         PagingStore store = pagingManager.getPageStore(entry.getKey());
+         PagingStore store;
+         if (entry.getKey() == message.getAddressSimpleString() || entry.getKey().equals(message.getAddressSimpleString())) {
+            store = owningStore;
+         } else {
+            store = pagingManager.getPageStore(entry.getKey());
+         }
 
          if (store != null && storageManager.addToPage(store, message, context.getTransaction(), entry.getValue())) {
             if (message.isLargeMessage()) {
@@ -1469,14 +1476,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
 
          for (Queue queue : entry.getValue().getNonDurableQueues()) {
-            MessageReference reference = MessageReference.Factory.createReference(message, queue);
+            MessageReference reference = MessageReference.Factory.createReference(message, queue, owningStore);
 
             if (deliveryTime != null) {
                reference.setScheduledDeliveryTime(deliveryTime);
             }
             refs.add(reference);
 
-            queue.refUp(message);
+            queue.refUp(reference);
          }
 
          Iterator<Queue> iter = entry.getValue().getDurableQueues().iterator();
@@ -1484,7 +1491,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          while (iter.hasNext()) {
             Queue queue = iter.next();
 
-            MessageReference reference = MessageReference.Factory.createReference(message, queue);
+            MessageReference reference = MessageReference.Factory.createReference(message, queue, owningStore);
 
             if (context.isAlreadyAcked(context.getAddress(message), queue)) {
                reference.setAlreadyAcked();
@@ -1497,6 +1504,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                reference.setScheduledDeliveryTime(deliveryTime);
             }
             refs.add(reference);
+            queue.refUp(reference);
 
             if (message.isDurable()) {
                int durableRefCount = queue.durableUp(message);
@@ -1528,8 +1536,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                      storageManager.updateScheduledDeliveryTime(reference);
                   }
                }
-            } else {
-               queue.refUp(message);
             }
          }
       }
@@ -1852,12 +1858,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          // Reverse the ref counts, and paging sizes
 
          for (MessageReference ref : refs) {
+            ref.getQueue().refDown(ref);
             Message message = ref.getMessage();
-
             if (message.isDurable() && ref.getQueue().isDurable()) {
                ref.getQueue().durableDown(message);
-            } else {
-               ref.getQueue().refDown(message);
             }
          }
       }

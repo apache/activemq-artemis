@@ -144,7 +144,7 @@ public class RefsOperation extends TransactionOperationAbstract {
                   ackedTX.setContainsPersistent();
                }
 
-               ref.getQueue().refUp(message);
+               ref.getQueue().refUp(ref);
             }
             ackedTX.commit(true);
          } catch (Exception e) {
@@ -188,7 +188,7 @@ public class RefsOperation extends TransactionOperationAbstract {
          for (MessageReference refmsg : pagedMessagesToPostACK) {
             ((PagedReference)refmsg).removePendingFlag();
             if (((PagedReference) refmsg).isLargeMessage()) {
-               refmsg.getQueue().refDown(refmsg.getMessage());
+               refmsg.getQueue().refDown(refmsg);
             }
          }
       }

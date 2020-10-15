@@ -966,11 +966,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public void refUp(Message message, int count) {
-      if (count == 1) {
-         this.addSize(message.getMemoryEstimate() + MessageReferenceImpl.getMemoryEstimate());
-      } else {
-         this.addSize(MessageReferenceImpl.getMemoryEstimate());
-      }
+      this.addSize(MessageReferenceImpl.getMemoryEstimate());
    }
 
    @Override
@@ -979,15 +975,7 @@ public class PagingStoreImpl implements PagingStore {
          // this could happen on paged messages since they are not routed and refUp is never called
          return;
       }
-
-      if (count == 0) {
-         this.addSize(-message.getMemoryEstimate() - MessageReferenceImpl.getMemoryEstimate());
-
-      } else {
-         this.addSize(-MessageReferenceImpl.getMemoryEstimate());
-      }
-
-
+      this.addSize(-MessageReferenceImpl.getMemoryEstimate());
    }
 
    private void installPageTransaction(final Transaction tx, final RouteContextList listCtx) throws Exception {
