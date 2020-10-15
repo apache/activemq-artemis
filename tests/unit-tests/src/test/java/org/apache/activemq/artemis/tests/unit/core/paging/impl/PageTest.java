@@ -225,19 +225,20 @@ public class PageTest extends ActiveMQTestBase {
 
       file = factory.createSequentialFile("00010.page");
       file.open();
-      page = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
+      Page page1 = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
 
-      List<PagedMessage> msgs = page.read(new NullStorageManager());
+      List<PagedMessage> msgs = page1.read(new NullStorageManager());
 
       Assert.assertEquals(numberOfElements, msgs.size());
 
-      Assert.assertEquals(numberOfElements, page.getNumberOfMessages());
+      Assert.assertEquals(numberOfElements, page1.getNumberOfMessages());
 
       for (int i = 0; i < msgs.size(); i++) {
          Assert.assertEquals(simpleDestination, msgs.get(i).getMessage().getAddressSimpleString());
       }
 
-      page.delete(null);
+      page.close(false);
+      page1.delete(null);
 
       Assert.assertEquals(0, factory.listFiles("page").size());
 
