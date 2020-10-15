@@ -179,6 +179,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1, storeImpl.getNumberOfPages());
 
+      storeImpl.stop();
    }
 
    @Test
@@ -226,6 +227,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       Assert.assertEquals(numMessages, msg.size());
       Assert.assertEquals(1, storeImpl.getNumberOfPages());
 
+      page.close(false);
       page = storeImpl.depage();
 
       Assert.assertNull(page);
@@ -362,6 +364,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       Assert.assertEquals(0, store.getNumberOfPages());
 
       page.open();
+      page.close(false);
 
    }
 
@@ -576,6 +579,8 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       Assert.assertEquals(0, buffers2.size());
 
       Assert.assertEquals(0, storeImpl.getAddressSize());
+
+      storeImpl.stop();
    }
 
    @Test
@@ -791,6 +796,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
             Assert.assertEquals(msg.getMessageID(), msg.getLongProperty("count").longValue());
             msgsRead++;
          }
+         page.close(false);
       }
 
       storeImpl.stop();

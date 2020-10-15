@@ -583,17 +583,6 @@ public final class Page implements Comparable<Page> {
    }
 
    @Override
-   protected void finalize() {
-      try {
-         if (file != null && file.isOpen()) {
-            file.close(false);
-         }
-      } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.pageFinaliseError(e);
-      }
-   }
-
-   @Override
    public int hashCode() {
       final int prime = 31;
       int result = 1;
