@@ -54,6 +54,7 @@
    <startargument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</startargument>
    <startargument>-Dlogging.configuration=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties</startargument>
    <startargument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE_ETC%\login.config</startargument>
+   <startargument>-Dhawtio.disableProxy=true</startargument>
    <startargument>-Dhawtio.realm=activemq</startargument>
    <startargument>-Dhawtio.offline="true"</startargument>
    <startargument>-Dhawtio.role=${role}</startargument>
