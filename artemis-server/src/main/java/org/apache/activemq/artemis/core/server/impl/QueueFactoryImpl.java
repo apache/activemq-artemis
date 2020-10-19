@@ -140,7 +140,7 @@ public class QueueFactoryImpl implements QueueFactory {
       PageSubscription pageSubscription;
 
       try {
-         PagingStore pageStore = pagingManager.getPageStore(queueConfiguration.getPageStoreName());
+         PagingStore pageStore = pagingManager.getPageStore(queueConfiguration.getAddress());
          if (pageStore != null) {
             pageSubscription = pageStore.getCursorProvider().createSubscription(queueConfiguration.getId(), FilterImpl.createFilter(queueConfiguration.getFilterString()), queueConfiguration.isDurable());
          } else {

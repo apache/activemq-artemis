@@ -3729,21 +3729,13 @@
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
-
-            <xsd:element name="page-store-name" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the name of the page store to use, to allow the page store to coalesce for address hierarchies when wildcard routing is in play
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
             
          </xsd:all>
 
          <xsd:attribute name="match" type="xsd:string" use="required">
             <xsd:annotation>
                <xsd:documentation>
-                  pattern for matching settings against addresses; can use wildcards
+                  pattern for matching settings against addresses; can use wildards
                </xsd:documentation>
             </xsd:annotation>
          </xsd:attribute>

@@ -70,8 +70,6 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
 
    @Override
    protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration) {
-      configuration.getAddressesSettings().put("A.#", new AddressSettings().setPageSizeBytes(5).setMaxSizeBytes(10).setPageStoreName(new SimpleString("a-bag")));
-      configuration.getAddressesSettings().put("news.#", new AddressSettings().setPageSizeBytes(5).setMaxSizeBytes(10).setPageStoreName(new SimpleString("news-bag")));
       configuration.setGlobalMaxSize(15);
       return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, 10);
    }
@@ -227,7 +225,7 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
          messageConsumerAllNews.close();
 
          int countOfPageStores = server.getPagingManager().getStoreNames().length;
-         assertEquals("there should only be one", 1, countOfPageStores);
+         assertEquals("there should be 5", 5, countOfPageStores);
 
          connection.close();
 
@@ -239,27 +237,5 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
 
    private void addSizeProp(TextMessage messageWrestlingNews) throws JMSException {
       messageWrestlingNews.setStringProperty("stuff", new String(new byte[1024]));
-   }
-
-
-   @Test
-   public void testWarnOnWildcardWithNoMatchingPageStoreName() throws Exception {
-
-      try {
-         AssertionLoggerHandler.startCapture();
-
-         ConnectionFactory cf = new ActiveMQConnectionFactory();
-         Connection connection = cf.createConnection();
-         connection.setClientID("some-sensible-identity");
-         connection.start();
-         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageConsumer messageConsumer = session.createDurableConsumer(session.createTopic("b.c.#"), "w-a-warn");
-         messageConsumer.close();
-
-         connection.close();
-         Assert.assertTrue(AssertionLoggerHandler.findText("222295"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
-      }
    }
 }

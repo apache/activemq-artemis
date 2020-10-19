@@ -46,6 +46,5 @@ public class QueueConfigurationUtils {
       config.setAutoDeleteMessageCount(config.getAutoDeleteMessageCount() == null ? as.getAutoDeleteQueuesMessageCount() : config.getAutoDeleteMessageCount());
 
       config.setEnabled(config.isEnabled() == null ? ActiveMQDefaultConfiguration.getDefaultEnabled() : config.isEnabled());
-      config.setPageStoreName(as.getPageStoreName());
    }
 }

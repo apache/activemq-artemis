@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,7 +53,6 @@ public class WildcardTest extends JMSTestBase {
    @Override
    protected Configuration createDefaultConfig(boolean netty) throws Exception {
       Configuration configuration =  super.createDefaultConfig(netty).setJMXManagementEnabled(true);
-      configuration.getAddressesSettings().put("test.#", new AddressSettings().setPageStoreName(new SimpleString("test-topic-hierarchy-root")));
       return configuration;
    }
 

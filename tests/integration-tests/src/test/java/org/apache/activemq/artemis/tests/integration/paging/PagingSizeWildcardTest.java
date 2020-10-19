@@ -29,7 +29,6 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
@@ -40,7 +39,6 @@ public class PagingSizeWildcardTest extends ActiveMQTestBase {
    public void testWildcardPageSize() throws Exception {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
-      config.getAddressesSettings().put("A.#", new AddressSettings().setPageStoreName(new SimpleString("shared-page-store-for-a#")));
 
       ActiveMQServer server = createServer(true, config, 200, 400);
       server.start();
