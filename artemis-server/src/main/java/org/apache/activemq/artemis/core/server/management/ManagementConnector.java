@@ -19,9 +19,12 @@ package org.apache.activemq.artemis.core.server.management;
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.remote.JMXAuthenticator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +35,11 @@ public class ManagementConnector implements ActiveMQComponent {
    private ConnectorServerFactory connectorServerFactory;
    private RmiRegistryFactory rmiRegistryFactory;
    private MBeanServerFactory mbeanServerFactory;
+   private ActiveMQSecurityManager securityManager;
 
-   public ManagementConnector(JMXConnectorConfiguration configuration) {
+   public ManagementConnector(JMXConnectorConfiguration configuration, ActiveMQSecurityManager securityManager) {
       this.configuration = configuration;
+      this.securityManager = securityManager;
    }
 
    @Override
@@ -54,8 +59,15 @@ public class ManagementConnector implements ActiveMQComponent {
 
       MBeanServer mbeanServer = mbeanServerFactory.getServer();
 
-      JaasAuthenticator jaasAuthenticator = new JaasAuthenticator();
-      jaasAuthenticator.setRealm(configuration.getJmxRealm());
+      JMXAuthenticator authenticator;
+
+      if (securityManager != null && securityManager instanceof ActiveMQBasicSecurityManager) {
+         authenticator = new BasicAuthenticator((ActiveMQBasicSecurityManager) securityManager);
+      } else {
+         JaasAuthenticator jaasAuthenticator = new JaasAuthenticator();
+         jaasAuthenticator.setRealm(configuration.getJmxRealm());
+         authenticator = jaasAuthenticator;
+      }
 
       connectorServerFactory = new ConnectorServerFactory();
       connectorServerFactory.setServer(mbeanServer);
@@ -63,7 +75,7 @@ public class ManagementConnector implements ActiveMQComponent {
       connectorServerFactory.setRmiServerHost(configuration.getConnectorHost());
       connectorServerFactory.setObjectName(new ObjectName(configuration.getObjectName()));
       Map<String, Object> environment = new HashMap<>();
-      environment.put("jmx.remote.authenticator", jaasAuthenticator);
+      environment.put("jmx.remote.authenticator", authenticator);
       try {
          connectorServerFactory.setEnvironment(environment);
          connectorServerFactory.setAuthenticatorType(configuration.getAuthenticatorType());
@@ -108,4 +120,7 @@ public class ManagementConnector implements ActiveMQComponent {
       }
    }
 
+   public ConnectorServerFactory getConnectorServerFactory() {
+      return connectorServerFactory;
+   }
 }

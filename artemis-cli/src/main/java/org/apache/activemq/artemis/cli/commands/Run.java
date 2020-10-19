@@ -72,16 +72,14 @@ public class Run extends LockAbstract {
       super.execute(context);
 
       try {
+         BrokerDTO broker = getBrokerDTO();
+         ActiveMQSecurityManager securityManager = SecurityManagerFactory.create(broker.security);
          ManagementContextDTO managementDTO = getManagementDTO();
-         managementContext = ManagementFactory.create(managementDTO);
+         managementContext = ManagementFactory.create(managementDTO, securityManager);
 
          Artemis.printBanner();
 
-         BrokerDTO broker = getBrokerDTO();
-
          addShutdownHook(broker.server.getConfigurationFile().getParentFile());
-
-         ActiveMQSecurityManager security = SecurityManagerFactory.create(broker.security);
 
          ActivateCallback activateCallback = new ActivateCallback() {
             @Override
@@ -109,7 +107,7 @@ public class Run extends LockAbstract {
             }
          };
 
-         server = BrokerFactory.createServer(broker.server, security, activateCallback);
+         server = BrokerFactory.createServer(broker.server, securityManager, activateCallback);
 
          managementContext.start();
          server.createComponents();

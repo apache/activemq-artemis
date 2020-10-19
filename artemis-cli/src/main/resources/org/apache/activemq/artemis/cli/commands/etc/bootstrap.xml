@@ -18,7 +18,7 @@
 
 <broker xmlns="http://activemq.org/schema">
 
-   <jaas-security domain="activemq"/>
+${security-manager-settings}
 
    <!-- artemis.URI.instance is parsed from artemis.instance by the CLI startup.
         This is to avoid situations where you could have spaces or special characters on this URI -->

@@ -22,13 +22,13 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
-import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.junit.Before;
 import org.junit.Test;
 
 public class RolesConfigurationStorageTest extends StorageManagerTestBase {
 
-   private Map<SimpleString, PersistedRoles> mapExpectedSets;
+   private Map<SimpleString, PersistedSecuritySetting> mapExpectedSets;
 
    public RolesConfigurationStorageTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
@@ -41,18 +41,18 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
       mapExpectedSets = new HashMap<>();
    }
 
-   protected void addSetting(PersistedRoles setting) throws Exception {
+   protected void addSetting(PersistedSecuritySetting setting) throws Exception {
       mapExpectedSets.put(setting.getAddressMatch(), setting);
-      journal.storeSecurityRoles(setting);
+      journal.storeSecuritySetting(setting);
    }
 
    @Test
    public void testStoreSecuritySettings() throws Exception {
       createStorage();
 
-      addSetting(new PersistedRoles("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
 
-      addSetting(new PersistedRoles("a2", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a2", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
 
       journal.stop();
 
@@ -62,9 +62,9 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
 
       checkSettings();
 
-      addSetting(new PersistedRoles("a2", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a2", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
 
-      addSetting(new PersistedRoles("a3", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a3", "a1", null, "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
 
       checkSettings();
 
@@ -92,7 +92,7 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
 
       checkSettings();
 
-      addSetting(new PersistedRoles("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
+      addSetting(new PersistedSecuritySetting("a#", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1"));
 
       journal.stop();
 
@@ -112,12 +112,12 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
     * @throws Exception
     */
    private void checkSettings() throws Exception {
-      List<PersistedRoles> listSetting = journal.recoverPersistedRoles();
+      List<PersistedSecuritySetting> listSetting = journal.recoverSecuritySettings();
 
       assertEquals(mapExpectedSets.size(), listSetting.size());
 
-      for (PersistedRoles el : listSetting) {
-         PersistedRoles el2 = mapExpectedSets.get(el.getAddressMatch());
+      for (PersistedSecuritySetting el : listSetting) {
+         PersistedSecuritySetting el2 = mapExpectedSets.get(el.getAddressMatch());
 
          assertEquals(el, el2);
       }

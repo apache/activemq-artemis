@@ -19,21 +19,16 @@ package org.apache.activemq.artemis.spi.core.security;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.apache.activemq.artemis.utils.SecurityManagerUtil;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
@@ -47,8 +42,6 @@ import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCerts
 public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
 
    private static final Logger logger = Logger.getLogger(ActiveMQJAASSecurityManager.class);
-
-   private static final String WILDCARD = "*";
 
    private String configurationName;
    private String certificateConfigurationName;
@@ -115,33 +108,10 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
                             final Set<Role> roles,
                             final CheckType checkType,
                             final String address) {
-      boolean authorized = false;
+      boolean authorized = SecurityManagerUtil.authorize(subject, roles, checkType, rolePrincipalClass);
 
-      if (subject != null) {
-         Set<RolePrincipal> rolesWithPermission = getPrincipalsInRole(checkType, roles);
-
-         // Check the caller's roles
-         Set<Principal> rolesForSubject = new HashSet<>();
-         try {
-            rolesForSubject.addAll(subject.getPrincipals(Class.forName(rolePrincipalClass).asSubclass(Principal.class)));
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.failedToFindRolesForTheSubject(e);
-         }
-         if (rolesForSubject.size() > 0 && rolesWithPermission.size() > 0) {
-            Iterator<Principal> rolesForSubjectIter = rolesForSubject.iterator();
-            while (!authorized && rolesForSubjectIter.hasNext()) {
-               Iterator<RolePrincipal> rolesWithPermissionIter = rolesWithPermission.iterator();
-               Principal subjectRole = rolesForSubjectIter.next();
-               while (!authorized && rolesWithPermissionIter.hasNext()) {
-                  Principal roleWithPermission = rolesWithPermissionIter.next();
-                  authorized = subjectRole.equals(roleWithPermission);
-               }
-            }
-         }
-
-         if (logger.isTraceEnabled()) {
-            logger.trace("user " + (authorized ? " is " : " is NOT ") + "authorized");
-         }
+      if (logger.isTraceEnabled()) {
+         logger.trace("user " + (authorized ? " is " : " is NOT ") + "authorized");
       }
 
       return authorized;
@@ -187,20 +157,6 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
       }
    }
 
-   private Set<RolePrincipal> getPrincipalsInRole(final CheckType checkType, final Set<Role> roles) {
-      Set principals = new HashSet<>();
-      for (Role role : roles) {
-         if (checkType.hasRole(role)) {
-            try {
-               principals.add(createGroupPrincipal(role.getName(), rolePrincipalClass));
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.failedAddRolePrincipal(e);
-            }
-         }
-      }
-      return principals;
-   }
-
    public void setConfigurationName(final String configurationName) {
       this.configurationName = configurationName;
    }
@@ -239,61 +195,5 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
 
    public void setRolePrincipalClass(String rolePrincipalClass) {
       this.rolePrincipalClass = rolePrincipalClass;
-   }
-
-   public static Object createGroupPrincipal(String name, String groupClass) throws Exception {
-      if (WILDCARD.equals(name)) {
-         // simple match all group principal - match any name and class
-         return new Principal() {
-            @Override
-            public String getName() {
-               return WILDCARD;
-            }
-
-            @Override
-            public boolean equals(Object other) {
-               return true;
-            }
-
-            @Override
-            public int hashCode() {
-               return WILDCARD.hashCode();
-            }
-         };
-      }
-      Object[] param = new Object[]{name};
-
-      Class<?> cls = Class.forName(groupClass);
-
-      Constructor<?>[] constructors = cls.getConstructors();
-      int i;
-      Object instance;
-      for (i = 0; i < constructors.length; i++) {
-         Class<?>[] paramTypes = constructors[i].getParameterTypes();
-         if (paramTypes.length != 0 && paramTypes[0].equals(String.class)) {
-            break;
-         }
-      }
-      if (i < constructors.length) {
-         instance = constructors[i].newInstance(param);
-      } else {
-         instance = cls.newInstance();
-         Method[] methods = cls.getMethods();
-         i = 0;
-         for (i = 0; i < methods.length; i++) {
-            Class<?>[] paramTypes = methods[i].getParameterTypes();
-            if (paramTypes.length != 0 && methods[i].getName().equals("setName") && paramTypes[0].equals(String.class)) {
-               break;
-            }
-         }
-
-         if (i < methods.length) {
-            methods[i].invoke(instance, param);
-         } else {
-            throw new NoSuchMethodException();
-         }
-      }
-
-      return instance;
    }
 }

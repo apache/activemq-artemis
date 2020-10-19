@@ -94,7 +94,7 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
-import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JDBCJournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
@@ -186,6 +186,7 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
@@ -236,7 +237,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final Version version;
 
-   private final ActiveMQSecurityManager securityManager;
+   private ActiveMQSecurityManager securityManager;
 
    private final Configuration configuration;
 
@@ -867,6 +868,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.cannotSetMBeanserver();
       }
       this.mbeanServer = mbeanServer;
+   }
+
+   @Override
+   public MBeanServer getMBeanServer() {
+      return mbeanServer;
+   }
+
+   @Override
+   public void setSecurityManager(ActiveMQSecurityManager securityManager) {
+      if (state == SERVER_STATE.STARTING || state == SERVER_STATE.STARTED) {
+         throw ActiveMQMessageBundle.BUNDLE.cannotSetSecurityManager();
+      }
+      this.securityManager = securityManager;
    }
 
    private void validateAddExternalComponent(ActiveMQComponent externalComponent) {
@@ -3048,6 +3062,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       removeExtraAddressStores();
 
+      if (securityManager instanceof ActiveMQBasicSecurityManager) {
+         ((ActiveMQBasicSecurityManager)securityManager).completeInit(storageManager);
+      }
+
       final ServerInfo dumper = new ServerInfo(this, pagingManager);
 
       long dumpInfoInterval = configuration.getServerDumpInterval();
@@ -3381,6 +3399,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
+      // TODO load users/roles
+
       journalLoader.cleanUp();
 
       return journalInfo;
@@ -3395,9 +3415,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          addressSettingsRepository.addMatch(set.getAddressMatch().toString(), set.getSetting());
       }
 
-      List<PersistedRoles> roles = storageManager.recoverPersistedRoles();
+      List<PersistedSecuritySetting> roles = storageManager.recoverSecuritySettings();
 
-      for (PersistedRoles roleItem : roles) {
+      for (PersistedSecuritySetting roleItem : roles) {
          Set<Role> setRoles = SecurityFormatter.createSecurity(roleItem.getSendRoles(), roleItem.getConsumeRoles(), roleItem.getCreateDurableQueueRoles(), roleItem.getDeleteDurableQueueRoles(), roleItem.getCreateNonDurableQueueRoles(), roleItem.getDeleteNonDurableQueueRoles(), roleItem.getManageRoles(), roleItem.getBrowseRoles(), roleItem.getCreateAddressRoles(), roleItem.getDeleteAddressRoles());
 
          securityRepository.addMatch(roleItem.getAddressMatch().toString(), setRoles);

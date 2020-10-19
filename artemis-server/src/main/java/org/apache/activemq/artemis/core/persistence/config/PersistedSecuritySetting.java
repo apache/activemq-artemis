@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 
-public class PersistedRoles implements EncodingSupport {
+public class PersistedSecuritySetting implements EncodingSupport {
 
    // Constants -----------------------------------------------------
 
@@ -54,7 +54,7 @@ public class PersistedRoles implements EncodingSupport {
 
    // Constructors --------------------------------------------------
 
-   public PersistedRoles() {
+   public PersistedSecuritySetting() {
    }
 
    /**
@@ -70,17 +70,17 @@ public class PersistedRoles implements EncodingSupport {
     * @param createAddressRoles
     * @param deleteAddressRoles
     */
-   public PersistedRoles(final String addressMatch,
-                         final String sendRoles,
-                         final String consumeRoles,
-                         final String createDurableQueueRoles,
-                         final String deleteDurableQueueRoles,
-                         final String createNonDurableQueueRoles,
-                         final String deleteNonDurableQueueRoles,
-                         final String manageRoles,
-                         final String browseRoles,
-                         final String createAddressRoles,
-                         final String deleteAddressRoles) {
+   public PersistedSecuritySetting(final String addressMatch,
+                                   final String sendRoles,
+                                   final String consumeRoles,
+                                   final String createDurableQueueRoles,
+                                   final String deleteDurableQueueRoles,
+                                   final String createNonDurableQueueRoles,
+                                   final String deleteNonDurableQueueRoles,
+                                   final String manageRoles,
+                                   final String browseRoles,
+                                   final String createAddressRoles,
+                                   final String deleteAddressRoles) {
       super();
       this.addressMatch = SimpleString.toSimpleString(addressMatch);
       this.sendRoles = SimpleString.toSimpleString(sendRoles);
@@ -259,7 +259,7 @@ public class PersistedRoles implements EncodingSupport {
          return false;
       if (getClass() != obj.getClass())
          return false;
-      PersistedRoles other = (PersistedRoles) obj;
+      PersistedSecuritySetting other = (PersistedSecuritySetting) obj;
       if (addressMatch == null) {
          if (other.addressMatch != null)
             return false;
@@ -325,7 +325,7 @@ public class PersistedRoles implements EncodingSupport {
     */
    @Override
    public String toString() {
-      return "PersistedRoles [storeId=" + storeId +
+      return "PersistedSecuritySetting [storeId=" + storeId +
          ", addressMatch=" +
          addressMatch +
          ", sendRoles=" +

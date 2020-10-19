@@ -75,7 +75,9 @@ import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
-import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
+import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AddressStatusEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
@@ -195,11 +197,15 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    protected final Configuration config;
 
    // Persisted core configuration
-   protected final Map<SimpleString, PersistedRoles> mapPersistedRoles = new ConcurrentHashMap<>();
+   protected final Map<SimpleString, PersistedSecuritySetting> mapPersistedSecuritySettings = new ConcurrentHashMap<>();
 
    protected final Map<SimpleString, PersistedAddressSetting> mapPersistedAddressSettings = new ConcurrentHashMap<>();
 
    protected final Map<String, PersistedDivertConfiguration> mapPersistedDivertConfigurations = new ConcurrentHashMap<>();
+
+   protected final Map<String, PersistedUser> mapPersistedUsers = new ConcurrentHashMap<>();
+
+   protected final Map<String, PersistedRole> mapPersistedRoles = new ConcurrentHashMap<>();
 
    protected final ConcurrentLongHashMap<LargeServerMessage> largeMessagesToDelete = new ConcurrentLongHashMap<>();
 
@@ -767,20 +773,20 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public List<PersistedRoles> recoverPersistedRoles() throws Exception {
-      return new ArrayList<>(mapPersistedRoles.values());
+   public List<PersistedSecuritySetting> recoverSecuritySettings() throws Exception {
+      return new ArrayList<>(mapPersistedSecuritySettings.values());
    }
 
    @Override
-   public void storeSecurityRoles(PersistedRoles persistedRoles) throws Exception {
+   public void storeSecuritySetting(PersistedSecuritySetting persistedRoles) throws Exception {
 
-      deleteSecurityRoles(persistedRoles.getAddressMatch());
+      deleteSecuritySetting(persistedRoles.getAddressMatch());
       readLock();
       try {
          final long id = idGenerator.generateID();
          persistedRoles.setStoreId(id);
-         bindingsJournal.appendAddRecord(id, JournalRecordIds.SECURITY_RECORD, persistedRoles, true);
-         mapPersistedRoles.put(persistedRoles.getAddressMatch(), persistedRoles);
+         bindingsJournal.appendAddRecord(id, JournalRecordIds.SECURITY_SETTING_RECORD, persistedRoles, true);
+         mapPersistedSecuritySettings.put(persistedRoles.getAddressMatch(), persistedRoles);
       } finally {
          readUnLock();
       }
@@ -819,6 +825,70 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
+   public void storeUser(PersistedUser persistedUser) throws Exception {
+      deleteUser(persistedUser.getUsername());
+      readLock();
+      try {
+         final long id = idGenerator.generateID();
+         persistedUser.setStoreId(id);
+         bindingsJournal.appendAddRecord(id, JournalRecordIds.USER_RECORD, persistedUser, true);
+         mapPersistedUsers.put(persistedUser.getUsername(), persistedUser);
+      } finally {
+         readUnLock();
+      }
+   }
+
+   @Override
+   public void deleteUser(String username) throws Exception {
+      PersistedUser oldUser = mapPersistedUsers.remove(username);
+      if (oldUser != null) {
+         readLock();
+         try {
+            bindingsJournal.appendDeleteRecord(oldUser.getStoreId(), false);
+         } finally {
+            readUnLock();
+         }
+      }
+   }
+
+   @Override
+   public Map<String, PersistedUser> getPersistedUsers() {
+      return new HashMap<>(mapPersistedUsers);
+   }
+
+   @Override
+   public void storeRole(PersistedRole persistedRole) throws Exception {
+      deleteRole(persistedRole.getUsername());
+      readLock();
+      try {
+         final long id = idGenerator.generateID();
+         persistedRole.setStoreId(id);
+         bindingsJournal.appendAddRecord(id, JournalRecordIds.ROLE_RECORD, persistedRole, true);
+         mapPersistedRoles.put(persistedRole.getUsername(), persistedRole);
+      } finally {
+         readUnLock();
+      }
+   }
+
+   @Override
+   public void deleteRole(String username) throws Exception {
+      PersistedRole oldRole = mapPersistedRoles.remove(username);
+      if (oldRole != null) {
+         readLock();
+         try {
+            bindingsJournal.appendDeleteRecord(oldRole.getStoreId(), false);
+         } finally {
+            readUnLock();
+         }
+      }
+   }
+
+   @Override
+   public Map<String, PersistedRole> getPersistedRoles() {
+      return new HashMap<>(mapPersistedRoles);
+   }
+
+   @Override
    public void storeID(final long journalID, final long id) throws Exception {
       readLock();
       try {
@@ -852,8 +922,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
-   public void deleteSecurityRoles(SimpleString addressMatch) throws Exception {
-      PersistedRoles oldRoles = mapPersistedRoles.remove(addressMatch);
+   public void deleteSecuritySetting(SimpleString addressMatch) throws Exception {
+      PersistedSecuritySetting oldRoles = mapPersistedSecuritySettings.remove(addressMatch);
       if (oldRoles != null) {
          readLock();
          try {
@@ -1560,9 +1630,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
             } else if (rec == JournalRecordIds.ADDRESS_SETTING_RECORD) {
                PersistedAddressSetting setting = newAddressEncoding(id, buffer);
                mapPersistedAddressSettings.put(setting.getAddressMatch(), setting);
-            } else if (rec == JournalRecordIds.SECURITY_RECORD) {
-               PersistedRoles roles = newSecurityRecord(id, buffer);
-               mapPersistedRoles.put(roles.getAddressMatch(), roles);
+            } else if (rec == JournalRecordIds.SECURITY_SETTING_RECORD) {
+               PersistedSecuritySetting roles = newSecurityRecord(id, buffer);
+               mapPersistedSecuritySettings.put(roles.getAddressMatch(), roles);
             } else if (rec == JournalRecordIds.QUEUE_STATUS_RECORD) {
                QueueStatusEncoding statusEncoding = newQueueStatusEncoding(id, buffer);
                PersistentQueueBindingEncoding queueBindingEncoding = mapBindings.get(statusEncoding.queueID);
@@ -1586,6 +1656,12 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
             } else if (rec == JournalRecordIds.DIVERT_RECORD) {
                PersistedDivertConfiguration divertConfiguration = newDivertEncoding(id, buffer);
                mapPersistedDivertConfigurations.put(divertConfiguration.getName(), divertConfiguration);
+            } else if (rec == JournalRecordIds.USER_RECORD) {
+               PersistedUser user = newUserEncoding(id, buffer);
+               mapPersistedUsers.put(user.getUsername(), user);
+            } else if (rec == JournalRecordIds.ROLE_RECORD) {
+               PersistedRole role = newRoleEncoding(id, buffer);
+               mapPersistedRoles.put(role.getUsername(), role);
             } else {
                // unlikely to happen
                ActiveMQServerLogger.LOGGER.invalidRecordType(rec, new Exception("invalid record type " + rec));
@@ -2042,8 +2118,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
     * @param buffer
     * @return
     */
-   protected static PersistedRoles newSecurityRecord(long id, ActiveMQBuffer buffer) {
-      PersistedRoles roles = new PersistedRoles();
+   protected static PersistedSecuritySetting newSecurityRecord(long id, ActiveMQBuffer buffer) {
+      PersistedSecuritySetting roles = new PersistedSecuritySetting();
       roles.decode(buffer);
       roles.setStoreId(id);
       return roles;
@@ -2073,6 +2149,20 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       persistedDivertConfiguration.decode(buffer);
       persistedDivertConfiguration.setStoreId(id);
       return persistedDivertConfiguration;
+   }
+
+   static PersistedUser newUserEncoding(long id, ActiveMQBuffer buffer) {
+      PersistedUser persistedUser = new PersistedUser();
+      persistedUser.decode(buffer);
+      persistedUser.setStoreId(id);
+      return persistedUser;
+   }
+
+   static PersistedRole newRoleEncoding(long id, ActiveMQBuffer buffer) {
+      PersistedRole persistedRole = new PersistedRole();
+      persistedRole.decode(buffer);
+      persistedRole.setStoreId(id);
+      return persistedRole;
    }
    /**
     * @param id

@@ -833,6 +833,10 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void setMBeanServer(MBeanServer mBeanServer);
 
+   MBeanServer getMBeanServer();
+
+   void setSecurityManager(ActiveMQSecurityManager securityManager);
+
    /**
     * Adding external components is allowed only if the state
     * isn't {@link SERVER_STATE#STOPPED} or {@link SERVER_STATE#STOPPING}.<br>

@@ -148,7 +148,7 @@ public class LDAPLoginModule implements AuditLoginModule {
 
    private String getPlainPassword(String password) {
       try {
-         return PasswordMaskingUtil.resolveMask(null, password, codecClass);
+         return PasswordMaskingUtil.resolveMask(password, codecClass);
       } catch (Exception e) {
          throw new IllegalArgumentException("Failed to decode password", e);
       }

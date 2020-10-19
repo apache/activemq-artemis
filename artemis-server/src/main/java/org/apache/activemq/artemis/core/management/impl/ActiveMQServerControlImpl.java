@@ -83,7 +83,7 @@ import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManage
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
-import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
@@ -96,9 +96,9 @@ import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
-import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -127,6 +127,7 @@ import org.apache.activemq.artemis.core.transaction.impl.CoreTransactionDetail;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModuleConfigurator;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ListUtil;
@@ -2784,9 +2785,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          server.getSecurityRepository().addMatch(addressMatch, roles);
 
-         PersistedRoles persistedRoles = new PersistedRoles(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles, deleteAddressRoles);
+         PersistedSecuritySetting persistedRoles = new PersistedSecuritySetting(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles, deleteAddressRoles);
 
-         storageManager.storeSecurityRoles(persistedRoles);
+         storageManager.storeSecuritySetting(persistedRoles);
       } finally {
          blockOnIO();
       }
@@ -2802,7 +2803,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.getSecurityRepository().removeMatch(addressMatch);
-         storageManager.deleteSecurityRoles(new SimpleString(addressMatch));
+         storageManager.deleteSecuritySetting(new SimpleString(addressMatch));
       } finally {
          blockOnIO();
       }
@@ -4189,15 +4190,22 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void addUser(String username, String password, String roles, boolean plaintext) throws Exception {
-      synchronized (userLock) {
-         if (AuditLogger.isEnabled()) {
-            AuditLogger.addUser(this.server, username, "****", roles, plaintext);
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.addUser(this.server, username, "****", roles, plaintext);
+      }
+
+      String passwordToUse = plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password);
+
+      if (server.getSecurityManager() instanceof ActiveMQBasicSecurityManager) {
+         ((ActiveMQBasicSecurityManager) server.getSecurityManager()).addNewUser(username, passwordToUse, roles.split(","));
+      } else {
+         synchronized (userLock) {
+            tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
+               PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
+               config.addNewUser(username, passwordToUse, roles.split(","));
+               config.save();
+            });
          }
-         tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
-            PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
-            config.addNewUser(username, plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password), roles.split(","));
-            config.save();
-         });
       }
    }
 
@@ -4207,58 +4215,72 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String listUser(String username) throws Exception {
-      synchronized (userLock) {
-         if (AuditLogger.isEnabled()) {
-            AuditLogger.listUser(this.server, username);
-         }
-
-         return (String) tcclCall(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
-            PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
-            Map<String, Set<String>> info = config.listUser(username);
-            JsonArrayBuilder users = JsonLoader.createArrayBuilder();
-            for (Entry<String, Set<String>> entry : info.entrySet()) {
-               JsonObjectBuilder user = JsonLoader.createObjectBuilder();
-               user.add("username", entry.getKey());
-               JsonArrayBuilder roles = JsonLoader.createArrayBuilder();
-               for (String role : entry.getValue()) {
-                  roles.add(role);
-               }
-               user.add("roles", roles);
-               users.add(user);
-            }
-            return users.build().toString();
-         });
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listUser(this.server, username);
       }
+      if (server.getSecurityManager() instanceof ActiveMQBasicSecurityManager) {
+         return buildJsonUserList(((ActiveMQBasicSecurityManager) server.getSecurityManager()).listUser(username));
+      } else {
+         synchronized (userLock) {
+            return (String) tcclCall(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
+               return buildJsonUserList(getPropertiesLoginModuleConfigurator().listUser(username));
+            });
+         }
+      }
+   }
+
+   private String buildJsonUserList(Map<String, Set<String>> info) {
+      JsonArrayBuilder users = JsonLoader.createArrayBuilder();
+      for (Entry<String, Set<String>> entry : info.entrySet()) {
+         JsonObjectBuilder user = JsonLoader.createObjectBuilder();
+         user.add("username", entry.getKey());
+         JsonArrayBuilder roles = JsonLoader.createArrayBuilder();
+         for (String role : entry.getValue()) {
+            roles.add(role);
+         }
+         user.add("roles", roles);
+         users.add(user);
+      }
+      return users.build().toString();
    }
 
    @Override
    public void removeUser(String username) throws Exception {
-      synchronized (userLock) {
-         if (AuditLogger.isEnabled()) {
-            AuditLogger.removeUser(this.server, username);
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.removeUser(this.server, username);
+      }
+      if (server.getSecurityManager() instanceof ActiveMQBasicSecurityManager) {
+         ((ActiveMQBasicSecurityManager) server.getSecurityManager()).removeUser(username);
+      } else {
+         synchronized (userLock) {
+            tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
+               PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
+               config.removeUser(username);
+               config.save();
+            });
          }
-         tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
-            PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
-            config.removeUser(username);
-            config.save();
-         });
       }
    }
 
    @Override
    public void resetUser(String username, String password, String roles, boolean plaintext) throws Exception {
-      synchronized (userLock) {
-         if (AuditLogger.isEnabled()) {
-            AuditLogger.resetUser(this.server, username, "****", roles, plaintext);
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.resetUser(this.server, username, "****", roles, plaintext);
+      }
+
+      String passwordToUse = password == null ? password : plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password);
+
+      if (server.getSecurityManager() instanceof ActiveMQBasicSecurityManager) {
+         ((ActiveMQBasicSecurityManager) server.getSecurityManager()).updateUser(username, passwordToUse, roles == null ? null : roles.split(","));
+      } else {
+         synchronized (userLock) {
+            tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
+               PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
+               // don't hash a null password even if plaintext = false
+               config.updateUser(username, passwordToUse, roles == null ? null : roles.split(","));
+               config.save();
+            });
          }
-         tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> {
-            PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
-            // don't hash a null password even if plaintext = false
-            config.updateUser(username, password == null ? password : plaintext ? password : PasswordMaskingUtil
-               .getHashProcessor()
-               .hash(password), roles == null ? null : roles.split(","));
-            config.save();
-         });
       }
    }
 
