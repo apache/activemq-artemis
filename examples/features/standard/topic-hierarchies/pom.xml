@@ -56,7 +56,10 @@ under the License.
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
-                     <configuration>${basedir}/target/classes/activemq/server0</configuration>
+                     <args>
+                        <arg>--addresses</arg>
+                        <arg>news,news.usa,news.usa.wrestling,news.europe,news.europe.sport,news.europe.entertainment</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>
