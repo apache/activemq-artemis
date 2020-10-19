@@ -26,7 +26,6 @@ import javax.naming.InitialContext;
 import javax.resource.ResourceException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.resource.spi.work.Work;
-import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkManager;
 import javax.transaction.xa.XAResource;
 import java.lang.reflect.Method;
@@ -39,11 +38,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-
+import javax.resource.spi.work.WorkException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -556,19 +557,19 @@ public class ActiveMQActivation {
                }
 
                String calculatedDestinationName = destinationName.substring(destinationName.lastIndexOf('/') + 1);
-               if (isTopic && spec.getTopicPrefix() != null) {
-                  calculatedDestinationName = spec.getTopicPrefix() + calculatedDestinationName;
-               } else if (!isTopic && spec.getQueuePrefix() != null) {
-                  calculatedDestinationName = spec.getQueuePrefix() + calculatedDestinationName;
+               if (isTopic) {
+                  calculatedDestinationName = getTopicPrefix() + calculatedDestinationName;
+               } else if (!isTopic) {
+                  calculatedDestinationName = getQueuePrefix() + calculatedDestinationName;
                }
 
                ActiveMQRALogger.LOGGER.unableToRetrieveDestinationName(destinationName, destinationType.getName(), calculatedDestinationName);
 
                // If there is no binding on naming, we will just create a new instance
                if (isTopic) {
-                  destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic(calculatedDestinationName);
+                  destination = ActiveMQDestination.createTopic(calculatedDestinationName);
                } else {
-                  destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue(calculatedDestinationName);
+                  destination = ActiveMQDestination.createQueue(calculatedDestinationName);
                }
             }
          } else {
@@ -584,12 +585,44 @@ public class ActiveMQActivation {
          ActiveMQRALogger.LOGGER.instantiatingDestination(spec.getDestinationType(), spec.getDestination());
 
          if (Topic.class.getName().equals(spec.getDestinationType())) {
-            destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic((spec.getTopicPrefix() == null ? "" : spec.getTopicPrefix()) + spec.getDestination());
+            destination = ActiveMQDestination.createTopic(getTopicPrefix() + spec.getDestination(), spec.getDestination());
             isTopic = true;
          } else {
-            destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue((spec.getQueuePrefix() == null ? "" : spec.getQueuePrefix()) + spec.getDestination());
+            destination = ActiveMQDestination.createQueue(getQueuePrefix() + spec.getDestination(), spec.getDestination());
          }
       }
+   }
+
+   private String getTopicPrefix() {
+      if (spec.getTopicPrefix() == null) {
+         if (spec.isEnable1xPrefixes() == null) {
+            if (ra.isEnable1xPrefixes() != null && ra.isEnable1xPrefixes()) {
+               return PacketImpl.OLD_TOPIC_PREFIX.toString();
+            }
+            return "";
+         }
+         if (spec.isEnable1xPrefixes()) {
+            return PacketImpl.OLD_TOPIC_PREFIX.toString();
+         }
+         return "";
+      }
+      return spec.getTopicPrefix();
+   }
+
+   private String getQueuePrefix() {
+      if (spec.getQueuePrefix() == null) {
+         if (spec.isEnable1xPrefixes() == null) {
+            if (ra.isEnable1xPrefixes() != null && ra.isEnable1xPrefixes()) {
+               return PacketImpl.OLD_QUEUE_PREFIX.toString();
+            }
+            return "";
+         }
+         if (spec.isEnable1xPrefixes()) {
+            return PacketImpl.OLD_QUEUE_PREFIX.toString();
+         }
+         return "";
+      }
+      return spec.getQueuePrefix();
    }
 
    /**
@@ -599,7 +632,7 @@ public class ActiveMQActivation {
     */
    @Override
    public String toString() {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       buffer.append(ActiveMQActivation.class.getName()).append('(');
       buffer.append("spec=").append(spec.getClass().getName());
       buffer.append(" mepf=").append(endpointFactory.getClass().getName());
