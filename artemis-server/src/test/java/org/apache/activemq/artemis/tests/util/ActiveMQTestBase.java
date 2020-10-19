@@ -258,6 +258,10 @@ public abstract class ActiveMQTestBase extends Assert {
    @After
    public void shutdownDerby() {
       try {
+         DriverManager.getConnection("jdbc:derby:" + getEmbeddedDataBaseName() + ";destroy=true");
+      } catch (Exception ignored) {
+      }
+      try {
          DriverManager.getConnection("jdbc:derby:;shutdown=true");
       } catch (Exception ignored) {
       }
@@ -837,8 +841,12 @@ public abstract class ActiveMQTestBase extends Assert {
       return testDir;
    }
 
+   private String getEmbeddedDataBaseName() {
+      return "memory:" + getTestDir();
+   }
+
    protected final String getTestJDBCConnectionUrl() {
-      return System.getProperty("jdbc.connection.url", "jdbc:derby:" + getTestDir() + File.separator + "derby;create=true");
+      return System.getProperty("jdbc.connection.url", "jdbc:derby:" + getEmbeddedDataBaseName() + ";create=true");
    }
 
    protected final String getJDBCClassName() {
