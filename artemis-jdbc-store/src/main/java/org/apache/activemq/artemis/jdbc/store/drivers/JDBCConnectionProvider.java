@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.jdbc.store.logging.LoggingConnection;
+import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.jboss.logging.Logger;
 
@@ -34,19 +35,31 @@ public class JDBCConnectionProvider {
    private Executor networkTimeoutExecutor;
    private int networkTimeoutMillis;
    private boolean supportNetworkTimeout;
+   private final String user;
+   private final String password;
 
    public JDBCConnectionProvider(DataSource dataSource) {
+      this(dataSource, null, null);
+   }
+
+   public JDBCConnectionProvider(DataSource dataSource, String user, String password) {
       this.dataSource = dataSource;
       this.networkTimeoutExecutor = null;
       this.networkTimeoutMillis = -1;
       this.supportNetworkTimeout = true;
+      this.user = user;
+      this.password = password;
       addDerbyShutdownHook();
    }
 
    public synchronized Connection getConnection() throws SQLException {
       Connection connection;
       try {
-         connection = dataSource.getConnection();
+         if (user != null || password != null) {
+            connection = dataSource.getConnection(user, password);
+         } else {
+            connection = dataSource.getConnection();
+         }
          if (logger.isTraceEnabled() && !(connection instanceof LoggingConnection)) {
             connection = new LoggingConnection(connection, logger);
          }
@@ -92,7 +105,8 @@ public class JDBCConnectionProvider {
    public void addDerbyShutdownHook() {
       // Shutdown the derby if using the derby embedded driver.
       try (Connection connection = getConnection()) {
-         if (connection.getMetaData().getDriverName().equals("org.apache.derby.jdbc.EmbeddedDriver")) {
+         PropertySQLProvider.Factory.SQLDialect sqlDialect = PropertySQLProvider.Factory.investigateDialect(connection);
+         if (sqlDialect == PropertySQLProvider.Factory.SQLDialect.DERBY) {
             if (shutAdded.compareAndSet(false, true)) {
                Runtime.getRuntime().addShutdownHook(new ShutdownDerby());
             }
