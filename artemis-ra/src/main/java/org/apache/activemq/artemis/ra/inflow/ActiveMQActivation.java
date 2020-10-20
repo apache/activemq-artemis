@@ -558,9 +558,9 @@ public class ActiveMQActivation {
 
                String calculatedDestinationName = destinationName.substring(destinationName.lastIndexOf('/') + 1);
                if (isTopic) {
-                  calculatedDestinationName = getTopicPrefix() + calculatedDestinationName;
+                  calculatedDestinationName = getTopicWithPrefix(calculatedDestinationName);
                } else if (!isTopic) {
-                  calculatedDestinationName = getQueuePrefix() + calculatedDestinationName;
+                  calculatedDestinationName = getQueueWithPrefix(calculatedDestinationName);
                }
 
                ActiveMQRALogger.LOGGER.unableToRetrieveDestinationName(destinationName, destinationType.getName(), calculatedDestinationName);
@@ -585,44 +585,44 @@ public class ActiveMQActivation {
          ActiveMQRALogger.LOGGER.instantiatingDestination(spec.getDestinationType(), spec.getDestination());
 
          if (Topic.class.getName().equals(spec.getDestinationType())) {
-            destination = ActiveMQDestination.createTopic(getTopicPrefix() + spec.getDestination(), spec.getDestination());
+            destination = ActiveMQDestination.createTopic(getTopicWithPrefix(spec.getDestination()), spec.getDestination());
             isTopic = true;
          } else {
-            destination = ActiveMQDestination.createQueue(getQueuePrefix() + spec.getDestination(), spec.getDestination());
+            destination = ActiveMQDestination.createQueue(getQueueWithPrefix(spec.getDestination()), spec.getDestination());
          }
       }
    }
 
-   private String getTopicPrefix() {
+   private String getTopicWithPrefix(String topic) {
       if (spec.getTopicPrefix() == null) {
          if (spec.isEnable1xPrefixes() == null) {
-            if (ra.isEnable1xPrefixes() != null && ra.isEnable1xPrefixes()) {
+            if (ra.isEnable1xPrefixes() != null && ra.isEnable1xPrefixes() && !topic.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
                return PacketImpl.OLD_TOPIC_PREFIX.toString();
             }
-            return "";
+            return topic;
          }
-         if (spec.isEnable1xPrefixes()) {
+         if (spec.isEnable1xPrefixes() && !topic.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
             return PacketImpl.OLD_TOPIC_PREFIX.toString();
          }
-         return "";
+         return topic;
       }
-      return spec.getTopicPrefix();
+      return spec.getTopicPrefix() + topic;
    }
 
-   private String getQueuePrefix() {
+   private String getQueueWithPrefix(String queue) {
       if (spec.getQueuePrefix() == null) {
          if (spec.isEnable1xPrefixes() == null) {
-            if (ra.isEnable1xPrefixes() != null && ra.isEnable1xPrefixes()) {
+            if (ra.isEnable1xPrefixes() != null && ra.isEnable1xPrefixes() && !queue.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
                return PacketImpl.OLD_QUEUE_PREFIX.toString();
             }
-            return "";
+            return queue;
          }
-         if (spec.isEnable1xPrefixes()) {
+         if (spec.isEnable1xPrefixes() && !queue.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
             return PacketImpl.OLD_QUEUE_PREFIX.toString();
          }
-         return "";
+         return queue;
       }
-      return spec.getQueuePrefix();
+      return spec.getQueuePrefix() + queue;
    }
 
    /**
