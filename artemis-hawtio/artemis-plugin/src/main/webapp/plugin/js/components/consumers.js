@@ -160,26 +160,26 @@ var Artemis;
         };
 
         if (artemisConsumer.consumer) {
-            Artemis.log.info("navigating to consumer = " + artemisConsumer.consumer.sessionID);
+            Artemis.log.debug("navigating to consumer = " + artemisConsumer.consumer.sessionID);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisConsumer.consumer.sessionID;
         }
 
         selectQueue = function (queue) {
-            Artemis.log.info("navigating to queue:" + queue)
+            Artemis.log.debug("navigating to queue:" + queue)
             artemisQueue.queue = { queue: queue };
             $location.path("artemis/artemisQueues");
         };
 
         selectAddress = function (address) {
-            Artemis.log.info("navigating to address:" + address)
+            Artemis.log.debug("navigating to address:" + address)
             artemisAddress.address = { address: address };
             $location.path("artemis/artemisAddresses");
         };
 
         selectSession = function (session) {
-            Artemis.log.info("navigating to session:" + session)
+            Artemis.log.debug("navigating to session:" + session)
             artemisSession.session = { session: session };
             $location.path("artemis/artemisSessions");
         };
@@ -191,7 +191,7 @@ var Artemis;
         }
 
         ctrl.closeConsumer = function () {
-           Artemis.log.info("closing session: " + ctrl.consumerToDelete);
+           Artemis.log.debug("closing session: " + ctrl.consumerToDelete);
               if (mbean) {
                   jolokia.request({ type: 'exec',
                      mbean: mbean,

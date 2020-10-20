@@ -17,7 +17,7 @@
  /// <reference path="tree.component.ts"/>
 var Artemis;
 (function (Artemis) {
-    Artemis.log.info("loading navigation");
+    Artemis.log.debug("loading navigation");
     var TAB_CONFIG = {
         attributes: {
             title: 'Attributes',
@@ -50,6 +50,10 @@ var Artemis;
         sendMessage: {
             title: 'Send message',
             route: '/artemis/artemisSendMessage'
+        },
+        addressSendMessage: {
+            title: 'Send message',
+            route: '/artemis/artemisAddressSendMessage'
         },
         browseQueue: {
             title: 'Browse queue',
@@ -95,7 +99,7 @@ var Artemis;
         controller: ArtemisNavigationController
     })
     .name;
-    Artemis.log.info("loaded navigation " + Artemis.navigationModule);
+    Artemis.log.debug("loaded navigation " + Artemis.navigationModule);
 
     function ArtemisNavigationController($scope, $location, workspace, localStorage, jolokia) {
         'ngInject';
@@ -157,6 +161,9 @@ var Artemis;
                 if (shouldShowSendMessageTab(workspace)) {
                     tabs.push(new Nav.HawtioTab(TAB_CONFIG.sendMessage.title, TAB_CONFIG.sendMessage.route));
                 }
+                if (shouldShowAddressSendMessageTab(workspace)) {
+                    tabs.push(new Nav.HawtioTab(TAB_CONFIG.addressSendMessage.title, TAB_CONFIG.addressSendMessage.route));
+                }
                 if (shouldShowBrowseMessageTab(workspace)) {
                     tabs.push(new Nav.HawtioTab(TAB_CONFIG.browseQueue.title, TAB_CONFIG.browseQueue.route));
                 }
@@ -185,6 +192,10 @@ var Artemis;
             return workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'}) && hasQueueinvokeRights(workspace, "sendMessage");
         }
 
+        function shouldShowAddressSendMessageTab(workspace) {
+            return workspace.hasDomainAndProperties(artemisJmxDomain, {'component': 'addresses'}) && !workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'}) && hasQueueinvokeRights(workspace, "sendMessage");
+        }
+
         function shouldShowBrowseMessageTab(workspace) {
             return workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'}) && hasQueueinvokeRights(workspace, "browse") && hasQueueinvokeRights(workspace, "countMessages");
         }
@@ -197,7 +208,7 @@ var Artemis;
                 arguments: [mbean, operation] },
                 Core.onSuccess(null));
 
-            Artemis.log.info(operation + "=" + response.value);
+            Artemis.log.debug(operation + "=" + response.value);
             return response.value;
         }
         function hasQueueinvokeRights(workspace, operation) {
@@ -223,6 +234,7 @@ var Artemis;
         when('/artemis/artemisCreateQueue', { template: '<artemis-create-queue></artemis-create-queue>'}).
         when('/artemis/artemisDeleteQueue', { template: '<artemis-delete-queue></artemis-delete-queue>'}).
         when('/artemis/artemisSendMessage', { template: '<artemis-send-message></artemis-send-message>'}).
+        when('/artemis/artemisAddressSendMessage', { template: '<artemis-address-send-message></artemis-address-send-message>'}).
         when('/artemis/artemisBrowseQueue', { template: '<artemis-browse-queue></artemis-browse-queue>'}).
         when('/artemis/artemisBrokerDiagram', { template: '<artemis-broker-diagram></artemis-broker-diagram>'}).
         when('/artemis/artemisStatus', { template: '<artemis-status></artemis-status>'}).

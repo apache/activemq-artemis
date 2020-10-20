@@ -16,7 +16,7 @@
  */
 var Artemis;
 (function (Artemis) {
-    Artemis.log.info("loading producers");
+    Artemis.log.debug("loading producers");
     Artemis._module.component('artemisProducers', {
         template:
             `<h1>Browse Consumers
@@ -130,19 +130,19 @@ var Artemis;
         };
 
         selectAddress = function (address) {
-            Artemis.log.info("navigating to address:" + address)
+            Artemis.log.debug("navigating to address:" + address)
             artemisAddress.address = { address: address };
             $location.path("artemis/artemisAddresses");
         };
 
         selectSession = function (session) {
-            Artemis.log.info("navigating to session:" + session)
+            Artemis.log.debug("navigating to session:" + session)
             artemisSession.session = { session: session };
             $location.path("artemis/artemisSessions");
         };
 
         if (artemisProducer.producer) {
-            Artemis.log.info("navigating to producer = " + artemisProducer.producer.sessionID);
+            Artemis.log.debug("navigating to producer = " + artemisProducer.producer.sessionID);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisProducer.producer.sessionID;

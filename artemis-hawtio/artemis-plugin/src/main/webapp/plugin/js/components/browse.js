@@ -379,7 +379,7 @@ var Artemis;
         }
 
         ctrl.refresh = function() {
-            Artemis.log.info(ctrl.filter)
+            Artemis.log.debug(ctrl.filter)
             ctrl.pagination.load();
         }
 

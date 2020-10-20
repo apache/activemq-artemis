@@ -89,10 +89,10 @@ var Artemis;
         controller: DeleteQueueController
     })
     .name;
-    Artemis.log.info("loaded delete queue " + Artemis.createQueueModule);
+    Artemis.log.debug("loaded delete queue " + Artemis.createQueueModule);
 
     function DeleteQueueController($scope, workspace, jolokia, localStorage) {
-        Artemis.log.info("loaded queue controller");
+        Artemis.log.debug("loaded queue controller");
         var ctrl = this;
         ctrl.workspace = workspace;
         ctrl.deleteDialog = false;
@@ -130,19 +130,19 @@ var Artemis;
            var selection = ctrl.workspace.selection;
            var entries = selection.entries;
            var mbean = Artemis.getBrokerMBean(ctrl.workspace, jolokia);
-           Artemis.log.info(mbean);
+           Artemis.log.debug(mbean);
            if (mbean) {
                if (selection && jolokia && entries) {
                    var domain = selection.domain;
                    var name = entries["queue"];
-                   Artemis.log.info("name = " + name)
+                   Artemis.log.debug("name = " + name)
                    name = Core.unescapeHTML(name);
                    if (name.charAt(0) === '"' && name.charAt(name.length -1) === '"')
                    {
                        name = name.substr(1,name.length -2);
                    }
                    name = Artemis.ownUnescape(name);
-                   Artemis.log.info(name);
+                   Artemis.log.debug(name);
                    var operation;
                    $scope.message = "Deleted queue " + name;
                    jolokia.execute(mbean, "destroyQueue(java.lang.String)", name,  Core.onSuccess(operationPurgeSuccess, { error: onError }));

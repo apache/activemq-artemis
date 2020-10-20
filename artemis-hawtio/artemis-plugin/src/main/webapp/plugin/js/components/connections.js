@@ -16,7 +16,7 @@
  */
 var Artemis;
 (function (Artemis) {
-    Artemis.log.info("loading connections");
+    Artemis.log.debug("loading connections");
     Artemis._module.component('artemisConnections', {
         template:
             `
@@ -133,13 +133,13 @@ var Artemis;
         ];
 
         selectSessions = function (connection) {
-            Artemis.log.info("navigating to connection:" + connection)
+            Artemis.log.debug("navigating to connection:" + connection)
             artemisConnection.connection = { connectionID: connection };
             $location.path("artemis/artemisSessions");
         };
 
         if (artemisSession.session) {
-            Artemis.log.info("navigating to session = " + artemisSession.session.connectionID);
+            Artemis.log.debug("navigating to session = " + artemisSession.session.connectionID);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[0].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisSession.session.connectionID;
@@ -179,7 +179,7 @@ var Artemis;
                     ctrl.pagination.reset();
                     ctrl.refreshed = false;
                 }
-                Artemis.log.info(JSON.stringify(connectionsFilter));
+                Artemis.log.debug(JSON.stringify(connectionsFilter));
                 jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [JSON.stringify(connectionsFilter), ctrl.pagination.pageNumber, ctrl.pagination.pageSize] }, Core.onSuccess(populateTable, { error: onError }));
             }
         };
@@ -190,7 +190,7 @@ var Artemis;
         }
 
         ctrl.closeConnection = function () {
-           Artemis.log.info("closing connection: " + ctrl.connectionToDelete);
+           Artemis.log.debug("closing connection: " + ctrl.connectionToDelete);
               if (mbean) {
                   jolokia.request({ type: 'exec',
                      mbean: mbean,
