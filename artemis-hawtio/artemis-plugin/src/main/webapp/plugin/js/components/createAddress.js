@@ -86,10 +86,10 @@ var Artemis;
         controller: CreateAddressController
     })
     .name;
-    Artemis.log.info("loaded address " + Artemis.addressModule);
+    Artemis.log.debug("loaded address " + Artemis.addressModule);
 
     function CreateAddressController($scope, workspace, jolokia, localStorage) {
-        Artemis.log.info("loaded address controller");
+        Artemis.log.debug("loaded address controller");
         var ctrl = this;
         ctrl.addressName = "";
         ctrl.routingType = "Anycast";
@@ -113,22 +113,22 @@ var Artemis;
         }
 
         ctrl.createAddress = function (name, routingType) {
-            Artemis.log.info("creating " + routingType);
+            Artemis.log.debug("creating " + routingType);
             var mbean = Artemis.getBrokerMBean(workspace, jolokia);
             if (mbean) {
                 if (routingType == "Multicast") {
                     $scope.message = "Created  Multicast Address " + name;
-                    Artemis.log.info(ctrl.message);
+                    Artemis.log.debug(ctrl.message);
                     jolokia.execute(mbean, "createAddress(java.lang.String,java.lang.String)", name, "MULTICAST",  Core.onSuccess(operationSuccess, { error: onError }));
                 }
                 else if (routingType == "Anycast") {
                     $scope.message = "Created Anycast Address " + name;
-                    Artemis.log.info(ctrl.message);
+                    Artemis.log.debug(ctrl.message);
                     jolokia.execute(mbean, "createAddress(java.lang.String,java.lang.String)", name, "ANYCAST",  Core.onSuccess(operationSuccess, { error: onError }));
                 }
                 else {
                     $scope.message = "Created Anycast/Multicast Address " + name;
-                    Artemis.log.info(ctrl.message);
+                    Artemis.log.debug(ctrl.message);
                     jolokia.execute(mbean, "createAddress(java.lang.String,java.lang.String)", name, "ANYCAST,MULTICAST",  Core.onSuccess(operationSuccess, { error: onError }));
                 }
             }

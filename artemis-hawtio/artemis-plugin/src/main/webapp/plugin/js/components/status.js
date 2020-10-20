@@ -17,7 +17,7 @@
  /// <reference path="tree.component.ts"/>
 var Artemis;
 (function (Artemis) {
-    Artemis.log.info("loading status");
+    Artemis.log.debug("loading status");
     Artemis._module.component('artemisStatus', {
         template:
                `<h1>Current Status
@@ -62,7 +62,7 @@ var Artemis;
         controller: StatusController
     })
     .name;
-    Artemis.log.info("loaded address " + Artemis.addressModule);
+    Artemis.log.debug("loaded address " + Artemis.addressModule);
 
     function StatusController($scope, workspace, jolokia, localStorage, $interval) {
         var ctrl = this;
