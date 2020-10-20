@@ -16,7 +16,7 @@
  */
 var Artemis;
 (function (Artemis) {
-    //Artemis.log.info("loading addresses");
+    //Artemis.log.debug("loading addresses");
     Artemis._module.component('artemisAddresses', {
         template:
             `<h1>Browse Addresses
@@ -135,14 +135,14 @@ var Artemis;
         };
 
         if (artemisAddress.address) {
-            Artemis.log.info("navigating to address = " + artemisAddress.address.address);
+            Artemis.log.debug("navigating to address = " + artemisAddress.address.address);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisAddress.address.address;
         }
 
         selectQueues = function (address) {
-            Artemis.log.info("navigating to queues:" + address)
+            Artemis.log.debug("navigating to queues:" + address)
             artemisAddress.address = { address: address };
             $location.path("artemis/artemisQueues");
         };
@@ -156,12 +156,12 @@ var Artemis;
         function getAddressNid(address, $location) {
             var rootNID = getRootNid($location);
             var targetNID = rootNID + "addresses-" + address;
-            Artemis.log.info("targetNID=" + targetNID);
+            Artemis.log.debug("targetNID=" + targetNID);
             return targetNID;
         }
         function getRootNid($location) {
             var currentNid = $location.search()['nid'];
-            Artemis.log.info("current nid=" + currentNid);
+            Artemis.log.debug("current nid=" + currentNid);
             var firstDash = currentNid.indexOf('-');
             var secondDash = currentNid.indexOf('-', firstDash + 1);
             var thirdDash = currentNid.indexOf('-', secondDash + 1);

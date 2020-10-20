@@ -16,7 +16,7 @@
  */
 var Artemis;
 (function (Artemis) {
-    Artemis.log.info("loading sessions");
+    Artemis.log.debug("loading sessions");
     Artemis._module.component('artemisSessions', {
         template:
             `<h1>Browse Sessions
@@ -156,32 +156,32 @@ var Artemis;
         };
 
         selectConnection = function (connection) {
-            Artemis.log.info("navigating to connection:" + connection)
+            Artemis.log.debug("navigating to connection:" + connection)
             artemisSession.session = { connectionID: connection };
             $location.path("artemis/artemisConnections");
         };
 
         selectConsumers = function (session) {
-            Artemis.log.info("navigating to consumers:" + session)
+            Artemis.log.debug("navigating to consumers:" + session)
             artemisConsumer.consumer = { sessionID: session };
             $location.path("artemis/artemisConsumers");
         };
 
         selectProducers = function (session) {
-            Artemis.log.info("navigating to producers:" + session)
+            Artemis.log.debug("navigating to producers:" + session)
             artemisProducer.producer = { sessionID: session };
             $location.path("artemis/artemisProducers");
         };
 
         if (artemisConnection.connection) {
-            Artemis.log.info("navigating to connection = " + artemisConnection.connection.connectionID);
+            Artemis.log.debug("navigating to connection = " + artemisConnection.connection.connectionID);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisConnection.connection.connectionID;
         }
 
         if (artemisSession.session) {
-            Artemis.log.info("navigating to session = " + artemisSession.session.session);
+            Artemis.log.debug("navigating to session = " + artemisSession.session.session);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[0].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisSession.session.session;
@@ -194,7 +194,7 @@ var Artemis;
         }
 
         ctrl.closeSession = function () {
-           Artemis.log.info("closing session: " + ctrl.sessionToDelete);
+           Artemis.log.debug("closing session: " + ctrl.sessionToDelete);
               if (mbean) {
                   jolokia.request({ type: 'exec',
                      mbean: mbean,

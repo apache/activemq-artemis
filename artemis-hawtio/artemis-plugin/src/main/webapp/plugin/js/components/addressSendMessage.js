@@ -17,8 +17,8 @@
  /// <reference path="tree.component.ts"/>
 var Artemis;
 (function (Artemis) {
-    Artemis.log.debug("loading send message");
-    Artemis._module.component('artemisSendMessage', {
+    Artemis.log.debug("loading address send message");
+    Artemis._module.component('artemisAddressSendMessage', {
         template:
             `<h1>Send Message
                 <button type="button" class="btn btn-link jvm-title-popover"
@@ -56,7 +56,7 @@ var Artemis;
                             <td><input type="text" class="form-control" ng-model="header.name" placeholder="Name" autocomplete="off" id="name"></td>
                             <td><input type="text" class="form-control" ng-model="header.value" placeholder="Value" autocomplete="off" id="value"></td>
                             <td><div class="input-group-prepend">
-                                <button type="button" class="btn btn-default" title="Delete" ng-click="$ctrl.removeHeader(header)">
+                                <button type="button" class="btn btn-default" title="Delete" ng-click="$ctrl.message.removeHeader(header)">
                                     <span class="pficon pficon-delete"></span>
                                 </button>
                             </div></td>
@@ -80,19 +80,19 @@ var Artemis;
                         <option value="javascript">JSON</option>
                         <option value="xml">XML</option>
                     </select>
-                    <button class="btn btn-default" ng-click="$ctrl.formatMessage()"
+                    <button class="btn btn-default" ng-click="$ctrl.message.formatMessage()"
                        title="Automatically pretty prints the message so its easier to read">Format
                     </button>
                 </div>
             </form>
 
             <p>
-                <button type="button" class="btn btn-primary artemis-send-message-button" ng-click="$ctrl.message.sendMessage($ctrl.durable)">Send message</button>
+                <button type="button" class="btn btn-primary artemis-send-message-button" ng-click="$ctrl.message.sendMessage($ctrl.message.durable)">Send message</button>
             </p>
             <script type="text/ng-template" id="send-message-instructions.html">
             <div>
                 <p>
-                    This page allows you to send a message to the chosen queue. The message will be of type <code>text</code>
+                    This page allows you to send a message to the chosen address. The message will be of type <code>text</code>
                     message and it will be possible to add headers to the message. The sending of the message will be authenticated
                     using the username and password set ion <code>preferences</code>, if this is not set then these will
                     be null.
@@ -100,12 +100,12 @@ var Artemis;
             </div>
         </script>
         `,
-        controller: SendMessageController
+        controller: AddressSendMessageController
     })
     .name;
     Artemis.log.debug("loaded queue " + Artemis.createQueueModule);
 
-    function SendMessageController($route, $scope, $element, $timeout, workspace,  jolokia, localStorage, $location, artemisMessage, messageCreator) {
+    function AddressSendMessageController($route, $scope, $element, $timeout, workspace,  jolokia, localStorage, $location, artemisMessage, messageCreator) {
         Core.initPreferenceScope($scope, localStorage, {
             'durable': {
                 'value': true,
@@ -115,7 +115,8 @@ var Artemis;
         var ctrl = this;
         ctrl.messageCreator = messageCreator;
         ctrl.message = ctrl.messageCreator.createNewMessage($scope, $location, $route, localStorage, artemisMessage, workspace, $element, $timeout, jolokia);
+
     }
-    SendMessageController.$inject = ['$route', '$scope', '$element', '$timeout', 'workspace', 'jolokia', 'localStorage', '$location', 'artemisMessage', 'messageCreator'];
+    AddressSendMessageController.$inject = ['$route', '$scope', '$element', '$timeout', 'workspace', 'jolokia', 'localStorage', '$location', 'artemisMessage', 'messageCreator'];
 
 })(Artemis || (Artemis = {}));

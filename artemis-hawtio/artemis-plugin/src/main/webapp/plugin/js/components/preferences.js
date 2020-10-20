@@ -43,7 +43,7 @@ var Artemis;
 
    function configurePreferences(preferencesRegistry, $templateCache, workspace) {
 
-        Artemis.log.info("£££££££££££££££££££££££££rwerewrwerwerwe£££££££££££££££");
+        Artemis.log.debug("£££££££££££££££££££££££££rwerewrwerwerwe£££££££££££££££");
         var path = 'plugin/preferences.html';
         preferencesRegistry.addTab("Artemis", path, function () {
             return workspace.treeContainsDomainAndProperties("org.apache.activemq.artemis");
