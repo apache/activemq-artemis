@@ -277,4 +277,7 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    @Message(id = 144007, value = "Ignoring journal file {0}: file is shorter then minimum header size. This file is being removed.", format = Message.Format.MESSAGE_FORMAT)
    void ignoringShortFile(String fileName);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 144008, value = "File {0}: was moved under attic, please review it and remove it.", format = Message.Format.MESSAGE_FORMAT)
+   void movingFileToAttic(String fileName);
 }

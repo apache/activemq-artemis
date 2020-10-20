@@ -218,6 +218,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected int journalMinFiles = ActiveMQDefaultConfiguration.getDefaultJournalMinFiles();
 
+   protected int journalMaxAtticFilesFiles = ActiveMQDefaultConfiguration.getDefaultJournalMaxAtticFiles();
+
    // AIO and NIO need different values for these attributes
 
    protected int journalMaxIO_AIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio();
@@ -2505,6 +2507,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setTemporaryQueueNamespace(final String temporaryQueueNamespace) {
       this.temporaryQueueNamespace = temporaryQueueNamespace;
+      return this;
+   }
+
+   @Override
+   public int getJournalMaxAtticFiles() {
+      return journalMaxAtticFilesFiles;
+   }
+
+   @Override
+   public Configuration setJournalMaxAtticFiles(int maxAtticFiles) {
+      this.journalMaxAtticFilesFiles = maxAtticFiles;
       return this;
    }
 
