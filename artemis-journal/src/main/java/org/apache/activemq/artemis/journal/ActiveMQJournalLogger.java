@@ -128,7 +128,7 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    void couldNotRemoveFile(JournalFile file);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142009, value = "Deleting {0} as it does not have the configured size",
+   @Message(id = 142009, value = "*******************************************************************************************************************************\nThe File Storage Attic is full, as the file {0}  does not have the configured size, and the file will be removed\n*******************************************************************************************************************************",
       format = Message.Format.MESSAGE_FORMAT)
    void deletingFile(JournalFile file);
 
@@ -277,4 +277,7 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    @Message(id = 144007, value = "Ignoring journal file {0}: file is shorter then minimum header size. This file is being removed.", format = Message.Format.MESSAGE_FORMAT)
    void ignoringShortFile(String fileName);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 144008, value = "*******************************************************************************************************************************\nFile {0}: was moved under attic, please review it and remove it.\n*******************************************************************************************************************************", format = Message.Format.MESSAGE_FORMAT)
+   void movingFileToAttic(String fileName);
 }
