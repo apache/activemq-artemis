@@ -78,7 +78,7 @@ public class FileLockNodeManagerTest {
          manager.awaitLiveNode();
       } catch (Exception e) {
          long stop = System.currentTimeMillis();
-         if (!"timed out waiting for lock".equals(e.getMessage())) {
+         if (!"timed out waiting for lock".equals(e.getCause().getMessage())) {
             throw e;
          }
          return stop - start;

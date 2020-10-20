@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.server.impl.jdbc;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.NodeManager.LockListener;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 /**
@@ -28,17 +28,25 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
  */
 interface ScheduledLeaseLock extends ActiveMQComponent {
 
+   @Override
+   void start();
+
+   @Override
+   void stop();
+
    LeaseLock lock();
 
    long renewPeriodMillis();
+
+   String lockName();
 
    static ScheduledLeaseLock of(ScheduledExecutorService scheduledExecutorService,
                                 ArtemisExecutor executor,
                                 String lockName,
                                 LeaseLock lock,
                                 long renewPeriodMillis,
-                                IOCriticalErrorListener ioCriticalErrorListener) {
-      return new ActiveMQScheduledLeaseLock(scheduledExecutorService, executor, lockName, lock, renewPeriodMillis, ioCriticalErrorListener);
+                                LockListener lockListener) {
+      return new ActiveMQScheduledLeaseLock(scheduledExecutorService, executor, lockName, lock, renewPeriodMillis, lockListener);
    }
 
 }

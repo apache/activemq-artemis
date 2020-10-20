@@ -21,15 +21,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.core.server.NodeManager.LockListener;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,6 +45,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
+
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.core.Is.is;
 
 @RunWith(Parameterized.class)
 public class JdbcLeaseLockTest extends ActiveMQTestBase {
@@ -183,7 +194,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
 
    @Test
    public void shouldAcquireExpiredLock() throws InterruptedException {
-      final LeaseLock lock = lock(TimeUnit.SECONDS.toMillis(1));
+      final LeaseLock lock = lock(10);
       Assert.assertTrue("lock is not owned by anyone", lock.tryAcquire());
       try {
          Thread.sleep(lock.expirationMillis() * 2);
@@ -197,13 +208,13 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
 
    @Test
    public void shouldOtherAcquireExpiredLock() throws InterruptedException {
-      final LeaseLock lock = lock(TimeUnit.SECONDS.toMillis(1));
+      final LeaseLock lock = lock(10);
       Assert.assertTrue("lock is not owned by anyone", lock.tryAcquire());
       try {
          Thread.sleep(lock.expirationMillis() * 2);
          Assert.assertFalse("lock is already expired", lock.isHeldByCaller());
          Assert.assertFalse("lock is already expired", lock.isHeld());
-         final LeaseLock otherLock = lock(TimeUnit.SECONDS.toMillis(10));
+         final LeaseLock otherLock = lock(10);
          try {
             Assert.assertTrue("lock is already expired", otherLock.tryAcquire());
          } finally {
@@ -237,7 +248,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
 
    @Test
    public void shouldRenewExpiredLockNotAcquiredByOthers() throws InterruptedException {
-      final LeaseLock lock = lock(TimeUnit.SECONDS.toMillis(1));
+      final LeaseLock lock = lock(10);
       Assert.assertTrue("lock is not owned by anyone", lock.tryAcquire());
       try {
          Thread.sleep(lock.expirationMillis() * 2);
@@ -251,7 +262,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
 
    @Test
    public void shouldNotRenewLockAcquiredByOthers() throws InterruptedException {
-      final LeaseLock lock = lock(TimeUnit.SECONDS.toMillis(1));
+      final LeaseLock lock = lock(10);
       Assert.assertTrue("lock is not owned by anyone", lock.tryAcquire());
       try {
          Thread.sleep(lock.expirationMillis() * 2);
@@ -267,6 +278,98 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
       } finally {
          lock.release();
       }
+   }
+
+   @Test
+   public void shouldNotNotifyLostLock() throws Exception {
+      final ExecutorService executorService = Executors.newSingleThreadExecutor();
+      final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+      final OrderedExecutorFactory factory = new OrderedExecutorFactory(executorService);
+      final ArtemisExecutor artemisExecutor = factory.getExecutor();
+      final AtomicLong lostLock = new AtomicLong();
+      final LockListener lockListener = () -> {
+         lostLock.incrementAndGet();
+      };
+      final ScheduledLeaseLock scheduledLeaseLock = ScheduledLeaseLock
+         .of(scheduledExecutorService, artemisExecutor,
+         "test", lock(), dbConf.getJdbcLockRenewPeriodMillis(), lockListener);
+
+      Assert.assertTrue(scheduledLeaseLock.lock().tryAcquire());
+      scheduledLeaseLock.start();
+      Assert.assertEquals(0, lostLock.get());
+      scheduledLeaseLock.stop();
+      Assert.assertEquals(0, lostLock.get());
+      executorService.shutdown();
+      scheduledExecutorService.shutdown();
+      scheduledLeaseLock.lock().release();
+   }
+
+
+   @Test
+   public void shouldNotifyManyTimesLostLock() throws Exception {
+      final ExecutorService executorService = Executors.newSingleThreadExecutor();
+      final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+      final OrderedExecutorFactory factory = new OrderedExecutorFactory(executorService);
+      final ArtemisExecutor artemisExecutor = factory.getExecutor();
+      final AtomicLong lostLock = new AtomicLong();
+      final LockListener lockListener = () -> {
+         lostLock.incrementAndGet();
+      };
+      final ScheduledLeaseLock scheduledLeaseLock = ScheduledLeaseLock
+         .of(scheduledExecutorService, artemisExecutor,
+             "test", lock(TimeUnit.SECONDS.toMillis(1)), 100, lockListener);
+
+      Assert.assertTrue(scheduledLeaseLock.lock().tryAcquire());
+      scheduledLeaseLock.start();
+      // should let the renew to happen at least 1 time, excluding the time to start a scheduled task
+      TimeUnit.MILLISECONDS.sleep(2 * scheduledLeaseLock.renewPeriodMillis());
+      Assert.assertTrue(scheduledLeaseLock.lock().isHeldByCaller());
+      Assert.assertEquals(0, lostLock.get());
+      scheduledLeaseLock.lock().release();
+      Assert.assertFalse(scheduledLeaseLock.lock().isHeldByCaller());
+      TimeUnit.MILLISECONDS.sleep(2 * scheduledLeaseLock.renewPeriodMillis());
+      Assert.assertThat(lostLock.get(), is(greaterThanOrEqualTo(2L)));
+      scheduledLeaseLock.stop();
+      executorService.shutdown();
+      scheduledExecutorService.shutdown();
+   }
+
+   @Test
+   public void shouldNotifyOnceLostLockIfStopped() throws Exception {
+      final ExecutorService executorService = Executors.newSingleThreadExecutor();
+      final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+      final OrderedExecutorFactory factory = new OrderedExecutorFactory(executorService);
+      final ArtemisExecutor artemisExecutor = factory.getExecutor();
+      final AtomicLong lostLock = new AtomicLong();
+      final AtomicReference<ScheduledLeaseLock> lock = new AtomicReference<>();
+      final AtomicReference<Throwable> stopErrors = new AtomicReference<>();
+      final LockListener lockListener = () -> {
+         lostLock.incrementAndGet();
+         try {
+            lock.get().stop();
+         } catch (Throwable e) {
+            stopErrors.set(e);
+         }
+      };
+      final ScheduledLeaseLock scheduledLeaseLock = ScheduledLeaseLock
+         .of(scheduledExecutorService, artemisExecutor, "test", lock(TimeUnit.SECONDS.toMillis(1)),
+             100, lockListener);
+      lock.set(scheduledLeaseLock);
+      Assert.assertTrue(scheduledLeaseLock.lock().tryAcquire());
+      lostLock.set(0);
+      scheduledLeaseLock.start();
+      Assert.assertTrue(scheduledLeaseLock.lock().isHeldByCaller());
+      scheduledLeaseLock.lock().release();
+      Assert.assertFalse(scheduledLeaseLock.lock().isHeldByCaller());
+      Wait.assertTrue(() -> lostLock.get() > 0);
+      Assert.assertFalse(scheduledLeaseLock.isStarted());
+      // wait enough to see if it get triggered again
+      TimeUnit.MILLISECONDS.sleep(scheduledLeaseLock.renewPeriodMillis());
+      Assert.assertEquals(1, lostLock.getAndSet(0));
+      Assert.assertNull(stopErrors.getAndSet(null));
+      scheduledLeaseLock.stop();
+      executorService.shutdown();
+      scheduledExecutorService.shutdown();
    }
 }
 

@@ -16,52 +16,50 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.utils.UUID;
-import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 public abstract class NodeManager implements ActiveMQComponent {
 
-   protected static final byte FIRST_TIME_START = '0';
-   public static final String SERVER_LOCK_NAME = "server.lock";
-   private static final String ACCESS_MODE = "rw";
+   @FunctionalInterface
+   public interface LockListener {
 
+      void lostLock();
+   }
+
+   private static final Logger LOGGER = Logger.getLogger(NodeManager.class);
    protected final boolean replicatedBackup;
-   private final File directory;
-   private final Object nodeIDGuard = new Object();
+   protected final Object nodeIDGuard = new Object();
    private SimpleString nodeID;
    private UUID uuid;
    private boolean isStarted = false;
+   private final Set<FileLockNodeManager.LockListener> lockListeners;
 
-   protected FileChannel channel;
-
-   public NodeManager(final boolean replicatedBackup, final File directory) {
-      this.directory = directory;
+   public NodeManager(final boolean replicatedBackup) {
       this.replicatedBackup = replicatedBackup;
+      this.lockListeners = new HashSet<>();
    }
 
    // --------------------------------------------------------------------
 
-   public abstract void awaitLiveNode() throws Exception;
+   public abstract void awaitLiveNode() throws NodeManagerException, InterruptedException;
 
-   public abstract void awaitLiveStatus() throws Exception;
+   public abstract void awaitLiveStatus() throws NodeManagerException, InterruptedException;
 
-   public abstract void startBackup() throws Exception;
+   public abstract void startBackup() throws NodeManagerException, InterruptedException;
 
-   public abstract ActivateCallback startLiveNode() throws Exception;
+   public abstract ActivateCallback startLiveNode() throws NodeManagerException, InterruptedException;
 
-   public abstract void pauseLiveServer() throws Exception;
+   public abstract void pauseLiveServer() throws NodeManagerException;
 
-   public abstract void crashLiveServer() throws Exception;
+   public abstract void crashLiveServer() throws NodeManagerException;
 
-   public abstract void releaseBackup() throws Exception;
+   public abstract void releaseBackup() throws NodeManagerException;
 
    // --------------------------------------------------------------------
 
@@ -81,7 +79,7 @@ public abstract class NodeManager implements ActiveMQComponent {
       }
    }
 
-   public abstract SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException;
+   public abstract SimpleString readNodeId() throws NodeManagerException;
 
    public UUID getUUID() {
       synchronized (nodeIDGuard) {
@@ -113,119 +111,63 @@ public abstract class NodeManager implements ActiveMQComponent {
       }
    }
 
-   public abstract boolean isAwaitingFailback() throws Exception;
+   public abstract boolean isAwaitingFailback() throws NodeManagerException;
 
-   public abstract boolean isBackupLive() throws Exception;
+   public abstract boolean isBackupLive() throws NodeManagerException;
 
    public abstract void interrupt();
 
    @Override
    public synchronized void stop() throws Exception {
-      FileChannel channelCopy = channel;
-      if (channelCopy != null)
-         channelCopy.close();
+      // force any running threads on node manager to stop
       isStarted = false;
+      lockListeners.clear();
    }
 
-   public void stopBackup() throws Exception {
-      if (replicatedBackup && getNodeId() != null) {
-         setUpServerLockFile();
-      }
+   public void stopBackup() throws NodeManagerException {
       releaseBackup();
    }
 
-   /**
-    * Ensures existence of persistent information about the server's nodeID.
-    * <p>
-    * Roughly the different use cases are:
-    * <ol>
-    * <li>old live server restarts: a server.lock file already exists and contains a nodeID.
-    * <li>new live server starting for the first time: no file exists, and we just *create* a new
-    * UUID to use as nodeID
-    * <li>replicated backup received its nodeID from its live: no file exists, we need to persist
-    * the *current* nodeID
-    * </ol>
-    */
-   protected synchronized void setUpServerLockFile() throws IOException {
-      File serverLockFile = newFile(SERVER_LOCK_NAME);
+   protected synchronized void checkStarted() {
+      if (!isStarted) {
+         throw new IllegalStateException("the node manager is supposed to be started");
+      }
+   }
 
-      boolean fileCreated = false;
-
-      int count = 0;
-      while (!serverLockFile.exists()) {
+   protected synchronized void notifyLostLock() {
+      if (!isStarted) {
+         return;
+      }
+      lockListeners.forEach(lockListener -> {
          try {
-            fileCreated = serverLockFile.createNewFile();
-         } catch (RuntimeException e) {
-            ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
-            throw e;
-         } catch (IOException e) {
-            /*
-            * on some OS's this may fail weirdly even tho the parent dir exists, retrying will work, some weird timing issue i think
-            * */
-            if (count < 5) {
-               try {
-                  Thread.sleep(100);
-               } catch (InterruptedException e1) {
-               }
-               count++;
-               continue;
-            }
-            ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
-            throw e;
+            lockListener.lostLock();
+         } catch (Exception e) {
+            LOGGER.warn("On notify lost lock", e);
+            // Need to notify everyone so ignore any exception
          }
-      }
-
-      @SuppressWarnings("resource")
-      RandomAccessFile raFile = new RandomAccessFile(serverLockFile, ACCESS_MODE);
-
-      channel = raFile.getChannel();
-
-      if (fileCreated) {
-         ByteBuffer id = ByteBuffer.allocateDirect(3);
-         byte[] bytes = new byte[3];
-         bytes[0] = FIRST_TIME_START;
-         bytes[1] = FIRST_TIME_START;
-         bytes[2] = FIRST_TIME_START;
-         id.put(bytes, 0, 3);
-         id.position(0);
-         channel.write(id, 0);
-         channel.force(true);
-      }
-
-      createNodeId();
+      });
    }
 
-   /**
-    * @return
-    */
-   protected final File newFile(final String fileName) {
-      File file = new File(directory, fileName);
-      return file;
+   public synchronized void registerLockListener(FileLockNodeManager.LockListener lockListener) {
+      lockListeners.add(lockListener);
    }
 
-   protected final synchronized void createNodeId() throws IOException {
-      synchronized (nodeIDGuard) {
-         ByteBuffer id = ByteBuffer.allocateDirect(16);
-         int read = channel.read(id, 3);
-         if (replicatedBackup) {
-            id.position(0);
-            id.put(getUUID().asBytes(), 0, 16);
-            id.position(0);
-            channel.write(id, 3);
-            channel.force(true);
-         } else if (read != 16) {
-            setUUID(UUIDGenerator.getInstance().generateUUID());
-            id.put(getUUID().asBytes(), 0, 16);
-            id.position(0);
-            channel.write(id, 3);
-            channel.force(true);
-         } else {
-            byte[] bytes = new byte[16];
-            id.position(0);
-            id.get(bytes);
-            setUUID(new UUID(UUID.TYPE_TIME_BASED, bytes));
-         }
+   public synchronized void unregisterLockListener(FileLockNodeManager.LockListener lockListener) {
+      lockListeners.remove(lockListener);
+   }
+
+   public static final class NodeManagerException extends RuntimeException {
+
+      public NodeManagerException(String message) {
+         super(message);
+      }
+
+      public NodeManagerException(Throwable cause) {
+         super(cause);
+      }
+
+      public NodeManagerException(String message, Throwable cause) {
+         super(message, cause);
       }
    }
-
 }

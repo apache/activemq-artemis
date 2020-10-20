@@ -24,7 +24,9 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.junit.Test;
 
+import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.AWAIT_LIVE;
+import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.CHECK_ID;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.CRASH_LIVE;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.DOESNT_HAVE_BACKUP;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.DOESNT_HAVE_LIVE;
@@ -37,6 +39,12 @@ import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerA
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.STOP_BACKUP;
 
 public class NodeManagerTest extends SpawnedTestBase {
+
+   @Test
+   public void testID() throws Exception {
+      NodeManagerAction live1 = new NodeManagerAction(CHECK_ID);
+      performWork(live1);
+   }
 
    @Test
    public void testLive() throws Exception {
@@ -153,6 +161,10 @@ public class NodeManagerTest extends SpawnedTestBase {
             fail(nodeRunner.e.getMessage());
          }
       }
+   }
+
+   protected static boolean isDebug() {
+      return getRuntimeMXBean().getInputArguments().toString().contains("jdwp");
    }
 
    static class NodeRunner implements Runnable {
