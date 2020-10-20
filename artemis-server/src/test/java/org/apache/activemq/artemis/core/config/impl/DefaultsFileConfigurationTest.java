@@ -90,6 +90,8 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest {
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), conf.getJournalFileSize());
 
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMaxAtticFiles(), conf.getJournalMaxAtticFiles());
+
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles(), conf.getJournalCompactMinFiles());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(), conf.getJournalCompactPercentage());

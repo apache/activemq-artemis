@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -30,6 +34,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -83,6 +88,8 @@ public class JournalFilesRepository {
 
    private final int journalFileOpenTimeout;
 
+   private final int maxAtticFiles;
+
    private Executor openFilesExecutor;
 
    private final Runnable pushOpenRunnable = new Runnable() {
@@ -109,7 +116,8 @@ public class JournalFilesRepository {
                                  final int fileSize,
                                  final int minFiles,
                                  final int poolSize,
-                                 final int journalFileOpenTimeout) {
+                                 final int journalFileOpenTimeout,
+                                 final int maxAtticFiles) {
       if (filePrefix == null) {
          throw new IllegalArgumentException("filePrefix cannot be null");
       }
@@ -129,6 +137,7 @@ public class JournalFilesRepository {
       this.userVersion = userVersion;
       this.journal = journal;
       this.journalFileOpenTimeout = journalFileOpenTimeout;
+      this.maxAtticFiles = maxAtticFiles;
    }
 
    // Public --------------------------------------------------------
@@ -365,8 +374,7 @@ public class JournalFilesRepository {
          throw new IllegalStateException(e.getMessage() + " file: " + file);
       }
       if (calculatedSize != fileSize) {
-         ActiveMQJournalLogger.LOGGER.deletingFile(file);
-         file.getFile().delete();
+         damagedFile(file);
       } else if (!checkDelete || (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size() < poolSize) || (poolSize < 0)) {
          // Re-initialise it
 
@@ -397,6 +405,30 @@ public class JournalFilesRepository {
 
       if (CHECK_CONSISTENCE) {
          checkDataFiles();
+      }
+   }
+
+   private void damagedFile(JournalFile file) throws Exception {
+      if (file.getFile().isOpen()) {
+         file.getFile().close(false);
+      }
+      if (file.getFile().exists()) {
+         final Path journalPath = file.getFile().getJavaFile().toPath();
+         final Path atticPath = journalPath.getParent().resolve("attic");
+         Files.createDirectories(atticPath);
+         if (listFiles(atticPath) < maxAtticFiles) {
+            ActiveMQJournalLogger.LOGGER.movingFileToAttic(file.getFile().getFileName());
+            Files.move(journalPath, atticPath.resolve(journalPath.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+         } else {
+            ActiveMQJournalLogger.LOGGER.deletingFile(file);
+            Files.delete(journalPath);
+         }
+      }
+   }
+
+   private int listFiles(Path path) throws IOException {
+      try (Stream<Path> files = Files.list(path)) {
+         return files.mapToInt(e -> 1).sum();
       }
    }
 

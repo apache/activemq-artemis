@@ -846,6 +846,18 @@ public interface Configuration {
    Configuration setJournalBufferSize_NIO(int journalBufferSize);
 
    /**
+    * Returns the maximal number of data files before we can start deleting corrupted files instead of moving them to attic.
+    * <br>
+    * Default value is  {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MAX_ATTIC_FILES}.
+    */
+   int getJournalMaxAtticFiles();
+
+   /**
+    * Sets the maximal number of data files before we can start deleting corrupted files instead of moving them to attic.
+    */
+   Configuration setJournalMaxAtticFiles(int maxAtticFiles);
+
+   /**
     * Returns whether the bindings directory is created on this server startup. <br>
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_CREATE_BINDINGS_DIR}.
     */
