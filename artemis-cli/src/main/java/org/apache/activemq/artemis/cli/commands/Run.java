@@ -109,7 +109,6 @@ public class Run extends LockAbstract {
 
          server = BrokerFactory.createServer(broker.server, securityManager, activateCallback);
 
-         managementContext.start();
          server.createComponents();
          AtomicBoolean serverActivationFailed = new AtomicBoolean(false);
          server.getServer().registerActivationFailureListener(exception -> serverActivationFailed.set(true));

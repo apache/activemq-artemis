@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 public class FileBroker implements Broker {
 
    private final String configurationUrl;
-   private ActivateCallback activateCallback;
+   private final ActivateCallback activateCallback;
 
    private boolean started;
 
