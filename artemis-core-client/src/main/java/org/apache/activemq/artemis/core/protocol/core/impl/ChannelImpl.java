@@ -643,6 +643,10 @@ public final class ChannelImpl implements Channel {
          unlock();
       }
       closed = true;
+      // unblock any blocked call:
+      // don't move this one before closed = true, because
+      // unblocked calls need to check if (closed) to "gracefully" shutdown.
+      returnBlocking();
    }
 
    @Override
