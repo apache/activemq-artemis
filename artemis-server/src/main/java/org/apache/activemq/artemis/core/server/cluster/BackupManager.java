@@ -192,9 +192,9 @@ public class BackupManager implements ActiveMQComponent {
       private TransportConfiguration connector;
       protected long retryInterval;
       private ClusterManager clusterManager;
-      private boolean stopping = false;
-      private boolean announcingBackup;
-      private boolean backupAnnounced = false;
+      private volatile boolean stopping = false;
+      private volatile boolean announcingBackup;
+      private volatile boolean backupAnnounced = false;
 
       @Override
       public String toString() {
