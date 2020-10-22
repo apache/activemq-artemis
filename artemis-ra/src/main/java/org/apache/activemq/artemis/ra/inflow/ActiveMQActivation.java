@@ -597,12 +597,12 @@ public class ActiveMQActivation {
       if (spec.getTopicPrefix() == null) {
          if (spec.isEnable1xPrefixes() == null) {
             if (ra.isEnable1xPrefixes() != null && ra.isEnable1xPrefixes() && !topic.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
-               return PacketImpl.OLD_TOPIC_PREFIX.toString();
+               return PacketImpl.OLD_TOPIC_PREFIX.toString() + topic;
             }
             return topic;
          }
          if (spec.isEnable1xPrefixes() && !topic.startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
-            return PacketImpl.OLD_TOPIC_PREFIX.toString();
+            return PacketImpl.OLD_TOPIC_PREFIX.toString() + topic;
          }
          return topic;
       }
@@ -613,12 +613,12 @@ public class ActiveMQActivation {
       if (spec.getQueuePrefix() == null) {
          if (spec.isEnable1xPrefixes() == null) {
             if (ra.isEnable1xPrefixes() != null && ra.isEnable1xPrefixes() && !queue.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
-               return PacketImpl.OLD_QUEUE_PREFIX.toString();
+               return PacketImpl.OLD_QUEUE_PREFIX.toString() + queue;
             }
             return queue;
          }
          if (spec.isEnable1xPrefixes() && !queue.startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
-            return PacketImpl.OLD_QUEUE_PREFIX.toString();
+            return PacketImpl.OLD_QUEUE_PREFIX.toString() + queue;
          }
          return queue;
       }
