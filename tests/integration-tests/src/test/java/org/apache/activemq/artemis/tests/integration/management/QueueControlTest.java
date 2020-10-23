@@ -2742,7 +2742,7 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(1, info.getCount());
       Assert.assertEquals(1, info.getCountDelta());
       Assert.assertEquals(info.getUpdateTimestamp(), info.getLastAddTimestamp());
-      Assert.assertTrue(info.getLastAckTimestamp().contains("12/31/69")); // no acks received yet
+      Assert.assertTrue(info.getLastAckTimestamp() + " does not contain 12/31/69", info.getLastAckTimestamp().contains("12/31/69")); // no acks received yet
 
       producer.send(session.createMessage(durable));
       Wait.assertTrue(() -> server.locateQueue(queue).getMessageCount() == 2);
