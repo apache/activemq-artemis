@@ -26,8 +26,10 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -87,6 +89,7 @@ import static org.apache.activemq.artemis.core.management.impl.openmbean.Composi
 
 @RunWith(value = Parameterized.class)
 public class QueueControlTest extends ManagementTestBase {
+   private static final String NULL_DATE = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(new Date(0));
 
    @Rule
    public RetryRule retryRule = new RetryRule(2);
@@ -2742,7 +2745,7 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(1, info.getCount());
       Assert.assertEquals(1, info.getCountDelta());
       Assert.assertEquals(info.getUpdateTimestamp(), info.getLastAddTimestamp());
-      Assert.assertTrue(info.getLastAckTimestamp() + " does not contain 12/31/69", info.getLastAckTimestamp().contains("12/31/69")); // no acks received yet
+      Assert.assertEquals(NULL_DATE, info.getLastAckTimestamp()); // no acks received yet
 
       producer.send(session.createMessage(durable));
       Wait.assertTrue(() -> server.locateQueue(queue).getMessageCount() == 2);
@@ -2756,7 +2759,7 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(2, info.getCount());
       Assert.assertEquals(1, info.getCountDelta());
       Assert.assertEquals(info.getUpdateTimestamp(), info.getLastAddTimestamp());
-      Assert.assertTrue(info.getLastAckTimestamp().contains("12/31/69")); // no acks received yet
+      Assert.assertEquals(NULL_DATE, info.getLastAckTimestamp()); // no acks received yet
 
       consumeMessages(2, session, queue);
 
