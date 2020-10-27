@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.jboss.logging.Logger;
 
-public final class RoutingContextImpl implements RoutingContext {
+public class RoutingContextImpl implements RoutingContext {
 
    private static final Logger logger  = Logger.getLogger(RoutingContextImpl.class);
 
@@ -79,6 +79,11 @@ public final class RoutingContextImpl implements RoutingContext {
    public RoutingContextImpl(final Transaction transaction, Executor executor) {
       this.transaction = transaction;
       this.executor = executor;
+   }
+
+   @Override
+   public boolean isMirrorController() {
+      return false;
    }
 
    @Override

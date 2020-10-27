@@ -53,19 +53,27 @@ public class ByteUtil {
 
    public static void debugFrame(Logger logger, String message, ByteBuf byteIn) {
       if (logger.isTraceEnabled()) {
-         int location = byteIn.readerIndex();
-         // debugging
-         byte[] frame = new byte[byteIn.writerIndex()];
-         byteIn.readBytes(frame);
-
-         try {
-            logger.trace(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
-         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-         }
-
-         byteIn.readerIndex(location);
+         outFrame(logger, message, byteIn, false);
       }
+   }
+
+   public static void outFrame(Logger logger, String message, ByteBuf byteIn, boolean info) {
+      int location = byteIn.readerIndex();
+      // debugging
+      byte[] frame = new byte[byteIn.writerIndex()];
+      byteIn.readBytes(frame);
+
+      try {
+         if (info) {
+            logger.info(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
+         } else {
+            logger.trace(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
+         }
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+      }
+
+      byteIn.readerIndex(location);
    }
 
    public static String formatGroup(String str, int groupSize, int lineBreak) {

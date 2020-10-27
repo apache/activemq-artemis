@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -288,17 +289,20 @@ public class AMQConsumer {
 
    /**
     * The acknowledgement in openwire is done based on intervals.
-    * We will iterate through the list of delivering messages at {@link ServerConsumer#getDeliveringReferencesBasedOnProtocol(boolean, Object, Object)}
+    * We will iterate through the list of delivering messages at {@link ServerConsumer#scanDeliveringReferences(boolean, Function, Function)}
     * and add those to the Transaction.
     * Notice that we will start a new transaction on the cases where there is no transaction.
     */
    public void acknowledge(MessageAck ack) throws Exception {
 
-      MessageId first = ack.getFirstMessageId();
-      MessageId last = ack.getLastMessageId();
+      final MessageId startID, lastID;
 
-      if (first == null) {
-         first = last;
+      if (ack.getFirstMessageId() == null) {
+         startID = ack.getLastMessageId();
+         lastID = ack.getLastMessageId();
+      } else {
+         startID = ack.getFirstMessageId();
+         lastID = ack.getLastMessageId();
       }
 
       boolean removeReferences = !serverConsumer.isBrowseOnly(); // if it's browse only, nothing to be acked, we just remove the lists
@@ -309,7 +313,7 @@ public class AMQConsumer {
          removeReferences = false;
       }
 
-      List<MessageReference> ackList = serverConsumer.getDeliveringReferencesBasedOnProtocol(removeReferences, first, last);
+      List<MessageReference> ackList = serverConsumer.scanDeliveringReferences(removeReferences, reference -> startID.equals(reference.getProtocolData()), reference -> lastID.equals(reference.getProtocolData()));
 
       if (removeReferences && (ack.isIndividualAck() || ack.isStandardAck() || ack.isPoisonAck())) {
          if (deliveredAcks < ackList.size()) {

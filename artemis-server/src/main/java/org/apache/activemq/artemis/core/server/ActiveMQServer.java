@@ -68,6 +68,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
+import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -86,7 +87,6 @@ import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
  * This is not part of our public API.
  */
 public interface ActiveMQServer extends ServiceComponent {
-
 
    enum SERVER_STATE {
       /**
@@ -133,6 +133,16 @@ public interface ActiveMQServer extends ServiceComponent {
    void addActivationParam(String key, Object val);
 
    Configuration getConfiguration();
+
+   void installMirrorController(MirrorController mirrorController);
+
+   /** This method will scan all queues and addresses.
+    * it is supposed to be called before the mirrorController is started */
+   void scanAddresses(MirrorController mirrorController) throws Exception;
+
+   MirrorController getMirrorController();
+
+   void removeMirrorControl();
 
    ServiceRegistry getServiceRegistry();
 
@@ -690,6 +700,14 @@ public interface ActiveMQServer extends ServiceComponent {
    ServerSession getSessionByID(String sessionID);
 
    void threadDump();
+
+   void registerBrokerConnection(BrokerConnection brokerConnection);
+
+   void startBrokerConnection(String name) throws Exception;
+
+   void stopBrokerConnection(String name) throws Exception;
+
+   Collection<BrokerConnection> getBrokerConnections();
 
    /**
     * return true if there is a binding for this address (i.e. if there is a created queue)

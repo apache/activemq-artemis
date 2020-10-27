@@ -610,6 +610,15 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="broker-connections" type="brokerConnectType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  A list of connections the broker will make towards other servers.
+                  Currently the only connection type supported is amqpConnection
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="grouping-handler" type="groupingHandlerType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1995,6 +2004,139 @@
          </xsd:choice>
       </xsd:sequence>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="brokerConnectType">
+      <xsd:sequence maxOccurs="unbounded">
+        <xsd:element name="amqp-connection" type="amqp-connectionUriType"/>
+      </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:complexType name="amqp-connectionUriType">
+      <xsd:sequence>
+         <xsd:choice maxOccurs="unbounded">
+            <xsd:element name="sender" type="amqp-address-match-type"/>
+            <xsd:element name="receiver" type="amqp-address-match-type"/>
+            <xsd:element name="peer" type="amqp-address-match-type"/>
+            <xsd:element name="mirror" type="amqp-mirror-type"/>
+         </xsd:choice>
+      </xsd:sequence>
+      <xsd:attribute name="uri" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               uri of the amqp connection
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="auto-start" type="xsd:boolean" default="true">
+         <xsd:annotation>
+            <xsd:documentation>
+               should the broker connection be started when the server is started.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="reconnect-attempts" type="xsd:int" default="-1">
+         <xsd:annotation>
+            <xsd:documentation>
+               How many attempts should be made to reconnect after failure
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="retry-interval" type="xsd:long" default="5000">
+         <xsd:annotation>
+            <xsd:documentation>
+               period (in ms) between successive retries
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="user" type="xsd:string" default="">
+         <xsd:annotation>
+            <xsd:documentation>
+               User name used to connect. If not defined it will try an anonymous connection.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="password" type="xsd:string" default="">
+         <xsd:annotation>
+            <xsd:documentation>
+               Password used to connect. If not defined it will try an anonymous connection.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="name" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               name of the amqp connection
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="amqp-address-match-type">
+      <xsd:attribute name="match" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               address expression to match addresses
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="queue-name" type="xsd:string" use="optional">
+      <xsd:annotation>
+         <xsd:documentation>
+            This is the exact queue name to be used.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:attribute>
+   </xsd:complexType>
+   <xsd:complexType name="amqp-mirror-type">
+      <xsd:annotation>
+         <xsd:documentation>
+            This will determine that queues are mirrored towards this next broker.
+            All events will be send towards this AMQP connection acting like a replica.
+         </xsd:documentation>
+      </xsd:annotation>
+      <!--
+        TODO: comment this out when we start supporting matching on mirror.
+      <xsd:attribute name="match" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               address expression to match addresses
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute> -->
+
+      <xsd:attribute name="message-acknowledgements" type="xsd:boolean" use="optional" default="true">
+         <xsd:annotation>
+            <xsd:documentation>
+               Should mirror acknowledgements towards the other server
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="queue-creation" type="xsd:boolean" use="optional" default="true">
+         <xsd:annotation>
+            <xsd:documentation>
+               Should mirror queue creation events for addresses and queues.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="queue-removal" type="xsd:boolean" use="optional" default="true">
+         <xsd:annotation>
+            <xsd:documentation>
+               Should mirror queue deletion events for addresses and queues.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="source-mirror-address" type="xsd:string" use="optional" default="">
+         <xsd:annotation>
+            <xsd:documentation>
+               By default the replica will use a temporary store and forward queue to store events towards the mirror / replica.
+               However if this is set, we will use a defined durable queue.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+
    </xsd:complexType>
 
    <xsd:complexType name="cluster-connectionUriType">

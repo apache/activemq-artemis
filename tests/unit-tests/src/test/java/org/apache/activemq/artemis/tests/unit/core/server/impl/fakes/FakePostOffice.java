@@ -40,8 +40,10 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
+import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public class FakePostOffice implements PostOffice {
@@ -138,6 +140,21 @@ public class FakePostOffice implements PostOffice {
    @Override
    public AddressInfo removeAddressInfo(SimpleString address, boolean force) throws Exception {
       return null;
+   }
+
+   @Override
+   public MirrorController getMirrorControlSource() {
+      return null;
+   }
+
+   @Override
+   public PostOffice setMirrorControlSource(MirrorController mirrorControllerSource) {
+      return null;
+   }
+
+   @Override
+   public void postAcknowledge(MessageReference ref, AckReason reason) {
+
    }
 
    @Override

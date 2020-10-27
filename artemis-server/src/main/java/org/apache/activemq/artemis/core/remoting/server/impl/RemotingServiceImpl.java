@@ -527,6 +527,13 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       return connectionCountLatch;
    }
 
+   @Override
+   public void loadProtocolServices(List<ActiveMQComponent> protocolServices) {
+      for (ProtocolManagerFactory protocolManagerFactory : protocolMap.values()) {
+         protocolManagerFactory.loadProtocolServices(this.server, protocolServices);
+      }
+   }
+
    // ServerConnectionLifeCycleListener implementation -----------------------------------
 
    private ProtocolManagerFactory getProtocolManager(String protocol) {

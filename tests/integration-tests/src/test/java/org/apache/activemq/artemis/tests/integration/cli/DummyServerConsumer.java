@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cli;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -133,9 +134,9 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
-   public List<MessageReference> getDeliveringReferencesBasedOnProtocol(boolean remove,
-                                                                        Object protocolDataStart,
-                                                                        Object protocolDataEnd) {
+   public List<MessageReference> scanDeliveringReferences(boolean remove,
+                                                          Function<MessageReference, Boolean> startFunction,
+                                                          Function<MessageReference, Boolean> endFunction) {
       return null;
    }
 

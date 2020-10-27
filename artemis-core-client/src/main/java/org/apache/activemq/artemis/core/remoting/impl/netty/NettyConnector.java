@@ -174,6 +174,8 @@ public class NettyConnector extends AbstractConnector {
 
    // Attributes ----------------------------------------------------
 
+   private final boolean serverConnection;
+
    private Class<? extends Channel> channelClazz;
 
    private Bootstrap bootstrap;
@@ -316,7 +318,19 @@ public class NettyConnector extends AbstractConnector {
                          final Executor threadPool,
                          final ScheduledExecutorService scheduledThreadPool,
                          final ClientProtocolManager protocolManager) {
+      this(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool, protocolManager, false);
+   }
+   public NettyConnector(final Map<String, Object> configuration,
+                         final BufferHandler handler,
+                         final BaseConnectionLifeCycleListener<?> listener,
+                         final Executor closeExecutor,
+                         final Executor threadPool,
+                         final ScheduledExecutorService scheduledThreadPool,
+                         final ClientProtocolManager protocolManager,
+                         final boolean serverConnection) {
       super(configuration);
+
+      this.serverConnection = serverConnection;
 
       this.protocolManager = protocolManager;
 
@@ -324,7 +338,7 @@ public class NettyConnector extends AbstractConnector {
          throw ActiveMQClientMessageBundle.BUNDLE.nullListener();
       }
 
-      if (handler == null) {
+      if (!serverConnection && handler == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.nullHandler();
       }
 
@@ -458,6 +472,14 @@ public class NettyConnector extends AbstractConnector {
          true +
          getHttpUpgradeInfo() +
          "]";
+   }
+
+   public ChannelGroup getChannelGroup() {
+      return channelGroup;
+   }
+
+   public boolean isServerConnection() {
+      return serverConnection;
    }
 
    private String getHttpUpgradeInfo() {
@@ -664,10 +686,14 @@ public class NettyConnector extends AbstractConnector {
                pipeline.addLast("http-upgrade", new HttpUpgradeHandler(pipeline, httpClientCodec));
             }
 
-            protocolManager.addChannelHandlers(pipeline);
+            if (protocolManager != null) {
+               protocolManager.addChannelHandlers(pipeline);
+            }
 
-            pipeline.addLast(new ActiveMQClientChannelHandler(channelGroup, handler, new Listener(), closeExecutor));
-            logger.debugf("Added ActiveMQClientChannelHandler to Channel with id = %s ", channel.id());
+            if (handler != null) {
+               pipeline.addLast(new ActiveMQClientChannelHandler(channelGroup, handler, new Listener(), closeExecutor));
+               logger.debugf("Added ActiveMQClientChannelHandler to Channel with id = %s ", channel.id());
+            }
          }
       });
 
@@ -809,6 +835,10 @@ public class NettyConnector extends AbstractConnector {
          return null;
       }
 
+      return createConnection(onConnect, host, port);
+   }
+
+   public NettyConnection createConnection(Consumer<ChannelFuture> onConnect, String host, int port) {
       InetSocketAddress remoteDestination;
       if (proxyEnabled && proxyRemoteDNS) {
          remoteDestination = InetSocketAddress.createUnresolved(IPV6Util.stripBracketsAndZoneID(host), port);
@@ -845,14 +875,14 @@ public class NettyConnector extends AbstractConnector {
                if (handshakeFuture.isSuccess()) {
                   ChannelPipeline channelPipeline = ch.pipeline();
                   ActiveMQChannelHandler channelHandler = channelPipeline.get(ActiveMQChannelHandler.class);
-                  if (channelHandler != null) {
-                     channelHandler.active = true;
-                  } else {
-                     ch.close().awaitUninterruptibly();
-                     ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(
-                        new IllegalStateException("No ActiveMQChannelHandler has been found while connecting to " +
-                                                     remoteDestination + " from Channel with id = " + ch.id()));
-                     return null;
+                  if (!serverConnection) {
+                     if (channelHandler != null) {
+                        channelHandler.active = true;
+                     } else {
+                        ch.close().awaitUninterruptibly();
+                        ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(new IllegalStateException("No ActiveMQChannelHandler has been found while connecting to " + remoteDestination + " from Channel with id = " + ch.id()));
+                        return null;
+                     }
                   }
                } else {
                   ch.close().awaitUninterruptibly();
@@ -915,7 +945,7 @@ public class NettyConnector extends AbstractConnector {
             ActiveMQChannelHandler channelHandler = channelPipeline.get(ActiveMQChannelHandler.class);
             if (channelHandler != null) {
                channelHandler.active = true;
-            } else {
+            } else if (!serverConnection) {
                ch.close().awaitUninterruptibly();
                ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(
                   new IllegalStateException("No ActiveMQChannelHandler has been found while connecting to " +

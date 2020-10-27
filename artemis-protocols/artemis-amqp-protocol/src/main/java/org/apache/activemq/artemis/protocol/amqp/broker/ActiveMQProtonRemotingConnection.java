@@ -53,6 +53,10 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       transportConnection.setProtocolConnection(this);
    }
 
+   public AMQPConnectionContext getAmqpConnection() {
+      return amqpConnection;
+   }
+
    public ProtonProtocolManager getManager() {
       return manager;
    }

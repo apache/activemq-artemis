@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerFederationPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
@@ -64,7 +65,6 @@ public interface Configuration {
     * To be used on dependency management on the application server
     */
    Configuration setName(String name);
-
 
    /**
     * We use Bean-utils to pass in System.properties that start with {@link #setSystemPropertyPrefix(String)}.
@@ -483,6 +483,10 @@ public interface Configuration {
    ClusterConnectionConfiguration addClusterConfiguration(String name, String uri) throws Exception;
 
    Configuration clearClusterConfigurations();
+
+   Configuration addAMQPConnection(AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration);
+
+   List<AMQPBrokerConnectConfiguration> getAMQPConnection();
 
    /**
     * Returns the queues configured for this server.

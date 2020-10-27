@@ -1,0 +1,203 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
+import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccessor;
+import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
+import org.apache.qpid.proton.amqp.messaging.Properties;
+import org.jboss.logging.Logger;
+
+public class AMQPMirrorControllerSource implements MirrorController, ActiveMQComponent {
+
+   private static final Logger logger = Logger.getLogger(AMQPMirrorControllerSource.class);
+
+   public static final Symbol EVENT_TYPE = Symbol.getSymbol("x-opt-amq-mr-ev-type");
+   public static final Symbol ADDRESS = Symbol.getSymbol("x-opt-amq-mr-adr");
+   public static final Symbol QUEUE = Symbol.getSymbol("x-opt-amq-mr-qu");
+
+   // Events:
+   public static final Symbol ADD_ADDRESS = Symbol.getSymbol("addAddress");
+   public static final Symbol DELETE_ADDRESS = Symbol.getSymbol("deleteAddress");
+   public static final Symbol CREATE_QUEUE = Symbol.getSymbol("createQueue");
+   public static final Symbol DELETE_QUEUE = Symbol.getSymbol("deleteQueue");
+   public static final Symbol ADDRESS_SCAN_START = Symbol.getSymbol("AddressCanStart");
+   public static final Symbol ADDRESS_SCAN_END = Symbol.getSymbol("AddressScanEnd");
+   public static final Symbol POST_ACK = Symbol.getSymbol("postAck");
+
+   // Delivery annotation property used on mirror control routing and Ack
+   public static final Symbol INTERNAL_ID = Symbol.getSymbol("x-opt-amq-mr-id");
+   public static final Symbol INTERNAL_DESTINATION = Symbol.getSymbol("x-opt-amq-mr-dst");
+
+   private static final ThreadLocal<MirrorControlRouting> mirrorControlRouting = ThreadLocal.withInitial(() -> new MirrorControlRouting(null));
+
+   final Queue snfQueue;
+   final ActiveMQServer server;
+   final boolean acks;
+
+   boolean started;
+
+   @Override
+   public void start() throws Exception {
+   }
+
+   @Override
+   public void stop() throws Exception {
+   }
+
+   @Override
+   public boolean isStarted() {
+      return started;
+   }
+
+   public AMQPMirrorControllerSource(Queue snfQueue, ActiveMQServer server, boolean acks) {
+      this.snfQueue = snfQueue;
+      this.server = server;
+      this.acks = acks;
+   }
+
+   @Override
+   public void startAddressScan() throws Exception {
+      Message message = createMessage(null, null, ADDRESS_SCAN_START, null);
+      route(server, message);
+   }
+
+   @Override
+   public void endAddressScan() throws Exception {
+      Message message = createMessage(null, null, ADDRESS_SCAN_END, null);
+      route(server, message);
+   }
+
+   @Override
+   public void addAddress(AddressInfo addressInfo) throws Exception {
+      Message message = createMessage(addressInfo.getName(), null, ADD_ADDRESS, addressInfo.toJSON());
+      route(server, message);
+   }
+
+   @Override
+   public void deleteAddress(AddressInfo addressInfo) throws Exception {
+      Message message = createMessage(addressInfo.getName(), null, DELETE_ADDRESS, addressInfo.toJSON());
+      route(server, message);
+   }
+
+   @Override
+   public void createQueue(QueueConfiguration queueConfiguration) throws Exception {
+      Message message = createMessage(queueConfiguration.getAddress(), queueConfiguration.getName(), CREATE_QUEUE, queueConfiguration.toJSON());
+      route(server, message);
+   }
+
+   @Override
+   public void deleteQueue(SimpleString address, SimpleString queue) throws Exception {
+      Message message = createMessage(address, queue, DELETE_QUEUE, queue.toString());
+      route(server, message);
+   }
+
+   @Override
+   public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
+
+      try {
+         context.setReusable(false);
+         PagingStore storeOwner = null;
+         if (refs.size() > 0) {
+            storeOwner = refs.get(0).getOwner();
+         }
+         if (storeOwner != null && !storeOwner.getAddress().equals(message.getAddressSimpleString())) {
+            storeOwner = server.getPagingManager().getPageStore(message.getAddressSimpleString());
+         }
+         MessageReference ref = MessageReference.Factory.createReference(message, snfQueue, storeOwner);
+
+         snfQueue.refUp(ref);
+
+         Map<Symbol, Object> symbolObjectMap = new HashMap<>();
+         DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(symbolObjectMap);
+         symbolObjectMap.put(INTERNAL_ID, message.getMessageID());
+         String address = message.getAddress();
+         if (address != null) { // this is the message that was set through routing
+            Properties amqpProperties = getProperties(message);
+            if (amqpProperties == null || !address.equals(amqpProperties.getTo())) {
+               // We set the internal destination property only if we need to
+               // otherwise we just use the one already set over Properties
+               symbolObjectMap.put(INTERNAL_DESTINATION, message.getAddress());
+            }
+         }
+         ref.setProtocolData(deliveryAnnotations);
+
+         refs.add(ref);
+         message.usageUp();
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+      }
+   }
+
+   private static Properties getProperties(Message message) {
+      if (message instanceof AMQPMessage) {
+         return AMQPMessageBrokerAccessor.getCurrentProperties((AMQPMessage)message);
+      } else {
+         return null;
+      }
+   }
+
+   @Override
+   public void postAcknowledge(MessageReference ref, AckReason reason) throws Exception {
+      if (acks && !ref.getQueue().isMirrorController()) { // we don't call postACK on snfqueues, otherwise we would get infinite loop because of this feedback
+         Message message = createMessage(ref.getQueue().getAddress(), ref.getQueue().getName(), POST_ACK, ref.getMessage().getMessageID());
+         route(server, message);
+         ref.getMessage().usageDown();
+      }
+   }
+
+   private Message createMessage(SimpleString address, SimpleString queue, Object event, Object body) {
+      return AMQPMirrorMessageFactory.createMessage(snfQueue.getAddress().toString(), address, queue, event, body);
+   }
+   public static void route(ActiveMQServer server, Message message) throws Exception {
+      message.setMessageID(server.getStorageManager().generateID());
+      MirrorControlRouting ctx = mirrorControlRouting.get();
+      ctx.clear();
+      server.getPostOffice().route(message, ctx, false);
+   }
+
+   private static class MirrorControlRouting extends RoutingContextImpl {
+
+      MirrorControlRouting(Transaction transaction) {
+         super(transaction);
+      }
+
+      @Override
+      public boolean isMirrorController() {
+         return true;
+      }
+   }
+}

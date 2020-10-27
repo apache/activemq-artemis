@@ -2753,4 +2753,30 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601737, value = "User {0} is getting authorization cache size on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getAuthorizationCacheSize(String user, Object source, Object... args);
+
+   static void listBrokerConnections() {
+      LOGGER.listBrokerConnections(getCaller());
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601738, value = "User {0} is requesting a list of broker connections", format = Message.Format.MESSAGE_FORMAT)
+   void listBrokerConnections(String user);
+
+   static void stopBrokerConnection(String name) {
+      LOGGER.stopBrokerConnection(getCaller(), name);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601739, value = "User {0} is requesting to stop broker connection {1}", format = Message.Format.MESSAGE_FORMAT)
+   void stopBrokerConnection(String user, String name);
+
+
+   static void startBrokerConnection(String name) {
+      LOGGER.startBrokerConnection(getCaller(), name);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601740, value = "User {0} is requesting to start broker connection {1}", format = Message.Format.MESSAGE_FORMAT)
+   void startBrokerConnection(String user, String name);
+
 }

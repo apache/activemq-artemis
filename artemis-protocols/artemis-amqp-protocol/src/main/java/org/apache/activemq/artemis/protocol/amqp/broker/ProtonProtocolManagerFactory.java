@@ -21,8 +21,11 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.persistence.Persister;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionManager;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
@@ -67,5 +70,16 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
    @Override
    public String getModuleName() {
       return MODULE_NAME;
+   }
+
+   /** AMQP integration with the broker on this case needs to be soft.
+    *  As the broker may choose to not load the AMQP Protocol */
+   @Override
+   public void loadProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) {
+      List<AMQPBrokerConnectConfiguration> amqpServicesConfiguration = server.getConfiguration().getAMQPConnection();
+      if (amqpServicesConfiguration != null && amqpServicesConfiguration.size() > 0) {
+         AMQPBrokerConnectionManager bridgeService = new AMQPBrokerConnectionManager(this, amqpServicesConfiguration, server);
+         services.add(bridgeService);
+      }
    }
 }

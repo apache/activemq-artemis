@@ -362,6 +362,7 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    @Override
    public void setOwner(PagingStore owner) {
+      new Exception("Setting owner as " + owner.getStoreName()).printStackTrace();
       this.owner = owner;
    }
 }

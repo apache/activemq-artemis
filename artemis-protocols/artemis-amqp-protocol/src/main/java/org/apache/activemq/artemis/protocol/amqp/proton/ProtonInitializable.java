@@ -24,7 +24,7 @@ public class ProtonInitializable {
       return initialized;
    }
 
-   public void initialise() throws Exception {
+   public void initialize() throws Exception {
       if (!initialized) {
          initialized = true;
       }
