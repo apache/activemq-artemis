@@ -933,32 +933,34 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
 
       PageCursorInfo info = getPageInfo(position);
-      PageCache cache = info.getCache();
-      if (cache != null) {
-         final long size;
-         if (persistentSize < 0) {
-            //cache.getMessage is potentially expensive depending
-            //on the current cache size and which message is queried
-            size = getPersistentSize(cache.getMessage(position));
-         } else {
-            size = persistentSize;
+      if (info != null) {
+         PageCache cache = info.getCache();
+         if (cache != null) {
+            final long size;
+            if (persistentSize < 0) {
+               //cache.getMessage is potentially expensive depending
+               //on the current cache size and which message is queried
+               size = getPersistentSize(cache.getMessage(position));
+            } else {
+               size = persistentSize;
+            }
+            position.setPersistentSize(size);
          }
-         position.setPersistentSize(size);
+
+         logger.tracef("InstallTXCallback looking up pagePosition %s, result=%s", position, info);
+
+         info.remove(position);
+
+         PageCursorTX cursorTX = (PageCursorTX) tx.getProperty(TransactionPropertyIndexes.PAGE_CURSOR_POSITIONS);
+
+         if (cursorTX == null) {
+            cursorTX = new PageCursorTX();
+            tx.putProperty(TransactionPropertyIndexes.PAGE_CURSOR_POSITIONS, cursorTX);
+            tx.addOperation(cursorTX);
+         }
+
+         cursorTX.addPositionConfirmation(this, position);
       }
-
-      logger.tracef("InstallTXCallback looking up pagePosition %s, result=%s", position, info);
-
-      info.remove(position);
-
-      PageCursorTX cursorTX = (PageCursorTX) tx.getProperty(TransactionPropertyIndexes.PAGE_CURSOR_POSITIONS);
-
-      if (cursorTX == null) {
-         cursorTX = new PageCursorTX();
-         tx.putProperty(TransactionPropertyIndexes.PAGE_CURSOR_POSITIONS, cursorTX);
-         tx.addOperation(cursorTX);
-      }
-
-      cursorTX.addPositionConfirmation(this, position);
 
    }
 

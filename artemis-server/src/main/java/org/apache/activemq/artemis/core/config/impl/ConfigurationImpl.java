@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -165,6 +166,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected List<DivertConfiguration> divertConfigurations = new ArrayList<>();
 
    protected List<ClusterConnectionConfiguration> clusterConfigurations = new ArrayList<>();
+
+   protected List<AMQPBrokerConnectConfiguration> amqpBrokerConnectConfigurations = new ArrayList<>();
 
    protected List<FederationConfiguration> federationConfigurations = new ArrayList<>();
 
@@ -355,6 +358,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private int pageSyncTimeout = ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio();
 
    private String temporaryQueueNamespace = ActiveMQDefaultConfiguration.getDefaultTemporaryQueueNamespace();
+
 
    /**
     * Parent folder for all data folders.
@@ -727,6 +731,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
       ClusterConnectionConfiguration newConfig = new ClusterConnectionConfiguration(new URI(uri)).setName(name);
       clusterConfigurations.add(newConfig);
       return newConfig;
+   }
+
+   @Override
+   public ConfigurationImpl addAMQPConnection(AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration) {
+      this.amqpBrokerConnectConfigurations.add(amqpBrokerConnectConfiguration);
+      return this;
+   }
+
+   @Override
+   public List<AMQPBrokerConnectConfiguration> getAMQPConnection() {
+      return this.amqpBrokerConnectConfigurations;
    }
 
    @Override

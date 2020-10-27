@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -848,9 +849,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * This will be useful for other protocols that will need this such as openWire or MQTT.
     */
    @Override
-   public synchronized List<MessageReference> getDeliveringReferencesBasedOnProtocol(boolean remove,
-                                                                        Object protocolDataStart,
-                                                                        Object protocolDataEnd) {
+   public synchronized List<MessageReference> scanDeliveringReferences(boolean remove,
+                                                                        Function<MessageReference, Boolean> startFunction,
+                                                                        Function<MessageReference, Boolean> endFunction) {
       LinkedList<MessageReference> retReferences = new LinkedList<>();
       boolean hit = false;
       synchronized (lock) {
@@ -858,24 +859,22 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
          while (referenceIterator.hasNext()) {
             MessageReference reference = referenceIterator.next();
-
-            if (!hit) {
-               hit = reference.getProtocolData() != null && reference.getProtocolData().equals(protocolDataStart);
+            if (!hit && startFunction.apply(reference)) {
+               hit = true;
             }
 
-            // notice: this is not an else clause, this is also valid for the first hit
             if (hit) {
                if (remove) {
                   referenceIterator.remove();
                }
+
                retReferences.add(reference);
 
-               // Whenever this is met we interrupt the loop
-               // even on the first hit
-               if (reference.getProtocolData() != null && reference.getProtocolData().equals(protocolDataEnd)) {
+               if (endFunction.apply(reference)) {
                   break;
                }
             }
+
          }
       }
 

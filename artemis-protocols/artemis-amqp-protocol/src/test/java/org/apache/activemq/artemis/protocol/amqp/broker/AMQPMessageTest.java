@@ -1581,48 +1581,6 @@ public class AMQPMessageTest {
 
    private static final UnsignedLong AMQPVALUE_DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000077L);
    private static final UnsignedLong APPLICATION_PROPERTIES_DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000074L);
-   private static final UnsignedLong DELIVERY_ANNOTATIONS_DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000071L);
-
-   @Test
-   public void testPartialDecodeIgnoresDeliveryAnnotationsByDefault() {
-      Header header = new Header();
-      header.setDurable(true);
-      header.setPriority(UnsignedByte.valueOf((byte) 6));
-
-      ByteBuf encodedBytes = Unpooled.buffer(1024);
-      NettyWritable writable = new NettyWritable(encodedBytes);
-
-      EncoderImpl encoder = TLSEncode.getEncoder();
-      encoder.setByteBuffer(writable);
-      encoder.writeObject(header);
-
-      // Signal body of AmqpValue but write corrupt underlying type info
-      encodedBytes.writeByte(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
-      encodedBytes.writeByte(EncodingCodes.SMALLULONG);
-      encodedBytes.writeByte(DELIVERY_ANNOTATIONS_DESCRIPTOR.byteValue());
-      encodedBytes.writeByte(EncodingCodes.MAP8);
-      encodedBytes.writeByte(2);  // Size
-      encodedBytes.writeByte(2);  // Elements
-      // Use bad encoding code on underlying type of map key which will fail the decode if run
-      encodedBytes.writeByte(255);
-
-      ReadableBuffer readable = new NettyReadable(encodedBytes);
-
-      AMQPStandardMessage message = null;
-      try {
-         message = new AMQPStandardMessage(0, readable, null, null);
-      } catch (Exception decodeError) {
-         fail("Should not have encountered an exception on partial decode: " + decodeError.getMessage());
-      }
-
-      try {
-         // This should perform the lazy decode of the DeliveryAnnotations portion of the message
-         message.getDeliveryAnnotations();
-         fail("Should have thrown an error when attempting to decode the ApplicationProperties which are malformed.");
-      } catch (Exception ex) {
-         // Expected decode to fail when building full message.
-      }
-   }
 
    @Test
    public void testPartialDecodeIgnoresApplicationPropertiesByDefault() {
@@ -1795,7 +1753,7 @@ public class AMQPMessageTest {
    public void testGetSendBuffer() {
       AMQPStandardMessage message = new AMQPStandardMessage(0, encodedProtonMessage, null, null);
 
-      ReadableBuffer buffer = message.getSendBuffer(1);
+      ReadableBuffer buffer = message.getSendBuffer(1, null);
       assertNotNull(buffer);
       assertTrue(buffer.hasArray());
 
@@ -1810,7 +1768,7 @@ public class AMQPMessageTest {
    public void testGetSendBufferAddsDeliveryCountOnlyToSendMessage() {
       AMQPStandardMessage message = new AMQPStandardMessage(0, encodedProtonMessage, null, null);
 
-      ReadableBuffer buffer = message.getSendBuffer(7);
+      ReadableBuffer buffer = message.getSendBuffer(7, null);
       assertNotNull(buffer);
       message.reencode(); // Ensures Header is current if accidentally updated
 
@@ -1829,7 +1787,7 @@ public class AMQPMessageTest {
       MessageImpl protonMessage = (MessageImpl) Proton.message();
       AMQPStandardMessage message = new AMQPStandardMessage(0, encodeMessage(protonMessage), null, null);
 
-      ReadableBuffer buffer = message.getSendBuffer(7);
+      ReadableBuffer buffer = message.getSendBuffer(7, null);
       assertNotNull(buffer);
       message.reencode(); // Ensures Header is current if accidentally updated
 
@@ -1851,7 +1809,7 @@ public class AMQPMessageTest {
       protonMessage.setDeliveryAnnotations(deliveryAnnotations);
       AMQPStandardMessage message = new AMQPStandardMessage(0, encodeMessage(protonMessage), null, null);
 
-      ReadableBuffer buffer = message.getSendBuffer(1);
+      ReadableBuffer buffer = message.getSendBuffer(1, null);
       assertNotNull(buffer);
 
       AMQPStandardMessage copy = new AMQPStandardMessage(0, buffer, null, null);
@@ -1869,7 +1827,7 @@ public class AMQPMessageTest {
       protonMessage.setDeliveryAnnotations(deliveryAnnotations);
       AMQPStandardMessage message = new AMQPStandardMessage(0, encodeMessage(protonMessage), null, null);
 
-      ReadableBuffer buffer = message.getSendBuffer(7);
+      ReadableBuffer buffer = message.getSendBuffer(7, null);
       assertNotNull(buffer);
       message.reencode(); // Ensures Header is current if accidentally updated
 
@@ -2036,14 +1994,14 @@ public class AMQPMessageTest {
 
       AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
 
-      ReadableBuffer sendBuffer = decoded.getSendBuffer(1);
+      ReadableBuffer sendBuffer = decoded.getSendBuffer(1, null);
       assertEquals(decoded.getEncodeSize(), sendBuffer.capacity());
       AMQPStandardMessage msgFromSendBuffer = new AMQPStandardMessage(0, sendBuffer, null, null);
       assertEquals("someNiceLocal", msgFromSendBuffer.getAddress());
       assertNull(msgFromSendBuffer.getDeliveryAnnotations());
 
       // again with higher deliveryCount
-      ReadableBuffer sendBuffer2 = decoded.getSendBuffer(5);
+      ReadableBuffer sendBuffer2 = decoded.getSendBuffer(5, null);
       assertEquals(decoded.getEncodeSize(), sendBuffer2.capacity());
       AMQPStandardMessage msgFromSendBuffer2 = new AMQPStandardMessage(0, sendBuffer2, null, null);
       assertEquals("someNiceLocal", msgFromSendBuffer2.getAddress());
@@ -2069,7 +2027,7 @@ public class AMQPMessageTest {
       newDeliveryAnnotations.getValue().put(Symbol.getSymbol(annotationKey), annotationValue);
       decoded.setDeliveryAnnotationsForSendBuffer(newDeliveryAnnotations);
 
-      ReadableBuffer sendBuffer = decoded.getSendBuffer(1);
+      ReadableBuffer sendBuffer = decoded.getSendBuffer(1, null);
       assertEquals(decoded.getEncodeSize(), sendBuffer.capacity());
       AMQPStandardMessage msgFromSendBuffer = new AMQPStandardMessage(0, sendBuffer, null, null);
       assertEquals("someNiceLocal", msgFromSendBuffer.getAddress());
@@ -2084,9 +2042,52 @@ public class AMQPMessageTest {
       newDeliveryAnnotations2.getValue().put(Symbol.getSymbol(annotationKey2), annotationValue2);
       decoded.setDeliveryAnnotationsForSendBuffer(newDeliveryAnnotations2);
 
-      ReadableBuffer sendBuffer2 = decoded.getSendBuffer(5);
+      ReadableBuffer sendBuffer2 = decoded.getSendBuffer(5, null);
       assertEquals(decoded.getEncodeSize(), sendBuffer2.capacity());
       AMQPStandardMessage msgFromSendBuffer2 = new AMQPStandardMessage(0, sendBuffer2, null, null);
+      assertEquals("someNiceLocal", msgFromSendBuffer2.getAddress());
+      assertNotNull(msgFromSendBuffer2.getDeliveryAnnotations());
+      assertEquals(1, msgFromSendBuffer2.getDeliveryAnnotations().getValue().size());
+      assertEquals(annotationValue2, msgFromSendBuffer2.getDeliveryAnnotations().getValue().get(Symbol.getSymbol(annotationKey2)));
+   }
+
+
+   /** It validates we are not adding a header if we don't need to */
+   @Test
+   public void testGetSendBufferWithDeliveryAnnotationsAndNoHeader() {
+      MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
+      Properties properties = new Properties();
+      properties.setTo("someNiceLocal");
+      protonMessage.setProperties(properties);
+      protonMessage.setBody(new AmqpValue("Sample payload"));
+
+      AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
+
+      DeliveryAnnotations newDeliveryAnnotations = new DeliveryAnnotations(new HashMap<>());
+      final String annotationKey = "annotationKey";
+      final String annotationValue = "annotationValue";
+      newDeliveryAnnotations.getValue().put(Symbol.getSymbol(annotationKey), annotationValue);
+      decoded.setDeliveryAnnotationsForSendBuffer(newDeliveryAnnotations);
+
+      ReadableBuffer sendBuffer = decoded.getSendBuffer(1, null);
+      assertEquals(decoded.getEncodeSize(), sendBuffer.capacity());
+      AMQPStandardMessage msgFromSendBuffer = new AMQPStandardMessage(0, sendBuffer, null, null);
+      assertEquals("someNiceLocal", msgFromSendBuffer.getAddress());
+      assertNull(msgFromSendBuffer.getProtonMessage().getHeader());
+      assertNotNull(msgFromSendBuffer.getDeliveryAnnotations());
+      assertEquals(1, msgFromSendBuffer.getDeliveryAnnotations().getValue().size());
+      assertEquals(annotationValue, msgFromSendBuffer.getDeliveryAnnotations().getValue().get(Symbol.getSymbol(annotationKey)));
+
+      // again with higher deliveryCount
+      DeliveryAnnotations newDeliveryAnnotations2 = new DeliveryAnnotations(new HashMap<>());
+      final String annotationKey2 = "annotationKey2";
+      final String annotationValue2 = "annotationValue2";
+      newDeliveryAnnotations2.getValue().put(Symbol.getSymbol(annotationKey2), annotationValue2);
+      decoded.setDeliveryAnnotationsForSendBuffer(newDeliveryAnnotations2);
+      ReadableBuffer sendBuffer2 = decoded.getSendBuffer(5, null);
+
+      AMQPStandardMessage msgFromSendBuffer2 = new AMQPStandardMessage(0, sendBuffer2, null, null);
+      assertEquals(4, msgFromSendBuffer2.getProtonMessage().getHeader().getDeliveryCount().intValue());
       assertEquals("someNiceLocal", msgFromSendBuffer2.getAddress());
       assertNotNull(msgFromSendBuffer2.getDeliveryAnnotations());
       assertEquals(1, msgFromSendBuffer2.getDeliveryAnnotations().getValue().size());

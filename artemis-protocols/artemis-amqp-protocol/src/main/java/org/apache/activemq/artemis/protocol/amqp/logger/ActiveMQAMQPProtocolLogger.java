@@ -48,4 +48,16 @@ public interface ActiveMQAMQPProtocolLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 111000, value = "Scheduled task can't be removed from scheduledPool.", format = Message.Format.MESSAGE_FORMAT)
    void cantRemovingScheduledTask();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 111001, value = "\n*******************************************************************************************************************************" +
+      "\nCould not re-establish AMQP Server Connection {0} on {1}:{2} after {3} retries with a total configured of {4}" +
+      "\n*******************************************************************************************************************************\n", format = Message.Format.MESSAGE_FORMAT)
+   void retryConnectionFailed(String name, String host, int port, int currentRetry, int maxRetry);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 111002, value = "\n*******************************************************************************************************************************" +
+                                 "\nRetrying Server AMQP Connection {0} on {1}:{2} retry {3} of {4}" +
+                                 "\n*******************************************************************************************************************************\n", format = Message.Format.MESSAGE_FORMAT)
+   void retryConnection(String name, String host, int port, int currentRetry, int maxRetry);
 }

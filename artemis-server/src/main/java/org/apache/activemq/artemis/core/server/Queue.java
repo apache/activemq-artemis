@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.function.ToLongFunction;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -72,6 +73,11 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void refDown(MessageReference messageReference);
 
+   /** Remove item with a supplied positivie (>= 0) ID.
+    *  if the idSupplier return <0 the ID is considered a non value (null) and it will be ignored
+    *
+    *  @see org.apache.activemq.artemis.utils.collections.LinkedList#setIDSupplier(ToLongFunction) */
+   MessageReference removeWithSuppliedID(long id, ToLongFunction<MessageReference> idSupplier);
 
    /**
     * The queue definition could be durable, but the messages could eventually be considered non durable.
@@ -163,6 +169,13 @@ public interface Queue extends Bindable,CriticalComponent {
    void setRingSize(long ringSize);
 
    long getRingSize();
+
+   default boolean isMirrorController() {
+      return false;
+   }
+
+   default void setMirrorController(boolean mirrorController) {
+   }
 
     /**
     * This will set a reference counter for every consumer present on the queue.

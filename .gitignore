@@ -35,3 +35,6 @@ docs/hacking-guide/en/_book
 
 # overlay outpit
 **/overlays/**/*
+
+# result of gitbook pdf under docs
+docs/user-manual/en/book.pdf

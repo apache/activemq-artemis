@@ -28,6 +28,17 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory;
 
 public class NettyConnectorFactory implements ConnectorFactory {
 
+   boolean serverConnector;
+
+   public boolean isServerConnector() {
+      return serverConnector;
+   }
+
+   public NettyConnectorFactory setServerConnector(boolean serverConnector) {
+      this.serverConnector = serverConnector;
+      return this;
+   }
+
    @Override
    public Connector createConnector(final Map<String, Object> configuration,
                                     final BufferHandler handler,
@@ -36,7 +47,7 @@ public class NettyConnectorFactory implements ConnectorFactory {
                                     final Executor threadPool,
                                     final ScheduledExecutorService scheduledThreadPool,
                                     final ClientProtocolManager protocolManager) {
-      return new NettyConnector(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
+      return new NettyConnector(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool, protocolManager, serverConnector);
    }
 
    @Override

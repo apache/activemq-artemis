@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import java.util.function.ToLongFunction;
+
 /**
  * A type of linked list which maintains items according to a priority
  * and allows adding and removing of elements at both ends, and peeking.<br>
@@ -32,6 +34,14 @@ public interface PriorityLinkedList<T> {
    T poll();
 
    void clear();
+
+   /**
+    * @see LinkedList#setIDSupplier(ToLongFunction)
+    * @param supplier
+    */
+   void setIDSupplier(ToLongFunction<T> supplier);
+
+   T removeWithID(long id);
 
    /**
     * Returns the size of this list.<br>

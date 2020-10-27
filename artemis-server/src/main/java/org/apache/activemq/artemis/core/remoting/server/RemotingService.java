@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -120,4 +121,6 @@ public interface RemotingService {
    Acceptor createAcceptor(TransportConfiguration transportConfiguration);
 
    void destroyAcceptor(String name) throws Exception;
+
+   void loadProtocolServices(List<ActiveMQComponent> protocolServices);
 }

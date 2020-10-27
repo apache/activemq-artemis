@@ -125,6 +125,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
@@ -172,6 +173,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugi
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
+import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -289,7 +291,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final List<ProtocolManagerFactory> protocolManagerFactories = new ArrayList<>();
 
+   private final List<ActiveMQComponent> protocolServices = new ArrayList<>();
+
    private volatile ManagementService managementService;
+
+   private volatile MirrorController mirrorControllerService;
 
    private volatile ConnectorsService connectorsService;
 
@@ -307,6 +313,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * It's based on the same super classes of {@code CountDownLatch}
     */
    private final ReusableLatch activationLatch = new ReusableLatch(0);
+
+   private final Map<String, BrokerConnection> brokerConnectionMap = new ConcurrentHashMap<>();
 
    private final Set<ActivateCallback> activateCallbacks = new ConcurrentHashSet<>();
 
@@ -1082,6 +1090,39 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public void registerBrokerConnection(BrokerConnection brokerConnection) {
+      brokerConnectionMap.put(brokerConnection.getName(), brokerConnection);
+   }
+
+   @Override
+   public void startBrokerConnection(String name) throws Exception {
+      BrokerConnection connection = getBrokerConnection(name);
+      connection.start();
+
+   }
+
+   protected BrokerConnection getBrokerConnection(String name) {
+      BrokerConnection connection = brokerConnectionMap.get(name);
+      if (connection == null) {
+         throw new IllegalArgumentException("broker connection " + name + " not found");
+      }
+      return connection;
+   }
+
+   @Override
+   public void stopBrokerConnection(String name) throws Exception {
+      BrokerConnection connection = getBrokerConnection(name);
+      connection.stop();
+   }
+
+   @Override
+   public Collection<BrokerConnection> getBrokerConnections() {
+      HashSet<BrokerConnection> collections = new HashSet<>(brokerConnectionMap.size());
+      collections.addAll(brokerConnectionMap.values()); // making a copy
+      return collections;
+   }
+
+   @Override
    public void threadDump() {
       ActiveMQServerLogger.LOGGER.threadDump(ThreadDumpUtil.threadDump(""));
    }
@@ -1176,6 +1217,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
          stopComponent(federationManager);
          stopComponent(clusterManager);
+
+         for (ActiveMQComponent component : this.protocolServices) {
+            stopComponent(component);
+         }
 
          final RemotingService remotingService = this.remotingService;
          if (remotingService != null) {
@@ -1289,6 +1334,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, managementService.getClass().getName());
          }
       }
+
+      installMirrorController(null);
 
       pagingManager = null;
       securityStore = null;
@@ -2277,10 +2324,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          Queue queue = (Queue) binding.getBindable();
 
-         if (hasBrokerQueuePlugins()) {
-            callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queue, session, checkConsumerCount, removeConsumers, autoDeleteAddress));
-         }
-
          if (session != null) {
             // make sure the user has privileges to delete this queue
             securityStore.check(address, queueName, queue.isDurable() ? CheckType.DELETE_DURABLE_QUEUE : CheckType.DELETE_NON_DURABLE_QUEUE, session);
@@ -2297,6 +2340,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             if (queue.getMessageCount() > queue.getAutoDeleteMessageCount()) {
                throw ActiveMQMessageBundle.BUNDLE.cannotDeleteQueueWithMessages(queue.getName(), queueName, messageCount);
             }
+         }
+
+         if (hasBrokerQueuePlugins()) {
+            callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queue, session, checkConsumerCount, removeConsumers, autoDeleteAddress));
+         }
+
+         if (mirrorControllerService != null) {
+            mirrorControllerService.deleteQueue(queue.getAddress(), queue.getName());
          }
 
          queue.deleteQueue(removeConsumers);
@@ -3057,6 +3108,32 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return true;
    }
 
+   @Override
+   public void installMirrorController(MirrorController mirrorController) {
+      logger.debug("Mirror controller is being installed");
+      if (postOffice != null) {
+         postOffice.setMirrorControlSource(mirrorController);
+      }
+      this.mirrorControllerService = mirrorController;
+   }
+
+
+   @Override
+   public void scanAddresses(MirrorController mirrorController) throws Exception {
+      logger.debug("Scanning addresses to send on mirror controller");
+      postOffice.scanAddresses(mirrorController);
+   }
+
+   @Override
+   public MirrorController getMirrorController() {
+      return this.mirrorControllerService;
+   }
+
+   @Override
+   public void removeMirrorControl() {
+      postOffice.setMirrorControlSource(null);
+   }
+
    /*
     * Load the data, and start remoting service so clients can connect
     */
@@ -3135,6 +3212,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             federationManager.start();
          }
 
+         startProtocolServices();
+
          if (nodeManager.getNodeId() == null) {
             throw ActiveMQMessageBundle.BUNDLE.nodeIdNull();
          }
@@ -3151,6 +3230,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.unableToInjectMonitor(e);
          }
+      }
+   }
+
+   private void startProtocolServices() throws Exception {
+
+      remotingService.loadProtocolServices(protocolServices);
+
+      for (ProtocolManagerFactory protocolManagerFactory : protocolManagerFactories) {
+         protocolManagerFactory.loadProtocolServices(this, protocolServices);
+      }
+
+      for (ActiveMQComponent protocolComponent : protocolServices) {
+         protocolComponent.start();
       }
    }
 
@@ -3612,6 +3704,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (hasBrokerQueuePlugins()) {
          callBrokerQueuePlugins(plugin -> plugin.beforeCreateQueue(queueConfiguration));
+      }
+
+      if (mirrorControllerService != null) {
+         mirrorControllerService.createQueue(queueConfiguration);
       }
 
       queueConfiguration.setId(storageManager.generateID());

@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.ToLongFunction;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -846,6 +847,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public void refUp(MessageReference messageReference) {
 
+      }
+
+      @Override
+      public MessageReference removeWithSuppliedID(long id, ToLongFunction<MessageReference> idSupplier) {
+         return null;
       }
 
       @Override

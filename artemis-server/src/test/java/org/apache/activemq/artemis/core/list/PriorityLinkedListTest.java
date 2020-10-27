@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.list;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Objects;
+
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.junit.Assert;
@@ -87,32 +91,32 @@ public final class PriorityLinkedListTest extends Assert {
 
       list = getList();
 
-      a = new Wibble("a");
-      b = new Wibble("b");
-      c = new Wibble("c");
-      d = new Wibble("d");
-      e = new Wibble("e");
-      f = new Wibble("f");
-      g = new Wibble("g");
-      h = new Wibble("h");
-      i = new Wibble("i");
-      j = new Wibble("j");
-      k = new Wibble("k");
-      l = new Wibble("l");
-      m = new Wibble("m");
-      n = new Wibble("n");
-      o = new Wibble("o");
-      p = new Wibble("p");
-      q = new Wibble("q");
-      r = new Wibble("r");
-      s = new Wibble("s");
-      t = new Wibble("t");
-      u = new Wibble("u");
-      v = new Wibble("v");
-      w = new Wibble("w");
-      x = new Wibble("x");
-      y = new Wibble("y");
-      z = new Wibble("z");
+      a = new Wibble("a", 1);
+      b = new Wibble("b", 2);
+      c = new Wibble("c", 3);
+      d = new Wibble("d", 4);
+      e = new Wibble("e", 5);
+      f = new Wibble("f", 6);
+      g = new Wibble("g", 7);
+      h = new Wibble("h", 8);
+      i = new Wibble("i", 9);
+      j = new Wibble("j", 10);
+      k = new Wibble("k", 11);
+      l = new Wibble("l", 12);
+      m = new Wibble("m", 13);
+      n = new Wibble("n", 14);
+      o = new Wibble("o", 15);
+      p = new Wibble("p", 16);
+      q = new Wibble("q", 17);
+      r = new Wibble("r", 18);
+      s = new Wibble("s", 19);
+      t = new Wibble("t", 20);
+      u = new Wibble("u", 21);
+      v = new Wibble("v", 22);
+      w = new Wibble("w", 23);
+      x = new Wibble("x", 24);
+      y = new Wibble("y", 25);
+      z = new Wibble("z", 26);
    }
 
    @Test
@@ -870,17 +874,72 @@ public final class PriorityLinkedListTest extends Assert {
       iter.remove();
    }
 
+
+   @Test
+   public void testRemoveWithID() {
+
+      for (int i = 0; i < 3000; i++) {
+         list.addHead(new Wibble("" + i, i), i % 10);
+      }
+
+      list.setIDSupplier(source -> source.id);
+
+      // remove every 3rd
+      for (int i = 0; i < 3000; i += 3) {
+         Assert.assertEquals(new Wibble("" + i, i), list.removeWithID(i));
+      }
+
+      Assert.assertEquals(2000, list.size());
+
+      Iterator<Wibble> iterator = list.iterator();
+
+      HashSet<String> values = new HashSet<>();
+      while (iterator.hasNext()) {
+         values.add(iterator.next().s1);
+      }
+
+      Assert.assertEquals(2000, values.size());
+
+
+      for (int i = 0; i < 3000; i += 3) {
+         if (i % 3 == 0) {
+            Assert.assertFalse(values.contains("" + i));
+         } else {
+            Assert.assertTrue(values.contains("" + i));
+         }
+      }
+
+
+   }
+
    static class Wibble {
 
       String s1;
+      long id;
 
-      Wibble(final String s) {
+      Wibble(final String s, long id) {
          this.s1 = s;
+         this.id = id;
       }
 
       @Override
       public String toString() {
          return s1;
+      }
+
+      @Override
+      public boolean equals(Object o) {
+         if (this == o)
+            return true;
+         if (o == null || getClass() != o.getClass())
+            return false;
+         Wibble wibble = (Wibble) o;
+         return Objects.equals(s1, wibble.s1);
+      }
+
+      @Override
+      public int hashCode() {
+         return Objects.hash(s1);
       }
    }
 

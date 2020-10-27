@@ -96,6 +96,7 @@ import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
@@ -3784,6 +3785,60 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          server.deployBridge(config);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listBrokerConnections() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.listBrokerConnections();
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+
+         JsonArrayBuilder connections = JsonLoader.createArrayBuilder();
+         for (BrokerConnection brokerConnection : server.getBrokerConnections()) {
+            JsonObjectBuilder obj = JsonLoader.createObjectBuilder();
+            obj.add("name", brokerConnection.getName());
+            obj.add("protocol", brokerConnection.getProtocol());
+            obj.add("started", brokerConnection.isStarted());
+            connections.add(obj.build());
+         }
+         return connections.build().toString();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void startBrokerConnection(String name) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.startBrokerConnection(name);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         server.startBrokerConnection(name);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void stopBrokerConnection(String name) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.stopBrokerConnection(name);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         server.stopBrokerConnection(name);
       } finally {
          blockOnIO();
       }
