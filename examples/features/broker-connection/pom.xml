@@ -22,15 +22,15 @@ under the License.
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq.examples</groupId>
-      <artifactId>artemis-examples</artifactId>
+      <groupId>org.apache.activemq.examples.clustered</groupId>
+      <artifactId>broker-features</artifactId>
       <version>2.16.0-SNAPSHOT</version>
    </parent>
 
-   <groupId>org.apache.activemq.examples.clustered</groupId>
-   <artifactId>broker-features</artifactId>
+   <groupId>org.apache.activemq.examples.broker-connection</groupId>
+   <artifactId>broker-connections</artifactId>
    <packaging>pom</packaging>
-   <name>ActiveMQ Artemis Features Examples</name>
+   <name>ActiveMQ Artemis Broker Connection Examples</name>
 
    <!-- Properties -->
    <properties>
@@ -40,32 +40,24 @@ under the License.
       filtered resources, i.e. build is platform dependent!
       -->
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
+      <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
    </properties>
 
    <profiles>
       <profile>
          <id>examples</id>
          <modules>
-            <module>clustered</module>
-            <module>broker-connection</module>
-            <module>federation</module>
-            <module>ha</module>
-            <module>standard</module>
-            <module>sub-modules</module>
-            <module>perf</module>
+            <module>amqp-sending-messages</module>
+            <module>amqp-receiving-messages</module>
+            <module>amqp-sending-overssl</module>
          </modules>
       </profile>
       <profile>
          <id>release</id>
          <modules>
-            <module>broker-connection</module>
-            <module>federation</module>
-            <module>clustered</module>
-            <module>ha</module>
-            <module>standard</module>
-            <module>sub-modules</module>
-            <module>perf</module>
+            <module>amqp-sending-messages</module>
+            <module>amqp-receiving-messages</module>
+            <module>amqp-sending-overssl</module>
          </modules>
       </profile>
    </profiles>
