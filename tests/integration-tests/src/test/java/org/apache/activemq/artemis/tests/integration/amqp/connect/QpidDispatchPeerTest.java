@@ -82,16 +82,21 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60_000)
+   public void testWithMatchingDifferentNamesOnQueue() throws Exception {
+      internalMultipleQueues(true, true);
+   }
+
+   @Test(timeout = 60_000)
    public void testWithMatching() throws Exception {
-      internalMultipleQueues(true);
+      internalMultipleQueues(true, false);
    }
 
    @Test(timeout = 60_000)
    public void testwithQueueName() throws Exception {
-      internalMultipleQueues(false);
+      internalMultipleQueues(false, true);
    }
 
-   private void internalMultipleQueues(boolean useMatching) throws Exception {
+   private void internalMultipleQueues(boolean useMatching, boolean distinctNaming) throws Exception {
       final int numberOfMessages = 100;
       final int numberOfQueues = 10;
       AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:24621").setRetryInterval(10).setReconnectAttempts(-1);
@@ -99,14 +104,14 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
          amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress("queue.#").setType(AMQPBrokerConnectionAddressType.PEER));
       } else {
          for (int i = 0; i < numberOfQueues; i++) {
-            amqpConnection.addElement(new AMQPBrokerConnectionElement().setQueueName("queue.test" + i).setType(AMQPBrokerConnectionAddressType.PEER));
+            amqpConnection.addElement(new AMQPBrokerConnectionElement().setQueueName(createQueueName(i, distinctNaming)).setType(AMQPBrokerConnectionAddressType.PEER));
          }
       }
       server.getConfiguration().addAMQPConnection(amqpConnection);
       server.start();
       for (int i = 0; i < numberOfQueues; i++) {
          server.addAddressInfo(new AddressInfo("queue.test" + i).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false).setTemporary(false));
-         server.createQueue(new QueueConfiguration("queue.test" + i).setAddress("queue.test" + i).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(new QueueConfiguration(createQueueName(i, distinctNaming)).setAddress("queue.test" + i).setRoutingType(RoutingType.ANYCAST));
       }
 
       for (int dest = 0; dest < numberOfQueues; dest++) {
@@ -120,7 +125,7 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
          MessageProducer producer = session.createProducer(queue);
          producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-         org.apache.activemq.artemis.core.server.Queue testQueueOnServer = server.locateQueue("queue.test" + dest);
+         org.apache.activemq.artemis.core.server.Queue testQueueOnServer = server.locateQueue(createQueueName(dest, distinctNaming));
 
          for (int i = 0; i < numberOfMessages; i++) {
             producer.send(session.createTextMessage("hello " + i));
@@ -130,8 +135,6 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
          connection.close();
       }
 
-      System.out.println("*******************************************************************************************************************************");
-      System.out.println("Creating consumer");
 
       for (int dest = 0; dest < numberOfQueues; dest++) {
          ConnectionFactory factoryConsumer = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:24622");
@@ -151,7 +154,6 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
                   System.out.println("*******************************************************************************************************************************");
                }
                Assert.assertNotNull(received);
-               System.out.println("message " + received.getText());
                Assert.assertEquals("hello " + i, received.getText());
             }
             Assert.assertNull(consumer.receiveNoWait());
@@ -162,10 +164,18 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
 
             }
          }
-         org.apache.activemq.artemis.core.server.Queue testQueueOnServer = server.locateQueue("queue.test" + dest);
+         org.apache.activemq.artemis.core.server.Queue testQueueOnServer = server.locateQueue(createQueueName(dest, distinctNaming));
          Wait.assertEquals(0, testQueueOnServer::getMessageCount);
       }
 
+   }
+
+   private String createQueueName(int i, boolean useDistinctName) {
+      if (useDistinctName) {
+         return "distinct.test" + i;
+      } else {
+         return "queue.test" + i;
+      }
    }
 
    private Connection createConnectionDumbRetry(ConnectionFactory factoryProducer,
