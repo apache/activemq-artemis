@@ -99,6 +99,19 @@ public class OpenWireTestBase extends ActiveMQTestBase {
          roles.add(destRole);
 
          server.getConfiguration().putSecurityRoles("#", roles);
+
+         // advisory addresses, anyone can create/consume
+         // broker can produce
+         Role advisoryReceiverRole = new Role("advisoryReceiver", false, true, false, false, true, true, false, true, true, false);
+
+         roles = new HashSet<>();
+         roles.add(advisoryReceiverRole);
+         server.getConfiguration().putSecurityRoles("ActiveMQ.Advisory.#", roles);
+
+         securityManager.getConfiguration().addRole("openwireReceiver", "advisoryReceiver");
+         securityManager.getConfiguration().addRole("openwireSender", "advisoryReceiver");
+         securityManager.getConfiguration().addRole("openwireGuest", "advisoryReceiver");
+         securityManager.getConfiguration().addRole("openwireDestinationManager", "advisoryReceiver");
       }
 
       mbeanServer = MBeanServerFactory.createMBeanServer();

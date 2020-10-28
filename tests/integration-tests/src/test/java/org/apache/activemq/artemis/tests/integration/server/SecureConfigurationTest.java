@@ -263,6 +263,8 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
       org.apache.activemq.ActiveMQConnectionFactory activeMQConnectionFactory = new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616");
       activeMQConnectionFactory.setUserName(user);
       activeMQConnectionFactory.setPassword(password);
+      // don't listen for advisories to avoid the need for advisory permissions
+      activeMQConnectionFactory.setWatchTopicAdvisories(false);
       return activeMQConnectionFactory;
    }
 

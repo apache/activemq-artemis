@@ -56,6 +56,7 @@ public class SecurityOpenWireTest extends BasicOpenWireTest {
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("denyQ", "denyQ");
       securityManager.getConfiguration().addRole("denyQ", "denyQ");
+      securityManager.getConfiguration().addRole("denyQ", "advisoryReceiver");
    }
 
    @Test

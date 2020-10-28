@@ -117,6 +117,12 @@ public class SecurityPerAcceptorJmsTest extends ActiveMQTestBase {
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
+
+      // ensure advisory permission is still set for openwire to allow connection to succeed, alternative is url param jms.watchTopicAdvisories=false on the client connection factory
+      roles = new HashSet<>();
+      roles.add(new Role("programmers", false, true, false, false, true, true, false, false, true, false));
+      server.getConfiguration().putSecurityRoles("ActiveMQ.Advisory.#", roles);
+
       server.start();
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));

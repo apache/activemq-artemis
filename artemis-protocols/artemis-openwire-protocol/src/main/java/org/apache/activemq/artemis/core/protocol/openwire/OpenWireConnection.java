@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -165,6 +166,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private final Map<SessionId, AMQSession> sessions = new ConcurrentHashMap<>();
 
+   private final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
+
    private ConnectionState state;
 
    private volatile boolean noLocal;
@@ -176,8 +179,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     * This collection will hold nonXA transactions. Hopefully while they are in transit only.
     */
    private final Map<TransactionId, Transaction> txMap = new ConcurrentHashMap<>();
-
-   private volatile AMQSession advisorySession;
 
    private final ActiveMQServer server;
 
@@ -711,14 +712,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
    }
 
-   public void setAdvisorySession(AMQSession amqSession) {
-      this.advisorySession = amqSession;
-   }
-
-   public AMQSession getAdvisorySession() {
-      return this.advisorySession;
-   }
-
    public AMQConnectionContext getContext() {
       return this.context;
    }
@@ -1032,21 +1025,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    public void addSessions(Set<SessionId> sessionSet) {
       for (SessionId sid : sessionSet) {
-         addSession(getState().getSessionState(sid).getInfo(), true);
+         addSession(getState().getSessionState(sid).getInfo());
       }
    }
 
    public AMQSession addSession(SessionInfo ss) {
-      return addSession(ss, false);
-   }
-
-   public AMQSession addSession(SessionInfo ss, boolean internal) {
-      AMQSession amqSession = new AMQSession(getState().getInfo(), ss, server, this, protocolManager);
+      AMQSession amqSession = new AMQSession(getState().getInfo(), ss, server, this, protocolManager, coreMessageObjectPools);
       amqSession.initialize();
-
-      if (internal) {
-         amqSession.disableSecurity();
-      }
 
       sessions.put(ss.getSessionId(), amqSession);
       sessionIdMap.put(amqSession.getCoreSession().getName(), ss.getSessionId());
@@ -1807,4 +1792,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return transportConnection.getLocalAddress();
    }
 
+   public CoreMessageObjectPools getCoreMessageObjectPools() {
+      return coreMessageObjectPools;
+   }
 }
