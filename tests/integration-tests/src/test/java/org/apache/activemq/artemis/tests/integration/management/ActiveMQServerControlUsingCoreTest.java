@@ -58,6 +58,25 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    @Override
    protected ActiveMQServerControl createManagementControl() throws Exception {
       return new ActiveMQServerControl() {
+         @Override
+         public String listBrokerConnections() {
+            try {
+               return (String) proxy.invokeOperation("listBrokerConnections");
+            } catch (Throwable throwable) {
+               throwable.printStackTrace();
+               return null;
+            }
+         }
+
+         @Override
+         public void startBrokerConnection(String name) throws Exception {
+            proxy.invokeOperation("startBrokerConnection", name);
+         }
+
+         @Override
+         public void stopBrokerConnection(String name) throws Exception {
+            proxy.invokeOperation("stopBrokerConnection", name);
+         }
 
          @Override
          public String updateAddress(String name, String routingTypes) throws Exception {

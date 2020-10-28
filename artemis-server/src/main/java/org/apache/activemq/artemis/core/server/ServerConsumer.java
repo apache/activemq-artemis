@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
@@ -90,9 +91,9 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
     */
    void backToDelivering(MessageReference reference);
 
-   List<MessageReference> getDeliveringReferencesBasedOnProtocol(boolean remove,
-                                                                 Object protocolDataStart,
-                                                                 Object protocolDataEnd);
+   List<MessageReference> scanDeliveringReferences(boolean remove,
+                                                   Function<MessageReference, Boolean> startFunction,
+                                                   Function<MessageReference, Boolean> endFunction);
 
    List<Long> acknowledge(Transaction tx, long messageID) throws Exception;
 

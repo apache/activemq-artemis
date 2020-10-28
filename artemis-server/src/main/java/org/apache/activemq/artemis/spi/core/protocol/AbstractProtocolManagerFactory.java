@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> implements ProtocolManagerFactory<P> {
 
@@ -56,6 +58,12 @@ public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> 
     * @param parameters
     */
    protected void stripPasswordParameters(Map<String, Object> parameters) {
-      parameters.entrySet().removeIf(entries->entries.getKey().toLowerCase().contains("password"));
+      if (parameters != null) {
+         parameters.entrySet().removeIf(entries -> entries.getKey().toLowerCase().contains("password"));
+      }
+   }
+
+   @Override
+   public void loadProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) {
    }
 }

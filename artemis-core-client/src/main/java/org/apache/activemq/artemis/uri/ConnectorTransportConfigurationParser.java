@@ -27,7 +27,13 @@ import org.apache.activemq.artemis.utils.uri.URIFactory;
 public class ConnectorTransportConfigurationParser extends URIFactory<List<TransportConfiguration>, String> {
 
    public ConnectorTransportConfigurationParser() {
+      this(true);
+   }
+
+   public ConnectorTransportConfigurationParser(boolean invm) {
       registerSchema(new TCPTransportConfigurationSchema(TransportConstants.ALLOWABLE_CONNECTOR_KEYS));
-      registerSchema(new InVMTransportConfigurationSchema());
+      if (invm) {
+         registerSchema(new InVMTransportConfigurationSchema());
+      }
    }
 }

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+@Deprecated
 public interface ConnectorService extends ActiveMQComponent {
 
    String getName();

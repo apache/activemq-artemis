@@ -17,10 +17,6 @@
 
 package org.apache.activemq.artemis.utils.network;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
@@ -28,11 +24,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
-import org.jboss.logging.Logger;
+import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -53,7 +48,7 @@ import org.junit.Test;
  * yourUserName ALL = NOPASSWD: /sbin/ifconfig");
  * # ------------------------------------------------------- ");
  * */
-public class NetUtil {
+public class NetUtil extends ExecuteUtil {
 
    public static boolean checkIP(String ip) throws Exception {
       InetAddress ipAddress = null;
@@ -130,12 +125,12 @@ public class NetUtil {
 
    public static void netUp(String ip, String deviceID) throws Exception {
       if (osUsed == OS.MAC) {
-         if (runCommand("sudo", "-n", "ifconfig", "lo0", "alias", ip) != 0) {
+         if (runCommand(false, "sudo", "-n", "ifconfig", "lo0", "alias", ip) != 0) {
             Assert.fail("Cannot sudo ifconfig for ip " + ip);
          }
          networks.put(ip, "lo0");
       } else if (osUsed == OS.LINUX) {
-         if (runCommand("sudo", "-n", "ifconfig", deviceID, ip, "netmask", "255.0.0.0") != 0) {
+         if (runCommand(false, "sudo", "-n", "ifconfig", deviceID, ip, "netmask", "255.0.0.0") != 0) {
             Assert.fail("Cannot sudo ifconfig for ip " + ip);
          }
          networks.put(ip, deviceID);
@@ -162,13 +157,13 @@ public class NetUtil {
       networks.remove(ip);
 
       if (osUsed == OS.MAC) {
-         if (runCommand("sudo", "-n", "ifconfig", "lo0", "-alias", ip) != 0) {
+         if (runCommand(false, "sudo", "-n", "ifconfig", "lo0", "-alias", ip) != 0) {
             if (!force) {
                Assert.fail("Cannot sudo ifconfig for ip " + ip);
             }
          }
       } else if (osUsed == OS.LINUX) {
-         if (runCommand("sudo", "-n", "ifconfig", device, "down") != 0) {
+         if (runCommand(false, "sudo", "-n", "ifconfig", device, "down") != 0) {
             if (!force) {
                Assert.fail("Cannot sudo ifconfig for ip " + ip);
             }
@@ -178,62 +173,9 @@ public class NetUtil {
       }
    }
 
-   private static final Logger logger = Logger.getLogger(NetUtil.class);
-
-   public static int runCommand(String... command) throws Exception {
-      return runCommand(10, TimeUnit.SECONDS, command);
-   }
-
-   public static int runCommand(long timeout, TimeUnit timeoutUnit, String... command) throws Exception {
-
-      logCommand(command);
-
-      // it did not work with a simple isReachable, it could be because there's no root access, so we will try ping executable
-      ProcessBuilder processBuilder = new ProcessBuilder(command);
-      final Process process = processBuilder.start();
-
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               readStream(process.getInputStream(), true);
-            } catch (Exception dontCare) {
-
-            }
-         }
-      };
-      Thread t2 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               readStream(process.getErrorStream(), true);
-            } catch (Exception dontCare) {
-
-            }
-         }
-      };
-      t2.start();
-
-      int value = process.waitFor();
-
-      t.join(timeoutUnit.toMillis(timeout));
-      Assert.assertFalse(t.isAlive());
-      t2.join(timeoutUnit.toMillis(timeout));
-
-      return value;
-   }
-
-   private static void logCommand(String[] command) {
-      StringBuffer logCommand = new StringBuffer();
-      for (String c : command) {
-         logCommand.append(c + " ");
-      }
-      System.out.println("NetUTIL command::" + logCommand.toString());
-   }
-
    public static boolean canSudo() {
       try {
-         return runCommand("sudo", "-n", "ifconfig") == 0;
+         return runCommand(false, "sudo", "-n", "ifconfig") == 0;
       } catch (Exception e) {
          e.printStackTrace();
          return false;
@@ -244,20 +186,4 @@ public class NetUtil {
    public void testCanSudo() throws Exception {
       Assert.assertTrue(canSudo());
    }
-
-   private static void readStream(InputStream stream, boolean error) throws IOException {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-
-      String inputLine;
-      while ((inputLine = reader.readLine()) != null) {
-         if (error) {
-            logger.warn(inputLine);
-         } else {
-            logger.trace(inputLine);
-         }
-      }
-
-      reader.close();
-   }
-
 }

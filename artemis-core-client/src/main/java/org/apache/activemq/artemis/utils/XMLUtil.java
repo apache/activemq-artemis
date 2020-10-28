@@ -319,6 +319,10 @@ public final class XMLUtil {
    public static int parseInt(final Node elem) {
       String value = elem.getTextContent().trim();
 
+      return parseInt(elem, value);
+   }
+
+   public static int parseInt(Node elem, String value) {
       try {
          return Integer.parseInt(value);
       } catch (NumberFormatException e) {

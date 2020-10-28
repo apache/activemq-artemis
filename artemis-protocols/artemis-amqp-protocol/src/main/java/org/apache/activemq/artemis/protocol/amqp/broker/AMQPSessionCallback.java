@@ -466,8 +466,10 @@ public class AMQPSessionCallback implements SessionCallback {
 
       RoutingType routingType = null;
       if (address != null) {
-         // Fixed-address producer
-         message.setAddress(address);
+         if (!address.toString().equals(message.getAddress())) {
+            // set Fixed-address producer if the message.properties.to address differs from the producer
+            message.setAddress(address);
+         }
          routingType = context.getDefRoutingType();
       } else {
          // Anonymous-relay producer, message must carry a To value

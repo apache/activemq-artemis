@@ -196,6 +196,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    protected final Configuration config;
 
+   public Configuration getConfig() {
+      return config;
+   }
+
    // Persisted core configuration
    protected final Map<SimpleString, PersistedSecuritySetting> mapPersistedSecuritySettings = new ConcurrentHashMap<>();
 

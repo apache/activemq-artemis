@@ -440,6 +440,15 @@ public class AmqpMessage {
       return message.getHeader().getDurable();
    }
 
+
+   public int getDeliveryCount() {
+      if (message.getHeader() == null || message.getHeader().getDeliveryCount() == null) {
+         return 0;
+      }
+
+      return message.getHeader().getDeliveryCount().intValue();
+   }
+
    /**
     * Sets the priority header on the outgoing message.
     *

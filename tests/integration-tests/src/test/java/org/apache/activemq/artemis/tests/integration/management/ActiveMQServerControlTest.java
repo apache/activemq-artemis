@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -3903,6 +3904,57 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       try {
          serverControl.resetUser("x","x","x");
          fail();
+      } catch (Exception expected) {
+      }
+   }
+
+
+   @Test
+   public void testBrokerConnections() throws Exception {
+      class Fake implements BrokerConnection {
+         String name;
+         boolean started = false;
+
+         Fake(String name) {
+            this.name = name;
+         }
+         @Override
+         public String getName() {
+            return name;
+         }
+
+         @Override
+         public String getProtocol() {
+            return "fake";
+         }
+
+         @Override
+         public void start() throws Exception {
+            started = true;
+         }
+
+         @Override
+         public void stop() throws Exception {
+            started = false;
+
+         }
+
+         @Override
+         public boolean isStarted() {
+            return started;
+         }
+      }
+      Fake fake = new Fake("fake" + UUIDGenerator.getInstance().generateStringUUID());
+      server.registerBrokerConnection(fake);
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         String result = serverControl.listBrokerConnections();
+         Assert.assertTrue(result.contains(fake.getName()));
+         serverControl.startBrokerConnection(fake.getName());
+         Assert.assertTrue(fake.isStarted());
+         serverControl.stopBrokerConnection(fake.getName());
+         Assert.assertFalse(fake.isStarted());
       } catch (Exception expected) {
       }
    }

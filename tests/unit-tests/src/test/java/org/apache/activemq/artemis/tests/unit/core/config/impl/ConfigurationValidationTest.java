@@ -16,7 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.XMLUtil;
@@ -63,6 +66,55 @@ public class ConfigurationValidationTest extends ActiveMQTestBase {
       deploymentManager.readConfiguration();
 
       Assert.assertEquals(true, fc.isPersistDeliveryCountBeforeDelivery());
+   }
+
+   @Test
+   public void testAMQPConnectParsing() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-full-config.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+
+      Assert.assertEquals(3, fc.getAMQPConnection().size());
+
+      AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(0);
+      Assert.assertEquals("testuser", amqpBrokerConnectConfiguration.getUser());
+      Assert.assertEquals("testpassword", amqpBrokerConnectConfiguration.getPassword());
+      Assert.assertEquals(33, amqpBrokerConnectConfiguration.getReconnectAttempts());
+      Assert.assertEquals(333, amqpBrokerConnectConfiguration.getRetryInterval());
+      Assert.assertEquals("test1", amqpBrokerConnectConfiguration.getName());
+      Assert.assertEquals("tcp://test1:111", amqpBrokerConnectConfiguration.getUri());
+
+      Assert.assertEquals("TEST-SENDER", amqpBrokerConnectConfiguration.getConnectionElements().get(0).getMatchAddress().toString());
+      Assert.assertEquals(AMQPBrokerConnectionAddressType.SENDER, amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType());
+      Assert.assertEquals("TEST-RECEIVER", amqpBrokerConnectConfiguration.getConnectionElements().get(1).getMatchAddress().toString());
+      Assert.assertEquals(AMQPBrokerConnectionAddressType.RECEIVER, amqpBrokerConnectConfiguration.getConnectionElements().get(1).getType());
+      Assert.assertEquals("TEST-PEER", amqpBrokerConnectConfiguration.getConnectionElements().get(2).getMatchAddress().toString());
+      Assert.assertEquals(AMQPBrokerConnectionAddressType.PEER, amqpBrokerConnectConfiguration.getConnectionElements().get(2).getType());
+
+      Assert.assertEquals("TEST-WITH-QUEUE-NAME", amqpBrokerConnectConfiguration.getConnectionElements().get(3).getQueueName().toString());
+      Assert.assertEquals(null, amqpBrokerConnectConfiguration.getConnectionElements().get(3).getMatchAddress());
+      Assert.assertEquals(AMQPBrokerConnectionAddressType.RECEIVER, amqpBrokerConnectConfiguration.getConnectionElements().get(3).getType());
+
+      Assert.assertEquals(AMQPBrokerConnectionAddressType.MIRROR, amqpBrokerConnectConfiguration.getConnectionElements().get(4).getType());
+      AMQPMirrorBrokerConnectionElement mirrorConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(4);
+      Assert.assertFalse(mirrorConnectionElement.isMessageAcknowledgements());
+      Assert.assertTrue(mirrorConnectionElement.isDurable()); // queue name passed, so this is supposed to be true
+      Assert.assertFalse(mirrorConnectionElement.isQueueCreation());
+      Assert.assertFalse(mirrorConnectionElement.isQueueRemoval());
+      Assert.assertEquals("TEST-REPLICA", mirrorConnectionElement.getSourceMirrorAddress().toString());
+
+      amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(1);
+      Assert.assertEquals(null, amqpBrokerConnectConfiguration.getUser());      mirrorConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(0);
+      Assert.assertEquals(null, amqpBrokerConnectConfiguration.getPassword());      Assert.assertEquals("test2", amqpBrokerConnectConfiguration.getName());
+      Assert.assertEquals("tcp://test2:222", amqpBrokerConnectConfiguration.getUri());
+      Assert.assertTrue(mirrorConnectionElement.isMessageAcknowledgements());
+      Assert.assertFalse(mirrorConnectionElement.isDurable()); // queue name not passed (set as null), so this is supposed to be false
+      Assert.assertTrue(mirrorConnectionElement.isQueueCreation());
+      Assert.assertTrue(mirrorConnectionElement.isQueueRemoval());
+
+      amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(2);
+      Assert.assertFalse(amqpBrokerConnectConfiguration.isAutostart());
    }
 
    @Test

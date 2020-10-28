@@ -1751,6 +1751,15 @@ public interface ActiveMQServerControl {
    @Operation(desc = "Destroy a bridge", impact = MBeanOperationInfo.ACTION)
    void destroyBridge(@Parameter(name = "name", desc = "Name of the bridge") String name) throws Exception;
 
+   @Operation(desc = "List the existing broker connections", impact = MBeanOperationInfo.INFO)
+   String listBrokerConnections();
+
+   @Operation(desc = "Activate a broker connection that is pre configured", impact = MBeanOperationInfo.ACTION)
+   void startBrokerConnection(@Parameter(name = "name", desc = "Name of the broker connection to be started") String name) throws Exception;
+
+   @Operation(desc = "Stops a broker connection that is pre configured", impact = MBeanOperationInfo.ACTION)
+   void stopBrokerConnection(@Parameter(name = "name", desc = "Name of the broker connection to be stopped") String name) throws Exception;
+
    @Operation(desc = "Create a connector service", impact = MBeanOperationInfo.ACTION)
    void createConnectorService(@Parameter(name = "name", desc = "Name of the connector service") String name,
                                @Parameter(name = "factoryClass", desc = "Class name of the connector service factory") String factoryClass,

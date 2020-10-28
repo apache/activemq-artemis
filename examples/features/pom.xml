@@ -48,6 +48,7 @@ under the License.
          <id>examples</id>
          <modules>
             <module>clustered</module>
+            <module>broker-connection</module>
             <module>federation</module>
             <module>ha</module>
             <module>standard</module>
@@ -58,6 +59,7 @@ under the License.
       <profile>
          <id>release</id>
          <modules>
+            <module>broker-connection</module>
             <module>federation</module>
             <module>clustered</module>
             <module>ha</module>

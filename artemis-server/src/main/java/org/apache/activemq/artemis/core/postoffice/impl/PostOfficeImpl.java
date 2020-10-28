@@ -62,12 +62,14 @@ import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueManagerImpl;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -150,6 +152,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final ActiveMQServer server;
 
+   private MirrorController mirrorControllerSource;
+
    public PostOfficeImpl(final ActiveMQServer server,
                          final StorageManager storageManager,
                          final PagingManager pagingManager,
@@ -226,6 +230,34 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public boolean isStarted() {
       return started;
+   }
+
+   @Override
+   public MirrorController getMirrorControlSource() {
+      return mirrorControllerSource;
+   }
+
+   @Override
+   public PostOfficeImpl setMirrorControlSource(MirrorController mirrorControllerSource) {
+      this.mirrorControllerSource = mirrorControllerSource;
+      return this;
+   }
+
+   @Override
+   public void postAcknowledge(MessageReference ref, AckReason reason) {
+      if (mirrorControllerSource != null) {
+         try {
+            mirrorControllerSource.postAcknowledge(ref, reason);
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+      }
+   }
+
+   @Override
+   public void scanAddresses(MirrorController mirrorController) throws Exception {
+      addressManager.scanAddresses(mirrorController);
+
    }
 
    // NotificationListener implementation -------------------------------------
@@ -455,6 +487,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       synchronized (this) {
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.beforeAddAddress(addressInfo, reload));
+         }
+
+         if (mirrorControllerSource != null) {
+            mirrorControllerSource.addAddress(addressInfo);
          }
 
          boolean result;
@@ -790,6 +826,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
          managementService.unregisterAddress(address);
          final AddressInfo addressInfo = addressManager.removeAddressInfo(address);
+
+         if (mirrorControllerSource != null && addressInfo != null) {
+            mirrorControllerSource.deleteAddress(addressInfo);
+         }
+
          removeRetroactiveResources(address);
          if (server.hasBrokerAddressPlugins()) {
             server.callBrokerAddressPlugins(plugin -> plugin.afterRemoveAddress(address, addressInfo));
@@ -1539,6 +1580,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             }
          }
       }
+
+      if (mirrorControllerSource != null && !context.isMirrorController()) {
+         // we check for isMirrorController as to avoid recursive loop from there
+         mirrorControllerSource.sendMessage(message, context, refs);
+      }
+
 
       if (tx != null) {
          tx.addOperation(new AddOperation(refs));

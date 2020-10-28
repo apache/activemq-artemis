@@ -17,8 +17,6 @@
 
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
-import java.util.Objects;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -97,13 +95,8 @@ public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
       if (size != 0) {
          final TypedProperties extraProperties = record.createExtraProperties();
          extraProperties.decode(buffer.byteBuf(), pool != null ? pool.getPropertiesDecoderPools() : null);
-         assert Objects.equals(address, extraProperties.getSimpleStringProperty(AMQPMessage.ADDRESS_PROPERTY)) :
-            "AMQPMessage address and extraProperties address should match";
-      } else if (address != null) {
-         // this shouldn't really happen: this code path has been preserved
-         // because of the behaviour before "ARTEMIS-2617 Improve AMQP Journal loading"
-         record.setAddress(address);
       }
+      record.reloadAddress(address);
       return record;
    }
 

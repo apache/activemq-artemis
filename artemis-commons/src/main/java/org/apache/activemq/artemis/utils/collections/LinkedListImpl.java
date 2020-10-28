@@ -20,11 +20,14 @@ import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.ToLongFunction;
+
+import io.netty.util.collection.LongObjectHashMap;
 
 /**
  * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see any
  * elements added or removed from the queue either directly or via iterators.
- *
+ * <p>
  * This class is not thread safe.
  */
 public class LinkedListImpl<E> implements LinkedList<E> {
@@ -32,27 +35,67 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    private static final int INITIAL_ITERATOR_ARRAY_SIZE = 10;
 
    private final Node<E> head = new NodeHolder<>(null);
-
+   private final Comparator<E> comparator;
+   LongObjectHashMap<Node<E>> nodeMap;
    private Node<E> tail = null;
-
    private int size;
-
    // We store in an array rather than a Map for the best performance
    private volatile Iterator[] iters;
-
    private int numIters;
-
    private int nextIndex;
-
-   private final Comparator<E> comparator;
+   private ToLongFunction<E> idSupplier;
 
    public LinkedListImpl() {
-      this(null);
+      this(null, null);
    }
 
    public LinkedListImpl(Comparator<E> comparator) {
+      this(comparator, null);
+   }
+
+   public LinkedListImpl(Comparator<E> comparator, ToLongFunction<E> supplier) {
       iters = createIteratorArray(INITIAL_ITERATOR_ARRAY_SIZE);
       this.comparator = comparator;
+      this.idSupplier = supplier;
+      if (idSupplier != null) {
+         this.nodeMap = newLongHashMap();
+      } else {
+         this.nodeMap = null;
+      }
+   }
+
+   @Override
+   public void clearID() {
+      idSupplier = null;
+      if (nodeMap != null) {
+         nodeMap.clear();
+         nodeMap = null;
+      }
+   }
+
+   @Override
+   public void setIDSupplier(ToLongFunction<E> supplier) {
+      this.idSupplier = supplier;
+      nodeMap = newLongHashMap();
+
+      try (Iterator iterator = (Iterator) iterator()) {
+         while (iterator.hasNext()) {
+            E value = iterator.next();
+            Node<E> position = iterator.last;
+            putID(value, position);
+         }
+      }
+   }
+
+   private LongObjectHashMap<Node<E>> newLongHashMap() {
+      return new LongObjectHashMap<>(Math.max(8, this.size));
+   }
+
+   private void putID(E value, Node<E> position) {
+      long id = idSupplier.applyAsLong(value);
+      if (id >= 0) {
+         nodeMap.put(id, position);
+      }
    }
 
    @Override
@@ -72,7 +115,41 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          node.next.prev = node;
       }
 
+      itemAdded(node, e);
+
       size++;
+   }
+
+   @Override
+   public E removeWithID(long id) {
+      if (nodeMap == null) {
+         return null;
+      }
+
+      Node<E> node = nodeMap.get(id);
+      if (node == null) {
+         return null;
+      }
+
+      if (node.prev != null) {
+         removeAfter(node.prev);
+      }
+      return node.val();
+   }
+
+   private void itemAdded(Node<E> node, E item) {
+      if (nodeMap != null) {
+         putID(item, node);
+      }
+   }
+
+   private void itemRemoved(Node<E> node) {
+      if (nodeMap != null) {
+         long id = idSupplier.applyAsLong(node.val());
+         if (id >= 0) {
+            nodeMap.remove(id);
+         }
+      }
    }
 
    @Override
@@ -87,6 +164,8 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          tail.next = node;
 
          tail = node;
+
+         itemAdded(node, e);
 
          size++;
       }
@@ -143,6 +222,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       newNode.prev = node;
       newNode.next = nextNode;
       nextNode.prev = newNode;
+      itemAdded(node, e);
       size++;
    }
 
@@ -173,6 +253,13 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    @Override
    public int size() {
       return size;
+   }
+
+   /**
+    * Return the number of elements we have on suppliedIDs
+    */
+   public int getSizeOfSuppliedIDs() {
+      return nodeMap == null ? 0 : nodeMap.size();
    }
 
    @Override
@@ -215,6 +302,8 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       if (toRemove.next != null) {
          toRemove.next.prev = node;
       }
+
+      itemRemoved(toRemove);
 
       if (toRemove == tail) {
          tail = node;
@@ -307,6 +396,20 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
       private int iterCount;
 
+      private static <T> Node<T> with(final T o) {
+         Objects.requireNonNull(o, "Only HEAD nodes are allowed to hold null values");
+         if (o instanceof Node) {
+            final Node node = (Node) o;
+            //only a node that not belong already to a list is allowed to be reused
+            if (node.prev == null && node.next == null) {
+               //reset the iterCount
+               node.iterCount = 0;
+               return node;
+            }
+         }
+         return new NodeHolder<>(o);
+      }
+
       @SuppressWarnings("unchecked")
       protected T val() {
          return (T) this;
@@ -323,20 +426,6 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       @Override
       public String toString() {
          return val() == this ? "Intrusive Node" : "Node, value = " + val();
-      }
-
-      private static <T> Node<T> with(final T o) {
-         Objects.requireNonNull(o, "Only HEAD nodes are allowed to hold null values");
-         if (o instanceof Node) {
-            final Node node = (Node) o;
-            //only a node that not belong already to a list is allowed to be reused
-            if (node.prev == null && node.next == null) {
-               //reset the iterCount
-               node.iterCount = 0;
-               return node;
-            }
-         }
-         return new NodeHolder<>(o);
       }
    }
 

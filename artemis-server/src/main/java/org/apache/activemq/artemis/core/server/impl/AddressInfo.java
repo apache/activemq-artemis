@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import java.io.StringReader;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
@@ -31,6 +39,7 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 
 public class AddressInfo {
@@ -38,7 +47,7 @@ public class AddressInfo {
    private long id;
    private long pauseStatusRecord = -1;
 
-   private final SimpleString name;
+   private SimpleString name;
 
    private boolean autoCreated = false;
 
@@ -65,6 +74,16 @@ public class AddressInfo {
    private PostOffice postOffice;
    private StorageManager storageManager;
    private HierarchicalRepositoryChangeListener repositoryChangeListener;
+
+   /**
+    * Private constructor used on JSON decoding.
+    */
+   private AddressInfo() {
+   }
+
+   public AddressInfo(String name) {
+      this(SimpleString.toSimpleString(name), EnumSet.noneOf(RoutingType.class));
+   }
 
    public AddressInfo(SimpleString name) {
       this(name, EnumSet.noneOf(RoutingType.class));
@@ -336,4 +355,62 @@ public class AddressInfo {
       this.repositoryChangeListener = repositoryChangeListener;
       return this;
    }
+
+   public String toJSON() {
+      JsonObjectBuilder builder = JsonLoader.createObjectBuilder();
+
+      builder.add("id", id);
+      builder.add("name", "" + name);
+      builder.add("auto-created", autoCreated);
+      builder.add("temporary", temporary);
+      builder.add("internal", internal);
+      if (firstSeen != null) {
+         builder.add("firstSeen", firstSeen.getType());
+      }
+      if (routingTypes != null) {
+         JsonArrayBuilder arrayBuilder = JsonLoader.createArrayBuilder();
+         for (RoutingType rt : routingTypes) {
+            arrayBuilder.add(rt.getType());
+         }
+         builder.add("routingTypes", arrayBuilder);
+      }
+
+      return builder.build().toString();
+   }
+
+   protected void setJson(String key, Object value) {
+      if (key.equals("id")) {
+         JsonNumber jsonLong = (JsonNumber) value;
+         this.id = jsonLong.longValue();
+      } else if (key.equals("name")) {
+         JsonString jasonString = (JsonString) value;
+         this.name = SimpleString.toSimpleString(jasonString.getString());
+      } else if (key.equals("auto-created")) {
+         this.autoCreated = Boolean.valueOf(value.toString());
+      } else if (key.equals("temporary")) {
+         this.temporary = Boolean.valueOf(value.toString());
+      } else if (key.equals("firstSeen")) {
+         JsonNumber jsonNumber = (JsonNumber)value;
+         this.firstSeen = RoutingType.getType((byte)jsonNumber.intValue());
+      } else if (key.equals("routingTypes")) {
+         JsonArray routingTypes = (JsonArray) value;
+         for (JsonValue rtValue : routingTypes) {
+            JsonNumber jsonNumber = (JsonNumber)rtValue;
+            this.addRoutingType(RoutingType.getType((byte)jsonNumber.intValue()));
+         }
+      }
+   }
+
+   public static AddressInfo fromJSON(String jsonString) {
+      JsonObject json = JsonLoader.createReader(new StringReader(jsonString)).readObject();
+
+      AddressInfo result = new AddressInfo();
+
+      for (Map.Entry<String, JsonValue> entry : json.entrySet()) {
+         result.setJson(entry.getKey(), entry.getValue());
+      }
+
+      return result;
+   }
+
 }

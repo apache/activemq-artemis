@@ -54,7 +54,7 @@ public class ProtonServerSenderContextTest {
       when(mockSender.getRemoteSource()).thenReturn(source);
 
 
-      sc.initialise();
+      sc.initialize();
    }
 
 }
