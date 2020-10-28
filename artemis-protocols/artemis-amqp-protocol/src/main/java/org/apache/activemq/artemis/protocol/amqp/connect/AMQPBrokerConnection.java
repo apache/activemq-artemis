@@ -137,6 +137,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    @Override
    public void stop() {
+      started = false;
       if (connection != null) {
          connection.close();
       }
@@ -145,7 +146,6 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       if (scheduledFuture != null) {
          scheduledFuture.cancel(true);
       }
-      started = false;
    }
 
    @Override
@@ -246,14 +246,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          protonRemotingConnection = (ActiveMQProtonRemotingConnection) entry.connection;
          connection.getChannel().pipeline().addLast(new AMQPBrokerConnectionChannelHandler(bridgesConnector.getChannelGroup(), protonRemotingConnection.getAmqpConnection().getHandler()));
 
-         protonRemotingConnection.getAmqpConnection().runLater(() -> {
-            protonRemotingConnection.getAmqpConnection().open();
-            protonRemotingConnection.getAmqpConnection().flush();
-         });
-
          session = protonRemotingConnection.getAmqpConnection().getHandler().getConnection().session();
          sessionContext = protonRemotingConnection.getAmqpConnection().getSessionExtension(session);
+
          protonRemotingConnection.getAmqpConnection().runLater(() -> {
+            protonRemotingConnection.getAmqpConnection().open();
             session.open();
             protonRemotingConnection.getAmqpConnection().flush();
          });
@@ -304,6 +301,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             }
          }
       }
+   }
+
+   private static void uninstallMirrorController(AMQPMirrorBrokerConnectionElement replicaConfig, ActiveMQServer server) {
+
    }
 
    /** The reason this method is static is the following:
@@ -388,7 +389,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             return;
          }
          receivers.add(queue);
-         Receiver receiver = session.receiver(queue.getName().toString() + UUIDGenerator.getInstance().generateStringUUID());
+         Receiver receiver = session.receiver(queue.getAddress().toString() + ":" + UUIDGenerator.getInstance().generateStringUUID());
          receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
          receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
          Target target = new Target();
@@ -433,11 +434,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                return;
             }
             senders.add(queue);
-            Sender sender = session.sender(targetName + UUIDGenerator.getInstance().generateStringUUID());
+            Sender sender = session.sender(targetName + ":" + UUIDGenerator.getInstance().generateStringUUID());
             sender.setSenderSettleMode(SenderSettleMode.UNSETTLED);
             sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
             Target target = new Target();
-            target.setAddress(queue.getAddress().toString());
+            target.setAddress(targetName);
             if (capabilities != null) {
                target.setCapabilities(capabilities);
             }
@@ -484,7 +485,6 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
       @Override
       public void close() throws Exception {
-         // TODO implement close
       }
    }
 

@@ -1,4 +1,4 @@
-# AMQP Broker Connection with Senders
+# AMQP Broker Connection with Receivers
 
 To run the example, simply type **mvn verify** from this directory, or **mvn -PnoServer verify** if you want to create and start the broker manually.
 
