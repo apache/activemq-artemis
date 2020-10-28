@@ -271,6 +271,42 @@ public class NettyConnectorTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testOverridesJavaSystemPropertyForceSSLParameters2() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+
+      //bad system properties will override the transport constants
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "openssl-client-side-keystore.jks");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "openssl-client-side-truststore.jks");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+
+      // forcing SSL parameters will "undo" the values set by the system properties; all properties will be set to default values
+      params.put(TransportConstants.FORCE_SSL_PARAMETERS, true);
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+      Connection c = null;
+
+      try {
+         connector.createConnection();
+      } catch (Exception e) {
+         // ignore
+      }
+
+      //Should fail because forceSSLParameters is set
+      assertNull(c);
+   }
+
+   @Test
    public void tesActiveMQSystemProperties() throws Exception {
       BufferHandler handler = new BufferHandler() {
          @Override
