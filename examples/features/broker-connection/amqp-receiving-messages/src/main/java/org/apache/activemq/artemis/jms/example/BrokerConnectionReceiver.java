@@ -27,11 +27,8 @@ import javax.jms.TextMessage;
 import org.apache.qpid.jms.JmsConnectionFactory;
 
 /**
- * This example demonstrates how sessions created from a single connection can be load
- * balanced across the different nodes of the cluster.
- * <p>
- * In this example there are three nodes and we use a round-robin client side load-balancing
- * policy.
+ * This example is demonstrating how messages are transferred from one broker towards another broker
+ * through the receiver operation on a AMQP Broker Connection.
  */
 public class BrokerConnectionReceiver {
 
@@ -60,7 +57,7 @@ public class BrokerConnectionReceiver {
       // Step 2. create a connection on server1, and receive a few messages.
       //          the sender on the broker conneciton will take care of the transfer.
       Connection connectionOnServer1 = null;
-      ConnectionFactory connectionFactoryServer1 = new JmsConnectionFactory("amqp://localhost:5671");
+      ConnectionFactory connectionFactoryServer1 = new JmsConnectionFactory("amqp://localhost:5660");
 
       try {
          connectionOnServer1 = connectionFactoryServer1.createConnection();

@@ -198,13 +198,6 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return internalConnectionEntry(remotingConnection, true, saslFactory);
    }
 
-   /**
-    * AMQP is an agnostic protocol, client and server.
-    * This method is used also by the AMQPConenctionBridge where there is no acceptor in place.
-    * So, this method is to be used by the AMQPConnectionBridge
-    * @param remotingConnection
-    * @return
-    */
    private ConnectionEntry internalConnectionEntry(Connection remotingConnection, boolean outgoing, ClientSASLFactory saslFactory) {
       AMQPConnectionCallback connectionCallback = new AMQPConnectionCallback(this, remotingConnection, server.getExecutorFactory().getExecutor(), server);
       long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;

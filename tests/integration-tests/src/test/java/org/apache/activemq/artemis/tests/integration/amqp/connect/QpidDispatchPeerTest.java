@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -46,6 +47,7 @@ import org.junit.Test;
 
 /** This test will only be executed if you have qdrouterd available on your system, otherwise is ignored by an assume exception. */
 public class QpidDispatchPeerTest extends AmqpClientTestSupport {
+   private static final Logger logger = Logger.getLogger(QpidDispatchPeerTest.class);
 
    ExecuteUtil.ProcessHolder qpidProcess;
 
@@ -58,8 +60,8 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
          int result = ExecuteUtil.runCommand(true, "qdrouterd", "--version");
          Assume.assumeTrue("qdrouterd does not exist", result == 0);
       } catch (Exception e) {
-         e.printStackTrace();
-         Assume.assumeNoException(e);
+         logger.debug(e.getMessage(), e);
+         Assume.assumeNoException("qdrouterd does not exist", e);
       }
    }
 

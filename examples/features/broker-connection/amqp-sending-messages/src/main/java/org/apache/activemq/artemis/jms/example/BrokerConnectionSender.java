@@ -28,13 +28,13 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 
 /**
  * This example is demonstrating how messages are transferred from one broker towards another broker
- * through the sender element on a AMQP Broker Connection.
+ * through the sender operation on a AMQP Broker Connection.
  */
 public class BrokerConnectionSender {
 
    public static void main(final String[] args) throws Exception {
       Connection connectionOnServer0 = null;
-      ConnectionFactory connectionFactoryServer0 = new JmsConnectionFactory("amqp://localhost:5671");
+      ConnectionFactory connectionFactoryServer0 = new JmsConnectionFactory("amqp://localhost:5660");
 
       // Step 1. Create a connection on server0, and send a few messages
       try {

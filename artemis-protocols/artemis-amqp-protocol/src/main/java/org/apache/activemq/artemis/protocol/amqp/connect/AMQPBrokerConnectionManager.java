@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
@@ -49,7 +50,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    private volatile boolean started = false;
 
    List<AMQPBrokerConnectConfiguration> amqpConnectionsConfig;
-   List<AMQPBrokerConnection> amqpOutgoingConnections;
+   List<AMQPBrokerConnection> amqpBrokerConnectionList;
    ProtonProtocolManager protonProtocolManager;
 
    public AMQPBrokerConnectionManager(ProtonProtocolManagerFactory factory, List<AMQPBrokerConnectConfiguration> amqpConnectionsConfig, ActiveMQServer server) {
@@ -64,6 +65,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
          started = true;
       }
 
+      amqpBrokerConnectionList = new ArrayList<>();
 
 
       for (AMQPBrokerConnectConfiguration config : amqpConnectionsConfig) {
@@ -76,6 +78,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
             logger.debug("Connecting " + config);
          }
          AMQPBrokerConnection amqpBrokerConnection = new AMQPBrokerConnection(this, config, protonProtocolManager, server, bridgesConnector);
+         amqpBrokerConnectionList.add(amqpBrokerConnection);
          server.registerBrokerConnection(amqpBrokerConnection);
          if (config.isAutostart()) {
             amqpBrokerConnection.start();
@@ -90,10 +93,8 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    public void stop() throws Exception {
       if (started) {
          started = false;
-         if (amqpOutgoingConnections != null) {
-            for (AMQPBrokerConnection connection : amqpOutgoingConnections) {
-               connection.stop();
-            }
+         for (AMQPBrokerConnection connection : amqpBrokerConnectionList) {
+            connection.stop();
          }
       }
    }
@@ -110,8 +111,8 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
 
    @Override
    public void connectionDestroyed(Object connectionID) {
-      for (AMQPBrokerConnection connection : amqpOutgoingConnections) {
-         if (connection.getConnection().getID().equals(connectionID)) {
+      for (AMQPBrokerConnection connection : amqpBrokerConnectionList) {
+         if (connection.getConnection() != null && connectionID.equals(connection.getConnection().getID())) {
             connection.connectionDestroyed(connectionID);
          }
       }
@@ -119,8 +120,8 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
 
    @Override
    public void connectionException(Object connectionID, ActiveMQException me) {
-      for (AMQPBrokerConnection connection : amqpOutgoingConnections) {
-         if (connection.getConnection().getID().equals(connectionID)) {
+      for (AMQPBrokerConnection connection : amqpBrokerConnectionList) {
+         if (connection.getConnection() != null && connectionID.equals(connection.getConnection().getID())) {
             connection.connectionException(connectionID, me);
          }
       }
@@ -129,7 +130,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
 
    @Override
    public void connectionReadyForWrites(Object connectionID, boolean ready) {
-      for (AMQPBrokerConnection connection : amqpOutgoingConnections) {
+      for (AMQPBrokerConnection connection : amqpBrokerConnectionList) {
          if (connection.getConnection().getID().equals(connectionID)) {
             connection.connectionReadyForWrites(connectionID, ready);
          }

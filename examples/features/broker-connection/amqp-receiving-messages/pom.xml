@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>amqp-receiving-messages</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS Client Side Load Balancing Example</name>
+   <name>amqp-receiving-messages</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -103,7 +103,7 @@ under the License.
                      <spawn>true</spawn>
                      <ignore>${noServer}</ignore>
                      <location>${basedir}/target/server0</location>
-                     <testURI>tcp://localhost:5671</testURI>
+                     <testURI>tcp://localhost:5660</testURI>
                      <args>
                         <param>run</param>
                      </args>

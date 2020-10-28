@@ -54,8 +54,8 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
    public static final Symbol DELETE_ADDRESS = Symbol.getSymbol("deleteAddress");
    public static final Symbol CREATE_QUEUE = Symbol.getSymbol("createQueue");
    public static final Symbol DELETE_QUEUE = Symbol.getSymbol("deleteQueue");
-   public static final Symbol ADDRESS_SCAN_START = Symbol.getSymbol("AddressCanStart");
-   public static final Symbol ADDRESS_SCAN_END = Symbol.getSymbol("AddressScanEnd");
+   public static final Symbol ADDRESS_SCAN_START = Symbol.getSymbol("addressCanStart");
+   public static final Symbol ADDRESS_SCAN_END = Symbol.getSymbol("addressScanEnd");
    public static final Symbol POST_ACK = Symbol.getSymbol("postAck");
 
    // Delivery annotation property used on mirror control routing and Ack
@@ -141,16 +141,16 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
 
          snfQueue.refUp(ref);
 
-         Map<Symbol, Object> symbolObjectMap = new HashMap<>();
-         DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(symbolObjectMap);
-         symbolObjectMap.put(INTERNAL_ID, message.getMessageID());
+         Map<Symbol, Object> daMap = new HashMap<>();
+         DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(daMap);
+         daMap.put(INTERNAL_ID, message.getMessageID());
          String address = message.getAddress();
          if (address != null) { // this is the message that was set through routing
             Properties amqpProperties = getProperties(message);
             if (amqpProperties == null || !address.equals(amqpProperties.getTo())) {
                // We set the internal destination property only if we need to
                // otherwise we just use the one already set over Properties
-               symbolObjectMap.put(INTERNAL_DESTINATION, message.getAddress());
+               daMap.put(INTERNAL_DESTINATION, message.getAddress());
             }
          }
          ref.setProtocolData(deliveryAnnotations);
