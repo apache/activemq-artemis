@@ -668,7 +668,6 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       for (int i = START_ID; i <= LAST_ID; i++) {
          Message message = consumer.receive(3000);
          Assert.assertNotNull(message);
-         System.out.println("port " + port + ",i::" + message.getIntProperty("i"));
          Assert.assertEquals(i, message.getIntProperty("i"));
          if (message instanceof TextMessage) {
             Assert.assertEquals(getText(largeMessage, i), ((TextMessage) message).getText());
