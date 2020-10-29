@@ -1,0 +1,40 @@
+# The various SSL stores and certificates were created with the following commands:
+# This can be run as a script by sourcing the file, e.g ". store-generation.txt"
+
+
+# Clean up any existing files
+# ---------------------------
+rm -f *.crt *.csr *.keystore *.truststore
+rm -f src/main/resources/activemq/server0/*.keystore src/main/resources/activemq/server0/*.truststore
+rm -f src/main/resources/activemq/server1/*.keystore src/main/resources/activemq/server1/*.truststore
+
+# Create a key and self-signed certificate for the CA, to sign certificate requests and use for trust:
+# ----------------------------------------------------------------------------------------------------
+keytool -storetype pkcs12 -keystore ca-pkcs12.keystore -storepass activemqexample -keypass activemqexample -alias ca -genkey -keyalg "RSA" -keysize 2048 -dname "O=My Trusted Example Inc.,CN=my-example-ca.org" -validity 9999 -ext bc:c=ca:true
+keytool -storetype pkcs12 -keystore ca-pkcs12.keystore -storepass activemqexample -alias ca -exportcert -rfc > ca.crt
+
+# Create a key pair, and sign it with the CA:
+# -------------------------------------------
+keytool -storetype pkcs12 -keystore activemq.example.keystore -storepass activemqexample -keypass activemqexample -alias broker -genkey -keyalg "RSA" -keysize 2048 -dname "O=Server,CN=localhost" -validity 9999 -ext bc=ca:false -ext eku=sA
+
+keytool -storetype pkcs12 -keystore activemq.example.keystore -storepass activemqexample -alias broker -certreq -file broker.csr
+keytool -storetype pkcs12 -keystore ca-pkcs12.keystore -storepass activemqexample -alias ca -gencert -rfc -infile broker.csr -outfile broker.crt -validity 9999 -ext bc=ca:false -ext eku=sA
+
+keytool -storetype pkcs12 -keystore activemq.example.keystore -storepass activemqexample -keypass activemqexample -importcert -alias ca -file ca.crt -noprompt
+keytool -storetype pkcs12 -keystore activemq.example.keystore -storepass activemqexample -keypass activemqexample -importcert -alias broker -file broker.crt
+
+# Create trust store, import the CA cert:
+# -------------------------------------------------------
+keytool -storetype pkcs12 -keystore activemq.example.truststore -storepass activemqexample -keypass activemqexample -importcert -alias ca -file ca.crt -noprompt
+keytool -importkeystore -srckeystore activemq.example.truststore -destkeystore broker-jceks.truststore -srcstoretype pkcs12 -deststoretype jceks -srcstorepass activemqexample -deststorepass activemqexample
+keytool -importkeystore -srckeystore activemq.example.truststore -destkeystore broker-jks.truststore -srcstoretype pkcs12 -deststoretype jks -srcstorepass activemqexample -deststorepass activemqexample
+
+# Copy the stores into place
+cp activemq.example.truststore src/main/resources/activemq/server1/
+cp activemq.example.keystore src/main/resources/activemq/server1/
+
+cp activemq.example.truststore src/main/resources/activemq/server0/
+cp activemq.example.keystore src/main/resources/activemq/server0/
+
+# Clean up tmp files
+rm -f *.crt *.csr *.keystore *.truststore

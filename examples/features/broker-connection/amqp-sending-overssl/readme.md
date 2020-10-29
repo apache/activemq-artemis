@@ -6,4 +6,6 @@ This example demonstrates how you can create a broker connection from one broker
  
 You basically configured the broker connection on broker.xml and this example will give you two working servers where you send messages in one broker and receive it on another broker.
  
-The Broker connection on this example is configured to use SSL. The client connections here are using regular connections.
+The connection between the two brokers as well as the client connections are all configured to use SSL.
+
+The keystore and trustores used in the example were generated with store-generation.txt
