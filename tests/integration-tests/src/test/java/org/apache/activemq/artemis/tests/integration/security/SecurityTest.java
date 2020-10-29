@@ -226,6 +226,11 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
 
+      // ensure advisory permission is still set for openwire to allow connection to succeed, alternative is url param jms.watchTopicAdvisories=false on the client connection factory
+      HashSet<Role> roles = new HashSet<>();
+      roles.add(new Role("programmers", false, true, false, false, true, true, false, false, true, false));
+      server.getConfiguration().putSecurityRoles("ActiveMQ.Advisory.#", roles);
+
       server.start();
 
       ActiveMQSslConnectionFactory factory = new ActiveMQSslConnectionFactory("ssl://localhost:61616");
@@ -274,6 +279,7 @@ public class SecurityTest extends ActiveMQTestBase {
       factory.setTrustStorePassword("secureexample");
       factory.setKeyStore("client-side-keystore.jks");
       factory.setKeyStorePassword("secureexample");
+      factory.setWatchTopicAdvisories(false);
 
       try (ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

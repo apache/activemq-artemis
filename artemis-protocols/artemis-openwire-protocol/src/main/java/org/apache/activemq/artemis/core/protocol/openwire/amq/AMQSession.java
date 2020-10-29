@@ -90,7 +90,7 @@ public class AMQSession implements SessionCallback {
 
    private final Runnable enableAutoReadAndTtl;
 
-   private final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
+   private final CoreMessageObjectPools coreMessageObjectPools;
 
    private String[] existingQueuesCache;
 
@@ -100,7 +100,7 @@ public class AMQSession implements SessionCallback {
                      SessionInfo sessInfo,
                      ActiveMQServer server,
                      OpenWireConnection connection,
-                     OpenWireProtocolManager protocolManager) {
+                     OpenWireProtocolManager protocolManager, CoreMessageObjectPools coreMessageObjectPools) {
       this.connInfo = connInfo;
       this.sessInfo = sessInfo;
       this.clientId = SimpleString.toSimpleString(connInfo.getClientId());
@@ -111,6 +111,7 @@ public class AMQSession implements SessionCallback {
       this.protocolManagerWireFormat = protocolManager.wireFormat().copy();
       this.enableAutoReadAndTtl = this::enableAutoReadAndTtl;
       this.existingQueuesCache = null;
+      this.coreMessageObjectPools = coreMessageObjectPools;
    }
 
    public boolean isClosed() {
@@ -132,11 +133,6 @@ public class AMQSession implements SessionCallback {
 
       try {
          coreSession = server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, true, connection.getOperationContext(), protocolManager.getPrefixes(), protocolManager.getSecurityDomain());
-
-         long sessionId = sessInfo.getSessionId().getValue();
-         if (sessionId == -1) {
-            this.connection.setAdvisorySession(this);
-         }
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.error("error init session", e);
       }

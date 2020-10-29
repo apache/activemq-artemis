@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -26,6 +27,8 @@ import javax.jms.Connection;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class AdvisoryOpenWireTest extends BasicOpenWireTest {
 
@@ -146,5 +149,38 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          }
       }
    }
+
+   @Test
+   public void testConnectionAdvisory() throws Exception {
+      final Connection[] connections = new Connection[20];
+
+      connections[0] = factory.createConnection();
+      connections[0].start();
+
+      final CountDownLatch numConnectionsCreatedViaAdvisoryNotificationsLatch = new CountDownLatch(19);
+      connections[0].createSession(false, Session.AUTO_ACKNOWLEDGE)
+         .createConsumer(AdvisorySupport.getConnectionAdvisoryTopic()).setMessageListener(message -> numConnectionsCreatedViaAdvisoryNotificationsLatch.countDown());
+
+      try {
+         for (int i = 1; i < connections.length; i++) {
+            connections[i] = factory.createConnection();
+            connections[i].start();
+         }
+
+         Session session = connections[0].createSession(false, Session.AUTO_ACKNOWLEDGE);
+         session.close();
+
+         assertTrue("Got all the advisories on time", numConnectionsCreatedViaAdvisoryNotificationsLatch.await(5, TimeUnit.SECONDS));
+
+      } finally {
+         for (Connection conn : connections) {
+            if (conn != null) {
+               conn.close();
+            }
+         }
+      }
+
+   }
+
 
 }

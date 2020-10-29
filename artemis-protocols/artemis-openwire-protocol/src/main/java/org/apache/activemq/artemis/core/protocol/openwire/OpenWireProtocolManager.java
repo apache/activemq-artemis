@@ -40,9 +40,8 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -72,13 +71,11 @@ import org.apache.activemq.command.DestinationInfo;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.ProducerId;
-import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.filter.DestinationFilter;
 import org.apache.activemq.filter.DestinationPath;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.openwire.OpenWireFormatFactory;
-import org.apache.activemq.state.ProducerState;
 import org.apache.activemq.util.IdGenerator;
 import org.apache.activemq.util.InetAddressUtil;
 import org.apache.activemq.util.LongSequenceGenerator;
@@ -376,10 +373,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_NAME, getBrokerName());
       String id = getBrokerId() != null ? getBrokerId().getValue() : "NOT_SET";
       advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_ID, id);
-
-      String url = context.getConnection().getLocalAddress();
-
-      advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_URL, url);
+      advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_URL, context.getConnection().getLocalAddress());
 
       // set the data structure
       advisoryMessage.setDataStructure(command);
@@ -390,19 +384,16 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       advisoryMessage.setDestination(topic);
       advisoryMessage.setResponseRequired(false);
       advisoryMessage.setProducerId(advisoryProducerId);
-      boolean originalFlowControl = context.isProducerFlowControl();
-      final AMQProducerBrokerExchange producerExchange = new AMQProducerBrokerExchange();
-      producerExchange.setConnectionContext(context);
-      producerExchange.setProducerState(new ProducerState(new ProducerInfo()));
-      try {
-         context.setProducerFlowControl(false);
-         AMQSession sess = context.getConnection().getAdvisorySession();
-         if (sess != null) {
-            sess.send(producerExchange.getProducerState().getInfo(), advisoryMessage, false);
-         }
-      } finally {
-         context.setProducerFlowControl(originalFlowControl);
-      }
+      advisoryMessage.setTimestamp(System.currentTimeMillis());
+
+      final CoreMessageObjectPools objectPools = context.getConnection().getCoreMessageObjectPools();
+      final org.apache.activemq.artemis.api.core.Message coreMessage = OpenWireMessageConverter.inbound(advisoryMessage, wireFormat, objectPools);
+
+      final SimpleString address = SimpleString.toSimpleString(topic.getPhysicalName(), objectPools.getAddressStringSimpleStringPool());
+      coreMessage.setAddress(address);
+      coreMessage.setRoutingType(RoutingType.MULTICAST);
+      // follow pattern from management notification to route directly
+      server.getPostOffice().route(coreMessage, false);
    }
 
    public String getBrokerName() {
