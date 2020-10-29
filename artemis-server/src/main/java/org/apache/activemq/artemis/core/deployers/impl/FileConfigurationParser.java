@@ -1911,7 +1911,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                connectionElement = amqpMirrorConnectionElement;
                connectionElement.setType(AMQPBrokerConnectionAddressType.MIRROR);
             } else {
-               String match = getAttributeValue(e2, "match");
+               String match = getAttributeValue(e2, "address-match");
                String queue = getAttributeValue(e2, "queue-name");
                connectionElement = new AMQPBrokerConnectionElement();
                connectionElement.setMatchAddress(SimpleString.toSimpleString(match)).setType(nodeType);

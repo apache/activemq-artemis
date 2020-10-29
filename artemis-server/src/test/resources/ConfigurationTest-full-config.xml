@@ -374,9 +374,9 @@
       </cluster-connections>
       <broker-connections>
          <amqp-connection uri="tcp://test1:111" name="test1" retry-interval="333" reconnect-attempts="33" user="testuser" password="testpassword">
-            <sender match="TEST-SENDER"  />
-            <receiver match="TEST-RECEIVER" />
-            <peer match="TEST-PEER"/>
+            <sender address-match="TEST-SENDER"  />
+            <receiver address-match="TEST-RECEIVER" />
+            <peer address-match="TEST-PEER"/>
             <receiver queue-name="TEST-WITH-QUEUE-NAME"/>
             <mirror message-acknowledgements="false" queue-creation="false" source-mirror-address="TEST-REPLICA" queue-removal="false"/>
          </amqp-connection>
