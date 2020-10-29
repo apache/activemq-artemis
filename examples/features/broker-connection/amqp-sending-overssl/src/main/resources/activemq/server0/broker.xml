@@ -31,7 +31,8 @@ under the License.
       <!-- Acceptors -->
       <acceptors>
          <!-- keystores will be found automatically if they are on the classpath -->
-         <acceptor name="artemis">tcp://0.0.0.0:5660?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true</acceptor>
+         <acceptor name="artemis">tcp://0.0.0.0:5671?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true</acceptor>
+         <acceptor name="netty-ssl-acceptor">tcp://localhost:5672?sslEnabled=true;keyStorePath=activemq.example.keystore;keyStorePassword=activemqexample;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE</acceptor>
       </acceptors>
 
       <broker-connections>
