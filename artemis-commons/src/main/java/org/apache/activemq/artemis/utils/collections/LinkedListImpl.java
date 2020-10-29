@@ -131,9 +131,8 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          return null;
       }
 
-      if (node.prev != null) {
-         removeAfter(node.prev);
-      }
+      // the node will always have a prev element
+      removeAfter(node.prev);
       return node.val();
    }
 

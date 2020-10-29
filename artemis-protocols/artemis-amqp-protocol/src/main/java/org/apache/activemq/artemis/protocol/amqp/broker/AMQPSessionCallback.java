@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
@@ -346,7 +347,11 @@ public class AMQPSessionCallback implements SessionCallback {
          }
       } else if (routingType == RoutingType.ANYCAST) {
          if (manager.getServer().locateQueue(unPrefixedAddress) == null) {
-            if (addressSettings.isAutoCreateQueues()) {
+            Bindings bindings = manager.getServer().getPostOffice().lookupBindingsForAddress(address);
+            if (bindings != null) {
+               // this means the address has another queue with a different name, which is fine, we just ignore it on this case
+               result = true;
+            } else if (addressSettings.isAutoCreateQueues()) {
                try {
                   serverSession.createQueue(new QueueConfiguration(address).setRoutingType(routingType).setAutoCreated(true));
                } catch (ActiveMQQueueExistsException e) {

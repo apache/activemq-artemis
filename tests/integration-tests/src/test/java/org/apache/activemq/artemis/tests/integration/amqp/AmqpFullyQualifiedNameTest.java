@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
@@ -278,7 +279,12 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    @Test
    public void testQueue() throws Exception {
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false));
+
+      server.addAddressInfo(new AddressInfo(anycastAddress).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
+      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(new QueueConfiguration(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(new QueueConfiguration(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       Connection connection = createConnection();
       try {

@@ -35,7 +35,7 @@ public class BrokerConnectionSenderSSL {
 
    public static void main(final String[] args) throws Exception {
       Connection connectionOnServer0 = null;
-      ConnectionFactory connectionFactoryServer0 = new JmsConnectionFactory("amqp://localhost:5660");
+      ConnectionFactory connectionFactoryServer0 = new JmsConnectionFactory("amqps://localhost:5672?transport.trustStoreLocation=target/server0/etc/activemq.example.truststore&transport.trustStorePassword=activemqexample&transport.verifyHost=false");
 
       // Step 1. Create a connection on server0, and send a few messages
       try {
@@ -50,7 +50,7 @@ public class BrokerConnectionSenderSSL {
             sender.send(session.createTextMessage("Hello world overSSL n" + i));
          }
       } finally {
-         if (connectionFactoryServer0 != null) {
+         if (connectionOnServer0 != null) {
             connectionOnServer0.close();
          }
       }
@@ -58,7 +58,7 @@ public class BrokerConnectionSenderSSL {
       // Step 2. create a connection on server1, and receive a few messages.
       //          the sender on the broker conneciton will take care of the transfer.
       Connection connectionOnServer1 = null;
-      ConnectionFactory connectionFactoryServer1 = new JmsConnectionFactory("amqp://localhost:5771");
+      ConnectionFactory connectionFactoryServer1 = new JmsConnectionFactory("amqps://localhost:5772?transport.trustStoreLocation=target/server1/etc/activemq.example.truststore&transport.trustStorePassword=activemqexample&transport.verifyHost=false");
 
       try {
          connectionOnServer1 = connectionFactoryServer1.createConnection();

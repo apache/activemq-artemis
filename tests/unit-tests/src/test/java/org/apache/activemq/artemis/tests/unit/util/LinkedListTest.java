@@ -202,6 +202,13 @@ public class LinkedListTest extends ActiveMQTestBase {
       if (deferSupplier) {
          Assert.assertEquals(0, objs.getSizeOfSuppliedIDs());
          objs.setIDSupplier(source -> source.id);
+      } else {
+         // clear the ID supplier
+         objs.clearID();
+         // and redo it
+         Assert.assertEquals(0, objs.getSizeOfSuppliedIDs());
+         objs.setIDSupplier(source -> source.id);
+         Assert.assertEquals(1000, objs.size());
       }
 
       Assert.assertEquals(1000, objs.getSizeOfSuppliedIDs());
