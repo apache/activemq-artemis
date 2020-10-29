@@ -120,15 +120,13 @@ Using queue names:
 
 
 # Peers
-A peer broker connection element is a combination of sender and receivers. The ActiveMQ Artemis broker creates both a sender and a receiver for a peer element, and the endpoint knows how to deal with the pair without creating an infinite loop of sending and receiving messages.
+The broker can be configured as a peer which connects to the [Apache Qpid Dispatch Router](https://qpid.apache.org/components/dispatch-router/) and instructs it the broker it will act as a store-and-forward queue for a given AMQP waypoint address configured on the router. In this scenario, clients connect to a router to send and receive messages using a waypointed address, and the router routes these messages to or from the queue on the broker.
 
-Currently, [Apache Qpid Dispatch Router](https://qpid.apache.org/components/dispatch-router/index.html) can act as a peer. ActiveMQ Artemis creates the pair of receivers and sender for each matching destination. These senders and receivers have special configuration to let Qpid Dispatch Router know to collaborate with ActiveMQ Artemis.
+The peer configuration causes ActiveMQ Artemis to create a sender and receiver pair for each destination matched in the broker-connection configuration, with these carrying special configuration to let Qpid Dispatch know to collaborate with the broker. This replaces the traditional need of a router-initiated connection and auto-links.
 
 You can experiment with advanced networking scenarios with Qpid Dispatch Router and get a lot of benefit from the AMQP protocol and its ecosystem.
 
-When you add this option, the broker will act as a way point on Qpid Dispatch, and the broker will act as a store point for the messages. For more information refer to the documentation on [Apache Qpid Dispatch Router](https://qpid.apache.org/components/dispatch-router/index.html).
-
-With a peer, you have the same properties that you have on a sender and receiver. For example:
+With a peer configuration, you have the same properties that you have on a sender and receiver. For example, a configuration where queues with names beginning "queue." act as storage for the matching router waypoint address would be:
 ```xml
 <broker-connections>
     <amqp-connection uri="tcp://MY_HOST:MY_PORT" name="my-router">
@@ -150,7 +148,20 @@ With a peer, you have the same properties that you have on a sender and receiver
 </addresses>
 ```
 
+There must be a matching address waypoint configuration on the router, instructing it that the particular router addresses the broker attaches to should be treated as waypoints. For example, a similar prefix- based router address configuration would be:
+
+```
+address {
+    prefix: queue
+    waypoint: yes
+}
+```
+
+For more information refer to the "brokered messaging" documentation for [Apache Qpid Dispatch Router](https://qpid.apache.org/components/dispatch-router/).
+
 *Important:* Do not use this feature to connect to another broker, otherwise any message sent will be immediately ready to consume creating an infinite echo of sends and receives.
+
+*Important:* You do not need to configure the router with a connector or auto-links to communicate with the broker. The brokers peer configuration replaces these aspects of the router waypoint usage.
 
 # Mirror 
 The mirror option on the broker connection can capture events from the broker and pass them over the wire to another broker. This enables you to capture multiple asynchronous replicas. The following types of events are captured:
@@ -176,19 +187,19 @@ You can specify the following optional arguments.
 An example of a mirror configuration is shown below:
 ```xml
 <broker-connections>
-    <amqp-connection uri="tcp://MY_HOST:MY_PORT" name="my-broker">
+    <amqp-connection uri="tcp://MY_HOST:MY_PORT" name="my-mirror">
             <mirror  queue-removal="true" queue-creation="true" message-acknowledgements="true" source-mirror-address="myLocalSNFMirrorQueue"/>
     </amqp-connection>
 </broker-connections>
 ```
 
-*Important*: One broker can have multiple replicas (1 to many). However a replica site can only have a single source. Make sure you do not connect multiple replicas to a single mirror.
+*Important*: A broker can mirror to multiple replicas (1 to many). However a replica broker can only have a single mirror source. Make sure you do not mirror multiple source brokers to a single replica broker.
 
 ## Pre existing messages
 The broker will not send pre existing messages through the mirror. So, If you add mirror to your configuration and the journal had pre existing messages these messages will not be sent. 
 
 ## Broker Connection Stop and Disconnect
-Once you start the broker connection with a mirror the mirror events will always be sent to the temporary queue configured at the `source-mirror-address`. 
+Once you start the broker connection with a mirror the mirror events will always be sent to the intermediate queue configured at the `source-mirror-address`.
 
 It is possible to stop the broker connection with the operation stopBrokerConnection(connectionName) on the ServerControl, but it is only effective to disconnect the brokers, while the mirror events are always captured.
 
