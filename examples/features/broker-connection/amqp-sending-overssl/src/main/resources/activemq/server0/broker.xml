@@ -37,7 +37,7 @@ under the License.
 
       <broker-connections>
          <amqp-connection uri="tcp://localhost:5772?sslEnabled=true;trustStorePath=activemq.example.truststore;trustStorePassword=activemqexample" name="otherSSL" retry-interval="1000">
-            <sender match="#"/>
+            <sender address-match="#"/>
          </amqp-connection>
       </broker-connections>
 

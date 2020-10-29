@@ -972,7 +972,7 @@
                            <xsd:attribute name="match" type="xsd:string" use="required">
                               <xsd:annotation>
                                  <xsd:documentation>
-                                    pattern for matching security roles against addresses; can use wildards
+                                    pattern for matching security roles against addresses; can use wildcards
                                  </xsd:documentation>
                               </xsd:annotation>
                            </xsd:attribute>
@@ -2075,7 +2075,7 @@
    </xsd:complexType>
 
    <xsd:complexType name="amqp-address-match-type">
-      <xsd:attribute name="match" type="xsd:string" use="optional">
+      <xsd:attribute name="address-match" type="xsd:string" use="optional">
          <xsd:annotation>
             <xsd:documentation>
                address expression to match addresses
@@ -2083,12 +2083,12 @@
          </xsd:annotation>
       </xsd:attribute>
       <xsd:attribute name="queue-name" type="xsd:string" use="optional">
-      <xsd:annotation>
-         <xsd:documentation>
-            This is the exact queue name to be used.
-         </xsd:documentation>
-      </xsd:annotation>
-   </xsd:attribute>
+         <xsd:annotation>
+            <xsd:documentation>
+               This is the exact queue name to be used.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
    </xsd:complexType>
    <xsd:complexType name="amqp-mirror-type">
       <xsd:annotation>
@@ -2097,15 +2097,6 @@
             All events will be send towards this AMQP connection acting like a replica.
          </xsd:documentation>
       </xsd:annotation>
-      <!--
-        TODO: comment this out when we start supporting matching on mirror.
-      <xsd:attribute name="match" type="xsd:string" use="required">
-         <xsd:annotation>
-            <xsd:documentation>
-               address expression to match addresses
-            </xsd:documentation>
-         </xsd:annotation>
-      </xsd:attribute> -->
 
       <xsd:attribute name="message-acknowledgements" type="xsd:boolean" use="optional" default="true">
          <xsd:annotation>
@@ -3871,7 +3862,7 @@
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
-            
+
          </xsd:all>
 
          <xsd:attribute name="match" type="xsd:string" use="required">

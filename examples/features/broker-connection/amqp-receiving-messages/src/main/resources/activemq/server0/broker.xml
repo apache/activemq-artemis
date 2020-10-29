@@ -54,7 +54,7 @@ under the License.
       <broker-connections>
          <amqp-connection uri="tcp://localhost:5672" name="receiver" retry-interval="100">
             <!-- This will create one receiver for every queue matching this address expression -->
-            <receiver match="#"/>
+            <receiver address-match="#"/>
          </amqp-connection>
       </broker-connections>
 

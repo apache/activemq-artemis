@@ -99,7 +99,7 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    private void internalMultipleQueues(boolean useMatching, boolean distinctNaming) throws Exception {
       final int numberOfMessages = 100;
       final int numberOfQueues = 10;
-      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:24621").setRetryInterval(10).setReconnectAttempts(-1);
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:24622").setRetryInterval(10).setReconnectAttempts(-1);
       if (useMatching) {
          amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress("queue.#").setType(AMQPBrokerConnectionAddressType.PEER));
       } else {

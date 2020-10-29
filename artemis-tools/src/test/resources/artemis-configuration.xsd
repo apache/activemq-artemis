@@ -614,7 +614,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   A list of connections the broker will make towards other servers.
-                  Currently the only connection type supported is amqp-connection
+                  Currently the only connection type supported is amqpConnection
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -972,7 +972,7 @@
                            <xsd:attribute name="match" type="xsd:string" use="required">
                               <xsd:annotation>
                                  <xsd:documentation>
-                                    pattern for matching security roles against addresses; can use wildards
+                                    pattern for matching security roles against addresses; can use wildcards
                                  </xsd:documentation>
                               </xsd:annotation>
                            </xsd:attribute>
@@ -2028,6 +2028,13 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attribute name="auto-start" type="xsd:boolean" default="true">
+         <xsd:annotation>
+            <xsd:documentation>
+               should the broker connection be started when the server is started.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
       <xsd:attribute name="reconnect-attempts" type="xsd:int" default="-1">
          <xsd:annotation>
             <xsd:documentation>
@@ -2068,7 +2075,7 @@
    </xsd:complexType>
 
    <xsd:complexType name="amqp-address-match-type">
-      <xsd:attribute name="match" type="xsd:string" use="optional">
+      <xsd:attribute name="address-match" type="xsd:string" use="optional">
          <xsd:annotation>
             <xsd:documentation>
                address expression to match addresses
@@ -2090,15 +2097,6 @@
             All events will be send towards this AMQP connection acting like a replica.
          </xsd:documentation>
       </xsd:annotation>
-      <!--
-        TODO: comment this out when we start supporting matching on mirror.
-      <xsd:attribute name="match" type="xsd:string" use="required">
-         <xsd:annotation>
-            <xsd:documentation>
-               address expression to match addresses
-            </xsd:documentation>
-         </xsd:annotation>
-      </xsd:attribute> -->
 
       <xsd:attribute name="message-acknowledgements" type="xsd:boolean" use="optional" default="true">
          <xsd:annotation>
@@ -3865,20 +3863,12 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="page-store-name" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the name of the page store to use, to allow the page store to coalesce for address hierarchies when wildcard routing is in play
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
          </xsd:all>
 
          <xsd:attribute name="match" type="xsd:string" use="required">
             <xsd:annotation>
                <xsd:documentation>
-                  pattern for matching settings against addresses; can use wildcards
+                  pattern for matching settings against addresses; can use wildards
                </xsd:documentation>
             </xsd:annotation>
          </xsd:attribute>
