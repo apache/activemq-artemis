@@ -562,9 +562,14 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          logger.trace("Connection created " + connection);
       }
 
-      connections.put(connection.getID(), entry);
+      addConnectionEntry(connection, entry);
       connectionCountLatch.countUp();
       totalConnectionCount.incrementAndGet();
+   }
+
+   @Override
+   public void addConnectionEntry(Connection connection, ConnectionEntry entry) {
+      connections.put(connection.getID(), entry);
    }
 
    @Override
