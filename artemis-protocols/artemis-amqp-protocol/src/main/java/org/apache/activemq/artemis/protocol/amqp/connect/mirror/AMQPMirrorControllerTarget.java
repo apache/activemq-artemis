@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.function.ToLongFunction;
 import java.util.stream.Stream;
 
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -276,7 +277,11 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       if (logger.isDebugEnabled()) {
          logger.debug("destroy queue " + queueName + " on address = " + addressName);
       }
-      server.destroyQueue(queueName);
+      try {
+         server.destroyQueue(queueName);
+      } catch (ActiveMQNonExistentQueueException expected) {
+         logger.debug("queue " + queueName + " was previously removed", expected);
+      }
    }
 
    private static ToLongFunction<MessageReference> referenceIDSupplier = (source) -> {
