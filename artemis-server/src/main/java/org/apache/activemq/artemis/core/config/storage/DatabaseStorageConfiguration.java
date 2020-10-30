@@ -152,19 +152,32 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
    private DataSource getDataSource() {
       if (dataSource == null) {
          // the next settings are going to be applied only if the datasource is the default one
-         if (dataSourceProperties.isEmpty() && ActiveMQDefaultConfiguration.getDefaultDataSourceClassName().equals(dataSourceClassName)) {
-            addDataSourceProperty("driverClassName", jdbcDriverClassName);
-            addDataSourceProperty("url", jdbcConnectionUrl);
-            if (jdbcUser != null) {
-               addDataSourceProperty("username", jdbcUser);
+         if (ActiveMQDefaultConfiguration.getDefaultDataSourceClassName().equals(dataSourceClassName)) {
+            // these default settings will be applied only if a custom configuration won't override them
+            if (!dataSourceProperties.containsKey("driverClassName")) {
+               addDataSourceProperty("driverClassName", jdbcDriverClassName);
             }
-            if (jdbcPassword != null) {
-               addDataSourceProperty("password", jdbcPassword);
+            if (!dataSourceProperties.containsKey("url")) {
+               addDataSourceProperty("url", jdbcConnectionUrl);
             }
-            // Let the pool to have unbounded number of connections by default to prevent connection starvation
-            addDataSourceProperty("maxTotal", "-1");
-            // Let the pool to have unbounded number of cached prepared statements to save the initialization cost
-            addDataSourceProperty("poolPreparedStatements", "true");
+            if (!dataSourceProperties.containsKey("username")) {
+               if (jdbcUser != null) {
+                  addDataSourceProperty("username", jdbcUser);
+               }
+            }
+            if (!dataSourceProperties.containsKey("password")) {
+               if (jdbcPassword != null) {
+                  addDataSourceProperty("password", jdbcPassword);
+               }
+            }
+            if (!dataSourceProperties.containsKey("maxTotal")) {
+               // Let the pool to have unbounded number of connections by default to prevent connection starvation
+               addDataSourceProperty("maxTotal", "-1");
+            }
+            if (!dataSourceProperties.containsKey("poolPreparedStatements")) {
+               // Let the pool to have unbounded number of cached prepared statements to save the initialization cost
+               addDataSourceProperty("poolPreparedStatements", "true");
+            }
          }
          dataSource = JDBCDataSourceUtils.getDataSource(dataSourceClassName, dataSourceProperties);
       }
