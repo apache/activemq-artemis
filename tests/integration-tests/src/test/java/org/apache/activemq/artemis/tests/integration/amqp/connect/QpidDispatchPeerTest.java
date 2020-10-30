@@ -67,7 +67,9 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
 
    @Override
    protected ActiveMQServer createServer() throws Exception {
-      return createServer(AMQP_PORT, false);
+      ActiveMQServer server = createServer(AMQP_PORT, false);
+      server.getConfiguration().setNetworkCheckPeriod(100);
+      return server;
    }
 
    @Before
@@ -82,24 +84,34 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60_000)
+   public void testWithMatchingDifferentNamesOnQueueKill() throws Exception {
+      internalMultipleQueues(true, true, true);
+   }
+
+   @Test(timeout = 60_000)
    public void testWithMatchingDifferentNamesOnQueue() throws Exception {
-      internalMultipleQueues(true, true);
+      internalMultipleQueues(true, true, false);
    }
 
    @Test(timeout = 60_000)
    public void testWithMatching() throws Exception {
-      internalMultipleQueues(true, false);
+      internalMultipleQueues(true, false, false);
    }
 
    @Test(timeout = 60_000)
    public void testwithQueueName() throws Exception {
-      internalMultipleQueues(false, true);
+      internalMultipleQueues(false, false, false);
    }
 
-   private void internalMultipleQueues(boolean useMatching, boolean distinctNaming) throws Exception {
+   @Test(timeout = 60_000)
+   public void testwithQueueNameDistinctName() throws Exception {
+      internalMultipleQueues(false, true, false);
+   }
+
+   private void internalMultipleQueues(boolean useMatching, boolean distinctNaming, boolean kill) throws Exception {
       final int numberOfMessages = 100;
       final int numberOfQueues = 10;
-      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:24622").setRetryInterval(10).setReconnectAttempts(-1);
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:24622?amqpIdleTimeout=1000").setRetryInterval(10).setReconnectAttempts(-1);
       if (useMatching) {
          amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress("queue.#").setType(AMQPBrokerConnectionAddressType.PEER));
       } else {
@@ -118,7 +130,7 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
          ConnectionFactory factoryProducer = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:24622");
          Connection connection = null;
 
-         connection = createConnectionDumbRetry(factoryProducer, connection);
+         connection = createConnectionDumbRetry(factoryProducer);
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue("queue.test" + dest);
@@ -135,10 +147,14 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
          connection.close();
       }
 
+      if (kill) {
+         stopQpidRouter();
+         startQpidRouter();
+      }
 
       for (int dest = 0; dest < numberOfQueues; dest++) {
          ConnectionFactory factoryConsumer = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:24622");
-         Connection connectionConsumer = factoryConsumer.createConnection();
+         Connection connectionConsumer = createConnectionDumbRetry(factoryConsumer);
          Session sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queueConsumer = sessionConsumer.createQueue("queue.test" + dest);
          MessageConsumer consumer = sessionConsumer.createConsumer(queueConsumer);
@@ -167,7 +183,6 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
          org.apache.activemq.artemis.core.server.Queue testQueueOnServer = server.locateQueue(createQueueName(dest, distinctNaming));
          Wait.assertEquals(0, testQueueOnServer::getMessageCount);
       }
-
    }
 
    private String createQueueName(int i, boolean useDistinctName) {
@@ -178,18 +193,16 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
       }
    }
 
-   private Connection createConnectionDumbRetry(ConnectionFactory factoryProducer,
-                                                Connection connection) throws InterruptedException {
+   private Connection createConnectionDumbRetry(ConnectionFactory factoryProducer) throws InterruptedException {
       for (int i = 0; i < 100; i++) {
          try {
             // Some retry
-            connection = factoryProducer.createConnection();
-            break;
+            return factoryProducer.createConnection();
          } catch (Exception e) {
             Thread.sleep(10);
          }
       }
-      return connection;
+      return null;
    }
 
 }
