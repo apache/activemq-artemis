@@ -67,6 +67,8 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
    final Queue snfQueue;
    final ActiveMQServer server;
    final boolean acks;
+   final boolean addQueues;
+   final boolean deleteQueues;
 
    boolean started;
 
@@ -83,10 +85,12 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
       return started;
    }
 
-   public AMQPMirrorControllerSource(Queue snfQueue, ActiveMQServer server, boolean acks) {
+   public AMQPMirrorControllerSource(Queue snfQueue, ActiveMQServer server, boolean acks, boolean addQueues, boolean deleteQueues) {
       this.snfQueue = snfQueue;
       this.server = server;
       this.acks = acks;
+      this.addQueues = addQueues;
+      this.deleteQueues = deleteQueues;
    }
 
    @Override
@@ -103,26 +107,34 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
 
    @Override
    public void addAddress(AddressInfo addressInfo) throws Exception {
-      Message message = createMessage(addressInfo.getName(), null, ADD_ADDRESS, addressInfo.toJSON());
-      route(server, message);
+      if (addQueues) {
+         Message message = createMessage(addressInfo.getName(), null, ADD_ADDRESS, addressInfo.toJSON());
+         route(server, message);
+      }
    }
 
    @Override
    public void deleteAddress(AddressInfo addressInfo) throws Exception {
-      Message message = createMessage(addressInfo.getName(), null, DELETE_ADDRESS, addressInfo.toJSON());
-      route(server, message);
+      if (deleteQueues) {
+         Message message = createMessage(addressInfo.getName(), null, DELETE_ADDRESS, addressInfo.toJSON());
+         route(server, message);
+      }
    }
 
    @Override
    public void createQueue(QueueConfiguration queueConfiguration) throws Exception {
-      Message message = createMessage(queueConfiguration.getAddress(), queueConfiguration.getName(), CREATE_QUEUE, queueConfiguration.toJSON());
-      route(server, message);
+      if (addQueues) {
+         Message message = createMessage(queueConfiguration.getAddress(), queueConfiguration.getName(), CREATE_QUEUE, queueConfiguration.toJSON());
+         route(server, message);
+      }
    }
 
    @Override
    public void deleteQueue(SimpleString address, SimpleString queue) throws Exception {
-      Message message = createMessage(address, queue, DELETE_QUEUE, queue.toString());
-      route(server, message);
+      if (deleteQueues) {
+         Message message = createMessage(address, queue, DELETE_QUEUE, queue.toString());
+         route(server, message);
+      }
    }
 
    @Override

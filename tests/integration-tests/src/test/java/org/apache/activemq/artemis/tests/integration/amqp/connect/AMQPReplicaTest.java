@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
@@ -109,6 +110,55 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.start();
       // if this does not succeed the catch up did not arrive at the other server
       Wait.assertTrue(() -> server.locateQueue("sometest") != null);
+      server_2.stop();
+      server.stop();
+   }
+
+   @Test
+   public void testDoNotSendDelete() throws Exception {
+      testDoNotSendStuff(false);
+   }
+
+   @Test
+   public void testDoNotSendCreate() throws Exception {
+      testDoNotSendStuff(true);
+   }
+
+   private void testDoNotSendStuff(boolean sendCreate) throws Exception {
+      boolean ignoreCreate = false;
+      server.start();
+
+      final SimpleString ADDRESS_NAME = SimpleString.toSimpleString("address");
+
+      server_2 = createServer(AMQP_PORT_2, false);
+
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT);
+      AMQPMirrorBrokerConnectionElement mirror = new AMQPMirrorBrokerConnectionElement();
+      if (ignoreCreate) {
+         mirror.setQueueCreation(false);
+      } else {
+         mirror.setQueueCreation(true);
+         mirror.setQueueRemoval(false);
+      }
+      amqpConnection.addElement(mirror);
+      server_2.getConfiguration().addAMQPConnection(amqpConnection);
+
+      server_2.start();
+      Wait.assertTrue(server::isActive);
+
+      server_2.addAddressInfo(new AddressInfo(ADDRESS_NAME).addRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(new QueueConfiguration(ADDRESS_NAME).setDurable(true).setAddress(ADDRESS_NAME));
+
+      if (!ignoreCreate) {
+         Wait.assertTrue(() -> server.locateQueue(ADDRESS_NAME) != null);
+         Wait.assertTrue(() -> server.getAddressInfo(ADDRESS_NAME) != null);
+      }
+
+      if (ignoreCreate) {
+         Thread.sleep(500); // things are asynchronous, I need to wait some time to make sure things are transferred over
+         Assert.assertTrue(server.locateQueue(ADDRESS_NAME) == null);
+         Assert.assertTrue(server.getAddressInfo(ADDRESS_NAME) == null);
+      }
       server_2.stop();
       server.stop();
    }
