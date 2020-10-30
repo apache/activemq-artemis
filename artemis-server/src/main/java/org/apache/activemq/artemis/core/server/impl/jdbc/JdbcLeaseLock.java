@@ -77,10 +77,13 @@ final class JdbcLeaseLock implements LeaseLock {
       this.connectionProvider = connectionProvider;
       this.lockName = lockName;
       this.localExpirationTime = -1;
-      int expectedTimeout = (int) (queryTimeoutMillis > 0 ? TimeUnit.MILLISECONDS.toSeconds(queryTimeoutMillis) : -1);
+      int expectedTimeout = -1;
       if (queryTimeoutMillis >= 0) {
-         LOGGER.warn("queryTimeoutMillis is too low: it's suggested to configure a multi-seconds value. Disabling it because too low.");
-         expectedTimeout = -1;
+         expectedTimeout = (int) TimeUnit.MILLISECONDS.toSeconds(queryTimeoutMillis);
+         if (expectedTimeout <= 0) {
+            LOGGER.warn("queryTimeoutMillis is too low: it's suggested to configure a multi-seconds value. Disabling it because too low.");
+            expectedTimeout = -1;
+         }
       }
       this.queryTimeout = expectedTimeout;
 
