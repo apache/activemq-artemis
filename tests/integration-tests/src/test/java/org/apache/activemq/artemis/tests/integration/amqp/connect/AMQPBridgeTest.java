@@ -55,6 +55,17 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
    }
 
    @Test
+   public void testsSimpleConnect() throws Exception {
+      server.start();
+      server_2 = createServer(AMQP_PORT_2, false);
+
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT);
+      server_2.getConfiguration().addAMQPConnection(amqpConnection);
+
+      server_2.start();
+   }
+
+   @Test
    public void testSimpleTransferPush() throws Exception {
       internalTransferPush("TEST", false);
    }

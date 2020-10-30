@@ -154,9 +154,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       server.getConfiguration().registerBrokerPlugin(this);
       try {
 
-         for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
-            if (connectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR) {
-               installMirrorController((AMQPMirrorBrokerConnectionElement)connectionElement, server);
+         if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
+            for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
+               if (connectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR) {
+                  installMirrorController((AMQPMirrorBrokerConnectionElement) connectionElement, server);
+               }
             }
          }
       } catch (Throwable e) {
