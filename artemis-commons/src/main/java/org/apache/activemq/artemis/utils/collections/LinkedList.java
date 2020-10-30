@@ -34,7 +34,7 @@ public interface LinkedList<E> {
 
    void clearID();
 
-   /** The ID Supplier function needs to return positive IDs (>= 0).
+   /** The ID Supplier function needs to return positive IDs (greater or equal to 0)
     *  If you spply a negative ID, it will be considered a null value, and
     *  the value will just be ignored. */
    void setIDSupplier(ToLongFunction<E> supplier);
