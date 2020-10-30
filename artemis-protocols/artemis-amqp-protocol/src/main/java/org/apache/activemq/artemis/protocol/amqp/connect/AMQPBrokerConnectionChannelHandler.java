@@ -16,12 +16,15 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.connect;
 
+import java.util.concurrent.Executor;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
 
 /**
  * Common handler implementation for client and server side handler.
@@ -32,11 +35,17 @@ public class AMQPBrokerConnectionChannelHandler extends ChannelDuplexHandler {
 
    private final ProtonHandler handler;
 
-   volatile boolean active;
+   private final ClientConnectionLifeCycleListener listener;
 
-   protected AMQPBrokerConnectionChannelHandler(final ChannelGroup group, final ProtonHandler handler) {
+   private final Executor listenerExecutor;
+
+   private boolean active = true;
+
+   protected AMQPBrokerConnectionChannelHandler(final ChannelGroup group, final ProtonHandler handler, ClientConnectionLifeCycleListener listener, Executor executor) {
       this.group = group;
       this.handler = handler;
+      this.listener = listener;
+      this.listenerExecutor = executor;
    }
 
    protected static Object channelId(Channel channel) {
@@ -47,6 +56,17 @@ public class AMQPBrokerConnectionChannelHandler extends ChannelDuplexHandler {
    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
       group.add(ctx.channel());
       ctx.fireChannelActive();
+   }
+
+   @Override
+   public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+      synchronized (this) {
+         if (active) {
+            listenerExecutor.execute(() -> listener.connectionDestroyed(channelId(ctx.channel())));
+            super.channelInactive(ctx);
+            active = false;
+         }
+      }
    }
 
    @Override
