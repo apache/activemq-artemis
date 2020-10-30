@@ -26,8 +26,6 @@ keytool -storetype pkcs12 -keystore activemq.example.keystore -storepass activem
 # Create trust store, import the CA cert:
 # -------------------------------------------------------
 keytool -storetype pkcs12 -keystore activemq.example.truststore -storepass activemqexample -keypass activemqexample -importcert -alias ca -file ca.crt -noprompt
-keytool -importkeystore -srckeystore activemq.example.truststore -destkeystore broker-jceks.truststore -srcstoretype pkcs12 -deststoretype jceks -srcstorepass activemqexample -deststorepass activemqexample
-keytool -importkeystore -srckeystore activemq.example.truststore -destkeystore broker-jks.truststore -srcstoretype pkcs12 -deststoretype jks -srcstorepass activemqexample -deststorepass activemqexample
 
 # Copy the stores into place
 cp activemq.example.truststore src/main/resources/activemq/server1/
