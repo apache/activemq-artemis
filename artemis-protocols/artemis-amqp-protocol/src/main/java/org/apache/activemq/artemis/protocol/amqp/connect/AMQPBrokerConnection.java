@@ -303,6 +303,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             }
             reconnectFuture = scheduledExecutorService.schedule(() -> connectExecutor.execute(() -> doConnect()), brokerConnectConfiguration.getRetryInterval(), TimeUnit.MILLISECONDS);
          } else {
+            connecting = false;
             ActiveMQAMQPProtocolLogger.LOGGER.retryConnectionFailed(brokerConnectConfiguration.getName(), host + ":" +  port, retryCounter);
             if (logger.isDebugEnabled()) {
                logger.debug("no more reconnections as the retry counter reached " + retryCounter + " out of " + brokerConnectConfiguration.getReconnectAttempts());
