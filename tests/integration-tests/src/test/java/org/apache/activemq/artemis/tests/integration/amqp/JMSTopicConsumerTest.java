@@ -27,6 +27,7 @@ import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.JMSProducer;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -204,6 +205,99 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")));
          session.close();
          connection.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testDurableSharedSubscriptionUnsubscribe() throws Exception {
+      Connection connection = createConnection("myClientId");
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(getTopicName());
+         MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
+         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) != null);
+         myDurSub.close();
+         session.unsubscribe("myDurSub");
+         session.close();
+         connection.close();
+         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) == null);
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testDurableMultipleSharedSubscriptionUnsubscribe() throws Exception {
+      Connection connection = createConnection("myClientId");
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session session2 = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(getTopicName());
+         MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
+         MessageConsumer myDurSub2 = session2.createSharedDurableConsumer(topic, "myDurSub");
+         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) != null);
+         myDurSub.close();
+         try {
+            session.unsubscribe("myDurSub");
+            Assert.fail("should throw exception on active durable subs");
+         } catch (JMSException e) {
+            //pass
+         }
+         myDurSub2.close();
+         session.unsubscribe("myDurSub");
+         session.close();
+         connection.close();
+         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) == null);
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testDurableSharedGlobalSubscriptionUnsubscribe() throws Exception {
+      Connection connection = createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(getTopicName());
+         MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
+         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) != null);
+         myDurSub.close();
+         session.unsubscribe("myDurSub");
+         session.close();
+         connection.close();
+         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) == null);
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testDurableMultipleSharedGlobalSubscriptionUnsubscribe() throws Exception {
+      Connection connection = createConnection();
+      Connection connection2 = createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(getTopicName());
+         MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
+         MessageConsumer myDurSub2 = session2.createSharedDurableConsumer(topic, "myDurSub");
+         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) != null);
+         myDurSub.close();
+         session.unsubscribe("myDurSub");
+         session.close();
+         connection.close();
+         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) != null);
+         myDurSub2.close();
+         session2.unsubscribe("myDurSub");
+         session2.close();
+         connection2.close();
+         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) == null);
       } finally {
          connection.close();
       }
