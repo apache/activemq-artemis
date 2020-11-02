@@ -74,7 +74,6 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
 
    @Before
    public void startQpidRouter() throws Exception {
-      ExecuteUtil.runCommand(false, "killall", "-9", "qdrouterd"); // killing any previous running qdrouterd that may have been left from the execution
       URL qpidConfig = this.getClass().getClassLoader().getResource("QpidRouterPeerTest-qpidr.conf");
       qpidProcess = ExecuteUtil.run(true, "qdrouterd", "-c", qpidConfig.getFile());
    }
