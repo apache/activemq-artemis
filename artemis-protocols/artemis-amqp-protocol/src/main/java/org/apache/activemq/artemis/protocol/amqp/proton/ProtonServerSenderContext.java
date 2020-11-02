@@ -843,6 +843,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             String clientId = getClientId();
             String pubId = sender.getName();
             global = hasRemoteDesiredCapability(sender, GLOBAL);
+            shared = hasRemoteDesiredCapability(sender, SHARED);
             queue = createQueueName(connection.isUseCoreSubscriptionNaming(), clientId, pubId, true, global, false);
             QueueQueryResult result = sessionSPI.queueQuery(queue, RoutingType.MULTICAST, false);
             multicast = true;
