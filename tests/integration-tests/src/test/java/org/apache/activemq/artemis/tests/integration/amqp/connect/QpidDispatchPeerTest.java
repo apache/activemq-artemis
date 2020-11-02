@@ -83,32 +83,49 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
       qpidProcess.kill();
    }
 
+   public void pauseThenKill(int timeToWait) throws Exception {
+      int pid = qpidProcess.pid();
+      int result = ExecuteUtil.runCommand(true, "kill", "-STOP", Long.toString(pid));
+      Assert.assertEquals(0, result);
+      logger.info("\n*******************************************************************************************************************************\n" +
+                   "Paused" +
+                   "\n*******************************************************************************************************************************");
+      Thread.sleep(timeToWait);
+      result = ExecuteUtil.runCommand(true, "kill", "-9", Long.toString(pid));
+      Assert.assertEquals(0, result);
+   }
+
    @Test(timeout = 60_000)
    public void testWithMatchingDifferentNamesOnQueueKill() throws Exception {
-      internalMultipleQueues(true, true, true);
+      internalMultipleQueues(true, true, true, false);
+   }
+
+   @Test
+   public void testWithMatchingDifferentNamesOnQueuePause() throws Exception {
+      internalMultipleQueues(true, true, false, true);
    }
 
    @Test(timeout = 60_000)
    public void testWithMatchingDifferentNamesOnQueue() throws Exception {
-      internalMultipleQueues(true, true, false);
+      internalMultipleQueues(true, true, false, false);
    }
 
    @Test(timeout = 60_000)
    public void testWithMatching() throws Exception {
-      internalMultipleQueues(true, false, false);
+      internalMultipleQueues(true, false, false, false);
    }
 
    @Test(timeout = 60_000)
    public void testwithQueueName() throws Exception {
-      internalMultipleQueues(false, false, false);
+      internalMultipleQueues(false, false, false, false);
    }
 
    @Test(timeout = 60_000)
    public void testwithQueueNameDistinctName() throws Exception {
-      internalMultipleQueues(false, true, false);
+      internalMultipleQueues(false, true, false, false);
    }
 
-   private void internalMultipleQueues(boolean useMatching, boolean distinctNaming, boolean kill) throws Exception {
+   private void internalMultipleQueues(boolean useMatching, boolean distinctNaming, boolean kill, boolean pause) throws Exception {
       final int numberOfMessages = 100;
       final int numberOfQueues = 10;
       AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:24622?amqpIdleTimeout=1000").setRetryInterval(10).setReconnectAttempts(-1);
@@ -148,9 +165,13 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
       }
 
       if (kill) {
-         stopQpidRouter();
+         qpidProcess.kill();
+         startQpidRouter();
+      } else if (pause) {
+         pauseThenKill(3_000);
          startQpidRouter();
       }
+
 
       for (int dest = 0; dest < numberOfQueues; dest++) {
          ConnectionFactory factoryConsumer = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:24622");

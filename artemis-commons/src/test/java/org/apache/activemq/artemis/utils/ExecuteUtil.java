@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 
 public class ExecuteUtil {
@@ -36,6 +37,12 @@ public class ExecuteUtil {
          process.destroy();
          errorStreamReader.join();
          inputStreamReader.join();
+      }
+
+      public int pid() throws Exception {
+         Field pidField = process.getClass().getDeclaredField("pid");
+         pidField.setAccessible(true);
+         return (int)pidField.get(process);
       }
 
       public int waitFor(long timeout, TimeUnit unit) throws InterruptedException {

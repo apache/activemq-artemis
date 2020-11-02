@@ -92,6 +92,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private volatile boolean started = false;
    private final AMQPBrokerConnectionManager bridgeManager;
    private int retryCounter = 0;
+   private boolean connecting = false;
    private volatile ScheduledFuture reconnectFuture;
    private Set<Queue> senders = new HashSet<>();
    private Set<Queue> receivers = new HashSet<>();
@@ -209,6 +210,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    private void doConnect() {
       try {
+         connecting = true;
+
          List<TransportConfiguration> configurationList = brokerConnectConfiguration.getTransportConfigurations();
 
          TransportConfiguration tpConfig = configurationList.get(0);
@@ -283,6 +286,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          protonRemotingConnection.getAmqpConnection().flush();
 
          bridgeManager.connected(connection, this);
+
+         connecting = false;
       } catch (Throwable e) {
          error(e);
       }
@@ -464,6 +469,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    protected void error(Throwable e) {
+      connecting = false;
       logger.warn(e.getMessage(), e);
       redoConnection();
    }
@@ -511,16 +517,29 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    private void redoConnection() {
-      try {
-         if (connection != null) {
-            connection.close();
+
+      // we need to use the connectExecutor to initiate a redoConnection
+      // otherwise we would need to add synchronized blocks along this class
+      // to control when connecting becomes true and when it becomes false
+      // keeping a single executor thread to this purpose would simplify things
+      connectExecutor.execute(() -> {
+         if (connecting) {
+            logger.debug("Broker connection " + this.getName() + " was already in retry mode, exception or retry no captured");
+            return;
          }
-      } catch (Throwable e) {
-         logger.warn(e.getMessage(), e);
-      }
+         connecting = true;
 
-      retryConnection();
+         try {
+            if (connection != null) {
+               connection.close();
+               connection = null;
+            }
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
+         }
 
+         retryConnection();
+      });
    }
 
    @Override
