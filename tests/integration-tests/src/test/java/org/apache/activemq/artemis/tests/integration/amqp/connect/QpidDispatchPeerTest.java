@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -97,38 +98,52 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60_000)
    public void testWithMatchingDifferentNamesOnQueueKill() throws Exception {
-      internalMultipleQueues(true, true, true, false);
+      internalMultipleQueues(true, true, true, false, false);
    }
 
-   @Test
+
+   /** On this test the max reconnect attemps is reached. after a reconnect I will force a stop on the broker connection and retry it.
+    *  The reconnection should succeed. */
+   @Test(timeout = 60_000)
+   public void testWithMatchingDifferentNamesOnQueueKillMaxAttempts() throws Exception {
+      internalMultipleQueues(true, true, true, false, true);
+   }
+
+   @Test(timeout = 60_000)
+   public void testWithMatchingDifferentNamesOnQueuePauseMaxAttempts() throws Exception {
+      internalMultipleQueues(true, true, false, true, false);
+   }
+
+   @Test(timeout = 60_000)
    public void testWithMatchingDifferentNamesOnQueuePause() throws Exception {
-      internalMultipleQueues(true, true, false, true);
+      internalMultipleQueues(true, true, false, true, false);
    }
 
    @Test(timeout = 60_000)
    public void testWithMatchingDifferentNamesOnQueue() throws Exception {
-      internalMultipleQueues(true, true, false, false);
+      internalMultipleQueues(true, true, false, false, false);
    }
 
    @Test(timeout = 60_000)
    public void testWithMatching() throws Exception {
-      internalMultipleQueues(true, false, false, false);
+      internalMultipleQueues(true, false, false, false, false);
    }
 
    @Test(timeout = 60_000)
    public void testwithQueueName() throws Exception {
-      internalMultipleQueues(false, false, false, false);
+      internalMultipleQueues(false, false, false, false, false);
    }
 
    @Test(timeout = 60_000)
    public void testwithQueueNameDistinctName() throws Exception {
-      internalMultipleQueues(false, true, false, false);
+      internalMultipleQueues(false, true, false, false, false);
    }
 
-   private void internalMultipleQueues(boolean useMatching, boolean distinctNaming, boolean kill, boolean pause) throws Exception {
+   private void internalMultipleQueues(boolean useMatching, boolean distinctNaming, boolean kill, boolean pause, boolean maxReconnectAttemps) throws Exception {
       final int numberOfMessages = 100;
       final int numberOfQueues = 10;
-      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:24622?amqpIdleTimeout=1000").setRetryInterval(10).setReconnectAttempts(-1);
+      String brokerConnectionName = "brokerConnection." + UUIDGenerator.getInstance().generateStringUUID();
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(brokerConnectionName, "tcp://localhost:24622?amqpIdleTimeout=1000").setRetryInterval(10).setReconnectAttempts(maxReconnectAttemps ? 10 : -1);
       if (useMatching) {
          amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress("queue.#").setType(AMQPBrokerConnectionAddressType.PEER));
       } else {
@@ -166,10 +181,21 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
 
       if (kill) {
          qpidProcess.kill();
+         if (maxReconnectAttemps) {
+            Thread.sleep(1000); // wait some time so the connection is sure to have stopped retrying
+         }
          startQpidRouter();
       } else if (pause) {
          pauseThenKill(3_000);
          startQpidRouter();
+      }
+
+      if (maxReconnectAttemps) {
+         ConnectionFactory factoryConsumer = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:24622");
+         Connection connection = createConnectionDumbRetry(factoryConsumer);
+         connection.close();
+         server.stopBrokerConnection(brokerConnectionName);
+         server.startBrokerConnection(brokerConnectionName);
       }
 
 

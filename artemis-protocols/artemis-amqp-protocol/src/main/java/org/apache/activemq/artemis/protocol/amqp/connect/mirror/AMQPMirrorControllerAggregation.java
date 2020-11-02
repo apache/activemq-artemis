@@ -59,6 +59,10 @@ public class AMQPMirrorControllerAggregation implements MirrorController, Active
       return false;
    }
 
+   public List<AMQPMirrorControllerSource> getPartitions() {
+      return partitions;
+   }
+
    @Override
    public void addAddress(AddressInfo addressInfo) throws Exception {
       for (MirrorController partition : partitions) {

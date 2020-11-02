@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -254,42 +255,47 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
    @Test
    public void testReplicaLargeMessages() throws Exception {
-      replicaTest(true, true, false, false, false, false);
+      replicaTest(true, true, false, false, false, false, false);
    }
 
    @Test
    public void testReplicaLargeMessagesPagingEverywhere() throws Exception {
-      replicaTest(true, true, true, true, false, false);
+      replicaTest(true, true, true, true, false, false, false);
    }
 
    @Test
    public void testReplica() throws Exception {
-      replicaTest(false, true, false, false, false, false);
+      replicaTest(false, true, false, false, false, false, false);
+   }
+
+   @Test
+   public void testReplicaRestartBrokerConnection() throws Exception {
+      replicaTest(false, true, false, false, false, false, true);
    }
 
    @Test
    public void testReplicaRestart() throws Exception {
-      replicaTest(false, true, false, false, false, true);
+      replicaTest(false, true, false, false, false, true, false);
    }
 
    @Test
    public void testReplicaDeferredStart() throws Exception {
-      replicaTest(false, true, false, false, true, false);
+      replicaTest(false, true, false, false, true, false, false);
    }
 
    @Test
    public void testReplicaCopyOnly() throws Exception {
-      replicaTest(false, false, false, false, false, false);
+      replicaTest(false, false, false, false, false, false, false);
    }
 
    @Test
    public void testReplicaPagedTarget() throws Exception {
-      replicaTest(false, true, true, false, false, false);
+      replicaTest(false, true, true, false, false, false, false);
    }
 
    @Test
    public void testReplicaPagingEverywhere() throws Exception {
-      replicaTest(false, true, true, true, false, false);
+      replicaTest(false, true, true, true, false, false, false);
    }
 
    private String getText(boolean large, int i) {
@@ -447,7 +453,10 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
                             boolean pagingTarget,
                             boolean pagingSource,
                             boolean deferredStart,
-                            boolean restartAndDisconnect) throws Exception {
+                            boolean restartAndDisconnect,
+                            boolean restartBrokerConnection) throws Exception {
+
+      String brokerConnectionName = "brokerConnectionName:" + UUIDGenerator.getInstance().generateStringUUID();
       server.setIdentity("targetServer");
       if (deferredStart) {
          server.stop();
@@ -458,7 +467,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.setIdentity("server_2");
       server_2.getConfiguration().setName("thisone");
 
-      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(brokerConnectionName, "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
       AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(acks);
       amqpConnection.addElement(replica);
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
@@ -525,6 +534,13 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount);
 
+      if (restartBrokerConnection) {
+         // stop and start the broker connection, making sure we wouldn't duplicate the mirror
+         server_2.stopBrokerConnection(brokerConnectionName);
+         Thread.sleep(1000);
+         server_2.startBrokerConnection(brokerConnectionName);
+      }
+
       if (pagingTarget) {
          assertTrue(queueOnServer1.getPagingStore().isPaging());
       }
@@ -573,23 +589,28 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
    }
 
    @Test
+   public void testDualStandardRestartBrokerConnection() throws Exception {
+      dualReplica(false, false, false, true);
+   }
+
+   @Test
    public void testDualStandard() throws Exception {
-      dualReplica(false, false, false);
+      dualReplica(false, false, false, false);
    }
 
    @Test
    public void testDualRegularPagedTargets() throws Exception {
-      dualReplica(false, false, true);
+      dualReplica(false, false, true, false);
    }
 
    @Test
    public void testDualRegularPagedEverything() throws Exception {
-      dualReplica(false, true, true);
+      dualReplica(false, true, true, false);
    }
 
    @Test
    public void testDualRegularLarge() throws Exception {
-      dualReplica(true, false, false);
+      dualReplica(true, false, false, false);
    }
 
    public Queue locateQueue(ActiveMQServer server, String queueName) throws Exception {
@@ -597,7 +618,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       return server.locateQueue(queueName);
    }
 
-   private void dualReplica(boolean largeMessage, boolean pagingSource, boolean pagingTarget) throws Exception {
+   private void dualReplica(boolean largeMessage, boolean pagingSource, boolean pagingTarget, boolean restartBC) throws Exception {
       server.setIdentity("server_1");
       server.start();
 
@@ -611,12 +632,15 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       server_2 = createServer(AMQP_PORT_2, false);
 
-      AMQPBrokerConnectConfiguration amqpConnection1 = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT);
+      String brokerConnectionOne = "brokerConnection1:" + UUIDGenerator.getInstance().generateStringUUID();
+      String brokerConnectionTwo = "brokerConnection2:" + UUIDGenerator.getInstance().generateStringUUID();
+
+      AMQPBrokerConnectConfiguration amqpConnection1 = new AMQPBrokerConnectConfiguration(brokerConnectionOne, "tcp://localhost:" + AMQP_PORT);
       AMQPMirrorBrokerConnectionElement replica1 = new AMQPMirrorBrokerConnectionElement().setType(AMQPBrokerConnectionAddressType.MIRROR);
       amqpConnection1.addElement(replica1);
       server_2.getConfiguration().addAMQPConnection(amqpConnection1);
 
-      AMQPBrokerConnectConfiguration amqpConnection3 = new AMQPBrokerConnectConfiguration("test2", "tcp://localhost:" + AMQP_PORT_3);
+      AMQPBrokerConnectConfiguration amqpConnection3 = new AMQPBrokerConnectConfiguration(brokerConnectionTwo, "tcp://localhost:" + AMQP_PORT_3);
       AMQPMirrorBrokerConnectionElement replica2 = new AMQPMirrorBrokerConnectionElement().setType(AMQPBrokerConnectionAddressType.MIRROR);
       amqpConnection3.addElement(replica2);
       server_2.getConfiguration().addAMQPConnection(amqpConnection3);
@@ -649,6 +673,20 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          Message message = session.createTextMessage(getText(largeMessage, i));
          message.setIntProperty("i", i);
          producer.send(message);
+
+         if (i == NUMBER_OF_MESSAGES / 2) {
+            if (restartBC) {
+               // half we restart it
+               Wait.assertEquals(NUMBER_OF_MESSAGES / 2 + 1, queue_server_2::getMessageCount);
+               Wait.assertEquals(NUMBER_OF_MESSAGES / 2 + 1, queue_server_3::getMessageCount);
+               Wait.assertEquals(NUMBER_OF_MESSAGES / 2 + 1, queue_server_1::getMessageCount);
+               server_2.stopBrokerConnection(brokerConnectionOne);
+               server_2.stopBrokerConnection(brokerConnectionTwo);
+               Thread.sleep(1000);
+               server_2.startBrokerConnection(brokerConnectionOne);
+               server_2.startBrokerConnection(brokerConnectionTwo);
+            }
+         }
       }
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, queue_server_2::getMessageCount);

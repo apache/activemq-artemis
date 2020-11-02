@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.function.ToLongFunction;
 import java.util.stream.Stream;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -255,6 +256,9 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       }
       try {
          server.removeAddressInfo(addressInfo.getName(), null, true);
+      } catch (ActiveMQAddressDoesNotExistException expected) {
+         // it was removed from somewhere else, which is fine
+         logger.debug(expected.getMessage(), expected);
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
       }

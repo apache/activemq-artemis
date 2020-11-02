@@ -138,9 +138,12 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    @Override
    public void stop() {
+      if (!started) return;
       started = false;
-      if (connection != null) {
-         connection.close();
+      if (protonRemotingConnection != null) {
+         protonRemotingConnection.fail(new ActiveMQException("Stopping Broker Connection"));
+         protonRemotingConnection = null;
+         connection = null;
       }
       ScheduledFuture scheduledFuture = reconnectFuture;
       reconnectFuture = null;
@@ -151,6 +154,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    @Override
    public void start() throws Exception {
+      if (started) return;
       started = true;
       server.getConfiguration().registerBrokerPlugin(this);
       try {
@@ -158,7 +162,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
             for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
                if (connectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR) {
-                  installMirrorController((AMQPMirrorBrokerConnectionElement) connectionElement, server);
+                  installMirrorController(this, (AMQPMirrorBrokerConnectionElement) connectionElement, server);
                }
             }
          }
@@ -321,7 +325,28 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
     *  It is returning the snfQueue to the replica, and I needed isolation from the actual instance.
     *  During development I had a mistake where I used a property from the Object,
     *  so, I needed this isolation for my organization and making sure nothing would be shared. */
-   private static QueueBinding installMirrorController(AMQPMirrorBrokerConnectionElement replicaConfig, ActiveMQServer server) throws Exception {
+   private static Queue installMirrorController(AMQPBrokerConnection brokerConnection, AMQPMirrorBrokerConnectionElement replicaConfig, ActiveMQServer server) throws Exception {
+
+      MirrorController currentMirrorController = server.getMirrorController();
+
+      // This following block is to avoid a duplicate on mirror controller
+      if (currentMirrorController != null && currentMirrorController instanceof AMQPMirrorControllerSource) {
+         Queue queue = checkCurrentMirror(brokerConnection, (AMQPMirrorControllerSource)currentMirrorController);
+         // on this case we already had a mirror installed before, we won't duplicate it
+         if (queue != null) {
+            return queue;
+         }
+      } else if (currentMirrorController != null && currentMirrorController instanceof AMQPMirrorControllerAggregation) {
+         AMQPMirrorControllerAggregation aggregation = (AMQPMirrorControllerAggregation) currentMirrorController;
+
+         for (AMQPMirrorControllerSource source : aggregation.getPartitions()) {
+            Queue queue = checkCurrentMirror(brokerConnection, source);
+            // on this case we already had a mirror installed before, we won't duplicate it
+            if (queue != null) {
+               return queue;
+            }
+         }
+      }
 
       AddressInfo addressInfo = server.getAddressInfo(replicaConfig.getSourceMirrorAddress());
       if (addressInfo == null) {
@@ -354,11 +379,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          throw new IllegalAccessException("Cannot start replica");
       }
 
-      AMQPMirrorControllerSource newPartition = new AMQPMirrorControllerSource(snfQueue, server, replicaConfig.isMessageAcknowledgements(), replicaConfig.isQueueCreation(), replicaConfig.isQueueRemoval());
+      AMQPMirrorControllerSource newPartition = new AMQPMirrorControllerSource(snfQueue, server, replicaConfig.isMessageAcknowledgements(), replicaConfig.isQueueCreation(), replicaConfig.isQueueRemoval(), brokerConnection);
 
       server.scanAddresses(newPartition);
 
-      MirrorController currentMirrorController = server.getMirrorController();
 
       if (currentMirrorController == null) {
          server.installMirrorController(newPartition);
@@ -374,7 +398,17 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          ((AMQPMirrorControllerAggregation) currentMirrorController).addPartition(newPartition);
       }
 
-      return snfReplicaQueueBinding;
+      return snfQueue;
+   }
+
+   private static Queue checkCurrentMirror(AMQPBrokerConnection brokerConnection,
+                                             AMQPMirrorControllerSource currentMirrorController) {
+      AMQPMirrorControllerSource source = currentMirrorController;
+      if (source.getBrokerConnection() == brokerConnection) {
+         return source.getSnfQueue();
+      }
+
+      return null;
    }
 
    private void connectReceiver(ActiveMQProtonRemotingConnection protonRemotingConnection,
@@ -534,7 +568,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
          try {
             if (protonRemotingConnection != null) {
-               protonRemotingConnection.destroy();
+               protonRemotingConnection.fail(new ActiveMQException("Connection being recreated"));
                connection = null;
                protonRemotingConnection = null;
             }

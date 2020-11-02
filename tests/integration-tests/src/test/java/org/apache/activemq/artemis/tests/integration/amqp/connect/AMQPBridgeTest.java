@@ -67,15 +67,25 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
 
    @Test
    public void testSimpleTransferPush() throws Exception {
-      internalTransferPush("TEST", false);
+      internalTransferPush("TEST", false, false);
+   }
+
+   @Test
+   public void testSimpleTransferPushRestartBC() throws Exception {
+      internalTransferPush("TEST", false, true);
    }
 
    @Test
    public void testSimpleTransferPushDeferredCreation() throws Exception {
-      internalTransferPush("TEST", true);
+      internalTransferPush("TEST", true, false);
    }
 
-   public void internalTransferPush(String queueName, boolean deferCreation) throws Exception {
+   @Test
+   public void testSimpleTransferPushDeferredCreationRestartBC() throws Exception {
+      internalTransferPush("TEST", true, true);
+   }
+
+   public void internalTransferPush(String queueName, boolean deferCreation, boolean restartBC) throws Exception {
       server.setIdentity("targetServer");
       server.start();
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST));
@@ -98,6 +108,12 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       if (deferCreation) {
          server_2.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
          server_2.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      }
+
+      if (restartBC) {
+         server_2.stopBrokerConnection("test");
+         Thread.sleep(1000);
+         server_2.startBrokerConnection("test");
       }
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);

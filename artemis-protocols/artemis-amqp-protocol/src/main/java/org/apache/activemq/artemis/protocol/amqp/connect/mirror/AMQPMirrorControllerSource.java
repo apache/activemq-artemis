@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccessor;
+import org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnection;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
@@ -69,6 +70,7 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
    final boolean acks;
    final boolean addQueues;
    final boolean deleteQueues;
+   private final AMQPBrokerConnection brokerConnection;
 
    boolean started;
 
@@ -85,12 +87,21 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
       return started;
    }
 
-   public AMQPMirrorControllerSource(Queue snfQueue, ActiveMQServer server, boolean acks, boolean addQueues, boolean deleteQueues) {
+   public AMQPMirrorControllerSource(Queue snfQueue, ActiveMQServer server, boolean acks, boolean addQueues, boolean deleteQueues, AMQPBrokerConnection brokerConnection) {
       this.snfQueue = snfQueue;
       this.server = server;
       this.acks = acks;
       this.addQueues = addQueues;
       this.deleteQueues = deleteQueues;
+      this.brokerConnection = brokerConnection;
+   }
+
+   public Queue getSnfQueue() {
+      return snfQueue;
+   }
+
+   public AMQPBrokerConnection getBrokerConnection() {
+      return brokerConnection;
    }
 
    @Override
