@@ -524,15 +524,18 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       // keeping a single executor thread to this purpose would simplify things
       connectExecutor.execute(() -> {
          if (connecting) {
-            logger.debug("Broker connection " + this.getName() + " was already in retry mode, exception or retry no captured");
+            if (logger.isDebugEnabled()) {
+               logger.debug("Broker connection " + this.getName() + " was already in retry mode, exception or retry not captured");
+            }
             return;
          }
          connecting = true;
 
          try {
-            if (connection != null) {
-               connection.close();
+            if (protonRemotingConnection != null) {
+               protonRemotingConnection.destroy();
                connection = null;
+               protonRemotingConnection = null;
             }
          } catch (Throwable e) {
             logger.warn(e.getMessage(), e);
