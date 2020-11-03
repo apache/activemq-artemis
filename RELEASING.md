@@ -178,15 +178,20 @@ Old staged releases can be cleaned out periodically.
 
 Please, include the git-commit-report as part of the release process. To generate it, follow these steps:
 
-- Download [git-release-report](https://github.com/clebertsuconic/git-release-report/releases)
+- Download [jira-git-report](https://github.com/rh-messaging/jira-git-report)
 - Execute the following command:
 ```bash
-$ java -jar git-release-report.jar <checkoutDirectory>/activemq-artemis <checkoutDirectory>/artemis-website commit-report-<version>.html <previous-version> <version> true
+$ git clone https://github.com/rh-messaging/jira-git-report.git
+$ cd jira-git-report
+$ mvn compile assembly:single
+$ cd target
+$ java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis <checkoutDirectory>/activemq-artemis <checkoutDirectory>/artemis-website commit-report-<version>.html <previous-version> <version> true
 ```
 
 real example used on [2.6.1](http://activemq.apache.org/artemis/commit-report-2.6.1.html):
 ```bash
-$ java -jar git-release-report.jar /work/apache-checkout/activemq-artemis commit-report-2.6.1.html 2.6.0 2.6.1 true
+$ java -jar 
+java -jar jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis release-work/activemq-artemis release-work/activemq-website/src/components/artemis/download/commit-report-2.16.0.html 2.15.0 2.16.0 true
 ```
 - This will parse all the git commits between the previous release, and current release tags while looking at current JIRA status.
 
