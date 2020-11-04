@@ -43,7 +43,7 @@ Apache ActiveMQ Artemis allows sets of permissions to be defined against the
 queues based on their address. An exact match on the address can be used or a
 [wildcard match](wildcard-syntax.md) can be used.
 
-Eight different permissions can be given to the set of queues which match the
+There are different permissions that can be given to the set of queues which match the
 address. Those permissions are:
 
 - `createAddress`. This permission allows the user to create an address fitting
