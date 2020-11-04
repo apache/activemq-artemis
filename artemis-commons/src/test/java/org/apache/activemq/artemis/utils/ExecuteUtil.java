@@ -40,9 +40,7 @@ public class ExecuteUtil {
       }
 
       public int pid() throws Exception {
-         Field pidField = process.getClass().getDeclaredField("pid");
-         pidField.setAccessible(true);
-         return (int)pidField.get(process);
+         return getPID(process);
       }
 
       public int waitFor(long timeout, TimeUnit unit) throws InterruptedException {
@@ -66,6 +64,12 @@ public class ExecuteUtil {
          return process.exitValue();
       }
 
+   }
+
+   public static int getPID(Process process) throws Exception {
+      Field pidField = process.getClass().getDeclaredField("pid");
+      pidField.setAccessible(true);
+      return (int)pidField.get(process);
    }
 
    private static final Logger logger = Logger.getLogger(ExecuteUtil.class);
