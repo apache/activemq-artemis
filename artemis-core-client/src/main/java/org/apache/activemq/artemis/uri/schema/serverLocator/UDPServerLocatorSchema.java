@@ -44,10 +44,11 @@ public class UDPServerLocatorSchema extends AbstractServerLocatorSchema {
 
    @Override
    protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception {
-      ConnectionOptions options = newConnectionOptions(uri, query);
 
       DiscoveryGroupConfiguration dgc = getDiscoveryGroupConfiguration(uri, query, getHost(uri), getPort(uri), name);
 
+      BeanSupport.stripPasswords(query);
+      ConnectionOptions options = newConnectionOptions(uri, query);
       if (options.isHa()) {
          return ActiveMQClient.createServerLocatorWithHA(dgc);
       } else {

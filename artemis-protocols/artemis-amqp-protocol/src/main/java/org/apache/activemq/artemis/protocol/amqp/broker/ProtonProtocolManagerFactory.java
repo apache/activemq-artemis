@@ -53,7 +53,7 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
                                                 final Map<String, Object> parameters,
                                                 List<BaseInterceptor> incomingInterceptors,
                                                 List<BaseInterceptor> outgoingInterceptors) throws Exception {
-      stripPasswordParameters(parameters);
+      BeanSupport.stripPasswords(parameters);
       return BeanSupport.setData(new ProtonProtocolManager(this, server, incomingInterceptors, outgoingInterceptors), parameters);
    }
 

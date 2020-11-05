@@ -39,11 +39,12 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
 
    @Override
    protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception {
-      ConnectionOptions options = newConnectionOptions(uri, query);
-
       List<TransportConfiguration> configurations = TCPTransportConfigurationSchema.getTransportConfigurations(uri, query, TransportConstants.ALLOWABLE_CONNECTOR_KEYS, name, NettyConnectorFactory.class.getName());
       TransportConfiguration[] tcs = new TransportConfiguration[configurations.size()];
       configurations.toArray(tcs);
+
+      BeanSupport.stripPasswords(query);
+      ConnectionOptions options = newConnectionOptions(uri, query);
       if (options.isHa()) {
          return BeanSupport.setData(uri, ActiveMQClient.createServerLocatorWithHA(tcs), query);
       } else {

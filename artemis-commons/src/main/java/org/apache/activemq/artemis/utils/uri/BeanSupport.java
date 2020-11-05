@@ -71,6 +71,10 @@ public class BeanSupport {
       return obj;
    }
 
+   public static <T> void stripPasswords(Map<String, T> properties) {
+      properties.entrySet().removeIf(entry -> entry.getKey().toLowerCase().contains("password"));
+   }
+
    public static <P> P setProperties(P bean, Properties properties)
       throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
       synchronized (beanUtils) {
