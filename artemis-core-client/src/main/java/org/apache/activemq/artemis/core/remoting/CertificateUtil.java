@@ -29,6 +29,8 @@ import java.security.Principal;
 
 public class CertificateUtil {
 
+   private static final String SSL_HANDLER_NAME = "ssl";
+
    public static X509Certificate[] getCertsFromConnection(RemotingConnection remotingConnection) {
       X509Certificate[] certificates = null;
       if (remotingConnection != null) {
@@ -46,7 +48,7 @@ public class CertificateUtil {
          Connection transportConnection = remotingConnection.getTransportConnection();
          if (transportConnection instanceof NettyConnection) {
             NettyConnection nettyConnection = (NettyConnection) transportConnection;
-            ChannelHandler channelHandler = nettyConnection.getChannel().pipeline().get("ssl");
+            ChannelHandler channelHandler = nettyConnection.getChannel().pipeline().get(SSL_HANDLER_NAME);
             if (channelHandler != null && channelHandler instanceof SslHandler) {
                SslHandler sslHandler = (SslHandler) channelHandler;
                try {
@@ -55,6 +57,17 @@ public class CertificateUtil {
                }
             }
          }
+      }
+
+      return result;
+   }
+
+   public static Principal getLocalPrincipalFromConnection(NettyConnection nettyConnection) {
+      Principal result = null;
+      ChannelHandler handler = nettyConnection.getChannel().pipeline().get(SSL_HANDLER_NAME);
+      if (handler instanceof SslHandler) {
+         SslHandler sslHandler = (SslHandler) handler;
+         result = sslHandler.engine().getSession().getLocalPrincipal();
       }
 
       return result;

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +40,7 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBroker
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -239,21 +241,12 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          senders.clear();
          receivers.clear();
 
-         ClientSASLFactory saslFactory = null;
-
-         if (brokerConnectConfiguration.getUser() != null && brokerConnectConfiguration.getPassword() != null) {
-            saslFactory = availableMechanims -> {
-               if (availableMechanims != null && Arrays.asList(availableMechanims).contains("PLAIN")) {
-                  return new PlainSASLMechanism(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword());
-               } else {
-                  return null;
-               }
-            };
-         }
+         ClientSASLFactory saslFactory = new SaslFactory(connection, brokerConnectConfiguration);
 
          ConnectionEntry entry = protonProtocolManager.createOutgoingConnectionEntry(connection, saslFactory);
          server.getRemotingService().addConnectionEntry(connection, entry);
          protonRemotingConnection = (ActiveMQProtonRemotingConnection) entry.connection;
+
          connection.getChannel().pipeline().addLast(new AMQPBrokerConnectionChannelHandler(bridgesConnector.getChannelGroup(), protonRemotingConnection.getAmqpConnection().getHandler(), this, server.getExecutorFactory().getExecutor()));
 
          session = protonRemotingConnection.getAmqpConnection().getHandler().getConnection().session();
@@ -585,6 +578,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       protonRemotingConnection.flush();
    }
 
+   private static final String EXTERNAL = "EXTERNAL";
+   private static final String PLAIN = "PLAIN";
+   private static final String ANONYMOUS = "ANONYMOUS";
+   private static final byte[] EMPTY = new byte[0];
+
    private static class PlainSASLMechanism implements ClientSASL {
 
       private final byte[] initialResponse;
@@ -600,7 +598,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
       @Override
       public String getName() {
-         return "PLAIN";
+         return PLAIN;
       }
 
       @Override
@@ -610,7 +608,81 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
       @Override
       public byte[] getResponse(byte[] challenge) {
-         return new byte[0];
+         return EMPTY;
+      }
+
+      public static boolean isApplicable(final String username, final String password) {
+         return username != null && username.length() > 0 && password != null && password.length() > 0;
+      }
+   }
+
+   private static class AnonymousSASLMechanism implements ClientSASL {
+
+      @Override
+      public String getName() {
+         return ANONYMOUS;
+      }
+
+      @Override
+      public byte[] getInitialResponse() {
+         return EMPTY;
+      }
+
+      @Override
+      public byte[] getResponse(byte[] challenge) {
+         return EMPTY;
+      }
+   }
+
+   private static class ExternalSASLMechanism implements ClientSASL {
+
+      @Override
+      public String getName() {
+         return EXTERNAL;
+      }
+
+      @Override
+      public byte[] getInitialResponse() {
+         return EMPTY;
+      }
+
+      @Override
+      public byte[] getResponse(byte[] challenge) {
+         return EMPTY;
+      }
+
+      public static boolean isApplicable(final NettyConnection connection) {
+         return CertificateUtil.getLocalPrincipalFromConnection(connection) != null;
+      }
+   }
+
+   private static final class SaslFactory implements ClientSASLFactory {
+
+      private final NettyConnection connection;
+      private final AMQPBrokerConnectConfiguration brokerConnectConfiguration;
+
+      SaslFactory(NettyConnection connection, AMQPBrokerConnectConfiguration brokerConnectConfiguration) {
+         this.connection = connection;
+         this.brokerConnectConfiguration = brokerConnectConfiguration;
+      }
+
+      @Override
+      public ClientSASL chooseMechanism(String[] offeredMechanims) {
+         List<String> availableMechanisms = offeredMechanims == null ? Collections.emptyList() : Arrays.asList(offeredMechanims);
+
+         if (availableMechanisms.contains(EXTERNAL) && ExternalSASLMechanism.isApplicable(connection)) {
+            return new ExternalSASLMechanism();
+         }
+
+         if (availableMechanisms.contains(PLAIN) && PlainSASLMechanism.isApplicable(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword())) {
+            return new PlainSASLMechanism(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword());
+         }
+
+         if (availableMechanisms.contains(ANONYMOUS)) {
+            return new AnonymousSASLMechanism();
+         }
+
+         return null;
       }
    }
 

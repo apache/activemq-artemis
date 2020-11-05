@@ -133,6 +133,7 @@
 
       <!-- used on tests -->
       <groovy.version>2.5.10</groovy.version>
+      <vertx.version>3.9.4</vertx.version>
 
       <owasp.version>1.4.3</owasp.version>
       <spring.version>5.1.7.RELEASE</spring.version>

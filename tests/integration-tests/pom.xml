@@ -417,6 +417,13 @@
          <artifactId>netty-tcnative-boringssl-static</artifactId>
          <version>${netty-tcnative-version}</version>
       </dependency>
+
+      <dependency>
+         <groupId>io.vertx</groupId>
+         <artifactId>vertx-proton</artifactId>
+         <version>${vertx.version}</version>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>
@@ -541,3 +548,4 @@
       </profile>
    </profiles>
 </project>
+
