@@ -38,10 +38,10 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
 
    @Override
    protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception {
-      ConnectionOptions options = newConnectionOptions(uri, query);
-
       DiscoveryGroupConfiguration dcConfig = getDiscoveryGroupConfiguration(uri, query, name);
 
+      BeanSupport.stripPasswords(query);
+      ConnectionOptions options = newConnectionOptions(uri, query);
       if (options.isHa()) {
          return ActiveMQClient.createServerLocatorWithHA(dcConfig);
       } else {
