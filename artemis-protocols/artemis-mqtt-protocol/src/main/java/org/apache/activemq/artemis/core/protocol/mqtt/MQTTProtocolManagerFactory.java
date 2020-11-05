@@ -46,7 +46,7 @@ public class MQTTProtocolManagerFactory extends AbstractProtocolManagerFactory<M
                                                 final Map<String, Object> parameters,
                                                 List<BaseInterceptor> incomingInterceptors,
                                                 List<BaseInterceptor> outgoingInterceptors) throws Exception {
-      stripPasswordParameters(parameters);
+      BeanSupport.stripPasswords(parameters);
       return BeanSupport.setData(new MQTTProtocolManager(server, connectedClients, sessionStates, incomingInterceptors, outgoingInterceptors), parameters);
    }
 
