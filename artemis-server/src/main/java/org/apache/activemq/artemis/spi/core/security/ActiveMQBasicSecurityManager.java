@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.User;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
@@ -81,12 +80,6 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
                   subject.getPrincipals().add(new UserPrincipal(userToAuthenticate));
                   for (String role : getRole(userToAuthenticate).getRoles()) {
                      subject.getPrincipals().add((Principal) SecurityManagerUtil.createGroupPrincipal(role, rolePrincipalClass));
-                  }
-                  if (AuditLogger.isAnyLoggingEnabled() && remotingConnection != null) {
-                     remotingConnection.setAuditSubject(subject);
-                  }
-                  if (AuditLogger.isResourceLoggingEnabled()) {
-                     AuditLogger.userSuccesfullyLoggedInAudit(subject);
                   }
                   return subject;
                }

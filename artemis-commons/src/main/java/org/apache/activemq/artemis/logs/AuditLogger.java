@@ -2428,8 +2428,8 @@ public interface AuditLogger extends BasicLogger {
    void logCoreSendMessage(String user, String messageToString, Object context);
 
    //hot path log using a different logger
-   static void coreConsumeMessage(String queue) {
-      MESSAGE_LOGGER.consumeMessage(getCaller(), queue);
+   static void coreConsumeMessage(Subject user, String queue) {
+      MESSAGE_LOGGER.consumeMessage(getCaller(user), queue);
    }
 
    @LogMessage(level = Logger.Level.INFO)

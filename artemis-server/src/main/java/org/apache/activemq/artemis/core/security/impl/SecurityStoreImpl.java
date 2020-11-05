@@ -156,6 +156,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          boolean userIsValid = false;
          boolean check = true;
 
+         Subject subject = null;
          Pair<Boolean, Subject> cacheEntry = authenticationCache.getIfPresent(createAuthenticationCacheKey(user, password, connection));
          if (cacheEntry != null) {
             if (!cacheEntry.getA()) {
@@ -165,13 +166,13 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                // cached authentication succeeded previously so don't check again
                check = false;
                userIsValid = true;
-               validatedUser = getUserFromSubject(cacheEntry.getB());
+               subject = cacheEntry.getB();
+               validatedUser = getUserFromSubject(subject);
             }
          }
-
          if (check) {
             if (securityManager instanceof ActiveMQSecurityManager5) {
-               Subject subject = ((ActiveMQSecurityManager5) securityManager).authenticate(user, password, connection, securityDomain);
+               subject = ((ActiveMQSecurityManager5) securityManager).authenticate(user, password, connection, securityDomain);
                authenticationCache.put(createAuthenticationCacheKey(user, password, connection), new Pair<>(subject != null, subject));
                validatedUser = getUserFromSubject(subject);
             } else if (securityManager instanceof ActiveMQSecurityManager4) {
@@ -204,7 +205,18 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
             ActiveMQServerLogger.LOGGER.securityProblemWhileAuthenticating(e.getMessage());
 
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.userFailedLoggedInAudit(subject, e.getMessage());
+            }
+
             throw e;
+         }
+
+         if (AuditLogger.isAnyLoggingEnabled() && connection != null) {
+            connection.setAuditSubject(subject);
+         }
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.userSuccesfullyLoggedInAudit(subject);
          }
 
          return validatedUser;
