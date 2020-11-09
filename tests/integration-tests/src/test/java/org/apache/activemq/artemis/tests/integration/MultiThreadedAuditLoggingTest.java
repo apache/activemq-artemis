@@ -34,7 +34,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.jboss.logmanager.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -232,8 +231,8 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
 
          assertFalse(AssertionLoggerHandler.matchText(".*User queue1\\(queue1\\).* is consuming a message from queue2"));
          assertFalse(AssertionLoggerHandler.matchText(".*User queue2\\(queue2\\).* is consuming a message from queue1"));
-         Wait.assertTrue(() -> AssertionLoggerHandler.matchText(".*User queue2\\(queue2\\).* is consuming a message from queue2"));
-         Wait.assertTrue(() -> AssertionLoggerHandler.matchText(".*User queue1\\(queue1\\).* is consuming a message from queue1"));
+         assertTrue(AssertionLoggerHandler.matchText(".*User queue2\\(queue2\\).* is consuming a message from queue2"));
+         assertTrue(AssertionLoggerHandler.matchText(".*User queue1\\(queue1\\).* is consuming a message from queue1"));
       }
    }
 }
