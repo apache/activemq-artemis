@@ -251,5 +251,13 @@ public class AMQPStandardMessage extends AMQPMessage {
          buffer.release();
       }
    }
+
+   @Override
+   public String toString() {
+      // toString will only call ensureScanning on regular messages
+      // as large messages might need to do extra work to parse it
+      ensureScanning();
+      return super.toString();
+   }
 }
 

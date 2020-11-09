@@ -33,6 +33,13 @@ under the License.
 
       <security-enabled>false</security-enabled>
 
+      <!-- Acceptors -->
+      <acceptors>
+         <!-- Acceptor for every supported protocol -->
+         <acceptor name="artemis">tcp://localhost:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true</acceptor>
+      </acceptors>
+
+
       <!-- this could be ASYNCIO or NIO
        -->
       <journal-type>NIO</journal-type>
@@ -65,6 +72,11 @@ under the License.
                <queue name="queue.B" />
                <queue name="queue.C" />
             </multicast>
+         </address>
+         <address name="q1">
+            <anycast>
+               <queue name="q1"/>
+            </anycast>
          </address>
       </addresses>
 
