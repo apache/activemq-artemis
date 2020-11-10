@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -321,6 +322,38 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          session.close();
          connection.close();
       }
+   }
+
+   @Test(timeout = 60000)
+   public void testHugeString() throws Exception {
+      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      Queue queue = session.createQueue(getQueueName());
+      MessageProducer producer = session.createProducer(queue);
+
+      StringBuilder unicodeStringBuilder = new StringBuilder();
+      for (char c = 1000; c < 11000; c++) {
+         unicodeStringBuilder.append(c);
+      }
+
+      String unicodeString = unicodeStringBuilder.toString();
+
+      StringBuilder builder = new StringBuilder();
+      while (builder.length() < 1024 * 1024) {
+         builder.append("hello " + unicodeString);
+      }
+      producer.send(session.createTextMessage(builder.toString()));
+      session.commit();
+
+      connection.start();
+
+      MessageConsumer consumer = session.createConsumer(queue);
+      TextMessage message = (TextMessage)consumer.receive(50_000);
+      Assert.assertNotNull(message);
+      session.commit();
+
+      Assert.assertEquals(builder.toString(), message.getText());
    }
 
    @Test(timeout = 60000)
