@@ -103,6 +103,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
@@ -759,15 +760,14 @@ public class PagingTest extends ActiveMQTestBase {
 
       server.start();
 
-      String queue = "purgeQueue";
-      SimpleString ssQueue = new SimpleString(queue);
-      server.addAddressInfo(new AddressInfo(ssQueue, RoutingType.ANYCAST));
-      QueueImpl purgeQueue = (QueueImpl) server.createQueue(new QueueConfiguration(ssQueue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
+      SimpleString queue = new SimpleString("testPurge:" + RandomUtil.randomString());
+      server.addAddressInfo(new AddressInfo(queue, RoutingType.ANYCAST));
+      QueueImpl purgeQueue = (QueueImpl) server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
       Connection connection = cf.createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-      javax.jms.Queue jmsQueue = session.createQueue(queue);
+      javax.jms.Queue jmsQueue = session.createQueue(queue.toString());
 
       MessageProducer producer = session.createProducer(jmsQueue);
 
