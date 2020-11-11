@@ -76,7 +76,6 @@ public class InflaterWriter extends OutputStream {
                output.write(outputBuffer, 0, n);
                n = inflater.inflate(outputBuffer);
             }
-            output.close();
          } catch (DataFormatException e) {
             IOException io = new IOException(e.getMessage());
             io.initCause(e);

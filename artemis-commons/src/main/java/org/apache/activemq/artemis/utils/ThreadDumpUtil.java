@@ -34,8 +34,8 @@ public final class ThreadDumpUtil {
 
    public static String threadDump(final String msg) {
 
+      StringWriter str = new StringWriter();
       try (
-         StringWriter str = new StringWriter();
          PrintWriter out = new PrintWriter(str)
       ) {
 
@@ -65,11 +65,7 @@ public final class ThreadDumpUtil {
 
          return str.toString();
 
-      } catch (IOException e) {
-         ActiveMQUtilLogger.LOGGER.error("Exception thrown during generating of thread dump.", e);
       }
-
-      return "Generating of thread dump failed " + msg;
 
    }
 
