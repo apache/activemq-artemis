@@ -71,7 +71,18 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
 
    @Override
    public void setOutputStream(final OutputStream output) throws ActiveMQException {
-      bufferDelegate.setOutputStream(new InflaterWriter(output));
+      final InflaterWriter writer = new InflaterWriter(output);
+      try {
+         bufferDelegate.setOutputStream(writer);
+      } catch (ActiveMQException e) {
+         // it means that the operation hasn't succeeded
+         try {
+            writer.close();
+         } catch (IOException ioException) {
+            ActiveMQClientLogger.LOGGER.debugf(ioException, "Errored while closing leaked InflaterWriter due to %s", e.getMessage());
+         }
+         throw e;
+      }
    }
 
    @Override
