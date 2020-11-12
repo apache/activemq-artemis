@@ -596,8 +596,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                                              int step) throws IOException {
       int absoluteStep = Math.abs(step);
       while (true) {
-         DeflaterReader compressor = new DeflaterReader(stream, new AtomicLong());
-         try {
+         try (DeflaterReader compressor = new DeflaterReader(stream)) {
             byte[] buffer = new byte[1048 * 50];
 
             int totalCompressed = 0;
@@ -619,8 +618,6 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
             } else {
                stream.resetAdjust(regular ? -absoluteStep : absoluteStep);
             }
-         } finally {
-            compressor.close();
          }
       }
    }
