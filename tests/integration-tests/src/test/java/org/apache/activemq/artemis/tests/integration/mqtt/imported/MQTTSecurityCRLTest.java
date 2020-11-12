@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -118,7 +119,7 @@ public class MQTTSecurityCRLTest extends ActiveMQTestBase {
     * keytool -import -trustcacerts -alias trust_key -file ca.crt -keystore truststore.jks
     */
 
-   @Test(expected = SSLException.class)
+   @Test
    public void crlRevokedTest() throws Exception {
 
       ActiveMQServer server1 = initServer();
@@ -144,7 +145,9 @@ public class MQTTSecurityCRLTest extends ActiveMQTestBase {
          Message message1 = connection1.receive(5, TimeUnit.SECONDS);
 
          assertEquals(payload1, new String(message1.getPayload()));
-
+         fail("We expect an exception of some sort!");
+      } catch (SSLException expected) {
+      } catch (EOFException canHappenAlso) {
       } finally {
          if (connection1 != null) {
             connection1.disconnect();

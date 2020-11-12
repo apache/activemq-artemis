@@ -104,8 +104,9 @@ public class MQTTConnectionManager {
          }
 
          session.getConnection().setConnected(true);
-         session.start();
          session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_ACCEPTED);
+         // ensure we don't publish before the CONNACK
+         session.start();
       }
    }
 
