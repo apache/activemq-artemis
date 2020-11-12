@@ -78,6 +78,7 @@ import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -2144,6 +2145,44 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testRemoveScheduledMessageRestart() throws Exception {
+      Assume.assumeTrue(durable);
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      ClientProducer producer = session.createProducer(address);
+
+      // send 2 messages on queue, both scheduled
+      long timeout = System.currentTimeMillis() + 5000;
+      ClientMessage m1 = session.createMessage(durable);
+      m1.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, timeout);
+      producer.send(m1);
+      ClientMessage m2 = session.createMessage(durable);
+      m2.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, timeout);
+      producer.send(m2);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      assertScheduledMetrics(queueControl, 2, durable);
+
+      // the message IDs are set on the server
+      Map<String, Object>[] messages = queueControl.listScheduledMessages();
+      Assert.assertEquals(2, messages.length);
+      long messageID = (Long) messages[0].get("messageID");
+
+      // delete 1st message
+      boolean deleted = queueControl.removeMessage(messageID);
+      Assert.assertTrue(deleted);
+      assertScheduledMetrics(queueControl, 1, durable);
+
+      locator.close();
+      server.stop();
+      server.start();
+
+      assertScheduledMetrics(queueControl, 1, durable);
+   }
+
+   @Test
    public void testRemoveMessage2() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
@@ -3376,7 +3415,7 @@ public class QueueControlTest extends ManagementTestBase {
    public void setUp() throws Exception {
       super.setUp();
       Configuration conf = createDefaultInVMConfig().setJMXManagementEnabled(true);
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
 
       server.start();
 

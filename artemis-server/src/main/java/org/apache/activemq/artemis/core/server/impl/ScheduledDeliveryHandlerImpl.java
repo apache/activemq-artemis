@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.jboss.logging.Logger;
 
 /**
@@ -135,12 +136,18 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
    }
 
    @Override
-   public MessageReference removeReferenceWithID(final long id) throws ActiveMQException {
+   public MessageReference removeReferenceWithID(final long id) throws Exception {
+      return removeReferenceWithID(id, null);
+   }
+
+   @Override
+   public MessageReference removeReferenceWithID(final long id, Transaction tx) throws Exception {
       synchronized (scheduledReferences) {
          Iterator<RefScheduled> iter = scheduledReferences.iterator();
          while (iter.hasNext()) {
             MessageReference ref = iter.next().getRef();
             if (ref.getMessage().getMessageID() == id) {
+               ref.acknowledge(tx);
                iter.remove();
                metrics.decrementMetrics(ref);
                return ref;

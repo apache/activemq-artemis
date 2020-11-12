@@ -2268,7 +2268,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          if (!deleted) {
             // Look in scheduled deliveries
-            deleted = scheduledDeliveryHandler.removeReferenceWithID(messageID) != null ? true : false;
+            deleted = scheduledDeliveryHandler.removeReferenceWithID(messageID, tx) != null ? true : false;
          }
 
          tx.commit();
