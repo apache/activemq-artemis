@@ -117,9 +117,11 @@ public class TransientQueueTest extends SingleServerTestBase {
       consumer2.close();
 
       // validate if the queue was deleted after the consumer was closed
-      Wait.assertTrue(() -> server.locateQueue(queue) == null, 2000, 100);
+      Wait.assertTrue(() -> server.locateQueue(queue) == null && server.getAddressInfo(address) == null, 2000, 100);
 
       session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+
+      Wait.assertTrue(() -> server.locateQueue(queue) != null && server.getAddressInfo(address) != null, 2000, 100);
 
       consumer1 = session.createConsumer(queue);
 
