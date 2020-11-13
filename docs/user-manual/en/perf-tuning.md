@@ -204,7 +204,7 @@ from other providers (e.g. IBM or JRockit)
   introduce pauses and unintentional behaviour), it is recommended that the max
   heap size (`-Xmx`) for the JVM is set at least to 5 x the `global-max-size` of
   the broker.  As an example, in a situation where the broker is under high load
-  and running with a `global-max-size` of 1GB, it is recommended the the max heap
+  and running with a `global-max-size` of 1GB, it is recommended the max heap
   size is set to 5GB.
 
 ## Avoiding Anti-Patterns

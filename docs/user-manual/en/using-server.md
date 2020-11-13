@@ -336,7 +336,7 @@ to do start running the broker instance is execute:
 ```
 
 Now that the broker is running, you can optionally run some of the included
-examples to verify the the broker is running properly.
+examples to verify the broker is running properly.
 
 To stop the Apache ActiveMQ Artemis instance you will use the same `artemis`
 script, but with the `stop` argument.  Example:

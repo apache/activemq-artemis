@@ -135,7 +135,7 @@ Another common pattern is to have queue "browsers" which send all messages to th
 
 If every consumer on a queue is non destructive then we can obtain some interesting behaviours. In the case of a LVQ then the queue will always contain the most up to date value for every key. 
 
-A queue can be created to enforce all consumers are non-destructive for last value queue. This can be be achieved using the following queue configuration:
+A queue can be created to enforce all consumers are non-destructive for last value queue. This can be achieved using the following queue configuration:
 
 
 ```xml

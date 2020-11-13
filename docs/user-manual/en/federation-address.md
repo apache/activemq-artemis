@@ -254,7 +254,7 @@ to the `downstream` broker to have it create an `upstream` connection back to th
 this is being able to configure everything for federation on one broker in some cases to make it easier, such
 as a hub and spoke topology
 
-All of the same configuration options apply to to `downstream` as does `upstream` with the exception of one
+All of the same configuration options apply to `downstream` as does `upstream` with the exception of one
 extra configuration flag that needs to be set:
 
   The `transport-connector-ref` is an element pointing to a

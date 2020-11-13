@@ -68,9 +68,9 @@ Client reconnection is configured using the following parameters:
   milliseconds between subsequent reconnection attempts, if the connection to
   the target server has failed. The default value is `2000` milliseconds.
 
-- `retryIntervalMultiplier`. This optional parameter determines determines a
-  multiplier to apply to the time since the last retry to compute the time to
-  the next retry.
+- `retryIntervalMultiplier`. This optional parameter determines a multiplier
+  to apply to the time since the last retry to compute the time to the next
+  retry.
 
   This allows you to implement an *exponential backoff* between retry attempts.
 

@@ -154,7 +154,7 @@ total number of producers on address * producer window size
 ```
 
 For example, if I have a queue called "myqueue", I could set the
-maximum memory size to 10MiB, and the the server will control the number
+maximum memory size to 10MiB, and the server will control the number
 of credits sent to any producers which are sending any messages to
 myqueue such that the total messages in the queue never exceeds 10MiB.
 
@@ -235,7 +235,7 @@ messages until the clients credits are exhausted. For this reason there is an ad
 settings that specifies an upper bound on an address size in bytes. Once this upper bound is reach Artemis will start
 rejecting AMQP messages. This limit is the max-size-bytes-reject-threshold and is by default set to -1 (or no limit).
 This is additional parameter allows a kind of soft and hard limit, in normal circumstances the broker will utilize the
-max-size-bytes parameter using using flow control to put back pressure on the client, but will protect the broker by
+max-size-bytes parameter using flow control to put back pressure on the client, but will protect the broker by
 rejecting messages once the address size is reached.
 
 ### Rate limited flow control
