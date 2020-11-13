@@ -28,13 +28,14 @@ import java.util.zip.Inflater;
  */
 public class InflaterReader extends InputStream {
 
-   private Inflater inflater = new Inflater();
+   private final Inflater inflater = new Inflater();
 
-   private InputStream input;
+   private final InputStream input;
 
-   private byte[] readBuffer;
+   private final byte[] readBuffer;
    private int pointer;
    private int length;
+   private boolean closed;
 
    public InflaterReader(InputStream input) {
       this(input, 1024);
@@ -44,10 +45,14 @@ public class InflaterReader extends InputStream {
       this.input = input;
       this.readBuffer = new byte[bufferSize];
       this.pointer = -1;
+      this.closed = false;
    }
 
    @Override
    public int read() throws IOException {
+      if (closed) {
+         return -1;
+      }
       if (pointer == -1) {
          try {
             length = doRead(readBuffer, 0, readBuffer.length);
@@ -114,4 +119,16 @@ public class InflaterReader extends InputStream {
       return read;
    }
 
+   @Override
+   public void close() throws IOException {
+      if (closed) {
+         return;
+      }
+      closed = true;
+      try {
+         input.close();
+      } finally {
+         inflater.end();
+      }
+   }
 }

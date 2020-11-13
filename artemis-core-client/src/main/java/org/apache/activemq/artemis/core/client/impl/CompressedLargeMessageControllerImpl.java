@@ -18,85 +18,24 @@ package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.InflaterReader;
-import org.apache.activemq.artemis.utils.InflaterWriter;
 import org.apache.activemq.artemis.utils.UTF8Util;
 
-final class CompressedLargeMessageControllerImpl implements LargeMessageController {
+final class CompressedLargeMessageControllerImpl extends CompressedLargeMessageControllerBaseImpl {
 
    private static final String OPERATION_NOT_SUPPORTED = "Operation not supported";
-
-   private final LargeMessageController bufferDelegate;
+   private DataInputStream dataInput = null;
 
    CompressedLargeMessageControllerImpl(final LargeMessageController bufferDelegate) {
-      this.bufferDelegate = bufferDelegate;
-   }
-
-   /**
-    *
-    */
-   @Override
-   public void discardUnusedPackets() {
-      bufferDelegate.discardUnusedPackets();
-   }
-
-   /**
-    * Add a buff to the List, or save it to the OutputStream if set
-    */
-   @Override
-   public void addPacket(byte[] chunk, int flowControlSize, boolean isContinues) {
-      bufferDelegate.addPacket(chunk, flowControlSize, isContinues);
-   }
-
-   @Override
-   public synchronized void cancel() {
-      bufferDelegate.cancel();
-   }
-
-   @Override
-   public synchronized void close() {
-      bufferDelegate.cancel();
-   }
-
-   @Override
-   public void setOutputStream(final OutputStream output) throws ActiveMQException {
-      final InflaterWriter writer = new InflaterWriter(output);
-      try {
-         bufferDelegate.setOutputStream(writer);
-      } catch (ActiveMQException e) {
-         // it means that the operation hasn't succeeded
-         try {
-            writer.close();
-         } catch (IOException ioException) {
-            ActiveMQClientLogger.LOGGER.debugf(ioException, "Errored while closing leaked InflaterWriter due to %s", e.getMessage());
-         }
-         throw e;
-      }
-   }
-
-   @Override
-   public synchronized void saveBuffer(final OutputStream output) throws ActiveMQException {
-      setOutputStream(output);
-      waitCompletion(0);
-   }
-
-   /**
-    * @param timeWait Milliseconds to Wait. 0 means forever
-    */
-   @Override
-   public synchronized boolean waitCompletion(final long timeWait) throws ActiveMQException {
-      return bufferDelegate.waitCompletion(timeWait);
+      super(bufferDelegate);
    }
 
    @Override
@@ -104,20 +43,47 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       return -1;
    }
 
-   DataInputStream dataInput = null;
-
    private DataInputStream getStream() {
       if (dataInput == null) {
          try {
-            InputStream input = new ActiveMQBufferInputStream(bufferDelegate);
-
-            dataInput = new DataInputStream(new InflaterReader(input));
+            dataInput = new DataInputStream(new InflaterReader(new ActiveMQBufferInputStream(bufferDelegate)));
          } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
          }
 
       }
       return dataInput;
+   }
+
+   private void silentCloseStream() {
+      final DataInputStream dataInput = this.dataInput;
+      if (dataInput == null) {
+         return;
+      }
+      this.dataInput = null;
+      try {
+         dataInput.close();
+      } catch (IOException ioException) {
+         ActiveMQClientLogger.LOGGER.debugf(ioException, "Error on stream close");
+      }
+   }
+
+   @Override
+   public synchronized void cancel() {
+      try {
+         super.cancel();
+      } finally {
+         silentCloseStream();
+      }
+   }
+
+   @Override
+   public synchronized void close() {
+      try {
+         super.close();
+      } finally {
+         silentCloseStream();
+      }
    }
 
    private void positioningNotSupported() {
@@ -231,11 +197,6 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    public int writerIndex() {
       // TODO
       return 0;
-   }
-
-   @Override
-   public long getSize() {
-      return this.bufferDelegate.getSize();
    }
 
    @Override
@@ -561,10 +522,6 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    @Override
    public ByteBuffer toByteBuffer() {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
-   }
-
-   public Object getUnderlyingBuffer() {
-      return this;
    }
 
    @Override
