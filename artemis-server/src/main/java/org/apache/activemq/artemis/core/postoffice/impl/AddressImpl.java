@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.postoffice.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -37,7 +36,7 @@ public class AddressImpl implements Address {
 
    private final boolean containsWildCard;
 
-   private List<Address> linkedAddresses = null;
+   private final List<Address> linkedAddresses = new ArrayList<>();
 
    private final WildcardConfiguration wildcardConfiguration;
 
@@ -49,7 +48,7 @@ public class AddressImpl implements Address {
       this.address = address;
       this.wildcardConfiguration = wildcardConfiguration;
       addressParts = address.split(wildcardConfiguration.getDelimiter());
-      containsWildCard = address.contains(wildcardConfiguration.getSingleWord()) || address.contains(wildcardConfiguration.getAnyWords());
+      containsWildCard = address.containsEitherOf(wildcardConfiguration.getSingleWord(), wildcardConfiguration.getAnyWords());
    }
 
    @Override
@@ -69,24 +68,16 @@ public class AddressImpl implements Address {
 
    @Override
    public List<Address> getLinkedAddresses() {
-      return linkedAddresses == null ? Collections.emptyList() : linkedAddresses;
+      return linkedAddresses;
    }
 
    @Override
    public void addLinkedAddress(final Address address) {
-      if (linkedAddresses == null) {
-         linkedAddresses = new ArrayList<>(1);
-      }
-      if (!linkedAddresses.contains(address)) {
-         linkedAddresses.add(address);
-      }
+      linkedAddresses.add(address);
    }
 
    @Override
    public void removeLinkedAddress(final Address actualAddress) {
-      if (linkedAddresses == null) {
-         return;
-      }
       linkedAddresses.remove(actualAddress);
    }
 
