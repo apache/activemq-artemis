@@ -19,18 +19,23 @@ package org.apache.activemq.artemis.tests.integration.mqtt;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTTestSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
+import org.fusesource.mqtt.client.QoS;
+import org.fusesource.mqtt.client.Topic;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class MQTTConnnectionCleanupTest extends MQTTTestSupport {
 
@@ -79,6 +84,38 @@ public class MQTTConnnectionCleanupTest extends MQTTTestSupport {
       //another connection should be ok
       connection = mqtt.blockingConnection();
       connection.connect();
+      connection.disconnect();
+   }
+
+
+   @Test(timeout = 30 * 1000)
+   public void testSlowSubscribeWontBlockKeepAlive() throws Exception {
+      MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId("");
+      mqtt.setKeepAlive((short) 1);
+
+      mqtt.setCleanSession(true);
+      BlockingConnection connection = mqtt.blockingConnection();
+      connection.connect();
+
+      NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("MQTT");
+      assertEquals(1, acceptor.getConnections().size());
+
+      server.getConfiguration().getBrokerBindingPlugins().add(new ActiveMQServerBindingPlugin() {
+         @Override
+         public void beforeAddBinding(Binding binding) throws ActiveMQException {
+            // take a little nap
+            try {
+               TimeUnit.SECONDS.sleep(3);
+            } catch (Exception ok) {
+            }
+         }
+      });
+
+      // this should take a while...but should succeed.
+      connection.subscribe(new Topic[]{new Topic("T.x", QoS.AT_LEAST_ONCE)});
+      assertEquals(1, acceptor.getConnections().size());
+
       connection.disconnect();
    }
 

@@ -244,11 +244,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       this.creationTime = System.currentTimeMillis();
 
-      if (browseOnly) {
-         browserDeliverer = new BrowserDeliverer(messageQueue.browserIterator());
-      } else {
-         messageQueue.addConsumer(this);
-      }
       this.supportLargeMessage = supportLargeMessage;
 
       if (credits != null) {
@@ -260,6 +255,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
 
       this.server = server;
+
+      if (browseOnly) {
+         browserDeliverer = new BrowserDeliverer(messageQueue.browserIterator());
+      } else {
+         messageQueue.addConsumer(this);
+      }
 
       if (session.getRemotingConnection() instanceof CoreRemotingConnection) {
          CoreRemotingConnection coreRemotingConnection = (CoreRemotingConnection) session.getRemotingConnection();

@@ -41,6 +41,7 @@ import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
+import org.apache.activemq.artemis.utils.actors.Actor;
 
 /**
  * This class is responsible for receiving and sending MQTT packets, delegating behaviour to one of the
@@ -65,9 +66,12 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
    private boolean stopped = false;
 
+   private final Actor<MqttMessage> mqttMessageActor;
+
    public MQTTProtocolHandler(ActiveMQServer server, MQTTProtocolManager protocolManager) {
       this.server = server;
       this.protocolManager = protocolManager;
+      this.mqttMessageActor = new Actor<>(server.getExecutorFactory().getExecutor(), this::act);
    }
 
    void setConnection(MQTTConnection connection, ConnectionEntry entry) throws Exception {
@@ -82,22 +86,34 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
    @Override
    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+      connection.dataReceived();
+      MqttMessage message = (MqttMessage) msg;
+
+      // Disconnect if Netty codec failed to decode the stream.
+      if (message.decoderResult().isFailure()) {
+         log.debug("Bad Message Disconnecting Client.");
+         disconnect(true);
+         return;
+      }
+
+      if (this.ctx == null) {
+         this.ctx = ctx;
+      }
+
+      // let netty handle keepalive response
+      if (MqttMessageType.PINGREQ == message.fixedHeader().messageType()) {
+         handlePingreq();
+      } else {
+         mqttMessageActor.act(message);
+      }
+   }
+
+   public void act(MqttMessage message) {
       try {
          if (stopped) {
             disconnect(true);
             return;
          }
-
-         MqttMessage message = (MqttMessage) msg;
-
-         // Disconnect if Netty codec failed to decode the stream.
-         if (message.decoderResult().isFailure()) {
-            log.debug("Bad Message Disconnecting Client.");
-            disconnect(true);
-            return;
-         }
-
-         connection.dataReceived();
 
          if (AuditLogger.isAnyLoggingEnabled()) {
             AuditLogger.setRemoteAddress(connection.getRemoteAddress());
@@ -113,7 +129,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
          switch (message.fixedHeader().messageType()) {
             case CONNECT:
-               handleConnect((MqttConnectMessage) message, ctx);
+               handleConnect((MqttConnectMessage) message);
                break;
             case PUBLISH:
                handlePublish((MqttPublishMessage) message);
@@ -136,9 +152,6 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
             case UNSUBSCRIBE:
                handleUnsubscribe((MqttUnsubscribeMessage) message);
                break;
-            case PINGREQ:
-               handlePingreq();
-               break;
             case DISCONNECT:
                disconnect(false);
                break;
@@ -150,10 +163,10 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
                disconnect(true);
          }
       } catch (Exception e) {
-         log.debug("Error processing Control Packet, Disconnecting Client", e);
+         log.warn("Error processing Control Packet, Disconnecting Client", e);
          disconnect(true);
       } finally {
-         ReferenceCountUtil.release(msg);
+         ReferenceCountUtil.release(message);
       }
    }
 
@@ -162,8 +175,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
     *
     * @param connect
     */
-   void handleConnect(MqttConnectMessage connect, ChannelHandlerContext ctx) throws Exception {
-      this.ctx = ctx;
+   void handleConnect(MqttConnectMessage connect) throws Exception {
       connectionEntry.ttl = connect.variableHeader().keepAliveTimeSeconds() * 1500L;
 
       String clientId = connect.payload().clientIdentifier();
