@@ -45,7 +45,7 @@ public interface Queue extends Bindable,CriticalComponent {
 
    SimpleString getName();
 
-   long getID();
+   Long getID();
 
    Filter getFilter();
 

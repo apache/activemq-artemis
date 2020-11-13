@@ -356,7 +356,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    private final SimpleString name;
 
-   private final long id;
+   private final Long id;
 
    private long messageCount;
 
@@ -689,7 +689,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public long getID() {
+   public Long getID() {
       return id;
    }
 

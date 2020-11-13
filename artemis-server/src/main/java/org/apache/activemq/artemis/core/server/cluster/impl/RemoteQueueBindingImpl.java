@@ -58,7 +58,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    private final SimpleString idsHeaderName;
 
-   private final long id;
+   private final Long id;
 
    private final int distance;
 
@@ -98,7 +98,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    }
 
    @Override
-   public long getID() {
+   public Long getID() {
       return id;
    }
 

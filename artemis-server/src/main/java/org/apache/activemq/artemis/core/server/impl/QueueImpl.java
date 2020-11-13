@@ -153,7 +153,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    public static final int DEFAULT_FLUSH_LIMIT = 500;
 
-   private final long id;
+   private final Long id;
 
    private final SimpleString name;
 
@@ -985,7 +985,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public long getID() {
+   public Long getID() {
       return id;
    }
 

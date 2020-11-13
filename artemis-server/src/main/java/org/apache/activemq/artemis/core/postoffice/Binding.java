@@ -48,7 +48,7 @@ public interface Binding extends UnproposalListener {
 
    boolean isExclusive();
 
-   long getID();
+   Long getID();
 
    int getDistance();
 

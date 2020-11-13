@@ -37,7 +37,7 @@ public class DivertBinding implements Binding {
 
    private final boolean exclusive;
 
-   private final long id;
+   private final Long id;
 
    public DivertBinding(final long id, final SimpleString address, final Divert divert) {
       this.id = id;
@@ -54,7 +54,7 @@ public class DivertBinding implements Binding {
    }
 
    @Override
-   public long getID() {
+   public Long getID() {
       return id;
    }
 
