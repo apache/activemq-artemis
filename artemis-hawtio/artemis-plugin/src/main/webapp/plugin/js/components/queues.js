@@ -56,7 +56,7 @@ var Artemis;
     .name;
 
 
-    function QueuesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisQueue, artemisAddress) {
+    function QueuesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisQueue, artemisAddress) {
         var ctrl = this;
         ctrl.pagination = pagination;
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
@@ -128,7 +128,7 @@ var Artemis;
             { header: 'Name', itemField: 'name' },
             { header: 'Routing Types', itemField: 'routingTypes' },
             { header: 'Queue Count', itemField: 'queueCount' },
-            { header: 'Address', itemField: 'address' , templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(\'' + item.address + '\')">' + value + '</a>' }},
+            { header: 'Address', itemField: 'address' , templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Routing Type', itemField: 'routingType' },
             { header: 'Filter', itemField: 'filter' },
             { header: 'Durable', itemField: 'durable' },
@@ -186,7 +186,8 @@ var Artemis;
         function navigateToQueuesOps(action, item) {
             $location.path("artemis/operations").search({"tab": "artemis", "nid": getQueuesNid(item, $location)});
         };
-        selectAddress = function (address) {
+        selectAddress = function (idx) {
+            var address = ctrl.queues[idx].address;
             Artemis.log.debug("navigating to address:" + address)
             artemisAddress.address = { address: address };
             $location.path("artemis/artemisAddresses");
@@ -239,6 +240,7 @@ var Artemis;
             var data = JSON.parse(response.value);
             ctrl.queues = [];
             angular.forEach(data["data"], function (value, idx) {
+                value.idx = idx;
                 ctrl.queues.push(value);
             });
             ctrl.pagination.page(data["count"]);
@@ -249,7 +251,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    QueuesController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisQueue', 'artemisAddress'];
+    QueuesController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisQueue', 'artemisAddress'];
 
 
 })(Artemis || (Artemis = {}));

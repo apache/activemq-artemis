@@ -53,7 +53,7 @@ var Artemis;
     .name;
 
 
-    function ProducersController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisProducer, artemisAddress, artemisSession) {
+    function ProducersController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisProducer, artemisAddress, artemisSession) {
         var ctrl = this;
         ctrl.pagination = pagination;
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
@@ -101,11 +101,11 @@ var Artemis;
         };
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
-            { header: 'Session', itemField: 'session' , templateFn: function(value, item) { return '<a href="#" onclick="selectSession(\'' + item.session + '\')">' + value + '</a>' }},
+            { header: 'Session', itemField: 'session' , templateFn: function(value, item) { return '<a href="#" onclick="selectSession(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Client ID', itemField: 'clientID' },
             { header: 'Protocol', itemField: 'protocol' },
             { header: 'User', itemField: 'user' },
-            { header: 'Address', itemField: 'address', templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(\'' + item.address + '\')">' + value + '</a>' }},
+            { header: 'Address', itemField: 'address', templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Remote Address', itemField: 'remoteAddress' },
             { header: 'Local Address', itemField: 'localAddress' }
         ];
@@ -129,13 +129,15 @@ var Artemis;
             ctrl.pagination.load();
         };
 
-        selectAddress = function (address) {
+        selectAddress = function (idx) {
+            var address = ctrl.producers[idx].address;
             Artemis.log.debug("navigating to address:" + address)
             artemisAddress.address = { address: address };
             $location.path("artemis/artemisAddresses");
         };
 
-        selectSession = function (session) {
+        selectSession = function (idx) {
+            var session = ctrl.producers[idx].session;
             Artemis.log.debug("navigating to session:" + session)
             artemisSession.session = { session: session };
             $location.path("artemis/artemisSessions");
@@ -178,6 +180,7 @@ var Artemis;
             var data = JSON.parse(response.value);
             ctrl.producers = [];
             angular.forEach(data["data"], function (value, idx) {
+                value.idx = idx;
                 ctrl.producers.push(value);
             });
             ctrl.pagination.page(data["count"]);
@@ -188,7 +191,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    ProducersController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisProducer', 'artemisAddress', 'artemisSession'];
+    ProducersController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisProducer', 'artemisAddress', 'artemisSession'];
 
 
 })(Artemis || (Artemis = {}));

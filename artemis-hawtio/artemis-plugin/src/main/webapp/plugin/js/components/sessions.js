@@ -67,7 +67,7 @@ var Artemis;
     .name;
 
 
-    function SessionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisConnection, artemisSession, artemisConsumer, artemisProducer) {
+    function SessionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisConnection, artemisSession, artemisConsumer, artemisProducer) {
         var ctrl = this;
         ctrl.pagination = pagination;
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
@@ -127,10 +127,10 @@ var Artemis;
         };
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
-            { header: 'Connection', itemField: 'connectionID', templateFn: function(value, item) { return '<a href="#" onclick="selectConnection(\'' + item.connectionID + '\')">' + value + '</a>' }},
+            { header: 'Connection', itemField: 'connectionID', templateFn: function(value, item) { return '<a href="#" onclick="selectConnection(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'User', itemField: 'user' },
-            { header: 'Consumer Count', itemField: 'consumerCount', templateFn: function(value, item) { return '<a href="#" onclick="selectConsumers(\'' + item.id + '\')">' + value + '</a>' }},
-            { header: 'Producer Count', itemField: 'producerCount', templateFn: function(value, item) { return '<a href="#" onclick="selectProducers(\'' + item.id + '\')">' + value + '</a>' }},
+            { header: 'Consumer Count', itemField: 'consumerCount', templateFn: function(value, item) { return '<a href="#" onclick="selectConsumers(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Producer Count', itemField: 'producerCount', templateFn: function(value, item) { return '<a href="#" onclick="selectProducers(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Creation Time', itemField: 'creationTime' }
         ];
 
@@ -155,19 +155,22 @@ var Artemis;
             ctrl.pagination.load();
         };
 
-        selectConnection = function (connection) {
+        selectConnection = function (idx) {
+            var connection = ctrl.sessions[idx].connectionID;
             Artemis.log.debug("navigating to connection:" + connection)
             artemisSession.session = { connectionID: connection };
             $location.path("artemis/artemisConnections");
         };
 
-        selectConsumers = function (session) {
+        selectConsumers = function (idx) {
+            var session = ctrl.sessions[idx].id;
             Artemis.log.debug("navigating to consumers:" + session)
             artemisConsumer.consumer = { sessionID: session };
             $location.path("artemis/artemisConsumers");
         };
 
-        selectProducers = function (session) {
+        selectProducers = function (idx) {
+            var session = ctrl.sessions[idx].id;
             Artemis.log.debug("navigating to producers:" + session)
             artemisProducer.producer = { sessionID: session };
             $location.path("artemis/artemisProducers");
@@ -235,6 +238,7 @@ var Artemis;
             var data = JSON.parse(response.value);
             ctrl.sessions = [];
             angular.forEach(data["data"], function (value, idx) {
+                value.idx = idx;
                 ctrl.sessions.push(value);
             });
             ctrl.pagination.page(data["count"]);
@@ -245,7 +249,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    SessionsController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisConnection', 'artemisSession', 'artemisConsumer', 'artemisProducer'];
+    SessionsController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisConnection', 'artemisSession', 'artemisConsumer', 'artemisProducer'];
 
 
 })(Artemis || (Artemis = {}));
