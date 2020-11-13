@@ -67,6 +67,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    protected static final Symbol GLOBAL = Symbol.getSymbol("global");
 
    protected static final String BROKER_NAME = "localhost";
+   protected static final String NETTY_ACCEPTOR = "netty-acceptor";
 
    protected String noprivUser = "noprivs";
    protected String noprivPass = "noprivs";
@@ -211,7 +212,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, getConfiguredProtocols());
       HashMap<String, Object> amqpParams = new HashMap<>();
       configureAMQPAcceptorParameters(amqpParams);
-      TransportConfiguration tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "netty-acceptor", amqpParams);
+      TransportConfiguration tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, NETTY_ACCEPTOR, amqpParams);
       configureAMQPAcceptorParameters(tc);
       return tc;
    }
@@ -233,7 +234,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       server.getConfiguration().getAddressesSettings().put("#", addressSettings);
       Set<TransportConfiguration> acceptors = server.getConfiguration().getAcceptorConfigurations();
       for (TransportConfiguration tc : acceptors) {
-         if (tc.getName().equals("netty-acceptor")) {
+         if (tc.getName().equals(NETTY_ACCEPTOR)) {
             tc.getExtraParams().put("anycastPrefix", "anycast://");
             tc.getExtraParams().put("multicastPrefix", "multicast://");
          }
