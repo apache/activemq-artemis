@@ -143,7 +143,7 @@ The `udp` scheme supports 4 properties:
 
 - `localAddress` - If you are running with multiple network
   interfaces on the same machine, you may want to specify that the
-  discovery group listens only only a specific interface. To do this
+  discovery group listens only on a specific interface. To do this
   you can specify the interface address with this parameter.
 
 - `localPort` - If you want to specify a local port to which the

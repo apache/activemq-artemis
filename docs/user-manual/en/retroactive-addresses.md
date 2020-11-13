@@ -3,7 +3,7 @@
 A "retroactive" address is an address that will preserve messages sent to it
 for queues which will be created on it in the future. This can be useful in,
 for example, publish-subscribe use cases where clients want to receive the
-messages sent to the address *before* they they actually connected and created
+messages sent to the address *before* they actually connected and created
 their multicast "subscription" queue. Typically messages sent to an address
 before a queue was created on it would simply be unavailable to those queues,
 but with a retroactive address a fixed number of messages can be preserved by

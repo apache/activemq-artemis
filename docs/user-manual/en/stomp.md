@@ -188,7 +188,7 @@ cause spurious disconnects. Instead, the client-to-server value in the
 `heart-beat` will be multiplied by the `heartBeatToConnectionTtlModifier`
 specified on the acceptor. The `heartBeatToConnectionTtlModifier` is a decimal
 value that defaults to `2.0` so for example, if a client sends a `heart-beat`
-header of `1000,0` the the connection TTL will be set to `2000` so that the
+header of `1000,0` the connection TTL will be set to `2000` so that the
 data or ping frames sent every 1000 milliseconds will have a sufficient cushion
 so as not to be considered late and trigger a disconnect. This is also in
 accordance with the STOMP 1.1 and 1.2 specifications which both state, "because

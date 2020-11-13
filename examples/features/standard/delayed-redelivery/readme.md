@@ -14,7 +14,7 @@ By providing a redelivery delay, it can be specified that a delay of, say, 10 se
 
 Redelivery delay is specified in the configuration file [broker.xml](src/main/resources/activemq/server0/broker.xml):
 
-In this example we set the redelivery delay to 5 seconds for the specific example queue. We could set redelivery delay on on multiple queues by specifying a wild-card in the match, e.g. `match="jms.#"` would apply the settings to all JMS queues and topics.
+In this example we set the redelivery delay to 5 seconds for the specific example queue. We could set redelivery delay on multiple queues by specifying a wild-card in the match, e.g. `match="jms.#"` would apply the settings to all JMS queues and topics.
 
 We then consume a message in a transacted session, and rollback, and note that the message is not redelivered until after 5 seconds.
 
