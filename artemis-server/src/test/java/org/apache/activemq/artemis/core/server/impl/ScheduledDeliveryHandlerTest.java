@@ -995,8 +995,8 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public long getID() {
-         return 0;
+      public Long getID() {
+         return Long.valueOf(0L);
       }
 
       @Override

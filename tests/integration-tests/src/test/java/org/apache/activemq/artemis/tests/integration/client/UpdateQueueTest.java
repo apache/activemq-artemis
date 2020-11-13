@@ -53,7 +53,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST).setUser(user));
 
-      long originalID = queue.getID();
+      Long originalID = queue.getID();
 
       Assert.assertEquals(user, queue.getUser());
 
@@ -121,7 +121,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
-      long originalID = queue.getID();
+      Long originalID = queue.getID();
 
       Assert.assertNull(queue.getUser());
 
