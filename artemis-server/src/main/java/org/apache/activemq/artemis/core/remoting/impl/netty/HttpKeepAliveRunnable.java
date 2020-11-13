@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -41,6 +42,10 @@ public class HttpKeepAliveRunnable implements Runnable {
       for (HttpAcceptorHandler handler : handlers) {
          handler.keepAlive(time);
       }
+   }
+
+   public List<HttpAcceptorHandler> getHandlers() {
+      return Collections.unmodifiableList(handlers);
    }
 
    public synchronized void registerKeepAliveHandler(final HttpAcceptorHandler httpAcceptorHandler) {
