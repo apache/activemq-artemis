@@ -208,31 +208,37 @@ public class SimpleAddressManager implements AddressManager {
       Bindings bindings = mappings.get(realAddress);
 
       if (bindings != null) {
-         removeMapping(bindableName, bindings);
-
+         final SimpleString bindableQueueName = CompositeAddress.extractQueueName(bindableName);
+         final Binding binding = bindings.removeBindingByUniqueName(bindableQueueName);
+         if (binding == null) {
+            throw new IllegalStateException("Cannot find binding " + bindableName);
+         }
          if (bindings.getBindings().isEmpty()) {
             mappings.remove(realAddress);
          }
       }
    }
 
-   protected Binding removeMapping(final SimpleString bindableName, final Bindings bindings) {
-      Binding theBinding = null;
+   protected void addMappingsInternal(final SimpleString address,
+                                      final Collection<Binding> newBindings) throws Exception {
+      if (newBindings.isEmpty()) {
+         return;
+      }
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      Bindings bindings = mappings.get(realAddress);
 
-      for (Binding binding : bindings.getBindings()) {
-         if (binding.getUniqueName().equals(CompositeAddress.extractQueueName(bindableName))) {
-            theBinding = binding;
-            break;
+      if (bindings == null) {
+         bindings = bindingsFactory.createBindings(realAddress);
+
+         final Bindings prevBindings = mappings.putIfAbsent(realAddress, bindings);
+
+         if (prevBindings != null) {
+            bindings = prevBindings;
          }
       }
-
-      if (theBinding == null) {
-         throw new IllegalStateException("Cannot find binding " + bindableName);
+      for (Binding binding : newBindings) {
+         bindings.addBinding(binding);
       }
-
-      bindings.removeBinding(theBinding);
-
-      return theBinding;
    }
 
    protected boolean addMappingInternal(final SimpleString address, final Binding binding) throws Exception {

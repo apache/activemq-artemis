@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
-import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -30,15 +29,11 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
-import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.WildcardAddressManager;
 import org.apache.activemq.artemis.core.server.Bindable;
-import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -217,61 +212,6 @@ public class WildcardAddressManagerPerfTest {
       @Override
       public void routeWithAck(Message message, RoutingContext context) {
 
-      }
-   }
-
-   class BindingsFake implements Bindings {
-
-      ConcurrentHashSet<Binding> bindings = new ConcurrentHashSet<>();
-
-      @Override
-      public Collection<Binding> getBindings() {
-         return bindings;
-      }
-
-      @Override
-      public void addBinding(Binding binding) {
-         bindings.addIfAbsent(binding);
-      }
-
-      @Override
-      public void removeBinding(Binding binding) {
-         bindings.remove(binding);
-      }
-
-      @Override
-      public void setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType) {
-
-      }
-
-      @Override
-      public MessageLoadBalancingType getMessageLoadBalancingType() {
-         return null;
-      }
-
-      @Override
-      public void unproposed(SimpleString groupID) {
-      }
-
-      @Override
-      public void updated(QueueBinding binding) {
-      }
-
-      @Override
-      public boolean redistribute(Message message,
-                                  Queue originatingQueue,
-                                  RoutingContext context) throws Exception {
-         return false;
-      }
-
-      @Override
-      public void route(Message message, RoutingContext context) throws Exception {
-         log.debug("routing message: " + message);
-      }
-
-      @Override
-      public boolean allowRedistribute() {
-         return false;
       }
    }
 

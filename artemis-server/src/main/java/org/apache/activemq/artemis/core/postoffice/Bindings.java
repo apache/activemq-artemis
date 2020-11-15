@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.postoffice;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -33,7 +34,7 @@ public interface Bindings extends UnproposalListener {
 
    void addBinding(Binding binding);
 
-   void removeBinding(Binding binding);
+   Binding removeBindingByUniqueName(SimpleString uniqueName);
 
    void setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType);
 
