@@ -16,12 +16,16 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
+import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Address;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 
 /**
  * Splits an address string into its hierarchical parts using {@link WildcardConfiguration#getDelimiter()} as delimiter.
@@ -36,7 +40,7 @@ public class AddressImpl implements Address {
 
    private final boolean containsWildCard;
 
-   private final List<Address> linkedAddresses = new ArrayList<>();
+   private Set<Address> linkedAddresses = null;
 
    private final WildcardConfiguration wildcardConfiguration;
 
@@ -67,17 +71,27 @@ public class AddressImpl implements Address {
    }
 
    @Override
-   public List<Address> getLinkedAddresses() {
+   public Collection<Address> getLinkedAddresses() {
+      final Collection<Address> linkedAddresses = this.linkedAddresses;
+      if (linkedAddresses == null) {
+         return Collections.emptySet();
+      }
       return linkedAddresses;
    }
 
    @Override
    public void addLinkedAddress(final Address address) {
+      if (linkedAddresses == null) {
+         linkedAddresses = PlatformDependent.hasUnsafe() ? new NonBlockingHashSet<>() : new ConcurrentHashSet<>();
+      }
       linkedAddresses.add(address);
    }
 
    @Override
    public void removeLinkedAddress(final Address actualAddress) {
+      if (linkedAddresses == null) {
+         return;
+      }
       linkedAddresses.remove(actualAddress);
    }
 

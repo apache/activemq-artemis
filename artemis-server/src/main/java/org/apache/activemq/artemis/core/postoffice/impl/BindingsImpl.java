@@ -149,7 +149,6 @@ public final class BindingsImpl implements Bindings {
       } finally {
          updated();
       }
-
    }
 
    @Override
@@ -162,7 +161,11 @@ public final class BindingsImpl implements Bindings {
    }
 
    @Override
-   public void removeBinding(final Binding binding) {
+   public Binding removeBindingByUniqueName(final SimpleString bindingUniqueName) {
+      final Binding binding = bindingsNameMap.remove(bindingUniqueName);
+      if (binding == null) {
+         return null;
+      }
       try {
          if (binding.isExclusive()) {
             exclusiveBindings.remove(binding);
@@ -181,11 +184,12 @@ public final class BindingsImpl implements Bindings {
          }
 
          bindingsIdMap.remove(binding.getID());
-         bindingsNameMap.remove(binding.getUniqueName());
+         assert !bindingsNameMap.containsKey(binding.getUniqueName());
 
          if (logger.isTraceEnabled()) {
             logger.trace("Removing binding " + binding + " from " + this + " bindingTable: " + debugBindings());
          }
+         return binding;
       } finally {
          updated();
       }

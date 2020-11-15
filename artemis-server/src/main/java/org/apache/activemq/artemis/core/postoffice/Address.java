@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.postoffice;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
@@ -31,7 +31,7 @@ public interface Address {
 
    boolean containsWildCard();
 
-   List<Address> getLinkedAddresses();
+   Collection<Address> getLinkedAddresses();
 
    void addLinkedAddress(Address address);
 
