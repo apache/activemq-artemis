@@ -183,29 +183,30 @@ public class WildcardAddressManager extends SimpleAddressManager {
    }
 
    private synchronized Address addAndUpdateAddressMap(final SimpleString address) {
-      Address add = new AddressImpl(address, wildcardConfiguration);
       Address actualAddress;
-      if (add.containsWildCard()) {
+      final boolean containsWildcard = address.containsEitherOf(wildcardConfiguration.getAnyWords(), wildcardConfiguration.getSingleWord());
+      if (containsWildcard) {
          actualAddress = wildCardAddresses.get(address);
       } else {
          actualAddress = addresses.get(address);
       }
       if (actualAddress == null) {
-         actualAddress = add;
+         actualAddress = new AddressImpl(address, wildcardConfiguration);
          addAddress(address, actualAddress);
-      }
-      if (actualAddress.containsWildCard()) {
-         for (Address destAdd : addresses.values()) {
-            if (destAdd.matches(actualAddress)) {
-               destAdd.addLinkedAddress(actualAddress);
-               actualAddress.addLinkedAddress(destAdd);
+
+         if (containsWildcard) {
+            for (Address destAdd : addresses.values()) {
+               if (destAdd.matches(actualAddress)) {
+                  destAdd.addLinkedAddress(actualAddress);
+                  actualAddress.addLinkedAddress(destAdd);
+               }
             }
-         }
-      } else {
-         for (Address destAdd : wildCardAddresses.values()) {
-            if (actualAddress.matches(destAdd)) {
-               destAdd.addLinkedAddress(actualAddress);
-               actualAddress.addLinkedAddress(destAdd);
+         } else {
+            for (Address destAdd : wildCardAddresses.values()) {
+               if (actualAddress.matches(destAdd)) {
+                  destAdd.addLinkedAddress(actualAddress);
+                  actualAddress.addLinkedAddress(destAdd);
+               }
             }
          }
       }
