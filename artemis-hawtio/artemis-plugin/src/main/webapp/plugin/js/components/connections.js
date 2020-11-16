@@ -68,7 +68,7 @@ var Artemis;
     .name;
 
 
-    function ConnectionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisConnection, artemisSession) {
+    function ConnectionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisConnection, artemisSession) {
         var ctrl = this;
         ctrl.pagination = pagination;
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
@@ -126,13 +126,14 @@ var Artemis;
             { header: 'Client ID', itemField: 'clientID' },
             { header: 'Users', itemField: 'users' },
             { header: 'protocol', itemField: 'protocol' },
-            { header: 'Session Count', itemField: 'sessionCount', templateFn: function(value, item) { return '<a href="#" onclick="selectSessions(\'' + item.connectionID + '\')">' + value + '</a>' }},
+            { header: 'Session Count', itemField: 'sessionCount', templateFn: function(value, item) { return '<a href="#" onclick="selectSessions(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Remote Address', itemField: 'remoteAddress' },
             { header: 'Local Address', itemField: 'localAddress' },
             { header: 'Creation Time', itemField: 'creationTime' }
         ];
 
-        selectSessions = function (connection) {
+        selectSessions = function (idx) {
+            var connection = ctrl.connections[idx].connectionID;
             Artemis.log.debug("navigating to connection:" + connection)
             artemisConnection.connection = { connectionID: connection };
             $location.path("artemis/artemisSessions");
@@ -213,6 +214,7 @@ var Artemis;
             var data = JSON.parse(response.value);
             ctrl.connections = [];
             angular.forEach(data["data"], function (value, idx) {
+                value.idx = idx;
                 ctrl.connections.push(value);
             });
             ctrl.pagination.page(data["count"]);
@@ -223,7 +225,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    ConnectionsController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisConnection', 'artemisSession'];
+    ConnectionsController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisConnection', 'artemisSession'];
 
 
 })(Artemis || (Artemis = {}));

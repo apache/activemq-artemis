@@ -66,7 +66,7 @@ var Artemis;
     .name;
 
 
-    function ConsumersController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisConsumer, artemisQueue, artemisAddress, artemisSession) {
+    function ConsumersController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisConsumer, artemisQueue, artemisAddress, artemisSession) {
         var ctrl = this;
         ctrl.pagination = pagination;
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
@@ -128,13 +128,13 @@ var Artemis;
         };
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
-            { header: 'Session', itemField: 'session' , templateFn: function(value, item) { return '<a href="#" onclick="selectSession(\'' + item.session + '\')">' + value + '</a>' }},
+            { header: 'Session', itemField: 'session' , templateFn: function(value, item) { return '<a href="#" onclick="selectSession(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Client ID', itemField: 'clientID' },
             { header: 'Protocol', itemField: 'protocol' },
-            { header: 'Queue', itemField: 'queue', templateFn: function(value, item) { return '<a href="#" onclick="selectQueue(\'' + item.queue + '\')">' + value + '</a>' }},
+            { header: 'Queue', itemField: 'queue', templateFn: function(value, item) { return '<a href="#" onclick="selectQueue(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'queueType', itemField: 'queueType' },
             { header: 'Filter', itemField: 'filter' },
-            { header: 'Address', itemField: 'address' , templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(\'' + item.address + '\')">' + value + '</a>' }},
+            { header: 'Address', itemField: 'address' , templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Remote Address', itemField: 'remoteAddress' },
             { header: 'Local Address', itemField: 'localAddress' },
             { header: 'Creation Time', itemField: 'creationTime' }
@@ -166,19 +166,22 @@ var Artemis;
             ctrl.filter.values.value = artemisConsumer.consumer.sessionID;
         }
 
-        selectQueue = function (queue) {
+        selectQueue = function (idx) {
+            var queue = ctrl.consumers[idx].queue;
             Artemis.log.debug("navigating to queue:" + queue)
             artemisQueue.queue = { queue: queue };
             $location.path("artemis/artemisQueues");
         };
 
-        selectAddress = function (address) {
+        selectAddress = function (idx) {
+            var address = ctrl.consumers[idx].address;
             Artemis.log.debug("navigating to address:" + address)
             artemisAddress.address = { address: address };
             $location.path("artemis/artemisAddresses");
         };
 
-        selectSession = function (session) {
+        selectSession = function (idx) {
+            var session = ctrl.consumers[idx].session;
             Artemis.log.debug("navigating to session:" + session)
             artemisSession.session = { session: session };
             $location.path("artemis/artemisSessions");
@@ -232,6 +235,7 @@ var Artemis;
             var data = JSON.parse(response.value);
             ctrl.consumers = [];
             angular.forEach(data["data"], function (value, idx) {
+                value.idx = idx;
                 ctrl.consumers.push(value);
             });
             ctrl.pagination.page(data["count"]);
@@ -242,7 +246,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    ConsumersController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisConsumer', 'artemisQueue', 'artemisAddress', 'artemisSession'];
+    ConsumersController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisConsumer', 'artemisQueue', 'artemisAddress', 'artemisSession'];
 
 
 })(Artemis || (Artemis = {}));

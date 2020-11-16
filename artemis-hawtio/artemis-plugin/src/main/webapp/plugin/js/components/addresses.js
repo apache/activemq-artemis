@@ -56,7 +56,7 @@ var Artemis;
     .name;
 
 
-    function AddressesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisAddress) {
+    function AddressesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisAddress) {
         var ctrl = this;
         ctrl.pagination = pagination;
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
@@ -116,7 +116,7 @@ var Artemis;
             { header: 'ID', itemField: 'id' },
             { header: 'Name', itemField: 'name' },
             { header: 'Routing Types', itemField: 'routingTypes' },
-            { header: 'Queue Count', itemField: 'queueCount' , templateFn: function(value, item) { return '<a href="#" onclick="selectQueues(\'' + item.name + '\')">' + value + '</a>' }}
+            { header: 'Queue Count', itemField: 'queueCount' , templateFn: function(value, item) { return '<a href="#" onclick="selectQueues(' + item.idx + ')">' + $sanitize(value) + '</a>' }}
         ];
 
         ctrl.refresh = function () {
@@ -141,7 +141,8 @@ var Artemis;
             ctrl.filter.values.value = artemisAddress.address.address;
         }
 
-        selectQueues = function (address) {
+        selectQueues = function (idx) {
+            var address = ctrl.addresses[idx].name;
             Artemis.log.debug("navigating to queues:" + address)
             artemisAddress.address = { address: address };
             $location.path("artemis/artemisQueues");
@@ -201,6 +202,7 @@ var Artemis;
             var data = JSON.parse(response.value);
             ctrl.addresses = [];
             angular.forEach(data["data"], function (value, idx) {
+                value.idx = idx;
                 ctrl.addresses.push(value);
             });
             ctrl.pagination.page(data["count"]);
@@ -211,7 +213,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    AddressesController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisAddress'];
+    AddressesController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisAddress'];
 
 
 })(Artemis || (Artemis = {}));
