@@ -301,7 +301,7 @@ We'll consider each parameter of the discovery group:
 
 - `local-bind-address`. If you are running with multiple network
   interfaces on the same machine, you may want to specify that the
-  discovery group listens only only a specific interface. To do this
+  discovery group listens only a specific interface. To do this
   you can specify the interface address with this parameter. This
   parameter is optional. This is a UDP specific attribute.
 

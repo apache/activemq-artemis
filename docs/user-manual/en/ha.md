@@ -478,7 +478,7 @@ HA strategy shared store for `master`:
 
 - `failover-on-shutdown`
 
-  If set to true then when this server is stopped normally the backup will become live assuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md).
+  If set to true then when this server is stopped normally the backup will become live assuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the management API as explained at [Management](management.md).
 
 - `wait-for-activation`
 
@@ -489,7 +489,7 @@ HA strategy Shared Store for `slave`:
 
 - `failover-on-shutdown`
 
-  In the case of a backup that has become live. then when set to true then when this server is stopped normally the backup will become liveassuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md).
+  In the case of a backup that has become live. then when set to true then when this server is stopped normally the backup will become liveassuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the management API as explained at [Management](management.md).
 
 - `allow-failback`
 
@@ -570,7 +570,7 @@ adding them to the `ha-policy` configuration like so:
 #### Configuring Directories
 
 Directories for the Journal, Large messages and Paging will be set
-according to what the HA strategy is. If shared store the the requesting
+according to what the HA strategy is. If shared store the requesting
 server will notify the target server of which directories to use. If
 replication is configured then directories will be inherited from the
 creating server but have the new backups name appended.

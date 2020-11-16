@@ -100,7 +100,7 @@ following steps:
    `handler` like so: `handler.CONSOLE.level=TRACE`.
 
 The MQTT specification doesn't dictate the format of the payloads which clients
-publish. As far as the broker is concerned a payload is just just an array of
+publish. As far as the broker is concerned a payload is just an array of
 bytes. However, to facilitate logging the broker will encode the payloads as
 UTF-8 strings and print them up to 256 characters. Payload logging is limited
 to avoid filling the logs with potentially hundreds of megabytes of unhelpful

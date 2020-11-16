@@ -1110,7 +1110,7 @@ channel.
 
 As the name suggests, the `ActiveMQBasicSecurityManager` is _basic_. It is not
 pluggable like the JAAS security manager and it _only_ supports authentication
-via username and password credentials. Furthermore, the the Hawtio-based web
+via username and password credentials. Furthermore, the Hawtio-based web
 console requires JAAS. Therefore you will *still need* to configure a
 `login.config` if you plan on using the web console. However, this security
 manager *may* still may have a couple of advantages depending on your use-case.

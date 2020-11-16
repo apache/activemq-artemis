@@ -83,7 +83,7 @@ The `ActiveMQServerControl` interface is the entry point for broker management.
 
 - Transaction heuristic operations
 
-  In case of a server crash, when the server restarts, it it possible that some
+  In case of a server crash, when the server restarts, it possible that some
   transaction requires manual intervention. The `listPreparedTransactions()`
   method lists the transactions which are in the prepared states (the
   transactions are represented as opaque Base64 Strings.) To commit or rollback a

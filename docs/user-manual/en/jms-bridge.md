@@ -54,7 +54,7 @@ class and set the appropriate parameters.
 
 ## JMS Bridge Parameters
 
-The main POJO is the `JMSBridge`. It is is configurable by the parameters
+The main POJO is the `JMSBridge`. It is configurable by the parameters
 passed to its constructor.
 
 - Source Connection Factory Factory
@@ -152,7 +152,7 @@ passed to its constructor.
 - Client ID
 
   If the source destination represents a topic, and you want to consume from
-  the topic using a durable subscription then this attribute represents the the
+  the topic using a durable subscription then this attribute represents the
   JMS client ID to use when creating/looking up the durable subscription
 
 - Add MessageID In Header
