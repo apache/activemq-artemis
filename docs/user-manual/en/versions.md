@@ -8,13 +8,37 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.16.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12348718).
+
+Highlights:
+- Configurable namespace for temporary queues
+- [AMQP Server Connectivity](amqp-broker-connections.md)
+- "Basic" [`SecurityManager` implementation](security.md#basic-security-manager) that supports replication
+- Consumer window size support for individual STOMP clients
+- Improved JDBC connection management
+- New web console based on Hawtio 2
+- Performance optimizations (i.e. caching) for authentication and authorization
+- Support for admin objects in the JCA resource adapter to facilitate deployment into 3rd-party Java EE application servers
+- Ability to prevent an acceptor from automatically starting
+
+## 2.15.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12348568).
+
+Highlights:
+- Ability to use FQQN syntax for both `security-settings` and JNDI lookup
+- Support pausing dispatch during group rebalance (to avoid potential out-of-order consumption)
+- Socks5h support
+
 ## 2.14.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12348290).
 
 Highlights:
 - Management methods to update diverts
-- Ability to "disabled" a queue so that messages are not routed to it
+- Ability to "disable" a queue so that messages are not routed to it
 - Support JVM GC & thread metrics
 - Support for resetting queue properties by unsetting them in `broker.xml`
 - Undeploy diverts by removing them from `broker.xml`
@@ -22,7 +46,14 @@ Highlights:
 
 #### Upgrading from older versions
 
-Make sure the existing queues have their parameters set according to the `broker.xml` values before upgrading.
+This is likely a rare situation, but it's worth mentioning here anyway. Prior
+to 2.14.0 if you configured a parameter on a `queue` in `broker.xml` (e.g.
+`max-consumers`) and then later *removed* that setting the configured value you
+set would remain. This has changed in 2.14.0 via ARTEMIS-2797. Any value that
+is not explicitly set in `broker.xml` will be set back to either the static  
+default or the dynamic default configured in the address-settings (e.g. via
+`default-max-consumers` in this example). Therefore, ensure any existing queues
+have all the needed parameters set in `broker.xml` values before upgrading.
 
 ## 2.13.0
 
