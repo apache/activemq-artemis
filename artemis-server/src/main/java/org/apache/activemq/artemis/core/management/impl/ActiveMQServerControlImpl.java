@@ -1396,6 +1396,22 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public int getQueueCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getQueueCount(this.server);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         Object[] queueControls = server.getManagementService().getResources(QueueControl.class);
+         return queueControls.length;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String[] getQueueNames() {
       return getQueueNames(null);
    }
@@ -1488,6 +1504,22 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.isReplicaSync();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getAddressCount() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getAddressCount(this.server);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         Object[] addresses = server.getManagementService().getResources(AddressControl.class);
+         return addresses.length;
       } finally {
          blockOnIO();
       }
