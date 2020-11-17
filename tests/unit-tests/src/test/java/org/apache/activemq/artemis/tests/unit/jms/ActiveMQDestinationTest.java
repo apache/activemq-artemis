@@ -21,6 +21,8 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -79,6 +81,26 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       String address = invalidPrefix + destinationName;
       ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
       Assert.assertTrue(destination instanceof Destination);
+   }
+
+   @Test
+   public void testQueueToStringNPE() {
+      ActiveMQDestination destination = new ActiveMQQueue();
+      try {
+         System.out.println("Destination: " + destination.toString());
+      } catch (NullPointerException npe) {
+         Assert.fail("Caught NPE!");
+      }
+   }
+
+   @Test
+   public void testTopicToStringNPE() {
+      ActiveMQDestination destination = new ActiveMQTopic();
+      try {
+         System.out.println("Destination: " + destination.toString());
+      } catch (NullPointerException npe) {
+         Assert.fail("Caught NPE!");
+      }
    }
 
    // Package protected ---------------------------------------------
