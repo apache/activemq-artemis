@@ -30,6 +30,7 @@
     <name>ActiveMQ Artemis JMH Performance Tests</name>
 
     <properties>
+        <activemq.basedir>${project.basedir}/../..</activemq.basedir>
         <jmh.version>1.26</jmh.version>
     </properties>
 

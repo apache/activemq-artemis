@@ -31,7 +31,7 @@ jobs:
       # By setting anything to org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED we are disabling libaio loading on the testsuite
       - name: Build Main
         run: |
-          mvn -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Djdk8-errorprone -Pfast-tests -Pextra-tests -Ptests-CI install
+          mvn -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Djdk8-errorprone -Pfast-tests -Pextra-tests -Ptests-CI -Pjmh install
       - name: Build Examples
         run: |
           cd examples
