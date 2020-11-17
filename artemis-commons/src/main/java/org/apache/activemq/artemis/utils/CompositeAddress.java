@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class CompositeAddress {
 
-   public static String SEPARATOR = "::";
+   public static final String SEPARATOR = "::";
 
    public static String toFullyQualified(String address, String qName) {
       return toFullyQualified(SimpleString.toSimpleString(address), SimpleString.toSimpleString(qName)).toString();

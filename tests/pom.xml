@@ -91,6 +91,12 @@
          </modules>
       </profile>
       <profile>
+         <id>jmh</id>
+         <modules>
+            <module>performance-jmh</module>
+         </modules>
+      </profile>
+      <profile>
          <!-- deprecated: use openwire-tests -->
          <id>activemq5-unit-tests</id>
          <modules>

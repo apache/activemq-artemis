@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
+import javax.transaction.xa.Xid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -83,7 +83,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
          @Override
          public void run() {
             try {
-               bind.removeBinding(fake);
+               bind.removeBindingByUniqueName(fake.getUniqueName());
             } catch (Exception e) {
                e.printStackTrace();
             }
