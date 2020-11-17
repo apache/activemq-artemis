@@ -125,10 +125,13 @@ var Artemis;
         };
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
-            { header: 'Name', itemField: 'name' },
+            { header: 'Name', itemField: 'name',
+              templateFn: function(value, item) { return '<a href="#" onclick="selectQueue(' + item.idx + ')">' + $sanitize(value) + '</a>' }
+            },
             { header: 'Routing Types', itemField: 'routingTypes' },
-            { header: 'Queue Count', itemField: 'queueCount' },
-            { header: 'Address', itemField: 'address' , templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Address', itemField: 'address',
+              templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }
+            },
             { header: 'Routing Type', itemField: 'routingType' },
             { header: 'Filter', itemField: 'filter' },
             { header: 'Durable', itemField: 'durable' },
@@ -136,7 +139,9 @@ var Artemis;
             { header: 'Purge On No Consumers', itemField: 'purgeOnNoConsumers' },
             { header: 'Consumer Count', itemField: 'consumerCount' },
             { header: 'Rate', itemField: 'rate' },
-            { header: 'Message Count', itemField: 'messageCount' },
+            { header: 'Message Count', itemField: 'messageCount',
+              templateFn: function(value, item) { return '<a href="#" onclick="browseQueue(' + item.idx + ')" title="Browse Messages">' + value + '</a>' }
+            },
             { header: 'Paused', itemField: 'paused' },
             { header: 'Temporary', itemField: 'temporary' },
             { header: 'Auto Created', itemField: 'autoCreated' },
@@ -174,7 +179,7 @@ var Artemis;
         }
 
         if (artemisAddress.address) {
-            Artemis.log.debug("navigating to queue = " + artemisAddress.address.address);
+            Artemis.log.debug("navigating to address = " + artemisAddress.address.address);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[3].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisAddress.address.address;
@@ -187,14 +192,34 @@ var Artemis;
             $location.path("artemis/operations").search({"tab": "artemis", "nid": getQueuesNid(item, $location)});
         };
         selectAddress = function (idx) {
-            var address = ctrl.queues[idx].address;
-            Artemis.log.debug("navigating to address:" + address)
-            artemisAddress.address = { address: address };
-            $location.path("artemis/artemisAddresses");
+            var item = ctrl.queues[idx]
+            Artemis.log.debug("navigating to address:" + item.address);
+            artemisAddress.address = { address: item.address };
+            $location.path("artemis/artemisAddresses").search({"tab": "artemis", "nid": getAddressesNid(item, $location)});
+        };
+        selectQueue = function (idx) {
+            var item = ctrl.queues[idx];
+            var nid = getQueuesNid(item, $location);
+            Artemis.log.debug("navigating to queue:" + nid);
+            artemisAddress.address = { address: item.address };
+            artemisQueue.queue = item;
+            $location.path("artemis/artemisQueues").search({"tab": "artemis", "nid": nid});
+        };
+        browseQueue = function (idx) {
+            var item = ctrl.queues[idx];
+            var nid = getQueuesNid(item, $location);
+            Artemis.log.debug("navigating to queue browser:" + nid);
+            $location.path("artemis/artemisBrowseQueue").search({"tab": "artemis", "nid": nid});
         };
         function getQueuesNid(item, $location) {
             var rootNID = getRootNid($location);
             var targetNID = rootNID + "addresses-" + item.address + "-queues-" + item.routingType.toLowerCase() + "-" + item.name;
+            Artemis.log.debug("targetNID=" + targetNID);
+            return targetNID;
+        }
+        function getAddressesNid(item, $location) {
+            var rootNID = getRootNid($location);
+            var targetNID = rootNID + "addresses-" + item.address;
             Artemis.log.debug("targetNID=" + targetNID);
             return targetNID;
         }
