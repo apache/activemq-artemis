@@ -50,7 +50,7 @@ This is likely a rare situation, but it's worth mentioning here anyway. Prior
 to 2.14.0 if you configured a parameter on a `queue` in `broker.xml` (e.g.
 `max-consumers`) and then later *removed* that setting the configured value you
 set would remain. This has changed in 2.14.0 via ARTEMIS-2797. Any value that
-is not explicitly set in `broker.xml` will be set back to either the static  
+is not explicitly set in `broker.xml` will be set back to either the static
 default or the dynamic default configured in the address-settings (e.g. via
 `default-max-consumers` in this example). Therefore, ensure any existing queues
 have all the needed parameters set in `broker.xml` values before upgrading.
