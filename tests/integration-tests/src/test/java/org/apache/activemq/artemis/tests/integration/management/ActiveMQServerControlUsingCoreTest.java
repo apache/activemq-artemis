@@ -376,8 +376,18 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public int getAddressCount() {
+            return (Integer) proxy.retrieveAttributeValue("addressCount", Integer.class);
+         }
+
+         @Override
          public String[] getAddressNames() {
             return (String[]) proxy.retrieveAttributeValue("addressNames", String.class);
+         }
+
+         @Override
+         public int getQueueCount() {
+            return (Integer) proxy.retrieveAttributeValue("queueCount", Integer.class);
          }
 
          @Override
