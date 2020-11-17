@@ -464,7 +464,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    // Public --------------------------------------------------------
 
    public String getAddress() {
-      return simpleAddress.toString();
+      return simpleAddress != null ? simpleAddress.toString() : null;
    }
 
    public SimpleString getSimpleAddress() {
