@@ -33,7 +33,7 @@ var Artemis;
                         <form class="toolbar-pf-actions">
                             <div class="form-group toolbar-pf-filter">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" ng-model="$ctrl.filter.values.value" placeholder="Filter..." autocomplete="off" id="filterInput">
+                                    <input type="text" class="form-control" ng-model="$ctrl.filter" placeholder="Filter..." autocomplete="off" id="filterInput">
                                     <div class="input-group-btn">
                                         <button class="btn btn-link btn-find" ng-click="$ctrl.refresh()" type="button">
                                             &nbsp;&nbsp;<span class="fa fa-search"></span>&nbsp;&nbsp;
