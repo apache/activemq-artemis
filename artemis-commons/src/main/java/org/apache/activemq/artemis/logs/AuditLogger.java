@@ -2770,7 +2770,6 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601739, value = "User {0} is requesting to stop broker connection {1}", format = Message.Format.MESSAGE_FORMAT)
    void stopBrokerConnection(String user, String name);
 
-
    static void startBrokerConnection(String name) {
       LOGGER.startBrokerConnection(getCaller(), name);
    }
@@ -2779,4 +2778,19 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601740, value = "User {0} is requesting to start broker connection {1}", format = Message.Format.MESSAGE_FORMAT)
    void startBrokerConnection(String user, String name);
 
+   static void getAddressCount(Object source) {
+      LOGGER.getAddressCount(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601741, value = "User {0} is getting address count on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getAddressCount(String user, Object source, Object... args);
+
+   static void getQueueCount(Object source) {
+      LOGGER.getQueueCount(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601742, value = "User {0} is getting the queue count on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getQueueCount(String user, Object source, Object... args);
 }

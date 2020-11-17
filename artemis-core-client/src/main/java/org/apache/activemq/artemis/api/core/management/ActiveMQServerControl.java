@@ -394,10 +394,22 @@ public interface ActiveMQServerControl {
    String getConnectorsAsJSON() throws Exception;
 
    /**
-    * Returns the addresses created on this server.
+    * Returns the number of addresses created on this server.
     */
-   @Attribute(desc = "Addresses created on this server")
+   @Attribute(desc = "Number of addresses created on this server")
+   int getAddressCount();
+
+   /**
+    * Returns the names of the addresses created on this server.
+    */
+   @Attribute(desc = "Names of the addresses created on this server")
    String[] getAddressNames();
+
+   /**
+    * Returns the number of queues created on this server.
+    */
+   @Attribute(desc = "Number of queues created on this server")
+   int getQueueCount();
 
    /**
     * Returns the names of the queues created on this server.
