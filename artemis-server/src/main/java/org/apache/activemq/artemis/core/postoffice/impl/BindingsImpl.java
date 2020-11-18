@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.postoffice.impl;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +44,7 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.jboss.logging.Logger;
 
 public final class BindingsImpl implements Bindings {
@@ -58,7 +58,15 @@ public final class BindingsImpl implements Bindings {
 
    private final Map<SimpleString, Integer> routingNamePositions = new ConcurrentHashMap<>();
 
-   private final Map<Long, Binding> bindingsIdMap = new ConcurrentHashMap<>();
+   /**
+    * This is used just for routing from clusters: is not initialized by default
+    */
+   private volatile Map<Long, Binding> bindingsIdMap = null;
+   /**
+    * This is used to mark the intention to have bindingsIdMap initialized: that would help concurrent methods
+    * to coordinate and populate it correctly
+    */
+   private volatile boolean bindingsIdMapInitIntent = false;
 
    /**
     * This is the same as bindingsIdMap but indexed on the binding's uniqueName rather than ID. Two maps are
@@ -79,7 +87,7 @@ public final class BindingsImpl implements Bindings {
    /**
     * This has a version about adds and removes
     */
-   private final AtomicInteger version = new AtomicInteger(sequenceVersion.incrementAndGet());
+   private volatile int version = sequenceVersion.incrementAndGet();
 
    public BindingsImpl(final SimpleString name, final GroupingHandler groupingHandler) {
       this.groupingHandler = groupingHandler;
@@ -102,14 +110,12 @@ public final class BindingsImpl implements Bindings {
 
    @Override
    public Collection<Binding> getBindings() {
-      return bindingsIdMap.values();
+      return bindingsNameMap.values();
    }
 
    @Override
    public void unproposed(SimpleString groupID) {
-      for (Binding binding : bindingsIdMap.values()) {
-         binding.unproposed(groupID);
-      }
+      bindingsNameMap.values().forEach(binding -> binding.unproposed(groupID));
    }
 
    @Override
@@ -140,8 +146,15 @@ public final class BindingsImpl implements Bindings {
             }
          }
 
-         bindingsIdMap.put(binding.getID(), binding);
          bindingsNameMap.put(binding.getUniqueName(), binding);
+
+         Map<Long, Binding> bindingsIdMap = this.bindingsIdMap;
+         if (bindingsIdMap == null && bindingsIdMapInitIntent) {
+            bindingsIdMap = tryInitializeBindingsIdMapOrGet();
+         }
+         if (bindingsIdMap != null) {
+            bindingsIdMap.put(binding.getID(), binding);
+         }
 
          if (logger.isTraceEnabled()) {
             logger.trace("Adding binding " + binding + " into " + this + " bindingTable: " + debugBindings());
@@ -157,7 +170,7 @@ public final class BindingsImpl implements Bindings {
    }
 
    private void updated() {
-      version.set(sequenceVersion.incrementAndGet());
+      version = sequenceVersion.incrementAndGet();
    }
 
    @Override
@@ -182,8 +195,13 @@ public final class BindingsImpl implements Bindings {
                }
             }
          }
-
-         bindingsIdMap.remove(binding.getID());
+         Map<Long, Binding> bindingsIdMap = this.bindingsIdMap;
+         if (bindingsIdMap == null && bindingsIdMapInitIntent) {
+            bindingsIdMap = tryInitializeBindingsIdMapOrGet();
+         }
+         if (bindingsIdMap != null) {
+            bindingsIdMap.remove(binding.getID());
+         }
          assert !bindingsNameMap.containsKey(binding.getUniqueName());
 
          if (logger.isTraceEnabled()) {
@@ -286,7 +304,7 @@ public final class BindingsImpl implements Bindings {
    private void route(final Message message,
                       final RoutingContext context,
                       final boolean groupRouting) throws Exception {
-      int currentVersion = version.get();
+      int currentVersion = version;
       boolean reusableContext = context.isReusable(message, currentVersion);
 
       if (!reusableContext) {
@@ -300,13 +318,18 @@ public final class BindingsImpl implements Bindings {
 
       if (ids != null) {
          ByteBuffer buffer = ByteBuffer.wrap(ids);
+         ByteBuffer idBuffer = null;
          while (buffer.hasRemaining()) {
             long id = buffer.getLong();
-            for (Map.Entry<Long, Binding> entry : bindingsIdMap.entrySet()) {
-               if (entry.getValue() instanceof RemoteQueueBinding) {
-                  RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) entry.getValue();
+            for (Binding binding : bindingsNameMap.values()) {
+               if (binding instanceof RemoteQueueBinding) {
+                  RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) binding;
                   if (remoteQueueBinding.getRemoteQueueID() == id) {
-                     message.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
+                     if (idBuffer == null) {
+                        idBuffer = ByteBuffer.allocate(8);
+                     }
+                     idBuffer.putLong(0, remoteQueueBinding.getID());
+                     message.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, idBuffer.array());
                   }
                }
             }
@@ -629,11 +652,11 @@ public final class BindingsImpl implements Bindings {
 
       out.println("bindingsMap:");
 
-      if (bindingsIdMap.isEmpty()) {
+      if (bindingsNameMap.isEmpty()) {
          out.println("\tEMPTY!");
       }
-      for (Map.Entry<Long, Binding> entry : bindingsIdMap.entrySet()) {
-         out.println("\tkey=" + entry.getKey() + ", value=" + entry.getValue());
+      for (Binding binding : bindingsNameMap.values()) {
+         out.println("\tkey=" + binding.getID() + ", value=" + binding);
       }
 
       out.println();
@@ -655,26 +678,38 @@ public final class BindingsImpl implements Bindings {
    private void routeFromCluster(final Message message,
                                  final RoutingContext context,
                                  final byte[] ids) throws Exception {
+      if (!bindingsIdMapInitIntent) {
+         // this will allow racing addBinding/removeBinding to correctly load or initialize bindingsIdMap
+         bindingsIdMapInitIntent = true;
+      }
       byte[] idsToAck = (byte[]) message.removeProperty(Message.HDR_ROUTE_TO_ACK_IDS);
 
-      List<Long> idsToAckList = new ArrayList<>();
+      final int expectedIdsToAck = idsToAck == null ? 0 : idsToAck.length / Long.BYTES;
+
+      final LongHashSet idsToAckSet = expectedIdsToAck == 0 ? null : new LongHashSet(expectedIdsToAck);
 
       if (idsToAck != null) {
          ByteBuffer buff = ByteBuffer.wrap(idsToAck);
          while (buff.hasRemaining()) {
             long bindingID = buff.getLong();
-            idsToAckList.add(bindingID);
+            idsToAckSet.add(bindingID);
          }
       }
 
       ByteBuffer buff = ByteBuffer.wrap(ids);
 
       while (buff.hasRemaining()) {
-         long bindingID = buff.getLong();
+         Long bindingID = buff.getLong();
 
+         Map<Long, Binding> bindingsIdMap = this.bindingsIdMap;
+         if (bindingsIdMap == null) {
+            // time to initialize it!
+            bindingsIdMap = tryInitializeBindingsIdMapOrGet();
+         }
+         assert bindingsIdMap != null;
          Binding binding = bindingsIdMap.get(bindingID);
          if (binding != null) {
-            if (idsToAckList.contains(bindingID)) {
+            if (idsToAckSet != null && idsToAckSet.contains(bindingID)) {
                binding.routeWithAck(message, context);
             } else {
                binding.route(message, context);
@@ -683,6 +718,32 @@ public final class BindingsImpl implements Bindings {
             ActiveMQServerLogger.LOGGER.bindingNotFound(bindingID, message.toString(), this.toString());
          }
       }
+   }
+
+   /**
+    * This is used mostly for testing/benchmarking purposed, but can be used
+    */
+   public void forceInitializeBindingsIdMap() {
+      if (bindingsIdMap != null) {
+         return;
+      }
+      if (!bindingsIdMapInitIntent) {
+         bindingsIdMapInitIntent = true;
+      }
+      tryInitializeBindingsIdMapOrGet();
+   }
+
+   private synchronized Map<Long, Binding> tryInitializeBindingsIdMapOrGet() {
+      assert bindingsIdMapInitIntent;
+      final Map<Long, Binding> bindingsIdMap = this.bindingsIdMap;
+      if (bindingsIdMap != null) {
+         return bindingsIdMap;
+      }
+      // still don't publish it on the volatile field
+      final Map<Long, Binding> newBindingsIdMap = new ConcurrentHashMap<>(bindingsNameMap.size());
+      bindingsNameMap.values().forEach(binding -> newBindingsIdMap.put(binding.getID(), binding));
+      this.bindingsIdMap = newBindingsIdMap;
+      return newBindingsIdMap;
    }
 
    private int incrementPos(int pos, final int length) {
