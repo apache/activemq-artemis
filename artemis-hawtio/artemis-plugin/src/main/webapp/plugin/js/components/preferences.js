@@ -97,6 +97,7 @@ var Artemis;
                       <div class="col-md-6">
                         <select id="ArtemisBrowseBytesMessages" class="form-control" ng-model="ArtemisBrowseBytesMessages">
                             <option value="99">Off</option>
+                            <option value="16">Text</option>
                             <option value="8">Decimal</option>
                             <option value="4">Hex</option>
                             <option value="2">Decimal and Text</option>
