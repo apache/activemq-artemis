@@ -71,6 +71,12 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
    }
 
    @Override
+   public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+      super.handlerRemoved(ctx);
+      httpKeepAliveTask.unregisterKeepAliveHandler(this);
+   }
+
+   @Override
    public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
       FullHttpRequest request = (FullHttpRequest) msg;
       HttpMethod method = request.method();
