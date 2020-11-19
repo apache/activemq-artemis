@@ -80,15 +80,19 @@ var Artemis;
             </div>
             <div class="form-group" ng-show="$ctrl.showMessageDetails">
                 <button class="btn btn-primary" ng-click="$ctrl.showMessageDetails = false">Back</button>
-                <h2>MessageID: {{$ctrl.currentMessage.messageID}}</h2>
-                <h2>Headers</h2>
+                <h4>Message ID: {{$ctrl.currentMessage.messageID}}</h4>
+
+                <h4>Displaying body as <span ng-bind="$ctrl.currentMessage.textMode"></span></h4>
+                <div hawtio-editor="$ctrl.currentMessage.bodyText" read-only="true" mode='mode'></div>
+
+                <h4>Headers</h4>
                 <pf-toolbar config="$ctrl.messageToolbarConfig"></pf-toolbar>
                 <pf-table-view config="$ctrl.messageTableConfig"
                     columns="$ctrl.messageTableColumns"
                     items="$ctrl.currentMessage.headers">
                 </pf-table-view>
 
-                <h2>Properties</h2>
+                <h4>Properties</h4>
                 <div ng-show="$ctrl.showMessageDetails">
                     <pf-toolbar config="$ctrl.messagePToolbarConfig"></pf-toolbar>
                     <pf-table-view config="$ctrl.messagePTableConfig"
@@ -96,9 +100,6 @@ var Artemis;
                         items="$ctrl.currentMessage.properties">
                     </pf-table-view>
                 </div>
-
-                <h3>Displaying body as <span ng-bind="$ctrl.currentMessage.textMode"></span></h3>
-                <div hawtio-editor="$ctrl.currentMessage.bodyText" read-only="true" mode='mode'></div>
             </div>
 
             <div hawtio-confirm-dialog="$ctrl.deleteDialog" title="Delete messages?"
@@ -597,7 +598,7 @@ var Artemis;
                     var bytesArr = [];
                     var textArr = [];
                     message.BodyPreview.forEach(function(b) {
-                        if (code === 1 || code === 2) {
+                        if (code === 1 || code === 2 || code === 16) {
                             // text
                             textArr.push(String.fromCharCode(b));
                         }
@@ -622,6 +623,12 @@ var Artemis;
                         var lenTxt = "" + textArr.length;
                         body = "bytes:\n" + bytesData + "\n\ntext:\n" + textData;
                         message.textMode = "bytes (" + len + " bytes) and text (" + lenTxt + " chars)";
+                    } else if (code === 16) {
+                        // text only
+                        var len = message.BodyPreview.length;
+                        var lenTxt = "" + textArr.length;
+                        body = "text:\n" + textData;
+                        message.textMode = "text (" + lenTxt + " chars)";
                     } else {
                         // bytes only
                         var len = message.BodyPreview.length;
