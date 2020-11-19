@@ -904,7 +904,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String exactAddress = "test.whatever";
 
       assertEquals(1, serverControl.getRoles(addressMatch).length);
-      serverControl.addSecuritySettings(addressMatch, "foo", "foo, bar", "foo", "bar", "foo, bar", "", "", "bar", "foo", "foo");
+      serverControl.addSecuritySettings(addressMatch, "foo", "foo, bar", null, "bar", "foo, bar", "", "", "bar", "foo", "foo");
 
       // Restart the server. Those settings should be persisted
 
@@ -926,7 +926,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
       assertTrue(fooRole.isSend());
       assertTrue(fooRole.isConsume());
-      assertTrue(fooRole.isCreateDurableQueue());
+      assertFalse(fooRole.isCreateDurableQueue());
       assertFalse(fooRole.isDeleteDurableQueue());
       assertTrue(fooRole.isCreateNonDurableQueue());
       assertFalse(fooRole.isDeleteNonDurableQueue());
