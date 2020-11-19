@@ -104,6 +104,20 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Test(timeout = 60 * 1000)
    public void testSendAndReceiveMQTT() throws Exception {
+      testSendAndReceiveMQTT("");
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testSendAndReceiveMQTTHugePayload() throws Exception {
+      StringBuilder builder = new StringBuilder();
+      builder.append("/");
+      while (builder.length() < 110 * 1024) {
+         builder.append("huge payload huge payload huge payload huge payload ");
+      }
+      testSendAndReceiveMQTT(builder.toString());
+   }
+
+   public void testSendAndReceiveMQTT(String extraPayload) throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
 
@@ -133,7 +147,7 @@ public class MQTTTest extends MQTTTestSupport {
       initializeConnection(publishProvider);
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         String payload = "Message " + i;
+         String payload = "Message " + i + extraPayload;
          publishProvider.publish("foo/bah", payload.getBytes(), AT_LEAST_ONCE);
       }
 
