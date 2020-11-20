@@ -168,28 +168,14 @@ public class ScaleDownHandler {
          }
 
          // compile a list of all the relevant queues and queue iterators for this address
-         RoutingType routingType;
-         Integer routingTypeOrdinal;
-         String routingTypeString = "";
          for (Queue loopQueue : queues) {
             logger.debug("Scaling down messages on address " + address + " / performing loop on queue " + loopQueue);
 
             try (LinkedListIterator<MessageReference> messagesIterator = loopQueue.browserIterator()) {
 
-               routingType = loopQueue.getRoutingType();
-               if (null != routingType) {
-                  routingTypeOrdinal = routingType.ordinal();
-                  routingTypeString = routingTypeOrdinal.toString();
-               }
-
                while (messagesIterator.hasNext()) {
                   MessageReference messageReference = messagesIterator.next();
-                  Message originalMessage = messageReference.getMessage();
-
-                  if (null != routingType) {
-                     originalMessage.putStringProperty(Message.HDR_ROUTING_TYPE.toString(), routingTypeString);
-                  }
-                  Message message = originalMessage.copy();
+                  Message message = messageReference.getMessage().copy();
 
                   logger.debug("Reading message " + message + " from queue " + loopQueue);
                   Set<QueuesXRefInnerManager> queuesFound = new HashSet<>();
@@ -199,7 +185,7 @@ public class ScaleDownHandler {
                         // no need to lookup on itself, we just add it
                         queuesFound.add(controlEntry.getValue());
                      } else if (controlEntry.getValue().lookup(messageReference)) {
-                        logger.debug("Message existed on queue " + controlEntry.getKey().getID() + " removeID=" + controlEntry.getValue().getQueueID(message));
+                        logger.debug("Message existed on queue " + controlEntry.getKey().getID() + " removeID=" + controlEntry.getValue().getQueueID());
                         queuesFound.add(controlEntry.getValue());
                      }
                   }
@@ -208,7 +194,7 @@ public class ScaleDownHandler {
                   ByteBuffer buffer = ByteBuffer.allocate(queuesFound.size() * 8);
 
                   for (QueuesXRefInnerManager control : queuesFound) {
-                     long queueID = control.getQueueID(message);
+                     long queueID = control.getQueueID();
                      buffer.putLong(queueID);
                   }
 
@@ -546,10 +532,10 @@ public class ScaleDownHandler {
          return queue;
       }
 
-      public long getQueueID(Message message) throws Exception {
+      public long getQueueID() throws Exception {
 
          if (targetQueueID < 0) {
-            targetQueueID = createQueueWithRoutingTypeIfNecessaryAndGetID(clientSession, queue, queue.getAddress(), message.getRoutingType());
+            targetQueueID = createQueueWithRoutingTypeIfNecessaryAndGetID(clientSession, queue, queue.getAddress(), queue.getRoutingType());
          }
          return targetQueueID;
       }
