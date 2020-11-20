@@ -233,7 +233,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
 
-      ActiveMQSslConnectionFactory factory = new ActiveMQSslConnectionFactory("ssl://localhost:61616");
+      ActiveMQSslConnectionFactory factory = new ActiveMQSslConnectionFactory("ssl://localhost:61616?verifyHostName=false");
       factory.setTrustStore("client-side-truststore.jks");
       factory.setTrustStorePassword("secureexample");
       factory.setKeyStore("client-side-keystore.jks");
@@ -273,7 +273,7 @@ public class SecurityTest extends ActiveMQTestBase {
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
       server.start();
 
-      ActiveMQSslConnectionFactory factory = new ActiveMQSslConnectionFactory("ssl://localhost:61616");
+      ActiveMQSslConnectionFactory factory = new ActiveMQSslConnectionFactory("ssl://localhost:61616?verifyHostName=false");
       factory.setUserName("test-user");
       factory.setTrustStore("client-side-truststore.jks");
       factory.setTrustStorePassword("secureexample");
