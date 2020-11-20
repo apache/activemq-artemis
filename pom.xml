@@ -103,7 +103,7 @@
 
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.33.Final</netty-tcnative-version>
-      <proton.version>0.33.6</proton.version>
+      <proton.version>0.33.8</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
       <qpid.jms.version>0.54.0</qpid.jms.version>
