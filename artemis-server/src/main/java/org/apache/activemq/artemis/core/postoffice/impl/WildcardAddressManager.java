@@ -63,7 +63,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
 
       // this should only happen if we're routing to an address that has no mappings when we're running checkAllowable
       if (bindings == null && !wildCardAddresses.isEmpty()) {
-         Address add = addAndUpdateAddressMap(address, true);
+         Address add = addAndUpdateAddressMap(address);
          if (!add.containsWildCard()) {
             for (Address destAdd : add.getLinkedAddresses()) {
                Bindings b = super.getBindingsForRoutingAddress(destAdd.getAddress());
@@ -94,7 +94,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
    public boolean addBinding(final Binding binding) throws Exception {
       boolean exists = super.addBinding(binding);
       if (!exists) {
-         Address add = addAndUpdateAddressMap(binding.getAddress(), false);
+         Address add = addAndUpdateAddressMap(binding.getAddress());
          if (add.containsWildCard()) {
             for (Address destAdd : add.getLinkedAddresses()) {
                super.addMappingInternal(destAdd.getAddress(), binding);
@@ -113,7 +113,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
 
    @Override
    public void updateMessageLoadBalancingTypeForAddress(SimpleString address, MessageLoadBalancingType messageLoadBalancingType) throws Exception {
-      Address add = addAndUpdateAddressMap(address, true);
+      Address add = addAndUpdateAddressMap(address);
       Bindings bindingsForRoutingAddress = super.getBindingsForRoutingAddress(address);
       if (bindingsForRoutingAddress != null) {
          bindingsForRoutingAddress.setMessageLoadBalancingType(messageLoadBalancingType);
@@ -175,36 +175,38 @@ public class WildcardAddressManager extends SimpleAddressManager {
       wildCardAddresses.clear();
    }
 
-   private Address addAndUpdateAddressMap(final SimpleString address, boolean getBiased) {
+   private Address addAndUpdateAddressMap(final SimpleString address) {
       final boolean containsWildCard = address.containsEitherOf(wildcardConfiguration.getAnyWords(), wildcardConfiguration.getSingleWord());
       final Map<SimpleString, Address> addressMap = containsWildCard ? wildCardAddresses : addresses;
-      Address actualAddress = null;
-      if (getBiased) {
-         // CHM::get doesn't need to synchronize anything, so it's to be preferred for getBiased cases
-         actualAddress = addressMap.get(address);
-      }
+      Address actualAddress = addressMap.get(address);
       if (actualAddress == null) {
-         actualAddress = addressMap.computeIfAbsent(address, addressKey -> new AddressImpl(addressKey, wildcardConfiguration));
-      }
-      assert actualAddress.containsWildCard() == containsWildCard;
-      synchronized (this) {
-         if (containsWildCard) {
-            for (Address destAdd : this.addresses.values()) {
-               if (destAdd.matches(actualAddress)) {
-                  destAdd.addLinkedAddress(actualAddress);
-                  actualAddress.addLinkedAddress(destAdd);
+         synchronized (this) {
+            actualAddress = addressMap.get(address);
+            if (actualAddress == null) {
+               actualAddress = new AddressImpl(address, wildcardConfiguration);
+
+               assert actualAddress.containsWildCard() == containsWildCard;
+               if (containsWildCard) {
+                  for (Address destAdd : addresses.values()) {
+                     if (destAdd.matches(actualAddress)) {
+                        destAdd.addLinkedAddress(actualAddress);
+                        actualAddress.addLinkedAddress(destAdd);
+                     }
+                  }
+               } else {
+                  for (Address destAdd : wildCardAddresses.values()) {
+                     if (actualAddress.matches(destAdd)) {
+                        destAdd.addLinkedAddress(actualAddress);
+                        actualAddress.addLinkedAddress(destAdd);
+                     }
+                  }
                }
-            }
-         } else {
-            for (Address destAdd : wildCardAddresses.values()) {
-               if (actualAddress.matches(destAdd)) {
-                  destAdd.addLinkedAddress(actualAddress);
-                  actualAddress.addLinkedAddress(destAdd);
-               }
+               // only publish when complete
+               addressMap.put(address, actualAddress);
             }
          }
-         return actualAddress;
       }
+      return actualAddress;
    }
 
    private void removeAndUpdateAddressMap(final Address address) throws Exception {

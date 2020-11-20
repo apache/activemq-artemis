@@ -152,6 +152,26 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       Assert.assertTrue(ad.addBinding(new BindingFake("Queue1.#", "one")));
    }
 
+   @Test
+   public void tesWildcardOnClusterUpdate() throws Exception {
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("Queue1.#"), RoutingType.ANYCAST));
+      Assert.assertTrue(ad.addBinding(new BindingFake("Queue1.A", "oneOnA")));
+      Assert.assertTrue(ad.addBinding(new BindingFake("Queue1.#", "one")));
+
+      Field wildcardAddressField = WildcardAddressManager.class.getDeclaredField("wildCardAddresses");
+      wildcardAddressField.setAccessible(true);
+      Map<SimpleString, Address> wildcardAddresses = (Map<SimpleString, Address>)wildcardAddressField.get(ad);
+      SimpleString addressOfInterest = SimpleString.toSimpleString("Queue1.#");
+      assertEquals(1, wildcardAddresses.get(addressOfInterest).getLinkedAddresses().size());
+      // whack the existing state, it should remain whacked!
+      wildcardAddresses.get(addressOfInterest).getLinkedAddresses().clear();
+
+      // simulate cluster, verify just reads linkedAddresses
+      ad.updateMessageLoadBalancingTypeForAddress(addressOfInterest, MessageLoadBalancingType.ON_DEMAND);
+      assertTrue("no addresses added", wildcardAddresses.get(addressOfInterest).getLinkedAddresses().isEmpty());
+   }
+
    @Test(expected = ActiveMQQueueExistsException.class)
    public void testWildCardAddAlreadyExistingBindingShouldThrowException() throws Exception {
       WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
