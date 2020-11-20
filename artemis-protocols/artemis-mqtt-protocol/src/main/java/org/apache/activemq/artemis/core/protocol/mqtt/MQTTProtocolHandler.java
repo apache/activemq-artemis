@@ -71,7 +71,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    public MQTTProtocolHandler(ActiveMQServer server, MQTTProtocolManager protocolManager) {
       this.server = server;
       this.protocolManager = protocolManager;
-      this.mqttMessageActor = new Actor<>(server.getExecutorFactory().getExecutor(), this::act);
+      this.mqttMessageActor = new Actor<>(server.getThreadPool(), this::act);
    }
 
    void setConnection(MQTTConnection connection, ConnectionEntry entry) throws Exception {
