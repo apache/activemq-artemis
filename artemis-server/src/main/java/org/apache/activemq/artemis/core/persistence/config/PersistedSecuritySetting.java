@@ -20,6 +20,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 
+import static org.apache.activemq.artemis.utils.DataConstants.SIZE_INT;
+import static org.apache.activemq.artemis.utils.DataConstants.SIZE_NULL;
+
 public class PersistedSecuritySetting implements EncodingSupport {
 
    // Constants -----------------------------------------------------
@@ -116,74 +119,77 @@ public class PersistedSecuritySetting implements EncodingSupport {
     * @return the sendRoles
     */
    public String getSendRoles() {
-      return sendRoles.toString();
+      return sendRoles != null ? sendRoles.toString() : null;
    }
 
    /**
     * @return the consumeRoles
     */
    public String getConsumeRoles() {
-      return consumeRoles.toString();
+      return consumeRoles != null ? consumeRoles.toString() : null;
    }
 
    /**
     * @return the createDurableQueueRoles
     */
    public String getCreateDurableQueueRoles() {
-      return createDurableQueueRoles.toString();
+      return createDurableQueueRoles != null ? createDurableQueueRoles.toString() : null;
    }
 
    /**
     * @return the deleteDurableQueueRoles
     */
    public String getDeleteDurableQueueRoles() {
-      return deleteDurableQueueRoles.toString();
+      return deleteDurableQueueRoles != null ? deleteDurableQueueRoles.toString() : null;
    }
 
    /**
     * @return the createNonDurableQueueRoles
     */
    public String getCreateNonDurableQueueRoles() {
-      return createNonDurableQueueRoles.toString();
+      return createNonDurableQueueRoles != null ? createNonDurableQueueRoles.toString() : null;
    }
 
    /**
     * @return the deleteNonDurableQueueRoles
     */
    public String getDeleteNonDurableQueueRoles() {
-      return deleteNonDurableQueueRoles.toString();
+      return deleteNonDurableQueueRoles != null ? deleteNonDurableQueueRoles.toString() : null;
    }
 
    /**
     * @return the manageRoles
     */
    public String getManageRoles() {
-      return manageRoles.toString();
+      return manageRoles != null ? manageRoles.toString() : null;
    }
 
    /**
     * @return the browseRoles
     */
    public String getBrowseRoles() {
-      return browseRoles.toString();
+      return browseRoles != null ? browseRoles.toString() : null;
    }
 
    /**
     * @return the createAddressRoles
     */
    public String getCreateAddressRoles() {
-      return createAddressRoles.toString();
+      return createAddressRoles != null ? createAddressRoles.toString() : null;
    }
 
    /**
     * @return the deleteAddressRoles
     */
    public String getDeleteAddressRoles() {
-      return deleteAddressRoles.toString();
+      return deleteAddressRoles != null ? deleteAddressRoles.toString() : null;
    }
 
    @Override
    public void encode(final ActiveMQBuffer buffer) {
+      if (addressMatch == null) {
+         addressMatch = new SimpleString("");
+      }
       buffer.writeSimpleString(addressMatch);
       buffer.writeNullableSimpleString(sendRoles);
       buffer.writeNullableSimpleString(consumeRoles);
@@ -199,16 +205,18 @@ public class PersistedSecuritySetting implements EncodingSupport {
 
    @Override
    public int getEncodeSize() {
-      return addressMatch.sizeof() + SimpleString.sizeofNullableString(sendRoles) +
-         SimpleString.sizeofNullableString(consumeRoles) +
-         SimpleString.sizeofNullableString(createDurableQueueRoles) +
-         SimpleString.sizeofNullableString(deleteDurableQueueRoles) +
-         SimpleString.sizeofNullableString(createNonDurableQueueRoles) +
-         SimpleString.sizeofNullableString(deleteNonDurableQueueRoles) +
-         SimpleString.sizeofNullableString(manageRoles) +
-         SimpleString.sizeofNullableString(browseRoles) +
-         SimpleString.sizeofNullableString(createAddressRoles) +
-         SimpleString.sizeofNullableString(deleteAddressRoles);
+      return
+         (addressMatch == null ? SIZE_INT : addressMatch.sizeof()) +
+         (sendRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(sendRoles)) +
+         (consumeRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(consumeRoles)) +
+         (createDurableQueueRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(createDurableQueueRoles)) +
+         (deleteDurableQueueRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(deleteDurableQueueRoles)) +
+         (createNonDurableQueueRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(createNonDurableQueueRoles)) +
+         (deleteNonDurableQueueRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(deleteNonDurableQueueRoles)) +
+         (manageRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(manageRoles)) +
+         (browseRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(browseRoles)) +
+         (createAddressRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(createAddressRoles)) +
+         (deleteAddressRoles == null ? SIZE_NULL : SimpleString.sizeofNullableString(deleteAddressRoles));
    }
 
    @Override

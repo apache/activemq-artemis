@@ -34,6 +34,8 @@ public final class DataConstants {
 
    public static final int SIZE_CHAR = 2;
 
+   public static final int SIZE_NULL = 1;
+
    public static final byte TRUE = 1;
 
    public static final byte FALSE = 0;
