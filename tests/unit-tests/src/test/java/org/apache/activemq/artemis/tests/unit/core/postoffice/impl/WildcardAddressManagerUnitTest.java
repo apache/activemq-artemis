@@ -167,8 +167,8 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       // whack the existing state, it should remain whacked!
       wildcardAddresses.get(addressOfInterest).getLinkedAddresses().clear();
 
-      // simulate cluster, verify just reads linkedAddresses
-      ad.updateMessageLoadBalancingTypeForAddress(addressOfInterest, MessageLoadBalancingType.ON_DEMAND);
+      // new binding on existing address, verify just reads linkedAddresses
+      Assert.assertTrue(ad.addBinding(new BindingFake("Queue1.A", "twoOnA")));
       assertTrue("no addresses added", wildcardAddresses.get(addressOfInterest).getLinkedAddresses().isEmpty());
    }
 
@@ -271,9 +271,6 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
                // publish again, read only
                binding = ad.getBindingsForRoutingAddress(pubAddr);
-
-               // cluster consumer, concurrent access
-               ad.updateMessageLoadBalancingTypeForAddress(wildCard, MessageLoadBalancingType.ON_DEMAND);
 
             } catch (Exception e) {
                e.printStackTrace();

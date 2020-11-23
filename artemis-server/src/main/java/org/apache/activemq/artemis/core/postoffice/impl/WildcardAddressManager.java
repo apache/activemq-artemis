@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -109,24 +108,6 @@ public class WildcardAddressManager extends SimpleAddressManager {
          }
       }
       return !exists;
-   }
-
-   @Override
-   public void updateMessageLoadBalancingTypeForAddress(SimpleString address, MessageLoadBalancingType messageLoadBalancingType) throws Exception {
-      Address add = addAndUpdateAddressMap(address);
-      Bindings bindingsForRoutingAddress = super.getBindingsForRoutingAddress(address);
-      if (bindingsForRoutingAddress != null) {
-         bindingsForRoutingAddress.setMessageLoadBalancingType(messageLoadBalancingType);
-      }
-      if (add.containsWildCard()) {
-         for (Address destAdd : add.getLinkedAddresses()) {
-            getBindingsForRoutingAddress(destAdd.getAddress()).setMessageLoadBalancingType(messageLoadBalancingType);
-         }
-      } else {
-         for (Address destAdd : add.getLinkedAddresses()) {
-            super.getBindingsForRoutingAddress(destAdd.getAddress()).setMessageLoadBalancingType(messageLoadBalancingType);
-         }
-      }
    }
 
    /**
