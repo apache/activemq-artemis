@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
@@ -3460,7 +3461,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       copy.reencode();
 
-      return copy;
+      // in some edge cases a large message can become large during the copy
+      return LargeServerMessageImpl.checkLargeMessage(copy, storageManager);
    }
 
    private void expire(final Transaction tx, final MessageReference ref) throws Exception {
