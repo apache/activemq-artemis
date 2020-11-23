@@ -60,7 +60,6 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -1340,11 +1339,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public Set<SimpleString> getAddresses() {
       return addressManager.getAddresses();
-   }
-
-   @Override
-   public void updateMessageLoadBalancingTypeForAddress(SimpleString  address, MessageLoadBalancingType messageLoadBalancingType) throws Exception {
-      addressManager.updateMessageLoadBalancingTypeForAddress(address, messageLoadBalancingType);
    }
 
    @Override

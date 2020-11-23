@@ -91,9 +91,6 @@ public class WildcardAddressManagerPerfTest {
                   System.err.println("2. Bindings for: " + id + ", " + binding.getBindings().size());
                }
 
-               // cluster consumer
-               //ad.updateMessageLoadBalancingTypeForAddress(wildCard, MessageLoadBalancingType.ON_DEMAND);
-
             } catch (Exception e) {
                e.printStackTrace();
             }

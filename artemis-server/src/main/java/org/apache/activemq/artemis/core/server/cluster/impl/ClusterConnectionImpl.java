@@ -1317,14 +1317,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          } catch (Exception ignore) {
          }
 
-         try {
-            postOffice.updateMessageLoadBalancingTypeForAddress(queueAddress, messageLoadBalancingType);
-         } catch (Exception e) {
-            if (logger.isTraceEnabled()) {
-               logger.trace(e.getLocalizedMessage(), e);
-            }
-         }
-
       }
 
       private void doBindingRemoved(final ClientMessage message) throws Exception {

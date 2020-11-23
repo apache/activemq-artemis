@@ -348,4 +348,9 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    public long getRemoteQueueID() {
       return remoteQueueID;
    }
+
+   @Override
+   public MessageLoadBalancingType getMessageLoadBalancingType() {
+      return messageLoadBalancingType;
+   }
 }
