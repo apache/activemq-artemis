@@ -23,6 +23,32 @@ Highlights:
 - Support for admin objects in the JCA resource adapter to facilitate deployment into 3rd-party Java EE application servers
 - Ability to prevent an acceptor from automatically starting
 
+#### Upgrading from older versions
+
+Due to [ARTEMIS-2893](https://issues.apache.org/jira/browse/ARTEMIS-2893) the
+fundamental way user management was implemented had to change to avoid data
+integrity issues related to concurrent modification. From a user's perspective
+two main things changed:
+
+1. User management is no longer possible using the `artemis user` commands
+   when the broker is **offline**. Of course users are still free to modify the
+   properties files directly in this situation.
+2. The parameters of the `artemis user` commands changed. Instead of using
+   something like this:
+   ```sh
+   ./artemis user add --user guest --password guest --role admin
+   ``` 
+   Use this instead:
+   ```sh
+   ./artemis user add --user-command-user guest --user-command-password guest --role admin
+   ```
+   In short, use `user-command-user` in lieu of `user` and `user-command-password`
+   in lieu of `password`. Both `user` and `password` parameters now apply to the
+   connection used to send the command to the broker.
+   
+   For additional details see [ARTEMIS-2893](https://issues.apache.org/jira/browse/ARTEMIS-2893)
+   and [ARTEMIS-3010](https://issues.apache.org/jira/browse/ARTEMIS-3010) 
+
 ## 2.15.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12348568).

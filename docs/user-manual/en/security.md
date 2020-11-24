@@ -584,12 +584,15 @@ guest=password
 ```
 
 Passwords in `artemis-users.properties` can be hashed. Such passwords should
-follow the syntax `ENC(<hash>)`. Hashed passwords can easily be added to
-`artemis-users.properties` using the `user` CLI command from the Artemis
-*instance*. This command will not work from the Artemis home.
+follow the syntax `ENC(<hash>)`. 
+
+Hashed passwords can easily be added to `artemis-users.properties` using the
+`user` CLI command from the Artemis *instance*. This command will not work 
+from the Artemis home, and it will also not work unless the broker has been
+started.
 
 ```sh
-./artemis user add --user guest --password guest --role admin
+./artemis user add --user-command-user guest --user-command-password guest --role admin
 ```
 
 This will use the default codec to perform a "one-way" hash of the password
@@ -617,6 +620,12 @@ etc.).
 >
 > Management and CLI operations to manipulate user & role data are only available
 > when using the `PropertiesLoginModule`.
+>
+> In general, using properties files and broker-centric user management for
+> anything other than very basic use-cases is not recommended. The broker is
+> designed to deal with messages. It's not in the business of managing users,
+> although that functionality is provided at a limited level for convenience. LDAP
+> is recommended for enterprise level production use-cases.
 
 #### LDAPLoginModule
 

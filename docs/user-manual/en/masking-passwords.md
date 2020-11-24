@@ -70,9 +70,9 @@ This process does **not** work for passwords in:
 
  - `artemis-users.properties`
 
-Maksed passwords for `artemis-users.properties` *can* be generated using the
-`mask` command using the `--hash` command-line option. However, we recommend
-using the set of tools provided by the `user` command described below.
+Masked passwords for `artemis-users.properties` *can* be generated using the
+`mask` command using the `--hash` command-line option. However, this is also
+possible using the set of tools provided by the `user` command described below.
 
 ## Masking Configuration
 
@@ -100,10 +100,11 @@ hashed values for password verification.
 
 Use the following command from the CLI of the Aremtis *instance* you wish to
 add the user/password to. This command will not work from the Artemis home
-used to create the instance. For example:
+used to create the instance, and it will also not work unless the broker has
+been started. For example:
 
 ```sh
-./artemis user add --user guest --password guest --role admin
+./artemis user add --user-command-user guest --user-command-password guest --role admin
 ```
 
 This will use the default codec to perform a "one-way" hash of the password
@@ -113,6 +114,17 @@ files with the specified values.
 Passwords in `artemis-users.properties` are automatically detected as hashed or
 not by looking for the syntax `ENC(<hash>)`. The `mask-password` parameter does
 not need to be `true` to use hashed passwords here.
+
+> **Warning**
+>
+> Management and CLI operations to manipulate user & role data are only available
+> when using the `PropertiesLoginModule`.
+>
+> In general, using properties files and broker-centric user management for
+> anything other than very basic use-cases is not recommended. The broker is
+> designed to deal with messages. It's not in the business of managing users,
+> although that functionality is provided at a limited level for convenience. LDAP
+> is recommended for enterprise level production use-cases.
 
 ### cluster-password
 
