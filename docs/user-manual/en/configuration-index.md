@@ -50,10 +50,13 @@ For further information on XInclude see:
 
 Certain changes in `broker.xml` can be picked up at runtime as discussed in the [Configuration Reload](config-reload.md)
 chapter. Changes made directly to files which are included in `broker.xml` via `xi:include` will not be automatically
-picked up unless the file timestamp on `broker.xml` is also modified. For example, if `broker.xml` is including
-`my-address-settings.xml` and `my-address-settings.xml` is modified those changes won't be loaded until the user uses
-something like the [touch](https://en.wikipedia.org/wiki/Touch_%28Unix%29) command to update the `broker.xml` file's
-timestamp to trigger a reload.
+reloaded. For example, if `broker.xml` is including `my-address-settings.xml` and `my-address-settings.xml` is modified
+those changes won't be reloaded automatically. To force a reload in this situation there are 2 main options: 
+
+1. Use the `reloadConfiguration` management operation on the `ActiveMQServerControl`.
+2. Update the timestamp on `broker.xml` using something like the [touch](https://en.wikipedia.org/wiki/Touch_%28Unix%29)
+   command. The next time the broker inspects `broker.xml` for automatic reload it will see the updated timestamp and
+   trigger a reload of `broker.xml` and all its included files.
 
 ### System properties
 

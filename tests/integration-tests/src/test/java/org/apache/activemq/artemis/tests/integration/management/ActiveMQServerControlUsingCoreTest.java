@@ -447,6 +447,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void reloadConfigurationFile() throws Exception {
+            proxy.invokeOperation("reloadConfigurationFile");
+         }
+
+         @Override
          public String getUptime() {
             return null;
          }
