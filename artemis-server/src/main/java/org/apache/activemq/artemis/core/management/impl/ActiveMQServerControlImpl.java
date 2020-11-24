@@ -4385,5 +4385,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       String path = configurationUrl.getPath();
       return new PropertiesLoginModuleConfigurator(getSecurityDomain(), path.substring(0, path.lastIndexOf("/")));
    }
+
+   @Override
+   public void reloadConfigurationFile() throws Exception {
+      server.reloadConfigurationFile();
+   }
 }
 
