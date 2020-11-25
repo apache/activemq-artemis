@@ -541,8 +541,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       try {
          securityCheck(address, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
       } catch (Exception e) {
-         // this is here for backwards compatibility with the pre-FQQN syntax from ARTEMIS-592
-         securityCheck(address.concat(".").concat(unPrefixedQueueName), queueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
+         /*
+          * This is here for backwards compatibility with the pre-FQQN syntax from ARTEMIS-592.
+          * We only want to do this check if an exact match exists in the security-settings.
+          * This code is deprecated and should be removed at the release of the next major version.
+          */
+         SimpleString exactMatch = address.concat(".").concat(unPrefixedQueueName);
+         if (server.getSecurityRepository().containsExactMatch(exactMatch.toString())) {
+            securityCheck(exactMatch, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
+         } else {
+            throw e;
+         }
       }
 
       Filter filter = FilterImpl.createFilter(filterString);
