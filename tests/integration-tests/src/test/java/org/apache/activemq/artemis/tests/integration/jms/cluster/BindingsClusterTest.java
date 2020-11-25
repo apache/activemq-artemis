@@ -335,6 +335,11 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
          printBindings(jmsServer1.getActiveMQServer(), TOPIC);
          printBindings(jmsServer2.getActiveMQServer(), TOPIC);
 
+         // verify receipt by remote binding before crash
+         TextMessage received = (TextMessage) cons2.receive(5000);
+         assertNotNull(received);
+         assertEquals("m2", received.getText());
+
          crash();
 
          //this may or may not be closed, if the server was crashed then it would have been closed on failure.
@@ -357,7 +362,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
          prod1.send(session1.createTextMessage("m6"));
          prod1.send(session1.createTextMessage("m7"));
 
-         TextMessage received = (TextMessage) cons1.receive(5000);
+         received = (TextMessage) cons1.receive(5000);
 
          assertNotNull(received);
 
