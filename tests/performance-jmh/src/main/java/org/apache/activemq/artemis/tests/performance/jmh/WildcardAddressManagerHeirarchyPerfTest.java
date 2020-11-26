@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.performance.jmh;
 
+import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -31,23 +31,21 @@ import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.WildcardAddressManager;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Group;
-import org.openjdk.jmh.annotations.GroupThreads;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 
 @State(Scope.Benchmark)
 @Fork(2)
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 8, time = 1)
-public class WildcardAddressManagerPerfTest {
+public class WildcardAddressManagerHeirarchyPerfTest {
 
    private static class BindingFactoryFake implements BindingsFactory {
 
@@ -157,52 +155,67 @@ public class WildcardAddressManagerPerfTest {
 
    @Param({"2", "8", "10"})
    int topicsLog2;
+
+   @Param({"true", "false"})
+   boolean verifyWildcardBinding;
+
    int topics;
    AtomicLong topicCounter;
+   int partitions;
    private static final WildcardConfiguration WILDCARD_CONFIGURATION;
    SimpleString[] addresses;
+   Binding[] bindings;
 
    static {
       WILDCARD_CONFIGURATION = new WildcardConfiguration();
       WILDCARD_CONFIGURATION.setAnyWords('>');
    }
 
-   private static final SimpleString WILDCARD = SimpleString.toSimpleString("Topic1.>");
-
    @Setup
    public void init() throws Exception {
       addressManager = new WildcardAddressManager(new BindingFactoryFake(), WILDCARD_CONFIGURATION, null, null);
-
-      addressManager.addAddressInfo(new AddressInfo(WILDCARD, RoutingType.MULTICAST));
-
       topics = 1 << topicsLog2;
       addresses = new SimpleString[topics];
+      bindings = new Binding[topics];
+      partitions = topicsLog2 * 2;
       for (int i = 0; i < topics; i++) {
-         Binding binding = new BindingFake(WILDCARD, SimpleString.toSimpleString("" + i), i);
-         addressManager.addBinding(binding);
-         addresses[i] = SimpleString.toSimpleString("Topic1." + i);
-         addressManager.getBindingsForRoutingAddress(addresses[i]);
+
+         if (verifyWildcardBinding) {
+            // ensure simple matches present
+            addresses[i] = SimpleString.toSimpleString(MessageFormat.format("Topic1.abc-{0}.def-{0}.{1}", i % partitions, i));
+            addressManager.addBinding(new BindingFake(addresses[i], SimpleString.toSimpleString("" + i), i));
+         } else {
+            // ensure wildcard matches present
+            addresses[i] = SimpleString.toSimpleString(MessageFormat.format("Topic1.abc-{0}.*.{1}", i % partitions, i));
+            addressManager.addBinding(new BindingFake(addresses[i], SimpleString.toSimpleString("" + i), i));
+
+         }
       }
+
       topicCounter = new AtomicLong(0);
       topicCounter.set(topics);
    }
 
    private long nextId() {
-      return topicCounter.getAndIncrement();
+      return topicCounter.incrementAndGet();
    }
 
    @State(value = Scope.Thread)
    public static class ThreadState {
 
-      Binding binding;
       long next;
       SimpleString[] addresses;
+      Binding binding;
 
       @Setup
-      public void init(WildcardAddressManagerPerfTest benchmarkState) {
+      public void init(WildcardAddressManagerHeirarchyPerfTest benchmarkState) {
          final long id = benchmarkState.nextId();
-         binding = new BindingFake(WILDCARD, SimpleString.toSimpleString("" + id), id);
          addresses = benchmarkState.addresses;
+         if (benchmarkState.verifyWildcardBinding) {
+            binding = new BindingFake(SimpleString.toSimpleString(MessageFormat.format("Topic1.abc-{0}.def-{1}.>", id % benchmarkState.partitions, id)), SimpleString.toSimpleString("" + id), id);
+         } else {
+            binding = new BindingFake(SimpleString.toSimpleString(MessageFormat.format("Topic1.abc-{0}.def-{0}.{1}", id % benchmarkState.partitions, id)), SimpleString.toSimpleString("" + id), id);
+         }
       }
 
       public SimpleString nextAddress() {
@@ -214,32 +227,11 @@ public class WildcardAddressManagerPerfTest {
    }
 
    @Benchmark
-   @Group("both")
-   @GroupThreads(2)
-   public Bindings testPublishWhileAddRemoveNewBinding(ThreadState state) throws Exception {
-      return addressManager.getBindingsForRoutingAddress(state.nextAddress());
-   }
-
-   @Benchmark
-   @Group("both")
-   @GroupThreads(2)
-   public Binding testAddRemoveNewBindingWhilePublish(ThreadState state) throws Exception {
-      final Binding binding = state.binding;
-      addressManager.addBinding(binding);
-      return addressManager.removeBinding(binding.getUniqueName(), null);
-   }
-
-   @Benchmark
-   @GroupThreads(4)
-   public Bindings testJustPublish(ThreadState state) throws Exception {
-      return addressManager.getBindingsForRoutingAddress(state.nextAddress());
-   }
-
-   @Benchmark
-   @GroupThreads(4)
+   @Threads(4)
    public Binding testJustAddRemoveNewBinding(ThreadState state) throws Exception {
       final Binding binding = state.binding;
       addressManager.addBinding(binding);
+      addressManager.getBindingsForRoutingAddress(state.nextAddress());
       return addressManager.removeBinding(binding.getUniqueName(), null);
    }
 

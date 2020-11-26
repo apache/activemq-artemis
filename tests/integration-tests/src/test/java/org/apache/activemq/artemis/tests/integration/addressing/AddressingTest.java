@@ -100,6 +100,50 @@ public class AddressingTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testDynamicMulticastRouting() throws Exception {
+
+      SimpleString sendAddress = new SimpleString("test.address");
+
+      AddressInfo addressInfo = new AddressInfo(sendAddress);
+      addressInfo.addRoutingType(RoutingType.MULTICAST);
+
+      server.addOrUpdateAddressInfo(addressInfo);
+      Queue q1 = server.createQueue(new QueueConfiguration(new SimpleString("1.test.address")).setAddress("test.address").setRoutingType(RoutingType.MULTICAST));
+      Queue q2 = server.createQueue(new QueueConfiguration(new SimpleString("2.test.#")).setAddress("test.#").setRoutingType(RoutingType.MULTICAST));
+
+      ClientSession session = sessionFactory.createSession();
+      session.start();
+
+
+      ClientConsumer consumer1 = session.createConsumer(q1.getName());
+      ClientConsumer consumer2 = session.createConsumer(q2.getName());
+
+
+      ClientProducer producer = session.createProducer(sendAddress);
+      ClientMessage m = session.createMessage(ClientMessage.TEXT_TYPE, true);
+      m.getBodyBuffer().writeString("TestMessage");
+
+      producer.send(m);
+
+      assertNotNull(consumer1.receive(2000));
+      assertNotNull(consumer2.receive(2000));
+
+      // add in a new wildcard producer, bindings version will be incremented
+      Queue q3 = server.createQueue(new QueueConfiguration(new SimpleString("3.test.*")).setAddress("test.*").setRoutingType(RoutingType.MULTICAST));
+      ClientConsumer consumer3 = session.createConsumer(q3.getName());
+
+      producer.send(m);
+
+      assertNotNull(consumer1.receive(2000));
+      assertNotNull(consumer2.receive(2000));
+      assertNotNull(consumer3.receive(2000));
+
+      q1.deleteQueue();
+      q2.deleteQueue();
+      q3.deleteQueue();
+   }
+
+   @Test
    public void testAnycastRouting() throws Exception {
 
       SimpleString sendAddress = new SimpleString("test.address");

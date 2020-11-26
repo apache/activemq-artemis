@@ -86,6 +86,7 @@ public final class BindingsImpl implements Bindings {
       this.name = name;
    }
 
+   @Override
    public SimpleString getName() {
       return name;
    }

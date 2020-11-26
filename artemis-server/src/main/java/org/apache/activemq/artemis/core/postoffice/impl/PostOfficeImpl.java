@@ -668,7 +668,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             return null;
          }
 
-         Bindings bindingsOnQueue = addressManager.getBindingsForRoutingAddress(queueBinding.getAddress());
+         Bindings bindingsOnQueue = addressManager.getExistingBindingsForRoutingAddress(queueBinding.getAddress());
 
          try {
 
@@ -923,7 +923,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             throw new ActiveMQNonExistentQueueException();
          }
 
-         if (deleteData && addressManager.getBindingsForRoutingAddress(binding.getAddress()) == null) {
+         if (deleteData && addressManager.getExistingBindingsForRoutingAddress(binding.getAddress()) == null) {
             deleteDuplicateCache(binding.getAddress());
          }
 
@@ -995,7 +995,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public Bindings getBindingsForAddress(final SimpleString address) throws Exception {
-      Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
+      Bindings bindings = addressManager.getExistingBindingsForRoutingAddress(address);
 
       if (bindings == null) {
          bindings = createBindings(address);
@@ -1006,7 +1006,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public Bindings lookupBindingsForAddress(final SimpleString address) throws Exception {
-      return addressManager.getBindingsForRoutingAddress(address);
+      return addressManager.getExistingBindingsForRoutingAddress(address);
    }
 
    @Override
