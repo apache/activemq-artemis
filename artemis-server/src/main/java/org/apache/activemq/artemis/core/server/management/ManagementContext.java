@@ -34,6 +34,16 @@ public class ManagementContext implements ServiceComponent {
    private ArtemisMBeanServerGuard guardHandler;
    private ActiveMQSecurityManager securityManager;
 
+   public void init() {
+      if (accessControlList != null) {
+         //if we are configured then assume we want to use the guard so set the system property
+         System.setProperty("javax.management.builder.initial", ArtemisMBeanServerBuilder.class.getCanonicalName());
+         guardHandler = new ArtemisMBeanServerGuard();
+         guardHandler.setJMXAccessControlList(accessControlList);
+         ArtemisMBeanServerBuilder.setGuard(guardHandler);
+      }
+   }
+
    @Override
    public void start() throws Exception {
       if (isStarted) {
@@ -44,14 +54,6 @@ public class ManagementContext implements ServiceComponent {
             return;
          }
          isStarted = true;
-         if (accessControlList != null) {
-            //if we are configured then assume we want to use the guard so set the system property
-            System.setProperty("javax.management.builder.initial", ArtemisMBeanServerBuilder.class.getCanonicalName());
-            guardHandler = new ArtemisMBeanServerGuard();
-            guardHandler.setJMXAccessControlList(accessControlList);
-            ArtemisMBeanServerBuilder.setGuard(guardHandler);
-         }
-
          if (jmxConnectorConfiguration != null) {
             mBeanServer = new ManagementConnector(jmxConnectorConfiguration, securityManager);
             mBeanServer.start();
