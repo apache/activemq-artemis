@@ -134,6 +134,8 @@ public class ManagementFactory {
          context.setSecurityManager(securityManager);
       }
 
+      context.init();
+
       return context;
    }
 }
