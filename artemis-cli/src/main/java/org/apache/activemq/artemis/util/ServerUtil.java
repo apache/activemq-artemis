@@ -105,14 +105,22 @@ public class ServerUtil {
    }
 
    public static boolean waitForServerToStart(int id, int timeout) throws InterruptedException {
-      return waitForServerToStart("tcp://localhost:" + (61616 + id), timeout);
+      return waitForServerToStart(id, null, null, timeout);
+   }
+
+   public static boolean waitForServerToStart(int id, String username, String password, int timeout) throws InterruptedException {
+      return waitForServerToStart("tcp://localhost:" + (61616 + id), username, password, timeout);
    }
 
    public static boolean waitForServerToStart(String uri, long timeout) throws InterruptedException {
+      return waitForServerToStart(uri, null, null, timeout);
+   }
+
+   public static boolean waitForServerToStart(String uri, String username, String password, long timeout) throws InterruptedException {
       long realTimeout = System.currentTimeMillis() + timeout;
       while (System.currentTimeMillis() < realTimeout) {
          try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null)) {
-            cf.createConnection().close();
+            cf.createConnection(username, password).close();
             System.out.println("server " + uri + " started");
          } catch (Exception e) {
             System.out.println("awaiting server " + uri + " start at ");
