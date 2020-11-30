@@ -275,6 +275,52 @@ public class ByteUtil {
       }
    }
 
+   public static int hashCode(byte[] bytes) {
+      if (PlatformDependent.hasUnsafe() && PlatformDependent.isUnaligned()) {
+         return unsafeHashCode(bytes);
+      }
+      return Arrays.hashCode(bytes);
+   }
+
+   /**
+    * This hash code computation is borrowed by {@link io.netty.buffer.ByteBufUtil#hashCode(ByteBuf)}.
+    */
+   private static int unsafeHashCode(byte[] bytes) {
+      if (bytes == null) {
+         return 0;
+      }
+      final int len = bytes.length;
+      int hashCode = 1;
+      final int intCount = len >>> 2;
+      int arrayIndex = 0;
+      // reading in batch both help hash code computation data dependencies and save memory bandwidth
+      for (int i = 0; i < intCount; i++) {
+         hashCode = 31 * hashCode + PlatformDependent.getInt(bytes, arrayIndex);
+         arrayIndex += Integer.BYTES;
+      }
+      final byte remaining = (byte) (len & 3);
+      if (remaining > 0) {
+         hashCode = unsafeUnrolledHashCode(bytes, arrayIndex, remaining, hashCode);
+      }
+      return hashCode == 0 ? 1 : hashCode;
+   }
+
+   private static int unsafeUnrolledHashCode(byte[] bytes, int index, int bytesCount, int h) {
+      // there is still the hash data dependency but is more friendly
+      // then a plain loop, given that we know no loop is needed here
+      assert bytesCount > 0 && bytesCount < 4;
+      h = 31 * h + PlatformDependent.getByte(bytes, index);
+      if (bytesCount == 1) {
+         return h;
+      }
+      h = 31 * h + PlatformDependent.getByte(bytes, index + 1);
+      if (bytesCount == 2) {
+         return h;
+      }
+      h = 31 * h + PlatformDependent.getByte(bytes, index + 2);
+      return h;
+   }
+
    public static boolean equals(final byte[] left, final byte[] right) {
       return equals(left, right, 0, right.length);
    }
