@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
+import static org.apache.activemq.artemis.api.core.Message.HDR_INGRESS_TIMESTAMP;
 import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_DATA;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_NULL;
@@ -292,6 +293,8 @@ public class AmqpCoreConverter {
                if (delay > 0) {
                   jms.setLongProperty(HDR_SCHEDULED_DELIVERY_TIME.toString(), System.currentTimeMillis() + delay);
                }
+            } else if (AMQPMessageSupport.X_OPT_INGRESS_TIME.equals(key) && entry.getValue() != null) {
+               jms.setLongProperty(HDR_INGRESS_TIMESTAMP.toString(), ((Number) entry.getValue()).longValue());
             }
 
             try {

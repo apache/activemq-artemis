@@ -686,6 +686,11 @@ public final class OpenWireMessageConverter {
          setAMQMsgHdrLastValueName(amqMsg, lastValueProperty);
       }
 
+      final Long ingressTimestamp = coreMessage.getPropertyNames().contains(org.apache.activemq.artemis.api.core.Message.HDR_INGRESS_TIMESTAMP) ? coreMessage.getLongProperty(org.apache.activemq.artemis.api.core.Message.HDR_INGRESS_TIMESTAMP) : null;
+      if (ingressTimestamp != null) {
+         setAMQMsgHdrIngressTimestamp(amqMsg, ingressTimestamp);
+      }
+
       final Set<SimpleString> props = coreMessage.getPropertyNames();
       if (props != null) {
          setAMQMsgObjectProperties(amqMsg, coreMessage, props);
@@ -934,6 +939,15 @@ public final class OpenWireMessageConverter {
          amqMsg.setStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_LAST_VALUE_NAME.toString(), lastValueProperty.toString());
       } catch (JMSException e) {
          throw new IOException("failure to set lvq property " + lastValueProperty, e);
+      }
+   }
+
+   private static void setAMQMsgHdrIngressTimestamp(final ActiveMQMessage amqMsg,
+                                                    final Long ingressTimestamp) throws IOException {
+      try {
+         amqMsg.setLongProperty(org.apache.activemq.artemis.api.core.Message.HDR_INGRESS_TIMESTAMP.toString(), ingressTimestamp);
+      } catch (JMSException e) {
+         throw new IOException("failure to set ingress timestamp property " + ingressTimestamp, e);
       }
    }
 

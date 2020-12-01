@@ -311,6 +311,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ENABLE_METRICS = "enable-metrics";
 
+   private static final String ENABLE_INGRESS_TIMESTAMP = "enable-ingress-timestamp";
 
    // Attributes ----------------------------------------------------
 
@@ -1356,6 +1357,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setExpiryQueueSuffix(new SimpleString(getTrimmedTextContent(child)));
          } else if (ENABLE_METRICS.equalsIgnoreCase(name)) {
             addressSettings.setEnableMetrics(XMLUtil.parseBoolean(child));
+         } else if (ENABLE_INGRESS_TIMESTAMP.equalsIgnoreCase(name)) {
+            addressSettings.setEnableIngressTimestamp(XMLUtil.parseBoolean(child));
          }
       }
       return setting;

@@ -132,6 +132,9 @@ public class StompUtils {
       if (message.containsProperty(Message.HDR_ROUTING_TYPE)) {
          command.addHeader(Stomp.Headers.Send.DESTINATION_TYPE, RoutingType.getType(message.getByteProperty(Message.HDR_ROUTING_TYPE.toString())).toString());
       }
+      if (message.containsProperty(Message.HDR_INGRESS_TIMESTAMP)) {
+         command.addHeader(Stomp.Headers.Message.INGRESS_TIMESTAMP, Long.toString(message.getLongProperty(Message.HDR_INGRESS_TIMESTAMP)));
+      }
 
       // now let's add all the rest of the message headers
       Set<SimpleString> names = message.getPropertyNames();
