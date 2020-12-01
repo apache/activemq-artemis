@@ -44,6 +44,7 @@
       <default-queue-routing-type>ANYCAST</default-queue-routing-type>
       <default-address-routing-type>MULTICAST</default-address-routing-type>
       <default-ring-size>3</default-ring-size>
+      <enable-ingress-timestamp>true</enable-ingress-timestamp>
    </address-setting>
    <address-setting match="a2">
       <dead-letter-address>a2.1</dead-letter-address>

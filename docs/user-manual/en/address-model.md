@@ -691,6 +691,7 @@ that would be found in the `broker.xml` file.
       <default-ring-size>-1</default-ring-size>
       <retroactive-message-count>0</retroactive-message-count>
       <enable-metrics>true</enable-metrics>
+      <enable-ingress-timestamp>false</enable-ingress-timestamp>
    </address-setting>
 </address-settings>
 ```
@@ -991,3 +992,12 @@ queues created on the matching address. Defaults to 0. Read more about
 `enable-metrics` determines whether or not metrics will be published to any
 configured metrics plugin for the matching address. Default is `true`. Read more
 about [metrics](metrics.md).
+
+`enable-ingress-timestamp` determines whether or not the broker will add its time 
+to messages sent to the matching address. When `true` the exact behavior will 
+depend on the specific protocol in use. For AMQP messages the broker will add a
+`long` *message annotation* named `x-opt-ingress-time`. For core messages (used by
+the core and OpenWire protocols) the broker will add a long property named
+`_AMQ_INGRESS_TIMESTAMP`. For STOMP messages the broker will add a frame header 
+named `ingress-timestamp`. The value will be the number of milliseconds since the
+[epoch](https://en.wikipedia.org/wiki/Unix_time). Default is `false`.

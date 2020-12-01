@@ -638,6 +638,27 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testIngressTimestamp() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setEnableIngressTimestamp(true));
+      conn.connect(defUser, defPass);
+
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
+      long beforeSend = System.currentTimeMillis();
+      sendJmsMessage(getName());
+      long afterSend = System.currentTimeMillis();
+
+      ClientStompFrame frame = conn.receiveFrame(10000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      String ingressTimestampHeader = frame.getHeader(Stomp.Headers.Message.INGRESS_TIMESTAMP);
+      Assert.assertNotNull(ingressTimestampHeader);
+      long ingressTimestamp = Long.parseLong(ingressTimestampHeader);
+      assertTrue("Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend,ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend);
+
+      conn.disconnect();
+   }
+
+   @Test
    public void testAnycastDestinationTypeMessageProperty() throws Exception {
       conn.connect(defUser, defPass);
 

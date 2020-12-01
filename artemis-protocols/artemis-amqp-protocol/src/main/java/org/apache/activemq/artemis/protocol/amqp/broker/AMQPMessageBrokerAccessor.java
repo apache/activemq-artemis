@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Header;
+import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 
 /** <b>Warning:</b> do not use this class outside of the broker implementation.
@@ -54,6 +55,10 @@ public class AMQPMessageBrokerAccessor {
    /** Warning: this is a method specific to the broker. Do not use it on user's application. */
    public static Properties getCurrentProperties(AMQPMessage message) {
       return message.getCurrentProperties();
+   }
+
+   public static MessageAnnotations getDecodedMessageAnnotations(AMQPMessage message) {
+      return message.getDecodedMessageAnnotations();
    }
 
 }

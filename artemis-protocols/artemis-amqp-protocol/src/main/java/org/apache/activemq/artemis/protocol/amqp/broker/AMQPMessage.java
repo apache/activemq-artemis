@@ -262,6 +262,10 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       return applicationProperties;
    }
 
+   protected MessageAnnotations getDecodedMessageAnnotations() {
+      return messageAnnotations;
+   }
+
    protected abstract ReadableBuffer getData();
 
    // Access to the AMQP message data using safe copies freshly decoded from the current
@@ -584,6 +588,10 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          value = value.toString();
       }
       getMessageAnnotationsMap(true).put(annotation, value);
+   }
+
+   protected void setMessageAnnotations(MessageAnnotations messageAnnotations) {
+      this.messageAnnotations = messageAnnotations;
    }
 
    // Message decoding and copying methods.  Care must be taken here to ensure the buffer and the
@@ -1349,6 +1357,17 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          return null;
       }
       return extra.getProperty(key);
+   }
+
+   @Override
+   public final org.apache.activemq.artemis.api.core.Message setIngressTimestamp() {
+      setMessageAnnotation(AMQPMessageSupport.INGRESS_TIME_MSG_ANNOTATION, System.currentTimeMillis());
+      return this;
+   }
+
+   @Override
+   public Long getIngressTimestamp() {
+      return (Long) getMessageAnnotation(AMQPMessageSupport.INGRESS_TIME_MSG_ANNOTATION);
    }
 
 

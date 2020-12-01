@@ -162,6 +162,11 @@ public interface Message {
    SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_ROUTING_TYPE");
 
    /**
+    * The time at which the message arrived at the broker.
+    */
+   SimpleString HDR_INGRESS_TIMESTAMP = new SimpleString("_AMQ_INGRESS_TIMESTAMP");
+
+   /**
     * The prefix used (if any) when sending this message.  For protocols (e.g. STOMP) that need to track this and restore
     * the prefix when the message is consumed.
     */
@@ -641,6 +646,15 @@ public interface Message {
 
    default Object getBrokerProperty(SimpleString key) {
       return getObjectProperty(key);
+   }
+
+   default Message setIngressTimestamp() {
+      setBrokerProperty(HDR_INGRESS_TIMESTAMP, System.currentTimeMillis());
+      return this;
+   }
+
+   default Long getIngressTimestamp() {
+      return (Long) getBrokerProperty(HDR_INGRESS_TIMESTAMP);
    }
 
    Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException;

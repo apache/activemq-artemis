@@ -133,6 +133,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final SlowConsumerThresholdMeasurementUnit DEFAULT_SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT = SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND;
 
+   public static final boolean DEFAULT_ENABLE_INGRESS_TIMESTAMP = false;
+
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
    private Long maxSizeBytes = null;
@@ -265,6 +267,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Integer managementMessageAttributeSizeLimit = null;
 
+   private Boolean enableIngressTimestamp = null;
+
    //from amq5
    //make it transient
    private transient Integer queuePrefetch = null;
@@ -332,6 +336,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.enableMetrics = other.enableMetrics;
       this.managementMessageAttributeSizeLimit = other.managementMessageAttributeSizeLimit;
       this.slowConsumerThresholdMeasurementUnit = other.slowConsumerThresholdMeasurementUnit;
+      this.enableIngressTimestamp = other.enableIngressTimestamp;
    }
 
    public AddressSettings() {
@@ -955,6 +960,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public boolean isEnableIngressTimestamp() {
+      return enableIngressTimestamp != null ? enableIngressTimestamp : AddressSettings.DEFAULT_ENABLE_INGRESS_TIMESTAMP;
+   }
+
+   public AddressSettings setEnableIngressTimestamp(final boolean enableIngressTimestamp) {
+      this.enableIngressTimestamp = enableIngressTimestamp;
+      return this;
+   }
+
    /**
     * merge 2 objects in to 1
     *
@@ -1153,6 +1167,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (enableMetrics == null) {
          enableMetrics = merged.enableMetrics;
+      }
+      if (enableIngressTimestamp == null) {
+         enableIngressTimestamp = merged.enableIngressTimestamp;
       }
    }
 
@@ -1377,6 +1394,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             slowConsumerThresholdMeasurementUnit = SlowConsumerThresholdMeasurementUnit.valueOf(slowConsumerMeasurementUnitEnumValue);
          }
       }
+
+      if (buffer.readableBytes() > 0) {
+         enableIngressTimestamp = BufferHelper.readNullableBoolean(buffer);
+      }
    }
 
    @Override
@@ -1442,7 +1463,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(enableMetrics) +
          BufferHelper.sizeOfNullableBoolean(defaultGroupRebalancePauseDispatch) +
          BufferHelper.sizeOfNullableInteger(managementMessageAttributeSizeLimit) +
-         BufferHelper.sizeOfNullableInteger(slowConsumerThresholdMeasurementUnit.getValue());
+         BufferHelper.sizeOfNullableInteger(slowConsumerThresholdMeasurementUnit.getValue()) +
+         BufferHelper.sizeOfNullableBoolean(enableIngressTimestamp);
    }
 
    @Override
@@ -1572,6 +1594,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableInteger(buffer, managementMessageAttributeSizeLimit);
 
       BufferHelper.writeNullableInteger(buffer, slowConsumerThresholdMeasurementUnit == null ? null : slowConsumerThresholdMeasurementUnit.getValue());
+
+      BufferHelper.writeNullableBoolean(buffer, enableIngressTimestamp);
    }
 
    /* (non-Javadoc)
@@ -1646,6 +1670,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((enableMetrics == null) ? 0 : enableMetrics.hashCode());
       result = prime * result + ((managementMessageAttributeSizeLimit == null) ? 0 : managementMessageAttributeSizeLimit.hashCode());
       result = prime * result + ((slowConsumerThresholdMeasurementUnit == null) ? 0 : slowConsumerThresholdMeasurementUnit.hashCode());
+      result = prime * result + ((enableIngressTimestamp == null) ? 0 : enableIngressTimestamp.hashCode());
       return result;
    }
 
@@ -2006,6 +2031,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (slowConsumerThresholdMeasurementUnit != other.slowConsumerThresholdMeasurementUnit)
          return false;
 
+      if (enableIngressTimestamp == null) {
+         if (other.enableIngressTimestamp != null)
+            return false;
+      } else if (!enableIngressTimestamp.equals(other.enableIngressTimestamp))
+         return false;
+
       return true;
    }
 
@@ -2141,6 +2172,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          expiryQueueSuffix +
          ", enableMetrics=" +
          enableMetrics +
+         ", enableIngressTime=" +
+         enableIngressTimestamp +
          "]";
    }
 }
