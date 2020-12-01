@@ -89,3 +89,19 @@ Here is an example configuration:
    <request-log filename="${artemis.instance}/log/http-access-yyyy_MM_dd.log" append="true" extended="true"/>
 </web>
 ```
+
+## Proxy Forwarding
+
+The proxies and load balancers usually support `X-Forwarded` headers
+to send information altered or lost when a proxy is involved
+in the path of the request. Jetty supports the [`ForwardedRequestCustomizer`](https://www.eclipse.org/jetty/javadoc/current/org/eclipse/jetty/server/ForwardedRequestCustomizer.html)
+customizer to handle `X-Forwarded` headers.
+Set the `customizer` attribute via the `web` element to enable the [`ForwardedRequestCustomizer`](https://www.eclipse.org/jetty/javadoc/current/org/eclipse/jetty/server/ForwardedRequestCustomizer.html) customizer, ie:
+
+```xml
+<web bind="http://localhost:8161" path="web" customizer="org.eclipse.jetty.server.ForwardedRequestCustomizer">
+   <app url="activemq-branding" war="activemq-branding.war"/>
+   <app url="artemis-plugin" war="artemis-plugin.war"/>
+   <app url="console" war="console.war"/>
+</web>
+```
