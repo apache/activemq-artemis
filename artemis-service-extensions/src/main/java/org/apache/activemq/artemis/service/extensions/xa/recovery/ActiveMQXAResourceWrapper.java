@@ -306,6 +306,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
             } else {
                serverLocator = ActiveMQClient.createServerLocator(false, xaRecoveryConfig.getTransportConfig());
             }
+            serverLocator.setLocatorConfig(xaRecoveryConfig.getLocatorConfig());
             serverLocator.disableFinalizeCheck();
             serverLocator.setProtocolManagerFactory(xaRecoveryConfig.getClientProtocolManager());
             csf = serverLocator.createSessionFactory();
