@@ -20,8 +20,23 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class CompositeAddressTest {
+
+   @Test
+   public void testIsFullyQualified() {
+      String failureScenario = "queue";
+      String nullableQueueScenario = "address::";
+      String nullableAddressScenario = "::queue";
+      String successScenario = "address::queue";
+
+      assertFalse("Invalid FQQN was validated.", CompositeAddress.isFullyQualified(failureScenario));
+      assertFalse("Invalid FQQN was validated.", CompositeAddress.isFullyQualified(nullableQueueScenario));
+      assertFalse("Invalid FQQN was validated.", CompositeAddress.isFullyQualified(nullableAddressScenario));
+      assertTrue("Valid FQQN was not validated.", CompositeAddress.isFullyQualified(successScenario));
+   }
 
    @Test
    public void testSplit() throws Exception {

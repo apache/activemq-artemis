@@ -22,6 +22,8 @@ public class CompositeAddress {
 
    public static final String SEPARATOR = "::";
 
+   public static final int SEPARATOR_LENGTH = SEPARATOR.length();
+
    public static String toFullyQualified(String address, String qName) {
       return toFullyQualified(SimpleString.toSimpleString(address), SimpleString.toSimpleString(qName)).toString();
    }
@@ -41,12 +43,35 @@ public class CompositeAddress {
       return result;
    }
 
+   /**
+    * Checks whether a given string complies the fully qualified queue name (FQQN) standard or not.
+    *
+    * @param address The string to check for FQQN standard compliance.
+    * @return boolean
+    */
    public static boolean isFullyQualified(String address) {
-      return address == null ? false : address.contains(SEPARATOR);
+      if (address == null) {
+         return false;
+      }
+
+      // If address length is incapable of holding the separator and two more characters
+      if (address.length() < SEPARATOR_LENGTH + 2) {
+         return false;
+      }
+
+      // If separator is not found or is at the start or end of string then this is not a FQQN
+      int index = address.indexOf(SEPARATOR, 1);
+      return index != -1 && index != address.length() - SEPARATOR_LENGTH;
    }
 
+   /**
+    * Checks whether a given SimpleString complies the fully qualified queue name (FQQN) standard or not.
+    *
+    * @param address The string to check for FQQN standard compliance.
+    * @return boolean
+    */
    public static boolean isFullyQualified(SimpleString address) {
-      return address == null ? false : isFullyQualified(address.toString());
+      return address != null && isFullyQualified(address.toString());
    }
 
    public static SimpleString extractQueueName(SimpleString name) {
