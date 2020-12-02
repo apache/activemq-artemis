@@ -21,7 +21,7 @@ import java.util.SplittableRandom;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
-import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
+import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCaches;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Fork;
@@ -54,7 +54,9 @@ public class DuplicateIDCacheBenchmark {
 
    @Setup
    public void init() throws Exception {
-      cache = new DuplicateIDCacheImpl(SimpleString.toSimpleString("benchmark"), size, new NullStorageManager(), persist);
+      cache = persist ?
+         DuplicateIDCaches.persistent(SimpleString.toSimpleString("benchmark"), size, new NullStorageManager()) :
+         DuplicateIDCaches.inMemory(SimpleString.toSimpleString("benchmark"), size);
       final int idSize = findNextHigherPowerOf2(size);
       idsMask = idSize - 1;
       nextId = 0;

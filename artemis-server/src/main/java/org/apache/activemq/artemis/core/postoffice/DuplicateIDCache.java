@@ -40,7 +40,7 @@ public interface DuplicateIDCache {
 
    void deleteFromCache(byte[] duplicateID) throws Exception;
 
-   void load(List<Pair<byte[], Long>> theIds) throws Exception;
+   void load(List<Pair<byte[], Long>> ids) throws Exception;
 
    void load(Transaction tx, byte[] duplID);
 
