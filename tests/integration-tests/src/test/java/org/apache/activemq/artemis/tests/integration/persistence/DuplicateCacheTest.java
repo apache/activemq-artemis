@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
-import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
+import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCaches;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.RetryRule;
@@ -52,7 +52,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
    public void testDuplicate() throws Exception {
       createStorage();
 
-      DuplicateIDCache cache = new DuplicateIDCacheImpl(new SimpleString("test"), 2000, journal, true);
+      DuplicateIDCache cache = DuplicateIDCaches.persistent(new SimpleString("test"), 2000, journal);
 
       TransactionImpl tx = new TransactionImpl(journal);
 
@@ -108,7 +108,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
    public void testDuplicateNonPersistent() throws Exception {
       createStorage();
 
-      DuplicateIDCache cache = new DuplicateIDCacheImpl(new SimpleString("test"), 2000, journal, false);
+      DuplicateIDCache cache = DuplicateIDCaches.inMemory(new SimpleString("test"), 2000);
 
       TransactionImpl tx = new TransactionImpl(journal);
 
