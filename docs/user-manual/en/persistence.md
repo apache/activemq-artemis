@@ -302,7 +302,7 @@ The message journal is configured using the following attributes in
 
 - `journal-compact-percentage`
 
-  The threshold to start compacting. When less than this percentage is
+  The threshold to start compacting. When less than this percentage of journal space is
   considered live data, we start compacting. Note also that compacting
   won't kick in until you have at least `journal-compact-min-files`
   data files on the journal
