@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.management.impl;
 import org.apache.activemq.artemis.core.management.impl.AbstractControl;
 import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
 import org.apache.activemq.artemis.core.server.management.HawtioSecurityControl;
 
@@ -28,12 +29,15 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.CompositeType;
+import javax.management.openmbean.KeyAlreadyExistsException;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -104,19 +108,45 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
             boolean res = canInvoke(objectName);
             CompositeData data = new CompositeDataSupport(CAN_INVOKE_RESULT_ROW_TYPE,
                   CAN_INVOKE_RESULT_COLUMNS,
-                  new Object[]{objectName, "", true});
+                  new Object[]{objectName, "", res});
             table.put(data);
          } else {
             for (String method : methods) {
+               List<String> argTypes = new ArrayList<>();
+               String name = parseMethodName(method, argTypes);
+
+               boolean res;
+               if (name.equals(method)) {
+                  res = canInvoke(objectName, name);
+               } else {
+                  res = canInvoke(objectName, name, argTypes.toArray(new String[]{}));
+               }
                CompositeData data = new CompositeDataSupport(CAN_INVOKE_RESULT_ROW_TYPE,
                      CAN_INVOKE_RESULT_COLUMNS,
-                     new Object[]{objectName, method, true});
-               table.put(data);
+                     new Object[]{objectName, method, res});
+               try {
+                  table.put(data);
+               } catch (KeyAlreadyExistsException e) {
+                  ActiveMQServerLogger.LOGGER.debugv("Key already exists: {0} (objectName = \"{1}\", method = \"{2}\")", e.getMessage(), objectName, method);
+               }
             }
          }
       }
 
       return table;
+   }
+
+   private String parseMethodName(String method, List<String> argTypes) {
+      method = method.trim();
+      int index = method.indexOf('(');
+      if (index < 0) {
+         return method;
+      }
+
+      String args = method.substring(index + 1, method.length() - 1);
+      argTypes.addAll(Arrays.asList(args.split(",")));
+
+      return method.substring(0, index);
    }
 
    // A member class is used to initialize final fields, as this needs to do some exception handling...
