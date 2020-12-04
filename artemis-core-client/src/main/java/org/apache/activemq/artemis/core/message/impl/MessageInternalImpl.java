@@ -158,6 +158,11 @@ public class MessageInternalImpl implements MessageInternal {
       return message.copy(newID);
    }
 
+   @Override
+   public Message copy(long newID, boolean isDLQorExpiry) {
+      return message.copy(newID, isDLQorExpiry);
+   }
+
    /**
     * Returns the messageID.
     * <br>

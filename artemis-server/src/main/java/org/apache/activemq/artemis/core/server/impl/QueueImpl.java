@@ -3447,7 +3447,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       long newID = storageManager.generateID();
 
-      Message copy = message.copy(newID);
+      Message copy = message.copy(newID, true);
 
       if (copyOriginalHeaders) {
          copy.referenceOriginalMessage(message, ref.getQueue().getName().toString());

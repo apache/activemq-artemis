@@ -18,9 +18,11 @@
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -258,6 +260,13 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
          applicationProperties = (ApplicationProperties)TLSEncode.getDecoder().readObject();
 
+         if (properties != null && properties.getAbsoluteExpiryTime() != null && properties.getAbsoluteExpiryTime().getTime() > 0) {
+            expiration = properties.getAbsoluteExpiryTime().getTime();
+         } else if (header != null && header.getTtl() != null) {
+            expiration = System.currentTimeMillis() + header.getTtl().intValue();
+         }
+
+
       } finally {
          TLSEncode.getDecoder().setBuffer(oldBuffer);
       }
@@ -446,10 +455,22 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    public Message copy(final long newID) {
+      return copy(newID, false);
+   }
+
+   @Override
+   public Message copy(final long newID, boolean isDLQOrExpiry) {
       try {
          AMQPLargeMessage copy = new AMQPLargeMessage(newID, messageFormat, null, coreMessageObjectPools, storageManager);
          copy.setDurable(this.isDurable());
-         largeBody.copyInto(copy);
+
+         final AtomicInteger place = new AtomicInteger(0);
+         ByteBuf bufferNewHeader = null;
+         if (isDLQOrExpiry) {
+            bufferNewHeader = newHeaderWithoutExpiry(place);
+         }
+
+         largeBody.copyInto(copy, bufferNewHeader, place.intValue());
          copy.finishParse();
          copy.releaseResources(true);
          return copy;
@@ -460,7 +481,46 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       }
    }
 
+   protected ByteBuf newHeaderWithoutExpiry(AtomicInteger placeOutput) {
+      ByteBuf bufferNewHeader;
+      Header headerCopy = null;
+      if (header != null) {
+         headerCopy = new Header(header);
+         headerCopy.setTtl(null); // just in case
+      }
 
+      MessageAnnotations messageAnnotationsRef = this.messageAnnotations;
+
+      Properties propertiesCopy = null;
+      if (properties != null) {
+         propertiesCopy = new Properties(properties);
+         propertiesCopy.setAbsoluteExpiryTime(null); // just in case
+      }
+
+      if (applicationPropertiesPosition != VALUE_NOT_PRESENT) {
+         placeOutput.set(applicationPropertiesPosition);
+      } else {
+         placeOutput.set(remainingBodyPosition);
+      }
+
+      if (placeOutput.get() < 0) {
+         placeOutput.set(0);
+         bufferNewHeader = null;
+      } else {
+         bufferNewHeader = Unpooled.buffer(placeOutput.get());
+      }
+
+      if (bufferNewHeader != null) {
+         TLSEncode.getEncoder().setByteBuffer(new NettyWritable(bufferNewHeader));
+         if (headerCopy != null)
+            TLSEncode.getEncoder().writeObject(headerCopy);
+         if (messageAnnotationsRef != null)
+            TLSEncode.getEncoder().writeObject(messageAnnotationsRef);
+         if (propertiesCopy != null)
+            TLSEncode.getEncoder().writeObject(propertiesCopy);
+      }
+      return bufferNewHeader;
+   }
 
    @Override
    public void messageChanged() {

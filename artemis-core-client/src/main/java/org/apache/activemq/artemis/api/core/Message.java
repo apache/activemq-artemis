@@ -302,6 +302,11 @@ public interface Message {
    /** It will generate a new instance of the message encode, being a deep copy, new properties, new everything */
    Message copy(long newID);
 
+   /** It will generate a new instance of the message encode, being a deep copy, new properties, new everything */
+   default Message copy(long newID, boolean isExpiryOrDLQ) {
+      return copy(newID);
+   }
+
    default boolean acceptsConsumer(long uniqueConsumerID) {
       return true;
    }

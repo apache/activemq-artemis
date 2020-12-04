@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.nio.ByteBuffer;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -316,6 +317,10 @@ public class LargeBody {
    }
 
    public void copyInto(LargeServerMessage newMessage) throws Exception {
+      copyInto(newMessage, null, 0);
+   }
+
+   public void copyInto(LargeServerMessage newMessage, ByteBuf newHeader, int skipBytes) throws Exception {
       //clone a SequentialFile to avoid concurrent access
       SequentialFile cloneFile = getReadingFile();
 
@@ -328,8 +333,11 @@ public class LargeBody {
             cloneFile.open();
          }
 
-         cloneFile.position(0);
+         cloneFile.position(skipBytes);
 
+         if (newHeader != null) {
+            newMessage.addBytes(new ChannelBufferWrapper(newHeader));
+         }
          for (; ; ) {
             // The buffer is reused...
             // We need to make sure we clear the limits and the buffer before reusing it
