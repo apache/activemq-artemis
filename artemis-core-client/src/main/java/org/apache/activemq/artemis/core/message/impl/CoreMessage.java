@@ -60,13 +60,15 @@ import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.utils.ByteUtil.ensureExactWritable;
+
 /** Note: you shouldn't change properties using multi-threads. Change your properties before you can send it to multiple
  *  consumers */
 public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    public static final int BUFFER_HEADER_SPACE = PacketImpl.PACKET_HEADERS_SIZE;
 
-   private volatile int memoryEstimate = -1;
+   protected volatile int memoryEstimate = -1;
 
    private static final Logger logger = Logger.getLogger(CoreMessage.class);
 
@@ -80,8 +82,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    private volatile boolean validBuffer = false;
 
    protected volatile ResetLimitWrappedActiveMQBuffer writableBuffer;
-
-   Object body;
 
    protected int endOfBodyPosition = -1;
 
@@ -445,7 +445,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       // with getEncodedBuffer(), otherwise can introduce race condition when delivering concurrently to
       // many subscriptions and bridging to other nodes in a cluster
       synchronized (other) {
-         this.body = other.body;
          this.endOfBodyPosition = other.endOfBodyPosition;
          internalSetMessageID(other.messageID);
          this.address = other.address;
@@ -641,6 +640,15 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public int getMemoryEstimate() {
       if (memoryEstimate == -1) {
+         if (buffer != null && !isLargeMessage()) {
+            if (!validBuffer) {
+               // this can happen if a message is modified
+               // eg clustered messages get additional routing information
+               // that need to be correctly accounted in memory
+               checkEncode();
+            }
+         }
+         final TypedProperties properties = this.properties;
          memoryEstimate = memoryOffset +
             (buffer != null ? buffer.capacity() : 0) +
             (properties != null ? properties.getMemoryOffset() : 0);
@@ -733,11 +741,9 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          endOfBodyPosition = BUFFER_HEADER_SPACE + DataConstants.SIZE_INT;
       }
 
-      buffer.setIndex(0, 0);
-      buffer.writeInt(endOfBodyPosition);
-
+      buffer.setInt(0, endOfBodyPosition);
       // The end of body position
-      buffer.writerIndex(endOfBodyPosition - BUFFER_HEADER_SPACE + DataConstants.SIZE_INT);
+      buffer.setIndex(0, endOfBodyPosition - BUFFER_HEADER_SPACE + DataConstants.SIZE_INT);
 
       encodeHeadersAndProperties(buffer);
 
@@ -748,21 +754,42 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    public void encodeHeadersAndProperties(final ByteBuf buffer) {
       final TypedProperties properties = getProperties();
-      messageIDPosition = buffer.writerIndex();
-      buffer.writeLong(messageID);
-      SimpleString.writeNullableSimpleString(buffer, address);
-      if (userID == null) {
-         buffer.writeByte(DataConstants.NULL);
-      } else {
-         buffer.writeByte(DataConstants.NOT_NULL);
-         buffer.writeBytes(userID.asBytes());
+      final int initialWriterIndex = buffer.writerIndex();
+      messageIDPosition = initialWriterIndex;
+      final UUID userID = this.userID;
+      final int userIDEncodedSize = userID == null ? Byte.BYTES : Byte.BYTES + userID.asBytes().length;
+      final SimpleString address = this.address;
+      final int addressEncodedBytes = SimpleString.sizeofNullableString(address);
+      final int headersSize =
+         Long.BYTES +                                    // messageID
+         addressEncodedBytes +                           // address
+         userIDEncodedSize +                             // userID
+         Byte.BYTES +                                    // type
+         Byte.BYTES +                                    // durable
+         Long.BYTES +                                    // expiration
+         Long.BYTES +                                    // timestamp
+         Byte.BYTES;                                     // priority
+      synchronized (properties) {
+         final int propertiesEncodeSize = properties.getEncodeSize();
+         final int totalEncodedSize = headersSize + propertiesEncodeSize;
+         ensureExactWritable(buffer, totalEncodedSize);
+         buffer.writeLong(messageID);
+         SimpleString.writeNullableSimpleString(buffer, address);
+         if (userID == null) {
+            buffer.writeByte(DataConstants.NULL);
+         } else {
+            buffer.writeByte(DataConstants.NOT_NULL);
+            buffer.writeBytes(userID.asBytes());
+         }
+         buffer.writeByte(type);
+         buffer.writeBoolean(durable);
+         buffer.writeLong(expiration);
+         buffer.writeLong(timestamp);
+         buffer.writeByte(priority);
+         assert buffer.writerIndex() == initialWriterIndex + headersSize : "Bad Headers encode size estimation";
+         final int realPropertiesEncodeSize = properties.encode(buffer);
+         assert realPropertiesEncodeSize == propertiesEncodeSize : "TypedProperties has a wrong encode size estimation or is being modified concurrently";
       }
-      buffer.writeByte(type);
-      buffer.writeBoolean(durable);
-      buffer.writeLong(expiration);
-      buffer.writeLong(timestamp);
-      buffer.writeByte(priority);
-      properties.encode(buffer);
    }
 
    @Override

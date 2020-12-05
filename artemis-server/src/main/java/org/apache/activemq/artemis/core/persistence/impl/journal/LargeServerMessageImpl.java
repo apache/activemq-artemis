@@ -33,6 +33,11 @@ import org.jboss.logging.Logger;
 
 public final class LargeServerMessageImpl extends CoreMessage implements CoreLargeServerMessage {
 
+   // Given that LargeBody is never null it needs to be accounted on this instance footprint.
+   // This value has been computed using https://github.com/openjdk/jol
+   // with HotSpot 64-bit COOPS 8-byte align
+   private static final int MEMORY_OFFSET = 112 + LargeBody.MEMORY_OFFSET;
+
    @Override
    public Message toMessage() {
       return this;
@@ -72,9 +77,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
 
    private final StorageManager storageManager;
-
-   // We cache this
-   private volatile int memoryEstimate = -1;
 
    public LargeServerMessageImpl(final StorageManager storageManager) {
       largeBody = new LargeBody(this, storageManager);
@@ -243,8 +245,12 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    public int getMemoryEstimate() {
       synchronized (largeBody) {
          if (memoryEstimate == -1) {
-            // The body won't be on memory (aways on-file), so we don't consider this for paging
-            memoryEstimate = getHeadersAndPropertiesEncodeSize() + DataConstants.SIZE_INT + getEncodeSize() + (16 + 4) * 2 + 1;
+            // The body won't be on memory (always on-file), so we don't consider this for paging
+            memoryEstimate = MEMORY_OFFSET +
+               getHeadersAndPropertiesEncodeSize() +
+               DataConstants.SIZE_INT +
+               getEncodeSize() +
+               (16 + 4) * 2 + 1;
          }
 
          return memoryEstimate;
