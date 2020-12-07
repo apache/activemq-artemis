@@ -194,8 +194,8 @@ var Artemis;
         Artemis.log.debug("loading table" + artemisExpiryQueue);
         if (objName) {
             ctrl.dlq = false;
-            var queueName = jolokia.getAttribute(objName, "Name");
-            if (queueName == artemisDLQ || queueName == artemisExpiryQueue) {
+            var addressName = jolokia.getAttribute(objName, "Address");
+            if (addressName == artemisDLQ || addressName == artemisExpiryQueue) {
                 ctrl.dlq = true;
             }
         }
@@ -682,11 +682,11 @@ var Artemis;
             }
             if (objName) {
                 ctrl.dlq = false;
-                var queueName = jolokia.getAttribute(objName, "Name");
+                var addressName = jolokia.getAttribute(objName, "Address");
                 var artemisDLQ = localStorage['artemisDLQ'] || "DLQ";
                 var artemisExpiryQueue = localStorage['artemisExpiryQueue'] || "ExpiryQueue";
                 Artemis.log.debug("loading table" + artemisExpiryQueue);
-                if (queueName == artemisDLQ || queueName == artemisExpiryQueue) {
+                if (addressName == artemisDLQ || addressName == artemisExpiryQueue) {
                     onDlq(true);
                 } else {
                     onDlq(false);
