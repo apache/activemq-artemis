@@ -250,7 +250,6 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
          if (currentLargeMessage != null) {
             currentLargeMessage.addBytes(receiver.recv());
             receiver.advance();
-            currentLargeMessage.finishParse();
             message = currentLargeMessage;
             currentLargeMessage = null;
          } else {

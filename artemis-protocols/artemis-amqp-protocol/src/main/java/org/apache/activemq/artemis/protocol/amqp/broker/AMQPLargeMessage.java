@@ -45,6 +45,7 @@ import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
+import org.apache.qpid.proton.codec.CompositeReadableBuffer;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.TypeConstructor;
@@ -101,6 +102,9 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    private volatile AmqpReadableBuffer parsingData;
 
    private StorageManager storageManager;
+
+   /** this is used to parse the initial packets from the buffer */
+   CompositeReadableBuffer parsingBuffer;
 
    public AMQPLargeMessage(long id,
                            long messageFormat,
@@ -272,19 +276,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       }
    }
 
-
-   @Override
-   public void finishParse() throws Exception {
-      openLargeMessage();
-      try {
-         this.ensureMessageDataScanned();
-         parsingData.rewind();
-         lazyDecodeApplicationProperties();
-      } finally {
-         closeLargeMessage();
-      }
-   }
-
    @Override
    public void validateFile() throws ActiveMQException {
       largeBody.validateFile();
@@ -344,12 +335,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    }
 
    public void addBytes(ReadableBuffer data) throws Exception {
-
-      // We need to parse the header on the first add,
-      // as it will contain information if the message is durable or not
-      if (header == null && largeBody.getStoredBodySize() <= 0) {
-         parseHeader(data);
-      }
+      parseLargeMessage(data);
 
       if (data.hasArray() && data.remaining() == data.array().length) {
          //System.out.println("Received " + data.array().length + "::" + ByteUtil.formatGroup(ByteUtil.bytesToHex(data.array()), 8, 16));
@@ -359,6 +345,63 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          data.get(bytes);
          //System.out.println("Finishing " + bytes.length + ByteUtil.formatGroup(ByteUtil.bytesToHex(bytes), 8, 16));
          largeBody.addBytes(bytes);
+      }
+   }
+
+   protected void parseLargeMessage(ActiveMQBuffer data, boolean initialHeader) {
+      MessageDataScanningStatus status = getDataScanningStatus();
+      if (status == MessageDataScanningStatus.NOT_SCANNED) {
+         ByteBuf buffer = data.byteBuf().duplicate();
+         if (parsingBuffer == null) {
+            parsingBuffer = new CompositeReadableBuffer();
+         }
+         byte[] parsingData = new byte[buffer.readableBytes()];
+         buffer.readBytes(parsingData);
+
+         parsingBuffer.append(parsingData);
+         if (!initialHeader) {
+            genericParseLargeMessage();
+         }
+      }
+   }
+
+   protected void parseLargeMessage(byte[] data, boolean initialHeader) {
+      MessageDataScanningStatus status = getDataScanningStatus();
+      if (status == MessageDataScanningStatus.NOT_SCANNED) {
+         byte[] copy = new byte[data.length];
+         System.arraycopy(data, 0, copy, 0, data.length);
+         if (parsingBuffer == null) {
+            parsingBuffer = new CompositeReadableBuffer();
+         }
+
+         parsingBuffer.append(copy);
+         if (!initialHeader) {
+            genericParseLargeMessage();
+         }
+      }
+   }
+
+   private void genericParseLargeMessage() {
+      try {
+         parsingBuffer.position(0);
+         scanMessageData(parsingBuffer);
+         lazyDecodeApplicationProperties(parsingBuffer);
+         parsingBuffer = null;
+      } catch (RuntimeException expected) {
+         // this would mean the buffer is not complete yet, so we keep parsing it, until we can get enough bytes
+         logger.debug("The buffer for AMQP Large Mesasge was probably not complete, so an exception eventually would be expected", expected);
+      }
+   }
+
+   protected void parseLargeMessage(ReadableBuffer data) {
+      MessageDataScanningStatus status = getDataScanningStatus();
+      if (status == MessageDataScanningStatus.NOT_SCANNED) {
+         if (parsingBuffer == null) {
+            parsingBuffer = new CompositeReadableBuffer();
+         }
+
+         parsingBuffer.append(data.duplicate());
+         genericParseLargeMessage();
       }
    }
 
@@ -374,11 +417,13 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    public void addBytes(byte[] bytes) throws Exception {
+      parseLargeMessage(bytes, false);
       largeBody.addBytes(bytes);
    }
 
    @Override
-   public void addBytes(ActiveMQBuffer bytes) throws Exception {
+   public void addBytes(ActiveMQBuffer bytes, boolean initialHeader) throws Exception {
+      parseLargeMessage(bytes, initialHeader);
       largeBody.addBytes(bytes);
 
    }
@@ -471,7 +516,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          }
 
          largeBody.copyInto(copy, bufferNewHeader, place.intValue());
-         copy.finishParse();
          copy.releaseResources(true);
          return copy;
 
