@@ -118,11 +118,11 @@ formatter.PATTERN.pattern=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n
 
 ## Configuring Audit Logging
 
-There are 3 audit loggers that can be enabled separately and audit sifferent types of events, these are:
+There are 3 audit loggers that can be enabled separately and audit different types of events, these are:
 
 1. Base logger: This is a highly verbose logger that will capture most events that occur on JMX beans
 2. Resource logger: This logs creation, updates and deletion of resources such as Addresses and Queues and also authentication, the main purpose of this is to track console activity and access to broker.
-3. Message logger: this logs message production and consumption of messages and will have a potentially negatibve affect on performance
+3. Message logger: this logs message production and consumption of messages and will have a potentially negative affect on performance
 
 These are disabled by default in the logging.properties configuration file:
 

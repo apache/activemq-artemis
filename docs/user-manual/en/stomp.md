@@ -329,7 +329,7 @@ The type of this attribute is integer. When this attributed is configured, the
 broker will check the size of the body of each STOMP frame arrived from
 connections established with this acceptor. If the size of the body is equal or
 greater than the value of `stompMinLargeMessageSize`, the message will be
-persisted as a large message. When a large message is delievered to a STOMP
+persisted as a large message. When a large message is delivered to a STOMP
 consumer, the broker will automatically handle the conversion from a large
 message to a normal message, before sending it to the client.
 
@@ -374,7 +374,7 @@ STOMP clients can use the `consumer-window-size` header on the `SUBSCRIBE`
 frame to control the flow of messages to clients. This is broadly discussed in
 the [Flow Control](flow-control.md) chapter.
 
-This ability is similiar to the `activemq.prefetchSize` header supported by
+This ability is similar to the `activemq.prefetchSize` header supported by
 ActiveMQ 5.x. However, that header specifies the size in terms of *messages*
 whereas `consumer-window-size` specifies the size in terms of *bytes*. ActiveMQ
 Artemis supports the `activemq.prefetchSize` header for backwards compatibility

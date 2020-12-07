@@ -141,7 +141,7 @@ Individual addresses can be managed using the `AddressControl` interface.
 
   The `AddressControl` can pause and resume an address and all the queues that
   are bound to it. Newly added queue will be paused too until the address is resumed.
-  Thus all messages sent to the address will be recived but not delivered. When it is
+  Thus all messages sent to the address will be received but not delivered. When it is
   resumed, delivering will occur again.
 
 #### Queue Management

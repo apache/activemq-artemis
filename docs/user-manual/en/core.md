@@ -187,7 +187,7 @@ address is specified at send time for the message.
 
 Here's a very simple program using the core messaging API to send and receive a
 message. Logically it's comprised of two sections: firstly setting up the
-producer to write a message to an *addresss*, and secondly, creating a *queue*
+producer to write a message to an *address*, and secondly, creating a *queue*
 for the consumer using anycast routing, creating the consumer, and *starting*
 it.
 
