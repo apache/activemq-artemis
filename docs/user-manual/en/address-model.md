@@ -292,7 +292,7 @@ is controlled by following:
 Parameter|Description
 ---|---
 `auto-create-addresses`|When set to true, the broker will create the address requested by the client if it does not exist already. The default is `true`.
-`auto-delete-addresses`|When set to true, the broker will be delete any **auto-created** adddress once all of it’s queues have been deleted. The default is `true`
+`auto-delete-addresses`|When set to true, the broker will be delete any **auto-created** address once all of it’s queues have been deleted. The default is `true`
 `default-address-routing-type`|The routing type to use if the client does not specify one. Possible values are `MULTICAST` and `ANYCAST`. See earlier in this chapter for more information about routing types. The default value is `MULTICAST`.
 
 ### Auto Address Creation
@@ -508,7 +508,7 @@ Open the file `<broker-instance>/etc/broker.xml` for editing.
 If a user requires to statically configure a queue that routes exclusively to
 one active consumer the **exclusive** flag can be enabled on the queue.
   
-When **exclusive** is set to **true** the queue will route messages to the a
+When **exclusive** is set to **true** the queue will route messages to a
 single active consumer.  When the active consumer that is being routed to is
 detached from the queue, if another active consumer exist, one will be chosen
 and routing will now be exclusive to it.
@@ -534,7 +534,7 @@ for example where a queue needs to be defined so a consumer can bind,
 but you want to disable message routing to it for the time being.
 
 Or you need to stop message flow to the queue to allow investigation keeping the consumer bound, 
-but dont wish to have further messages routed to the queue to avoid message build up.
+but don't wish to have further messages routed to the queue to avoid message build up.
   
 When **enabled** is set to **true**  the queue will have messages routed to it. (default)
 
@@ -615,7 +615,7 @@ the queue once the client disconnects.
 
 When a client requests to subscribe to a point to point address.  The protocol
 manager will look up the queue associated with the point to point address.
-This queue should have the same name as the addresss.
+This queue should have the same name as the address.
 
 **Note:** If the queue is auto created, it will be auto deleted once there are
 no consumers and no messages in it.  For more information on auto create see

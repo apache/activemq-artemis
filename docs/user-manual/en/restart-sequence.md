@@ -47,7 +47,7 @@ no replication that is happening from the master broker to the slave.
 
 In such situation, there can be some client applications that are connected to the master 
 broker and other connected to the slave broker. Now after we restart the brokers and the 
-the cluster is properly formed.
+cluster is properly formed.
 
 Here, the clients that were connected to the master broker during the split brain situation 
 are auto-connected to the cluster and start processing the messages. But the clients that got 

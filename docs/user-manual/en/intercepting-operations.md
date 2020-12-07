@@ -74,7 +74,7 @@ understand how to make your interceptor available to the broker.
 
 ## Interceptors on the Client Side
 
-The interceptors can also be run on the Apache ActiveMQ Artemit client side to
+The interceptors can also be run on the Apache ActiveMQ Artemis client side to
 intercept packets either sent by the client to the server or by the server to
 the client.  This is done by adding the interceptor to the `ServerLocator` with
 the `addIncomingInterceptor(Interceptor)` or
