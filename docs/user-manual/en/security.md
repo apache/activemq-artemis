@@ -12,7 +12,7 @@ when the cache reaches its maximum size in which case the least-recently used
 entry is removed or when an entry has been in the cache "too long".
 
 The size of the caches are controlled by the `authentication-cache-size` and
-`authorization-cache-size` configuration parameters. Both deafult to `1000`.
+`authorization-cache-size` configuration parameters. Both default to `1000`.
 
 How long cache entries are valid is controlled by
 `security-invalidation-interval`, which is in milliseconds. Using `0` will
@@ -1255,7 +1255,7 @@ using HTTPS protocol. e.g.:
 
 As shown in the example, to enable https the first thing to do is config the
 `bind` to be an `https` url. In addition, You will have to configure a few
-extra properties desribed as below.
+extra properties described as below.
 
 - `keyStorePath` - The path of the key store file.
 

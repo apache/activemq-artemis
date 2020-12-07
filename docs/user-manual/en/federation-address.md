@@ -36,7 +36,7 @@ If `max-hops` is not configured correctly, consumers will get multiple copies of
 ![Address Federation](images/federation-address-complete-graph.png)
 Figure 3. Address Federation - Full Mesh
 
-If not already spotted, the setup is identical to symemtric but simply where all brokers are symmetrically federating each other, creating a full mesh.
+If not already spotted, the setup is identical to symmetric but simply where all brokers are symmetrically federating each other, creating a full mesh.
 
 As illustrated, a publisher and consumer are connected to each broker. 
 Queues and thus consumers on those queues, can receive messages published by either publisher.

@@ -98,7 +98,7 @@ default `PropertiesLoginModule` will not decode the passwords in
 `artemis-users.properties` but will instead hash the input and compare the two
 hashed values for password verification.
 
-Use the following command from the CLI of the Aremtis *instance* you wish to
+Use the following command from the CLI of the Artemis *instance* you wish to
 add the user/password to. This command will not work from the Artemis home
 used to create the instance, and it will also not work unless the broker has
 been started. For example:

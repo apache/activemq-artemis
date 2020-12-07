@@ -110,7 +110,7 @@ Let's take a look at all the `queue-policy` parameters in turn, in order of prio
 - `priority-adjustment` when a consumer attaches its priority is used to make the upstream consumer, 
 but with an adjustment by default -1, so that local consumers get load balanced first over remote, this enables this to be configurable should it be wanted/needed. 
 
-- `include-federated` by default this is false, we dont federate a federated consumer, this is to avoid issue, where in symmetric or any closed loop setup you could end up when no "real" consumers attached with messages flowing round and round endlessly. 
+- `include-federated` by default this is false, we don't federate a federated consumer, this is to avoid issue, where in symmetric or any closed loop setup you could end up when no "real" consumers attached with messages flowing round and round endlessly. 
 
     There is though a valid case that if you dont have a close loop setup e.g. three brokers in a chain (A->B->C) with producer at broker A and consumer at C, you would want broker B to re-federate the consumer onto A.
 

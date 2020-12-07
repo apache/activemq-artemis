@@ -1,6 +1,6 @@
 # Transformers
 
-A transfomer, as the name suggests, is a component which transforms a message.
+A transformer, as the name suggests, is a component which transforms a message.
 For example, a transformer could modify the body of a message or add or remove
 properties. Both [diverts](diverts.md) and [core bridges](core-bridges.md)
 support.
