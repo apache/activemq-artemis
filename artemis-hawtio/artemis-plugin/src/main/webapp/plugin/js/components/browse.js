@@ -268,6 +268,17 @@ var Artemis;
 
         ];
 
+        if (ctrl.dlq) {
+            origQueue = {
+                itemField: 'StringProperties',
+                header: 'Original Queue',
+                templateFn: function(value) {
+                    return value._AMQ_ORIG_QUEUE;
+                }
+            };
+            ctrl.tableColumns.push(origQueue);
+        }
+
         var resendConfig = {
             name: 'Resend',
             title: 'Resend message',
