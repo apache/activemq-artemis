@@ -59,7 +59,7 @@ public class AmqpJournalLoadingTest extends AmqpClientTestSupport {
          final Message message = next.getMessage();
          Assert.assertThat(message, Matchers.instanceOf(AMQPMessage.class));
          amqpMessage = (AMQPMessage) message;
-         Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, amqpMessage.messageDataScanned());
+         Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, amqpMessage.getDataScanningStatus());
       }
 
       AmqpClient client = createAmqpClient();
@@ -75,7 +75,7 @@ public class AmqpJournalLoadingTest extends AmqpClientTestSupport {
 
       assertEquals(1, afterRestartQueueView.getMessageCount());
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, amqpMessage.messageDataScanned());
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, amqpMessage.getDataScanningStatus());
 
       receive.accept();
 

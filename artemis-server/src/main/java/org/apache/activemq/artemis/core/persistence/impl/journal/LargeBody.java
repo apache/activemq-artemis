@@ -336,7 +336,7 @@ public class LargeBody {
          cloneFile.position(skipBytes);
 
          if (newHeader != null) {
-            newMessage.addBytes(new ChannelBufferWrapper(newHeader));
+            newMessage.addBytes(new ChannelBufferWrapper(newHeader), true);
          }
          for (; ; ) {
             // The buffer is reused...

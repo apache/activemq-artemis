@@ -34,7 +34,11 @@ public interface LargeServerMessage extends ReplicatedLargeMessage {
    @Override
    void addBytes(byte[] bytes) throws Exception;
 
-   void addBytes(ActiveMQBuffer bytes) throws Exception;
+   default void addBytes(ActiveMQBuffer bytes) throws Exception {
+      addBytes(bytes, false);
+   }
+
+   void addBytes(ActiveMQBuffer bytes, boolean initialHeader) throws Exception;
 
    long getMessageID();
 
@@ -67,6 +71,4 @@ public interface LargeServerMessage extends ReplicatedLargeMessage {
    void setStorageManager(StorageManager storageManager);
 
    void validateFile() throws ActiveMQException;
-
-   void finishParse() throws Exception;
 }

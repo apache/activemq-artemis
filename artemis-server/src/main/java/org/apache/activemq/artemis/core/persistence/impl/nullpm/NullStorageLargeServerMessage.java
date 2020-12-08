@@ -67,11 +67,6 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
    }
 
    @Override
-   public void finishParse() throws Exception {
-
-   }
-
-   @Override
    public void validateFile() throws ActiveMQException {
 
    }
@@ -82,7 +77,7 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
    }
 
    @Override
-   public synchronized void addBytes(ActiveMQBuffer bytes) {
+   public synchronized void addBytes(ActiveMQBuffer bytes, boolean initialHeader) {
       final int readableBytes = bytes.readableBytes();
       if (buffer == null) {
          buffer = Unpooled.buffer(readableBytes);
