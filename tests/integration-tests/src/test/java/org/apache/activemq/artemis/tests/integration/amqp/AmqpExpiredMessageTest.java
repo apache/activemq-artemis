@@ -128,6 +128,52 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
+   @Test(timeout = 60000)
+   public void testRetryExpiry() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getQueueName());
+
+      // Get the Queue View early to avoid racing the delivery.
+      final Queue queueView = getProxyToQueue(getQueueName());
+      assertNotNull(queueView);
+
+      AmqpMessage message = new AmqpMessage();
+      message.setTimeToLive(1);
+      message.setText("Test-Message");
+      message.setDurable(true);
+      message.setApplicationProperty("key1", "Value1");
+      sender.send(message);
+
+      message = new AmqpMessage();
+      message.setTimeToLive(1);
+      message.setBytes(new byte[500 * 1024]);
+      sender.send(message);
+      sender.close();
+
+      final Queue dlqView = getProxyToQueue(getDeadLetterAddress());
+
+      Wait.assertEquals(2, dlqView::getMessageCount);
+      Assert.assertEquals(2, dlqView.retryMessages(null));
+      Wait.assertEquals(0, dlqView::getMessageCount);
+      Wait.assertEquals(2, queueView::getMessageCount);
+
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
+      // Now try and get the message
+      receiver.flow(2);
+      for (int i = 0; i < 2; i++) {
+         AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull(received);
+         received.accept();
+      }
+      connection.close();
+      Wait.assertEquals(0, queueView::getMessageCount);
+      Wait.assertEquals(0, dlqView::getMessageCount);
+   }
+
    /** This test is validating a broker feature where the message copy through the DLQ will receive an annotation.
     *  It is also testing filter on that annotation. */
    @Test(timeout = 60000)

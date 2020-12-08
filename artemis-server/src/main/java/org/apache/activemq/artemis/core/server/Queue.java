@@ -361,6 +361,10 @@ public interface Queue extends Bindable,CriticalComponent {
 
    int retryMessages(Filter filter) throws Exception;
 
+   default int retryMessages(Filter filter, Integer expectedHits) throws Exception {
+      return retryMessages(filter);
+   }
+
    void addRedistributor(long delay);
 
    void cancelRedistributor() throws Exception;
