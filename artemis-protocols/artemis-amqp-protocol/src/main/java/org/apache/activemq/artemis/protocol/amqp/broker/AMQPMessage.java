@@ -524,7 +524,11 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    protected Object getMessageAnnotation(String annotation) {
-      return getMessageAnnotation(Symbol.getSymbol(annotation));
+      Object messageAnnotation = getMessageAnnotation(Symbol.getSymbol(AMQPMessageSupport.toAnnotationName(annotation)));
+      if (messageAnnotation == null) {
+         messageAnnotation = getMessageAnnotation(Symbol.getSymbol(annotation));
+      }
+      return messageAnnotation;
    }
 
    protected Object getMessageAnnotation(Symbol annotation) {

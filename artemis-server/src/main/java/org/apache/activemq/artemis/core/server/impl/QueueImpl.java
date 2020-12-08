@@ -2140,6 +2140,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                                       QueueIterateAction messageAction) throws Exception {
       int count = 0;
       int txCount = 0;
+      Integer expectedHits = messageAction.expectedHits();
       // This is to avoid scheduling depaging while iterQueue is happening
       // this should minimize the use of the paged executor.
       depagePending = true;
@@ -2170,6 +2171,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      }
                      txCount++;
                      count++;
+                     if (expectedHits != null && count >= expectedHits.intValue()) {
+                        break;
+                     }
                   }
                }
 
@@ -2611,10 +2615,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public int retryMessages(Filter filter) throws Exception {
+      return retryMessages(filter, null);
+   }
+
+   @Override
+   public int retryMessages(Filter filter, Integer expectedHits) throws Exception {
 
       final HashMap<String, Long> queues = new HashMap<>();
 
       return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
+         @Override
+         public Integer expectedHits() {
+            return expectedHits;
+         }
+
          @Override
          public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
 
@@ -4163,6 +4177,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * This will determine the actions that could be done while iterate the queue through iterQueue
     */
    abstract class QueueIterateAction {
+
+      public Integer expectedHits() {
+         return null;
+      }
 
       /**
        *
