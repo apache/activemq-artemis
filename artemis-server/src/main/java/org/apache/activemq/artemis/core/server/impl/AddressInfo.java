@@ -402,7 +402,7 @@ public class AddressInfo {
    }
 
    public static AddressInfo fromJSON(String jsonString) {
-      JsonObject json = JsonLoader.createReader(new StringReader(jsonString)).readObject();
+      JsonObject json = JsonLoader.readObject(new StringReader(jsonString));
 
       AddressInfo result = new AddressInfo();
 

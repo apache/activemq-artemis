@@ -17,25 +17,15 @@
 
 package org.apache.activemq.artemis.utils;
 
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
 import javax.json.spi.JsonProvider;
-import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonGeneratorFactory;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParserFactory;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
-import java.io.Writer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Map;
 
 /**
  * This is to make sure we use the proper classLoader to load JSon libraries.
@@ -65,52 +55,16 @@ public class JsonLoader {
 
    }
 
-   public static JsonParser createParser(Reader reader) {
-      return provider.createParser(reader);
+   public static JsonObject readObject(Reader reader) {
+      try (JsonReader jsonReader = provider.createReader(reader)) {
+         return jsonReader.readObject();
+      }
    }
 
-   public static JsonParser createParser(InputStream in) {
-      return provider.createParser(in);
-   }
-
-   public static JsonGenerator createGenerator(Writer writer) {
-      return provider.createGenerator(writer);
-   }
-
-   public static JsonGenerator createGenerator(OutputStream out) {
-      return provider.createGenerator(out);
-   }
-
-   public static JsonParserFactory createParserFactory(Map<String, ?> config) {
-      return provider.createParserFactory(config);
-   }
-
-   public static JsonGeneratorFactory createGeneratorFactory(Map<String, ?> config) {
-      return provider.createGeneratorFactory(config);
-   }
-
-   public static JsonWriter createWriter(Writer writer) {
-      return provider.createWriter(writer);
-   }
-
-   public static JsonWriter createWriter(OutputStream out) {
-      return provider.createWriter(out);
-   }
-
-   public static JsonReader createReader(Reader reader) {
-      return provider.createReader(reader);
-   }
-
-   public static JsonReader createReader(InputStream in) {
-      return provider.createReader(in);
-   }
-
-   public static JsonReaderFactory createReaderFactory(Map<String, ?> config) {
-      return provider.createReaderFactory(config);
-   }
-
-   public static JsonWriterFactory createWriterFactory(Map<String, ?> config) {
-      return provider.createWriterFactory(config);
+   public static JsonArray readArray(Reader reader) {
+      try (JsonReader jsonReader = provider.createReader(reader)) {
+         return jsonReader.readArray();
+      }
    }
 
    public static JsonArrayBuilder createArrayBuilder() {
@@ -119,10 +73,6 @@ public class JsonLoader {
 
    public static JsonObjectBuilder createObjectBuilder() {
       return provider.createObjectBuilder();
-   }
-
-   public static JsonBuilderFactory createBuilderFactory(Map<String, ?> config) {
-      return provider.createBuilderFactory(config);
    }
 
 }
