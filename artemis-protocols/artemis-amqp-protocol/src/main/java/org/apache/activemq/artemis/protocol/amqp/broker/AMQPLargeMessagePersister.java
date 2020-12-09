@@ -59,7 +59,8 @@ public class AMQPLargeMessagePersister extends MessagePersister {
       ByteBuf buf = msgEncode.getSavedEncodeBuffer();
 
       try {
-         int encodeSize = DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + DataConstants.SIZE_LONG + DataConstants.SIZE_LONG + SimpleString.sizeofNullableString(record.getAddressSimpleString()) + DataConstants.SIZE_BOOLEAN + buf.writerIndex();
+         int encodeSize = DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + DataConstants.SIZE_LONG + DataConstants.SIZE_LONG + SimpleString.sizeofNullableString(record.getAddressSimpleString()) + DataConstants.SIZE_BOOLEAN + buf.writerIndex() +
+            DataConstants.SIZE_BOOLEAN; // this last one is for is Reencoded
 
          TypedProperties properties = ((AMQPMessage) record).getExtraProperties();
 
@@ -92,6 +93,7 @@ public class AMQPLargeMessagePersister extends MessagePersister {
 
       ByteBuf savedEncodeBuffer = msgEncode.getSavedEncodeBuffer();
       buffer.writeBytes(savedEncodeBuffer, 0, savedEncodeBuffer.writerIndex());
+      buffer.writeBoolean(msgEncode.isReencoded());
       msgEncode.releaseEncodedBufferAfterWrite(); // we need two releases, as getSavedEncodedBuffer will keep 1 for himself until encoding has happened
                                                   // which this is the expected event where we need to release the extra refCounter
    }
@@ -123,6 +125,11 @@ public class AMQPLargeMessagePersister extends MessagePersister {
       }
 
       largeMessage.readSavedEncoding(buffer.byteBuf());
+
+      if (buffer.readable()) {
+         boolean reEncoded = buffer.readBoolean();
+         largeMessage.setReencoded(reEncoded);
+      }
 
       return largeMessage;
    }

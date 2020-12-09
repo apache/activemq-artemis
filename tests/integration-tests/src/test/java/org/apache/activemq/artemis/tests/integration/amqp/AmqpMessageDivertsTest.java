@@ -17,20 +17,41 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class AmqpMessageDivertsTest extends AmqpClientTestSupport {
+public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Transformer {
+
+   static final AtomicInteger divertCount = new AtomicInteger(0);
+
+   String largeString = createLargeString();
+
+   protected String createLargeString() {
+      StringBuffer bufferLarge = new StringBuffer();
+      for (int i = 0; i < 500 * 1024; i++) {
+         bufferLarge.append((char) ('a' + (i % 20)));
+      }
+      String largeString = bufferLarge.toString();
+      return largeString;
+   }
+
 
    @Test(timeout = 60000)
    public void testQueueReceiverReadMessageWithDivert() throws Exception {
@@ -66,5 +87,110 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       connection.close();
+   }
+
+   @Test
+   public void testDivertTransformerWithProperties() throws Exception {
+      testDivertTransformerWithProperties(false);
+   }
+
+   @Test
+   public void testDivertTransformerWithPropertiesRebootServer() throws Exception {
+      testDivertTransformerWithProperties(true);
+   }
+
+   public void testDivertTransformerWithProperties(boolean rebootServer) throws Exception {
+      divertCount.set(0);
+      final String forwardingAddress = getQueueName() + "Divert";
+      final SimpleString simpleForwardingAddress = SimpleString.toSimpleString(forwardingAddress);
+      server.createQueue(new QueueConfiguration(simpleForwardingAddress).setRoutingType(RoutingType.ANYCAST));
+      server.getActiveMQServerControl().createDivert("name", "routingName", getQueueName(),
+                                                     forwardingAddress, true, null, AmqpMessageDivertsTest.class.getName(),
+                                                     ComponentConfigurationRoutingType.ANYCAST.toString());
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      Queue queueView = getProxyToQueue(forwardingAddress);
+      AmqpSender sender = session.createSender(getQueueName());
+      AmqpMessage message = new AmqpMessage();
+      message.setDurable(true);
+      message.setApplicationProperty("addLarge", false);
+      message.setApplicationProperty("always", "here");
+      message.setBytes(new byte[10]); // one small
+      sender.send(message);
+      Wait.assertEquals(1, queueView::getMessageCount);
+
+      message = new AmqpMessage();
+      message.setDurable(true);
+      message.setApplicationProperty("addLarge", false);
+      message.setApplicationProperty("always", "here");
+      message.setBytes(new byte[300 * 1024]); // one large
+      sender.send(message);
+      Wait.assertEquals(2, queueView::getMessageCount);
+
+      if (rebootServer) {
+         Wait.assertEquals(2, divertCount::get);
+         connection.close();
+         server.stop();
+         server.start();
+
+         // reopen connections
+         client = createAmqpClient();
+         connection = addConnection(client.connect());
+         session = connection.createSession();
+      } else {
+         message = new AmqpMessage();
+         message.setDurable(false);
+         message.setBytes(new byte[300 * 1024]); // one large
+         message.setApplicationProperty("addLarge", true);
+         message.setApplicationProperty("always", "here");
+         sender.send(message);
+         Wait.assertEquals(3, divertCount::get);
+      }
+
+
+      AmqpReceiver receiver = session.createReceiver(forwardingAddress);
+
+      queueView = getProxyToQueue(forwardingAddress);
+      assertEquals(rebootServer ? 2 : 3, queueView.getMessageCount());
+
+      receiver.flow(2);
+      for (int i = 0; i < 2; i++) {
+         AmqpMessage receivedMessage = receiver.receive(5, TimeUnit.SECONDS);
+         Assert.assertNotNull(receivedMessage);
+         Assert.assertEquals("here", receivedMessage.getApplicationProperty("always"));
+         Assert.assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
+         receivedMessage.accept();
+      }
+
+      if (!rebootServer) {
+         // if we did not reboot the server a third message was sent
+         receiver.flow(1);
+         AmqpMessage receivedMessage = receiver.receive(5, TimeUnit.SECONDS);
+         receivedMessage.accept();
+         Assert.assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
+         Assert.assertEquals(largeString, receivedMessage.getApplicationProperty("largeString"));
+
+      }
+
+      receiver.close();
+
+      Wait.assertEquals(0, queueView::getMessageCount);
+
+      connection.close();
+   }
+
+   @Override
+   public Message transform(Message message) {
+      divertCount.incrementAndGet();
+      if (message.getBooleanProperty("addLarge")) {
+         message.putStringProperty("largeString", largeString);
+      }
+      message.putBooleanProperty("oi", true);
+      message.putStringProperty("oi", "mundo");
+      message.reencode();
+      return message;
    }
 }

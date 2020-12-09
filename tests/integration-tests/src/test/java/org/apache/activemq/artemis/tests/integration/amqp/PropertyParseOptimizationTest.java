@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccessor;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -93,7 +94,7 @@ public class PropertyParseOptimizationTest extends AmqpClientTestSupport {
          // if this rule fails it means something is requesting the application property for the message,
          // or the optimization is gone.
          // be careful if you decide to change this rule, as we have done extensive test to get this in place.
-         Assert.assertNull("Application properties on AMQP Messages should only be parsed over demand", message.getDecodedApplicationProperties());
+         Assert.assertNull("Application properties on AMQP Messages should only be parsed over demand", AMQPMessageBrokerAccessor.getDecodedApplicationProperties(message));
       }
 
       AmqpReceiver receiver = session.createReceiver(getQueueName(), "odd=true");
