@@ -716,7 +716,7 @@ public class QueueConfiguration implements Serializable {
     * @return the {@code QueueConfiguration} created from the JSON-formatted input {@code String}
     */
    public static QueueConfiguration fromJSON(String jsonString) {
-      JsonObject json = JsonLoader.createReader(new StringReader(jsonString)).readObject();
+      JsonObject json = JsonLoader.readObject(new StringReader(jsonString));
 
       // name is the only required value
       if (!json.keySet().contains(NAME)) {
