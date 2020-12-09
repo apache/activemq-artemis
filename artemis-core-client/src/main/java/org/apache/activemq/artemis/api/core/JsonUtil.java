@@ -274,11 +274,11 @@ public final class JsonUtil {
    }
 
    public static JsonArray readJsonArray(String jsonString) {
-      return JsonLoader.createReader(new StringReader(jsonString)).readArray();
+      return JsonLoader.readArray(new StringReader(jsonString));
    }
 
    public static JsonObject readJsonObject(String jsonString) {
-      return JsonLoader.createReader(new StringReader(jsonString)).readObject();
+      return JsonLoader.readObject(new StringReader(jsonString));
    }
 
    public static Map<String, String> readJsonProperties(String jsonString) {
