@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 
@@ -38,6 +39,16 @@ public class AMQPMessageBrokerAccessor {
    /** Warning: this is a method specific to the broker. Do not use it on user's application. */
    public static Header getCurrentHeader(AMQPMessage message) {
       return message.getCurrentHeader();
+   }
+
+   /** Warning: this is a method specific to the broker. Do not use it on user's application. */
+   public static ApplicationProperties getDecodedApplicationProperties(AMQPMessage message) {
+      return message.getDecodedApplicationProperties();
+   }
+
+   /** Warning: this is a method specific to the broker. Do not use it on user's application. */
+   public static int getRemainingBodyPosition(AMQPMessage message) {
+      return message.remainingBodyPosition;
    }
 
    /** Warning: this is a method specific to the broker. Do not use it on user's application. */

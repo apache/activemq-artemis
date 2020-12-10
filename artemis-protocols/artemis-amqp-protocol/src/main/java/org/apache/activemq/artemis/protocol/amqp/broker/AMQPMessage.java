@@ -242,7 +242,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    /** This will return application properties without attempting to decode it.
     * That means, if applicationProperties were never parsed before, this will return null, even if there is application properties.
     *  This was created as an internal method for testing, as we need to validate if the application properties are not decoded until needed. */
-   public ApplicationProperties getDecodedApplicationProperties() {
+   protected ApplicationProperties getDecodedApplicationProperties() {
       return applicationProperties;
    }
 

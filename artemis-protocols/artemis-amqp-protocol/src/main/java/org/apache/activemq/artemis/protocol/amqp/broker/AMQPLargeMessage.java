@@ -87,6 +87,8 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       }
    }
 
+   private boolean reencoded = false;
+
    /**
     * AMQPLargeMessagePersister will save the buffer here.
     * */
@@ -622,7 +624,15 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    public void reencode() {
+      reencoded = true;
+   }
 
+   public void setReencoded(boolean reencoded) {
+      this.reencoded = reencoded;
+   }
+
+   public boolean isReencoded() {
+      return reencoded;
    }
 
    @Override
