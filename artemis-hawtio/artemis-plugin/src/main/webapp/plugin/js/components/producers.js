@@ -19,7 +19,7 @@ var Artemis;
     Artemis.log.debug("loading producers");
     Artemis._module.component('artemisProducers', {
         template:
-            `<h1>Browse Consumers
+            `<h1>Browse Producers
                 <button type="button" class="btn btn-link jvm-title-popover"
                           uib-popover-template="'producers-instructions.html'" popover-placement="bottom-left"
                           popover-title="Instructions" popover-trigger="'outsideClick'">
