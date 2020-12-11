@@ -267,9 +267,13 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          applicationProperties = (ApplicationProperties)TLSEncode.getDecoder().readObject();
 
          if (properties != null && properties.getAbsoluteExpiryTime() != null && properties.getAbsoluteExpiryTime().getTime() > 0) {
-            expiration = properties.getAbsoluteExpiryTime().getTime();
+            if (!expirationReload) {
+               expiration = properties.getAbsoluteExpiryTime().getTime();
+            }
          } else if (header != null && header.getTtl() != null) {
-            expiration = System.currentTimeMillis() + header.getTtl().intValue();
+            if (!expirationReload) {
+               expiration = System.currentTimeMillis() + header.getTtl().intValue();
+            }
          }
 
 
@@ -327,7 +331,9 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          if (Header.class.equals(constructor.getTypeClass())) {
             header = (Header) constructor.readValue();
             if (header.getTtl() != null) {
-               expiration = System.currentTimeMillis() + header.getTtl().intValue();
+               if (!expirationReload) {
+                  expiration = System.currentTimeMillis() + header.getTtl().intValue();
+               }
             }
          }
       } finally {
