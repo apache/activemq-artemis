@@ -141,6 +141,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       largeBody = new LargeBody(this, copy.largeBody.getStorageManager(), fileCopy);
       largeBody.setBodySize(copy.largeBody.getStoredBodySize());
       this.storageManager = copy.largeBody.getStorageManager();
+      this.reencoded = copy.reencoded;
       setMessageID(newID);
    }
 
