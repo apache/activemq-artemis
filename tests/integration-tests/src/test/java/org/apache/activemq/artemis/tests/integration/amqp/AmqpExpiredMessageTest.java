@@ -713,8 +713,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       final Queue queueViewAfterRestart = getProxyToQueue(getQueueName());
 
       Wait.assertEquals(2, queueViewAfterRestart::getMessageCount);
-
-      Thread.sleep(1000);
+      Wait.assertTrue(server::isActive);
 
       linkedListIterator = queueViewAfterRestart.iterator();
       count = 0;

@@ -229,6 +229,17 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    protected AMQPMessage(AMQPMessage copy) {
       this(copy.messageFormat, copy.extraProperties, copy.coreMessageObjectPools);
+
+      this.headerPosition = copy.headerPosition;
+      this.encodedHeaderSize = copy.encodedHeaderSize;
+      this.deliveryAnnotationsPosition = copy.deliveryAnnotationsPosition;
+      this.encodedDeliveryAnnotationsSize = copy.encodedDeliveryAnnotationsSize;
+      this.messageAnnotationsPosition = copy.messageAnnotationsPosition;
+      this.propertiesPosition = copy.propertiesPosition;
+      this.applicationPropertiesPosition = copy.applicationPropertiesPosition;
+      this.remainingBodyPosition = copy.remainingBodyPosition;
+      this.applicationProperties = copy.applicationProperties;
+      this.messageDataScanned = copy.messageDataScanned;
    }
 
    protected AMQPMessage(long messageFormat) {
@@ -469,6 +480,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    protected ApplicationProperties lazyDecodeApplicationProperties() {
+      ensureMessageDataScanned();
       if (applicationProperties != null || applicationPropertiesPosition == VALUE_NOT_PRESENT) {
          return applicationProperties;
       }
