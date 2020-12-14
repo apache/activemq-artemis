@@ -608,6 +608,38 @@
                      </args>
                   </configuration>
                </execution>
+               <!-- used on TransferTest -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-transfer-1</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/transfer1</instance>
+                  </configuration>
+               </execution>
+               <execution>
+               <phase>test-compile</phase>
+               <id>create-transfer-2</id>
+               <goals>
+                  <goal>create</goal>
+               </goals>
+               <configuration>
+                  <!-- this makes it easier in certain envs -->
+                  <allowAnonymous>true</allowAnonymous>
+                  <user>admin</user>
+                  <password>admin</password>
+                  <noWeb>true</noWeb>
+                  <portOffset>100</portOffset>
+                  <instance>${basedir}/target/transfer2</instance>
+               </configuration>
+            </execution>
          </executions>
          <dependencies>
                <dependency>

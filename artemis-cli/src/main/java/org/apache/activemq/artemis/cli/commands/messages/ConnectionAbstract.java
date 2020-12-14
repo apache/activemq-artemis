@@ -21,28 +21,18 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
-import java.io.File;
-import java.net.InetAddress;
-import java.net.URI;
-import java.util.Map;
 
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.InputAbstract;
-import org.apache.activemq.artemis.core.config.FileDeploymentManager;
-import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.utils.ConfigurationHelper;
-import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class ConnectionAbstract extends InputAbstract {
 
    private static final String DEFAULT_BROKER_URL = "tcp://localhost:61616";
 
-   @Option(name = "--url", description = "URL towards the broker. (default: tcp://localhost:61616)")
+   @Option(name = "--source-url", description = "URL towards the broker. (default: Read from current broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
    protected String brokerURL = DEFAULT_BROKER_URL;
 
    @Option(name = "--user", description = "User used to connect")
@@ -113,39 +103,6 @@ public class ConnectionAbstract extends InputAbstract {
       }
 
       System.out.println("Connection brokerURL = " + brokerURL);
-
-      return null;
-   }
-
-   private String getBrokerURLInstance() {
-      if (getBrokerInstance() != null) {
-         try {
-            FileConfiguration fileConfiguration = new FileConfiguration();
-            String brokerConfiguration = new File(new File(getBrokerEtc()), "broker.xml").toURI().toASCIIString();
-            FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(brokerConfiguration);
-            fileDeploymentManager.addDeployable(fileConfiguration);
-            fileDeploymentManager.readConfiguration();
-
-            for (TransportConfiguration acceptorConfiguration: fileConfiguration.getAcceptorConfigurations()) {
-               if (acceptorConfiguration.getName().equals("artemis")) {
-                  Map<String, Object> acceptorParams = acceptorConfiguration.getParams();
-                  String scheme = ConfigurationHelper.getStringProperty(TransportConstants.SCHEME_PROP_NAME, SchemaConstants.TCP, acceptorParams);
-                  String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, "localhost", acceptorParams);
-                  int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, 61616, acceptorParams);
-
-                  if (InetAddress.getByName(host).isAnyLocalAddress()) {
-                     host = "localhost";
-                  }
-
-                  return new URI(scheme, null, host, port, null, null, null).toString();
-               }
-            }
-         } catch (Exception e) {
-            if (isVerbose()) {
-               System.out.print("Can not get the broker url instance: " + e.toString());
-            }
-         }
-      }
 
       return null;
    }
