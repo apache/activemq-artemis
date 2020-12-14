@@ -503,6 +503,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       AMQPLargeMessage newMessage = new AMQPLargeMessage(this, newfile, messageID);
       newMessage.setParentRef(this);
       newMessage.setFileDurable(this.isDurable());
+      newMessage.reloadExpiration(this.expiration);
       return newMessage;
    }
 

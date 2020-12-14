@@ -54,6 +54,7 @@ public class AmqpPageTest extends PageTest {
       amqpMessage.setAddress(address);
       amqpMessage.setFileDurable(true);
       amqpMessage.addBytes(content);
+      amqpMessage.reloadExpiration(0);
       return amqpMessage;
    }
 
