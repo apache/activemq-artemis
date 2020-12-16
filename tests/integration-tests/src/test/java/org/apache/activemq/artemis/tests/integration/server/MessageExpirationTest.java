@@ -186,12 +186,11 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setMaxExpiryDelay((long) MAX_EXPIRATION);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
-      message.setExpiration(System.currentTimeMillis() + (MAX_EXPIRATION * 2));
+      message.setExpiration(System.currentTimeMillis() + (3600 * 1000)); // The long expiration would be one hour from now
       producer.send(message);
 
       long start = System.currentTimeMillis();
-      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, MAX_EXPIRATION + 100, 50);
-      assertTrue(System.currentTimeMillis() - start <= (MAX_EXPIRATION + 200));
+      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, 30_000, 50);
 
       session.deleteQueue(queue);
    }
