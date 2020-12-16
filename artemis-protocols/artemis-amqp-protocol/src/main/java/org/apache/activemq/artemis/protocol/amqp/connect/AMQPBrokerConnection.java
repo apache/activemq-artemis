@@ -233,6 +233,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             return;
          }
 
+         int currentRetryCounter = retryCounter;
          reconnectFuture = null;
          retryCounter = 0;
 
@@ -283,6 +284,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          protonRemotingConnection.getAmqpConnection().flush();
 
          bridgeManager.connected(connection, this);
+
+         ActiveMQAMQPProtocolLogger.LOGGER.successReconnect(brokerConnectConfiguration.getName(), host + ":" + port, currentRetryCounter);
 
          connecting = false;
       } catch (Throwable e) {
