@@ -211,6 +211,8 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    }
 
    protected void stopJournal(final boolean reclaim) throws Exception {
+      journal.flush();
+
       // We do a reclaim in here
       if (reclaim) {
          checkAndReclaimFiles();
