@@ -192,7 +192,7 @@ public class SyncSendTest extends ActiveMQTestBase {
          System.out.println("end - start = " + (end - start) + " milliseconds = " + TimeUnit.NANOSECONDS.toMillis(end - start));
          System.out.println("RECORD TIME = " + recordTime + " milliseconds = " + TimeUnit.NANOSECONDS.toMillis(recordTime));
 
-         if ((end - start) < recordTime) {
+         if ((end - start) < recordTime * 0.7) {
             Assert.fail("Messages are being sent too fast! Faster than the disk would be able to sync!");
          }
 
@@ -213,7 +213,7 @@ public class SyncSendTest extends ActiveMQTestBase {
          System.out.println("RECORD TIME = " + recordTime + " milliseconds = " + TimeUnit.NANOSECONDS.toMillis(recordTime));
 
          // There's no way to sync on ack for AMQP
-         if (!protocol.equals("amqp") && (end - start) < recordTime) {
+         if (!protocol.equals("amqp") && (end - start) < recordTime * 0.7) {
             Assert.fail("Messages are being acked too fast! Faster than the disk would be able to sync!");
          }
 
