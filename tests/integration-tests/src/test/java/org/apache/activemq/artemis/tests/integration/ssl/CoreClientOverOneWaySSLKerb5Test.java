@@ -43,6 +43,7 @@ import org.apache.hadoop.minikdc.MiniKdc;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -54,6 +55,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Investigate this as part of https://issues.apache.org/jira/browse/ARTEMIS-3038
+ * This test will fail with any recent JDK (post 2014).
+ * @throws Exception
+ */
+@Ignore
 public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
 
    @Rule
@@ -82,6 +89,11 @@ public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
    private TransportConfiguration inVMTc;
    private String userPrincipal;
 
+   /**
+    * Investigate this as part of https://issues.apache.org/jira/browse/ARTEMIS-3038
+    * @throws Exception
+    */
+   @Ignore // Ignored because of http://www.oracle.com/technetwork/topics/security/poodlecve-2014-3566-2339408.html
    @Test
    public void testOneWaySSLWithGoodClientCipherSuite() throws Exception {
 
