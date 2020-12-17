@@ -1379,7 +1379,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          Map<String, Object> server1Params = new HashMap<>();
          addTargetParameters(server1Params);
-         server1 = createClusteredServerWithParams(isNetty(), 1, true, PAGE_SIZE, PAGE_MAX, server1Params);
+         server1 = createClusteredServerWithParams(isNetty(), 1, true, PAGE_SIZE, -1, server1Params);
          server1.getConfiguration().setJournalBufferTimeout_AIO(10).setJournalBufferTimeout_NIO(10);
 
          final String testAddress = "testAddress";
@@ -1400,11 +1400,9 @@ public class BridgeTest extends ActiveMQTestBase {
          ArrayList<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
-         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(1).setStaticConnectors(staticConnectors);
+         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(true).setConfirmationWindowSize(1).setStaticConnectors(staticConnectors);
 
          bridgeConfiguration.setCallTimeout(1000);
-
-         bridgeConfiguration.setUseDuplicateDetection(true);
 
          List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
          bridgeConfigs.add(bridgeConfiguration);
