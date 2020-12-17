@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.utils.network.NetUtilResource;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -138,6 +139,12 @@ public class DNSSwitchTest extends SmokeTestBase {
 
    @BeforeClass
    public static void beforeClassMethod() throws Exception {
+      if (USE_ETC_HOSTS) {
+         if (!ETC_HOSTS.canWrite()) {
+            System.out.println("If you want to run this test, you must do 'sudo chmod 666 " + ETC_HOSTS);
+         }
+         Assume.assumeTrue("If you want to run this test, you must do 'sudo chmod 666 " + ETC_HOSTS + "'", ETC_HOSTS.canWrite());
+      }
       serverLocation = getServerLocation(SERVER_NAME_0);
       // Before anything we must copy the jave security and change what we need for no cache
       // this will be used to spawn new tests
