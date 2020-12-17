@@ -32,7 +32,7 @@ public class ConnectionAbstract extends InputAbstract {
 
    private static final String DEFAULT_BROKER_URL = "tcp://localhost:61616";
 
-   @Option(name = "--source-url", description = "URL towards the broker. (default: Read from current broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
+   @Option(name = "--url", description = "URL towards the broker. (default: Read from current broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
    protected String brokerURL = DEFAULT_BROKER_URL;
 
    @Option(name = "--user", description = "User used to connect")
