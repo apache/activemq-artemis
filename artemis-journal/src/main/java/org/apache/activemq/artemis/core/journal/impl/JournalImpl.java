@@ -1135,14 +1135,19 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
-            journalLock.readLock().lock();
             try {
+               journalLock.readLock().lock();
+               try {
 
-               known.set(records.containsKey(id)
-                  || pendingRecords.contains(id)
-                  || (compactor != null && compactor.containsRecord(id)));
-            } finally {
-               journalLock.readLock().unlock();
+                  known.set(records.containsKey(id)
+                          || pendingRecords.contains(id)
+                          || (compactor != null && compactor.containsRecord(id)));
+               } finally {
+                  journalLock.readLock().unlock();
+               }
+            } catch (Throwable t) {
+               known.fail(t);
+               throw t;
             }
          }
       });
