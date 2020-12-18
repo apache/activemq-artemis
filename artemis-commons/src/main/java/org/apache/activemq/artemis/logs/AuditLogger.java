@@ -2793,4 +2793,28 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601742, value = "User {0} is getting the queue count on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getQueueCount(String user, Object source, Object... args);
+
+   static void lastValueKey(Object source) {
+      LOGGER.lastValueKey(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601743, value = "User {0} is getting last-value-key property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void lastValueKey(String user, Object source, Object... args);
+
+   static void consumersBeforeDispatch(Object source) {
+      LOGGER.consumersBeforeDispatch(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601744, value = "User {0} is getting consumers-before-dispatch property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void consumersBeforeDispatch(String user, Object source, Object... args);
+
+   static void delayBeforeDispatch(Object source) {
+      LOGGER.delayBeforeDispatch(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601745, value = "User {0} is getting delay-before-dispatch property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void delayBeforeDispatch(String user, Object source, Object... args);
 }
