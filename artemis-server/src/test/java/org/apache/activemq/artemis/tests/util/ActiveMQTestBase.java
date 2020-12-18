@@ -44,6 +44,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -336,7 +337,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
          closeAllOtherComponents();
 
-         ArrayList<Exception> exceptions;
+         List<Exception> exceptions;
          try {
             exceptions = checkCsfStopped();
          } finally {
@@ -355,7 +356,6 @@ public abstract class ActiveMQTestBase extends Assert {
                exception.printStackTrace(System.out);
             }
             System.out.println(threadDump("Thread dump with reconnects happening"));
-            fail("Client Session Factories still trying to reconnect, see above to see where created");
          }
          Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
          for (Map.Entry<Thread, StackTraceElement[]> entry : threadMap.entrySet()) {
@@ -2009,29 +2009,25 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
-   private ArrayList<Exception> checkCsfStopped() {
-      long time = System.currentTimeMillis();
-      long waitUntil = time + 5000;
-      while (!ClientSessionFactoryImpl.CLOSE_RUNNABLES.isEmpty() && time < waitUntil) {
-         try {
-            Thread.sleep(50);
-         } catch (InterruptedException e) {
-            //ignore
-         }
-         time = System.currentTimeMillis();
-      }
-      List<ClientSessionFactoryImpl.CloseRunnable> closeRunnables = new ArrayList<>(ClientSessionFactoryImpl.CLOSE_RUNNABLES);
-      ArrayList<Exception> exceptions = new ArrayList<>();
+   private List<Exception> checkCsfStopped() throws Exception {
+      if (!Wait.waitFor(ClientSessionFactoryImpl.CLOSE_RUNNABLES::isEmpty, 5_000)) {
+         List<ClientSessionFactoryImpl.CloseRunnable> closeRunnables = new ArrayList<>(ClientSessionFactoryImpl.CLOSE_RUNNABLES);
+         ArrayList<Exception> exceptions = new ArrayList<>();
 
-      if (!closeRunnables.isEmpty()) {
-         for (ClientSessionFactoryImpl.CloseRunnable closeRunnable : closeRunnables) {
-            if (closeRunnable != null) {
-               exceptions.add(closeRunnable.stop().createTrace);
+         if (!closeRunnables.isEmpty()) {
+            for (ClientSessionFactoryImpl.CloseRunnable closeRunnable : closeRunnables) {
+               if (closeRunnable != null) {
+                  exceptions.add(closeRunnable.stop().createTrace);
+               }
             }
          }
+         return exceptions;
       }
 
-      return exceptions;
+      return Collections.EMPTY_LIST;
+
+
+
    }
 
    private void assertAllClientProducersAreClosed() {
