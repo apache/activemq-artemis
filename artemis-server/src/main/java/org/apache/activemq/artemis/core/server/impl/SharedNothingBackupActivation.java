@@ -248,23 +248,28 @@ public final class SharedNothingBackupActivation extends Activation {
                   logger.trace("signal == FAIL_OVER, breaking the loop");
                }
                break;
-            } else if (signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_REPLICATING) {
+            } else if (signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_REPLICATING || signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_RETRY) {
                // something has gone badly run restart from scratch
                if (logger.isTraceEnabled()) {
                   logger.trace("Starting a new thread to stop the server!");
                }
+
+               final SharedNothingBackupQuorum.BACKUP_ACTIVATION signalToStop = signal;
 
                Thread startThread = new Thread(new Runnable() {
                   @Override
                   public void run() {
                      try {
                         if (logger.isTraceEnabled()) {
-                           logger.trace("Calling activeMQServer.stop() and start() to restart the server");
+                           logger.trace("Calling activeMQServer.stop() as initialization failed");
                         }
                         if (activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPED &&
                             activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPING) {
                            activeMQServer.stop();
-                           activeMQServer.start();
+                           if (signalToStop == SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_RETRY) {
+                              logger.trace("The server was shutdown for a network isolation, we keep retrying");
+                              activeMQServer.start();
+                           }
                         }
                      } catch (Exception e) {
                         ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(e, activeMQServer);
