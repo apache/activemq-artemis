@@ -225,6 +225,21 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public String getLastValueKey() {
+            return (String) proxy.retrieveAttributeValue("lastValueKey");
+         }
+
+         @Override
+         public int getConsumersBeforeDispatch() {
+            return (Integer) proxy.retrieveAttributeValue("consumersBeforeDispatch");
+         }
+
+         @Override
+         public long getDelayBeforeDispatch() {
+            return (Long) proxy.retrieveAttributeValue("delayBeforeDispatch");
+         }
+
+         @Override
          public int getDeliveringCount() {
             return (Integer) proxy.retrieveAttributeValue("deliveringCount", Integer.class);
          }

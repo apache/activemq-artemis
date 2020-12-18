@@ -290,6 +290,26 @@ public interface QueueControl {
    @Attribute(desc = "is this queue a last value queue")
    boolean isLastValue();
 
+   /**
+    *The key used for the last value queues
+    */
+   @Attribute(desc = "last value key")
+   String getLastValueKey();
+
+   /**
+    *Return the Consumers Before Dispatch
+    * @return
+    */
+   @Attribute(desc = "Return the Consumers Before Dispatch")
+   int getConsumersBeforeDispatch();
+
+   /**
+    *Return the Consumers Before Dispatch
+    * @return
+    */
+   @Attribute(desc = "Return the Consumers Before Dispatch")
+   long getDelayBeforeDispatch();
+
    // Operations ----------------------------------------------------
 
    /**

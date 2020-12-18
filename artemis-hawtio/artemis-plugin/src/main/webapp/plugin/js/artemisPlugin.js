@@ -46,6 +46,7 @@ var Artemis = (function (Artemis) {
                   <artemis-tree></artemis-tree>
                 </div>
                 <div class="tree-nav-main">
+                  <jmx-header></jmx-header>
                   <artemis-navigation></artemis-navigation>
                   <div class="contents" ng-view></div>
                 </div>

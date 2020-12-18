@@ -28,6 +28,7 @@ var Artemis;
             </h1>
              <div ng-include="'plugin/artemistoolbar.html'"></div>
              <pf-table-view config="$ctrl.tableConfig"
+                            dt-options="$ctrl.dtOptions"
                             columns="$ctrl.tableColumns"
                             action-buttons="$ctrl.tableActionButtons"
                             items="$ctrl.queues">
@@ -59,28 +60,86 @@ var Artemis;
     function QueuesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisQueue, artemisAddress) {
         var ctrl = this;
         ctrl.pagination = pagination;
+        ctrl.pagination.reset();
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
         ctrl.allAddresses = [];
         ctrl.queues = [];
         ctrl.workspace = workspace;
         ctrl.refreshed = false;
+        ctrl.dtOptions = {
+           // turn of ordering as we do it ourselves
+           ordering: false,
+           columns: [
+                  {name: "ID", visible: true},
+                  {name: "name", visible: true},
+                  {name: "Address", visible: true},
+                  {name: "Routing Type", visible: true},
+                  {name: "Filter", visible: true},
+                  {name: "Durable", visible: true},
+                  {name: "Max Consumers", visible: true},
+                  {name: "Purge On No Consumers", visible: true},
+                  {name: "Consumer Count", visible: true},
+                  {name: "Rate", visible: true},
+                  {name: "Message Count", visible: true},
+                  {name: "Paused", visible: false},
+                  {name: "Temporary", visible: false},
+                  {name: "Auto Created", visible: false},
+                  {name: "User", visible: false},
+                  {name: "Total Messages Added", visible: false},
+                  {name: "Total Messages Acked", visible: false},
+                  {name: "Delivering Count", visible: false},
+                  {name: "Messages Killed", visible: false},
+                  {name: "Direct Deliver", visible: false},
+                  {name: "Exclusive", visible: false},
+                  {name: "Last Value", visible: false},
+                  {name: "Last Value Key", visible: false},
+                  {name: "Scheduled Count", visible: false},
+                  {name: "Group Rebalance", visible: false},
+                  {name: "Group Rebalance Pause Dispatch", visible: false},
+                  {name: "Group Buckets", visible: false},
+                  {name: "Group First Key", visible: false},
+                  {name: "Queue Enabled", visible: false},
+                  {name: "Ring Size", visible: false},
+                  {name: "Consumers Before Dispatch", visible: false},
+                  {name: "Delay Before Dispatch", visible: false}
+             ]
+        };
+
+        Artemis.log.debug('localStorage: queuesColumnDefs =', localStorage.getItem('queuesColumnDefs'));
+        if (localStorage.getItem('queuesColumnDefs')) {
+        Artemis.log.info("loading columns " + localStorage.getItem('queuesColumnDefs'))
+              loadedDefs = JSON.parse(localStorage.getItem('queuesColumnDefs'));
+              //sanity check to make sure columns havent been added
+              if(loadedDefs.length === ctrl.dtOptions.columns.length) {
+                  ctrl.dtOptions.columns = loadedDefs;
+              }
+        }
+
+        ctrl.updateColumns = function () {
+              var attributes = [];
+              ctrl.dtOptions.columns.forEach(function (column) {
+                  attributes.push({name: column.name, visible: column.visible});
+              });
+              Artemis.log.debug("saving columns " + JSON.stringify(attributes));
+              localStorage.setItem('queuesColumnDefs', JSON.stringify(attributes));
+        }
         ctrl.filter = {
             fieldOptions: [
-                {id: 'ID', name: 'ID'},
-                {id: 'NAME', name: 'Name'},
-                {id: 'CONSUMER_ID', name: 'Consumer ID'},
-                {id: 'ADDRESS', name: 'Address'},
-                {id: 'FILTER', name: 'Filter'},
-                {id: 'MAX_CONSUMERS', name: 'maxConsumers'},
-                {id: 'ROUTING_TYPE', name: 'Routing Type'},
-                {id: 'PURGE_ON_NO_CONSUMERS', name: 'Purge On No Consumers'},
-                {id: 'USER', name: 'User'},
-                {id: 'MESSAGE_COUNT', name: 'Message Count'},
-                {id: 'DELIVERING_COUNT', name: 'Delivering Count'},
-                {id: 'PAUSED', name: 'Paused'},
-                {id: 'TEMPORARY', name: 'Temporary'},
-                {id: 'AUTO_CREATED', name: 'Auto Created'},
-                {id: 'RATE', name: 'Rate'}
+                {id: 'id', name: 'ID'},
+                {id: 'name', name: 'Name'},
+                {id: 'consumerId', name: 'Consumer ID'},
+                {id: 'address', name: 'Address'},
+                {id: 'filter', name: 'Filter'},
+                {id: 'maxConsumers', name: 'Max Consumers'},
+                {id: 'routingType', name: 'Routing Type'},
+                {id: 'purgeOnNoConsumers', name: 'Purge On No Consumers'},
+                {id: 'user', name: 'User'},
+                {id: 'messageCount', name: 'Message Count'},
+                {id: 'deliveringCount', name: 'Delivering Count'},
+                {id: 'paused', name: 'Paused'},
+                {id: 'temporary', name: 'Temporary'},
+                {id: 'autoCreated', name: 'Auto Created'},
+                {id: 'rate', name: 'Rate'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -128,16 +187,17 @@ var Artemis;
             { header: 'Name', itemField: 'name',
               templateFn: function(value, item) { return '<a href="#" onclick="selectQueue(' + item.idx + ')">' + $sanitize(value) + '</a>' }
             },
-            { header: 'Routing Types', itemField: 'routingTypes' },
             { header: 'Address', itemField: 'address',
               templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }
             },
-            { header: 'Routing Type', itemField: 'routingType' },
+            { header: 'Routing Type', itemField: 'routingType'},
             { header: 'Filter', itemField: 'filter' },
             { header: 'Durable', itemField: 'durable' },
             { header: 'Max Consumers', itemField: 'maxConsumers' },
             { header: 'Purge On No Consumers', itemField: 'purgeOnNoConsumers' },
-            { header: 'Consumer Count', itemField: 'consumerCount' },
+            { header: 'Consumer Count', itemField: 'consumerCount' ,
+              templateFn: function(value, item) { return '<a href="#" onclick="selectConsumers(' + item.idx + ')">' + $sanitize(value) + '</a>' }
+            },
             { header: 'Rate', itemField: 'rate' },
             { header: 'Message Count', itemField: 'messageCount',
               templateFn: function(value, item) { return '<a href="#" onclick="browseQueue(' + item.idx + ')" title="Browse Messages">' + value + '</a>' }
@@ -150,12 +210,24 @@ var Artemis;
             { header: 'Total Messages Acked', itemField: 'messagesAcked' },
             { header: 'Delivering Count', itemField: 'deliveringCount' },
             { header: 'Messages Killed', itemField: 'messagesKilled' },
-            { header: 'Direct Deliver', itemField: 'directDeliver' }
+            { header: 'Direct Deliver', itemField: 'directDeliver' },
+            { header: 'exclusive', itemField: 'exclusive' },
+            { header: 'Last Value', itemField: 'lastValue' },
+            { header: 'Last Value Key', itemField: 'lastValueKey' },
+            { header: 'Scheduled Count', itemField: 'scheduledCount' },
+            { header: 'Group Rebalance', itemField: 'groupRebalance' },
+            { header: 'Group Rebalance Pause Dispatch', itemField: 'groupRebalancePauseDispatch' },
+            { header: 'Group Buckets', itemField: 'groupBuckets' },
+            { header: 'Group First Key', itemField: 'groupFirstKey' },
+            { header: 'Enabled', itemField: 'enabled'},
+            { header: 'Ring Size', itemField: 'ringSize'},
+            { header: 'Consumers Before Dispatch', itemField: 'consumersBeforeDispatch'},
+            { header: 'Delay Before Dispatch', itemField: 'delayBeforeDispatch'}
         ];
 
         ctrl.refresh = function () {
             ctrl.refreshed = true;
-            loadTable();
+            ctrl.pagination.load();
         };
         ctrl.reset = function () {
             ctrl.filter.values.field = "";
@@ -176,6 +248,7 @@ var Artemis;
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisQueue.queue.queue;
+            artemisQueue.queue = null;
         }
 
         if (artemisAddress.address) {
@@ -183,10 +256,13 @@ var Artemis;
             ctrl.filter.values.field = ctrl.filter.fieldOptions[3].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisAddress.address.address;
+            artemisAddress.address = null;
         }
 
         function navigateToQueuesAtts(action, item) {
-            $location.path("artemis/attributes").search({"tab": "artemis", "nid": getQueuesNid(item, $location)});
+            qnid = getQueuesNid(item, $location);
+            Artemis.log.info(qnid);
+            $location.path("artemis/attributes").search({"tab": "artemis", "nid": qnid });
         };
         function navigateToQueuesOps(action, item) {
             $location.path("artemis/operations").search({"tab": "artemis", "nid": getQueuesNid(item, $location)});
@@ -201,9 +277,14 @@ var Artemis;
             var item = ctrl.queues[idx];
             var nid = getQueuesNid(item, $location);
             Artemis.log.debug("navigating to queue:" + nid);
-            artemisAddress.address = { address: item.address };
-            artemisQueue.queue = item;
+            artemisQueue.queue = { queue: item.name };
             $location.path("artemis/artemisQueues").search({"tab": "artemis", "nid": nid});
+        };
+        selectConsumers = function (idx) {
+            var item = ctrl.queues[idx];
+            var nid = getQueuesNid(item, $location);
+            artemisQueue.queue = { queue: item.name };
+            $location.path("artemis/artemisConsumers").search({"tab": "artemis", "nid": nid});;
         };
         browseQueue = function (idx) {
             var item = ctrl.queues[idx];
@@ -224,16 +305,14 @@ var Artemis;
             return targetNID;
         }
         function getRootNid($location) {
-            var currentNid = $location.search()['nid'];
-            Artemis.log.debug("current nid=" + currentNid);
-            var firstDash = currentNid.indexOf('-');
-            var secondDash = currentNid.indexOf('-', firstDash + 1);
-            var thirdDash = currentNid.indexOf('-', secondDash + 1);
-            if (thirdDash < 0) {
-                return currentNid + "-";
-            }
-            var rootNID = currentNid.substring(0, thirdDash + 1);
-            return rootNID;
+            var mBean = Artemis.getBrokerMBean(workspace, jolokia);
+            var details = Core.parseMBean(mBean);
+            var properties = details['attributes'];
+            var brokerAddress = properties["broker"] || "unknown";
+            var artemisJmxDomain = localStorage['artemisJmxDomain'] || "org.apache.activemq.artemis";
+            //we have to remove the surrounding quotes
+            return "root-" + artemisJmxDomain + "-" + brokerAddress.replace(/^"|"$/g, '') + "-";
+
         }
         ctrl.loadOperation = function () {
             if (mbean) {
@@ -257,7 +336,7 @@ var Artemis;
         ctrl.pagination.setOperation(ctrl.loadOperation);
 
         function onError(response) {
-            Core.notification("error", "could not invoke list sessions" + response.error);
+            Core.notification("error", "could not invoke list queues" + response.error);
             $scope.workspace.selectParentNode();
         };
 

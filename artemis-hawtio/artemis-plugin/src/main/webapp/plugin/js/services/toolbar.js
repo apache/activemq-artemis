@@ -66,7 +66,42 @@ var Artemis;
                                         ng-click="$ctrl.reset()">Reset
                                     </button>
                                 </div>
+                                <div class="input-group-btn">
+                                    <button class="btn btn-default primary-action ng-binding ng-scope"
+                                        type="button"
+                                        title=""
+                                        ng-click="$ctrl.showColumns = true">Columns
+                                    </button>
+                                </div>
                             </div>
+                        </div>
+                        <div class="form-group" ng-show="$ctrl.showColumns">
+                            <button class="btn btn-default" data-toggle="modal" data-target="#myModal">Columns</button>
+                            <div class="modal ng-scope">
+                              <div class="modal-dialog ">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h4 class="modal-title ng-binding">Column Selector</h4>
+                                  </div>
+                                  <div class="modal-body">
+                                    <table class="table-view-container table table-striped table-bordered table-hover dataTable ng-scope ng-isolate-scope no-footer">
+                                        <tbody>
+                                            <tr ng-repeat="col in $ctrl.dtOptions.columns">
+                                                <td>{{ col.name }}</td>
+                                                <td><input type="checkbox" ng-model="col.visible" placeholder="Name" autocomplete="off" id="name"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-default ng-binding" ng-click="$ctrl.showColumns = false;$ctrl.updateColumns()">
+                                      Close
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
                     </form>
                  </div>
                `

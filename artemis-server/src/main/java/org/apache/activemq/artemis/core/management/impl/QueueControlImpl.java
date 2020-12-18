@@ -704,6 +704,55 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public String getLastValueKey() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.lastValueKey(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         if (queue.getLastValueKey() != null) {
+            return queue.getLastValueKey().toString();
+         } else {
+            return null;
+         }
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getConsumersBeforeDispatch() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.consumersBeforeDispatch(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getConsumersBeforeDispatch();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getDelayBeforeDispatch() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.delayBeforeDispatch(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getDelayBeforeDispatch();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public Map<String, Object>[] listScheduledMessages() throws Exception {
       if (AuditLogger.isEnabled()) {
          AuditLogger.listScheduledMessages(queue);

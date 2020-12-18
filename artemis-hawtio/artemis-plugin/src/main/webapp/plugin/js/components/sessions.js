@@ -28,6 +28,7 @@ var Artemis;
             </h1>
              <div ng-include="'plugin/artemistoolbar.html'"></div>
              <pf-table-view config="$ctrl.tableConfig"
+                            dt-options="$ctrl.dtOptions"
                             columns="$ctrl.tableColumns"
                             action-buttons="$ctrl.tableActionButtons"
                             items="$ctrl.sessions">
@@ -70,6 +71,7 @@ var Artemis;
     function SessionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisConnection, artemisSession, artemisConsumer, artemisProducer) {
         var ctrl = this;
         ctrl.pagination = pagination;
+        ctrl.pagination.reset();
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
         ctrl.allSessions = [];
         ctrl.sessions = [];
@@ -79,16 +81,46 @@ var Artemis;
         ctrl.sessionToDeletesConnection = '';
         ctrl.sessionToDelete = '';
         ctrl.closeDialog = false;
+        ctrl.dtOptions = {
+           // turn of ordering as we do it ourselves
+           ordering: false,
+           columns: [
+                {name: "ID", visible: true},
+                {name: "Connection", visible: true},
+                {name: "User", visible: true},
+                {name: "Consumer Count", visible: true},
+                {name: "Producer Count", visible: true},
+                {name: "Creation Time", visible: true}
+             ]
+        };
+
+        Artemis.log.debug('localStorage: sessionsColumnDefs =', localStorage.getItem('sessionsColumnDefs'));
+        if (localStorage.getItem('sessionsColumnDefs')) {
+            loadedDefs = JSON.parse(localStorage.getItem('sessionsColumnDefs'));
+            //sanity check to make sure columns havent been added
+            if(loadedDefs.length === ctrl.dtOptions.columns.length) {
+                ctrl.dtOptions.columns = loadedDefs;
+            }
+        }
+
+        ctrl.updateColumns = function () {
+                var attributes = [];
+                ctrl.dtOptions.columns.forEach(function (column) {
+                    attributes.push({name: column.name, visible: column.visible});
+                });
+                Artemis.log.debug("saving columns " + JSON.stringify(attributes));
+                localStorage.setItem('sessionsColumnDefs', JSON.stringify(attributes));
+        }
         ctrl.filter = {
             fieldOptions: [
-                {id: 'ID', name: 'ID'},
-                {id: 'CONNECTION_ID', name: 'Connection ID'},
-                {id: 'CONSUMER_COUNT', name: 'Consumer Count'},
-                {id: 'USER', name: 'User'},
-                {id: 'PROTOCOL', name: 'Protocol'},
-                {id: 'CLIENT_ID', name: 'Client ID'},
-                {id: 'LOCAL_ADDRESS', name: 'Local Address'},
-                {id: 'REMOTE_ADDRESS', name: 'Remote Address'}
+                {id: 'id', name: 'ID'},
+                {id: 'connection_id', name: 'Connection ID'},
+                {id: 'consumer_count', name: 'Consumer Count'},
+                {id: 'user', name: 'User'},
+                {id: 'protocol', name: 'Protocol'},
+                {id: 'client_id', name: 'Client ID'},
+                {id: 'local_address', name: 'Local Address'},
+                {id: 'remote_address', name: 'Remote Address'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -181,6 +213,7 @@ var Artemis;
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisConnection.connection.connectionID;
+            artemisConnection.connection = null;
         }
 
         if (artemisSession.session) {
@@ -188,6 +221,7 @@ var Artemis;
             ctrl.filter.values.field = ctrl.filter.fieldOptions[0].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisSession.session.session;
+            artemisSession.session = null;
         }
 
         function openCloseDialog(action, item) {
