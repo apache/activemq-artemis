@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import javax.jms.IllegalStateException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -87,7 +88,10 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
                   message.acknowledge();
                }
             } catch (Exception e) {
-               exceptions.put(Thread.currentThread(), e);
+               e.printStackTrace();
+               if (!(e instanceof IllegalStateException)) { // The consumer is closed may happen
+                  exceptions.put(Thread.currentThread(), e);
+               }
             }
          }
       }
