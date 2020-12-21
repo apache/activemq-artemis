@@ -423,6 +423,7 @@
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.4.0</arg>
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.4.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.4.0</arg>
+                        <arg>org.apache.qpid:qpid-jms-client:0.26.0</arg>
                         <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
@@ -447,6 +448,7 @@
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.1.0</arg>
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.1.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.1.0</arg>
+                        <arg>org.apache.qpid:qpid-jms-client:0.22.0</arg>
                         <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
@@ -471,6 +473,7 @@
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.0.0</arg>
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.0.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.0.0</arg>
+                        <arg>org.apache.qpid:qpid-jms-client:0.20.0</arg>
                         <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>

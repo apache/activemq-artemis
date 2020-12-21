@@ -24,18 +24,19 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnection
 
 // Create a client connection factory
 
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit;
 
-CountDownLatch latch = new CountDownLatch(1);
-((ActiveMQConnection)connectionToFail).setFailoverListener(new FailoverEventListener() {
-    @Override
-    void failoverEvent(FailoverEventType eventType) {
-        latch.countDown();
-    }
-})
-((ActiveMQConnection)connectionToFail).getSessionFactory().getConnection().fail(new ActiveMQException("fail"));
-GroovyRun.assertTrue(latch.await(10, TimeUnit.SECONDS));
+if (ActiveMQConnection.class.equals(connectionToFail.getClass())) {
+    CountDownLatch latch = new CountDownLatch(1);
+    ((ActiveMQConnection)connectionToFail).setFailoverListener(new FailoverEventListener() {
+        @Override
+        void failoverEvent(FailoverEventType eventType) {
+            latch.countDown();
+        }
+    })
+    ((ActiveMQConnection)connectionToFail).getSessionFactory().getConnection().fail(new ActiveMQException("fail"));
+    GroovyRun.assertTrue(latch.await(10, TimeUnit.SECONDS));
+}
