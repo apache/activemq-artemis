@@ -140,7 +140,7 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
          jmsConnection.close();
       }
 
-      assertEquals(1, queue.getMessageCount());
+      Wait.assertEquals(1, queue::getMessageCount);
 
       // Now lets receive it with AMQP and see that we get back what we expected.
       AmqpReceiver receiver = session.createReceiver(getQueueName());

@@ -19,12 +19,12 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -57,12 +57,11 @@ public class AmqpDLQReceiverTest extends AmqpClientTestSupport {
 
       receiver.close();
       connection.close();
-      Thread.sleep(5000);
       Queue queueView = getProxyToQueue(getQueueName());
       instanceLog.debug("queueView.getMessageCount() = " + queueView.getMessageCount());
       instanceLog.debug("queueView.getDeliveringCount() = " + queueView.getDeliveringCount());
       instanceLog.debug("queueView.getPersistentSize() = " + queueView.getPersistentSize());
-      Assert.assertEquals(0, queueView.getMessageCount());
+      Wait.assertEquals(0, queueView::getMessageCount);
    }
 
 }
