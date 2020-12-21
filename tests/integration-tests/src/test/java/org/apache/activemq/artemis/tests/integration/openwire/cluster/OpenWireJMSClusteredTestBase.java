@@ -32,8 +32,8 @@ public class OpenWireJMSClusteredTestBase extends ClusterTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      setupServer(0, true, true);
-      setupServer(1, true, true);
+      setupServer(0, isFileStorage(), true);
+      setupServer(1, isFileStorage(), true);
 
       setupClusterConnection("cluster0", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 0, 1);
       setupClusterConnection("cluster1", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 1, 0);

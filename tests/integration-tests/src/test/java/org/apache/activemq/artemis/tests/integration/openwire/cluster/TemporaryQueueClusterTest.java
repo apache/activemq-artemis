@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.cluster;
 
+import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.Wait;
@@ -129,6 +130,9 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
             message.setJMSReplyTo(tempQueue);
             prod1.send(message);
          }
+
+         // waiting the advisory to update the activeTempDestinations
+         Wait.assertTrue(() -> ((ActiveMQConnection) conn2).activeTempDestinations.containsValue(tempQueue));
 
          for (int i = 0; i < 10; i++) {
             if (i % 2 == 0) {
