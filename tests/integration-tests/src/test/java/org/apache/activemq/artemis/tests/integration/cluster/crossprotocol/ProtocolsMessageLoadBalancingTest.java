@@ -49,15 +49,20 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
 public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    private static final int NUMBER_OF_SERVERS = 2;
    private static final SimpleString queueName = SimpleString.toSimpleString("queues.0");
@@ -191,6 +196,10 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
          connection[node].close();
       }
 
+   }
+
+   protected boolean isFileStorage() {
+      return false;
    }
 
    @Test
