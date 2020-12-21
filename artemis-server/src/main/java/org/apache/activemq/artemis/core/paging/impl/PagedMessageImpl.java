@@ -40,6 +40,7 @@ public class PagedMessageImpl implements PagedMessage {
 
       private static final byte NONE = 0;
       private static final byte CORE = 1;
+      private static final byte OLD_CORE = -1;
       private static final byte NOT_CORE = 2;
 
       public static boolean isLargeMessage(byte encodedValue) {
@@ -47,6 +48,7 @@ public class PagedMessageImpl implements PagedMessage {
             case LargeMessageType.NONE:
                return false;
             case LargeMessageType.CORE:
+            case LargeMessageType.OLD_CORE:
             case LargeMessageType.NOT_CORE:
                return true;
             default:
@@ -59,7 +61,8 @@ public class PagedMessageImpl implements PagedMessage {
       }
 
       public static boolean isCoreLargeMessageType(byte encodedValue) {
-         return encodedValue == LargeMessageType.CORE;
+         return encodedValue == LargeMessageType.CORE ||
+            encodedValue == LargeMessageType.OLD_CORE;
       }
 
       public static byte valueOf(Message message) {
