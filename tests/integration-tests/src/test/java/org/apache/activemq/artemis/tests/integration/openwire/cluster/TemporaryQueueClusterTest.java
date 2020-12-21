@@ -31,6 +31,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
+   @Override
+   public boolean isFileStorage() {
+      return false;
+   }
 
    public static final String QUEUE_NAME = "target";
 
