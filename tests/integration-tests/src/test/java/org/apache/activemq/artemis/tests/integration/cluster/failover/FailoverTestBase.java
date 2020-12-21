@@ -293,7 +293,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    protected abstract TransportConfiguration getConnectorTransportConfiguration(boolean live);
 
    protected ServerLocatorInternal getServerLocator() throws Exception {
-      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true), getConnectorTransportConfiguration(false))).setRetryInterval(50);
+      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true), getConnectorTransportConfiguration(false))).setRetryInterval(50).setInitialConnectAttempts(50);
    }
 
    protected void crash(final ClientSession... sessions) throws Exception {
