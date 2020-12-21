@@ -93,7 +93,7 @@ public class AMQPPersisterTest {
 
       Message message = createMessage(SimpleString.toSimpleString("Test"), 1, new byte[10]);
 
-      MessagePersister persister = AMQPMessagePersisterV2.getInstance();
+      MessagePersister persister = AMQPMessagePersisterV3.getInstance();
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
       persister.encode(buffer, message);

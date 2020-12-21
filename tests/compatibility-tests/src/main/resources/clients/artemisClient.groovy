@@ -18,16 +18,21 @@ package clients
 
 // Create a client connection factory
 
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
+import org.apache.qpid.jms.JmsConnectionFactory;
 
 if (serverArg[0].startsWith("HORNETQ")) {
     cf = new ActiveMQConnectionFactory("tcp://localhost:61616?protocolManagerFactoryStr=org.apache.activemq.artemis.core.protocol.hornetq.client.HornetQClientProtocolManagerFactory&confirmationWindowSize=1048576&blockOnDurableSend=false&reconnectAttempts=-1&retryInterval=100");
 } else {
-    cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false&ha=true&reconnectAttempts=-1&retryInterval=100");
+    if ("AMQP".equals(serverArg[1])) {
+        cf = new JmsConnectionFactory("amqp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false&ha=true&reconnectAttempts=-1&retryInterval=100");
+    } else {
+        cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=1048576&blockOnDurableSend=false&ha=true&reconnectAttempts=-1&retryInterval=100");
+    }
 }
 
-
-GroovyRun.assertTrue(!cf.getServerLocator().isBlockOnDurableSend());
-GroovyRun.assertEquals(1048576, cf.getServerLocator().getConfirmationWindowSize());
-
+if (!"AMQP".equals(serverArg[1])) {
+    GroovyRun.assertTrue(!cf.getServerLocator().isBlockOnDurableSend());
+    GroovyRun.assertEquals(1048576, cf.getServerLocator().getConfirmationWindowSize());
+}

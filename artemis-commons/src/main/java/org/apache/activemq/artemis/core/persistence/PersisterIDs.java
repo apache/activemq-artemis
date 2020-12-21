@@ -26,7 +26,7 @@ package org.apache.activemq.artemis.core.persistence;
 
 public class PersisterIDs {
 
-   public static final int MAX_PERSISTERS = 4;
+   public static final int MAX_PERSISTERS = 5;
 
    public static final byte CoreLargeMessagePersister_ID = (byte)0;
 
@@ -37,5 +37,7 @@ public class PersisterIDs {
    public static final byte AMQPMessagePersisterV2_ID = (byte)3;
 
    public static final byte AMQPLargeMessagePersister_ID = (byte)4;
+
+   public static final byte AMQPMessagePersisterV3_ID = (byte)5;
 
 }

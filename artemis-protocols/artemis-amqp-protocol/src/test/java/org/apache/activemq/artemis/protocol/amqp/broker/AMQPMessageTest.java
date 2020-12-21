@@ -1559,7 +1559,7 @@ public class AMQPMessageTest {
       ActiveMQBuffer buffer = ActiveMQBuffers.pooledBuffer(10 * 1024);
       try {
          decoded.getPersister().encode(buffer, decoded);
-         Assert.assertEquals(AMQPMessagePersisterV2.getInstance().getID(), buffer.readByte()); // the journal reader will read 1 byte to find the persister
+         Assert.assertEquals(AMQPMessagePersisterV3.getInstance().getID(), buffer.readByte()); // the journal reader will read 1 byte to find the persister
          AMQPStandardMessage readMessage = (AMQPStandardMessage)decoded.getPersister().decode(buffer, null, null);
          Assert.assertEquals(33, readMessage.getMessageID());
          Assert.assertEquals("someAddress", readMessage.getAddress());
