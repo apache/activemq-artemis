@@ -307,7 +307,7 @@ public class QueueAutoDeleteTest extends JMSTestBase {
          QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
          assertTrue(queueBinding.getQueue().isAutoDelete());
          assertEquals(100, queueBinding.getQueue().getAutoDeleteDelay());
-         assertEquals(2, queueBinding.getQueue().getMessageCount());
+         Wait.assertEquals(2, queueBinding.getQueue()::getMessageCount);
 
          MessageConsumer consumer = session.createConsumer(queue);
          Message message = consumer.receive(5000);
