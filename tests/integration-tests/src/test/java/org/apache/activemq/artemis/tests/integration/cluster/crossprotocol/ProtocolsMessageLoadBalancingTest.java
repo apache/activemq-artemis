@@ -198,10 +198,6 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
    }
 
-   protected boolean isFileStorage() {
-      return false;
-   }
-
    @Test
    public void testRedistributionStoppedWithNoRemoteConsumers() throws Exception {
       startServers(MessageLoadBalancingType.ON_DEMAND);
