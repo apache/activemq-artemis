@@ -41,6 +41,16 @@ public class DatabaseStoreConfigurationTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void databaseStoreConfigWithDataSourceTest() throws Exception {
+      Configuration configuration = createConfiguration("database-store-with-data-source-config.xml");
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
+      DatabaseStorageConfiguration storeConfiguration = (DatabaseStorageConfiguration) server.getConfiguration().getStoreConfiguration();
+      assertEquals(StoreConfiguration.StoreType.DATABASE, storeConfiguration.getStoreType());
+      assertEquals("sourcepassword", storeConfiguration.getDataSourceProperty("username"));
+      assertEquals("targetpassword", storeConfiguration.getDataSourceProperty("password"));
+   }
+
+   @Test
    public void testOracle12TableSize() {
       for (SQLProvider.DatabaseStoreType storeType : SQLProvider.DatabaseStoreType.values()) {
          Throwable rte = null;
