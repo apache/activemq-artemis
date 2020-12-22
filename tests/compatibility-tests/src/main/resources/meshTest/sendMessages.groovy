@@ -25,6 +25,11 @@ import javax.jms.*
 String serverType = arg[0];
 String clientType = arg[1];
 String operation = arg[2];
+String protocol = null;
+
+if (arg.length > 3) {
+    protocol = arg[3];
+}
 
 try {
     legacyOption = legacy;
@@ -61,7 +66,11 @@ String textBody = "a rapadura e doce mas nao e mole nao";
 
 if (clientType.startsWith("ARTEMIS")) {
     // Can't depend directly on artemis, otherwise it wouldn't compile in hornetq
-    GroovyRun.evaluate("clients/artemisClient.groovy", "serverArg", serverType);
+    if (protocol != null && protocol.equals("AMQP")) {
+        GroovyRun.evaluate("clients/artemisClientAMQP.groovy", "serverArg", serverType, protocol);
+    } else {
+        GroovyRun.evaluate("clients/artemisClient.groovy", "serverArg", serverType);
+    }
 } else {
     // Can't depend directly on hornetq, otherwise it wouldn't compile in artemis
     GroovyRun.evaluate("clients/hornetqClient.groovy", "serverArg");
@@ -96,14 +105,32 @@ if (operation.equals("sendAckMessages") || operation.equals("sendTopic")) {
     producer.send(bytesMessage);
 
 
-    for (int i = 0; i < 10; i++) {
-        BytesMessage m = session.createBytesMessage();
-        m.setIntProperty("count", i);
-        m.setIntProperty("order", 2 + i)
+    if ("AMQP".equals(protocol)) {
+        byte[] payload = new byte[LARGE_MESSAGE_SIZE];
 
-        m.setObjectProperty(propertyLargeMessage, createFakeLargeStream(LARGE_MESSAGE_SIZE));
+        InputStream inputStream = createFakeLargeStream(LARGE_MESSAGE_SIZE);
+        inputStream.read(payload);
+        inputStream.close();
 
-        producer.send(m);
+        for (int i = 0; i < 10; i++) {
+            BytesMessage m = session.createBytesMessage();
+            m.setIntProperty("count", i);
+            m.setIntProperty("order", 2 + i)
+
+            m.writeBytes(payload);
+
+            producer.send(m);
+        }
+    } else {
+        for (int i = 0; i < 10; i++) {
+            BytesMessage m = session.createBytesMessage();
+            m.setIntProperty("count", i);
+            m.setIntProperty("order", 2 + i)
+
+            m.setObjectProperty(propertyLargeMessage, createFakeLargeStream(LARGE_MESSAGE_SIZE));
+
+            producer.send(m);
+        }
     }
 
     ObjectMessage objMessage = session.createObjectMessage("rapadura");
@@ -175,7 +202,7 @@ if (operation.equals("sendAckMessages") || operation.equals("sendTopic")) {
         textMessage.setStringProperty("inMessageId", variableSize.toString());
         newProducer.send(textMessage);
         newSession.commit();
-   }
+    }
 
     newSession.commit();
     newSession.close();

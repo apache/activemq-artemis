@@ -50,8 +50,7 @@ public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
 
    @Override
    public int getEncodeSize(Message record) {
-      int encodeSize = super.getEncodeSize(record) + DataConstants.SIZE_INT +
-         DataConstants.SIZE_LONG; // expiration
+      int encodeSize = super.getEncodeSize(record) + DataConstants.SIZE_INT;
 
       TypedProperties properties = ((AMQPMessage)record).getExtraProperties();
 
@@ -71,8 +70,6 @@ public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
          buffer.writeInt(properties.getEncodeSize());
          properties.encode(buffer.byteBuf());
       }
-
-      buffer.writeLong(record.getExpiration());
    }
 
    @Override
@@ -100,10 +97,6 @@ public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
          extraProperties.decode(buffer.byteBuf(), pool != null ? pool.getPropertiesDecoderPools() : null);
       }
       record.reloadAddress(address);
-
-      if (buffer.readableBytes() >= DataConstants.SIZE_LONG) {
-         record.reloadExpiration(buffer.readLong());
-      }
       return record;
    }
 
