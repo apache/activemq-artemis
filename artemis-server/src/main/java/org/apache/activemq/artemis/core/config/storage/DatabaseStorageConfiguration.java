@@ -230,6 +230,10 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
       }
    }
 
+   public String getDataSourceProperty(String key) {
+      return (String)dataSourceProperties.get(key);
+   }
+
    public String getDataSourceClassName() {
       return dataSourceClassName;
    }
