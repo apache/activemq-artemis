@@ -363,9 +363,11 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    private void unregisterMeters(final String name) {
-      MetricsManager metricsManager = messagingServer.getMetricsManager();
-      if (metricsManager != null) {
-         metricsManager.remove(name);
+      if (messagingServer != null) {
+         MetricsManager metricsManager = messagingServer.getMetricsManager();
+         if (metricsManager != null) {
+            metricsManager.remove(name);
+         }
       }
    }
 
