@@ -19,8 +19,10 @@ package org.apache.activemq.artemis.tests.integration.openwire.cluster;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import javax.jms.Connection;
@@ -31,6 +33,13 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
+
+   /** There is a possible race on the openwire client receiving updates from
+    *  the Advisor Consumer.
+    *  Nothing we can do here beyond retry the test. */
+   @Rule
+   public RetryRule retryRule = new RetryRule(3);
+
    @Override
    public boolean isFileStorage() {
       return false;
