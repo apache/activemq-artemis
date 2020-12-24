@@ -223,6 +223,11 @@ public class BackupSyncDelay implements Interceptor {
       }
 
       @Override
+      public void flushConnection() {
+         throw new UnsupportedOperationException();
+      }
+
+      @Override
       public boolean sendAndFlush(Packet packet) {
          throw new UnsupportedOperationException();
       }

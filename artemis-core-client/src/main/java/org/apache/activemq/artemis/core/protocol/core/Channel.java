@@ -85,6 +85,13 @@ public interface Channel {
    boolean sendBatched(Packet packet);
 
    /**
+    * Similarly to {@code flushConnection} on {@link #send(Packet, boolean)}, it requests
+    * any un-flushed previous sent packets to be flushed to the underlying connection.<br>
+    * It can be a no-op in case of InVM transports, because they would likely to flush already on each send.
+    */
+   void flushConnection();
+
+   /**
     * Sends a packet on this channel, but request it to be flushed (along with the un-flushed previous ones) only iff
     * {@code flushConnection} is {@code true}.
     *
