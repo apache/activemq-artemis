@@ -84,7 +84,7 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       conn.close();
       //to make sure the channel is closed it needs to run the pending tasks
       channel.runPendingTasks();
-      conn.blockUntilWritable(0, 0, TimeUnit.NANOSECONDS);
+      conn.blockUntilWritable(0, TimeUnit.NANOSECONDS);
    }
 
    @Test

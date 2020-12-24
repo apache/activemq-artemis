@@ -21,7 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -80,7 +80,6 @@ import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERA
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-
 import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
@@ -134,7 +133,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private List<Interceptor> outgoingInterceptors = null;
 
-   private final ArrayList<Packet> pendingPackets;
+   private final ArrayDeque<Packet> pendingPackets;
 
 
    // Constructors --------------------------------------------------
@@ -146,7 +145,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       this.criticalErrorListener = criticalErrorListener;
       this.wantedFailBack = wantedFailBack;
       this.activation = activation;
-      this.pendingPackets = new ArrayList<>();
+      this.pendingPackets = new ArrayDeque<>();
       this.supportResponseBatching = false;
    }
 
@@ -262,18 +261,14 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    @Override
    public void endOfBatch() {
-      final ArrayList<Packet> pendingPackets = this.pendingPackets;
+      final ArrayDeque<Packet> pendingPackets = this.pendingPackets;
       if (pendingPackets.isEmpty()) {
          return;
       }
-      try {
-         for (int i = 0, size = pendingPackets.size(); i < size; i++) {
-            final Packet packet = pendingPackets.get(i);
-            final boolean isLast = i == (size - 1);
-            channel.send(packet, isLast);
-         }
-      } finally {
-         pendingPackets.clear();
+      for (int i = 0, size = pendingPackets.size(); i < size; i++) {
+         final Packet packet = pendingPackets.poll();
+         final boolean isLast = i == (size - 1);
+         channel.send(packet, isLast);
       }
    }
 
