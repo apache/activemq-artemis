@@ -38,6 +38,12 @@ public interface ActivateCallback {
    }
 
    /*
+    * this is called when the server is stopping, before any resources or clients are closed/stopped
+    */
+   default void preDeActivate() {
+   }
+
+   /*
     * this is called when all resources have been started including any JMS resources
     */
    default void activationComplete() {
