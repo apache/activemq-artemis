@@ -296,7 +296,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       server.start();
 
       cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
-      iterator = cursor.iterator();
+      iterator = cursor.iterator(true);
 
       for (int i = 10; i <= 20; i++) {
          PagedReference msg = iterator.next();
@@ -355,7 +355,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
 
       tx = new TransactionImpl(server.getStorageManager(), 60 * 1000);
-      iterator = cursor.iterator();
+      iterator = cursor.iterator(true);
 
       for (int i = 10; i <= 20; i++) {
          PagedReference msg = iterator.next();
