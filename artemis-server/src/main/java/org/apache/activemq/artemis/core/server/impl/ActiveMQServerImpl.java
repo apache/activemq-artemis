@@ -1186,6 +1186,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
          state = SERVER_STATE.STOPPING;
 
+         callPreDeActiveCallbacks();
+
          if (criticalIOError) {
             final ManagementService managementService = this.managementService;
             if (managementService != null) {
@@ -2899,7 +2901,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          } catch (Throwable e) {
             // https://bugzilla.redhat.com/show_bug.cgi?id=1009530:
             // we won't interrupt the shutdown sequence because of a failed callback here
-            ActiveMQServerLogger.LOGGER.unableToDeactiveCallback(e);
+            ActiveMQServerLogger.LOGGER.unableToInvokeCallback(e);
+         }
+      }
+   }
+
+   private void callPreDeActiveCallbacks() {
+      for (ActivateCallback callback : activateCallbacks) {
+         try {
+            callback.preDeActivate();
+         } catch (Throwable e) {
+            // we won't interrupt the shutdown sequence because of a failed callback here
+            ActiveMQServerLogger.LOGGER.unableToInvokeCallback(e);
          }
       }
    }
