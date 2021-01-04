@@ -20,13 +20,15 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import java.util.Arrays;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ConcurrentAppendOnlyChunkedListTest {
 
-   private static final int CHUNK_SIZE = 32;
-   private static final int ELEMENTS = (CHUNK_SIZE * 3) + 1;
+   private static final int CHUNK_SIZE = 16;
+   private static final int ELEMENTS = (CHUNK_SIZE * 4) + 1;
 
    private final ConcurrentAppendOnlyChunkedList<Integer> chunkedList;
 
@@ -101,7 +103,12 @@ public class ConcurrentAppendOnlyChunkedListTest {
       for (int i = 0; i < messages; i++) {
          cachedElements[i] = chunkedList.get(i);
       }
-      Assert.assertArrayEquals(cachedElements, elements);
+      Assert.assertArrayEquals(elements, cachedElements);
+      Arrays.fill(cachedElements, null);
+      for (int i = messages - 1; i >= 0; i--) {
+         cachedElements[i] = chunkedList.get(i);
+      }
+      Assert.assertArrayEquals(elements, cachedElements);
    }
 
    @Test
@@ -117,7 +124,7 @@ public class ConcurrentAppendOnlyChunkedListTest {
       for (int i = 0; i < messages; i++) {
          cachedElements[i] = chunkedList.get(i);
       }
-      Assert.assertArrayEquals(cachedElements, elements);
+      Assert.assertArrayEquals(elements, cachedElements);
    }
 
    @Test
@@ -131,6 +138,44 @@ public class ConcurrentAppendOnlyChunkedListTest {
       }
       final Integer[] cachedElements = chunkedList.toArray(Integer[]::new);
       Assert.assertArrayEquals(elements, cachedElements);
+   }
+
+   @Test
+   public void shouldToArrayWithIndexReturnElementsAccordingToAddOrder() {
+      final int messages = ELEMENTS;
+      final Integer[] elements = new Integer[messages];
+      for (int i = 0; i < messages; i++) {
+         final Integer element = i;
+         elements[i] = element;
+         chunkedList.add(element);
+      }
+      final int offset = 10;
+      final Integer[] cachedElements = chunkedList.toArray(size -> new Integer[offset + size], offset);
+      Assert.assertArrayEquals(elements, Arrays.copyOfRange(cachedElements, offset, cachedElements.length));
+      Assert.assertArrayEquals(new Integer[offset], Arrays.copyOfRange(cachedElements, 0, offset));
+   }
+
+   @Test(expected = ArrayIndexOutOfBoundsException.class)
+   public void shouldFailToArrayWithInsufficientArrayCapacity() {
+      final int messages = ELEMENTS;
+      final Integer[] elements = new Integer[messages];
+      for (int i = 0; i < messages; i++) {
+         final Integer element = i;
+         elements[i] = element;
+         chunkedList.add(element);
+      }
+      final int offset = 10;
+      chunkedList.toArray(size -> new Integer[offset + size - 1], offset);
+   }
+
+   @Test(expected = ArrayIndexOutOfBoundsException.class)
+   public void shouldFailToArrayWithNegativeStartIndex() {
+      chunkedList.toArray(Integer[]::new, -1);
+   }
+
+   @Test(expected = NullPointerException.class)
+   public void shouldFailToArrayWithNullArray() {
+      chunkedList.toArray(size -> null);
    }
 
    @Test

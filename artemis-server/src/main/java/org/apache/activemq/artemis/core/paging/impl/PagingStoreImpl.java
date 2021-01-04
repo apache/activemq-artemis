@@ -468,16 +468,11 @@ public class PagingStoreImpl implements PagingStore {
       Page page = createPage(pageId);
       page.open();
 
-      List<PagedMessage> messages = page.read(storageManager);
+      final List<PagedMessage> messages = page.read(storageManager);
 
-      LivePageCache pageCache = new LivePageCacheImpl(pageId);
+      final PagedMessage[] initialMessages = messages.toArray(new PagedMessage[messages.size()]);
 
-      for (PagedMessage msg : messages) {
-         pageCache.addLiveMessage(msg);
-         // As we add back to the live page,
-         // we have to discount one when we read the page
-         msg.getMessage().usageDown();
-      }
+      final LivePageCache pageCache = new LivePageCacheImpl(pageId, initialMessages);
 
       page.setLiveCache(pageCache);
 
