@@ -127,11 +127,6 @@ public class PagePositionImpl implements PagePosition {
    }
 
    @Override
-   public PagePosition nextMessage() {
-      return new PagePositionImpl(this.pageNr, this.messageNr + 1);
-   }
-
-   @Override
    public PagePosition nextPage() {
       return new PagePositionImpl(this.pageNr + 1, 0, 0);
    }
