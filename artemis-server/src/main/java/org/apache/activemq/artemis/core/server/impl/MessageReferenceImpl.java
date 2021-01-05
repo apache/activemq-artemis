@@ -86,7 +86,7 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    // Static --------------------------------------------------------
 
-   private static final int memoryOffset = 64;
+   private static final int memoryOffset = 72;
 
    // Constructors --------------------------------------------------
 
