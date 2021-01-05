@@ -67,14 +67,6 @@ public final class LivePageCacheImpl implements LivePageCache {
    }
 
    @Override
-   public void setMessages(PagedMessage[] messages) {
-      // This method shouldn't be called on liveCache, but we will provide the implementation for it anyway
-      for (PagedMessage message : messages) {
-         addLiveMessage(message);
-      }
-   }
-
-   @Override
    public PagedMessage getMessage(PagePosition pagePosition) {
       final int messageNr = pagePosition.getMessageNr();
       if (messageNr < 0) {

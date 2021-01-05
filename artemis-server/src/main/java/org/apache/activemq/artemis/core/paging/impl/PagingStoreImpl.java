@@ -480,7 +480,7 @@ public class PagingStoreImpl implements PagingStore {
 
       currentPage = page;
 
-      cursorProvider.addPageCache(pageCache);
+      cursorProvider.addLivePageCache(pageCache);
 
       /**
        * The page file might be incomplete in the cases: 1) last message incomplete 2) disk damaged.
@@ -1110,7 +1110,7 @@ public class PagingStoreImpl implements PagingStore {
 
          newPage.setLiveCache(pageCache);
 
-         cursorProvider.addPageCache(pageCache);
+         cursorProvider.addLivePageCache(pageCache);
 
          currentPageSize = 0;
 

@@ -33,7 +33,7 @@ public interface PageCursorProvider {
 
    PagedReference newReference(PagePosition pos, PagedMessage msg, PageSubscription sub);
 
-   void addPageCache(PageCache cache);
+   void addLivePageCache(LivePageCache cache);
 
    /**
     * @param queueId The cursorID should be the same as the queueId associated for persistence
