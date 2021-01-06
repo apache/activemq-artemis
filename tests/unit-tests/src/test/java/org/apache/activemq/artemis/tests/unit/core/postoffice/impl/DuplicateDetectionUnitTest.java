@@ -31,8 +31,9 @@ import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
+import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCaches;
 import org.apache.activemq.artemis.core.server.impl.PostOfficeJournalLoader;
 import org.apache.activemq.artemis.core.transaction.impl.ResourceManagerImpl;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
@@ -40,8 +41,8 @@ import org.apache.activemq.artemis.tests.unit.util.FakePagingManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.After;
 import org.junit.Assert;
@@ -106,7 +107,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          Assert.assertEquals(0, mapDups.size());
 
-         DuplicateIDCacheImpl cacheID = new DuplicateIDCacheImpl(ADDRESS, 10, journal, true);
+         DuplicateIDCache cacheID = DuplicateIDCaches.persistent(ADDRESS, 10, journal);
 
          for (int i = 0; i < 100; i++) {
             cacheID.addToCache(RandomUtil.randomBytes());
@@ -126,7 +127,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          Assert.assertEquals(10, values.size());
 
-         cacheID = new DuplicateIDCacheImpl(ADDRESS, 10, journal, true);
+         cacheID = DuplicateIDCaches.persistent(ADDRESS, 10, journal);
          cacheID.load(values);
 
          for (int i = 0; i < 100; i++) {

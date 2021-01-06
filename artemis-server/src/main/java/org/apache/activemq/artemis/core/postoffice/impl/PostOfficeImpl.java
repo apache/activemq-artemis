@@ -16,6 +16,25 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
+
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
@@ -81,25 +100,6 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
@@ -1315,7 +1315,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       DuplicateIDCache cache = duplicateIDCaches.get(address);
 
       if (cache == null) {
-         cache = new DuplicateIDCacheImpl(address, idCacheSize, storageManager, persistIDCache);
+         if (persistIDCache) {
+            cache = DuplicateIDCaches.persistent(address, idCacheSize, storageManager);
+         } else {
+            cache = DuplicateIDCaches.inMemory(address, idCacheSize);
+         }
 
          DuplicateIDCache oldCache = duplicateIDCaches.putIfAbsent(address, cache);
 

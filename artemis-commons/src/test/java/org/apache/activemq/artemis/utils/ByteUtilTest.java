@@ -17,17 +17,23 @@
 package org.apache.activemq.artemis.utils;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.ReadOnlyBufferException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import io.netty.util.internal.PlatformDependent;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Test;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
 
 public class ByteUtilTest {
 
@@ -81,6 +87,46 @@ public class ByteUtilTest {
             }
          }
       }
+   }
+
+   @Test
+   public void testUnsafeUnalignedByteArrayHashCode() {
+      Assume.assumeTrue(PlatformDependent.hasUnsafe());
+      Assume.assumeTrue(PlatformDependent.isUnaligned());
+      Map<byte[], Integer> map = new LinkedHashMap<>();
+      map.put(new byte[0], 1);
+      map.put(new byte[]{1}, 32);
+      map.put(new byte[]{2}, 33);
+      map.put(new byte[]{0, 1}, 962);
+      map.put(new byte[]{1, 2}, 994);
+      if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+         map.put(new byte[]{0, 1, 2, 3, 4, 5}, 63504931);
+         map.put(new byte[]{6, 7, 8, 9, 0, 1}, -1603953111);
+         map.put(new byte[]{-1, -1, -1, (byte) 0xE1}, 1);
+      } else {
+         map.put(new byte[]{0, 1, 2, 3, 4, 5}, 1250309600);
+         map.put(new byte[]{6, 7, 8, 9, 0, 1}, -417148442);
+         map.put(new byte[]{-1, -1, -1, (byte) 0xE1}, -503316450);
+      }
+      for (Map.Entry<byte[], Integer> e : map.entrySet()) {
+         assertEquals("input = " + Arrays.toString(e.getKey()), e.getValue().intValue(), ByteUtil.hashCode(e.getKey()));
+      }
+   }
+
+   @Test
+   public void testNoUnsafeAlignedByteArrayHashCode() {
+      Assume.assumeFalse(PlatformDependent.hasUnsafe());
+      Assume.assumeFalse(PlatformDependent.isUnaligned());
+      ArrayList<byte[]> inputs = new ArrayList<>();
+      inputs.add(new byte[0]);
+      inputs.add(new byte[]{1});
+      inputs.add(new byte[]{2});
+      inputs.add(new byte[]{0, 1});
+      inputs.add(new byte[]{1, 2});
+      inputs.add(new byte[]{0, 1, 2, 3, 4, 5});
+      inputs.add(new byte[]{6, 7, 8, 9, 0, 1});
+      inputs.add(new byte[]{-1, -1, -1, (byte) 0xE1});
+      inputs.forEach(input -> assertEquals("input = " + Arrays.toString(input), Arrays.hashCode(input), ByteUtil.hashCode(input)));
    }
 
    @Test
