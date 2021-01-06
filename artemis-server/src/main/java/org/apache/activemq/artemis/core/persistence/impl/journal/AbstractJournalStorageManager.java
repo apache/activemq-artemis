@@ -654,7 +654,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    @Override
    public void commitBindings(final long txID) throws Exception {
-      bindingsJournal.appendCommitRecord(txID, true);
+      bindingsJournal.appendCommitRecord(txID, true, getContext(true), true);
    }
 
    @Override
@@ -896,7 +896,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    public void storeID(final long journalID, final long id) throws Exception {
       readLock();
       try {
-         bindingsJournal.appendAddRecord(journalID, JournalRecordIds.ID_COUNTER_RECORD, BatchingIDGenerator.createIDEncodingSupport(id), true);
+         bindingsJournal.appendAddRecord(journalID, JournalRecordIds.ID_COUNTER_RECORD, BatchingIDGenerator.createIDEncodingSupport(id), true, getContext(true));
       } finally {
          readUnLock();
       }
