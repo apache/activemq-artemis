@@ -28,6 +28,7 @@ var Artemis;
             </h1>
              <div ng-include="'plugin/artemistoolbar.html'"></div>
              <pf-table-view config="$ctrl.tableConfig"
+                            dt-options="$ctrl.dtOptions"
                             columns="$ctrl.tableColumns"
                             action-buttons="$ctrl.tableActionButtons"
                             items="$ctrl.addresses">
@@ -59,17 +60,48 @@ var Artemis;
     function AddressesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisAddress) {
         var ctrl = this;
         ctrl.pagination = pagination;
+        ctrl.pagination.reset();
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
         ctrl.allAddresses = [];
         ctrl.addresses = [];
         ctrl.workspace = workspace;
         ctrl.refreshed = false;
+        ctrl.dtOptions = {
+           // turn of ordering as we do it ourselves
+           ordering: false,
+           columns: [
+                {name: "ID", visible: true},
+                {name: "Name", visible: true},
+                {name: "Routing Types", visible: true},
+                {name: "Queue Count", visible: true}
+           ]
+        };
+
+        Artemis.log.debug('sessionStorage: addressColumnDefs =', localStorage.getItem('addressColumnDefs'));
+        if (localStorage.getItem('addressColumnDefs')) {
+            loadedDefs = JSON.parse(localStorage.getItem('addressColumnDefs'));
+            //sanity check to make sure columns havent been added
+            if(loadedDefs.length === ctrl.dtOptions.columns.length) {
+                ctrl.dtOptions.columns = loadedDefs;
+            }
+
+        }
+
+        ctrl.updateColumns = function () {
+            var attributes = [];
+            ctrl.dtOptions.columns.forEach(function (column) {
+                attributes.push({name: column.name, visible: column.visible});
+            });
+            Artemis.log.debug("saving columns " + JSON.stringify(attributes));
+            localStorage.setItem('addressColumnDefs', JSON.stringify(attributes));
+        }
+
         ctrl.filter = {
             fieldOptions: [
-                {id: 'ID', name: 'ID'},
-                {id: 'NAME', name: 'Name'},
-                {id: 'ROUTING_TYPES', name: 'Queue Count'},
-                {id: 'QUEUE_COUNT', name: 'User'}
+                {id: 'id', name: 'ID'},
+                {id: 'name', name: 'Name'},
+                {id: 'routingTypes', name: 'Routing Types'},
+                {id: 'queueCount', name: 'Queue Count'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -139,6 +171,7 @@ var Artemis;
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisAddress.address.address;
+            artemisAddress.address = null;
         }
 
         selectQueues = function (idx) {

@@ -60,14 +60,19 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add("messagesAcked", toString(queue.getMessagesAcknowledged()))
          .add("deliveringCount", toString(queue.getDeliveringCount()))
          .add("messagesKilled", toString(queue.getMessagesKilled()))
-         .add("deliverDeliver", toString(q.isDirectDeliver()))
+         .add("directDeliver", toString(q.isDirectDeliver()))
          .add("exclusive", toString(queue.isExclusive()))
          .add("lastValue", toString(queue.isLastValue()))
+         .add("lastValueKey", toString(queue.getLastValueKey()))
          .add("scheduledCount", toString(queue.getScheduledCount()))
          .add("groupRebalance", toString(queue.isGroupRebalance()))
          .add("groupRebalancePauseDispatch", toString(queue.isGroupRebalancePauseDispatch()))
          .add("groupBuckets", toString(queue.getGroupBuckets()))
-         .add("groupFirstKey", toString(queue.getGroupFirstKey()));
+         .add("groupFirstKey", toString(queue.getGroupFirstKey()))
+         .add("enabled", toString(queue.isEnabled()))
+         .add("ringSize", toString(queue.getRingSize()))
+         .add("consumersBeforeDispatch", toString(queue.getConsumersBeforeDispatch()))
+         .add("delayBeforeDispatch", toString(queue.getDelayBeforeDispatch()));
       return obj;
    }
 
@@ -119,6 +124,8 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
             return q.isExclusive();
          case "lastValue":
             return q.isLastValue();
+         case "lastValueKey":
+            return q.getLastValueKey();
          case "scheduledCount":
             return q.getScheduledCount();
          case "groupRebalance":
@@ -129,6 +136,14 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
             return queue.getGroupBuckets();
          case "groupFirstKey":
             return queue.getGroupFirstKey();
+         case "enabled":
+            return q.isEnabled();
+         case "ringSize":
+            return q.getRingSize();
+         case "consumersBeforeDispatch":
+            return q.getConsumersBeforeDispatch();
+         case "delayBeforeDispatch":
+            return q.getDelayBeforeDispatch();
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }

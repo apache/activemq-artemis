@@ -44,6 +44,16 @@ var Artemis;
                 <label>Show internal queues:
                     <input type="checkbox" ng-model="$ctrl.showInternalQueues">
                 </label>
+
+                <label>Show Live Brokers:
+                    <input type="checkbox" ng-model="$ctrl.showLiveBrokers">
+                </label>
+                <label>Show Backup Brokers:
+                    <input type="checkbox" ng-model="$ctrl.showBackupBrokers">
+                </label>
+                <label>Show Connectors:
+                    <input type="checkbox" ng-model="$ctrl.showConnectors">
+                </label>
                 <button type="submit" class="btn btn-primary"
                     ng-click="$ctrl.refresh()">Refresh
                 </button>
@@ -81,6 +91,10 @@ var Artemis;
         ctrl.showQueues = true;
         ctrl.showInternalAddresses = false;
         ctrl.showInternalQueues = false;
+        ctrl.showLiveBrokers = true;
+        ctrl.showBackupBrokers = true;
+        ctrl.showConnectors = true;
+        ctrl.hiddenRelations = [];
         $scope.$watch('$ctrl.showAddresses', function () {
             if(ctrl.kinds.Address && !ctrl.showAddresses) {
                delete ctrl.kinds.Address;
@@ -107,6 +121,34 @@ var Artemis;
                delete ctrl.kinds.InternalQueue;
             } else if (!ctrl.kinds.InternalQueues && ctrl.showInternalQueues) {
                 ctrl.kinds.InternalQueue = true;
+            }
+        });
+        $scope.$watch('$ctrl.showLiveBrokers', function () {
+            if(ctrl.kinds.ThisBroker && !ctrl.showLiveBrokers) {
+               delete ctrl.kinds.ThisBroker;
+            } else if (!ctrl.kinds.ThisBroker && ctrl.showLiveBrokers) {
+                ctrl.kinds.ThisBroker = true;
+            }
+            if(ctrl.kinds.MasterBroker && !ctrl.showLiveBrokers) {
+               delete ctrl.kinds.MasterBroker;
+            } else if (!ctrl.kinds.MasterBroker && ctrl.showLiveBrokers) {
+                ctrl.kinds.MasterBroker = true;
+            }
+        });
+
+        $scope.$watch('$ctrl.showBackupBrokers', function () {
+            if(ctrl.kinds.SlaveBroker && !ctrl.showBackupBrokers) {
+               delete ctrl.kinds.SlaveBroker;
+            } else if (!ctrl.kinds.SlaveBroker && ctrl.showBackupBrokers) {
+                ctrl.kinds.SlaveBroker = true;
+            }
+        });
+
+        $scope.$watch('$ctrl.showConnectors', function () {
+            if(!ctrl.showConnectors) {
+                ctrl.data.relations = [];
+            } else {
+                ctrl.data.relations = ctrl.hiddenRelations;
             }
         });
         ctrl.datasets = [];
@@ -157,7 +199,7 @@ var Artemis;
         };
 
         load();
-
+        ctrl.hiddenRelations = ctrl.relations;
         function load() {
             ctrl.items = {};
 

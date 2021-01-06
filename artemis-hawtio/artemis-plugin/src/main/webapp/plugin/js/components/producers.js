@@ -28,6 +28,7 @@ var Artemis;
             </h1>
              <div ng-include="'plugin/artemistoolbar.html'"></div>
              <pf-table-view config="$ctrl.tableConfig"
+                            dt-options="$ctrl.dtOptions"
                             columns="$ctrl.tableColumns"
                             items="$ctrl.producers">
              </pf-table-view>
@@ -56,12 +57,45 @@ var Artemis;
     function ProducersController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisProducer, artemisAddress, artemisSession) {
         var ctrl = this;
         ctrl.pagination = pagination;
+        ctrl.pagination.reset();
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
         ctrl.allProducers = [];
         ctrl.producers = [];
         ctrl.pageNumber = 1;
         ctrl.workspace = workspace;
         ctrl.refreshed = false;
+        ctrl.dtOptions = {
+           // turn of ordering as we do it ourselves
+           ordering: false,
+           columns: [
+                {name: "ID", visible: true},
+                {name: "Session", visible: true},
+                {name: "Client ID", visible: true},
+                {name: "Protocol", visible: true},
+                {name: "User", visible: true},
+                {name: "Address", visible: true},
+                {name: "Remote Address", visible: true},
+                {name: "Local Address", visible: true}
+           ]
+          };
+
+        Artemis.log.debug('localStorage: producersColumnDefs =', localStorage.getItem('producersColumnDefs'));
+        if (localStorage.getItem('producersColumnDefs')) {
+            loadedDefs = JSON.parse(localStorage.getItem('producersColumnDefs'));
+            //sanity check to make sure columns havent been added
+            if(loadedDefs.length === ctrl.dtOptions.columns.length) {
+                ctrl.dtOptions.columns = loadedDefs;
+            }
+        }
+
+        ctrl.updateColumns = function () {
+            var attributes = [];
+            ctrl.dtOptions.columns.forEach(function (column) {
+                attributes.push({name: column.name, visible: column.visible});
+            });
+            Artemis.log.debug("saving columns " + JSON.stringify(attributes));
+            localStorage.setItem('producersColumnDefs', JSON.stringify(attributes));
+        }
         ctrl.filter = {
             fieldOptions: [
                 {id: 'ID', name: 'ID'},
@@ -148,6 +182,7 @@ var Artemis;
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisProducer.producer.sessionID;
+            artemisProducer.producer = null;
         }
 
         ctrl.loadOperation = function () {

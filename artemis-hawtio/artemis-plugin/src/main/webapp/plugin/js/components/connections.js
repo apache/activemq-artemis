@@ -29,6 +29,7 @@ var Artemis;
             </h1>
             <div ng-include="'plugin/artemistoolbar.html'"></div>
             <pf-table-view config="$ctrl.tableConfig"
+                            dt-options="$ctrl.dtOptions"
                             columns="$ctrl.tableColumns"
                             action-buttons="$ctrl.tableActionButtons"
                             items="$ctrl.connections">
@@ -71,6 +72,7 @@ var Artemis;
     function ConnectionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisConnection, artemisSession) {
         var ctrl = this;
         ctrl.pagination = pagination;
+        ctrl.pagination.reset();
         var mbean = Artemis.getBrokerMBean(workspace, jolokia);
         ctrl.allConnections = [];
         ctrl.connections = [];
@@ -79,16 +81,51 @@ var Artemis;
         ctrl.refreshed = false;
         ctrl.connectionToDelete = '';
         ctrl.closeDialog = false;
+        ctrl.dtOptions = {
+           // turn of ordering as we do it ourselves
+           ordering: false,
+           columns: [
+                {name: "ID", visible: true},
+                {name: "Client ID", visible: true},
+                {name: "Users", visible: true},
+                {name: "Protocol", visible: true},
+                {name: "Session Count", visible: true},
+                {name: "Remote Address", visible: true},
+                {name: "Local Address", visible: true},
+                {name: "Session ID", visible: true},
+                {name: "Creation Time", visible: true}
+           ]
+        };
+
+        Artemis.log.debug('localStorage: connectionsColumnDefs =', localStorage.getItem('connectionsColumnDefs'));
+        if (localStorage.getItem('connectionsColumnDefs')) {
+            loadedDefs = JSON.parse(localStorage.getItem('connectionsColumnDefs'));
+            //sanity check to make sure columns havent been added
+            if(loadedDefs.length === ctrl.dtOptions.columns.length) {
+                ctrl.dtOptions.columns = loadedDefs;
+            }
+            Artemis.log.debug('loaded' + ctrl.dtOptions.columns);
+        }
+
+        ctrl.updateColumns = function () {
+            var attributes = [];
+            ctrl.dtOptions.columns.forEach(function (column) {
+                attributes.push({name: column.name, visible: column.visible});
+            });
+            Artemis.log.debug("saving columns " + JSON.stringify(attributes));
+            localStorage.setItem('connectionsColumnDefs', JSON.stringify(attributes));
+        }
+
         ctrl.filter = {
             fieldOptions: [
-                {id: 'CONNECTION_ID', name: 'ID'},
-                {id: 'CLIENT_ID', name: 'Client ID'},
-                {id: 'USERS', name: 'Users'},
-                {id: 'PROTOCOL', name: 'Protocol'},
-                {id: 'SESSION_COUNT', name: 'Session Count'},
-                {id: 'REMOTE_ADDRESS', name: 'Remote Address'},
-                {id: 'LOCAL_ADDRESS', name: 'Local Address'},
-                {id: 'SESSION_ID', name: 'Session ID'}
+                {id: 'connection_id', name: 'ID'},
+                {id: 'client_id', name: 'Client ID'},
+                {id: 'users', name: 'Users'},
+                {id: 'protocol', name: 'Protocol'},
+                {id: 'session_count', name: 'Session Count'},
+                {id: 'remote_address', name: 'Remote Address'},
+                {id: 'local_address', name: 'Local Address'},
+                {id: 'session_id', name: 'Session ID'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -106,6 +143,12 @@ var Artemis;
                 value: "",
                 sortOrder: "asc",
                 sortColumn: "connectionID"
+            },
+            text: {
+                fieldText: "Filter Field..",
+                operationText: "Operation..",
+                sortOrderText: "ascending",
+                sortByText: "ID"
             }
         };
 
@@ -144,6 +187,7 @@ var Artemis;
             ctrl.filter.values.field = ctrl.filter.fieldOptions[0].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
             ctrl.filter.values.value = artemisSession.session.connectionID;
+            artemisSession.session = null;
         }
 
         ctrl.refresh = function () {
@@ -180,7 +224,7 @@ var Artemis;
                     ctrl.pagination.reset();
                     ctrl.refreshed = false;
                 }
-                Artemis.log.debug(JSON.stringify(connectionsFilter));
+                Artemis.log.info(JSON.stringify(connectionsFilter));
                 jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [JSON.stringify(connectionsFilter), ctrl.pagination.pageNumber, ctrl.pagination.pageSize] }, Core.onSuccess(populateTable, { error: onError }));
             }
         };

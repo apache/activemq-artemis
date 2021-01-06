@@ -65,6 +65,11 @@ var Artemis;
                                         ng-disabled="$ctrl.retryDisabled"
                                         ng-click="$ctrl.openRetryDialog()">Retry Messages
                                     </button>
+                                    <button class="btn btn-default primary-action ng-binding ng-scope"
+                                        type="button"
+                                        title=""
+                                        ng-click="$ctrl.showColumns = true">Columns
+                                    </button>
                             </div>
                         </form>
                     </div>
@@ -72,7 +77,7 @@ var Artemis;
                 <pf-table-view config="$ctrl.tableConfig"
                     columns="$ctrl.tableColumns"
                     items="$ctrl.messages"
-                    dt-options="$ctrl.tableDtOptions"
+                    dt-options="$ctrl.dtOptions"
                     action-buttons="$ctrl.tableMenuActions">
                 </pf-table-view>
                 <div ng-include="'plugin/artemispagination.html'"></div>
@@ -147,6 +152,33 @@ var Artemis;
                     <p>{{$ctrl.actionText}}</p>
                 </div>
             </div>
+            <div class="form-group" ng-show="$ctrl.showColumns">
+                <button class="btn btn-default" data-toggle="modal" data-target="#myModal">Columns</button>
+                <div class="modal ng-scope">
+                  <div class="modal-dialog ">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title ng-binding">Column Selector</h4>
+                      </div>
+                      <div class="modal-body">
+                        <table class="table-view-container table table-striped table-bordered table-hover dataTable ng-scope ng-isolate-scope no-footer">
+                            <tbody>
+                                <tr ng-repeat="col in $ctrl.dtOptions.columns">
+                                    <td>{{ col.name }}</td>
+                                    <td><input type="checkbox" ng-model="col.visible" placeholder="Name" autocomplete="off" id="name"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default ng-binding" ng-click="$ctrl.showColumns = false;$ctrl.updateColumns()">
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
             <script type="text/ng-template" id="browse-instructions.html">
               <div>
                 <p>
@@ -174,6 +206,7 @@ var Artemis;
         ctrl.moveDisabled = true;
         ctrl.retryDisabled = true;
         ctrl.pagination = pagination;
+        ctrl.pagination.reset();
         ctrl.filter = '';
         ctrl.actionText = '';
 
@@ -200,6 +233,44 @@ var Artemis;
             }
         }
 
+        ctrl.dtOptions = {
+           // turn of ordering as we do it ourselves
+           ordering: false,
+           columns: [
+                {name: "Select", visible: true},
+                {name: "Message ID", visible: true},
+                {name: "Type", visible: true},
+                {name: "Durable", visible: true},
+                {name: "Priority", visible: true},
+                {name: "Timestamp", visible: true},
+                {name: "Expires", visible: true},
+                {name: "Redelivered", visible: true},
+                {name: "Large", visible: true},
+                {name: "Persistent Size", visible: true},
+                {name: "User ID", visible: true},
+                {name: "Validated User", visible: true},
+                {name: "Original Queue (Expiry/DLQ's only)", visible: true}
+           ]
+        };
+
+        Artemis.log.debug('sessionStorage: browseColumnDefs =', localStorage.getItem('browseColumnDefs'));
+        if (localStorage.getItem('browseColumnDefs')) {
+            loadedDefs = JSON.parse(localStorage.getItem('browseColumnDefs'));
+            //sanity check to make sure columns havent been added
+            if(loadedDefs.length === ctrl.dtOptions.columns.length) {
+                ctrl.dtOptions.columns = loadedDefs;
+            }
+        }
+
+        ctrl.updateColumns = function () {
+            var attributes = [];
+            ctrl.dtOptions.columns.forEach(function (column) {
+                attributes.push({name: column.name, visible: column.visible});
+            });
+            Artemis.log.debug("saving columns " + JSON.stringify(attributes));
+            localStorage.setItem('browseColumnDefs', JSON.stringify(attributes));
+        }
+
         ctrl.tableConfig = {
             onCheckBoxChange: handleCheckBoxChange,
             selectionMatchProp: 'messageID',
@@ -208,7 +279,7 @@ var Artemis;
         ctrl.tableColumns = [
             {
                 itemField: 'messageID',
-                header: 'messageID'
+                header: 'Message ID'
             },
             {
                 itemField: 'type',
@@ -312,9 +383,6 @@ var Artemis;
 
         ctrl.tableMenuActions = [ showConfig, resendConfig ];
 
-        ctrl.tableDtOptions = {
-          order: [[0, "asc"]]
-        };
         ctrl.sysprops = [];
 
         Artemis.log.debug("loaded browse 5" + Artemis.browseQueueModule);
@@ -354,33 +422,34 @@ var Artemis;
         }
 
         function formatExpires(timestamp) {
-            if (isNaN(timestamp)) {
+             if (isNaN(timestamp)) {
                 return timestamp;
-            }
-            var expiresIn = timestamp - Date.now();
-            if (Math.abs(expiresIn) < MS_PER_DAY) {
+             }
+             var expiresIn = timestamp - Date.now();
+             if (Math.abs(expiresIn) < MS_PER_DAY) {
                 var duration = expiresIn < 0 ? -expiresIn : expiresIn;
                 var hours = pad2(Math.floor((duration / MS_PER_HOUR) % 24));
                 var mins  = pad2(Math.floor((duration / MS_PER_MIN) % 60));
                 var secs  = pad2(Math.floor((duration / MS_PER_SEC) % 60));
                 if (expiresIn < 0) {
-                // "HH:mm:ss ago"
-                    return hours + ":" + mins + ":" + secs + " ago";
+                   // "HH:mm:ss ago"
+                   return hours + ":" + mins + ":" + secs + " ago";
                 }
                 // "in HH:mm:ss ago"
                 return "in " + hours + ":" + mins + ":" + secs;
-            }
-            return formatTimestamp(timestamp);
-        }
+             }
+             return formatTimestamp(timestamp);
+          }
 
-        function formatTimestamp(timestamp) {
-            if (isNaN(timestamp)) {
+          function formatTimestamp(timestamp) {
+             if (isNaN(timestamp)) {
                 return timestamp;
-            }
-            var d = new Date(timestamp);
-            // "yyyy-MM-dd HH:mm:ss"
-            return d.getFullYear() + "-" + pad2(d.getMonth()) + "-" + pad2(d.getDay()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
-        }
+             }
+             var d = new Date(timestamp);
+             // "yyyy-MM-dd HH:mm:ss"
+             //add 1 to month as getmonth returns the position not the actual month
+             return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+          }
 
         var typeLabels = ["default", "1", "object", "text", "bytes", "map", "stream", "embedded"];
         function formatType(type) {
