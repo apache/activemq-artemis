@@ -44,6 +44,8 @@ public interface AddressManager {
     */
    Binding removeBinding(SimpleString uniqueName, Transaction tx) throws Exception;
 
+   Bindings getExistingBindingsForRoutingAddress(SimpleString address) throws Exception;
+
    Bindings getBindingsForRoutingAddress(SimpleString address) throws Exception;
 
    Collection<Binding> getMatchingBindings(SimpleString address) throws Exception;

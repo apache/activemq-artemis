@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionMetrics;
 
-public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyListener {
+public interface  ClusterConnection extends ActiveMQComponent, ClusterTopologyListener {
 
    SimpleString getName();
 

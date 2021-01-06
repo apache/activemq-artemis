@@ -14,20 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.postoffice;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
+package org.apache.activemq.artemis.core.postoffice.impl;
 
-/**
- * USed to hold a hierarchical style address, delimited by a '.'.
- */
-public interface Address {
+public interface AddressMapVisitor<T> {
 
-   SimpleString getAddress();
-
-   SimpleString[] getAddressParts();
-
-   boolean containsWildCard();
-
-   boolean matches(Address add);
+   void visit(T value) throws Exception;
 }

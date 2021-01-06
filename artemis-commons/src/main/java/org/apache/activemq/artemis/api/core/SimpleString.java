@@ -47,6 +47,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    // Cache the string
    private transient String str;
 
+   private transient String[] paths;
+
    // Static
    // ----------------------------------------------------------------------
 
@@ -279,6 +281,35 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       }
 
       return str;
+   }
+
+   /**
+    * note the result of the first use is cached, the separator is configured on
+    * the postoffice so will be static for the duration of a server instance.
+    * calling with different separator values could give invalid results
+    *
+    * @param separator value from wildcardConfiguration
+    * @return String[] reference to the split paths or the cached value if previously called
+    */
+   public String[] getPaths(final char separator) {
+      if (paths != null) {
+         return paths;
+      }
+      List<String> pathsList = new ArrayList<>();
+      StringBuilder pathAccumulator = new StringBuilder();
+      for (char c : toString().toCharArray()) {
+         if (c == separator) {
+            pathsList.add(pathAccumulator.toString());
+            pathAccumulator.delete(0, pathAccumulator.length());
+         } else {
+            pathAccumulator.append(c);
+         }
+      }
+      pathsList.add(pathAccumulator.toString());
+
+      paths = new String[pathsList.size()];
+      pathsList.toArray(paths);
+      return paths;
    }
 
    @Override

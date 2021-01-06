@@ -36,6 +36,8 @@ public interface Bindings extends UnproposalListener {
 
    Binding removeBindingByUniqueName(SimpleString uniqueName);
 
+   SimpleString getName();
+
    void setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType);
 
    MessageLoadBalancingType getMessageLoadBalancingType();

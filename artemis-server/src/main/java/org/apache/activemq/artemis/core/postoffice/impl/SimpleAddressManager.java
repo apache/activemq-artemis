@@ -112,6 +112,11 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
+   public Bindings getExistingBindingsForRoutingAddress(final SimpleString address) throws Exception {
+      return mappings.get(CompositeAddress.extractAddressName(address));
+   }
+
+   @Override
    public Bindings getBindingsForRoutingAddress(final SimpleString address) throws Exception {
       return mappings.get(CompositeAddress.extractAddressName(address));
    }
@@ -214,14 +219,18 @@ public class SimpleAddressManager implements AddressManager {
          }
          if (bindings.getBindings().isEmpty()) {
             mappings.remove(realAddress);
+            bindingsEmpty(realAddress, bindings);
          }
       }
    }
 
-   protected void addMappingsInternal(final SimpleString address,
+   protected void bindingsEmpty(SimpleString realAddress, Bindings bindings) {
+   }
+
+   protected Bindings addMappingsInternal(final SimpleString address,
                                       final Collection<Binding> newBindings) throws Exception {
       if (newBindings.isEmpty()) {
-         return;
+         return null;
       }
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
       Bindings bindings = mappings.get(realAddress);
@@ -238,27 +247,29 @@ public class SimpleAddressManager implements AddressManager {
       for (Binding binding : newBindings) {
          bindings.addBinding(binding);
       }
+      return bindings;
    }
 
    protected boolean addMappingInternal(final SimpleString address, final Binding binding) throws Exception {
+      boolean addedNewBindings = false;
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
       Bindings bindings = mappings.get(realAddress);
-
-      Bindings prevBindings = null;
 
       if (bindings == null) {
          bindings = bindingsFactory.createBindings(realAddress);
 
-         prevBindings = mappings.putIfAbsent(realAddress, bindings);
+         final Bindings prevBindings = mappings.putIfAbsent(realAddress, bindings);
 
          if (prevBindings != null) {
             bindings = prevBindings;
+         } else {
+            addedNewBindings = true;
          }
       }
 
       bindings.addBinding(binding);
 
-      return prevBindings != null;
+      return addedNewBindings;
    }
 
    @Override
