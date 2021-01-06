@@ -1459,8 +1459,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void unableDestroyConnectionWithSessionMetadata(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222234, value = "Unable to deactivate a callback", format = Message.Format.MESSAGE_FORMAT)
-   void unableToDeactiveCallback(@Cause Throwable e);
+   @Message(id = 222234, value = "Unable to invoke a callback", format = Message.Format.MESSAGE_FORMAT)
+   void unableToInvokeCallback(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222235, value = "Unable to inject a monitor", format = Message.Format.MESSAGE_FORMAT)
