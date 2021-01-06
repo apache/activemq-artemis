@@ -2743,11 +2743,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals("messagesAcked", "0", array.getJsonObject(0).getString("messagesAcked"));
       Assert.assertEquals("deliveringCount", "0", array.getJsonObject(0).getString("deliveringCount"));
       Assert.assertEquals("messagesKilled", "0", array.getJsonObject(0).getString("messagesKilled"));
-      String resultDirectDeliver = array.getJsonObject(0).getString("deliverDeliver");
-      // if there is a core consumer, the result here would be true (if directDeliver is supported).
-      // as for what we expect it's either true or false through management, we are not testing for directDeliver here, just
-      // if management works.
-      Assert.assertTrue(resultDirectDeliver.equals("true") || resultDirectDeliver.equals("false"));
       Assert.assertEquals("exclusive", "false", array.getJsonObject(0).getString("exclusive"));
       Assert.assertEquals("lastValue", "false", array.getJsonObject(0).getString("lastValue"));
       Assert.assertEquals("scheduledCount", "0", array.getJsonObject(0).getString("scheduledCount"));
