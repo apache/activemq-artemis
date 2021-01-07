@@ -637,6 +637,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       try {
          Map<SimpleString, Collection<Integer>> pageFilesToSync;
          storageManagerLock.writeLock().lock();
+
+         // We need to get this lock here in order to
+         // avoid a clash with Page.cleanup();
+         // This was a fix part of https://issues.apache.org/jira/browse/ARTEMIS-3054
+         pagingManager.lock();
          try {
             if (isReplicated())
                throw new ActiveMQIllegalStateException("already replicating");
@@ -680,6 +685,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             replicator.sendLargeMessageIdListMessage(pendingLargeMessages);
          } finally {
             storageManagerLock.writeLock().unlock();
+            pagingManager.unlock();
          }
 
          sendJournalFile(messageFiles, JournalContent.MESSAGES);

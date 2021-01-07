@@ -428,6 +428,16 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       ArrayList<Page> depagedPages = new ArrayList<>();
 
+      // This read lock is required
+      // because in case of a replicated configuration
+      // The replication manager will first get a writeLock on the StorageManager
+      // for a short period when it is getting a list of IDs to send to the replica
+      // Not getting this lock now could eventually result in a dead lock for a different order
+      //
+      // I tried to simplify the locks but each PageStore has its own lock, so this was the best option
+      // I found in order to fix https://issues.apache.org/jira/browse/ARTEMIS-3054
+      storageManager.readLock();
+
       while (true) {
          if (pagingStore.lock(100)) {
             break;
@@ -471,7 +481,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                }
             }
 
-            for (long i = pagingStore.getFirstPage(); i < minPage; i++) {
+            for (long i = pagingStore.getFirstPage(); i <= minPage; i++) {
                if (!checkPageCompletion(cursorList, i)) {
                   break;
                }
@@ -495,9 +505,11 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             }
          } catch (Exception ex) {
             ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
+            logger.warn(ex.getMessage(), ex);
             return;
          } finally {
             pagingStore.unlock();
+            storageManager.readUnLock();
          }
       }
       finishCleanup(depagedPages);
@@ -624,12 +636,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          // First step: Move every cursor to the next bookmarked page (that was just created)
          for (PageSubscription cursor : cursorList) {
             cursor.confirmPosition(new PagePositionImpl(currentPage.getPageId(), -1));
-         }
-
-         // we just need to make sure the storage is done..
-         // if the thread pool is full, we will just log it once instead of looping
-         if (!storageManager.waitOnOperations(5000)) {
-            ActiveMQServerLogger.LOGGER.problemCompletingOperations(storageManager.getContext());
          }
       } finally {
          for (PageSubscription cursor : cursorList) {
