@@ -133,6 +133,9 @@ public class QueueAutoDeleteTest extends JMSTestBase {
 
          MessageConsumer consumer = session.createSharedDurableConsumer(topic, sub);
 
+         // this will hold a consumer just to avoid the queue from being auto-deleted
+         MessageConsumer consumerHolder = session.createSharedDurableConsumer(topic, sub);
+
          QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(sub));
          assertTrue(queueBinding.getQueue().isAutoDelete());
          assertEquals(0, queueBinding.getQueue().getMessageCount());
@@ -152,6 +155,7 @@ public class QueueAutoDeleteTest extends JMSTestBase {
          assertNotNull(queueBinding);
 
          consumer = session.createSharedDurableConsumer(topic, sub);
+         consumerHolder.close();
          message = consumer.receive(5000);
          assertNotNull(message);
          assertEquals("hello2", ((TextMessage)message).getText());
