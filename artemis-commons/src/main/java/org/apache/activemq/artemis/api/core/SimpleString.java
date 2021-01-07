@@ -307,8 +307,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       }
       pathsList.add(pathAccumulator.toString());
 
-      paths = new String[pathsList.size()];
-      pathsList.toArray(paths);
+      paths = pathsList.toArray(new String[0]);
       return paths;
    }
 
