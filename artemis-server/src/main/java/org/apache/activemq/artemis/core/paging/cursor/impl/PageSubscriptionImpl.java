@@ -1182,6 +1182,10 @@ public final class PageSubscriptionImpl implements PageSubscription {
          PageCache localCache = this.cache.get();
          if (localCache == null) {
             localCache = cursorProvider.getPageCache(pageId);
+            // this could happen if the file does not exist any more, after cleanup
+            if (localCache == null) {
+               return 0;
+            }
             this.cache = new WeakReference<>(localCache);
          }
          int numberOfMessage = localCache.getNumberOfMessages();

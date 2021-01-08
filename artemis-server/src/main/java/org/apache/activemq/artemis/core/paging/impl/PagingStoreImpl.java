@@ -400,6 +400,16 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   public int getNumberOfFiles() throws Exception {
+      final SequentialFileFactory fileFactory = this.fileFactory;
+      if (fileFactory != null) {
+         List<String> files = fileFactory.listFiles("page");
+         return files.size();
+      }
+
+      return 0;
+   }
+
    @Override
    public void start() throws Exception {
       lock.writeLock().lock();
