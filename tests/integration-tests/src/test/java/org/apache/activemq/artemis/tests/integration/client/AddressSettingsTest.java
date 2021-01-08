@@ -285,6 +285,24 @@ public class AddressSettingsTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void test3LevelHierarchyPageSizeBytes() throws Exception {
+      ActiveMQServer server = createServer(true);
+      server.start();
+
+      AddressSettings level1 = new AddressSettings().setPageSizeBytes(100 * 1024);
+      AddressSettings level2 = new AddressSettings();
+      AddressSettings level3 = new AddressSettings();
+      server.getAddressSettingsRepository().clear();
+      server.getAddressSettingsRepository().setDefault(null);
+      HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
+      repos.addMatch("test.foo.bar", level3);
+      repos.addMatch("test.foo.#", level2);
+      repos.addMatch("test.#", level1);
+
+      assertEquals(100 * 1024, server.getAddressSettingsRepository().getMatch("test.foo.bar").getPageSizeBytes());
+   }
+
+   @Test
    public void testOverrideHierarchyWithDLA() throws Exception {
       ActiveMQServer server = createServer(false);
 

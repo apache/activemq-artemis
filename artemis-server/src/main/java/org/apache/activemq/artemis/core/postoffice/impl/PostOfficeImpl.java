@@ -16,6 +16,25 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
+
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
@@ -81,25 +100,6 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
@@ -1149,13 +1149,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                // it's already been through here once, giving up now
                sendToDLA = false;
             } else {
-               sendToDLA = addressSettings.isSendToDLAOnNoRoute();
+               sendToDLA = addressSettings != null ? addressSettings.isSendToDLAOnNoRoute() : AddressSettings.DEFAULT_SEND_TO_DLA_ON_NO_ROUTE;
             }
 
             if (sendToDLA) {
                // Send to the DLA for the address
 
-               SimpleString dlaAddress = addressSettings.getDeadLetterAddress();
+               SimpleString dlaAddress = addressSettings != null ? addressSettings.getDeadLetterAddress() : null;
 
                if (logger.isDebugEnabled()) {
                   logger.debug("sending message to dla address = " + dlaAddress + ", message=" + message);
@@ -1218,22 +1218,25 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    // HORNETQ-1029
    private void applyExpiryDelay(Message message, SimpleString address) {
-      long expirationOverride = addressSettingsRepository.getMatch(address.toString()).getExpiryDelay();
+      AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
+      if (settings != null) {
+         long expirationOverride = settings.getExpiryDelay();
 
-      // A -1 <expiry-delay> means don't do anything
-      if (expirationOverride >= 0) {
-         // only override the expiration on messages where the expiration hasn't been set by the user
-         if (message.getExpiration() == 0) {
-            message.setExpiration(System.currentTimeMillis() + expirationOverride);
-         }
-      } else {
-         long minExpiration = addressSettingsRepository.getMatch(address.toString()).getMinExpiryDelay();
-         long maxExpiration = addressSettingsRepository.getMatch(address.toString()).getMaxExpiryDelay();
+         // A -1 <expiry-delay> means don't do anything
+         if (expirationOverride >= 0) {
+            // only override the expiration on messages where the expiration hasn't been set by the user
+            if (message.getExpiration() == 0) {
+               message.setExpiration(System.currentTimeMillis() + expirationOverride);
+            }
+         } else {
+            long minExpiration = settings.getMinExpiryDelay();
+            long maxExpiration = settings.getMaxExpiryDelay();
 
-         if (maxExpiration != AddressSettings.DEFAULT_MAX_EXPIRY_DELAY && (message.getExpiration() == 0 || message.getExpiration() > (System.currentTimeMillis() + maxExpiration))) {
-            message.setExpiration(System.currentTimeMillis() + maxExpiration);
-         } else if (minExpiration != AddressSettings.DEFAULT_MIN_EXPIRY_DELAY && message.getExpiration() < (System.currentTimeMillis() + minExpiration)) {
-            message.setExpiration(System.currentTimeMillis() + minExpiration);
+            if (maxExpiration != AddressSettings.DEFAULT_MAX_EXPIRY_DELAY && (message.getExpiration() == 0 || message.getExpiration() > (System.currentTimeMillis() + maxExpiration))) {
+               message.setExpiration(System.currentTimeMillis() + maxExpiration);
+            } else if (minExpiration != AddressSettings.DEFAULT_MIN_EXPIRY_DELAY && message.getExpiration() < (System.currentTimeMillis() + minExpiration)) {
+               message.setExpiration(System.currentTimeMillis() + minExpiration);
+            }
          }
       }
    }
