@@ -1018,7 +1018,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             return null;
          }
       }
-      return getObjectProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID);
+      return getApplicationObjectProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString());
    }
 
    @Override
@@ -1382,18 +1382,24 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             return AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(properties.getCorrelationId());
          }
       } else {
-         Object value = getApplicationPropertiesMap(false).get(key);
-         if (value instanceof UnsignedInteger ||
-             value instanceof UnsignedByte ||
-             value instanceof UnsignedLong ||
-             value instanceof UnsignedShort) {
-            return ((Number)value).longValue();
-         } else {
-            return value;
-         }
+         return getApplicationObjectProperty(key);
       }
 
       return null;
+   }
+
+   private Object getApplicationObjectProperty(String key) {
+      Object value = getApplicationPropertiesMap(false).get(key);
+      if (value instanceof Number) {
+         // slow path
+         if (value instanceof UnsignedInteger ||
+            value instanceof UnsignedByte ||
+            value instanceof UnsignedLong ||
+            value instanceof UnsignedShort) {
+            return ((Number) value).longValue();
+         }
+      }
+      return value;
    }
 
    @Override
