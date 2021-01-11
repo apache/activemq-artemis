@@ -202,7 +202,7 @@ public class AMQPStandardMessage extends AMQPMessage {
       this.modified = false;
       this.messageDataScanned = MessageDataScanningStatus.NOT_SCANNED.code;
       int estimated = Math.max(1500, data != null ? data.capacity() + 1000 : 0);
-      ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(estimated);
+      ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(estimated);
       EncoderImpl encoder = TLSEncode.getEncoder();
 
       try {
