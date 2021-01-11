@@ -934,7 +934,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          pageMaxCache = merged.pageMaxCache;
       }
       if (pageSizeBytes == null) {
-         pageSizeBytes = merged.getPageSizeBytes();
+         pageSizeBytes = merged.pageSizeBytes;
       }
       if (messageCounterHistoryDayLimit == null) {
          messageCounterHistoryDayLimit = merged.messageCounterHistoryDayLimit;

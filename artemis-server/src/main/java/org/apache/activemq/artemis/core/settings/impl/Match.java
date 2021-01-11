@@ -111,4 +111,9 @@ public class Match<T> {
       }
    }
 
+   @Override
+   public String toString() {
+      return value.toString();
+   }
+
 }
