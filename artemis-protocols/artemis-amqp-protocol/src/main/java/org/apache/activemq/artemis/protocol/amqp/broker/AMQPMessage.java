@@ -1365,27 +1365,28 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final Object getObjectProperty(String key) {
-      if (key.equals(MessageUtil.TYPE_HEADER_NAME.toString())) {
-         if (properties != null) {
-            return properties.getSubject();
-         }
-      } else if (key.equals(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString())) {
-         return getConnectionID();
-      } else if (key.equals(MessageUtil.JMSXGROUPID)) {
-         return getGroupID();
-      } else if (key.equals(MessageUtil.JMSXGROUPSEQ)) {
-         return getGroupSequence();
-      } else if (key.equals(MessageUtil.JMSXUSERID)) {
-         return getAMQPUserID();
-      } else if (key.equals(MessageUtil.CORRELATIONID_HEADER_NAME.toString())) {
-         if (properties != null && properties.getCorrelationId() != null) {
-            return AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(properties.getCorrelationId());
-         }
-      } else {
-         return getApplicationObjectProperty(key);
+      switch (key) {
+         case MessageUtil.TYPE_HEADER_NAME_STRING:
+            if (properties != null) {
+               return properties.getSubject();
+            }
+            return null;
+         case MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING:
+            return getConnectionID();
+         case MessageUtil.JMSXGROUPID:
+            return getGroupID();
+         case MessageUtil.JMSXGROUPSEQ:
+            return getGroupSequence();
+         case MessageUtil.JMSXUSERID:
+            return getAMQPUserID();
+         case MessageUtil.CORRELATIONID_HEADER_NAME_STRING:
+            if (properties != null && properties.getCorrelationId() != null) {
+               return AMQPMessageIdHelper.INSTANCE.toCorrelationIdString(properties.getCorrelationId());
+            }
+            return null;
+         default:
+            return getApplicationObjectProperty(key);
       }
-
-      return null;
    }
 
    private Object getApplicationObjectProperty(String key) {
@@ -1414,12 +1415,13 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final String getStringProperty(String key) throws ActiveMQPropertyConversionException {
-      if (key.equals(MessageUtil.TYPE_HEADER_NAME.toString())) {
-         return properties.getSubject();
-      } else if (key.equals(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString())) {
-         return getConnectionID();
-      } else {
-         return (String) getApplicationPropertiesMap(false).get(key);
+      switch (key) {
+         case MessageUtil.TYPE_HEADER_NAME_STRING:
+            return properties.getSubject();
+         case MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING:
+            return getConnectionID();
+         default:
+            return (String) getApplicationPropertiesMap(false).get(key);
       }
    }
 

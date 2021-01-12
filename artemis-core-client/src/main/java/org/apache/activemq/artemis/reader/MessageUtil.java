@@ -33,11 +33,15 @@ import org.apache.activemq.artemis.api.core.SimpleString;
  */
 public class MessageUtil {
 
-   public static final SimpleString CORRELATIONID_HEADER_NAME = new SimpleString("JMSCorrelationID");
+   public static final String CORRELATIONID_HEADER_NAME_STRING = "JMSCorrelationID";
+
+   public static final SimpleString CORRELATIONID_HEADER_NAME = new SimpleString(CORRELATIONID_HEADER_NAME_STRING);
 
    public static final SimpleString REPLYTO_HEADER_NAME = new SimpleString("JMSReplyTo");
 
-   public static final SimpleString TYPE_HEADER_NAME = new SimpleString("JMSType");
+   public static final String TYPE_HEADER_NAME_STRING = "JMSType";
+
+   public static final SimpleString TYPE_HEADER_NAME = new SimpleString(TYPE_HEADER_NAME_STRING);
 
    public static final SimpleString JMS = new SimpleString("JMS");
 
@@ -53,7 +57,9 @@ public class MessageUtil {
 
    public static final String JMSXUSERID = "JMSXUserID";
 
-   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString("__AMQ_CID");
+   public static final String CONNECTION_ID_PROPERTY_NAME_STRING = "__AMQ_CID";
+
+   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString(CONNECTION_ID_PROPERTY_NAME_STRING);
 
    //   public static ActiveMQBuffer getBodyBuffer(Message message) {
    //      return message.getBodyBuffer();
