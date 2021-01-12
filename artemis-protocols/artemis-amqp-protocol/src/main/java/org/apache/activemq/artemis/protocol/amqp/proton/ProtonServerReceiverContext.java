@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -34,6 +35,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPExceptio
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
+import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Modified;
@@ -57,6 +59,9 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    private static final Logger log = Logger.getLogger(ProtonServerReceiverContext.class);
 
    protected SimpleString address;
+   protected SimpleString lastAddress;
+   protected AddressFullMessagePolicy lastAddressPolicy;
+   protected boolean addressAlreadyClashed = false;
 
 
    protected final Runnable spiFlow = this::sessionSPIFlow;
@@ -174,6 +179,10 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    protected void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx) {
       try {
          if (sessionSPI != null) {
+            // message could be null on unit tests (Mocking from ProtonServerReceiverContextTest).
+            if (address == null && message != null) {
+               validateAddressOnAnonymousLink(message);
+            }
             sessionSPI.serverSend(this, tx, receiver, delivery, address, routingContext, message);
          }
       } catch (Exception e) {
@@ -181,6 +190,23 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
 
          deliveryFailed(delivery, receiver, e);
 
+      }
+   }
+
+   private void validateAddressOnAnonymousLink(AMQPMessage message) throws Exception {
+      SimpleString newAddress = message.getAddressSimpleString();
+      if (newAddress != null && !newAddress.equals(lastAddress)) {
+         AddressFullMessagePolicy currentPolicy = sessionSPI.getProtocolManager().getServer().getPagingManager().getPageStore(newAddress).getAddressFullMessagePolicy();
+         if (lastAddressPolicy != null && lastAddressPolicy != currentPolicy) {
+            if (!addressAlreadyClashed) {
+               addressAlreadyClashed = true; // print the warning only once
+               ActiveMQAMQPProtocolLogger.LOGGER.incompatibleAddressFullMessagePolicy(lastAddress.toString(), "" + lastAddressPolicy, newAddress.toString(), "" + currentPolicy);
+            }
+
+            log.debug("AddressFullPolicy clash between " + lastAddress + "/" + lastAddressPolicy + " and " + newAddress + "/" + lastAddressPolicy);
+         }
+         this.lastAddress = message.getAddressSimpleString();
+         this.lastAddressPolicy = currentPolicy;
       }
    }
 
@@ -262,7 +288,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
       connection.requireInHandler();
       // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
       if (sessionSPI != null) {
-         sessionSPI.flow(address, creditRunnable);
+         sessionSPI.flow(address != null ? address : lastAddress, creditRunnable);
       } else {
          creditRunnable.run();
       }
