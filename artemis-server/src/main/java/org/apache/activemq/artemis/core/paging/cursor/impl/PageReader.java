@@ -29,7 +29,6 @@ public class PageReader implements PageCache {
 
    private final Page page;
    private final int numberOfMessages;
-   private PagedMessage[] pagedMessages = null;
 
    public PageReader(Page page, int numberOfMessages) {
       this.page = page;
@@ -46,24 +45,17 @@ public class PageReader implements PageCache {
       return numberOfMessages;
    }
 
-   @Override
-   public void setMessages(PagedMessage[] messages) {
-      this.pagedMessages = messages;
-   }
-
-   @Override
-   public synchronized PagedMessage[] getMessages() {
-      if (pagedMessages != null) {
-         return pagedMessages;
-      } else {
-         try {
-            openPage();
-            return page.read().toArray(new PagedMessage[numberOfMessages]);
-         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-         } finally {
-            close();
-         }
+   /**
+    * Used just for testing purposes.
+    */
+   protected synchronized PagedMessage[] readMessages() {
+      try {
+         openPage();
+         return page.read().toArray(new PagedMessage[numberOfMessages]);
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      } finally {
+         close();
       }
    }
 

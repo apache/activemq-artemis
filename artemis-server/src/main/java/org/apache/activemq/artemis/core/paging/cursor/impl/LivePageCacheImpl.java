@@ -31,7 +31,9 @@ public final class LivePageCacheImpl implements LivePageCache {
 
    private static final int CHUNK_SIZE = 32;
 
-   private final ConcurrentAppendOnlyChunkedList<PagedMessage> messages;
+   private final PagedMessage[] initialMessages;
+
+   private final ConcurrentAppendOnlyChunkedList<PagedMessage> liveMessages;
 
    private final long pageId;
 
@@ -39,7 +41,19 @@ public final class LivePageCacheImpl implements LivePageCache {
 
    public LivePageCacheImpl(final long pageId) {
       this.pageId = pageId;
-      this.messages = new ConcurrentAppendOnlyChunkedList<>(CHUNK_SIZE);
+      this.liveMessages = new ConcurrentAppendOnlyChunkedList<>(CHUNK_SIZE);
+      this.initialMessages = null;
+   }
+
+   public LivePageCacheImpl(final long pageId, PagedMessage[] initialMessages) {
+      this.pageId = pageId;
+      this.liveMessages = new ConcurrentAppendOnlyChunkedList<>(CHUNK_SIZE);
+      this.initialMessages = initialMessages;
+   }
+
+   private int initialMessagesSize() {
+      final PagedMessage[] initialMessages = this.initialMessages;
+      return initialMessages == null ? 0 : initialMessages.length;
    }
 
    @Override
@@ -49,20 +63,21 @@ public final class LivePageCacheImpl implements LivePageCache {
 
    @Override
    public int getNumberOfMessages() {
-      return messages.size();
-   }
-
-   @Override
-   public void setMessages(PagedMessage[] messages) {
-      // This method shouldn't be called on liveCache, but we will provide the implementation for it anyway
-      for (PagedMessage message : messages) {
-         addLiveMessage(message);
-      }
+      return initialMessagesSize() + liveMessages.size();
    }
 
    @Override
    public PagedMessage getMessage(PagePosition pagePosition) {
-      return messages.get(pagePosition.getMessageNr());
+      final int messageNr = pagePosition.getMessageNr();
+      if (messageNr < 0) {
+         return null;
+      }
+      final int initialOffset = initialMessagesSize();
+      if (messageNr < initialOffset) {
+         return initialMessages[messageNr];
+      }
+      final int index = messageNr - initialOffset;
+      return liveMessages.get(index);
    }
 
    @Override
@@ -73,7 +88,7 @@ public final class LivePageCacheImpl implements LivePageCache {
    @Override
    public void addLiveMessage(PagedMessage message) {
       message.getMessage().usageUp();
-      messages.add(message);
+      liveMessages.add(message);
    }
 
    @Override
@@ -84,7 +99,12 @@ public final class LivePageCacheImpl implements LivePageCache {
 
    @Override
    public PagedMessage[] getMessages() {
-      return messages.toArray(PagedMessage[]::new);
+      final PagedMessage[] pagedMessages = liveMessages.toArray(size -> new PagedMessage[initialMessagesSize() + size], initialMessagesSize());
+      final PagedMessage[] initialMessages = this.initialMessages;
+      if (initialMessages != null) {
+         System.arraycopy(initialMessages, 0, pagedMessages, 0, initialMessages.length);
+      }
+      return pagedMessages;
    }
 
    @Override

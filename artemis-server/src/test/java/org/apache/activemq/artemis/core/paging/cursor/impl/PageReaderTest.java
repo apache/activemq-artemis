@@ -50,7 +50,7 @@ public class PageReaderTest extends ActiveMQTestBase {
       int[] offsets = createPage(num);
       PageReader pageReader = getPageReader();
 
-      PagedMessage[] pagedMessages = pageReader.getMessages();
+      PagedMessage[] pagedMessages = pageReader.readMessages();
       assertEquals(pagedMessages.length, num);
 
       PagedMessage pagedMessage = null;
@@ -80,7 +80,7 @@ public class PageReaderTest extends ActiveMQTestBase {
       int[] offsets = createPage(num);
       PageReader pageReader = getPageReader();
 
-      PagedMessage[] pagedMessages = pageReader.getMessages();
+      PagedMessage[] pagedMessages = pageReader.readMessages();
       assertEquals(pagedMessages.length, num);
 
       PagePosition pagePosition = new PagePositionImpl(10, 0);
@@ -108,7 +108,7 @@ public class PageReaderTest extends ActiveMQTestBase {
          int[] offsets = createPage(num);
          PageReader pageReader = getPageReader();
 
-         PagedMessage[] pagedMessages = pageReader.getMessages();
+         PagedMessage[] pagedMessages = pageReader.readMessages();
          assertEquals(pagedMessages.length, num);
 
          PagePosition pagePosition = new PagePositionImpl(10, 0, 50);

@@ -478,16 +478,11 @@ public class PagingStoreImpl implements PagingStore {
       Page page = createPage(pageId);
       page.open();
 
-      List<PagedMessage> messages = page.read(storageManager);
+      final List<PagedMessage> messages = page.read(storageManager);
 
-      LivePageCache pageCache = new LivePageCacheImpl(pageId);
+      final PagedMessage[] initialMessages = messages.toArray(new PagedMessage[messages.size()]);
 
-      for (PagedMessage msg : messages) {
-         pageCache.addLiveMessage(msg);
-         // As we add back to the live page,
-         // we have to discount one when we read the page
-         msg.getMessage().usageDown();
-      }
+      final LivePageCache pageCache = new LivePageCacheImpl(pageId, initialMessages);
 
       page.setLiveCache(pageCache);
 
@@ -495,7 +490,7 @@ public class PagingStoreImpl implements PagingStore {
 
       currentPage = page;
 
-      cursorProvider.addPageCache(pageCache);
+      cursorProvider.addLivePageCache(pageCache);
 
       /**
        * The page file might be incomplete in the cases: 1) last message incomplete 2) disk damaged.
@@ -1125,7 +1120,7 @@ public class PagingStoreImpl implements PagingStore {
 
          newPage.setLiveCache(pageCache);
 
-         cursorProvider.addPageCache(pageCache);
+         cursorProvider.addLivePageCache(pageCache);
 
          currentPageSize = 0;
 

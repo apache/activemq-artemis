@@ -34,8 +34,6 @@ public interface PagePosition extends Comparable<PagePosition> {
 
    void setPersistentSize(long persistentSize);
 
-   PagePosition nextMessage();
-
    PagePosition nextPage();
 
 }

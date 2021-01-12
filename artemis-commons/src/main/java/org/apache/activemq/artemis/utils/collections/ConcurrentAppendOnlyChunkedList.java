@@ -42,8 +42,6 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
 
    private static final AtomicLongFieldUpdater<ConcurrentAppendOnlyChunkedList> LAST_INDEX_UPDATER = AtomicLongFieldUpdater.newUpdater(ConcurrentAppendOnlyChunkedList.class, "lastIndex");
 
-   private static final AtomicLongFieldUpdater<ConcurrentAppendOnlyChunkedList> CACHED_LAST_INDEX_UPDATER = AtomicLongFieldUpdater.newUpdater(ConcurrentAppendOnlyChunkedList.class, "cachedLastIndex");
-
    private final int chunkSize;
 
    private final int chunkMask;
@@ -57,10 +55,6 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
    //it is both the current index of the next element to be claimed and the current size of the collection
    //it's using a parity bit to mark the rotation state ie size === lastIndex >> 1
    private volatile long lastIndex = 0;
-
-   //cached view of lastIndex used to avoid invalidating lastIndex while being updated by the appends
-
-   private volatile long cachedLastIndex = 0;
 
    /**
     * @throws IllegalArgumentException if {@code chunkSize} is &lt;0 or not a power of 2
@@ -105,16 +99,10 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
       if (index < 0) {
          return null;
       }
-      //it allow to perform less cache invalidations vs lastIndex if there are bursts of appends
-      long lastIndex = cachedLastIndex;
+      final long lastIndex = getValidLastIndex();
+      //it is a element over the current size?
       if (index >= lastIndex) {
-         lastIndex = getValidLastIndex();
-         //it is a element over the current size?
-         if (index >= lastIndex) {
-            return null;
-         }
-         //publish it for others readers
-         CACHED_LAST_INDEX_UPDATER.lazySet(this, lastIndex);
+         return null;
       }
       final AtomicChunk<T> buffer;
       final int offset;
@@ -139,20 +127,20 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
       final int chunkIndex = index >> chunkSizeLog2;
       //size is never allowed to be > Integer.MAX_VALUE
       final int lastChunkIndex = (int) lastIndex >> chunkSizeLog2;
-      int chunkIndexes = chunkIndex;
+      int distance = chunkIndex;
       AtomicChunk<T> buffer = null;
       boolean forward = true;
-      int distanceFromLastChunkIndex = lastChunkIndex - chunkIndex;
+      int distanceFromLast = lastChunkIndex - chunkIndex;
       //it's worth to go backward from lastChunkIndex?
       //trying first to check against the value we already have: if it won't worth, won't make sense to load the lastBuffer
-      if (distanceFromLastChunkIndex < chunkIndex) {
+      if (distanceFromLast < distance) {
          final AtomicChunk<T> lastBuffer = this.lastBuffer;
          //lastBuffer is a potential moving, always increasing, target ie better to re-check the distance
-         distanceFromLastChunkIndex = lastBuffer.index - chunkIndex;
-         if (distanceFromLastChunkIndex < chunkIndex) {
+         distanceFromLast = lastBuffer.index - chunkIndex;
+         if (distanceFromLast < distance) {
             //we're saving some jumps ie is fine to go backward from here
             buffer = lastBuffer;
-            chunkIndexes = distanceFromLastChunkIndex;
+            distance = distanceFromLast;
             forward = false;
          }
       }
@@ -160,7 +148,7 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
       if (buffer == null) {
          buffer = firstBuffer;
       }
-      for (int i = 0; i < chunkIndexes; i++) {
+      for (int i = 0; i < distance; i++) {
          //next chunk is always set if below a read lastIndex value
          //previous chunk is final and can be safely read
          buffer = forward ? buffer.next : buffer.prev;
@@ -234,21 +222,31 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
       return true;
    }
 
+   public T[] toArray(IntFunction<T[]> arrayAllocator) {
+      return toArray(arrayAllocator, 0);
+   }
+
    /**
     * Returns an array containing all of the elements in this collection in proper
     * sequence (from first to last element).<br>
     * {@code arrayAllocator} will be used to instantiate the array of the correct size with the right runtime type.
     */
-   public T[] toArray(IntFunction<T[]> arrayAllocator) {
+   public T[] toArray(IntFunction<T[]> arrayAllocator, int startIndex) {
+      if (startIndex < 0) {
+         throw new ArrayIndexOutOfBoundsException("startIndex must be >= 0");
+      }
       final long lastIndex = getValidLastIndex();
       assert lastIndex <= Integer.MAX_VALUE;
       final int size = (int) lastIndex;
       final T[] elements = arrayAllocator.apply(size);
+      if (startIndex + size > elements.length) {
+         throw new ArrayIndexOutOfBoundsException();
+      }
       //fast division by a power of 2
       final int chunkSize = this.chunkSize;
       final int chunks = size > chunkSize ? size >> chunkSizeLog2 : 0;
       AtomicChunk<T> buffer = firstBuffer;
-      int elementIndex = 0;
+      int elementIndex = startIndex;
       for (int i = 0; i < chunks; i++) {
          drain(buffer, elements, elementIndex, chunkSize);
          elementIndex += chunkSize;
