@@ -121,4 +121,13 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
     */
    void checkMemory(Runnable runWhenAvailable);
 
+
+   /**
+    * Use this when you have no refernce of an address. (anonymous AMQP Producers for example)
+    * @param runWhenAvailable
+    */
+   default void checkStorage(Runnable runWhenAvailable) {
+      checkMemory(runWhenAvailable);
+   }
+
 }

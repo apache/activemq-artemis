@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
@@ -136,6 +137,10 @@ public class AMQPSessionCallback implements SessionCallback {
 
    public CoreMessageObjectPools getCoreMessageObjectPools() {
       return coreMessageObjectPools;
+   }
+
+   public ProtonProtocolManager getProtocolManager() {
+      return manager;
    }
 
    @Override
@@ -603,10 +608,17 @@ public class AMQPSessionCallback implements SessionCallback {
    public void flow(final SimpleString address,
                     Runnable runnable) {
       try {
-         PagingManager pagingManager = manager.getServer().getPagingManager();
 
          if (address == null) {
-            pagingManager.checkMemory(runnable);
+            PagingManager pagingManager = manager.getServer().getPagingManager();
+            if (manager != null && manager.getServer() != null &&
+                manager.getServer().getAddressSettingsRepository() != null &&
+                manager.getServer().getAddressSettingsRepository().getMatch("#").getAddressFullMessagePolicy().equals(AddressFullMessagePolicy.PAGE)) {
+               // If it's paging, we only check for disk full
+               pagingManager.checkStorage(runnable);
+            } else {
+               pagingManager.checkMemory(runnable);
+            }
          } else {
             final PagingStore store = manager.getServer().getPagingManager().getPageStore(address);
             if (store != null) {

@@ -120,6 +120,10 @@ public final class PagingManagerImpl implements PagingManager {
       this.managementAddress = managementAddress;
    }
 
+   public long getMaxSize() {
+      return maxSize;
+   }
+
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
       this(pagingSPI, addressSettingsRepository, -1, null);
@@ -255,6 +259,14 @@ public final class PagingManagerImpl implements PagingManager {
       runWhenAvailable.run();
    }
 
+   @Override
+   public void checkStorage(Runnable runWhenAvailable) {
+      if (diskFull) {
+         memoryCallback.add(AtomicRunnable.checkAtomic(runWhenAvailable));
+         return;
+      }
+      runWhenAvailable.run();
+   }
 
    private void memoryReleased() {
       Runnable runnable;
