@@ -490,6 +490,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected ApplicationProperties lazyDecodeApplicationProperties(ReadableBuffer data) {
       if (applicationProperties == null && applicationPropertiesPosition != VALUE_NOT_PRESENT) {
          applicationProperties = scanForMessageSection(data, applicationPropertiesPosition, ApplicationProperties.class);
+         memoryEstimate = -1;
       }
 
       return applicationProperties;
