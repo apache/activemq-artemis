@@ -269,6 +269,19 @@ public class AMQPMessageTest {
       assertNotEquals(estimate, decoded.getMemoryEstimate());
    }
 
+
+   @Test
+   public void testGetMemoryEstimateWithDecodedApplicationProperties() {
+      AMQPStandardMessage decoded = new AMQPStandardMessage(0, encodedProtonMessage, new TypedProperties(), null);
+
+      AMQPStandardMessage decodedWithApplicationPropertiesUnmarshalled =
+         new AMQPStandardMessage(0, encodeMessage(createProtonMessage()), new TypedProperties(), null);
+
+      assertEquals(decodedWithApplicationPropertiesUnmarshalled.getStringProperty(TEST_APPLICATION_PROPERTY_KEY), TEST_APPLICATION_PROPERTY_VALUE);
+
+      assertNotEquals(decodedWithApplicationPropertiesUnmarshalled.getMemoryEstimate(), decoded.getMemoryEstimate());
+   }
+
    //----- Test Connection ID access -----------------------------------------//
 
 

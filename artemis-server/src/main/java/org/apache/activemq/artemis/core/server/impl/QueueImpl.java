@@ -2935,6 +2935,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          MessageReference ref;
 
+         // filter evaluation or transformation may cause properties to be lazyDecoded, we need to reflect that
+         int existingMemoryEstimate = 0;
+
          Consumer handledconsumer = null;
 
          synchronized (this) {
@@ -2970,6 +2973,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                ref = holder.iter.next();
             } else {
                ref = null;
+               existingMemoryEstimate = 0;
             }
             if (ref == null) {
                noDelivery++;
@@ -2988,6 +2992,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   logger.trace("Queue " + this.getName() + " is delivering reference " + ref);
                }
 
+               existingMemoryEstimate = ref.getMessageMemoryEstimate();
                final SimpleString groupID = extractGroupID(ref);
                groupConsumer = getGroupConsumer(groupID);
 
@@ -3061,6 +3066,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          if (handledconsumer != null) {
             proceedDeliver(handledconsumer, ref);
+         }
+
+         if (existingMemoryEstimate > 0 ) {
+            accountForChangeInMemoryEstimate(ref, existingMemoryEstimate);
          }
       }
 
@@ -3685,7 +3694,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                consumer = groupConsumer;
             }
 
+            // filter evaluation may cause properties to be lazyDecoded
+            final int existingMemoryEstimate = ref.getMessageMemoryEstimate();
+
             HandleStatus status = handle(ref, consumer);
+
+            accountForChangeInMemoryEstimate(ref, existingMemoryEstimate);
 
             if (status == HandleStatus.HANDLED) {
                final MessageReference reference;
@@ -3713,6 +3727,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             logger.tracef("Queue " + getName() + " is out of direct delivery as no consumers handled a delivery");
          }
          return false;
+      }
+   }
+
+   private static void accountForChangeInMemoryEstimate(final MessageReference ref, final int existingMemoryEstimate) {
+      final int delta = ref.getMessageMemoryEstimate() - existingMemoryEstimate;
+      if (delta > 0) {
+         PagingStore pageStore = ref.getOwner();
+         if (pageStore != null) {
+            pageStore.addSize(delta);
+         }
       }
    }
 
