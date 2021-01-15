@@ -16,18 +16,19 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 @Command(name = "mask", description = "mask a password and print it out")
-public class Mask implements Action {
+public class Mask extends ActionAbstract {
 
    @Arguments(description = "The password to be masked", required = true)
    String password;
@@ -38,7 +39,10 @@ public class Mask implements Action {
    @Option(name = "--key", description = "the key (Blowfish) to mask a password")
    String key;
 
-   private DefaultSensitiveStringCodec codec;
+   @Option(name = "--password-codec", description = "whether to use password codec defined in the configuration, default false")
+   boolean passwordCodec = false;
+
+   private SensitiveDataCodec<String> codec;
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -56,7 +60,12 @@ public class Mask implements Action {
          }
       }
 
-      codec = PasswordMaskingUtil.getDefaultCodec();
+      if (passwordCodec) {
+         Configuration brokerConfiguration = getBrokerConfiguration();
+         codec = PasswordMaskingUtil.getCodec(brokerConfiguration.getPasswordCodec());
+      } else {
+         codec = PasswordMaskingUtil.getDefaultCodec();
+      }
       codec.init(params);
 
       String masked = codec.encode(password);
@@ -67,20 +76,6 @@ public class Mask implements Action {
    @Override
    public boolean isVerbose() {
       return false;
-   }
-
-   @Override
-   public void setHomeValues(File brokerHome, File brokerInstance) {
-   }
-
-   @Override
-   public String getBrokerInstance() {
-      return null;
-   }
-
-   @Override
-   public String getBrokerHome() {
-      return null;
    }
 
    public void setPassword(String password) {
@@ -95,7 +90,11 @@ public class Mask implements Action {
       this.key = key;
    }
 
-   public DefaultSensitiveStringCodec getCodec() {
+   public void setPasswordCodec(boolean passwordCodec) {
+      this.passwordCodec = passwordCodec;
+   }
+
+   public SensitiveDataCodec<String> getCodec() {
       return codec;
    }
 

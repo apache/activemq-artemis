@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -79,6 +80,7 @@ import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.HashProcessor;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.apache.activemq.artemis.utils.StringUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -1108,8 +1110,9 @@ public class ArtemisTest extends CliTestBase {
       mask.setHash(true);
       result = (String) mask.execute(context);
       log.debug(context.getStdout());
-      DefaultSensitiveStringCodec codec = mask.getCodec();
-      codec.verify(password1.toCharArray(), result);
+      SensitiveDataCodec<String> codec = mask.getCodec();
+      Assert.assertEquals(DefaultSensitiveStringCodec.class, codec.getClass());
+      Assert.assertTrue(((DefaultSensitiveStringCodec)codec).verify(password1.toCharArray(), result));
 
       context = new TestActionContext();
       mask = new Mask();
@@ -1118,6 +1121,33 @@ public class ArtemisTest extends CliTestBase {
       result = (String) mask.execute(context);
       log.debug(context.getStdout());
       assertEquals(encrypt2, result);
+   }
+
+   @Test
+   public void testMaskCommandWithPasswordCodec() throws Exception {
+      File instanceWithPasswordCodec = new File(temporaryFolder.getRoot(), "instance_with_password_codec");
+      Files.createDirectories(Paths.get(instanceWithPasswordCodec.getAbsolutePath(), "etc"));
+      Files.copy(Paths.get(ArtemisTest.class.getClassLoader().getResource("broker-with-password-codec.xml").toURI()),
+                 Paths.get(instanceWithPasswordCodec.getAbsolutePath(), "etc", "broker.xml"));
+      System.setProperty("artemis.instance", instanceWithPasswordCodec.getAbsolutePath());
+
+      String password = "password";
+      String encrypt = "3a34fd21b82bf2a822fa49a8d8fa115d";
+
+      TestActionContext context = new TestActionContext();
+      Mask mask = new Mask();
+      mask.setPassword(password);
+      String result = (String) mask.execute(context);
+      assertEquals(DefaultSensitiveStringCodec.class, mask.getCodec().getClass());
+      assertEquals(encrypt, result);
+
+      context = new TestActionContext();
+      mask = new Mask();
+      mask.setPassword(password);
+      mask.setPasswordCodec(true);
+      result = (String) mask.execute(context);
+      assertEquals(TestPasswordCodec.class, mask.getCodec().getClass());
+      assertEquals(result, result);
    }
 
    @Test
@@ -1838,6 +1868,19 @@ public class ArtemisTest extends CliTestBase {
       } else {
          assertFalse("user " + username + " found", userFound);
          assertFalse("role " + role + " found", roleFound);
+      }
+   }
+
+   public static class TestPasswordCodec implements SensitiveDataCodec<String> {
+
+      @Override
+      public String decode(Object mask) throws Exception {
+         return mask.toString();
+      }
+
+      @Override
+      public String encode(Object secret) throws Exception {
+         return secret.toString();
       }
    }
 
