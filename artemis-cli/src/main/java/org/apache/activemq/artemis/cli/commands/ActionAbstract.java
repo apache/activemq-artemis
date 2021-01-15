@@ -23,6 +23,7 @@ import java.util.Map;
 
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -79,13 +80,8 @@ public abstract class ActionAbstract implements Action {
    protected String getBrokerURLInstance() {
       if (getBrokerInstance() != null) {
          try {
-            FileConfiguration fileConfiguration = new FileConfiguration();
-            String brokerConfiguration = new File(new File(getBrokerEtc()), "broker.xml").toURI().toASCIIString();
-            FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(brokerConfiguration);
-            fileDeploymentManager.addDeployable(fileConfiguration);
-            fileDeploymentManager.readConfiguration();
-
-            for (TransportConfiguration acceptorConfiguration: fileConfiguration.getAcceptorConfigurations()) {
+            Configuration brokerConfiguration = getBrokerConfiguration();
+            for (TransportConfiguration acceptorConfiguration: brokerConfiguration.getAcceptorConfigurations()) {
                if (acceptorConfiguration.getName().equals("artemis")) {
                   Map<String, Object> acceptorParams = acceptorConfiguration.getParams();
                   String scheme = ConfigurationHelper.getStringProperty(TransportConstants.SCHEME_PROP_NAME, SchemaConstants.TCP, acceptorParams);
@@ -107,6 +103,17 @@ public abstract class ActionAbstract implements Action {
       }
 
       return null;
+   }
+
+
+   protected Configuration getBrokerConfiguration() throws Exception {
+      FileConfiguration fileConfiguration = new FileConfiguration();
+      String brokerConfiguration = new File(new File(getBrokerEtc()), "broker.xml").toURI().toASCIIString();
+      FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(brokerConfiguration);
+      fileDeploymentManager.addDeployable(fileConfiguration);
+      fileDeploymentManager.readConfiguration();
+
+      return fileConfiguration;
    }
 
 
