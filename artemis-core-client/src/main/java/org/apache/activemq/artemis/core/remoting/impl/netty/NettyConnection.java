@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +29,13 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
+import io.netty.channel.DefaultFileRegion;
 import io.netty.channel.EventLoop;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.internal.SystemPropertyUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -46,8 +53,10 @@ import org.jboss.logging.Logger;
 public class NettyConnection implements Connection {
 
    private static final Logger logger = Logger.getLogger(NettyConnection.class);
-
+   public static final String USE_FILE_REGION_PROP_NAME = "io.netty.file.region";
+   private final boolean USE_FILE_REGION = SystemPropertyUtil.getBoolean(USE_FILE_REGION_PROP_NAME, true);
    private static final int DEFAULT_BATCH_BYTES = Integer.getInteger("io.netty.batch.bytes", 8192);
+   private static final int CHUNKED_NIO_BYTES = 32 * 1024;
    private static final int DEFAULT_WAIT_MILLIS = 10_000;
 
    protected final Channel channel;
@@ -90,6 +99,20 @@ public class NettyConnection implements Connection {
       this.batchLimit = batchingEnabled ? Math.min(this.writeBufferHighWaterMark, DEFAULT_BATCH_BYTES) : 0;
    }
 
+   /**
+    * It prepares the {@link #getNettyChannel()}'s pipeline to be able to handle
+    * {@link io.netty.handler.stream.ChunkedInput} objects, if {@link DefaultFileRegion} are not supported.
+    * This method is not thread-safe and should be called only once on a connection lifecycle.
+    */
+   public void initializeZeroCopyTransfer() {
+      final ChannelPipeline pipeline = channel.pipeline();
+      if (!USE_FILE_REGION || pipeline.get(SslHandler.class) != null) {
+         if (pipeline.get(ChunkedWriteHandler.class) == null) {
+            pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
+         }
+      }
+   }
+
    private static void waitFor(ChannelPromise promise, long millis) {
       try {
          final boolean completed = promise.await(millis);
@@ -115,10 +138,6 @@ public class NettyConnection implements Connection {
       final int writtenBytes = writeBufferHighWaterMark - bytesBeforeUnwritable;
       assert writtenBytes >= 0;
       return writtenBytes;
-   }
-
-   public final int pendingWritesOnChannel() {
-      return batchBufferSize(this.channel, this.writeBufferHighWaterMark);
    }
 
    public final Channel getNettyChannel() {
@@ -304,7 +323,7 @@ public class NettyConnection implements Connection {
    }
 
    @Override
-   public final boolean blockUntilWritable(final int requiredCapacity, final long timeout, final TimeUnit timeUnit) {
+   public final boolean blockUntilWritable(final long timeout, final TimeUnit timeUnit) {
       checkConnectionState();
       final boolean isAllowedToBlock = isAllowedToBlock();
       if (!isAllowedToBlock) {
@@ -319,7 +338,7 @@ public class NettyConnection implements Connection {
          if (logger.isDebugEnabled()) {
             logger.debug("Calling blockUntilWritable using a thread where it's not allowed");
          }
-         return canWrite(requiredCapacity);
+         return channel.isWritable();
       } else {
          final long timeoutNanos = timeUnit.toNanos(timeout);
          final long deadline = System.nanoTime() + timeoutNanos;
@@ -333,7 +352,7 @@ public class NettyConnection implements Connection {
             parkNanos = 1000L;
          }
          boolean canWrite;
-         while (!(canWrite = canWrite(requiredCapacity)) && (System.nanoTime() - deadline) < 0) {
+         while (!(canWrite = channel.isWritable()) && (System.nanoTime() - deadline) < 0) {
             //periodically check the connection state
             checkConnectionState();
             LockSupport.parkNanos(parkNanos);
@@ -348,17 +367,28 @@ public class NettyConnection implements Connection {
       return !inEventLoop;
    }
 
-   private boolean canWrite(final int requiredCapacity) {
-      //evaluate if the write request could be taken:
-      //there is enough space in the write buffer?
-      final long totalPendingWrites = this.pendingWritesOnChannel();
-      final boolean canWrite;
-      if (requiredCapacity > this.writeBufferHighWaterMark) {
-         canWrite = totalPendingWrites == 0;
+   private Object getFileObject(FileChannel fileChannel, long offset, int dataSize) {
+      if (USE_FILE_REGION && channel.pipeline().get(SslHandler.class) == null) {
+         return new DefaultFileRegion(fileChannel, offset, dataSize) {
+            @Override
+            protected void deallocate() {
+               //no op
+            }
+         };
       } else {
-         canWrite = (totalPendingWrites + requiredCapacity) <= this.writeBufferHighWaterMark;
+         assert channel.pipeline().get(ChunkedWriteHandler.class) != null :
+            "ChunkedWriteHandler needs to be added to the pipeline to handle ChunkedNioFile";
+         try {
+            return new AbsoluteChunkedNioFile(fileChannel, offset, dataSize, CHUNKED_NIO_BYTES) {
+               @Override
+               public void close() throws Exception {
+                  //no op
+               }
+            };
+         } catch (IOException e) {
+            throw new RuntimeException(e);
+         }
       }
-      return canWrite;
    }
 
    @Override
@@ -398,6 +428,18 @@ public class NettyConnection implements Connection {
       if (flush) {
          //NOTE: this code path seems used only on RemotingConnection::disconnect
          flushAndWait(channel, promise);
+      }
+   }
+
+   @Override
+   public void write(FileChannel fileChannel,
+                     long offset,
+                     int dataSize,
+                     final ChannelFutureListener futureListener) {
+      final ChannelPromise promise = futureListener != null ? channel.newPromise() : channel.voidPromise();
+      ChannelFuture channelFuture = channel.writeAndFlush(getFileObject(fileChannel, offset, dataSize), promise);
+      if (futureListener != null) {
+         channelFuture.addListener(futureListener);
       }
    }
 

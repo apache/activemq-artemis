@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core;
 
+import java.nio.channels.FileChannel;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -65,6 +66,29 @@ public interface Channel {
     * successful
     */
    boolean send(Packet packet);
+
+   /**
+    * Sends a packet on this channel.
+    *
+    * @param packet   the packet to send
+    * @param callback callback after send
+    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
+    * successful
+    */
+   boolean send(Packet packet, Callback callback);
+
+   /**
+    * Sends a packet and file on this channel.
+    *
+    * @param packet the packet to send
+    * @param fileChannel the file channel retrieved from raf
+    * @param offset the position of the raf
+    * @param dataSize the data size to send
+    * @param callback callback after send
+    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
+    * successful
+    */
+   boolean send(Packet packet, FileChannel fileChannel, long offset, int dataSize, Callback callback);
 
    /**
     * Sends a packet on this channel.
@@ -261,4 +285,8 @@ public interface Channel {
     * @param transferring whether the channel is transferring
     */
    void setTransferring(boolean transferring);
+
+   interface Callback {
+      void done(boolean success);
+   }
 }

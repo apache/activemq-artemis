@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import javax.security.auth.Subject;
+import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -237,7 +238,7 @@ public class ChannelImplTest {
       }
 
       @Override
-      public boolean blockUntilWritable(int size, long timeout) {
+      public boolean blockUntilWritable(long timeout) {
          return false;
       }
 
@@ -394,6 +395,14 @@ public class ChannelImplTest {
 
             @Override
             public void write(ActiveMQBuffer buffer) {
+
+            }
+
+            @Override
+            public void write(FileChannel fileChannel,
+                              long offset,
+                              int dataSize,
+                              ChannelFutureListener channelFutureListener) {
 
             }
 

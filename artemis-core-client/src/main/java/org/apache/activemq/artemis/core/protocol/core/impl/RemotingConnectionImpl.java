@@ -244,8 +244,8 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    }
 
    @Override
-   public boolean blockUntilWritable(int size, long timeout) {
-      return transportConnection.blockUntilWritable(size, timeout, TimeUnit.MILLISECONDS);
+   public boolean blockUntilWritable(long timeout) {
+      return transportConnection.blockUntilWritable(timeout, TimeUnit.MILLISECONDS);
    }
 
    @Override

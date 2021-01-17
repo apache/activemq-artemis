@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.invm;
 
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -245,6 +246,27 @@ public class InVMConnection implements Connection {
          // Ignore - this can happen if server/client is shutdown and another request comes in
       }
 
+   }
+
+   @Override
+   public void write(FileChannel fileChannel,
+                     long offset,
+                     int dataSize,
+                     final ChannelFutureListener futureListener) {
+      if (futureListener == null) {
+         return;
+      }
+      try {
+         executor.execute(() -> {
+            try {
+               futureListener.operationComplete(null);
+            } catch (Exception e) {
+               throw new IllegalStateException(e);
+            }
+         });
+      } catch (RejectedExecutionException e) {
+
+      }
    }
 
    @Override
