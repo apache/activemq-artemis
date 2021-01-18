@@ -593,7 +593,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       for (JournalFile jf : journalFiles) {
          if (!started)
             return;
-         replicator.syncJournalFile(jf, type);
+
+         ReplicationManager replicatorInUse = replicator;
+         if (replicatorInUse == null) {
+            throw ActiveMQMessageBundle.BUNDLE.replicatorIsNull();
+         }
+
+         replicatorInUse.syncJournalFile(jf, type);
       }
    }
 
@@ -724,11 +730,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          SequentialFile seqFile = largeMessagesFactory.createSequentialFile(fileName);
          if (!seqFile.exists())
             continue;
-         if (replicator != null) {
-            replicator.syncLargeMessageFile(seqFile, size, id);
-         } else {
+
+         ReplicationManager replicatorInUse = replicator;
+         if (replicatorInUse == null) {
             throw ActiveMQMessageBundle.BUNDLE.replicatorIsNull();
          }
+
+         replicatorInUse.syncLargeMessageFile(seqFile, size, id);
       }
    }
 
@@ -796,8 +804,14 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       for (Map.Entry<SimpleString, Collection<Integer>> entry : pageFilesToSync.entrySet()) {
          if (!started)
             return;
+
+         ReplicationManager replicatorInUse = replicator;
+         if (replicatorInUse == null) {
+            throw ActiveMQMessageBundle.BUNDLE.replicatorIsNull();
+         }
+
          PagingStore store = manager.getPageStore(entry.getKey());
-         store.sendPages(replicator, entry.getValue());
+         store.sendPages(replicatorInUse, entry.getValue());
       }
    }
 
