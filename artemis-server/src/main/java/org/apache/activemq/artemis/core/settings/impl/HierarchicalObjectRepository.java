@@ -487,13 +487,15 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             String[] leftSplits = o1.split(quotedDelimiter);
             String[] rightSplits = o2.split(quotedDelimiter);
             for (int i = 0; i < leftSplits.length; i++) {
+               if (i >= rightSplits.length) {
+                  return -1;
+               }
                String left = leftSplits[i];
-               if (left.equals(singleWord)) {
-                  if (rightSplits.length < i || !rightSplits[i].equals(singleWord)) {
-                     return -1;
-                  } else {
-                     return +1;
-                  }
+               String right = rightSplits[i];
+               if (left.equals(singleWord) && !right.equals(singleWord)) {
+                  return +1;
+               } else if (!left.equals(singleWord) && right.equals(singleWord)) {
+                  return -1;
                }
             }
          }
