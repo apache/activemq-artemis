@@ -2497,3 +2497,7 @@ ng-include > .nav.nav-tabs {
   border-right: none;
 }
 
+.modal-body{
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}

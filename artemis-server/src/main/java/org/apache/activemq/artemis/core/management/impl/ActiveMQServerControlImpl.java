@@ -1429,9 +1429,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          List<String> names = new ArrayList<>();
          for (int i = 0; i < queueControls.length; i++) {
             QueueControl queueControl = (QueueControl) queueControls[i];
-            if (routingType != null && queueControl.getRoutingType().equals(routingType.toUpperCase())) {
+            if (routingType != null && routingType.length() > 1 && queueControl.getRoutingType().equals(routingType.toUpperCase())) {
                names.add(queueControl.getName());
-            } else if (routingType == null) {
+            } else if (routingType == null || routingType.isEmpty()) {
                names.add(queueControl.getName());
             }
          }
@@ -3418,10 +3418,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setMaxRedeliveryDelay(maxRedeliveryDelay);
       addressSettings.setRedistributionDelay(redistributionDelay);
       addressSettings.setSendToDLAOnNoRoute(sendToDLAOnNoRoute);
-      addressSettings.setAddressFullMessagePolicy(addressFullMessagePolicy == null ? AddressSettings.DEFAULT_ADDRESS_FULL_MESSAGE_POLICY : AddressFullMessagePolicy.valueOf(addressFullMessagePolicy.toUpperCase()));
+      addressSettings.setAddressFullMessagePolicy(addressFullMessagePolicy == null || addressFullMessagePolicy.isEmpty() ? AddressSettings.DEFAULT_ADDRESS_FULL_MESSAGE_POLICY : AddressFullMessagePolicy.valueOf(addressFullMessagePolicy.toUpperCase()));
       addressSettings.setSlowConsumerThreshold(slowConsumerThreshold);
       addressSettings.setSlowConsumerCheckPeriod(slowConsumerCheckPeriod);
-      addressSettings.setSlowConsumerPolicy(slowConsumerPolicy == null ? AddressSettings.DEFAULT_SLOW_CONSUMER_POLICY : SlowConsumerPolicy.valueOf(slowConsumerPolicy.toUpperCase()));
+      addressSettings.setSlowConsumerPolicy(slowConsumerPolicy == null || slowConsumerPolicy.isEmpty() ? AddressSettings.DEFAULT_SLOW_CONSUMER_POLICY : SlowConsumerPolicy.valueOf(slowConsumerPolicy.toUpperCase()));
       addressSettings.setAutoCreateJmsQueues(autoCreateJmsQueues);
       addressSettings.setAutoDeleteJmsQueues(autoDeleteJmsQueues);
       addressSettings.setAutoCreateJmsTopics(autoCreateJmsTopics);
@@ -3430,21 +3430,21 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setAutoDeleteQueues(autoDeleteQueues);
       addressSettings.setAutoCreateAddresses(autoCreateAddresses);
       addressSettings.setAutoDeleteAddresses(autoDeleteAddresses);
-      addressSettings.setConfigDeleteQueues(configDeleteQueues == null ? AddressSettings.DEFAULT_CONFIG_DELETE_QUEUES : DeletionPolicy.valueOf(configDeleteQueues.toUpperCase()));
-      addressSettings.setConfigDeleteAddresses(configDeleteAddresses == null ? AddressSettings.DEFAULT_CONFIG_DELETE_ADDRESSES : DeletionPolicy.valueOf(configDeleteAddresses.toUpperCase()));
+      addressSettings.setConfigDeleteQueues(configDeleteQueues == null || configDeleteQueues.isEmpty() ? AddressSettings.DEFAULT_CONFIG_DELETE_QUEUES : DeletionPolicy.valueOf(configDeleteQueues.toUpperCase()));
+      addressSettings.setConfigDeleteAddresses(configDeleteAddresses == null || configDeleteAddresses.isEmpty() ? AddressSettings.DEFAULT_CONFIG_DELETE_ADDRESSES : DeletionPolicy.valueOf(configDeleteAddresses.toUpperCase()));
       addressSettings.setMaxSizeBytesRejectThreshold(maxSizeBytesRejectThreshold);
-      addressSettings.setDefaultLastValueKey(defaultLastValueKey == null ? ActiveMQDefaultConfiguration.getDefaultLastValueKey() : new SimpleString(defaultLastValueKey));
+      addressSettings.setDefaultLastValueKey(defaultLastValueKey == null || defaultLastValueKey.isEmpty() ? ActiveMQDefaultConfiguration.getDefaultLastValueKey() : new SimpleString(defaultLastValueKey));
       addressSettings.setDefaultNonDestructive(defaultNonDestructive);
       addressSettings.setDefaultExclusiveQueue(defaultExclusiveQueue);
       addressSettings.setDefaultGroupRebalance(defaultGroupRebalance);
       addressSettings.setDefaultGroupBuckets(defaultGroupBuckets);
-      addressSettings.setDefaultGroupFirstKey(defaultGroupFirstKey == null ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() : new SimpleString(defaultGroupFirstKey));
+      addressSettings.setDefaultGroupFirstKey(defaultGroupFirstKey == null || defaultGroupFirstKey.isEmpty() ? ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() : new SimpleString(defaultGroupFirstKey));
       addressSettings.setDefaultMaxConsumers(defaultMaxConsumers);
       addressSettings.setDefaultPurgeOnNoConsumers(defaultPurgeOnNoConsumers);
       addressSettings.setDefaultConsumersBeforeDispatch(defaultConsumersBeforeDispatch);
       addressSettings.setDefaultDelayBeforeDispatch(defaultDelayBeforeDispatch);
-      addressSettings.setDefaultQueueRoutingType(defaultQueueRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : RoutingType.valueOf(defaultQueueRoutingType.toUpperCase()));
-      addressSettings.setDefaultAddressRoutingType(defaultAddressRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : RoutingType.valueOf(defaultAddressRoutingType.toUpperCase()));
+      addressSettings.setDefaultQueueRoutingType(defaultQueueRoutingType == null || defaultQueueRoutingType.isEmpty() ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : RoutingType.valueOf(defaultQueueRoutingType.toUpperCase()));
+      addressSettings.setDefaultAddressRoutingType(defaultAddressRoutingType == null || defaultAddressRoutingType.isEmpty() ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : RoutingType.valueOf(defaultAddressRoutingType.toUpperCase()));
       addressSettings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
       addressSettings.setDefaultRingSize(defaultRingSize);
       addressSettings.setAutoDeleteCreatedQueues(autoDeleteCreatedQueues);
@@ -3454,11 +3454,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setRedeliveryCollisionAvoidanceFactor(redeliveryCollisionAvoidanceFactor);
       addressSettings.setRetroactiveMessageCount(retroactiveMessageCount);
       addressSettings.setAutoCreateDeadLetterResources(autoCreateDeadLetterResources);
-      addressSettings.setDeadLetterQueuePrefix(deadLetterQueuePrefix == null ? null : new SimpleString(deadLetterQueuePrefix));
-      addressSettings.setDeadLetterQueueSuffix(deadLetterQueueSuffix == null ? null : new SimpleString(deadLetterQueueSuffix));
+      addressSettings.setDeadLetterQueuePrefix(deadLetterQueuePrefix == null || deadLetterQueuePrefix.isEmpty() ? null : new SimpleString(deadLetterQueuePrefix));
+      addressSettings.setDeadLetterQueueSuffix(deadLetterQueueSuffix == null || deadLetterQueueSuffix.isEmpty() ? null : new SimpleString(deadLetterQueueSuffix));
       addressSettings.setAutoCreateExpiryResources(autoCreateExpiryResources);
-      addressSettings.setExpiryQueuePrefix(expiryQueuePrefix == null ? null : new SimpleString(expiryQueuePrefix));
-      addressSettings.setExpiryQueueSuffix(expiryQueueSuffix == null ? null : new SimpleString(expiryQueueSuffix));
+      addressSettings.setExpiryQueuePrefix(expiryQueuePrefix == null || expiryQueuePrefix.isEmpty() ? null : new SimpleString(expiryQueuePrefix));
+      addressSettings.setExpiryQueueSuffix(expiryQueueSuffix == null || expiryQueueSuffix.isEmpty() ? null : new SimpleString(expiryQueueSuffix));
       addressSettings.setEnableMetrics(enableMetrics);
 
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
@@ -3572,7 +3572,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         TransformerConfiguration transformerConfiguration = transformerClassName == null ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
+         TransformerConfiguration transformerConfiguration = transformerClassName == null || transformerClassName.isEmpty() ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
          DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType));
          server.deployDivert(config);
          storageManager.storeDivertConfiguration(new PersistedDivertConfiguration(config));
@@ -3597,7 +3597,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         TransformerConfiguration transformerConfiguration = transformerClassName == null ? null :
+         TransformerConfiguration transformerConfiguration = transformerClassName == null  || transformerClassName.isEmpty() ? null :
             new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
 
          DivertConfiguration config = new DivertConfiguration().setName(name).setForwardingAddress(forwardingAddress).
@@ -3763,7 +3763,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         TransformerConfiguration transformerConfiguration = transformerClassName == null ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
+         TransformerConfiguration transformerConfiguration = transformerClassName == null || transformerClassName.isEmpty()  ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
          BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setHA(ha).setUser(user).setPassword(password);
 
          if (useDiscoveryGroup) {
@@ -3807,7 +3807,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         TransformerConfiguration transformerConfiguration = transformerClassName == null ? null : new TransformerConfiguration(transformerClassName);
+         TransformerConfiguration transformerConfiguration = transformerClassName == null || transformerClassName.isEmpty()  ? null : new TransformerConfiguration(transformerClassName);
          BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setHA(ha).setUser(user).setPassword(password);
 
          if (useDiscoveryGroup) {
@@ -4355,7 +4355,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          AuditLogger.resetUser(this.server, username, "****", roles, plaintext);
       }
 
-      String passwordToUse = password == null ? password : plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password);
+      String passwordToUse = password == null || password.isEmpty() ? password : plaintext ? password : PasswordMaskingUtil.getHashProcessor().hash(password);
 
       if (server.getSecurityManager() instanceof ActiveMQBasicSecurityManager) {
          ((ActiveMQBasicSecurityManager) server.getSecurityManager()).updateUser(username, passwordToUse, roles == null ? null : roles.split(","));

@@ -29,10 +29,12 @@ Once logged in you should be presented with a screen similar to.
 
 On the top right is small menu area you will see some icons.
 
-- `question mark` This will load the artemis documentation in the console main window
+- `question mark` This will open a menu with the following items
+    - `Help` This will navigate to the console user guide
+    - `About` this will load an about screen, here you will be able to see and validate versions
 - `person` will provide a drop down menu with
-- `about` this will load an about screen, here you will be able to see and validate versions
-- `log out` self descriptive.
+    - `Preferences` this will open the preferences page
+    - `Log out` self descriptive.
 
 #### Navigation Tabs
 
@@ -52,7 +54,7 @@ You can install further hawtio plugins if you wish to have further functionality
 
 ## Artemis Tab
 
-Click `Artemis` in the top navigation bar to see the Artemis specific plugin. (The Artemis tab won't appear if there is no broker in this JVM).  The Artemis plugin works very much the same as the JMX plugin however with a focus on interacting with an Artemis broker.
+Click `Artemis` in the left navigation bar to see the Artemis specific plugin. (The Artemis tab won't appear if there is no broker in this JVM).  The Artemis plugin works very much the same as the JMX plugin however with a focus on interacting with an Artemis broker.
 
 ### Tree View
 
