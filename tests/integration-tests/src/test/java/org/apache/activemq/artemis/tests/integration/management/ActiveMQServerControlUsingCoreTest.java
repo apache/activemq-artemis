@@ -1552,6 +1552,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void createBridge(String bridgeConfiguration) throws Exception {
+            proxy.invokeOperation("createBridge", bridgeConfiguration);
+         }
+
+         @Override
          public String listProducersInfoAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listProducersInfoAsJSON");
          }

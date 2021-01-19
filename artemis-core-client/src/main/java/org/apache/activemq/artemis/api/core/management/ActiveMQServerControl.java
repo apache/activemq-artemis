@@ -1679,6 +1679,10 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "Names of the bridges deployed on this server")
    String[] getBridgeNames();
 
+   /**
+    * @deprecated Deprecated in favour of {@link #createBridge(String)}
+    */
+   @Deprecated
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
@@ -1699,6 +1703,10 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "user", desc = "User name") String user,
                      @Parameter(name = "password", desc = "User password") String password) throws Exception;
 
+   /**
+    * @deprecated Deprecated in favour of {@link #createBridge(String)}
+    */
+   @Deprecated
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
@@ -1720,6 +1728,10 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "user", desc = "User name") String user,
                      @Parameter(name = "password", desc = "User password") String password) throws Exception;
 
+   /**
+    * @deprecated Deprecated in favour of {@link #createBridge(String)}
+    */
+   @Deprecated
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
@@ -1741,6 +1753,10 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "user", desc = "User name") String user,
                      @Parameter(name = "password", desc = "User password") String password) throws Exception;
 
+   /**
+    * @deprecated Deprecated in favour of {@link #createBridge(String)}
+    */
+   @Deprecated
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
@@ -1759,6 +1775,14 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "ha", desc = "Is it using HA") boolean ha,
                      @Parameter(name = "user", desc = "User name") String user,
                      @Parameter(name = "password", desc = "User password") String password) throws Exception;
+
+   /**
+    * Create a bridge.
+    *
+    * @param bridgeConfiguration the configuration of the queue in JSON format
+    */
+   @Operation(desc = "Create a bridge", impact = MBeanOperationInfo.ACTION)
+   void createBridge(@Parameter(name = "bridgeConfiguration", desc = "the configuration of the bridge in JSON format") String bridgeConfiguration) throws Exception;
 
    @Operation(desc = "Destroy a bridge", impact = MBeanOperationInfo.ACTION)
    void destroyBridge(@Parameter(name = "name", desc = "Name of the bridge") String name) throws Exception;
