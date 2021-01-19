@@ -1223,6 +1223,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          for (ActiveMQComponent component : this.protocolServices) {
             stopComponent(component);
          }
+         protocolServices.clear();
 
          final RemotingService remotingService = this.remotingService;
          if (remotingService != null) {
