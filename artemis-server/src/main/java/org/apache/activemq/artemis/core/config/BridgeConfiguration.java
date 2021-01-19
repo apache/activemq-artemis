@@ -16,16 +16,50 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
+import org.apache.activemq.artemis.utils.JsonLoader;
 
 public final class BridgeConfiguration implements Serializable {
 
    private static final long serialVersionUID = -1057244274380572226L;
+
+   public static String NAME = "name";
+   public static String QUEUE_NAME = "queue-name";
+   public static String FORWARDING_ADDRESS = "forwarding-address";
+   public static String FILTER_STRING = "filter-string";
+   public static String STATIC_CONNECTORS = "static-connectors";
+   public static String DISCOVERY_GROUP_NAME = "discovery-group-name";
+   public static String HA = "ha";
+   public static String TRANSFORMER_CONFIGURATION = "transformer-configuration";
+   public static String RETRY_INTERVAL = "retry-interval";
+   public static String RETRY_INTERVAL_MULTIPLIER = "retry-interval-multiplier";
+   public static String INITIAL_CONNECT_ATTEMPTS = "initial-connect-attempts";
+   public static String RECONNECT_ATTEMPTS = "reconnect-attempts";
+   public static String RECONNECT_ATTEMPTS_ON_SAME_NODE = "reconnect-attempts-on-same-node";
+   public static String USE_DUPLICATE_DETECTION = "use-duplicate-detection";
+   public static String CONFIRMATION_WINDOW_SIZE = "confirmation-window-size";
+   public static String PRODUCER_WINDOW_SIZE = "producer-window-size";
+   public static String CLIENT_FAILURE_CHECK_PERIOD = "client-failure-check-period";
+   public static String USER = "user";
+   public static String PASSWORD = "password";
+   public static String CONNECTION_TTL = "connection-ttl";
+   public static String MAX_RETRY_INTERVAL = "max-retry-interval";
+   public static String MIN_LARGE_MESSAGE_SIZE = "min-large-message-size";
+   public static String CALL_TIMEOUT = "call-timeout";
+   public static String ROUTING_TYPE = "routing-type";
 
    private String name = null;
 
@@ -79,6 +113,110 @@ public final class BridgeConfiguration implements Serializable {
    private ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType());
 
    public BridgeConfiguration() {
+   }
+
+   public BridgeConfiguration(String name) {
+      setName(name);
+   }
+
+   /**
+    * Set the value of a parameter based on its "key" {@code String}. Valid key names and corresponding {@code static}
+    * {@code final} are:
+    * <p><ul>
+    * <li>name: {@link #NAME}
+    * <li>queue-name: {@link #QUEUE_NAME}
+    * <li>forwarding-address: {@link #FORWARDING_ADDRESS}
+    * <li>filter-string: {@link #FILTER_STRING}
+    * <li>static-connectors: {@link #STATIC_CONNECTORS}
+    * <li>discovery-group-name: {@link #DISCOVERY_GROUP_NAME}
+    * <li>ha: {@link #HA}
+    * <li>transformer-configuration: {@link #TRANSFORMER_CONFIGURATION}
+    * <li>retry-interval: {@link #RETRY_INTERVAL}
+    * <li>RETRY-interval-multiplier: {@link #RETRY_INTERVAL_MULTIPLIER}
+    * <li>initial-connect-attempts: {@link #INITIAL_CONNECT_ATTEMPTS}
+    * <li>reconnect-attempts: {@link #RECONNECT_ATTEMPTS}
+    * <li>reconnect-attempts-on-same-node: {@link #RECONNECT_ATTEMPTS_ON_SAME_NODE}
+    * <li>use-duplicate-detection: {@link #USE_DUPLICATE_DETECTION}
+    * <li>confirmation-window-size: {@link #CONFIRMATION_WINDOW_SIZE}
+    * <li>producer-window-size: {@link #PRODUCER_WINDOW_SIZE}
+    * <li>client-failure-check-period: {@link #CLIENT_FAILURE_CHECK_PERIOD}
+    * <li>user: {@link #USER}
+    * <li>password: {@link #PASSWORD}
+    * <li>connection-ttl: {@link #CONNECTION_TTL}
+    * <li>max-retry-interval: {@link #MAX_RETRY_INTERVAL}
+    * <li>min-large-message-size: {@link #MIN_LARGE_MESSAGE_SIZE}
+    * <li>call-timeout: {@link #CALL_TIMEOUT}
+    * <li>routing-type: {@link #ROUTING_TYPE}
+    * </ul><p>
+    * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
+    * example, if you pass the value "TRUE" for the key "auto-created" the {@code String} "TRUE" will be converted to
+    * the {@code Boolean} {@code true}.
+    *
+    * @param key the key to set to the value
+    * @param value the value to set for the key
+    * @return this {@code BridgeConfiguration}
+    */
+   public BridgeConfiguration set(String key, String value) {
+      if (key != null) {
+         if (key.equals(NAME)) {
+            setName(value);
+         } else if (key.equals(QUEUE_NAME)) {
+            setQueueName(value);
+         } else if (key.equals(FORWARDING_ADDRESS)) {
+            setForwardingAddress(value);
+         } else if (key.equals(FILTER_STRING)) {
+            setFilterString(value);
+         } else if (key.equals(STATIC_CONNECTORS)) {
+            // convert JSON array to string list
+            List<String> stringList = JsonLoader.readArray(new StringReader(value)).stream()
+                    .map(v -> ((JsonString) v).getString())
+                    .collect(Collectors.toList());
+            setStaticConnectors(stringList);
+         } else if (key.equals(DISCOVERY_GROUP_NAME)) {
+            setDiscoveryGroupName(value);
+         } else if (key.equals(HA)) {
+            setHA(Boolean.parseBoolean(value));
+         } else if (key.equals(TRANSFORMER_CONFIGURATION)) {
+            // create a transformer instance from a JSON string
+            TransformerConfiguration transformerConfiguration = TransformerConfiguration.fromJSON(value);
+            if (transformerConfiguration != null) {
+               setTransformerConfiguration(transformerConfiguration);
+            }
+         } else if (key.equals(RETRY_INTERVAL)) {
+            setRetryInterval(Long.parseLong(value));
+         } else if (key.equals(RETRY_INTERVAL_MULTIPLIER)) {
+            setRetryIntervalMultiplier(Double.parseDouble(value));
+         } else if (key.equals(INITIAL_CONNECT_ATTEMPTS)) {
+            setInitialConnectAttempts(Integer.parseInt(value));
+         } else if (key.equals(RECONNECT_ATTEMPTS)) {
+            setReconnectAttempts(Integer.parseInt(value));
+         } else if (key.equals(RECONNECT_ATTEMPTS_ON_SAME_NODE)) {
+            setReconnectAttemptsOnSameNode(Integer.parseInt(value));
+         } else if (key.equals(USE_DUPLICATE_DETECTION)) {
+            setUseDuplicateDetection(Boolean.parseBoolean(value));
+         } else if (key.equals(CONFIRMATION_WINDOW_SIZE)) {
+            setConfirmationWindowSize(Integer.parseInt(value));
+         } else if (key.equals(PRODUCER_WINDOW_SIZE)) {
+            setProducerWindowSize(Integer.parseInt(value));
+         } else if (key.equals(CLIENT_FAILURE_CHECK_PERIOD)) {
+            setClientFailureCheckPeriod(Long.parseLong(value));
+         } else if (key.equals(USER)) {
+            setUser(value);
+         } else if (key.equals(PASSWORD)) {
+            setPassword(value);
+         } else if (key.equals(CONNECTION_TTL)) {
+            setConnectionTTL(Long.parseLong(value));
+         } else if (key.equals(MAX_RETRY_INTERVAL)) {
+            setMaxRetryInterval(Long.parseLong(value));
+         } else if (key.equals(MIN_LARGE_MESSAGE_SIZE)) {
+            setMinLargeMessageSize(Integer.parseInt(value));
+         } else if (key.equals(CALL_TIMEOUT)) {
+            setCallTimeout(Long.parseLong(value));
+         } else if (key.equals(ROUTING_TYPE)) {
+            setRoutingType(ComponentConfigurationRoutingType.valueOf(value));
+         }
+      }
+      return this;
    }
 
    public String getName() {
@@ -358,6 +496,119 @@ public final class BridgeConfiguration implements Serializable {
    public BridgeConfiguration setCallTimeout(long callTimeout) {
       this.callTimeout = callTimeout;
       return this;
+   }
+
+   /**
+    * This method returns a JSON-formatted {@code String} representation of this {@code BridgeConfiguration}. It is a
+    * simple collection of key/value pairs. The keys used are referenced in {@link #set(String, String)}.
+    *
+    * @return a JSON-formatted {@code String} representation of this {@code BridgeConfiguration}
+    */
+   public String toJSON() {
+      JsonObjectBuilder builder = JsonLoader.createObjectBuilder();
+
+      // string fields which default to null (only serialize if value is not null)
+
+      if (getName() != null) {
+         builder.add(NAME, getName());
+      }
+      if (getQueueName() != null) {
+         builder.add(QUEUE_NAME, getQueueName());
+      }
+      if (getForwardingAddress() != null) {
+         builder.add(FORWARDING_ADDRESS, getForwardingAddress());
+      }
+      if (getFilterString() != null) {
+         builder.add(FILTER_STRING, getFilterString());
+      }
+      if (getDiscoveryGroupName() != null) {
+         builder.add(DISCOVERY_GROUP_NAME, getDiscoveryGroupName());
+      }
+
+      // string fields which default to non-null values (always serialize)
+
+      addNullable(builder, USER, getUser());
+      addNullable(builder, PASSWORD, getPassword());
+
+      // primitive data type fields (always serialize)
+
+      builder.add(HA, isHA());
+      builder.add(RETRY_INTERVAL, getRetryInterval());
+      builder.add(RETRY_INTERVAL_MULTIPLIER, getRetryIntervalMultiplier());
+      builder.add(INITIAL_CONNECT_ATTEMPTS, getInitialConnectAttempts());
+      builder.add(RECONNECT_ATTEMPTS, getReconnectAttempts());
+      builder.add(RECONNECT_ATTEMPTS_ON_SAME_NODE, getReconnectAttemptsOnSameNode());
+      builder.add(USE_DUPLICATE_DETECTION, isUseDuplicateDetection());
+      builder.add(CONFIRMATION_WINDOW_SIZE, getConfirmationWindowSize());
+      builder.add(PRODUCER_WINDOW_SIZE, getProducerWindowSize());
+      builder.add(CLIENT_FAILURE_CHECK_PERIOD, getClientFailureCheckPeriod());
+      builder.add(CONNECTION_TTL, getConnectionTTL());
+      builder.add(MAX_RETRY_INTERVAL, getMaxRetryInterval());
+      builder.add(MIN_LARGE_MESSAGE_SIZE, getMinLargeMessageSize());
+      builder.add(CALL_TIMEOUT, getCallTimeout());
+
+      // complex fields (only serialize if value is not null)
+
+      if (getRoutingType() != null) {
+         builder.add(ROUTING_TYPE, getRoutingType().name());
+      }
+
+      final List<String> staticConnectors = getStaticConnectors();
+      if (staticConnectors != null) {
+         JsonArrayBuilder arrayBuilder = JsonLoader.createArrayBuilder();
+         staticConnectors.forEach(arrayBuilder::add);
+         builder.add(STATIC_CONNECTORS, arrayBuilder);
+      }
+
+      TransformerConfiguration tc = getTransformerConfiguration();
+      if (tc != null) {
+         JsonObjectBuilder tcBuilder = JsonLoader.createObjectBuilder().add(TransformerConfiguration.CLASS_NAME, tc.getClassName());
+         if (tc.getProperties() != null && tc.getProperties().size() > 0) {
+            JsonObjectBuilder propBuilder = JsonLoader.createObjectBuilder();
+            tc.getProperties().forEach(propBuilder::add);
+            tcBuilder.add(TransformerConfiguration.PROPERTIES, propBuilder);
+         }
+         builder.add(TRANSFORMER_CONFIGURATION, tcBuilder);
+      }
+
+      return builder.build().toString();
+   }
+
+   private static void addNullable(JsonObjectBuilder builder, String key, String value) {
+      if (value == null) {
+         builder.addNull(key);
+      } else {
+         builder.add(key, value);
+      }
+   }
+
+   /**
+    * This method returns a {@code BridgeConfiguration} created from the JSON-formatted input {@code String}. The input
+    * should be a simple object of key/value pairs. Valid keys are referenced in {@link #set(String, String)}.
+    *
+    * @param jsonString json string
+    * @return the {@code BridgeConfiguration} created from the JSON-formatted input {@code String}
+    */
+   public static BridgeConfiguration fromJSON(String jsonString) {
+      JsonObject json = JsonLoader.readObject(new StringReader(jsonString));
+
+      // name is the only required value
+      if (!json.containsKey(NAME)) {
+         return null;
+      }
+      BridgeConfiguration result = new BridgeConfiguration(json.getString(NAME));
+
+      for (Map.Entry<String, JsonValue> entry : json.entrySet()) {
+         if (entry.getValue().getValueType() == JsonValue.ValueType.STRING) {
+            result.set(entry.getKey(), ((JsonString) entry.getValue()).getString());
+         } else if (entry.getValue().getValueType() == JsonValue.ValueType.NULL) {
+            result.set(entry.getKey(), null);
+         } else {
+            result.set(entry.getKey(), entry.getValue().toString());
+         }
+      }
+
+      return result;
    }
 
    @Override

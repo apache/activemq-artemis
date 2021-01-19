@@ -16,7 +16,13 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import org.apache.activemq.artemis.utils.JsonLoader;
+
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +30,10 @@ public final class TransformerConfiguration implements Serializable {
 
    private static final long serialVersionUID = -1057244274380572226L;
 
-   private final String className;
+   public static final String CLASS_NAME = "class-name";
+   public static final String PROPERTIES = "properties";
 
+   private final String className;
    private Map<String, String> properties = new HashMap<>();
 
    public TransformerConfiguration(String className) {
@@ -38,6 +46,43 @@ public final class TransformerConfiguration implements Serializable {
 
    public Map<String, String> getProperties() {
       return properties;
+   }
+
+   /**
+    * This method returns a {@code TransformerConfiguration} created from the JSON-formatted input {@code String}.
+    * The input should contain these entries:
+    *
+    * <p><ul>
+    * <li>class-name - a string value,
+    * <li>properties - an object containing string key-value pairs.
+    * </ul></p>
+    *
+    * @param jsonString json string
+    * @return the {@code TransformerConfiguration} created from the JSON-formatted input {@code String}
+    */
+   public static TransformerConfiguration fromJSON(String jsonString) {
+      JsonObject json = JsonLoader.readObject(new StringReader(jsonString));
+
+      // name is the only required value
+      if (!json.containsKey(CLASS_NAME)) {
+         return null;
+      }
+
+      TransformerConfiguration result = new TransformerConfiguration(json.getString(CLASS_NAME));
+
+      if (json.containsKey(PROPERTIES)) {
+         HashMap<String, String> properties = new HashMap<>();
+         for (Map.Entry<String, JsonValue> propEntry: json.getJsonObject(PROPERTIES).entrySet()) {
+            if (propEntry.getValue().getValueType() == JsonValue.ValueType.STRING) {
+               properties.put(propEntry.getKey(), ((JsonString) propEntry.getValue()).getString());
+            } else {
+               properties.put(propEntry.getKey(), propEntry.getValue().toString());
+            }
+         }
+         result.setProperties(properties);
+      }
+
+      return result;
    }
 
    /**
