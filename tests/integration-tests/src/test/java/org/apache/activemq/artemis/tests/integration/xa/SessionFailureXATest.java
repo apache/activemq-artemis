@@ -21,6 +21,7 @@ import javax.transaction.xa.Xid;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -184,22 +185,37 @@ public class SessionFailureXATest extends ActiveMQTestBase {
       clientSession.setTransactionTimeout((int) TimeUnit.MINUTES.toMillis(10));
       clientSession.start();
       clientConsumer = clientSession.createConsumer(atestq);
-      m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
-      m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
-      m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
-      m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
 
+      HashSet<String> bodies = new HashSet<>();
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      assertOrTrack(xaEnd, m, bodies, "m1");
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      assertOrTrack(xaEnd, m, bodies, "m2");
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      assertOrTrack(xaEnd, m, bodies, "m3");
+      m = clientConsumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      assertOrTrack(xaEnd, m, bodies, "m4");
+
+      if (!xaEnd) {
+         // order is not guaranteed b/c the m4 async ack may not have been processed when there is no sync end call
+         assertEquals("got all bodies", 4, bodies.size());
+      }
+   }
+
+   private void assertOrTrack(boolean xaEnd, ClientMessage m, HashSet<String> bodies, String expected) {
+      final String body = m.getBodyBuffer().readString();
+      if (xaEnd) {
+         Assert.assertEquals(expected, body);
+      } else {
+         bodies.add(body);
+      }
    }
 }
