@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * Logger Code 60
  *
- * each message id must be 6 digits long starting with 22, the 3rd digit donates the level so
+ * each message id must be 6 digits long starting with 60, the 3rd digit donates the level so
  *
  * INF0  1
  * WARN  2
