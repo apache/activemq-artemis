@@ -106,10 +106,10 @@ public class NettyAcceptor extends AbstractAcceptor {
    private static final Logger logger = Logger.getLogger(NettyAcceptor.class);
 
 
-   public static String INVM_ACCEPTOR_TYPE = "IN-VM";
-   public static String NIO_ACCEPTOR_TYPE = "NIO";
-   public static String EPOLL_ACCEPTOR_TYPE = "EPOLL";
-   public static String KQUEUE_ACCEPTOR_TYPE = "KQUEUE";
+   public static final String INVM_ACCEPTOR_TYPE = "IN-VM";
+   public static final String NIO_ACCEPTOR_TYPE = "NIO";
+   public static final String EPOLL_ACCEPTOR_TYPE = "EPOLL";
+   public static final String KQUEUE_ACCEPTOR_TYPE = "KQUEUE";
 
    static {
       // Disable default Netty leak detection if the Netty leak detection level system properties are not in use
@@ -226,8 +226,6 @@ public class NettyAcceptor extends AbstractAcceptor {
    private final boolean httpUpgradeEnabled;
 
    private final long connectionsAllowed;
-
-   private Map<String, Object> extraConfigs;
 
    private final boolean autoStart;
 
