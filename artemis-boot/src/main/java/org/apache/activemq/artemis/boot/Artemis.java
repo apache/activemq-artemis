@@ -112,7 +112,7 @@ public class Artemis {
          }
       }
 
-      if (fileInstance != null) {
+      if (System.getProperty("java.io.tmpdir") == null && fileInstance != null) {
          System.setProperty("java.io.tmpdir", new File(fileInstance, "tmp").getCanonicalPath());
       }
 
