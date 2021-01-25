@@ -596,6 +596,37 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testFallbackConsumerAuthorization() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("a.c.b");
+      final SimpleString QUEUE = new SimpleString("a.c.b");
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+
+      Set<Role> aRoles = new HashSet<>();
+      aRoles.add(new Role("xyz", true, true, true, true, true, true, true, true, true, true));
+      server.getConfiguration().putSecurityRoles("a.*.b", aRoles);
+
+      Set<Role> bRoles = new HashSet<>();
+      bRoles.add(new Role("amq", true, true, true, true, true, true, true, true, true, true));
+      server.getConfiguration().putSecurityRoles("#", bRoles);
+
+      server.start();
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = addClientSession(cf.createSession("x", "x", false, true, true, false, 0));
+
+      try {
+         session.createConsumer(QUEUE);
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         assertTrue(e instanceof ActiveMQSecurityException);
+      }
+   }
+
+   @Test
    public void testJAASSecurityManagerFQQNAuthorizationWithJMS() throws Exception {
       final SimpleString ADDRESS = new SimpleString("address");
       final SimpleString QUEUE_A = new SimpleString("a");
