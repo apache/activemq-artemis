@@ -289,6 +289,9 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void callBrokerMessagePlugins(ActiveMQPluginRunnable<ActiveMQServerMessagePlugin> pluginRun) throws ActiveMQException;
 
+   boolean callBrokerMessagePluginsCanAccept(ServerConsumer serverConsumer,
+                                             MessageReference messageReference) throws ActiveMQException;
+
    void callBrokerBridgePlugins(ActiveMQPluginRunnable<ActiveMQServerBridgePlugin> pluginRun) throws ActiveMQException;
 
    void callBrokerCriticalPlugins(ActiveMQPluginRunnable<ActiveMQServerCriticalPlugin> pluginRun) throws ActiveMQException;

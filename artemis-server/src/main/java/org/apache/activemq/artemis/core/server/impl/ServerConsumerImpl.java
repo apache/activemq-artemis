@@ -404,6 +404,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
          return HandleStatus.BUSY;
       }
+      if (server.hasBrokerMessagePlugins() && !server.callBrokerMessagePluginsCanAccept(this, ref)) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Reference " + ref + " is not allowed to be consumed by " + this + " due to message plugin filter.");
+         }
+         return HandleStatus.NO_MATCH;
+      }
 
       synchronized (lock) {
          // If the consumer is stopped then we don't accept the message, it
