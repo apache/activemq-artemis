@@ -157,6 +157,7 @@ import org.apache.activemq.artemis.core.server.impl.jdbc.JdbcNodeManager;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
+import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQPluginRunnable;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
@@ -170,10 +171,8 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugi
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
-import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
-import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -3103,7 +3102,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.reloadManager = new ReloadManagerImpl(getScheduledPool(), executorFactory.getExecutor(), configuration.getConfigurationFileRefreshPeriod());
 
       if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
-         reloadManager.addCallback(configuration.getConfigurationUrl(), new ConfigurationFileReloader());
+         reloadManager.addCallback(configuration.getConfigurationUrl(), uri -> reloadConfigurationFile(uri));
       }
 
       if (System.getProperty("logging.configuration") != null) {
@@ -4190,22 +4189,23 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    }
 
-   private final class ConfigurationFileReloader implements ReloadCallback {
+   @Override
+   public void reloadConfigurationFile() throws Exception {
+      reloadConfigurationFile(configuration.getConfigurationUrl());
+   }
 
-      @Override
-      public void reload(URL uri) throws Exception {
-         Configuration config = new FileConfigurationParser().parseMainConfig(uri.openStream());
-         LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);
-         legacyJMSConfiguration.parseConfiguration(uri.openStream());
-         configuration.setSecurityRoles(config.getSecurityRoles());
-         configuration.setAddressesSettings(config.getAddressesSettings());
-         configuration.setDivertConfigurations(config.getDivertConfigurations());
-         configuration.setAddressConfigurations(config.getAddressConfigurations());
-         configuration.setQueueConfigs(config.getQueueConfigs());
-         configurationReloadDeployed.set(false);
-         if (isActive()) {
-            deployReloadableConfigFromConfiguration();
-         }
+   private void reloadConfigurationFile(URL uri) throws Exception {
+      Configuration config = new FileConfigurationParser().parseMainConfig(uri.openStream());
+      LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);
+      legacyJMSConfiguration.parseConfiguration(uri.openStream());
+      configuration.setSecurityRoles(config.getSecurityRoles());
+      configuration.setAddressesSettings(config.getAddressesSettings());
+      configuration.setDivertConfigurations(config.getDivertConfigurations());
+      configuration.setAddressConfigurations(config.getAddressConfigurations());
+      configuration.setQueueConfigs(config.getQueueConfigs());
+      configurationReloadDeployed.set(false);
+      if (isActive()) {
+         deployReloadableConfigFromConfiguration();
       }
    }
 

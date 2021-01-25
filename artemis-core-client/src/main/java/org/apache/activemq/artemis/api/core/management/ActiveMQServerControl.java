@@ -1903,5 +1903,8 @@ public interface ActiveMQServerControl {
                   @Parameter(name = "password", desc = "User's password") String password,
                   @Parameter(name = "roles", desc = "User's role (comma separated)") String roles,
                   @Parameter(name = "plaintext", desc = "whether or not to store the password in plaintext or hash it") boolean plaintext) throws Exception;
+
+   @Operation(desc = "forces the broker to reload its configuration file", impact = MBeanOperationInfo.ACTION)
+   void reloadConfigurationFile() throws Exception;
 }
 
