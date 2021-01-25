@@ -426,13 +426,13 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 ```xml
 <store>
    <database-store>
+      <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
       <jdbc-connection-url>jdbc:derby:data/derby/database-store;create=true</jdbc-connection-url>
       <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
       <message-table-name>MESSAGE_TABLE</message-table-name>
       <page-store-table-name>MESSAGE_TABLE</page-store-table-name>
       <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
       <node-manager-store-table-name>NODE_MANAGER_TABLE</node-manager-store-table-name>
-      <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
    </database-store>
 </store>
 ```
@@ -493,6 +493,7 @@ It is also possible to explicitly add the user and password rather than in the J
 ```xml
 <store>
    <database-store>
+      <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
       <jdbc-connection-url>jdbc:derby:data/derby/database-store;create=true</jdbc-connection-url>
       <jdbc-user>ENC(dasfn353cewc)</jdbc-user>
       <jdbc-password>ENC(ucwiurfjtew345)</jdbc-password>
@@ -501,10 +502,39 @@ It is also possible to explicitly add the user and password rather than in the J
       <page-store-table-name>MESSAGE_TABLE</page-store-table-name>
       <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
       <node-manager-store-table-name>NODE_MANAGER_TABLE</node-manager-store-table-name>
-      <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
    </database-store>
 </store>
 ```
+
+### Configuring JDBC connection pooling
+
+To configure Apache ActiveMQ Artemis to use a database with a JDBC connection pool
+you need to set the data source properties, for example:
+```xml
+<store>
+    <database-store>
+        <data-source-properties>
+            <data-source-property key="driverClassName" value="com.mysql.jdbc.Driver" />
+            <data-source-property key="url" value="jdbc:mysql://localhost:3306/artemis" />
+            <data-source-property key="username" value="artemis" />
+            <data-source-property key="password" value="artemis" />
+            <data-source-property key="poolPreparedStatements" value="true" />
+        </data-source-properties>
+        <bindings-table-name>BINDINGS</bindings-table-name>
+        <message-table-name>MESSAGES</message-table-name>
+        <large-message-table-name>LARGE_MESSAGES</large-message-table-name>
+        <page-store-table-name>PAGE_STORE</page-store-table-name>
+        <node-manager-store-table-name>NODE_MANAGER_STORE</node-manager-store-table-name>
+    </database-store>
+</store>
+```
+You can find the documentation of the data source properties at https://commons.apache.org/proper/commons-dbcp/configuration.html.
+
+To mask the value of a property you can use the same procedure used to [mask passwords](masking-passwords.md).
+
+Please note that the reconnection works only if there is no client sending messages. Instead, if there is an attempt
+to write to the journal's tables during the reconnection, then the broker will fail fast and shutdown.
+
 ## Zero Persistence
 
 In some situations, zero persistence is sometimes required for a
