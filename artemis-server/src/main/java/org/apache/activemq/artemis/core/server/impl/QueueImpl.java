@@ -3919,10 +3919,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          return;
       }
-      if (sorted) {
-         addSorted(refs, false);
-      } else {
-         addHead(refs, false);
+
+      // if the queue is non-destructive then any ack is ignored so no need to add messages back onto the queue
+      if (!isNonDestructive()) {
+         if (sorted) {
+            addSorted(refs, false);
+         } else {
+            addHead(refs, false);
+         }
       }
    }
 
