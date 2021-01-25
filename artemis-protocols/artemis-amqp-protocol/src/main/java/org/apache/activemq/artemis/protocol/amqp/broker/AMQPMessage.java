@@ -813,6 +813,20 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    public abstract int getMemoryEstimate();
 
    @Override
+   public Map<String, Object> toPropertyMap() {
+      Map map = new HashMap<>();
+      for (SimpleString name : getPropertyNames()) {
+         Object value = getObjectProperty(name.toString());
+         //some property is Binary, which is not available for management console
+         if (value instanceof Binary) {
+            value = ((Binary)value).getArray();
+         }
+         map.put(name.toString(), value);
+      }
+      return map;
+   }
+
+   @Override
    public ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
       try {
          return AmqpCoreConverter.toCore(

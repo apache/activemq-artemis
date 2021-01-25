@@ -20,6 +20,13 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.transport.amqp.client.AmqpClient;
+import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.Binary;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.jms.Connection;
@@ -81,6 +88,32 @@ public class JMXManagementTest extends JMSClientTestSupport {
 
       connection1.close();
       connection2.close();
+   }
+
+   @Test
+   public void testGetFirstMessage() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getQueueName());
+
+         session.begin();
+         AmqpMessage message = new AmqpMessage();
+         message.setApplicationProperty("TEST_BINARY", new Binary("TEST".getBytes()));
+         message.setApplicationProperty("TEST_STRING", "TEST");
+         message.setText("TEST");
+         sender.send(message);
+         session.commit();
+
+         SimpleString queue = new SimpleString(getQueueName());
+         QueueControl queueControl = createManagementControl(queue, queue);
+         String firstMessageAsJSON = queueControl.getFirstMessageAsJSON();
+         Assert.assertNotNull(firstMessageAsJSON);
+      } finally {
+         connection.close();
+      }
    }
 
    protected QueueControl createManagementControl(final SimpleString address,
