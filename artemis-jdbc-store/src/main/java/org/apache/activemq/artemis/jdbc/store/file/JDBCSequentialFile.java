@@ -302,11 +302,11 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public void close() throws Exception {
-      close(true);
+      close(true, true);
    }
 
    @Override
-   public void close(boolean waitOnSync) throws Exception {
+   public void close(boolean waitOnSync, boolean block) throws Exception {
       isOpen.set(false);
       if (waitOnSync) {
          sync();

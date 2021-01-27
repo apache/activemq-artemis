@@ -151,7 +151,16 @@ public class JournalFilesRepository {
    }
 
    public void clear() throws Exception {
+      for (JournalFile file : dataFiles) {
+         file.getFile().waitNotPending();
+      }
+
       dataFiles.clear();
+
+
+      for (JournalFile file : freeFiles) {
+         file.getFile().waitNotPending();
+      }
 
       freeFiles.clear();
 
@@ -410,7 +419,7 @@ public class JournalFilesRepository {
 
    private void damagedFile(JournalFile file) throws Exception {
       if (file.getFile().isOpen()) {
-         file.getFile().close(false);
+         file.getFile().close(false, false);
       }
       if (file.getFile().exists()) {
          final Path journalPath = file.getFile().getJavaFile().toPath();
@@ -529,9 +538,9 @@ public class JournalFilesRepository {
       }
    }
 
-   public void closeFile(final JournalFile file) throws Exception {
+   public void closeFile(final JournalFile file, boolean block) throws Exception {
       fileFactory.deactivateBuffer();
-      file.getFile().close();
+      file.getFile().close(true, block);
       if (!dataFiles.contains(file)) {
          // This is not a retry from openFile
          // If you don't check this then retries keep adding the same file into
@@ -659,7 +668,7 @@ public class JournalFilesRepository {
 
       long position = sequentialFile.position();
 
-      sequentialFile.close();
+      sequentialFile.close(false, false);
 
       if (logger.isTraceEnabled()) {
          logger.trace("Renaming file " + tmpFileName + " as " + fileName);
@@ -724,7 +733,7 @@ public class JournalFilesRepository {
 
       sf.position(position);
 
-      sf.close();
+      sf.close(false, false);
 
       return jf;
    }

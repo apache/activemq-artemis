@@ -99,8 +99,8 @@ public class ShutdownOnCriticalIOErrorMoveNextTest extends ActiveMQTestBase {
                                                       int fileSize) {
                   return new JournalImpl(ioExecutorFactory, fileSize, config.getJournalMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), config.getJournalFileOpenTimeout(), journalFF, "activemq-data", "amq", journalFF.getMaxIO(), 0, criticalErrorListener, config.getJournalMaxAtticFiles()) {
                      @Override
-                     protected void moveNextFile(boolean scheduleReclaim) throws Exception {
-                        super.moveNextFile(scheduleReclaim);
+                     protected void moveNextFile(boolean scheduleReclaim, boolean block) throws Exception {
+                        super.moveNextFile(scheduleReclaim, block);
                         if (blocked.get()) {
                            throw new IllegalStateException("forcibly down");
                         }

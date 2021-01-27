@@ -31,11 +31,23 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 
 public interface SequentialFile {
 
+   default boolean isPending() {
+      return false;
+   }
+
+   default void waitNotPending() {
+      return;
+   }
+
    boolean isOpen();
 
    boolean exists();
 
    void open() throws Exception;
+
+   default void afterComplete(Runnable run) {
+      run.run();
+   }
 
    /**
     * The maximum number of simultaneous writes accepted
@@ -64,6 +76,14 @@ public interface SequentialFile {
    void write(EncodingSupport bytes, boolean sync, IOCallback callback) throws Exception;
 
    void write(EncodingSupport bytes, boolean sync) throws Exception;
+
+   default void refUp() {
+
+   }
+
+   default void refDown() {
+
+   }
 
    /**
     * Write directly to the file without using any buffer
@@ -119,7 +139,7 @@ public interface SequentialFile {
 
    /** When closing a file from a finalize block, you cant wait on syncs or anything like that.
     *  otherwise the VM may hung. Especially on the testsuite. */
-   default void close(boolean waitSync) throws Exception {
+   default void close(boolean waitSync, boolean blockOnWait) throws Exception {
       // by default most implementations are just using the regular close..
       // if the close needs sync, please use this parameter or fianlizations may get stuck
       close();
