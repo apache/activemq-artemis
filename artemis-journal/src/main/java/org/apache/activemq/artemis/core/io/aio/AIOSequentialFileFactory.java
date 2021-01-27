@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.io.aio;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
 import java.nio.ByteBuffer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -303,6 +305,10 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
             // if we stop libaioContext before we finish this, we will never get confirmation on items previously sent
             if (!pendingClose.await(1, TimeUnit.MINUTES)) {
                ActiveMQJournalLogger.LOGGER.warn("Timeout on waiting for asynchronous close");
+               final ThreadInfo[] threads = ManagementFactory.getThreadMXBean().dumpAllThreads(true, true);
+               for (ThreadInfo threadInfo : threads) {
+                  ActiveMQJournalLogger.LOGGER.warn(threadInfo.toString());
+               }
             }
          } catch (Throwable throwableToLog) {
             logger.warn(throwableToLog.getMessage(), throwableToLog);
