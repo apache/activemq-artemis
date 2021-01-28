@@ -69,6 +69,10 @@ public class FederationConnection {
          }
       }
 
+      if (!config.isHA()) {
+         serverLocator.setUseTopologyForLoadBalancing(false);
+      }
+
       serverLocator.setConnectionTTL(config.getConnectionTTL());
       serverLocator.setClientFailureCheckPeriod(config.getClientFailureCheckPeriod());
       serverLocator.setReconnectAttempts(config.getReconnectAttempts());
