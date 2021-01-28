@@ -961,7 +961,7 @@ public class StompV11Test extends StompTestBase {
 
       //Nack makes the message be dropped.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receive(100);
       Assert.assertNull(message);
    }
 
@@ -1041,7 +1041,7 @@ public class StompV11Test extends StompTestBase {
 
       //Nack makes the message be dropped.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receive(100);
       Assert.assertNull(message);
    }
 
@@ -1201,7 +1201,7 @@ public class StompV11Test extends StompTestBase {
 
       //no messages can be received.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receive(100);
       Assert.assertNull(message);
    }
 
@@ -1238,7 +1238,7 @@ public class StompV11Test extends StompTestBase {
       MessageConsumer consumer = session.createConsumer(queue);
       Message message = consumer.receive(10000);
       Assert.assertNotNull(message);
-      message = consumer.receive(1000);
+      message = consumer.receive(100);
       Assert.assertNull(message);
    }
 
@@ -1267,7 +1267,7 @@ public class StompV11Test extends StompTestBase {
 
       //no messages can be received.
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receive(100);
       Assert.assertNull(message);
    }
 
@@ -1310,7 +1310,7 @@ public class StompV11Test extends StompTestBase {
          instanceLog.debug("Legal: " + message.getText());
       }
 
-      message = (TextMessage) consumer.receive(1000);
+      message = (TextMessage) consumer.receive(100);
 
       Assert.assertNull(message);
    }
@@ -1425,7 +1425,7 @@ public class StompV11Test extends StompTestBase {
 
       abortTransaction(conn, "tx1");
 
-      frame = conn.receiveFrame(500);
+      frame = conn.receiveFrame(100);
 
       assertNull(frame);
 
@@ -1565,8 +1565,6 @@ public class StompV11Test extends StompTestBase {
       unsubscribe(conn, getName(), null, false, true);
 
       Wait.assertTrue(() -> server.locateQueue(queueName) == null);
-
-      assertNull(server.locateQueue(queueName));
 
       conn.disconnect();
    }
@@ -1776,7 +1774,7 @@ public class StompV11Test extends StompTestBase {
       long tmsg = message.getJMSTimestamp();
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1000);
 
-      assertNull(consumer.receive(1000));
+      assertNull(consumer.receive(100));
 
       conn.disconnect();
    }
@@ -1894,7 +1892,7 @@ public class StompV11Test extends StompTestBase {
 
       sendJmsMessage(getName(), topic);
 
-      frame = conn.receiveFrame(1000);
+      frame = conn.receiveFrame(100);
       assertNull(frame);
 
       conn.disconnect();
@@ -1908,7 +1906,7 @@ public class StompV11Test extends StompTestBase {
 
       send(conn, getTopicPrefix() + getTopicName(), null, "Hello World");
 
-      ClientStompFrame frame = conn.receiveFrame(2000);
+      ClientStompFrame frame = conn.receiveFrame(100);
 
       assertNull(frame);
 
@@ -1944,7 +1942,7 @@ public class StompV11Test extends StompTestBase {
 
       // message should not be received as it was auto-acked
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receive(100);
       Assert.assertNull(message);
    }
 
@@ -1990,7 +1988,7 @@ public class StompV11Test extends StompTestBase {
 
       // message should not be received since message was acknowledged by the client
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(1000);
+      Message message = consumer.receive(100);
       Assert.assertNull(message);
    }
 
@@ -2179,7 +2177,7 @@ public class StompV11Test extends StompTestBase {
       // send a message to our queue
       sendJmsMessage("second message");
 
-      frame = conn.receiveFrame(1000);
+      frame = conn.receiveFrame(100);
       assertNull(frame);
 
       conn.disconnect();

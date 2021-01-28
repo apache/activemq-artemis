@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV11;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV12;
+import org.apache.activemq.artemis.utils.Wait;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -1592,13 +1593,8 @@ public class StompV12Test extends StompTestBase {
 
       unsubscribe(conn, getName(), null, false, true);
 
-      long start = System.currentTimeMillis();
       SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
-      while (server.locateQueue(queueName) != null && (System.currentTimeMillis() - start) < 5000) {
-         Thread.sleep(100);
-      }
-
-      assertNull(server.locateQueue(queueName));
+      Wait.assertTrue(() -> server.locateQueue(queueName) == null);
 
       conn.disconnect();
    }
@@ -1946,7 +1942,7 @@ public class StompV12Test extends StompTestBase {
       // send a message on the same connection => it should not be received
       send(conn, getTopicPrefix() + getTopicName(), null, "Hello World");
 
-      ClientStompFrame frame = conn.receiveFrame(2000);
+      ClientStompFrame frame = conn.receiveFrame(100);
 
       Assert.assertNull(frame);
 
@@ -2391,6 +2387,8 @@ public class StompV12Test extends StompTestBase {
 
    private void internalSubscribeWithZeroConsumerWindowSize(String consumerWindowSizeHeader, boolean ack) throws Exception {
       final int TIMEOUT = 1000;
+      // to be used when we expect it to be null
+      final int NEGATIVE_TIMEOUT = 100;
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.CLIENT_INDIVIDUAL, null, null, getQueuePrefix() + getQueueName(), true, 0, consumerWindowSizeHeader);
 
@@ -2400,7 +2398,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertNotNull(frame1);
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame1.getCommand());
       String messageID = frame1.getHeader(Stomp.Headers.Message.MESSAGE_ID);
-      ClientStompFrame frame2 = conn.receiveFrame(TIMEOUT);
+      ClientStompFrame frame2 = conn.receiveFrame(NEGATIVE_TIMEOUT);
       Assert.assertNull(frame2);
       if (ack) {
          ack(conn, messageID);
@@ -2421,7 +2419,7 @@ public class StompV12Test extends StompTestBase {
       conn.disconnect();
 
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(TIMEOUT);
+      Message message = consumer.receive(100);
       Assert.assertNull(message);
    }
 
@@ -2465,7 +2463,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertNotNull(frame2);
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame2.getCommand());
       String messageID2 = frame2.getHeader(Stomp.Headers.Message.MESSAGE_ID);
-      ClientStompFrame frame3 = conn.receiveFrame(TIMEOUT);
+      ClientStompFrame frame3 = conn.receiveFrame(100);
       Assert.assertNull(frame3);
       if (ack) {
          ack(conn, messageID1);
@@ -2488,7 +2486,7 @@ public class StompV12Test extends StompTestBase {
       conn.disconnect();
 
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(TIMEOUT);
+      Message message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 
@@ -2515,7 +2513,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertNotNull(frame2);
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame2.getCommand());
       String messageID2 = frame2.getHeader(Stomp.Headers.Message.MESSAGE_ID);
-      ClientStompFrame frame3 = conn.receiveFrame(TIMEOUT);
+      ClientStompFrame frame3 = conn.receiveFrame(100);
       Assert.assertNull(frame3);
       // this should clear the first 2 messages since we're using CLIENT ack mode
       ack(conn, messageID2);
@@ -2533,7 +2531,7 @@ public class StompV12Test extends StompTestBase {
       conn.disconnect();
 
       MessageConsumer consumer = session.createConsumer(queue);
-      Message message = consumer.receive(TIMEOUT);
+      Message message = consumer.receiveNoWait();
       Assert.assertNull(message);
    }
 

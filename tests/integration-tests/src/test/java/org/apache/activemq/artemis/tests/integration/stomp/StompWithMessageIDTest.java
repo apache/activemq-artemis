@@ -72,7 +72,7 @@ public class StompWithMessageIDTest extends StompTestBase {
       message = (TextMessage) consumer.receive(1000);
       Assert.assertNotNull(message);
 
-      message = (TextMessage) consumer.receive(2000);
+      message = (TextMessage) consumer.receive(100);
       Assert.assertNull(message);
 
       conn.disconnect();
