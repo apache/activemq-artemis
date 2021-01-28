@@ -349,8 +349,8 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       }
 
       @Override
-      public synchronized void close(boolean waitSync) throws IOException, InterruptedException, ActiveMQException {
-         super.close(waitSync);
+      public synchronized void close(boolean waitSync, boolean block) throws IOException, InterruptedException, ActiveMQException {
+         super.close(waitSync, block);
          openFiles.remove(TestableSequentialFile.this);
       }
    }

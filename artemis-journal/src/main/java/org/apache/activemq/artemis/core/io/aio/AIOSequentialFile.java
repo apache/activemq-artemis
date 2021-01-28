@@ -18,12 +18,9 @@ package org.apache.activemq.artemis.core.io.aio;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
 import java.nio.ByteBuffer;
 import java.util.PriorityQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -35,20 +32,23 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
-import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.AutomaticLatch;
 import org.jboss.logging.Logger;
 
-public class AIOSequentialFile extends AbstractSequentialFile {
+/** This class is implementing Runnable to reuse a callback to close it. */
+public class AIOSequentialFile extends AbstractSequentialFile  {
 
    private static final Logger logger = Logger.getLogger(AIOSequentialFileFactory.class);
 
    private boolean opened = false;
 
+   private volatile boolean pendingClose = false;
+
    private LibaioFile aioFile;
 
    private final AIOSequentialFileFactory aioFactory;
 
-   private final ReusableLatch pendingCallbacks = new ReusableLatch();
+   private final AutomaticLatch pendingCallbacks = new AutomaticLatch();
 
    /**
     * Used to determine the next writing sequence
@@ -79,6 +79,16 @@ public class AIOSequentialFile extends AbstractSequentialFile {
    }
 
    @Override
+   public void refUp() {
+      pendingCallbacks.countUp();
+   }
+
+   @Override
+   public void refDown() {
+      pendingCallbacks.countDown();
+   }
+
+   @Override
    public ByteBuffer map(int position, long size) throws IOException {
       return null;
    }
@@ -101,43 +111,57 @@ public class AIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public void close() throws IOException, InterruptedException, ActiveMQException {
-      close(true);
+      close(true, false);
    }
 
+   private void actualClose() {
+      try {
+         aioFile.close();
+      } catch (IOException e) {
+         factory.onIOError(e, e.getMessage(), this);
+      } finally {
+         aioFile = null;
+         pendingClose = false;
+         aioFactory.afterClose();
+      }
+   }
 
    @Override
-   public synchronized void close(boolean waitSync) throws IOException, InterruptedException, ActiveMQException {
+   public boolean isPending() {
+      return pendingClose;
+   }
+
+   @Override
+   public void waitNotPending() {
+      try {
+         pendingCallbacks.await();
+      } catch (InterruptedException e) {
+         // nothing to be done here, other than log it and forward it
+         logger.warn(e.getMessage(), e);
+         Thread.currentThread().interrupt();
+      }
+   }
+
+   @Override
+   public synchronized void close(boolean waitSync, boolean blockOnWait) throws IOException, InterruptedException, ActiveMQException {
       if (!opened) {
          return;
       }
 
+      aioFactory.beforeClose();
+
       super.close();
-      try {
-         if (waitSync) {
-            final String fileName = this.getFileName();
-            try {
-               int waitCount = 0;
-               while (!pendingCallbacks.await(10, TimeUnit.SECONDS)) {
-                  waitCount++;
-                  if (waitCount == 1) {
-                     final ThreadInfo[] threads = ManagementFactory.getThreadMXBean().dumpAllThreads(true, true);
-                     for (ThreadInfo threadInfo : threads) {
-                        ActiveMQJournalLogger.LOGGER.warn(threadInfo.toString());
-                     }
-                     factory.onIOError(new IOException("Timeout on close"), "Timeout on close", this);
-                  }
-                  ActiveMQJournalLogger.LOGGER.warn("waiting pending callbacks on " + fileName + " from " + (waitCount * 10) + " seconds!");
-               }
-            } catch (InterruptedException e) {
-               ActiveMQJournalLogger.LOGGER.warn("interrupted while waiting pending callbacks on " + fileName, e);
-               throw e;
-            }
+      opened = false;
+      pendingClose = true;
+      this.timedBuffer = null;
+
+      if (waitSync) {
+         pendingCallbacks.afterCompletion(this::actualClose);
+         if (blockOnWait) {
+            pendingCallbacks.await();
          }
-      }  finally {
-         opened = false;
-         timedBuffer = null;
-         aioFile.close();
-         aioFile = null;
+      } else {
+         actualClose();
       }
    }
 
@@ -160,6 +184,9 @@ public class AIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public synchronized void open(final int maxIO, final boolean useExecutor) throws ActiveMQException {
+      if (opened) {
+         return;
+      }
       opened = true;
 
       if (logger.isTraceEnabled()) {
@@ -334,7 +361,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public String toString() {
-      return "AIOSequentialFile:" + getFile().getAbsolutePath();
+      return "AIOSequentialFile{" + getFileName() + ", opened=" + opened + ", pendingClose=" + pendingClose + ", pendingCallbacks=" + pendingCallbacks + '}';
    }
 
    // Private methods
@@ -342,7 +369,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
 
    private void checkOpened() {
       if (aioFile == null || !opened) {
-         throw new NullPointerException("File not opened, file=null");
+         throw new NullPointerException("File not opened, file=null on fileName = " + getFileName());
       }
    }
 

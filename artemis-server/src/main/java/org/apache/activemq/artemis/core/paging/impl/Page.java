@@ -508,7 +508,7 @@ public final class Page implements Comparable<Page> {
          // leave it to the soft cache to decide when to release it now
          pageCache = null;
       }
-      file.close(waitSync);
+      file.close(waitSync, waitSync);
 
       Set<PageSubscriptionCounter> counters = getPendingCounters();
       if (counters != null) {
