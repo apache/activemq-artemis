@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -327,6 +326,30 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
       assertEquals("Ensure Message count", 0, lastValueQueue.getMessageCount());
       assertEquals("Ensure Message count", 0, lastValueQueue.getLastValueKeys().size());
 
+   }
+
+   @Test
+   public void testMessageCount() throws Exception {
+      sendMessage(CoreConnection, NON_DESTRUCTIVE_QUEUE_NAME);
+
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(NON_DESTRUCTIVE_QUEUE_NAME));
+      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+
+      //Consume Once
+      receive(CoreConnection, NON_DESTRUCTIVE_QUEUE_NAME);
+      assertEquals("Ensure Message count", 1, queueBinding.getQueue().getMessageCount());
+
+      sendMessage(CoreConnection, NON_DESTRUCTIVE_QUEUE_NAME);
+      assertEquals("Ensure Message count", 2, queueBinding.getQueue().getMessageCount());
+
+      //Consume Again as should be non-destructive
+      receive(CoreConnection, NON_DESTRUCTIVE_QUEUE_NAME);
+      assertEquals("Ensure Message count", 2, queueBinding.getQueue().getMessageCount());
+
+      QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + NON_DESTRUCTIVE_QUEUE_NAME);
+      control.removeAllMessages();
+
+      assertEquals("Message count after clearing queue via queue control should be 0", 0, queueBinding.getQueue().getMessageCount());
    }
 
 
