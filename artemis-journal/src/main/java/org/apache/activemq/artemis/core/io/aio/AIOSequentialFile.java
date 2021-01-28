@@ -111,7 +111,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    @Override
    public void close() throws IOException, InterruptedException, ActiveMQException {
-      close(true, false);
+      close(true, true);
    }
 
    private void actualClose() {
