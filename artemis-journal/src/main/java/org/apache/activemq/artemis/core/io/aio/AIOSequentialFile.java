@@ -138,6 +138,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
          short retryPending = 0;
          do {
             pendingCallbacks.await(1, TimeUnit.SECONDS);
+            retryPending++;
          }
          while(pendingClose && retryPending < 60);
          if (pendingClose) {
