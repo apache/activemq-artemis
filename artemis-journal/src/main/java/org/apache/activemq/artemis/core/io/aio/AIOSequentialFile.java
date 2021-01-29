@@ -134,7 +134,9 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    @Override
    public void waitNotPending() {
       try {
-         pendingCallbacks.await();
+         do {
+            pendingCallbacks.await();
+         } while(pendingClose);
       } catch (InterruptedException e) {
          // nothing to be done here, other than log it and forward it
          logger.warn(e.getMessage(), e);
@@ -184,6 +186,8 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    @Override
    public synchronized void open(final int maxIO, final boolean useExecutor) throws ActiveMQException {
+      // in case we are opening a file that was just closed, we need to wait previous executions to be done
+      waitNotPending();
       if (opened) {
          return;
       }
