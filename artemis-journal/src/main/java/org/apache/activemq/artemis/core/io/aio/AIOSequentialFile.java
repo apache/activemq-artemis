@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.PriorityQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -134,10 +135,14 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    @Override
    public void waitNotPending() {
       try {
+         short retryPending = 0;
          do {
-            pendingCallbacks.await();
+            pendingCallbacks.await(1, TimeUnit.SECONDS);
          }
-         while(pendingClose);
+         while(pendingClose && retryPending < 60);
+         if (pendingClose) {
+            AIOSequentialFileFactory.threadDump("File " + getFileName() + " still has pending IO before closing it");
+         }
       } catch (InterruptedException e) {
          // nothing to be done here, other than log it and forward it
          logger.warn(e.getMessage(), e);

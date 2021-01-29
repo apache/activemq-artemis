@@ -304,11 +304,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          try {
             // if we stop libaioContext before we finish this, we will never get confirmation on items previously sent
             if (!pendingClose.await(1, TimeUnit.MINUTES)) {
-               ActiveMQJournalLogger.LOGGER.warn("Timeout on waiting for asynchronous close");
-               final ThreadInfo[] threads = ManagementFactory.getThreadMXBean().dumpAllThreads(true, true);
-               for (ThreadInfo threadInfo : threads) {
-                  ActiveMQJournalLogger.LOGGER.warn(threadInfo.toString());
-               }
+               threadDump("Timeout on waiting for asynchronous close");
             }
          } catch (Throwable throwableToLog) {
             logger.warn(throwableToLog.getMessage(), throwableToLog);
@@ -333,6 +329,13 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       }
    }
 
+   static void threadDump(String message) {
+      ActiveMQJournalLogger.LOGGER.warn(message);
+      final ThreadInfo[] threads = ManagementFactory.getThreadMXBean().dumpAllThreads(true, true);
+      for (ThreadInfo threadInfo : threads) {
+         ActiveMQJournalLogger.LOGGER.warn(threadInfo.toString());
+      }
+   }
 
    /**
     * The same callback is used for Runnable executor.
