@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.util.FileIOUtil;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
-import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Rule;

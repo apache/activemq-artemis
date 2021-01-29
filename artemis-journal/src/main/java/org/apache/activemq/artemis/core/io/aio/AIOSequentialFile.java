@@ -136,7 +136,8 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
       try {
          do {
             pendingCallbacks.await();
-         } while(pendingClose);
+         }
+         while(pendingClose);
       } catch (InterruptedException e) {
          // nothing to be done here, other than log it and forward it
          logger.warn(e.getMessage(), e);
