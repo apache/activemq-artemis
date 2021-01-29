@@ -174,10 +174,10 @@ public class LastValueQueue extends QueueImpl {
 
             map.put(prop, hr);
 
-            super.addTail(hr, direct);
+            super.addTail(hr, isNonDestructive() ? false : direct);
          }
       } else {
-         super.addTail(ref, direct);
+         super.addTail(ref, isNonDestructive() ? false : direct);
       }
    }
 
