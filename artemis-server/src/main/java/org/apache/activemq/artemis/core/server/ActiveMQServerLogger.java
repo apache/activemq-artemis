@@ -1048,7 +1048,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorExpiringReferencesNoBindings(SimpleString expiryAddress);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222147, value = "Messages are being expired on queue{0}. However there is no expiry queue configured, hence messages will be dropped.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222147, value = "Messages are being expired on queue {0}. However there is no expiry queue configured, hence messages will be dropped.", format = Message.Format.MESSAGE_FORMAT)
    void errorExpiringReferencesNoQueue(SimpleString name);
 
    @LogMessage(level = Logger.Level.WARN)
