@@ -829,6 +829,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    @Override
    public ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
       try {
+         ensureScanning();
          return AmqpCoreConverter.toCore(
             this, coreMessageObjectPools, header, messageAnnotations, properties, lazyDecodeApplicationProperties(), getBody(), getFooter());
       } catch (Exception e) {
