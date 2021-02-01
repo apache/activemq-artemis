@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.AutomaticLatch;
+import org.apache.activemq.artemis.utils.Waiter;
 import org.jboss.logging.Logger;
 
 /** This class is implementing Runnable to reuse a callback to close it. */
@@ -118,8 +119,9 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    private void actualClose() {
       try {
          aioFile.close();
-      } catch (IOException e) {
-         factory.onIOError(e, e.getMessage(), this);
+      } catch (Throwable e) {
+         // an exception here would means a double
+         logger.debug("Exeption while closing file - " + e.getMessage(), e);
       } finally {
          aioFile = null;
          pendingClose = false;
@@ -135,14 +137,15 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    @Override
    public void waitNotPending() {
       try {
-         short retryPending = 0;
-         do {
-            pendingCallbacks.await(1, TimeUnit.SECONDS);
-            retryPending++;
+         for (short retryPending = 0; pendingClose && retryPending < 60; retryPending++) {
+            if (pendingCallbacks.await(1, TimeUnit.SECONDS)) {
+               break;
+            }
          }
-         while(pendingClose && retryPending < 60);
          if (pendingClose) {
-            AIOSequentialFileFactory.threadDump("File " + getFileName() + " still has pending IO before closing it");
+            if (!Waiter.waitFor(() -> !pendingClose, TimeUnit.SECONDS, 60, TimeUnit.NANOSECONDS, 1000)) {
+               AIOSequentialFileFactory.threadDump("File " + getFileName() + " still has pending IO before closing it");
+            }
          }
       } catch (InterruptedException e) {
          // nothing to be done here, other than log it and forward it
@@ -153,6 +156,9 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    @Override
    public synchronized void close(boolean waitSync, boolean blockOnWait) throws IOException, InterruptedException, ActiveMQException {
+      // a double call on close, should result on it waitingNotPending before another close is called
+      waitNotPending();
+
       if (!opened) {
          return;
       }
@@ -332,14 +338,20 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    void done(AIOSequentialFileFactory.AIOSequentialCallback callback) {
       if (callback.writeSequence == -1) {
-         callback.sequentialDone();
-         pendingCallbacks.countDown();
+         try {
+            callback.sequentialDone();
+         } finally {
+            pendingCallbacks.countDown();
+         }
       }
 
       if (callback.writeSequence == nextReadSequence) {
          nextReadSequence++;
-         callback.sequentialDone();
-         pendingCallbacks.countDown();
+         try {
+            callback.sequentialDone();
+         } finally {
+            pendingCallbacks.countDown();
+         }
          flushCallbacks();
       } else {
          pendingCallbackList.add(callback);
@@ -350,9 +362,12 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    private void flushCallbacks() {
       while (!pendingCallbackList.isEmpty() && pendingCallbackList.peek().writeSequence == nextReadSequence) {
          AIOSequentialFileFactory.AIOSequentialCallback callback = pendingCallbackList.poll();
-         callback.sequentialDone();
-         nextReadSequence++;
-         pendingCallbacks.countDown();
+         try {
+            callback.sequentialDone();
+         } finally {
+            nextReadSequence++;
+            pendingCallbacks.countDown();
+         }
       }
    }
 

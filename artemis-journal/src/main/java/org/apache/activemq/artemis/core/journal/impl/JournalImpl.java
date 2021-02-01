@@ -2578,16 +2578,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       setJournalState(JournalState.STOPPED);
 
-      if (providedIOThreadPool == null) {
-         threadPool.shutdown();
-
-         if (!threadPool.awaitTermination(120, TimeUnit.SECONDS)) {
-            threadPool.shutdownNow();
-         }
-         threadPool = null;
-         ioExecutorFactory = null;
-      }
-
 
       journalLock.writeLock().lock();
       try {
@@ -2612,6 +2602,19 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       } finally {
          journalLock.writeLock().unlock();
       }
+
+      // I have to shutdown the pool after
+      // otherwise pending closes will not succeed in certain races
+      if (providedIOThreadPool == null) {
+         threadPool.shutdown();
+
+         if (!threadPool.awaitTermination(120, TimeUnit.SECONDS)) {
+            threadPool.shutdownNow();
+         }
+         threadPool = null;
+         ioExecutorFactory = null;
+      }
+
    }
 
    @Override
