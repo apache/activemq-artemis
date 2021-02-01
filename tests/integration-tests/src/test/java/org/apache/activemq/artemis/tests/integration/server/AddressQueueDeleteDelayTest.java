@@ -41,6 +41,7 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
    private static final Logger log = Logger.getLogger(AddressQueueDeleteDelayTest.class);
 
    public static final int DURATION_MILLIS = 30_000;
+   public static final int NEGATIVE_DURATION_MILLIS = 1_000;
    public static final int SLEEP_MILLIS = 100;
 
    private ActiveMQServer server;
@@ -196,7 +197,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       session.createQueue(new QueueConfiguration(queue).setAddress(address));
       session.deleteQueue(queue);
 
-      assertFalse(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+      Thread.sleep(1000); // waiting some time so the delay would kick in if misconfigured
+      Assert.assertTrue(server.getAddressInfo(address) != null);
    }
 
    @Test
@@ -213,7 +215,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       session.createQueue(new QueueConfiguration(queue).setAddress(address));
       session.deleteQueue(queue);
 
-      assertFalse(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
+      Thread.sleep(1000); // waiting some time so the delay would kick in if misconfigured
+      Assert.assertTrue(server.getAddressInfo(address) != null);
    }
 
    @Override
