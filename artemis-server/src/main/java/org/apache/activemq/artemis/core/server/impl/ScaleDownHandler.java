@@ -124,9 +124,11 @@ public class ScaleDownHandler {
                for (Binding binding : bindings.getBindings()) {
                   if (binding instanceof LocalQueueBinding) {
                      Queue queue = ((LocalQueueBinding) binding).getQueue();
-                     // as part of scale down we will cancel any scheduled message and pass it to theWhile we scan for the queues we will also cancel any scheduled messages and deliver them right away
-                     queue.deliverScheduledMessages();
-                     queues.add(queue);
+                     if (!queue.isTemporary()) {
+                        // as part of scale down we will cancel any scheduled message and pass it to theWhile we scan for the queues we will also cancel any scheduled messages and deliver them right away
+                        queue.deliverScheduledMessages();
+                        queues.add(queue);
+                     }
                   }
                }
             }
