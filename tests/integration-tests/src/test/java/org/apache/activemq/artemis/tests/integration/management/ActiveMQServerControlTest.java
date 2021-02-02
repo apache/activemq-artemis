@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +61,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -1824,6 +1826,96 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                  -1, // producerWindowSize
                                  ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, connectorConfig.getName(), // liveConnector
                                  false, false, null, null);
+
+      checkResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(name));
+      String[] bridgeNames = serverControl.getBridgeNames();
+      assertEquals(1, bridgeNames.length);
+      assertEquals(name, bridgeNames[0]);
+
+      BridgeControl bridgeControl = ManagementControlHelper.createBridgeControl(name, mbeanServer);
+      assertEquals(name, bridgeControl.getName());
+      assertTrue(bridgeControl.isStarted());
+
+      // check that a message sent to the sourceAddress is put in the tagetQueue
+      ClientProducer producer = session.createProducer(sourceAddress);
+      ClientMessage message = session.createMessage(false);
+      String text = RandomUtil.randomString();
+      message.putStringProperty("prop", text);
+      producer.send(message);
+
+      session.start();
+
+      ClientConsumer targetConsumer = session.createConsumer(targetQueue);
+      message = targetConsumer.receive(5000);
+      assertNotNull(message);
+      assertEquals(text, message.getStringProperty("prop"));
+
+      ClientConsumer sourceConsumer = session.createConsumer(sourceQueue);
+      assertNull(sourceConsumer.receiveImmediate());
+
+      serverControl.destroyBridge(name);
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(name));
+      assertEquals(0, serverControl.getBridgeNames().length);
+
+      // check that a message is no longer diverted
+      message = session.createMessage(false);
+      String text2 = RandomUtil.randomString();
+      message.putStringProperty("prop", text2);
+      producer.send(message);
+
+      assertNull(targetConsumer.receiveImmediate());
+      message = sourceConsumer.receive(5000);
+      assertNotNull(message);
+      assertEquals(text2, message.getStringProperty("prop"));
+
+      sourceConsumer.close();
+      targetConsumer.close();
+
+      session.deleteQueue(sourceQueue);
+      session.deleteQueue(targetQueue);
+
+      session.close();
+
+      locator.close();
+   }
+
+   @Test
+   public void testCreateAndDestroyBridgeFromJson() throws Exception {
+      String name = RandomUtil.randomString();
+      String sourceAddress = RandomUtil.randomString();
+      String sourceQueue = RandomUtil.randomString();
+      String targetAddress = RandomUtil.randomString();
+      String targetQueue = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(name));
+      assertEquals(0, serverControl.getBridgeNames().length);
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(locator);
+      ClientSession session = csf.createSession();
+
+      if (legacyCreateQueue) {
+         session.createQueue(sourceAddress, RoutingType.ANYCAST, sourceQueue);
+         session.createQueue(targetAddress, RoutingType.ANYCAST, targetQueue);
+      } else {
+         session.createQueue(new QueueConfiguration(sourceQueue).setAddress(sourceAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+         session.createQueue(new QueueConfiguration(targetQueue).setAddress(targetAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      }
+
+      BridgeConfiguration bridgeConfiguration = new BridgeConfiguration(name)
+         .setQueueName(sourceQueue)
+         .setForwardingAddress(targetAddress)
+         .setUseDuplicateDetection(false)
+         .setConfirmationWindowSize(1)
+         .setProducerWindowSize(-1)
+         .setStaticConnectors(Collections.singletonList(connectorConfig.getName()))
+         .setHA(false)
+         .setUser(null)
+         .setPassword(null);
+      serverControl.createBridge(bridgeConfiguration.toJSON());
 
       checkResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(name));
       String[] bridgeNames = serverControl.getBridgeNames();

@@ -3823,6 +3823,29 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public void createBridge(String bridgeConfigurationAsJson) throws Exception {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.createBridge(this.server, bridgeConfigurationAsJson);
+      }
+      checkStarted();
+
+      clearIO();
+
+      try {
+         // when the BridgeConfiguration is passed through createBridge all of its defaults get set which we return to the caller
+         BridgeConfiguration bridgeConfiguration = BridgeConfiguration.fromJSON(bridgeConfigurationAsJson);
+         if (bridgeConfiguration == null) {
+            throw ActiveMQMessageBundle.BUNDLE.failedToParseJson(bridgeConfigurationAsJson);
+         }
+         server.deployBridge(bridgeConfiguration);
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String listBrokerConnections() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.listBrokerConnections();
