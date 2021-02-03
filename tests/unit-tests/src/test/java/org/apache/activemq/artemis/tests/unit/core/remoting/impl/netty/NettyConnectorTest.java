@@ -332,7 +332,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testSystemPropertyOverridesActiveMQ() throws Exception {
+   public void testActiveMQOverridesSystemProperty() throws Exception {
       BufferHandler handler = new BufferHandler() {
          @Override
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
@@ -343,15 +343,15 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
-      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "openssl-client-side-keystore.jks");
-      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "openssl-client-side-truststore.jks");
-      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "openssl-client-side-keystore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "openssl-client-side-truststore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
 
-      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "bad path");
-      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "bad password");
-      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "bad path");
-      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "bad path");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "bad password");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "bad path");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
 
       connector.start();
       Assert.assertTrue(connector.isStarted());
