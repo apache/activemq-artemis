@@ -528,7 +528,7 @@ public final class Page implements Comparable<Page> {
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debugf("Deleting pageNr=%d on store %d", pageId, storeName);
+         logger.debugf("Deleting pageNr=%d on store %s", pageId, storeName);
       }
 
       final List<Long> largeMessageIds;
