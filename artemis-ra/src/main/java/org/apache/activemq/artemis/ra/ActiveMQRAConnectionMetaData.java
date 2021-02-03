@@ -16,14 +16,35 @@
  */
 package org.apache.activemq.artemis.ra;
 
+import java.io.IOException;
+import java.io.InputStream;
 import javax.jms.ConnectionMetaData;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.Vector;
 
 /**
  * This class implements javax.jms.ConnectionMetaData
  */
 public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
+
+   public static final String DEFAULT_PROP_FILE_NAME = "jms-version.properties";
+
+   private static final String JMS_VERSION_NAME;
+   private static final int JMS_MAJOR_VERSION;
+   private static final int JMS_MINOR_VERSION;
+   static {
+      Properties versionProps = new Properties();
+      try (InputStream in = ActiveMQRAConnectionMetaData.class.getClassLoader().getResourceAsStream(DEFAULT_PROP_FILE_NAME)) {
+         if (in != null) {
+            versionProps.load(in);
+         }
+      } catch (IOException e) {
+      }
+      JMS_VERSION_NAME = versionProps.getProperty("activemq.version.implementation.versionName", "2.0");
+      JMS_MAJOR_VERSION = Integer.valueOf(versionProps.getProperty("activemq.version.implementation.majorVersion", "2"));
+      JMS_MINOR_VERSION = Integer.valueOf(versionProps.getProperty("activemq.version.implementation.minorVersion", "0"));
+   }
 
    /**
     * Constructor
@@ -44,8 +65,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
       if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getJMSVersion()");
       }
-
-      return "2.0";
+      return JMS_VERSION_NAME;
    }
 
    /**
@@ -58,8 +78,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
       if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getJMSMajorVersion()");
       }
-
-      return 2;
+      return JMS_MAJOR_VERSION;
    }
 
    /**
@@ -72,8 +91,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
       if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("getJMSMinorVersion()");
       }
-
-      return 0;
+      return JMS_MINOR_VERSION;
    }
 
    /**

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.JAKARTAEE;
+
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.After;
@@ -44,6 +46,11 @@ public class JmsReplyToTempTopicTest extends VersionedBase {
       combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, SNAPSHOT});
       combinations.add(new Object[]{SNAPSHOT, SNAPSHOT, ONE_FIVE});
       combinations.add(new Object[]{SNAPSHOT, SNAPSHOT, SNAPSHOT});
+      combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, JAKARTAEE});
+      combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, SNAPSHOT});
+      combinations.add(new Object[]{JAKARTAEE, SNAPSHOT, JAKARTAEE});
+      combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, ONE_FIVE});
+      combinations.add(new Object[]{JAKARTAEE, ONE_FIVE, JAKARTAEE});
       return combinations;
    }
 
@@ -78,7 +85,11 @@ public class JmsReplyToTempTopicTest extends VersionedBase {
          @Override
          public void run() {
             try {
-               evaluate(receiverClassloader, "jmsReplyToTempTopic/receiveMessages.groovy", receiver);
+               if (JAKARTAEE.equals(receiver)) {
+                  evaluate(receiverClassloader, "jakartaReplyToTempTopic/receiveMessages.groovy", receiver);
+               } else {
+                  evaluate(receiverClassloader, "jmsReplyToTempTopic/receiveMessages.groovy", receiver);
+               }
             } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
@@ -94,7 +105,11 @@ public class JmsReplyToTempTopicTest extends VersionedBase {
          @Override
          public void run() {
             try {
-               evaluate(senderClassloader, "jmsReplyToTempTopic/sendMessagesAddress.groovy", sender);
+               if (JAKARTAEE.equals(sender)) {
+                  evaluate(senderClassloader, "jakartaReplyToTempTopic/sendMessagesAddress.groovy", sender);
+               } else {
+                  evaluate(senderClassloader, "jmsReplyToTempTopic/sendMessagesAddress.groovy", sender);
+               }
             } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();

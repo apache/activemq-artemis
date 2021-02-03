@@ -47,11 +47,15 @@
       <module>artemis-jms-client</module>
       <module>artemis-jms-client-all</module>
       <module>artemis-jms-client-osgi</module>
+      <module>artemis-jakarta-client</module>
       <module>artemis-jms-server</module>
+      <module>artemis-jakarta-server</module>
       <module>artemis-journal</module>
       <module>artemis-ra</module>
+      <module>artemis-jakarta-ra</module>
       <module>artemis-rest</module>
       <module>artemis-service-extensions</module>
+      <module>artemis-jakarta-service-extensions</module>
       <module>artemis-jdbc-store</module>
       <module>artemis-maven-plugin</module>
       <module>artemis-server-osgi</module>
@@ -119,6 +123,12 @@
       <geronimo.ejb.3.0.spec.version>1.0.1</geronimo.ejb.3.0.spec.version>
       <geronimo.jta.1.1.spec.version>1.1.1</geronimo.jta.1.1.spec.version>
       <geronimo.jms.2.spec.version>1.0-alpha-2</geronimo.jms.2.spec.version>
+      <jakarta.json-api.version>2.0.0</jakarta.json-api.version>
+      <jakarta.annotation-api.version>2.0.0</jakarta.annotation-api.version>
+      <jakarta.ejb-api.version>4.0.0</jakarta.ejb-api.version>
+      <jakarta.resource-api.version>2.0.0</jakarta.resource-api.version>
+      <jakarta.transaction-api.version>2.0.0</jakarta.transaction-api.version>
+      <jakarta.jms-api.version>3.0.0</jakarta.jms-api.version>
       <weld.version>2.4.0.Final</weld.version>
       <arquillian-weld-embedded.version>2.0.0.Beta3</arquillian-weld-embedded.version>
       <owb.version>1.7.0</owb.version>
@@ -130,12 +140,14 @@
       <version.micrometer>1.6.1</version.micrometer>
       <hamcrest.version>2.1</hamcrest.version>
       <surefire.version>2.22.2</surefire.version>
+      <!-- for JakrtaEE -->
+      <version.batavia>1.0.5.Final</version.batavia>
 
       <!-- used on tests -->
       <groovy.version>2.5.10</groovy.version>
       <vertx.version>3.9.4</vertx.version>
 
-      <owasp.version>1.4.3</owasp.version>
+      <owasp.version>6.1.0</owasp.version>
       <spring.version>5.1.7.RELEASE</spring.version>
 
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
@@ -442,7 +454,42 @@
             <version>${geronimo.jms.2.spec.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
-
+         <dependency>
+            <groupId>jakarta.jms</groupId>
+            <artifactId>jakarta.jms-api</artifactId>
+            <version>${jakarta.jms-api.version}</version>
+            <!-- License: EPL 2.0 -->
+        </dependency>
+        <dependency>
+           <groupId>jakarta.transaction</groupId>
+           <artifactId>jakarta.transaction-api</artifactId>
+           <version>${jakarta.transaction-api.version}</version>
+            <!-- License: EPL 2.0 -->
+        </dependency>
+        <dependency>
+           <groupId>jakarta.json</groupId>
+           <artifactId>jakarta.json-api</artifactId>
+           <version>${jakarta.json-api.version}</version>
+            <!-- License: EPL 2.0 -->
+        </dependency>
+        <dependency>
+           <groupId>jakarta.ejb</groupId>
+           <artifactId>jakarta.ejb-api</artifactId>
+           <version>${jakarta.ejb-api.version}</version>
+            <!-- License: EPL 2.0 -->
+        </dependency>
+        <dependency>
+           <groupId>jakarta.annotation</groupId>
+           <artifactId>jakarta.annotation-api</artifactId>
+           <version>${jakarta.annotation-api.version}</version>
+            <!-- License: EPL 2.0 -->
+        </dependency>
+        <dependency>
+           <groupId>jakarta.resource</groupId>
+           <artifactId>jakarta.resource-api</artifactId>
+           <version>${jakarta.resource-api.version}</version>
+            <!-- License: EPL 2.0 -->
+        </dependency>
          <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -1503,6 +1550,11 @@
                <artifactId>maven-deploy-plugin</artifactId>
                <version>2.7</version>
             </plugin>
+            <plugin>
+              <groupId>org.wildfly.extras.batavia</groupId>
+              <artifactId>transformer-tools-mvn</artifactId>
+              <version>${version.batavia}</version>
+          </plugin>
 
             <plugin>
                <inherited>true</inherited>
@@ -1815,8 +1867,6 @@
                </artifactItems>
             </configuration>
          </plugin>
-
-
       </plugins>
    </build>
 

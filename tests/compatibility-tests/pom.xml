@@ -334,6 +334,34 @@
                      </libList>
                      <variableName>ARTEMIS-SNAPSHOT</variableName>
                   </configuration>
+               </execution><!-- The executions of dependency-scan will calculate dependencies for each specific version used here on this testsuite. -->
+               <execution>
+                  <id>jakartaee</id>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
+                  <configuration>
+                     <libListWithDeps>
+                        <arg>org.apache.activemq:artemis-core-client:${project.version}</arg>
+                        <arg>org.apache.activemq:artemis-commons:${project.version}</arg>
+                        <arg>org.apache.activemq:artemis-selector:${project.version}</arg>
+                        <arg>org.apache.activemq:artemis-server:${project.version}</arg>
+                        <arg>org.apache.activemq:artemis-journal:${project.version}</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:${project.version}</arg>
+                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                     </libListWithDeps>
+                     <libList>
+                        <arg>jakarta.json:jakarta.json-api:${jakarta.json-api.version}</arg>
+                        <arg>jakarta.transaction:jakarta.transaction-api:${jakarta.transaction-api.version}</arg>
+                        <arg>org.apache.activemq:artemis-jakarta-server:${project.version}</arg>
+                        <arg>org.apache.activemq:artemis-jakarta-client:${project.version}</arg>
+                        <arg>org.apache.activemq:artemis-jakarta-service-extensions:${project.version}</arg>
+                        <arg>jakarta.jms:jakarta.jms-api:${jakarta.jms-api.version}</arg>
+                        <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                     </libList>
+                     <variableName>ARTEMIS-JAKARTAEE</variableName>
+                  </configuration>
                </execution>
                <execution>
                   <phase>compile</phase>
@@ -638,6 +666,10 @@
                   <property>
                      <name>ARTEMIS-270</name>
                      <value>${ARTEMIS-270}</value>
+                  </property>
+                  <property>
+                     <name>ARTEMIS-JAKARTAEE</name>
+                     <value>${ARTEMIS-JAKARTAEE}</value>
                   </property>
                </systemProperties>
                <skipTests>${skipCompatibilityTests}</skipTests>

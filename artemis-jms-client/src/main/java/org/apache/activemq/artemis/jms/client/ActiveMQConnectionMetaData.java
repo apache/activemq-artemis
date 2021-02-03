@@ -16,9 +16,13 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
+
+import java.io.IOException;
+import java.io.InputStream;
 import javax.jms.ConnectionMetaData;
 import javax.jms.JMSException;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.Vector;
 
 import org.apache.activemq.artemis.core.version.Version;
@@ -27,6 +31,24 @@ import org.apache.activemq.artemis.core.version.Version;
  * ActiveMQ Artemis implementation of a JMS ConnectionMetaData.
  */
 public class ActiveMQConnectionMetaData implements ConnectionMetaData {
+   public static final String DEFAULT_PROP_FILE_NAME = "jms-version.properties";
+
+   private static final String JMS_VERSION_NAME;
+   private static final int JMS_MAJOR_VERSION;
+   private static final int JMS_MINOR_VERSION;
+   static {
+      Properties versionProps = new Properties();
+      try (InputStream in = ActiveMQConnectionMetaData.class.getClassLoader().getResourceAsStream(DEFAULT_PROP_FILE_NAME)) {
+         if (in != null) {
+            versionProps.load(in);
+         }
+      } catch (IOException e) {
+      }
+      JMS_VERSION_NAME = versionProps.getProperty("activemq.version.implementation.versionName", "2.0");
+      JMS_MAJOR_VERSION = Integer.valueOf(versionProps.getProperty("activemq.version.implementation.majorVersion", "2"));
+      JMS_MINOR_VERSION = Integer.valueOf(versionProps.getProperty("activemq.version.implementation.minorVersion", "0"));
+   }
+
    // Constants -----------------------------------------------------
 
    private static final String ACTIVEMQ = "ActiveMQ";
@@ -50,17 +72,17 @@ public class ActiveMQConnectionMetaData implements ConnectionMetaData {
 
    @Override
    public String getJMSVersion() throws JMSException {
-      return "2.0";
+      return JMS_VERSION_NAME;
    }
 
    @Override
    public int getJMSMajorVersion() throws JMSException {
-      return 2;
+      return JMS_MAJOR_VERSION;
    }
 
    @Override
    public int getJMSMinorVersion() throws JMSException {
-      return 0;
+      return JMS_MINOR_VERSION;
    }
 
    @Override
