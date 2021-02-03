@@ -81,16 +81,6 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    }
 
    @Override
-   public void refUp() {
-      pendingCallbacks.countUp();
-   }
-
-   @Override
-   public void refDown() {
-      pendingCallbacks.countDown();
-   }
-
-   @Override
    public ByteBuffer map(int position, long size) throws IOException {
       return null;
    }
@@ -337,12 +327,10 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    }
 
    void done(AIOSequentialFileFactory.AIOSequentialCallback callback) {
+      pendingCallbacks.countDown();
+
       if (callback.writeSequence == -1) {
-         try {
-            callback.sequentialDone();
-         } finally {
-            pendingCallbacks.countDown();
-         }
+         callback.sequentialDone();
       }
 
       if (callback.writeSequence == nextReadSequence) {
@@ -350,9 +338,8 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
          try {
             callback.sequentialDone();
          } finally {
-            pendingCallbacks.countDown();
+            flushCallbacks();
          }
-         flushCallbacks();
       } else {
          pendingCallbackList.add(callback);
       }
@@ -366,7 +353,6 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
             callback.sequentialDone();
          } finally {
             nextReadSequence++;
-            pendingCallbacks.countDown();
          }
       }
    }

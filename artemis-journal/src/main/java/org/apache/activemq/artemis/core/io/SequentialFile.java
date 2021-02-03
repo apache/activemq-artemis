@@ -77,13 +77,6 @@ public interface SequentialFile {
 
    void write(EncodingSupport bytes, boolean sync) throws Exception;
 
-   default void refUp() {
-
-   }
-
-   default void refDown() {
-
-   }
 
    /**
     * Write directly to the file without using any buffer
