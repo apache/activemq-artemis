@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.JAKARTAEE;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,6 +46,12 @@ public class JmsReplyToQueueTest extends VersionedBase {
       combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, SNAPSHOT});
       combinations.add(new Object[]{SNAPSHOT, SNAPSHOT, ONE_FIVE});
       combinations.add(new Object[]{SNAPSHOT, SNAPSHOT, SNAPSHOT});
+      combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, JAKARTAEE});
+      combinations.add(new Object[]{JAKARTAEE, SNAPSHOT, SNAPSHOT});
+      combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, SNAPSHOT});
+      combinations.add(new Object[]{JAKARTAEE, SNAPSHOT, JAKARTAEE});
+      combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, ONE_FIVE});
+      combinations.add(new Object[]{JAKARTAEE, ONE_FIVE, JAKARTAEE});
       return combinations;
    }
 
@@ -78,7 +86,11 @@ public class JmsReplyToQueueTest extends VersionedBase {
          @Override
          public void run() {
             try {
-               evaluate(receiverClassloader, "jmsReplyToQueue/receiveMessages.groovy", receiver);
+               if (JAKARTAEE.equals(receiver)) {
+                  evaluate(receiverClassloader, "jakartaReplyToQueue/receiveMessages.groovy", receiver);
+               } else {
+                  evaluate(receiverClassloader, "jmsReplyToQueue/receiveMessages.groovy", receiver);
+               }
             } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
@@ -94,7 +106,11 @@ public class JmsReplyToQueueTest extends VersionedBase {
          @Override
          public void run() {
             try {
-               evaluate(senderClassloader, "jmsReplyToQueue/sendMessagesAddress.groovy", sender);
+               if (JAKARTAEE.equals(sender)) {
+                  evaluate(senderClassloader, "jakartaReplyToQueue/sendMessagesAddress.groovy", sender);
+               } else {
+                  evaluate(senderClassloader, "jmsReplyToQueue/sendMessagesAddress.groovy", sender);
+               }
             } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();

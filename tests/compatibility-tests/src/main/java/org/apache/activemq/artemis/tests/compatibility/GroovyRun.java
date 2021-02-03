@@ -28,6 +28,7 @@ import groovy.lang.GroovyShell;
 public class GroovyRun {
 
    public static final String SNAPSHOT = "ARTEMIS-SNAPSHOT";
+   public static final String JAKARTAEE = "ARTEMIS-JAKARTAEE";
    public static final String ONE_FIVE = "ARTEMIS-155";
    public static final String ONE_FOUR = "ARTEMIS-140";
    public static final String TWO_ZERO = "ARTEMIS-200";
