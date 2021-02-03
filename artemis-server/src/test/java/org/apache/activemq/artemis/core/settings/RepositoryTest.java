@@ -76,6 +76,29 @@ public class RepositoryTest extends ActiveMQTestBase {
       Assert.assertEquals("leaf", repo.getMatch("b"));
    }
 
+   @Test
+   public void testMultipleMatchesHasRightOrder() {
+      HierarchicalRepository<String> repository = new HierarchicalObjectRepository<>();
+      repository.addMatch("a.b.c.d.e.f", "a.b.c.d.e.f");//1
+      repository.addMatch("a.b.c.d.e.*", "a.b.c.d.e.*");//2
+      repository.addMatch("a.*.*.*.*.*", "a.*.*.*.*.*");//3
+      repository.addMatch("*.b.c.d.*.f", "*.b.c.d.*.f");//4
+      repository.addMatch("*.b.*.d.*.f", "*.b.*.d.*.f");//5
+      repository.addMatch("a.b.c.d.e.#", "a.b.c.d.e.#");//6
+
+      String val = repository.getMatch("a.b.c.d.e.f");//matches all
+      Assert.assertEquals("a.b.c.d.e.f", val);
+      val = repository.getMatch("a.b.c.d.e.x");//matches 2,3,6
+      Assert.assertEquals("a.b.c.d.e.*", val);
+      val = repository.getMatch("a.b.x.d.x.f");//matches 3,5
+      Assert.assertEquals("a.*.*.*.*.*", val);
+      val = repository.getMatch("x.b.c.d.e.f");//matches 4,5
+      Assert.assertEquals("*.b.c.d.*.f", val);
+      val = repository.getMatch("x.b.x.d.e.f");//matches 5
+      Assert.assertEquals("*.b.*.d.*.f", val);
+      val = repository.getMatch("a.b.c.d.e.f.g");//matches 6
+      Assert.assertEquals("a.b.c.d.e.#", val);
+   }
 
    @Test
    public void testMatchingDocsCustomUnderscorDelimiter() throws Throwable {
