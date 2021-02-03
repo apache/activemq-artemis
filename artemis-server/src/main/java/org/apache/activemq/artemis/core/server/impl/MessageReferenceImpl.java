@@ -86,7 +86,9 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    // Static --------------------------------------------------------
 
-   private static final int memoryOffset = 64;
+   // This value has been computed by using https://github.com/openjdk/jol
+   // on HotSpot 64-bit VM COOPS, 8-byte alignment
+   private static final int memoryOffset = 72;
 
    // Constructors --------------------------------------------------
 
