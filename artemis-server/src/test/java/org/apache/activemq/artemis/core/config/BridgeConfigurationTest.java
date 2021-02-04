@@ -97,7 +97,7 @@ public class BridgeConfigurationTest {
       Assert.assertEquals("-1", jsonObject.get(BridgeConfiguration.RECONNECT_ATTEMPTS).toString());
       Assert.assertEquals("10", jsonObject.get(BridgeConfiguration.RECONNECT_ATTEMPTS_ON_SAME_NODE).toString());
       Assert.assertEquals("true", jsonObject.get(BridgeConfiguration.USE_DUPLICATE_DETECTION).toString());
-      Assert.assertEquals("-1", jsonObject.get(BridgeConfiguration.CONFIRMATION_WINDOW_SIZE).toString());
+      Assert.assertEquals("10485760", jsonObject.get(BridgeConfiguration.CONFIRMATION_WINDOW_SIZE).toString());
       Assert.assertEquals("-1", jsonObject.get(BridgeConfiguration.PRODUCER_WINDOW_SIZE).toString());
       Assert.assertEquals("30000", jsonObject.get(BridgeConfiguration.CLIENT_FAILURE_CHECK_PERIOD).toString());
       Assert.assertEquals("2000", jsonObject.get(BridgeConfiguration.MAX_RETRY_INTERVAL).toString());

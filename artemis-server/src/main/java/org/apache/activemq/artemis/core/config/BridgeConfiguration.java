@@ -89,7 +89,7 @@ public final class BridgeConfiguration implements Serializable {
 
    private boolean useDuplicateDetection = ActiveMQDefaultConfiguration.isDefaultBridgeDuplicateDetection();
 
-   private int confirmationWindowSize = ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
+   private int confirmationWindowSize = ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize();
 
    // disable flow control
    private int producerWindowSize = ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize();
