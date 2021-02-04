@@ -2011,6 +2011,37 @@ public class BridgeTest extends ActiveMQTestBase {
       assertEquals(transformer, ((BridgeImpl) bridge).getTransformer());
    }
 
+   @Test
+   public void testDefaultConfirmationWindowSize() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("myAddress");
+      final SimpleString QUEUE = new SimpleString("myQueue");
+      final SimpleString FORWARDING_ADDRESS = new SimpleString("myForwardingAddress");
+      final SimpleString FORWARDING_QUEUE = new SimpleString("myForwardingQueue");
+      final String BRIDGE = "myBridge";
+
+      Configuration config = createDefaultConfig(0, isNetty()).addConnectorConfiguration("myConnector", new TransportConfiguration(getConnector()));
+      ActiveMQServer server = addServer(new ActiveMQServerImpl(config));
+      server.start();
+      server.waitForActivation(100, TimeUnit.MILLISECONDS);
+      server.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(new QueueConfiguration(FORWARDING_QUEUE).setAddress(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.deployBridge(new BridgeConfiguration()
+                             .setName(BRIDGE)
+                             .setQueueName(QUEUE.toString())
+                             .setForwardingAddress(FORWARDING_ADDRESS.toString())
+                             .setStaticConnectors(List.of("myConnector")));
+
+      // now we actually have to use the bridge to make sure it connected correctly
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(getConnector())));
+      ClientSessionFactory sf = addSessionFactory(locator.createSessionFactory());
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      ClientProducer producer = addClientProducer(session.createProducer(ADDRESS));
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(FORWARDING_QUEUE));
+      session.start();
+      producer.send(session.createMessage(true));
+      Assert.assertNotNull(consumer.receive(200));
+   }
+
    /**
     * It will inspect the journal directly and determine if there are queues on this journal,
     *
