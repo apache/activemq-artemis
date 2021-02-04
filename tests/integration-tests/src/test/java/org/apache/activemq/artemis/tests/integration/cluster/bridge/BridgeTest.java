@@ -2025,11 +2025,13 @@ public class BridgeTest extends ActiveMQTestBase {
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
       server.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       server.createQueue(new QueueConfiguration(FORWARDING_QUEUE).setAddress(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      ArrayList<String> connectors = new ArrayList<>();
+      connectors.add("myConnector");
       server.deployBridge(new BridgeConfiguration()
                              .setName(BRIDGE)
                              .setQueueName(QUEUE.toString())
                              .setForwardingAddress(FORWARDING_ADDRESS.toString())
-                             .setStaticConnectors(List.of("myConnector")));
+                             .setStaticConnectors(connectors));
 
       // now we actually have to use the bridge to make sure it connected correctly
       locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(getConnector())));
