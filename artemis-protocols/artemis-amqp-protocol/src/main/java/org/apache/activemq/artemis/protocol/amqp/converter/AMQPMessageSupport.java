@@ -28,21 +28,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.TemporaryQueue;
-import javax.jms.TemporaryTopic;
-import javax.jms.Topic;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
-import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryQueue;
-import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
-import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
@@ -304,7 +292,7 @@ public final class AMQPMessageSupport {
    }
 
 
-   public static String toAddress(Destination destination) {
+   /*public static String toAddress(Destination destination) {
       try {
          if (destination instanceof ActiveMQDestination) {
             return ((ActiveMQDestination) destination).getAddress();
@@ -316,7 +304,7 @@ public final class AMQPMessageSupport {
                return ((Topic) destination).getTopicName();
             }
          }
-      } catch (JMSException e) {
+      } catch (Exception e) {
          // ActiveMQDestination (and most JMS implementations I know) will never throw an Exception here
          // this is here for compilation support (as JMS declares it), and I don't want to propagate exceptions into
          // the converter...
@@ -324,13 +312,13 @@ public final class AMQPMessageSupport {
          logger.warn(e.getMessage(), e);
       }
       return null;
-   }
+   } */
 
    public static ServerJMSBytesMessage createBytesMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
       return new ServerJMSBytesMessage(newMessage(id, BYTES_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSBytesMessage createBytesMessage(long id, byte[] array, int arrayOffset, int length, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+   public static ServerJMSBytesMessage createBytesMessage(long id, byte[] array, int arrayOffset, int length, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
       ServerJMSBytesMessage message = createBytesMessage(id, coreMessageObjectPools);
       message.writeBytes(array, arrayOffset, length);
       return message;
@@ -348,7 +336,7 @@ public final class AMQPMessageSupport {
       return new ServerJMSTextMessage(newMessage(id, TEXT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSTextMessage createTextMessage(long id, String text, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+   public static ServerJMSTextMessage createTextMessage(long id, String text, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
       ServerJMSTextMessage message = createTextMessage(id, coreMessageObjectPools);
       message.setText(text);
       return message;
@@ -358,13 +346,13 @@ public final class AMQPMessageSupport {
       return new ServerJMSObjectMessage(newMessage(id, OBJECT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMessage createObjectMessage(long id, Binary serializedForm, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+   public static ServerJMSMessage createObjectMessage(long id, Binary serializedForm, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
       ServerJMSObjectMessage message = createObjectMessage(id, coreMessageObjectPools);
       message.setSerializedForm(serializedForm);
       return message;
    }
 
-   public static ServerJMSMessage createObjectMessage(long id, byte[] array, int offset, int length, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+   public static ServerJMSMessage createObjectMessage(long id, byte[] array, int offset, int length, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
       ServerJMSObjectMessage message = createObjectMessage(id, coreMessageObjectPools);
       message.setSerializedForm(new Binary(array, offset, length));
       return message;
@@ -374,7 +362,7 @@ public final class AMQPMessageSupport {
       return new ServerJMSMapMessage(newMessage(id, MAP_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMapMessage createMapMessage(long id, Map<String, Object> content, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
+   public static ServerJMSMapMessage createMapMessage(long id, Map<String, Object> content, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
       ServerJMSMapMessage message = createMapMessage(id, coreMessageObjectPools);
       final Set<Map.Entry<String, Object>> set = content.entrySet();
       for (Map.Entry<String, Object> entry : set) {
@@ -396,7 +384,8 @@ public final class AMQPMessageSupport {
    }
 
 
-   public static byte destinationType(Destination destination) {
+   // IMPORTANT-TODO: HOW TO GET THIS?
+   /*public static byte destinationType(Destination destination) {
       if (destination instanceof Queue) {
          if (destination instanceof TemporaryQueue) {
             return TEMP_QUEUE_TYPE;
@@ -412,21 +401,10 @@ public final class AMQPMessageSupport {
       }
 
       return QUEUE_TYPE;
-   }
+   } */
 
-   public static Destination destination(byte destinationType, String address) {
-      switch (destinationType) {
-         case TEMP_QUEUE_TYPE:
-            return new ActiveMQTemporaryQueue(address, null);
-         case TEMP_TOPIC_TYPE:
-            return new ActiveMQTemporaryTopic(address, null);
-         case TOPIC_TYPE:
-            return new ActiveMQTopic(address);
-         case QUEUE_TYPE:
-            return new ActiveMQQueue(address);
-         default:
-            return new ActiveMQQueue(address);
-      }
+   public static String destination(byte destinationType, String address) {
+      return address;
    }
 
 }
