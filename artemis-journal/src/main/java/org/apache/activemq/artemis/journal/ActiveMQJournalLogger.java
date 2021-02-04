@@ -85,6 +85,10 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    @Message(id = 141009, value = "A Free File is less than the maximum data", format = Message.Format.MESSAGE_FORMAT)
    void fileTooSmall();
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 141010, value = "Initialising JDBC data source {0} with properties {1}", format = Message.Format.MESSAGE_FORMAT)
+   void initializingJdbcDataSource(String dataSourceClassName, String dataSourceProperties);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142000, value = "You have a native library with a different version than expected", format = Message.Format.MESSAGE_FORMAT)
    void incompatibleNativeLibrary();

@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.jdbc.store.drivers;
 
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.jboss.logging.Logger;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -25,13 +25,12 @@ import java.util.stream.Collectors;
 
 public class JDBCDataSourceUtils {
 
-   private static final Logger logger = Logger.getLogger(JDBCDataSourceUtils.class);
-
    public static DataSource getDataSource(String dataSourceClassName, Map<String, Object> dataSourceProperties) {
-      logger.info(new StringBuilder("Initialising JDBC data source: ").append(dataSourceClassName).append(" ")
-              .append(dataSourceProperties.keySet().stream()
-              .map(key -> key + "=" + dataSourceProperties.get(key))
-              .collect(Collectors.joining(", ", "{", "}"))));
+      ActiveMQJournalLogger.LOGGER.initializingJdbcDataSource(dataSourceClassName, dataSourceProperties
+         .keySet()
+         .stream()
+         .map(key -> key + "=" + dataSourceProperties.get(key))
+         .collect(Collectors.joining(", ", "{", "}")));
       try {
          DataSource dataSource = (DataSource) Class.forName(dataSourceClassName).newInstance();
          for (Map.Entry<String, Object> entry : dataSourceProperties.entrySet()) {

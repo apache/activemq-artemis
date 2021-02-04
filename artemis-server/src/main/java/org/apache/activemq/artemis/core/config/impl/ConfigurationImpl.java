@@ -1739,13 +1739,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
       sb.append("clustered=").append(isClustered()).append(",");
       if (isJDBC()) {
          DatabaseStorageConfiguration dsc = (DatabaseStorageConfiguration) getStoreConfiguration();
-         sb.append("jdbcDriverClassName=").append(dsc.getJdbcDriverClassName()).append(",");
-         sb.append("jdbcConnectionUrl=").append(dsc.getJdbcConnectionUrl()).append(",");
+         sb.append("jdbcDriverClassName=").append(dsc.getDataSourceProperty("driverClassName")).append(",");
+         sb.append("jdbcConnectionUrl=").append(dsc.getDataSourceProperty("url")).append(",");
          sb.append("messageTableName=").append(dsc.getMessageTableName()).append(",");
          sb.append("bindingsTableName=").append(dsc.getBindingsTableName()).append(",");
          sb.append("largeMessageTableName=").append(dsc.getLargeMessageTableName()).append(",");
          sb.append("pageStoreTableName=").append(dsc.getPageStoreTableName()).append(",");
-
       } else {
          sb.append("journalDirectory=").append(journalDirectory).append(",");
          sb.append("bindingsDirectory=").append(bindingsDirectory).append(",");
