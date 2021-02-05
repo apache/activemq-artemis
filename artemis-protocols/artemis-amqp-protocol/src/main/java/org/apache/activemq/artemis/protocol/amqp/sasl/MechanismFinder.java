@@ -27,6 +27,7 @@ public class MechanismFinder {
    private static final Map<String, ServerSASLFactory> FACTORY_MAP = new HashMap<>();
    private static final Comparator<? super ServerSASLFactory> PRECEDENCE_COMPARATOR =
       (f1, f2) -> Integer.compare(f1.getPrecedence(), f2.getPrecedence());
+   private static final String[] DEFAULT_MECHANISMS;
 
    static {
       ServiceLoader<ServerSASLFactory> serviceLoader =
@@ -40,15 +41,16 @@ public class MechanismFinder {
             }
          });
       }
+      DEFAULT_MECHANISMS = FACTORY_MAP.values()
+                                      .stream()
+                                      .filter(ServerSASLFactory::isDefaultPermitted)
+                                      .sorted(PRECEDENCE_COMPARATOR.reversed())
+                                      .map(ServerSASLFactory::getMechanism)
+                                      .toArray(String[]::new);
    }
 
    public static String[] getDefaultMechanisms() {
-      return FACTORY_MAP.values()
-            .stream()
-            .filter(ServerSASLFactory::isDefaultPermitted)
-            .sorted(PRECEDENCE_COMPARATOR.reversed())
-            .map(ServerSASLFactory::getMechanism)
-            .toArray(String[]::new);
+      return DEFAULT_MECHANISMS;
    }
 
    public static ServerSASLFactory getFactory(String mechanism) {
