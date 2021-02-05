@@ -17,11 +17,43 @@
 
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
+
 public class MechanismFinder {
 
-   public static String[] KNOWN_MECHANISMS = new String[]{PlainSASL.NAME, AnonymousServerSASL.NAME};
+   private static final Map<String, ServerSASLFactory> FACTORY_MAP = new HashMap<>();
+   private static final Comparator<? super ServerSASLFactory> PRECEDENCE_COMPARATOR =
+      (f1, f2) -> Integer.compare(f1.getPrecedence(), f2.getPrecedence());
+   private static final String[] DEFAULT_MECHANISMS;
 
-   public static String[] getKnownMechanisms() {
-      return KNOWN_MECHANISMS;
+   static {
+      ServiceLoader<ServerSASLFactory> serviceLoader =
+               ServiceLoader.load(ServerSASLFactory.class, MechanismFinder.class.getClassLoader());
+      for (ServerSASLFactory factory : serviceLoader) {
+         FACTORY_MAP.merge(factory.getMechanism(), factory, (f1, f2) -> {
+            if (f2.getPrecedence() > f1.getPrecedence()) {
+               return f2;
+            } else {
+               return f1;
+            }
+         });
+      }
+      DEFAULT_MECHANISMS = FACTORY_MAP.values()
+                                      .stream()
+                                      .filter(ServerSASLFactory::isDefaultPermitted)
+                                      .sorted(PRECEDENCE_COMPARATOR.reversed())
+                                      .map(ServerSASLFactory::getMechanism)
+                                      .toArray(String[]::new);
+   }
+
+   public static String[] getDefaultMechanisms() {
+      return DEFAULT_MECHANISMS;
+   }
+
+   public static ServerSASLFactory getFactory(String mechanism) {
+      return FACTORY_MAP.get(mechanism);
    }
 }
