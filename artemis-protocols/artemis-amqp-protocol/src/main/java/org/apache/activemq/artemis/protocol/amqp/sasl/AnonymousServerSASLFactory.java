@@ -22,37 +22,27 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
-/**
- * A {@link ServerSASLFactory} is responsible for instantiating a given SASL mechanism
- */
-public interface ServerSASLFactory {
+public class AnonymousServerSASLFactory implements ServerSASLFactory {
 
-   /**
-    * @return the name of the scheme to offer
-    */
-   String getMechanism();
+   @Override
+   public String getMechanism() {
+      return AnonymousServerSASL.NAME;
+   }
 
-   /**
-    * creates a new {@link ServerSASL} for the provided context
-    * @param server
-    * @param manager
-    * @param connection
-    * @param remotingConnection
-    * @return a new instance of {@link ServerSASL} that implements the provided mechanism
-    */
-   ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor> manager, Connection connection,
-                     RemotingConnection remotingConnection);
+   @Override
+   public ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor> manager, Connection connection,
+                            RemotingConnection remotingConnection) {
+      return new AnonymousServerSASL();
+   }
 
-   /**
-    * returns the precedence of the given SASL mechanism, the default precedence is zero, where
-    * higher means better
-    * @return the precedence of this mechanism
-    */
-   int getPrecedence();
+   @Override
+   public int getPrecedence() {
+      return Integer.MIN_VALUE;
+   }
 
-   /**
-    * @return <code>true</code> if this mechanism should be part of the servers default permitted
-    *         protocols or <code>false</code> if it must be explicitly configured
-    */
-   boolean isDefaultPermitted();
+   @Override
+   public boolean isDefaultPermitted() {
+      return true;
+   }
+
 }

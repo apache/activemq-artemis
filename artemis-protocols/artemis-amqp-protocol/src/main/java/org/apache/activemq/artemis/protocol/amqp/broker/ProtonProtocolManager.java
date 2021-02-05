@@ -88,7 +88,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private int initialRemoteMaxFrameSize = 4 * 1024;
 
-   private String[] saslMechanisms = MechanismFinder.getKnownMechanisms();
+   private String[] saslMechanisms = MechanismFinder.getDefaultMechanisms();
 
    private String saslLoginConfigScope = "amqp-sasl-gssapi";
 

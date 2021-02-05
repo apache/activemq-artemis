@@ -18,41 +18,41 @@ package org.apache.activemq.artemis.protocol.amqp.sasl;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.broker.AmqpInterceptor;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.jboss.logging.Logger;
 
-/**
- * A {@link ServerSASLFactory} is responsible for instantiating a given SASL mechanism
- */
-public interface ServerSASLFactory {
+public class GSSAPIServerSASLFactory implements ServerSASLFactory {
 
-   /**
-    * @return the name of the scheme to offer
-    */
-   String getMechanism();
+   private static final Logger logger = Logger.getLogger(GSSAPIServerSASLFactory.class);
 
-   /**
-    * creates a new {@link ServerSASL} for the provided context
-    * @param server
-    * @param manager
-    * @param connection
-    * @param remotingConnection
-    * @return a new instance of {@link ServerSASL} that implements the provided mechanism
-    */
-   ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor> manager, Connection connection,
-                     RemotingConnection remotingConnection);
+   @Override
+   public String getMechanism() {
+      return GSSAPIServerSASL.NAME;
+   }
 
-   /**
-    * returns the precedence of the given SASL mechanism, the default precedence is zero, where
-    * higher means better
-    * @return the precedence of this mechanism
-    */
-   int getPrecedence();
+   @Override
+   public ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor> manager, Connection connection,
+                            RemotingConnection remotingConnection) {
+      if (manager instanceof ProtonProtocolManager) {
+         GSSAPIServerSASL gssapiServerSASL = new GSSAPIServerSASL();
+         gssapiServerSASL.setLoginConfigScope(((ProtonProtocolManager) manager).getSaslLoginConfigScope());
+         return gssapiServerSASL;
+      }
+      logger.debug("SASL GSSAPI requires ProtonProtocolManager");
+      return null;
+   }
 
-   /**
-    * @return <code>true</code> if this mechanism should be part of the servers default permitted
-    *         protocols or <code>false</code> if it must be explicitly configured
-    */
-   boolean isDefaultPermitted();
+   @Override
+   public int getPrecedence() {
+      return 0;
+   }
+
+   @Override
+   public boolean isDefaultPermitted() {
+      return false;
+   }
+
 }
