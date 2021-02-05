@@ -17,48 +17,41 @@
 
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 public class MechanismFinder {
 
-   private static final Map<String, List<ServerSASLFactory>> FACTORY_MAP = new HashMap<>();
+   private static final Map<String, ServerSASLFactory> FACTORY_MAP = new HashMap<>();
    private static final Comparator<? super ServerSASLFactory> PRECEDENCE_COMPARATOR =
-      (f1, f2) -> f1.getPrecedence() - f2.getPrecedence();
+      (f1, f2) -> Integer.compare(f1.getPrecedence(), f2.getPrecedence());
 
    static {
       ServiceLoader<ServerSASLFactory> serviceLoader =
                ServiceLoader.load(ServerSASLFactory.class, MechanismFinder.class.getClassLoader());
       for (ServerSASLFactory factory : serviceLoader) {
-         List<ServerSASLFactory> list = FACTORY_MAP.computeIfAbsent(factory.getMechanism(), k -> new ArrayList<>());
-         list.add(factory);
-      }
-      for (List<ServerSASLFactory> factories : FACTORY_MAP.values()) {
-         Collections.sort(factories, PRECEDENCE_COMPARATOR);
+         FACTORY_MAP.merge(factory.getMechanism(), factory, (f1, f2) -> {
+            if (f2.getPrecedence() > f1.getPrecedence()) {
+               return f2;
+            } else {
+               return f1;
+            }
+         });
       }
    }
 
    public static String[] getDefaultMechanisms() {
       return FACTORY_MAP.values()
             .stream()
-            .flatMap(List<ServerSASLFactory>::stream)
-            .sorted(PRECEDENCE_COMPARATOR)
+            .filter(ServerSASLFactory::isDefaultPermitted)
+            .sorted(PRECEDENCE_COMPARATOR.reversed())
             .map(ServerSASLFactory::getMechanism)
-            .distinct()
             .toArray(String[]::new);
    }
 
    public static ServerSASLFactory getFactory(String mechanism) {
-      List<ServerSASLFactory> list = FACTORY_MAP.get(mechanism);
-      if (list == null || list.isEmpty()) {
-         return null;
-      }
-      // return mechanism with highest precedence if multiple are registered
-      return list.get(0);
+      return FACTORY_MAP.get(mechanism);
    }
 }
