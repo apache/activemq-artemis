@@ -46,9 +46,11 @@ import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransa
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ExternalServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.GSSAPIServerSASL;
+import org.apache.activemq.artemis.protocol.amqp.sasl.MechanismFinder;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
+import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASLFactory;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -133,7 +135,12 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
                break;
 
             default:
-               logger.debug("Mo matching mechanism found for: " + mechanism);
+               ServerSASLFactory factory = MechanismFinder.getFactory(mechanism);
+               if (factory != null) {
+                  result = factory.create(server, manager, connection, protonConnectionDelegate);
+               } else {
+                  logger.debug("Mo matching mechanism found for: " + mechanism);
+               }
                break;
          }
       }

@@ -17,11 +17,31 @@
 
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.stream.Stream;
+
 public class MechanismFinder {
 
-   public static String[] KNOWN_MECHANISMS = new String[]{PlainSASL.NAME, AnonymousServerSASL.NAME};
+   private static final String[] DEFAULT_MECHANISMS = new String[] {PlainSASL.NAME, AnonymousServerSASL.NAME};
+
+   private static final Map<String, ServerSASLFactory> FACTORY_MAP = new HashMap<>();
+
+   static {
+      ServiceLoader<ServerSASLFactory> serviceLoader =
+               ServiceLoader.load(ServerSASLFactory.class, MechanismFinder.class.getClassLoader());
+      for (ServerSASLFactory factory : serviceLoader) {
+         FACTORY_MAP.put(factory.getMechanism(), factory);
+      }
+   }
 
    public static String[] getKnownMechanisms() {
-      return KNOWN_MECHANISMS;
+      return Stream.concat(Arrays.stream(DEFAULT_MECHANISMS), FACTORY_MAP.keySet().stream()).toArray(String[]::new);
+   }
+
+   public static ServerSASLFactory getFactory(String mechanism) {
+      return FACTORY_MAP.get(mechanism);
    }
 }
