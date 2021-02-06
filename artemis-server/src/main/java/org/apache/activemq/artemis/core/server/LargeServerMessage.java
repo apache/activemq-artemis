@@ -52,7 +52,7 @@ public interface LargeServerMessage extends ReplicatedLargeMessage {
     * Close the files if opened
     */
    @Override
-   void releaseResources(boolean sync);
+   void releaseResources(boolean sync, boolean sendEvent);
 
    @Override
    void deleteFile() throws Exception;

@@ -38,9 +38,9 @@ public interface ReplicatedLargeMessage {
    Message setMessageID(long id);
 
    /**
-    * @see org.apache.activemq.artemis.core.server.LargeServerMessage#releaseResources(boolean)
+    * @see org.apache.activemq.artemis.core.server.LargeServerMessage#releaseResources(boolean,boolean)
     */
-   void releaseResources(boolean sync);
+   void releaseResources(boolean sync, boolean sendEvent);
 
    /**
     * @see org.apache.activemq.artemis.core.server.LargeServerMessage#deleteFile()

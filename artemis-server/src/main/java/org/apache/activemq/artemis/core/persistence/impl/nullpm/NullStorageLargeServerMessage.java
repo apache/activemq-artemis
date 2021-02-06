@@ -38,7 +38,7 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
    }
 
    @Override
-   public void releaseResources(boolean sync) {
+   public void releaseResources(boolean sync, boolean sendEvent) {
    }
 
    @Override

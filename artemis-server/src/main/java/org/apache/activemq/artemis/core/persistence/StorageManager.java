@@ -272,6 +272,8 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     */
    SequentialFile createFileForLargeMessage(long messageID, LargeMessageExtension extension);
 
+   void largeMessageClosed(LargeServerMessage largeServerMessage) throws ActiveMQException;
+
    void deleteLargeMessageBody(LargeServerMessage largeServerMessage) throws ActiveMQException;
 
    default SequentialFile createFileForLargeMessage(long messageID, boolean durable) {

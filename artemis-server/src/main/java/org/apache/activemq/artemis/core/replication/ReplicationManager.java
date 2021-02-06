@@ -256,7 +256,13 @@ public final class ReplicationManager implements ActiveMQComponent {
    public void largeMessageDelete(final Long messageId, JournalStorageManager storageManager) {
       if (enabled) {
          long pendingRecordID = storageManager.generateID();
-         sendReplicatePacket(new ReplicationLargeMessageEndMessage(messageId, pendingRecordID));
+         sendReplicatePacket(new ReplicationLargeMessageEndMessage(messageId, pendingRecordID, true));
+      }
+   }
+
+   public void largeMessageClosed(final Long messageId, JournalStorageManager storageManager) {
+      if (enabled) {
+         sendReplicatePacket(new ReplicationLargeMessageEndMessage(messageId, -1, false));
       }
    }
 

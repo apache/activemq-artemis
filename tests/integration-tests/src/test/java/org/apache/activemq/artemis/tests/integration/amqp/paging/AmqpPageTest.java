@@ -71,7 +71,7 @@ public class AmqpPageTest extends PageTest {
       } else {
          final AMQPLargeMessage message = createLargeMessage(storageManager, address, msgID, content);
          page.write(new PagedMessageImpl(message, new long[0]));
-         message.releaseResources(false);
+         message.releaseResources(false, false);
       }
    }
 }
