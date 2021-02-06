@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.junit.jupiter.api.AfterAll;
@@ -24,66 +27,62 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
-
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ActiveMQConsumerResourceTest {
 
-    static final SimpleString TEST_QUEUE = new SimpleString("test.queue");
-    static final SimpleString TEST_ADDRESS = new SimpleString("test.queue");
-    static final String TEST_BODY = "Test Message";
-    static final Map<String, Object> TEST_PROPERTIES;
+   static final SimpleString TEST_QUEUE = new SimpleString("test.queue");
+   static final SimpleString TEST_ADDRESS = new SimpleString("test.queue");
+   static final String TEST_BODY = "Test Message";
+   static final Map<String, Object> TEST_PROPERTIES;
 
-    static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
-    static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
+   static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
+   static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
 
-    static {
-        TEST_PROPERTIES = new HashMap<String, Object>(2);
-        TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
-        TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
-    }
+   static {
+      TEST_PROPERTIES = new HashMap<String, Object>(2);
+      TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
+      TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
+   }
 
-    @RegisterExtension
-    @Order(1)
-    public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
+   @RegisterExtension
+   @Order(1)
+   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
 
-    @RegisterExtension
-    @Order(2)
-    public ActiveMQConsumerExtension consumer = new ActiveMQConsumerExtension(server.getVmURL(), TEST_QUEUE);
+   @RegisterExtension
+   @Order(2)
+   public ActiveMQConsumerExtension consumer = new ActiveMQConsumerExtension(server.getVmURL(), TEST_QUEUE);
 
-    ClientMessage sent = null;
+   ClientMessage sent = null;
 
-    @AfterAll
-    public void tearDown() {
-        assertNotNull(sent, String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS));
+   @AfterAll
+   public void tearDown() {
+      assertNotNull(sent, String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS));
 
-        ClientMessage received = consumer.receiveMessage();
-        assertNotNull(received, String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS));
-    }
+      ClientMessage received = consumer.receiveMessage();
+      assertNotNull(received, String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS));
+   }
 
-    @Test
-    public void testSendBytes() {
-        sent = server.sendMessage(TEST_ADDRESS, TEST_BODY.getBytes());
-    }
+   @Test
+   public void testSendBytes() {
+      sent = server.sendMessage(TEST_ADDRESS, TEST_BODY.getBytes());
+   }
 
-    @Test
-    public void testSendString() {
-        sent = server.sendMessage(TEST_ADDRESS, TEST_BODY);
-    }
+   @Test
+   public void testSendString() {
+      sent = server.sendMessage(TEST_ADDRESS, TEST_BODY);
+   }
 
-    @Test
-    public void testSendBytesAndProperties() {
-        sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY.getBytes(), TEST_PROPERTIES);
-    }
+   @Test
+   public void testSendBytesAndProperties() {
+      sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY.getBytes(), TEST_PROPERTIES);
+   }
 
-    @Test
-    public void testSendStringAndProperties() {
-        sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY, TEST_PROPERTIES);
-    }
+   @Test
+   public void testSendStringAndProperties() {
+      sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY, TEST_PROPERTIES);
+   }
 
 }

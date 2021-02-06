@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -23,11 +25,9 @@ import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import java.util.Map;
-
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis ClientProducer bound to a specific address into a test.
- *
+ * <p>
  * This JUnit Rule is designed to simplify using ActiveMQ Artemis clients in unit tests.  Adding the rule to a test will startup
  * a ClientProducer, which can then be used to feed messages to the bound address on an ActiveMQ Artemis server.
  *
@@ -88,7 +88,10 @@ public class ActiveMQProducerExtension implements BeforeAllCallback, AfterAllCal
       this.activeMQProducerDelegate = new ActiveMQProducerDelegate(serverLocator, address);
    }
 
-   public ActiveMQProducerExtension(ServerLocator serverLocator, SimpleString address, String username, String password) {
+   public ActiveMQProducerExtension(ServerLocator serverLocator,
+                                    SimpleString address,
+                                    String username,
+                                    String password) {
       this.activeMQProducerDelegate = new ActiveMQProducerDelegate(serverLocator, address, username, password);
    }
 

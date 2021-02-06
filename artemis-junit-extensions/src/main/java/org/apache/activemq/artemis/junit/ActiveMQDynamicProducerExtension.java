@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-
-import java.util.Map;
 
 /**
  * A JUnit Rule that embeds an dynamic (i.e. unbound) ActiveMQ Artemis ClientProducer into a test.
@@ -46,153 +46,156 @@ import java.util.Map;
  */
 public class ActiveMQDynamicProducerExtension implements BeforeAllCallback, AfterAllCallback {
 
-    private ActiveMQDynamicProducerDelegate activeMQDynamicProducerDelegate;
+   private ActiveMQDynamicProducerDelegate activeMQDynamicProducerDelegate;
 
-    public ActiveMQDynamicProducerExtension(String url, String username, String password) {
-        this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(url, username, password);
-    }
+   public ActiveMQDynamicProducerExtension(String url, String username, String password) {
+      this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(url, username, password);
+   }
 
-    public ActiveMQDynamicProducerExtension(String url) {
-        this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(url);
-    }
+   public ActiveMQDynamicProducerExtension(String url) {
+      this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(url);
+   }
 
-    public ActiveMQDynamicProducerExtension(ServerLocator serverLocator, String username, String password) {
-        this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(serverLocator, username, password);
-    }
+   public ActiveMQDynamicProducerExtension(ServerLocator serverLocator, String username, String password) {
+      this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(serverLocator, username, password);
+   }
 
-    public ActiveMQDynamicProducerExtension(ServerLocator serverLocator) {
-        this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(serverLocator);
-    }
+   public ActiveMQDynamicProducerExtension(ServerLocator serverLocator) {
+      this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(serverLocator);
+   }
 
-    public ActiveMQDynamicProducerExtension(String url, SimpleString address, String username, String password) {
-        this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(url, address, username, password);
-    }
+   public ActiveMQDynamicProducerExtension(String url, SimpleString address, String username, String password) {
+      this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(url, address, username, password);
+   }
 
-    public ActiveMQDynamicProducerExtension(String url, SimpleString address) {
-        this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(url, address);
-    }
+   public ActiveMQDynamicProducerExtension(String url, SimpleString address) {
+      this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(url, address);
+   }
 
-    public ActiveMQDynamicProducerExtension(ServerLocator serverLocator, SimpleString address, String username, String password) {
-        this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(serverLocator, address, username, password);
-    }
+   public ActiveMQDynamicProducerExtension(ServerLocator serverLocator,
+                                           SimpleString address,
+                                           String username,
+                                           String password) {
+      this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(serverLocator, address, username, password);
+   }
 
-    public ActiveMQDynamicProducerExtension(ServerLocator serverLocator, SimpleString address) {
-        this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(serverLocator, address);
-    }
+   public ActiveMQDynamicProducerExtension(ServerLocator serverLocator, SimpleString address) {
+      this.activeMQDynamicProducerDelegate = new ActiveMQDynamicProducerDelegate(serverLocator, address);
+   }
 
-    /**
-     * Invoked by JUnit to setup the resource - start the embedded ActiveMQ Artemis server
-     */
-    @Override
-    public void beforeAll(ExtensionContext context) throws Exception {
-        activeMQDynamicProducerDelegate.start();
-    }
+   /**
+    * Invoked by JUnit to setup the resource - start the embedded ActiveMQ Artemis server
+    */
+   @Override
+   public void beforeAll(ExtensionContext context) throws Exception {
+      activeMQDynamicProducerDelegate.start();
+   }
 
-    /**
-     * Invoked by JUnit to tear down the resource - stops the embedded ActiveMQ Artemis server
-     */
-    @Override
-    public void afterAll(ExtensionContext context) throws Exception {
-        activeMQDynamicProducerDelegate.stop();
-    }
+   /**
+    * Invoked by JUnit to tear down the resource - stops the embedded ActiveMQ Artemis server
+    */
+   @Override
+   public void afterAll(ExtensionContext context) throws Exception {
+      activeMQDynamicProducerDelegate.stop();
+   }
 
-    public void createClient() {
-        activeMQDynamicProducerDelegate.createClient();
-    }
+   public void createClient() {
+      activeMQDynamicProducerDelegate.createClient();
+   }
 
-    public void sendMessage(ClientMessage message) {
-        activeMQDynamicProducerDelegate.sendMessage(message);
-    }
+   public void sendMessage(ClientMessage message) {
+      activeMQDynamicProducerDelegate.sendMessage(message);
+   }
 
-    public void sendMessage(SimpleString targetAddress, ClientMessage message) {
-        activeMQDynamicProducerDelegate.sendMessage(targetAddress, message);
-    }
+   public void sendMessage(SimpleString targetAddress, ClientMessage message) {
+      activeMQDynamicProducerDelegate.sendMessage(targetAddress, message);
+   }
 
-    public ClientMessage sendMessage(SimpleString targetAddress, byte[] body) {
-        return activeMQDynamicProducerDelegate.sendMessage(targetAddress, body);
-    }
+   public ClientMessage sendMessage(SimpleString targetAddress, byte[] body) {
+      return activeMQDynamicProducerDelegate.sendMessage(targetAddress, body);
+   }
 
-    public ClientMessage sendMessage(SimpleString targetAddress, String body) {
-        return activeMQDynamicProducerDelegate.sendMessage(targetAddress, body);
-    }
+   public ClientMessage sendMessage(SimpleString targetAddress, String body) {
+      return activeMQDynamicProducerDelegate.sendMessage(targetAddress, body);
+   }
 
-    public ClientMessage sendMessage(SimpleString targetAddress, Map<String, Object> properties) {
-        return activeMQDynamicProducerDelegate.sendMessage(targetAddress, properties);
-    }
+   public ClientMessage sendMessage(SimpleString targetAddress, Map<String, Object> properties) {
+      return activeMQDynamicProducerDelegate.sendMessage(targetAddress, properties);
+   }
 
-    public ClientMessage sendMessage(SimpleString targetAddress, byte[] body, Map<String, Object> properties) {
-        return activeMQDynamicProducerDelegate.sendMessage(targetAddress, body, properties);
-    }
+   public ClientMessage sendMessage(SimpleString targetAddress, byte[] body, Map<String, Object> properties) {
+      return activeMQDynamicProducerDelegate.sendMessage(targetAddress, body, properties);
+   }
 
-    public ClientMessage sendMessage(SimpleString targetAddress, String body, Map<String, Object> properties) {
-        return activeMQDynamicProducerDelegate.sendMessage(targetAddress, body, properties);
-    }
+   public ClientMessage sendMessage(SimpleString targetAddress, String body, Map<String, Object> properties) {
+      return activeMQDynamicProducerDelegate.sendMessage(targetAddress, body, properties);
+   }
 
-    public boolean isUseDurableMessage() {
-        return activeMQDynamicProducerDelegate.isUseDurableMessage();
-    }
+   public boolean isUseDurableMessage() {
+      return activeMQDynamicProducerDelegate.isUseDurableMessage();
+   }
 
-    public void setUseDurableMessage(boolean useDurableMessage) {
-        activeMQDynamicProducerDelegate.setUseDurableMessage(useDurableMessage);
-    }
+   public void setUseDurableMessage(boolean useDurableMessage) {
+      activeMQDynamicProducerDelegate.setUseDurableMessage(useDurableMessage);
+   }
 
-    public void stopClient() {
-        activeMQDynamicProducerDelegate.stopClient();
-    }
+   public void stopClient() {
+      activeMQDynamicProducerDelegate.stopClient();
+   }
 
-    public ClientMessage createMessage() {
-        return activeMQDynamicProducerDelegate.createMessage();
-    }
+   public ClientMessage createMessage() {
+      return activeMQDynamicProducerDelegate.createMessage();
+   }
 
-    public ClientMessage createMessage(byte[] body) {
-        return activeMQDynamicProducerDelegate.createMessage(body);
-    }
+   public ClientMessage createMessage(byte[] body) {
+      return activeMQDynamicProducerDelegate.createMessage(body);
+   }
 
-    public ClientMessage createMessage(String body) {
-        return activeMQDynamicProducerDelegate.createMessage(body);
-    }
+   public ClientMessage createMessage(String body) {
+      return activeMQDynamicProducerDelegate.createMessage(body);
+   }
 
-    public ClientMessage createMessage(Map<String, Object> properties) {
-        return activeMQDynamicProducerDelegate.createMessage(properties);
-    }
+   public ClientMessage createMessage(Map<String, Object> properties) {
+      return activeMQDynamicProducerDelegate.createMessage(properties);
+   }
 
-    public ClientMessage createMessage(byte[] body, Map<String, Object> properties) {
-        return activeMQDynamicProducerDelegate.createMessage(body, properties);
-    }
+   public ClientMessage createMessage(byte[] body, Map<String, Object> properties) {
+      return activeMQDynamicProducerDelegate.createMessage(body, properties);
+   }
 
-    public ClientMessage createMessage(String body, Map<String, Object> properties) {
-        return activeMQDynamicProducerDelegate.createMessage(body, properties);
-    }
+   public ClientMessage createMessage(String body, Map<String, Object> properties) {
+      return activeMQDynamicProducerDelegate.createMessage(body, properties);
+   }
 
-    public ClientMessage sendMessage(byte[] body) {
-        return activeMQDynamicProducerDelegate.sendMessage(body);
-    }
+   public ClientMessage sendMessage(byte[] body) {
+      return activeMQDynamicProducerDelegate.sendMessage(body);
+   }
 
-    public ClientMessage sendMessage(String body) {
-        return activeMQDynamicProducerDelegate.sendMessage(body);
-    }
+   public ClientMessage sendMessage(String body) {
+      return activeMQDynamicProducerDelegate.sendMessage(body);
+   }
 
-    public ClientMessage sendMessage(Map<String, Object> properties) {
-        return activeMQDynamicProducerDelegate.sendMessage(properties);
-    }
+   public ClientMessage sendMessage(Map<String, Object> properties) {
+      return activeMQDynamicProducerDelegate.sendMessage(properties);
+   }
 
-    public ClientMessage sendMessage(byte[] body, Map<String, Object> properties) {
-        return activeMQDynamicProducerDelegate.sendMessage(body, properties);
-    }
+   public ClientMessage sendMessage(byte[] body, Map<String, Object> properties) {
+      return activeMQDynamicProducerDelegate.sendMessage(body, properties);
+   }
 
-    public ClientMessage sendMessage(String body, Map<String, Object> properties) {
-        return activeMQDynamicProducerDelegate.sendMessage(body, properties);
-    }
+   public ClientMessage sendMessage(String body, Map<String, Object> properties) {
+      return activeMQDynamicProducerDelegate.sendMessage(body, properties);
+   }
 
-    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
-        AbstractActiveMQClientDelegate.addMessageProperties(message, properties);
-    }
+   public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
+      AbstractActiveMQClientDelegate.addMessageProperties(message, properties);
+   }
 
-    public boolean isAutoCreateQueue() {
-        return activeMQDynamicProducerDelegate.isAutoCreateQueue();
-    }
+   public boolean isAutoCreateQueue() {
+      return activeMQDynamicProducerDelegate.isAutoCreateQueue();
+   }
 
-    public void setAutoCreateQueue(boolean autoCreateQueue) {
-        activeMQDynamicProducerDelegate.setAutoCreateQueue(autoCreateQueue);
-    }
+   public void setAutoCreateQueue(boolean autoCreateQueue) {
+      activeMQDynamicProducerDelegate.setAutoCreateQueue(autoCreateQueue);
+   }
 }

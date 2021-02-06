@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis ClientProducer bound to a specific address into a test.
- *
+ * <p>
  * This JUnit Rule is designed to simplify using ActiveMQ Artemis clients in unit tests.  Adding the rule to a test will startup
  * a ClientProducer, which can then be used to feed messages to the bound address on an ActiveMQ Artemis server.
  *
@@ -94,7 +94,10 @@ public class ActiveMQProducerDelegate extends AbstractActiveMQClientDelegate {
       this(serverLocator, SimpleString.toSimpleString(address));
    }
 
-   public ActiveMQProducerDelegate(ServerLocator serverLocator, SimpleString address, String username, String password) {
+   public ActiveMQProducerDelegate(ServerLocator serverLocator,
+                                   SimpleString address,
+                                   String username,
+                                   String password) {
       super(serverLocator, username, password);
       if (address == null) {
          throw new IllegalArgumentException(String.format("%s construction error - address cannot be null", this.getClass().getSimpleName()));

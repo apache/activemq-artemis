@@ -52,7 +52,6 @@ public class ActiveMQProducerResourceTest {
    @Rule
    public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
 
-
    ClientMessage sent = null;
 
    @After

@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.junit.rules.ExternalResource;
-
-import java.util.Map;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis ClientProducer bound to a specific address into a test.
@@ -44,141 +44,144 @@ import java.util.Map;
  */
 public class ActiveMQProducerResource extends ExternalResource {
 
-    private ActiveMQProducerDelegate activeMQProducer;
+   private ActiveMQProducerDelegate activeMQProducer;
 
-    protected ActiveMQProducerResource(String url, String username, String password) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(url, username, password);
-    }
+   protected ActiveMQProducerResource(String url, String username, String password) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(url, username, password);
+   }
 
-    protected ActiveMQProducerResource(String url) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(url);
-    }
+   protected ActiveMQProducerResource(String url) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(url);
+   }
 
-    protected ActiveMQProducerResource(ServerLocator serverLocator, String username, String password) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, username, password);
-    }
+   protected ActiveMQProducerResource(ServerLocator serverLocator, String username, String password) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, username, password);
+   }
 
-    protected ActiveMQProducerResource(ServerLocator serverLocator) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator);
-    }
+   protected ActiveMQProducerResource(ServerLocator serverLocator) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator);
+   }
 
-    public ActiveMQProducerResource(String url, String address, String username, String password) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(url, address, username, password);
-    }
+   public ActiveMQProducerResource(String url, String address, String username, String password) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(url, address, username, password);
+   }
 
-    public ActiveMQProducerResource(String url, String address) {
-        this(url, address, null, null);
-    }
+   public ActiveMQProducerResource(String url, String address) {
+      this(url, address, null, null);
+   }
 
-    public ActiveMQProducerResource(String url, SimpleString address, String username, String password) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(url, address, username, password);
-    }
+   public ActiveMQProducerResource(String url, SimpleString address, String username, String password) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(url, address, username, password);
+   }
 
-    public ActiveMQProducerResource(String url, SimpleString address) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(url, address);
-    }
+   public ActiveMQProducerResource(String url, SimpleString address) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(url, address);
+   }
 
-    public ActiveMQProducerResource(ServerLocator serverLocator, String address, String username, String password) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address, username, password);
-    }
+   public ActiveMQProducerResource(ServerLocator serverLocator, String address, String username, String password) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address, username, password);
+   }
 
-    public ActiveMQProducerResource(ServerLocator serverLocator, String address) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address);
-    }
+   public ActiveMQProducerResource(ServerLocator serverLocator, String address) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address);
+   }
 
-    public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address, String username, String password) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address, username, password);
-    }
+   public ActiveMQProducerResource(ServerLocator serverLocator,
+                                   SimpleString address,
+                                   String username,
+                                   String password) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address, username, password);
+   }
 
-    public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address) {
-        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address);
-    }
+   public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address) {
+      this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address);
+   }
 
-    @Override
-    protected void before() throws Throwable {
-        super.before();
-        activeMQProducer.start();
-    }
+   @Override
+   protected void before() throws Throwable {
+      super.before();
+      activeMQProducer.start();
+   }
 
-    @Override
-    protected void after() {
-        activeMQProducer.stop();
-        super.after();
-    }
+   @Override
+   protected void after() {
+      activeMQProducer.stop();
+      super.after();
+   }
 
-    public boolean isUseDurableMessage() {
-        return activeMQProducer.isUseDurableMessage();
-    }
+   public boolean isUseDurableMessage() {
+      return activeMQProducer.isUseDurableMessage();
+   }
 
-    public void setUseDurableMessage(boolean useDurableMessage) {
-        activeMQProducer.setUseDurableMessage(useDurableMessage);
-    }
+   public void setUseDurableMessage(boolean useDurableMessage) {
+      activeMQProducer.setUseDurableMessage(useDurableMessage);
+   }
 
-    protected void createClient() {
-        activeMQProducer.createClient();
-    }
+   protected void createClient() {
+      activeMQProducer.createClient();
+   }
 
-    protected void stopClient() {
-        activeMQProducer.stopClient();
-    }
+   protected void stopClient() {
+      activeMQProducer.stopClient();
+   }
 
-    public ClientMessage createMessage() {
-        return activeMQProducer.createMessage();
-    }
+   public ClientMessage createMessage() {
+      return activeMQProducer.createMessage();
+   }
 
-    public ClientMessage createMessage(byte[] body) {
-        return activeMQProducer.createMessage(body);
-    }
+   public ClientMessage createMessage(byte[] body) {
+      return activeMQProducer.createMessage(body);
+   }
 
-    public ClientMessage createMessage(String body) {
-        return activeMQProducer.createMessage(body);
-    }
+   public ClientMessage createMessage(String body) {
+      return activeMQProducer.createMessage(body);
+   }
 
-    public ClientMessage createMessage(Map<String, Object> properties) {
-        return activeMQProducer.createMessage(properties);
-    }
+   public ClientMessage createMessage(Map<String, Object> properties) {
+      return activeMQProducer.createMessage(properties);
+   }
 
-    public ClientMessage createMessage(byte[] body, Map<String, Object> properties) {
-        return activeMQProducer.createMessage(body, properties);
-    }
+   public ClientMessage createMessage(byte[] body, Map<String, Object> properties) {
+      return activeMQProducer.createMessage(body, properties);
+   }
 
-    public ClientMessage createMessage(String body, Map<String, Object> properties) {
-        return activeMQProducer.createMessage(body, properties);
-    }
+   public ClientMessage createMessage(String body, Map<String, Object> properties) {
+      return activeMQProducer.createMessage(body, properties);
+   }
 
-    public void sendMessage(ClientMessage message) {
-        activeMQProducer.sendMessage(message);
-    }
+   public void sendMessage(ClientMessage message) {
+      activeMQProducer.sendMessage(message);
+   }
 
-    public ClientMessage sendMessage(byte[] body) {
-        return activeMQProducer.sendMessage(body);
-    }
+   public ClientMessage sendMessage(byte[] body) {
+      return activeMQProducer.sendMessage(body);
+   }
 
-    public ClientMessage sendMessage(String body) {
-        return activeMQProducer.sendMessage(body);
-    }
+   public ClientMessage sendMessage(String body) {
+      return activeMQProducer.sendMessage(body);
+   }
 
-    public ClientMessage sendMessage(Map<String, Object> properties) {
-        return activeMQProducer.sendMessage(properties);
-    }
+   public ClientMessage sendMessage(Map<String, Object> properties) {
+      return activeMQProducer.sendMessage(properties);
+   }
 
-    public ClientMessage sendMessage(byte[] body, Map<String, Object> properties) {
-        return activeMQProducer.sendMessage(body, properties);
-    }
+   public ClientMessage sendMessage(byte[] body, Map<String, Object> properties) {
+      return activeMQProducer.sendMessage(body, properties);
+   }
 
-    public ClientMessage sendMessage(String body, Map<String, Object> properties) {
-        return activeMQProducer.sendMessage(body, properties);
-    }
+   public ClientMessage sendMessage(String body, Map<String, Object> properties) {
+      return activeMQProducer.sendMessage(body, properties);
+   }
 
-    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
-        AbstractActiveMQClientDelegate.addMessageProperties(message, properties);
-    }
+   public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
+      AbstractActiveMQClientDelegate.addMessageProperties(message, properties);
+   }
 
-    public boolean isAutoCreateQueue() {
-        return activeMQProducer.isAutoCreateQueue();
-    }
+   public boolean isAutoCreateQueue() {
+      return activeMQProducer.isAutoCreateQueue();
+   }
 
-    public void setAutoCreateQueue(boolean autoCreateQueue) {
-        activeMQProducer.setAutoCreateQueue(autoCreateQueue);
-    }
+   public void setAutoCreateQueue(boolean autoCreateQueue) {
+      activeMQProducer.setAutoCreateQueue(autoCreateQueue);
+   }
 }

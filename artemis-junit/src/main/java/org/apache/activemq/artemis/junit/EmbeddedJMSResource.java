@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.junit;
 
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
-import org.junit.rules.ExternalResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -33,6 +25,14 @@ import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.junit.rules.ExternalResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Deprecated in favor of EmbeddedActiveMQResource. Since Artemis 2.0 all JMS specific broker management classes,
@@ -58,242 +58,246 @@ import java.util.Map;
 @Deprecated
 public class EmbeddedJMSResource extends ExternalResource {
 
-    Logger log = LoggerFactory.getLogger(this.getClass());
+   Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private EmbeddedJMSDelegate embeddedJMSDelegate;
+   private EmbeddedJMSDelegate embeddedJMSDelegate;
 
-    /**
-     * Create a default EmbeddedJMSResource
-     */
-    public EmbeddedJMSResource() {
-        this.embeddedJMSDelegate = new EmbeddedJMSDelegate();
-    }
+   /**
+    * Create a default EmbeddedJMSResource
+    */
+   public EmbeddedJMSResource() {
+      this.embeddedJMSDelegate = new EmbeddedJMSDelegate();
+   }
 
-    /**
-     * Create a default EmbeddedJMSResource
-     */
-    public EmbeddedJMSResource(boolean useNetty) {
-        this.embeddedJMSDelegate = new EmbeddedJMSDelegate(useNetty);
-    }
+   /**
+    * Create a default EmbeddedJMSResource
+    */
+   public EmbeddedJMSResource(boolean useNetty) {
+      this.embeddedJMSDelegate = new EmbeddedJMSDelegate(useNetty);
+   }
 
-    /**
-     * The acceptor used
-     */
-    public EmbeddedJMSResource addAcceptor(String name, String uri) throws Exception {
-        this.embeddedJMSDelegate = new EmbeddedJMSDelegate(name, uri);
-        return this;
-    }
+   /**
+    * The acceptor used
+    */
+   public EmbeddedJMSResource addAcceptor(String name, String uri) throws Exception {
+      this.embeddedJMSDelegate = new EmbeddedJMSDelegate(name, uri);
+      return this;
+   }
 
-    public static void setMessageProperties(Message message, Map<String, Object> properties) {
-        EmbeddedJMSDelegate.setMessageProperties(message, properties);
-    }
+   public static void setMessageProperties(Message message, Map<String, Object> properties) {
+      EmbeddedJMSDelegate.setMessageProperties(message, properties);
+   }
 
-    public void start() {
-        embeddedJMSDelegate.start();
-    }
+   public void start() {
+      embeddedJMSDelegate.start();
+   }
 
-    public void stop() {
-        embeddedJMSDelegate.stop();
-    }
+   public void stop() {
+      embeddedJMSDelegate.stop();
+   }
 
-    public EmbeddedJMS getJmsServer() {
-        return embeddedJMSDelegate.getJmsServer();
-    }
+   public EmbeddedJMS getJmsServer() {
+      return embeddedJMSDelegate.getJmsServer();
+   }
 
-    public String getServerName() {
-        return embeddedJMSDelegate.getServerName();
-    }
+   public String getServerName() {
+      return embeddedJMSDelegate.getServerName();
+   }
 
-    public String getVmURL() {
-        return embeddedJMSDelegate.getVmURL();
-    }
+   public String getVmURL() {
+      return embeddedJMSDelegate.getVmURL();
+   }
 
-    public Queue getDestinationQueue(String destinationName) {
-        return embeddedJMSDelegate.getDestinationQueue(destinationName);
-    }
+   public Queue getDestinationQueue(String destinationName) {
+      return embeddedJMSDelegate.getDestinationQueue(destinationName);
+   }
 
-    public List<Queue> getTopicQueues(String topicName) {
-        return embeddedJMSDelegate.getTopicQueues(topicName);
-    }
+   public List<Queue> getTopicQueues(String topicName) {
+      return embeddedJMSDelegate.getTopicQueues(topicName);
+   }
 
-    public long getMessageCount(String destinationName) {
-        return embeddedJMSDelegate.getMessageCount(destinationName);
-    }
+   public long getMessageCount(String destinationName) {
+      return embeddedJMSDelegate.getMessageCount(destinationName);
+   }
 
-    public BytesMessage createBytesMessage() {
-        return embeddedJMSDelegate.createBytesMessage();
-    }
+   public BytesMessage createBytesMessage() {
+      return embeddedJMSDelegate.createBytesMessage();
+   }
 
-    public TextMessage createTextMessage() {
-        return embeddedJMSDelegate.createTextMessage();
-    }
+   public TextMessage createTextMessage() {
+      return embeddedJMSDelegate.createTextMessage();
+   }
 
-    public MapMessage createMapMessage() {
-        return embeddedJMSDelegate.createMapMessage();
-    }
+   public MapMessage createMapMessage() {
+      return embeddedJMSDelegate.createMapMessage();
+   }
 
-    public ObjectMessage createObjectMessage() {
-        return embeddedJMSDelegate.createObjectMessage();
-    }
+   public ObjectMessage createObjectMessage() {
+      return embeddedJMSDelegate.createObjectMessage();
+   }
 
-    public StreamMessage createStreamMessage() {
-        return embeddedJMSDelegate.createStreamMessage();
-    }
+   public StreamMessage createStreamMessage() {
+      return embeddedJMSDelegate.createStreamMessage();
+   }
 
-    public BytesMessage createMessage(byte[] body) {
-        return embeddedJMSDelegate.createMessage(body);
-    }
+   public BytesMessage createMessage(byte[] body) {
+      return embeddedJMSDelegate.createMessage(body);
+   }
 
-    public TextMessage createMessage(String body) {
-        return embeddedJMSDelegate.createMessage(body);
-    }
+   public TextMessage createMessage(String body) {
+      return embeddedJMSDelegate.createMessage(body);
+   }
 
-    public MapMessage createMessage(Map<String, Object> body) {
-        return embeddedJMSDelegate.createMessage(body);
-    }
+   public MapMessage createMessage(Map<String, Object> body) {
+      return embeddedJMSDelegate.createMessage(body);
+   }
 
-    public ObjectMessage createMessage(Serializable body) {
-        return embeddedJMSDelegate.createMessage(body);
-    }
+   public ObjectMessage createMessage(Serializable body) {
+      return embeddedJMSDelegate.createMessage(body);
+   }
 
-    public BytesMessage createMessage(byte[] body, Map<String, Object> properties) {
-        return embeddedJMSDelegate.createMessage(body, properties);
-    }
+   public BytesMessage createMessage(byte[] body, Map<String, Object> properties) {
+      return embeddedJMSDelegate.createMessage(body, properties);
+   }
 
-    public TextMessage createMessage(String body, Map<String, Object> properties) {
-        return embeddedJMSDelegate.createMessage(body, properties);
-    }
+   public TextMessage createMessage(String body, Map<String, Object> properties) {
+      return embeddedJMSDelegate.createMessage(body, properties);
+   }
 
-    public MapMessage createMessage(Map<String, Object> body, Map<String, Object> properties) {
-        return embeddedJMSDelegate.createMessage(body, properties);
-    }
+   public MapMessage createMessage(Map<String, Object> body, Map<String, Object> properties) {
+      return embeddedJMSDelegate.createMessage(body, properties);
+   }
 
-    public ObjectMessage createMessage(Serializable body, Map<String, Object> properties) {
-        return embeddedJMSDelegate.createMessage(body, properties);
-    }
+   public ObjectMessage createMessage(Serializable body, Map<String, Object> properties) {
+      return embeddedJMSDelegate.createMessage(body, properties);
+   }
 
-    public void pushMessage(String destinationName, Message message) {
-        embeddedJMSDelegate.pushMessage(destinationName, message);
-    }
+   public void pushMessage(String destinationName, Message message) {
+      embeddedJMSDelegate.pushMessage(destinationName, message);
+   }
 
-    public BytesMessage pushMessage(String destinationName, byte[] body) {
-        return embeddedJMSDelegate.pushMessage(destinationName, body);
-    }
+   public BytesMessage pushMessage(String destinationName, byte[] body) {
+      return embeddedJMSDelegate.pushMessage(destinationName, body);
+   }
 
-    public TextMessage pushMessage(String destinationName, String body) {
-        return embeddedJMSDelegate.pushMessage(destinationName, body);
-    }
+   public TextMessage pushMessage(String destinationName, String body) {
+      return embeddedJMSDelegate.pushMessage(destinationName, body);
+   }
 
-    public MapMessage pushMessage(String destinationName, Map<String, Object> body) {
-        return embeddedJMSDelegate.pushMessage(destinationName, body);
-    }
+   public MapMessage pushMessage(String destinationName, Map<String, Object> body) {
+      return embeddedJMSDelegate.pushMessage(destinationName, body);
+   }
 
-    public ObjectMessage pushMessage(String destinationName, Serializable body) {
-        return embeddedJMSDelegate.pushMessage(destinationName, body);
-    }
+   public ObjectMessage pushMessage(String destinationName, Serializable body) {
+      return embeddedJMSDelegate.pushMessage(destinationName, body);
+   }
 
-    public BytesMessage pushMessageWithProperties(String destinationName, byte[] body, Map<String, Object> properties) {
-        return embeddedJMSDelegate.pushMessageWithProperties(destinationName, body, properties);
-    }
+   public BytesMessage pushMessageWithProperties(String destinationName, byte[] body, Map<String, Object> properties) {
+      return embeddedJMSDelegate.pushMessageWithProperties(destinationName, body, properties);
+   }
 
-    public TextMessage pushMessageWithProperties(String destinationName, String body, Map<String, Object> properties) {
-        return embeddedJMSDelegate.pushMessageWithProperties(destinationName, body, properties);
-    }
+   public TextMessage pushMessageWithProperties(String destinationName, String body, Map<String, Object> properties) {
+      return embeddedJMSDelegate.pushMessageWithProperties(destinationName, body, properties);
+   }
 
-    public MapMessage pushMessageWithProperties(String destinationName, Map<String, Object> body, Map<String, Object> properties) {
-        return embeddedJMSDelegate.pushMessageWithProperties(destinationName, body, properties);
-    }
+   public MapMessage pushMessageWithProperties(String destinationName,
+                                               Map<String, Object> body,
+                                               Map<String, Object> properties) {
+      return embeddedJMSDelegate.pushMessageWithProperties(destinationName, body, properties);
+   }
 
-    public ObjectMessage pushMessageWithProperties(String destinationName, Serializable body, Map<String, Object> properties) {
-        return embeddedJMSDelegate.pushMessageWithProperties(destinationName, body, properties);
-    }
+   public ObjectMessage pushMessageWithProperties(String destinationName,
+                                                  Serializable body,
+                                                  Map<String, Object> properties) {
+      return embeddedJMSDelegate.pushMessageWithProperties(destinationName, body, properties);
+   }
 
-    public Message peekMessage(String destinationName) {
-        return embeddedJMSDelegate.peekMessage(destinationName);
-    }
+   public Message peekMessage(String destinationName) {
+      return embeddedJMSDelegate.peekMessage(destinationName);
+   }
 
-    public BytesMessage peekBytesMessage(String destinationName) {
-        return embeddedJMSDelegate.peekBytesMessage(destinationName);
-    }
+   public BytesMessage peekBytesMessage(String destinationName) {
+      return embeddedJMSDelegate.peekBytesMessage(destinationName);
+   }
 
-    public TextMessage peekTextMessage(String destinationName) {
-        return embeddedJMSDelegate.peekTextMessage(destinationName);
-    }
+   public TextMessage peekTextMessage(String destinationName) {
+      return embeddedJMSDelegate.peekTextMessage(destinationName);
+   }
 
-    public MapMessage peekMapMessage(String destinationName) {
-        return embeddedJMSDelegate.peekMapMessage(destinationName);
-    }
+   public MapMessage peekMapMessage(String destinationName) {
+      return embeddedJMSDelegate.peekMapMessage(destinationName);
+   }
 
-    public ObjectMessage peekObjectMessage(String destinationName) {
-        return embeddedJMSDelegate.peekObjectMessage(destinationName);
-    }
+   public ObjectMessage peekObjectMessage(String destinationName) {
+      return embeddedJMSDelegate.peekObjectMessage(destinationName);
+   }
 
-    public StreamMessage peekStreamMessage(String destinationName) {
-        return embeddedJMSDelegate.peekStreamMessage(destinationName);
-    }
+   public StreamMessage peekStreamMessage(String destinationName) {
+      return embeddedJMSDelegate.peekStreamMessage(destinationName);
+   }
 
-    /**
-     * Create a default EmbeddedJMSResource with the specified server id
-     */
-    public EmbeddedJMSResource(int serverId) {
-        this.embeddedJMSDelegate = new EmbeddedJMSDelegate(serverId);
-    }
+   /**
+    * Create a default EmbeddedJMSResource with the specified server id
+    */
+   public EmbeddedJMSResource(int serverId) {
+      this.embeddedJMSDelegate = new EmbeddedJMSDelegate(serverId);
+   }
 
-    /**
-     * Create an EmbeddedJMSResource with the specified configurations
-     *
-     * @param configuration    ActiveMQServer configuration
-     * @param jmsConfiguration JMSServerManager configuration
-     */
-    public EmbeddedJMSResource(Configuration configuration, JMSConfiguration jmsConfiguration) {
-        this.embeddedJMSDelegate = new EmbeddedJMSDelegate(configuration, jmsConfiguration);
-    }
+   /**
+    * Create an EmbeddedJMSResource with the specified configurations
+    *
+    * @param configuration    ActiveMQServer configuration
+    * @param jmsConfiguration JMSServerManager configuration
+    */
+   public EmbeddedJMSResource(Configuration configuration, JMSConfiguration jmsConfiguration) {
+      this.embeddedJMSDelegate = new EmbeddedJMSDelegate(configuration, jmsConfiguration);
+   }
 
-    /**
-     * Create an EmbeddedJMSResource with the specified configuration file
-     *
-     * @param filename configuration file name
-     */
-    public EmbeddedJMSResource(String filename) {
-        this.embeddedJMSDelegate = new EmbeddedJMSDelegate(filename);
-    }
+   /**
+    * Create an EmbeddedJMSResource with the specified configuration file
+    *
+    * @param filename configuration file name
+    */
+   public EmbeddedJMSResource(String filename) {
+      this.embeddedJMSDelegate = new EmbeddedJMSDelegate(filename);
+   }
 
-    /**
-     * Create an EmbeddedJMSResource with the specified configuration file
-     *
-     * @param serverConfigurationFileName ActiveMQServer configuration file name
-     * @param jmsConfigurationFileName    JMSServerManager configuration file name
-     */
-    public EmbeddedJMSResource(String serverConfigurationFileName, String jmsConfigurationFileName) {
-        this.embeddedJMSDelegate = new EmbeddedJMSDelegate(serverConfigurationFileName, jmsConfigurationFileName);
-    }
+   /**
+    * Create an EmbeddedJMSResource with the specified configuration file
+    *
+    * @param serverConfigurationFileName ActiveMQServer configuration file name
+    * @param jmsConfigurationFileName    JMSServerManager configuration file name
+    */
+   public EmbeddedJMSResource(String serverConfigurationFileName, String jmsConfigurationFileName) {
+      this.embeddedJMSDelegate = new EmbeddedJMSDelegate(serverConfigurationFileName, jmsConfigurationFileName);
+   }
 
-    /**
-     * Start the embedded ActiveMQ Broker
-     * <p>
-     * Invoked by JUnit to setup the resource
-     */
-    @Override
-    protected void before() throws Throwable {
-        log.info("Starting {}: {}", this.getClass().getSimpleName(), embeddedJMSDelegate.getServerName());
+   /**
+    * Start the embedded ActiveMQ Broker
+    * <p>
+    * Invoked by JUnit to setup the resource
+    */
+   @Override
+   protected void before() throws Throwable {
+      log.info("Starting {}: {}", this.getClass().getSimpleName(), embeddedJMSDelegate.getServerName());
 
-        embeddedJMSDelegate.start();
+      embeddedJMSDelegate.start();
 
-        super.before();
-    }
+      super.before();
+   }
 
-    /**
-     * Stop the embedded ActiveMQ Broker
-     * <p>
-     * Invoked by JUnit to tear down the resource
-     */
-    @Override
-    protected void after() {
-        log.info("Stopping {}: {}", this.getClass().getSimpleName(), embeddedJMSDelegate.getServerName());
+   /**
+    * Stop the embedded ActiveMQ Broker
+    * <p>
+    * Invoked by JUnit to tear down the resource
+    */
+   @Override
+   protected void after() {
+      log.info("Stopping {}: {}", this.getClass().getSimpleName(), embeddedJMSDelegate.getServerName());
 
-        super.after();
+      super.after();
 
-        embeddedJMSDelegate.stop();
-    }
+      embeddedJMSDelegate.stop();
+   }
 
 }

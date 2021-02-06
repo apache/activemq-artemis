@@ -26,53 +26,51 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
-
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class MultipleEmbeddedActiveMQResourcesTest {
 
-    static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
-    static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
-    static final SimpleString TEST_ADDRESS_ONE = new SimpleString("test.address.one");
-    static final SimpleString TEST_ADDRESS_TWO = new SimpleString("test.address.two");
+   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
+   static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
+   static final SimpleString TEST_ADDRESS_ONE = new SimpleString("test.address.one");
+   static final SimpleString TEST_ADDRESS_TWO = new SimpleString("test.address.two");
 
-    static final String TEST_BODY = "Test Message";
+   static final String TEST_BODY = "Test Message";
 
-    static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
-    static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
+   static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
+   static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
 
-    @RegisterExtension
-    @Order(1)
-    public EmbeddedActiveMQExtension serverOne = new EmbeddedActiveMQExtension(1);
+   @RegisterExtension
+   @Order(1)
+   public EmbeddedActiveMQExtension serverOne = new EmbeddedActiveMQExtension(1);
 
-    @RegisterExtension
-    @Order(2)
-    public EmbeddedActiveMQExtension serverTwo = new EmbeddedActiveMQExtension(2);
+   @RegisterExtension
+   @Order(2)
+   public EmbeddedActiveMQExtension serverTwo = new EmbeddedActiveMQExtension(2);
 
-    @BeforeAll
-    public void setUp() throws Exception {
-        serverOne.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
-        serverTwo.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+   @BeforeAll
+   public void setUp() throws Exception {
+      serverOne.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+      serverTwo.getServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
 
-        serverOne.createQueue(TEST_ADDRESS_ONE, TEST_QUEUE_ONE);
-        serverTwo.createQueue(TEST_ADDRESS_TWO, TEST_QUEUE_TWO);
-    }
+      serverOne.createQueue(TEST_ADDRESS_ONE, TEST_QUEUE_ONE);
+      serverTwo.createQueue(TEST_ADDRESS_TWO, TEST_QUEUE_TWO);
+   }
 
-    @Test
-    public void testMultipleServers() throws Exception {
-        ClientMessage sentOne = serverOne.sendMessage(TEST_ADDRESS_ONE, TEST_BODY);
-        assertNotNull(sentOne, String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE));
+   @Test
+   public void testMultipleServers() throws Exception {
+      ClientMessage sentOne = serverOne.sendMessage(TEST_ADDRESS_ONE, TEST_BODY);
+      assertNotNull(sentOne, String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE));
 
-        ClientMessage receivedOne = serverOne.receiveMessage(TEST_QUEUE_ONE);
-        assertNotNull(receivedOne, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO));
+      ClientMessage receivedOne = serverOne.receiveMessage(TEST_QUEUE_ONE);
+      assertNotNull(receivedOne, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO));
 
-        ClientMessage sentTwo = serverTwo.sendMessage(TEST_ADDRESS_TWO, TEST_BODY);
-        assertNotNull(sentOne, String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO));
+      ClientMessage sentTwo = serverTwo.sendMessage(TEST_ADDRESS_TWO, TEST_BODY);
+      assertNotNull(sentOne, String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO));
 
-        ClientMessage receivedTwo = serverTwo.receiveMessage(TEST_QUEUE_TWO);
-        assertNotNull(receivedOne, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO));
-    }
+      ClientMessage receivedTwo = serverTwo.receiveMessage(TEST_QUEUE_TWO);
+      assertNotNull(receivedOne, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO));
+   }
 
 }

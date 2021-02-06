@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
@@ -24,40 +26,36 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
-
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class EmbeddedActiveMQResourceCustomConfigurationTest {
 
-    static final String TEST_QUEUE = "test.queue";
-    static final String TEST_ADDRESS = "test.address";
+   static final String TEST_QUEUE = "test.queue";
+   static final String TEST_ADDRESS = "test.address";
 
-    QueueConfiguration queueConfiguration = new QueueConfiguration(TEST_QUEUE).setAddress(TEST_ADDRESS);
-    Configuration customConfiguration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(true).addQueueConfiguration(queueConfiguration);
+   QueueConfiguration queueConfiguration = new QueueConfiguration(TEST_QUEUE).setAddress(TEST_ADDRESS);
+   Configuration customConfiguration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(true).addQueueConfiguration(queueConfiguration);
 
-    @RegisterExtension
-    public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension(customConfiguration);
+   @RegisterExtension
+   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension(customConfiguration);
 
-    @Test
-    public void testCustomConfiguration() {
-        Configuration configuration = server.getServer().getActiveMQServer().getConfiguration();
+   @Test
+   public void testCustomConfiguration() {
+      Configuration configuration = server.getServer().getActiveMQServer().getConfiguration();
 
-        assertFalse(configuration.isPersistenceEnabled(), "Persistence should have been disabled");
-        assertTrue(configuration.isSecurityEnabled(), "Security should have been enabled");
+      assertFalse(configuration.isPersistenceEnabled(), "Persistence should have been disabled");
+      assertTrue(configuration.isSecurityEnabled(), "Security should have been enabled");
 
-        assertNotNull(server.locateQueue(TEST_QUEUE), TEST_QUEUE + " should exist");
+      assertNotNull(server.locateQueue(TEST_QUEUE), TEST_QUEUE + " should exist");
 
-        List<Queue> boundQueues = server.getBoundQueues(TEST_ADDRESS);
-        assertNotNull(boundQueues, "List should never be null");
-        assertEquals(1, boundQueues.size(), "Should have one queue bound to address " + TEST_ADDRESS);
-    }
+      List<Queue> boundQueues = server.getBoundQueues(TEST_ADDRESS);
+      assertNotNull(boundQueues, "List should never be null");
+      assertEquals(1, boundQueues.size(), "Should have one queue bound to address " + TEST_ADDRESS);
+   }
 
 }

@@ -16,36 +16,34 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.List;
+
 import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
-
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class EmbeddedActiveMQResourceFileConfigurationTest {
 
-    // These values must match the contents of the configuration file
-    static final String TEST_QUEUE = "test.queue";
-    static final String TEST_ADDRESS = "test.address";
+   // These values must match the contents of the configuration file
+   static final String TEST_QUEUE = "test.queue";
+   static final String TEST_ADDRESS = "test.address";
 
-    @RegisterExtension
-    public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension("embedded-artemis-server.xml");
+   @RegisterExtension
+   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension("embedded-artemis-server.xml");
 
-    @Test
-    public void testConfiguredQueue() {
-        assertNotNull(server.locateQueue(TEST_QUEUE), TEST_QUEUE + " should exist");
+   @Test
+   public void testConfiguredQueue() {
+      assertNotNull(server.locateQueue(TEST_QUEUE), TEST_QUEUE + " should exist");
 
-        List<Queue> boundQueues = server.getBoundQueues(TEST_ADDRESS);
-        assertNotNull(boundQueues, "List should never be null");
-        assertEquals(1, boundQueues.size(), "Should have one queue bound to address " + TEST_ADDRESS);
-    }
+      List<Queue> boundQueues = server.getBoundQueues(TEST_ADDRESS);
+      assertNotNull(boundQueues, "List should never be null");
+      assertEquals(1, boundQueues.size(), "Should have one queue bound to address " + TEST_ADDRESS);
+   }
 
 }

@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-
-import java.util.Map;
 
 /**
  * A JUnit Rule that embeds an dynamic (i.e. unbound) ActiveMQ Artemis ClientProducer into a test.
@@ -45,154 +45,157 @@ import java.util.Map;
  */
 public class ActiveMQDynamicProducerDelegate extends ActiveMQProducerDelegate {
 
-    public ActiveMQDynamicProducerDelegate(String url, String username, String password) {
-        super(url, username, password);
-    }
+   public ActiveMQDynamicProducerDelegate(String url, String username, String password) {
+      super(url, username, password);
+   }
 
-    public ActiveMQDynamicProducerDelegate(String url) {
-        super(url);
-    }
+   public ActiveMQDynamicProducerDelegate(String url) {
+      super(url);
+   }
 
-    public ActiveMQDynamicProducerDelegate(ServerLocator serverLocator, String username, String password) {
-        super(serverLocator, username, password);
-    }
+   public ActiveMQDynamicProducerDelegate(ServerLocator serverLocator, String username, String password) {
+      super(serverLocator, username, password);
+   }
 
-    public ActiveMQDynamicProducerDelegate(ServerLocator serverLocator) {
-        super(serverLocator);
-    }
+   public ActiveMQDynamicProducerDelegate(ServerLocator serverLocator) {
+      super(serverLocator);
+   }
 
-    public ActiveMQDynamicProducerDelegate(String url, SimpleString address, String username, String password) {
-        super(url, address, username, password);
-    }
+   public ActiveMQDynamicProducerDelegate(String url, SimpleString address, String username, String password) {
+      super(url, address, username, password);
+   }
 
-    public ActiveMQDynamicProducerDelegate(String url, SimpleString address) {
-        super(url, address);
-    }
+   public ActiveMQDynamicProducerDelegate(String url, SimpleString address) {
+      super(url, address);
+   }
 
-    public ActiveMQDynamicProducerDelegate(ServerLocator serverLocator, SimpleString address, String username, String password) {
-        super(serverLocator, address, username, password);
-    }
+   public ActiveMQDynamicProducerDelegate(ServerLocator serverLocator,
+                                          SimpleString address,
+                                          String username,
+                                          String password) {
+      super(serverLocator, address, username, password);
+   }
 
-    public ActiveMQDynamicProducerDelegate(ServerLocator serverLocator, SimpleString address) {
-        super(serverLocator, address);
-    }
+   public ActiveMQDynamicProducerDelegate(ServerLocator serverLocator, SimpleString address) {
+      super(serverLocator, address);
+   }
 
-    @Override
-    protected void createClient() {
-        try {
-            if (address != null && !session.addressQuery(address).isExists() && autoCreateQueue) {
-                log.warn("queue does not exist - creating queue: address = {}, name = {}", address.toString(), address.toString());
-                session.createQueue(new QueueConfiguration(address));
-            }
-            producer = session.createProducer((SimpleString) null);
-        } catch (ActiveMQException amqEx) {
-            if (address == null) {
-                throw new ActiveMQClientResourceException(String.format("Error creating producer for address %s", address.toString()), amqEx);
-            } else {
-                throw new ActiveMQClientResourceException("Error creating producer", amqEx);
-            }
-        }
-    }
+   @Override
+   protected void createClient() {
+      try {
+         if (address != null && !session.addressQuery(address).isExists() && autoCreateQueue) {
+            log.warn("queue does not exist - creating queue: address = {}, name = {}", address.toString(), address.toString());
+            session.createQueue(new QueueConfiguration(address));
+         }
+         producer = session.createProducer((SimpleString) null);
+      } catch (ActiveMQException amqEx) {
+         if (address == null) {
+            throw new ActiveMQClientResourceException(String.format("Error creating producer for address %s", address.toString()), amqEx);
+         } else {
+            throw new ActiveMQClientResourceException("Error creating producer", amqEx);
+         }
+      }
+   }
 
-    /**
-     * Send a ClientMessage to the default address on the server
-     *
-     * @param message the message to send
-     */
-    @Override
-    public void sendMessage(ClientMessage message) {
-        sendMessage(address, message);
-    }
+   /**
+    * Send a ClientMessage to the default address on the server
+    *
+    * @param message the message to send
+    */
+   @Override
+   public void sendMessage(ClientMessage message) {
+      sendMessage(address, message);
+   }
 
-    /**
-     * Send a ClientMessage to the specified address on the server
-     *
-     * @param targetAddress the target address
-     * @param message       the message to send
-     */
-    public void sendMessage(SimpleString targetAddress, ClientMessage message) {
-        if (targetAddress == null) {
-            throw new IllegalArgumentException(String.format("%s error - address cannot be null", this.getClass().getSimpleName()));
-        }
-        try {
-            if (autoCreateQueue && !session.addressQuery(targetAddress).isExists()) {
-                log.warn("queue does not exist - creating queue: address = {}, name = {}", address.toString(), address.toString());
-                session.createQueue(new QueueConfiguration(targetAddress));
-            }
-        } catch (ActiveMQException amqEx) {
-            throw new ActiveMQClientResourceException(String.format("Queue creation failed for queue: address = %s, name = %s", address.toString(), address.toString()));
-        }
+   /**
+    * Send a ClientMessage to the specified address on the server
+    *
+    * @param targetAddress the target address
+    * @param message       the message to send
+    */
+   public void sendMessage(SimpleString targetAddress, ClientMessage message) {
+      if (targetAddress == null) {
+         throw new IllegalArgumentException(String.format("%s error - address cannot be null", this.getClass().getSimpleName()));
+      }
+      try {
+         if (autoCreateQueue && !session.addressQuery(targetAddress).isExists()) {
+            log.warn("queue does not exist - creating queue: address = {}, name = {}", address.toString(), address.toString());
+            session.createQueue(new QueueConfiguration(targetAddress));
+         }
+      } catch (ActiveMQException amqEx) {
+         throw new ActiveMQClientResourceException(String.format("Queue creation failed for queue: address = %s, name = %s", address.toString(), address.toString()));
+      }
 
-        try {
-            producer.send(targetAddress, message);
-        } catch (ActiveMQException amqEx) {
-            throw new ActiveMQClientResourceException(String.format("Failed to send message to %s", targetAddress.toString()), amqEx);
-        }
-    }
+      try {
+         producer.send(targetAddress, message);
+      } catch (ActiveMQException amqEx) {
+         throw new ActiveMQClientResourceException(String.format("Failed to send message to %s", targetAddress.toString()), amqEx);
+      }
+   }
 
-    /**
-     * Create a new ClientMessage with the specified body and send to the specified address on the server
-     *
-     * @param targetAddress the target address
-     * @param body          the body for the new message
-     * @return the message that was sent
-     */
-    public ClientMessage sendMessage(SimpleString targetAddress, byte[] body) {
-        ClientMessage message = createMessage(body);
-        sendMessage(targetAddress, message);
-        return message;
-    }
+   /**
+    * Create a new ClientMessage with the specified body and send to the specified address on the server
+    *
+    * @param targetAddress the target address
+    * @param body          the body for the new message
+    * @return the message that was sent
+    */
+   public ClientMessage sendMessage(SimpleString targetAddress, byte[] body) {
+      ClientMessage message = createMessage(body);
+      sendMessage(targetAddress, message);
+      return message;
+   }
 
-    /**
-     * Create a new ClientMessage with the specified body and send to the server
-     *
-     * @param targetAddress the target address
-     * @param body          the body for the new message
-     * @return the message that was sent
-     */
-    public ClientMessage sendMessage(SimpleString targetAddress, String body) {
-        ClientMessage message = createMessage(body);
-        sendMessage(targetAddress, message);
-        return message;
-    }
+   /**
+    * Create a new ClientMessage with the specified body and send to the server
+    *
+    * @param targetAddress the target address
+    * @param body          the body for the new message
+    * @return the message that was sent
+    */
+   public ClientMessage sendMessage(SimpleString targetAddress, String body) {
+      ClientMessage message = createMessage(body);
+      sendMessage(targetAddress, message);
+      return message;
+   }
 
-    /**
-     * Create a new ClientMessage with the specified properties and send to the server
-     *
-     * @param targetAddress the target address
-     * @param properties    the properties for the new message
-     * @return the message that was sent
-     */
-    public ClientMessage sendMessage(SimpleString targetAddress, Map<String, Object> properties) {
-        ClientMessage message = createMessage(properties);
-        sendMessage(targetAddress, message);
-        return message;
-    }
+   /**
+    * Create a new ClientMessage with the specified properties and send to the server
+    *
+    * @param targetAddress the target address
+    * @param properties    the properties for the new message
+    * @return the message that was sent
+    */
+   public ClientMessage sendMessage(SimpleString targetAddress, Map<String, Object> properties) {
+      ClientMessage message = createMessage(properties);
+      sendMessage(targetAddress, message);
+      return message;
+   }
 
-    /**
-     * Create a new ClientMessage with the specified body and and properties and send to the server
-     *
-     * @param targetAddress the target address
-     * @param properties    the properties for the new message
-     * @return the message that was sent
-     */
-    public ClientMessage sendMessage(SimpleString targetAddress, byte[] body, Map<String, Object> properties) {
-        ClientMessage message = createMessage(body);
-        sendMessage(targetAddress, message);
-        return message;
-    }
+   /**
+    * Create a new ClientMessage with the specified body and and properties and send to the server
+    *
+    * @param targetAddress the target address
+    * @param properties    the properties for the new message
+    * @return the message that was sent
+    */
+   public ClientMessage sendMessage(SimpleString targetAddress, byte[] body, Map<String, Object> properties) {
+      ClientMessage message = createMessage(body);
+      sendMessage(targetAddress, message);
+      return message;
+   }
 
-    /**
-     * Create a new ClientMessage with the specified body and and properties and send to the server
-     *
-     * @param targetAddress the target address
-     * @param properties    the properties for the new message
-     * @return the message that was sent
-     */
-    public ClientMessage sendMessage(SimpleString targetAddress, String body, Map<String, Object> properties) {
-        ClientMessage message = createMessage(body);
-        sendMessage(targetAddress, message);
-        return message;
-    }
+   /**
+    * Create a new ClientMessage with the specified body and and properties and send to the server
+    *
+    * @param targetAddress the target address
+    * @param properties    the properties for the new message
+    * @return the message that was sent
+    */
+   public ClientMessage sendMessage(SimpleString targetAddress, String body, Map<String, Object> properties) {
+      ClientMessage message = createMessage(body);
+      sendMessage(targetAddress, message);
+      return message;
+   }
 
 }

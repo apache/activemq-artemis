@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -42,13 +46,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis server into a test.
- *
+ * <p>
  * This JUnit Rule is designed to simplify using embedded servers in unit tests.  Adding the rule to a test will startup
  * an embedded server, which can then be used by client applications.
  *
@@ -154,7 +154,7 @@ public class EmbeddedActiveMQDelegate {
 
    /**
     * Start the embedded ActiveMQ Artemis server.
-    *
+    * <p>
     * The server will normally be started by JUnit using the before() method.  This method allows the server to
     * be started manually to support advanced testing scenarios.
     */
@@ -170,7 +170,7 @@ public class EmbeddedActiveMQDelegate {
 
    /**
     * Stop the embedded ActiveMQ Artemis server
-    *
+    * <p>
     * The server will normally be stopped by JUnit using the after() method.  This method allows the server to
     * be stopped manually to support advanced testing scenarios.
     */
@@ -230,7 +230,7 @@ public class EmbeddedActiveMQDelegate {
 
    /**
     * Get the EmbeddedActiveMQ server.
-    *
+    * <p>
     * This may be required for advanced configuration of the EmbeddedActiveMQ server.
     *
     * @return the embedded ActiveMQ broker
@@ -362,7 +362,7 @@ public class EmbeddedActiveMQDelegate {
 
    /**
     * Create a ClientMessage
-    *
+    * <p>
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @return a new ClientMessage
@@ -374,7 +374,7 @@ public class EmbeddedActiveMQDelegate {
 
    /**
     * Create a ClientMessage with the specified body
-    *
+    * <p>
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param body the body for the new message
@@ -393,7 +393,7 @@ public class EmbeddedActiveMQDelegate {
 
    /**
     * Create a ClientMessage with the specified body
-    *
+    * <p>
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param body the body for the new message
@@ -412,7 +412,7 @@ public class EmbeddedActiveMQDelegate {
 
    /**
     * Create a ClientMessage with the specified message properties
-    *
+    * <p>
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param properties message properties for the new message
@@ -429,7 +429,7 @@ public class EmbeddedActiveMQDelegate {
 
    /**
     * Create a ClientMessage with the specified body and message properties
-    *
+    * <p>
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param body       the body for the new message
@@ -446,7 +446,7 @@ public class EmbeddedActiveMQDelegate {
 
    /**
     * Create a ClientMessage with the specified body and message properties
-    *
+    * <p>
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param body       the body for the new message

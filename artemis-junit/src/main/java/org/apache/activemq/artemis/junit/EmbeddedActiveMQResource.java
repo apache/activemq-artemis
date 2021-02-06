@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -24,9 +27,6 @@ import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis server into a test.
@@ -48,265 +48,265 @@ import java.util.Map;
  */
 public class EmbeddedActiveMQResource extends ExternalResource {
 
-    Logger log = LoggerFactory.getLogger(this.getClass());
+   Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private EmbeddedActiveMQDelegate embeddedActiveMQDelegate;
+   private EmbeddedActiveMQDelegate embeddedActiveMQDelegate;
 
-    /**
-     * Create a default EmbeddedActiveMQResource
-     */
-    public EmbeddedActiveMQResource() {
-        this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate();
-    }
+   /**
+    * Create a default EmbeddedActiveMQResource
+    */
+   public EmbeddedActiveMQResource() {
+      this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate();
+   }
 
-    /**
-     * Create a default EmbeddedActiveMQResource with the specified serverId
-     *
-     * @param serverId server id
-     */
-    public EmbeddedActiveMQResource(int serverId) {
-        this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(serverId);
-    }
+   /**
+    * Create a default EmbeddedActiveMQResource with the specified serverId
+    *
+    * @param serverId server id
+    */
+   public EmbeddedActiveMQResource(int serverId) {
+      this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(serverId);
+   }
 
-    /**
-     * Creates an EmbeddedActiveMQResource using the specified configuration
-     *
-     * @param configuration ActiveMQServer configuration
-     */
-    public EmbeddedActiveMQResource(Configuration configuration) {
-        this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(configuration);
-    }
+   /**
+    * Creates an EmbeddedActiveMQResource using the specified configuration
+    *
+    * @param configuration ActiveMQServer configuration
+    */
+   public EmbeddedActiveMQResource(Configuration configuration) {
+      this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(configuration);
+   }
 
-    /**
-     * Creates an EmbeddedActiveMQResource using the specified configuration file
-     *
-     * @param filename ActiveMQServer configuration file name
-     */
-    public EmbeddedActiveMQResource(String filename) {
-        this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(filename);
-    }
+   /**
+    * Creates an EmbeddedActiveMQResource using the specified configuration file
+    *
+    * @param filename ActiveMQServer configuration file name
+    */
+   public EmbeddedActiveMQResource(String filename) {
+      this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(filename);
+   }
 
-    /**
-     * Invoked by JUnit to setup the resource - start the embedded ActiveMQ Artemis server
-     */
-    @Override
-    protected void before() throws Throwable {
-        log.info("Starting {}: {}", this.getClass().getSimpleName(), embeddedActiveMQDelegate.getServerName());
+   /**
+    * Invoked by JUnit to setup the resource - start the embedded ActiveMQ Artemis server
+    */
+   @Override
+   protected void before() throws Throwable {
+      log.info("Starting {}: {}", this.getClass().getSimpleName(), embeddedActiveMQDelegate.getServerName());
 
-        embeddedActiveMQDelegate.start();
+      embeddedActiveMQDelegate.start();
 
-        super.before();
-    }
+      super.before();
+   }
 
-    /**
-     * Invoked by JUnit to tear down the resource - stops the embedded ActiveMQ Artemis server
-     */
-    @Override
-    protected void after() {
-        log.info("Stopping {}: {}", this.getClass().getSimpleName(), embeddedActiveMQDelegate.getServerName());
+   /**
+    * Invoked by JUnit to tear down the resource - stops the embedded ActiveMQ Artemis server
+    */
+   @Override
+   protected void after() {
+      log.info("Stopping {}: {}", this.getClass().getSimpleName(), embeddedActiveMQDelegate.getServerName());
 
-        embeddedActiveMQDelegate.stop();
+      embeddedActiveMQDelegate.stop();
 
-        super.after();
-    }
+      super.after();
+   }
 
-    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
-        EmbeddedActiveMQDelegate.addMessageProperties(message, properties);
-    }
+   public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
+      EmbeddedActiveMQDelegate.addMessageProperties(message, properties);
+   }
 
-    public void start() {
-        embeddedActiveMQDelegate.start();
-    }
+   public void start() {
+      embeddedActiveMQDelegate.start();
+   }
 
-    public void stop() {
-        embeddedActiveMQDelegate.stop();
-    }
+   public void stop() {
+      embeddedActiveMQDelegate.stop();
+   }
 
-    public boolean isUseDurableMessage() {
-        return embeddedActiveMQDelegate.isUseDurableMessage();
-    }
+   public boolean isUseDurableMessage() {
+      return embeddedActiveMQDelegate.isUseDurableMessage();
+   }
 
-    public void setUseDurableMessage(boolean useDurableMessage) {
-        embeddedActiveMQDelegate.setUseDurableMessage(useDurableMessage);
-    }
+   public void setUseDurableMessage(boolean useDurableMessage) {
+      embeddedActiveMQDelegate.setUseDurableMessage(useDurableMessage);
+   }
 
-    public boolean isUseDurableQueue() {
-        return embeddedActiveMQDelegate.isUseDurableQueue();
-    }
+   public boolean isUseDurableQueue() {
+      return embeddedActiveMQDelegate.isUseDurableQueue();
+   }
 
-    public void setUseDurableQueue(boolean useDurableQueue) {
-        embeddedActiveMQDelegate.setUseDurableQueue(useDurableQueue);
-    }
+   public void setUseDurableQueue(boolean useDurableQueue) {
+      embeddedActiveMQDelegate.setUseDurableQueue(useDurableQueue);
+   }
 
-    public long getDefaultReceiveTimeout() {
-        return embeddedActiveMQDelegate.getDefaultReceiveTimeout();
-    }
+   public long getDefaultReceiveTimeout() {
+      return embeddedActiveMQDelegate.getDefaultReceiveTimeout();
+   }
 
-    public void setDefaultReceiveTimeout(long defaultReceiveTimeout) {
-        embeddedActiveMQDelegate.setDefaultReceiveTimeout(defaultReceiveTimeout);
-    }
+   public void setDefaultReceiveTimeout(long defaultReceiveTimeout) {
+      embeddedActiveMQDelegate.setDefaultReceiveTimeout(defaultReceiveTimeout);
+   }
 
-    public EmbeddedActiveMQ getServer() {
-        return embeddedActiveMQDelegate.getServer();
-    }
+   public EmbeddedActiveMQ getServer() {
+      return embeddedActiveMQDelegate.getServer();
+   }
 
-    public String getServerName() {
-        return embeddedActiveMQDelegate.getServerName();
-    }
+   public String getServerName() {
+      return embeddedActiveMQDelegate.getServerName();
+   }
 
-    public String getVmURL() {
-        return embeddedActiveMQDelegate.getVmURL();
-    }
+   public String getVmURL() {
+      return embeddedActiveMQDelegate.getVmURL();
+   }
 
-    public long getMessageCount(String queueName) {
-        return embeddedActiveMQDelegate.getMessageCount(queueName);
-    }
+   public long getMessageCount(String queueName) {
+      return embeddedActiveMQDelegate.getMessageCount(queueName);
+   }
 
-    public long getMessageCount(SimpleString queueName) {
-        return embeddedActiveMQDelegate.getMessageCount(queueName);
-    }
+   public long getMessageCount(SimpleString queueName) {
+      return embeddedActiveMQDelegate.getMessageCount(queueName);
+   }
 
-    public Queue locateQueue(String queueName) {
-        return embeddedActiveMQDelegate.locateQueue(queueName);
-    }
+   public Queue locateQueue(String queueName) {
+      return embeddedActiveMQDelegate.locateQueue(queueName);
+   }
 
-    public Queue locateQueue(SimpleString queueName) {
-        return embeddedActiveMQDelegate.locateQueue(queueName);
-    }
+   public Queue locateQueue(SimpleString queueName) {
+      return embeddedActiveMQDelegate.locateQueue(queueName);
+   }
 
-    public List<Queue> getBoundQueues(String address) {
-        return embeddedActiveMQDelegate.getBoundQueues(address);
-    }
+   public List<Queue> getBoundQueues(String address) {
+      return embeddedActiveMQDelegate.getBoundQueues(address);
+   }
 
-    public List<Queue> getBoundQueues(SimpleString address) {
-        return embeddedActiveMQDelegate.getBoundQueues(address);
-    }
+   public List<Queue> getBoundQueues(SimpleString address) {
+      return embeddedActiveMQDelegate.getBoundQueues(address);
+   }
 
-    public Queue createQueue(String name) {
-        return embeddedActiveMQDelegate.createQueue(name);
-    }
+   public Queue createQueue(String name) {
+      return embeddedActiveMQDelegate.createQueue(name);
+   }
 
-    public Queue createQueue(String address, String name) {
-        return embeddedActiveMQDelegate.createQueue(address, name);
-    }
+   public Queue createQueue(String address, String name) {
+      return embeddedActiveMQDelegate.createQueue(address, name);
+   }
 
-    public Queue createQueue(SimpleString address, SimpleString name) {
-        return embeddedActiveMQDelegate.createQueue(address, name);
-    }
+   public Queue createQueue(SimpleString address, SimpleString name) {
+      return embeddedActiveMQDelegate.createQueue(address, name);
+   }
 
-    public void createSharedQueue(String name, String user) {
-        embeddedActiveMQDelegate.createSharedQueue(name, user);
-    }
+   public void createSharedQueue(String name, String user) {
+      embeddedActiveMQDelegate.createSharedQueue(name, user);
+   }
 
-    public void createSharedQueue(String address, String name, String user) {
-        embeddedActiveMQDelegate.createSharedQueue(address, name, user);
-    }
+   public void createSharedQueue(String address, String name, String user) {
+      embeddedActiveMQDelegate.createSharedQueue(address, name, user);
+   }
 
-    public void createSharedQueue(SimpleString address, SimpleString name, SimpleString user) {
-        embeddedActiveMQDelegate.createSharedQueue(address, name, user);
-    }
+   public void createSharedQueue(SimpleString address, SimpleString name, SimpleString user) {
+      embeddedActiveMQDelegate.createSharedQueue(address, name, user);
+   }
 
-    public ClientMessage createMessage() {
-        return embeddedActiveMQDelegate.createMessage();
-    }
+   public ClientMessage createMessage() {
+      return embeddedActiveMQDelegate.createMessage();
+   }
 
-    public ClientMessage createMessage(byte[] body) {
-        return embeddedActiveMQDelegate.createMessage(body);
-    }
+   public ClientMessage createMessage(byte[] body) {
+      return embeddedActiveMQDelegate.createMessage(body);
+   }
 
-    public ClientMessage createMessage(String body) {
-        return embeddedActiveMQDelegate.createMessage(body);
-    }
+   public ClientMessage createMessage(String body) {
+      return embeddedActiveMQDelegate.createMessage(body);
+   }
 
-    public ClientMessage createMessageWithProperties(Map<String, Object> properties) {
-        return embeddedActiveMQDelegate.createMessageWithProperties(properties);
-    }
+   public ClientMessage createMessageWithProperties(Map<String, Object> properties) {
+      return embeddedActiveMQDelegate.createMessageWithProperties(properties);
+   }
 
-    public ClientMessage createMessageWithProperties(byte[] body, Map<String, Object> properties) {
-        return embeddedActiveMQDelegate.createMessageWithProperties(body, properties);
-    }
+   public ClientMessage createMessageWithProperties(byte[] body, Map<String, Object> properties) {
+      return embeddedActiveMQDelegate.createMessageWithProperties(body, properties);
+   }
 
-    public ClientMessage createMessageWithProperties(String body, Map<String, Object> properties) {
-        return embeddedActiveMQDelegate.createMessageWithProperties(body, properties);
-    }
+   public ClientMessage createMessageWithProperties(String body, Map<String, Object> properties) {
+      return embeddedActiveMQDelegate.createMessageWithProperties(body, properties);
+   }
 
-    public void sendMessage(String address, ClientMessage message) {
-        embeddedActiveMQDelegate.sendMessage(address, message);
-    }
+   public void sendMessage(String address, ClientMessage message) {
+      embeddedActiveMQDelegate.sendMessage(address, message);
+   }
 
-    public ClientMessage sendMessage(String address, byte[] body) {
-        return embeddedActiveMQDelegate.sendMessage(address, body);
-    }
+   public ClientMessage sendMessage(String address, byte[] body) {
+      return embeddedActiveMQDelegate.sendMessage(address, body);
+   }
 
-    public ClientMessage sendMessage(String address, String body) {
-        return embeddedActiveMQDelegate.sendMessage(address, body);
-    }
+   public ClientMessage sendMessage(String address, String body) {
+      return embeddedActiveMQDelegate.sendMessage(address, body);
+   }
 
-    public ClientMessage sendMessageWithProperties(String address, Map<String, Object> properties) {
-        return embeddedActiveMQDelegate.sendMessageWithProperties(address, properties);
-    }
+   public ClientMessage sendMessageWithProperties(String address, Map<String, Object> properties) {
+      return embeddedActiveMQDelegate.sendMessageWithProperties(address, properties);
+   }
 
-    public ClientMessage sendMessageWithProperties(String address, byte[] body, Map<String, Object> properties) {
-        return embeddedActiveMQDelegate.sendMessageWithProperties(address, body, properties);
-    }
+   public ClientMessage sendMessageWithProperties(String address, byte[] body, Map<String, Object> properties) {
+      return embeddedActiveMQDelegate.sendMessageWithProperties(address, body, properties);
+   }
 
-    public ClientMessage sendMessageWithProperties(String address, String body, Map<String, Object> properties) {
-        return embeddedActiveMQDelegate.sendMessageWithProperties(address, body, properties);
-    }
+   public ClientMessage sendMessageWithProperties(String address, String body, Map<String, Object> properties) {
+      return embeddedActiveMQDelegate.sendMessageWithProperties(address, body, properties);
+   }
 
-    public void sendMessage(SimpleString address, ClientMessage message) {
-        embeddedActiveMQDelegate.sendMessage(address, message);
-    }
+   public void sendMessage(SimpleString address, ClientMessage message) {
+      embeddedActiveMQDelegate.sendMessage(address, message);
+   }
 
-    public ClientMessage sendMessage(SimpleString address, byte[] body) {
-        return embeddedActiveMQDelegate.sendMessage(address, body);
-    }
+   public ClientMessage sendMessage(SimpleString address, byte[] body) {
+      return embeddedActiveMQDelegate.sendMessage(address, body);
+   }
 
-    public ClientMessage sendMessage(SimpleString address, String body) {
-        return embeddedActiveMQDelegate.sendMessage(address, body);
-    }
+   public ClientMessage sendMessage(SimpleString address, String body) {
+      return embeddedActiveMQDelegate.sendMessage(address, body);
+   }
 
-    public ClientMessage sendMessageWithProperties(SimpleString address, Map<String, Object> properties) {
-        return embeddedActiveMQDelegate.sendMessageWithProperties(address, properties);
-    }
+   public ClientMessage sendMessageWithProperties(SimpleString address, Map<String, Object> properties) {
+      return embeddedActiveMQDelegate.sendMessageWithProperties(address, properties);
+   }
 
-    public ClientMessage sendMessageWithProperties(SimpleString address, byte[] body, Map<String, Object> properties) {
-        return embeddedActiveMQDelegate.sendMessageWithProperties(address, body, properties);
-    }
+   public ClientMessage sendMessageWithProperties(SimpleString address, byte[] body, Map<String, Object> properties) {
+      return embeddedActiveMQDelegate.sendMessageWithProperties(address, body, properties);
+   }
 
-    public ClientMessage sendMessageWithProperties(SimpleString address, String body, Map<String, Object> properties) {
-        return embeddedActiveMQDelegate.sendMessageWithProperties(address, body, properties);
-    }
+   public ClientMessage sendMessageWithProperties(SimpleString address, String body, Map<String, Object> properties) {
+      return embeddedActiveMQDelegate.sendMessageWithProperties(address, body, properties);
+   }
 
-    public ClientMessage receiveMessage(String queueName) {
-        return embeddedActiveMQDelegate.receiveMessage(queueName);
-    }
+   public ClientMessage receiveMessage(String queueName) {
+      return embeddedActiveMQDelegate.receiveMessage(queueName);
+   }
 
-    public ClientMessage receiveMessage(String queueName, long timeout) {
-        return embeddedActiveMQDelegate.receiveMessage(queueName, timeout);
-    }
+   public ClientMessage receiveMessage(String queueName, long timeout) {
+      return embeddedActiveMQDelegate.receiveMessage(queueName, timeout);
+   }
 
-    public ClientMessage receiveMessage(SimpleString queueName) {
-        return embeddedActiveMQDelegate.receiveMessage(queueName);
-    }
+   public ClientMessage receiveMessage(SimpleString queueName) {
+      return embeddedActiveMQDelegate.receiveMessage(queueName);
+   }
 
-    public ClientMessage receiveMessage(SimpleString queueName, long timeout) {
-        return embeddedActiveMQDelegate.receiveMessage(queueName, timeout);
-    }
+   public ClientMessage receiveMessage(SimpleString queueName, long timeout) {
+      return embeddedActiveMQDelegate.receiveMessage(queueName, timeout);
+   }
 
-    public ClientMessage browseMessage(String queueName) {
-        return embeddedActiveMQDelegate.browseMessage(queueName);
-    }
+   public ClientMessage browseMessage(String queueName) {
+      return embeddedActiveMQDelegate.browseMessage(queueName);
+   }
 
-    public ClientMessage browseMessage(String queueName, long timeout) {
-        return embeddedActiveMQDelegate.browseMessage(queueName, timeout);
-    }
+   public ClientMessage browseMessage(String queueName, long timeout) {
+      return embeddedActiveMQDelegate.browseMessage(queueName, timeout);
+   }
 
-    public ClientMessage browseMessage(SimpleString queueName) {
-        return embeddedActiveMQDelegate.browseMessage(queueName);
-    }
+   public ClientMessage browseMessage(SimpleString queueName) {
+      return embeddedActiveMQDelegate.browseMessage(queueName);
+   }
 
-    public ClientMessage browseMessage(SimpleString queueName, long timeout) {
-        return embeddedActiveMQDelegate.browseMessage(queueName, timeout);
-    }
+   public ClientMessage browseMessage(SimpleString queueName, long timeout) {
+      return embeddedActiveMQDelegate.browseMessage(queueName, timeout);
+   }
 }

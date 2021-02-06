@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.junit.rules.ExternalResource;
-
-import java.util.Map;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis ClientConsumer into a test.
@@ -44,85 +44,88 @@ import java.util.Map;
  */
 public class ActiveMQConsumerResource extends ExternalResource {
 
-    private ActiveMQConsumerDelegate activeMQConsumer;
+   private ActiveMQConsumerDelegate activeMQConsumer;
 
-    public ActiveMQConsumerResource(String url, String queueName) {
-        this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName);
-    }
+   public ActiveMQConsumerResource(String url, String queueName) {
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName);
+   }
 
-    public ActiveMQConsumerResource(String url, String queueName, String username, String password) {
-        this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName, username, password);
-    }
+   public ActiveMQConsumerResource(String url, String queueName, String username, String password) {
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName, username, password);
+   }
 
-    public ActiveMQConsumerResource(String url, SimpleString queueName, String username, String password) {
-        this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName, username, password);
-    }
+   public ActiveMQConsumerResource(String url, SimpleString queueName, String username, String password) {
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName, username, password);
+   }
 
-    public ActiveMQConsumerResource(String url, SimpleString queueName) {
-        this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName);
-    }
+   public ActiveMQConsumerResource(String url, SimpleString queueName) {
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName);
+   }
 
-    public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName, String username, String password) {
-        this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName, username, password);
-    }
+   public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName, String username, String password) {
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName, username, password);
+   }
 
-    public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName) {
-        this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName);
-    }
+   public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName) {
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName);
+   }
 
-    public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName, String username, String password) {
-        this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName, username, password);
-    }
+   public ActiveMQConsumerResource(ServerLocator serverLocator,
+                                   SimpleString queueName,
+                                   String username,
+                                   String password) {
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName, username, password);
+   }
 
-    public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName) {
-        this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName);
-    }
+   public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName) {
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName);
+   }
 
-    @Override
-    protected void before() throws Throwable {
-        super.before();
-        activeMQConsumer.start();
-    }
+   @Override
+   protected void before() throws Throwable {
+      super.before();
+      activeMQConsumer.start();
+   }
 
-    @Override
-    protected void after() {
-        activeMQConsumer.stop();
-        super.after();
-    }
+   @Override
+   protected void after() {
+      activeMQConsumer.stop();
+      super.after();
+   }
 
-    protected void createClient() {
-        activeMQConsumer.createClient();
-    }
+   protected void createClient() {
+      activeMQConsumer.createClient();
+   }
 
-    protected void stopClient() {
-        activeMQConsumer.stopClient();
-    }
+   protected void stopClient() {
+      activeMQConsumer.stopClient();
+   }
 
-    public boolean isAutoCreateQueue() {
-        return activeMQConsumer.isAutoCreateQueue();
-    }
+   public boolean isAutoCreateQueue() {
+      return activeMQConsumer.isAutoCreateQueue();
+   }
 
-    public void setAutoCreateQueue(boolean autoCreateQueue) {
-        activeMQConsumer.setAutoCreateQueue(autoCreateQueue);
-    }
+   public void setAutoCreateQueue(boolean autoCreateQueue) {
+      activeMQConsumer.setAutoCreateQueue(autoCreateQueue);
+   }
 
-    public ClientMessage receiveMessage() {
-        return activeMQConsumer.receiveMessage();
-    }
+   public ClientMessage receiveMessage() {
+      return activeMQConsumer.receiveMessage();
+   }
 
-    public ClientMessage receiveMessage(long timeout) {
-        return activeMQConsumer.receiveMessage(timeout);
-    }
+   public ClientMessage receiveMessage(long timeout) {
+      return activeMQConsumer.receiveMessage(timeout);
+   }
 
-    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
-        AbstractActiveMQClientDelegate.addMessageProperties(message, properties);
-    }
+   public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
+      AbstractActiveMQClientDelegate.addMessageProperties(message, properties);
+   }
 
-    public long getDefaultReceiveTimeout() {
-        return activeMQConsumer.getDefaultReceiveTimeout();
-    }
+   public long getDefaultReceiveTimeout() {
+      return activeMQConsumer.getDefaultReceiveTimeout();
+   }
 
-    public void setDefaultReceiveTimeout(long defaultReceiveTimeout) {
-        activeMQConsumer.setDefaultReceiveTimeout(defaultReceiveTimeout);
-    }
+   public void setDefaultReceiveTimeout(long defaultReceiveTimeout) {
+      activeMQConsumer.setDefaultReceiveTimeout(defaultReceiveTimeout);
+   }
 }

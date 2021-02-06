@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.junit.jupiter.api.AfterAll;
@@ -24,13 +27,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
-
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ActiveMQProducerResourceTest {

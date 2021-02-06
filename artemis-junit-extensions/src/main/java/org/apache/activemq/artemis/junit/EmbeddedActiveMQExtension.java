@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -28,12 +30,9 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis server into a test.
- *
+ * <p>
  * This JUnit Rule is designed to simplify using embedded servers in unit tests.  Adding the rule to a test will startup
  * an embedded server, which can then be used by client applications.
  *
@@ -88,7 +87,6 @@ public class EmbeddedActiveMQExtension implements BeforeAllCallback, AfterAllCal
    public EmbeddedActiveMQExtension(String filename) {
       this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(filename);
    }
-
 
    /**
     * Invoked by JUnit to setup the resource - start the embedded ActiveMQ Artemis server
