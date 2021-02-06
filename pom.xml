@@ -43,7 +43,9 @@
       <module>artemis-core-client-all</module>
       <module>artemis-core-client-osgi</module>
       <module>artemis-server</module>
+      <module>artemis-junit-all</module>
       <module>artemis-junit</module>
+      <module>artemis-junit-extensions</module>
       <module>artemis-jms-client</module>
       <module>artemis-jms-client-all</module>
       <module>artemis-jms-client-osgi</module>
@@ -97,6 +99,9 @@
       <jetty.version>9.4.35.v20201120</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
+      <!-- 2.22.+ support junit4 + junit5 -->
+      <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
+      <junit.version>5.7.0</junit.version>
       <mockito.version>3.3.3</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.51.Final</netty.version>
@@ -256,15 +261,41 @@
 
    <dependencyManagement>
       <dependencies>
+
+         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <!-- Eclipse Public License - v 2.0 -->
+         </dependency>
+
+         <!-- ## Test Dependencies ## Note: Run Junit5 test. -->
+         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+            <!-- Eclipse Public License - v 2.0 -->
+         </dependency>
+
+         <!-- ## Test Dependencies ## Note: Run Junit4 tests. -->
+         <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit.version}</version>
+            <!-- Eclipse Public License - v 2.0 -->
+         </dependency>
+
          <!-- ## Test Dependencies ## Note: Junit is required in certain module tests.  We should control versions from here. -->
          <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>4.13</version>
             <scope>test</scope>
             <!-- License: CPL 1.0 -->
             <!-- There are newer versions of the JUnit but they break our tests -->
          </dependency>
+
          <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
@@ -910,6 +941,7 @@
                <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-surefire-plugin</artifactId>
+                  <version>${maven.surefire.plugin.version}</version>
                   <configuration>
                      <systemPropertyVariables>
                         <com.ibm.jsse2.overrideDefaultTLS>true</com.ibm.jsse2.overrideDefaultTLS>
@@ -1522,6 +1554,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-surefire-plugin</artifactId>
+               <version>${maven.surefire.plugin.version}</version>
                <configuration>
                   <forkMode>once</forkMode>
                   <testFailureIgnore>${testFailureIgnore}</testFailureIgnore>

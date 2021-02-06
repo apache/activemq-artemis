@@ -16,18 +16,16 @@
  */
 package org.apache.activemq.artemis.junit;
 
-import java.util.Map;
-
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.junit.rules.ExternalResource;
+
+import java.util.Map;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis ClientProducer bound to a specific address into a test.
- *
+ * <p>
  * This JUnit Rule is designed to simplify using ActiveMQ Artemis clients in unit tests.  Adding the rule to a test will startup
  * a ClientProducer, which can then be used to feed messages to the bound address on an ActiveMQ Artemis server.
  *
@@ -44,278 +42,143 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
  * }
  * </code></pre>
  */
-public class ActiveMQProducerResource extends AbstractActiveMQClientResource {
+public class ActiveMQProducerResource extends ExternalResource {
 
-   boolean useDurableMessage = true;
-   SimpleString address = null;
-   ClientProducer producer;
+    private ActiveMQProducerDelegate activeMQProducer;
 
-   protected ActiveMQProducerResource(String url, String username, String password) {
-      super(url, username, password);
-   }
+    protected ActiveMQProducerResource(String url, String username, String password) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(url, username, password);
+    }
 
-   protected ActiveMQProducerResource(String url) {
-      super(url);
-   }
+    protected ActiveMQProducerResource(String url) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(url);
+    }
 
-   protected ActiveMQProducerResource(ServerLocator serverLocator, String username, String password) {
-      super(serverLocator, username, password);
-   }
+    protected ActiveMQProducerResource(ServerLocator serverLocator, String username, String password) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, username, password);
+    }
 
-   protected ActiveMQProducerResource(ServerLocator serverLocator) {
-      super(serverLocator);
-   }
+    protected ActiveMQProducerResource(ServerLocator serverLocator) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator);
+    }
 
-   public ActiveMQProducerResource(String url, String address, String username, String password) {
-      this(url, SimpleString.toSimpleString(address), username, password);
-   }
+    public ActiveMQProducerResource(String url, String address, String username, String password) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(url, address, username, password);
+    }
 
-   public ActiveMQProducerResource(String url, String address) {
-      this(url, address, null, null);
-   }
+    public ActiveMQProducerResource(String url, String address) {
+        this(url, address, null, null);
+    }
 
-   public ActiveMQProducerResource(String url, SimpleString address, String username, String password) {
-      super(url, username, password);
-      if (address == null) {
-         throw new IllegalArgumentException(String.format("%s construction error - address cannot be null", this.getClass().getSimpleName()));
-      }
-      this.address = address;
-   }
+    public ActiveMQProducerResource(String url, SimpleString address, String username, String password) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(url, address, username, password);
+    }
 
-   public ActiveMQProducerResource(String url, SimpleString address) {
-      this(url, address, null, null);
-   }
+    public ActiveMQProducerResource(String url, SimpleString address) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(url, address);
+    }
 
-   public ActiveMQProducerResource(ServerLocator serverLocator, String address, String username, String password) {
-      this(serverLocator, SimpleString.toSimpleString(address), username, password);
-   }
+    public ActiveMQProducerResource(ServerLocator serverLocator, String address, String username, String password) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address, username, password);
+    }
 
-   public ActiveMQProducerResource(ServerLocator serverLocator, String address) {
-      this(serverLocator, SimpleString.toSimpleString(address));
-   }
+    public ActiveMQProducerResource(ServerLocator serverLocator, String address) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address);
+    }
 
-   public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address, String username, String password) {
-      super(serverLocator, username, password);
-      if (address == null) {
-         throw new IllegalArgumentException(String.format("%s construction error - address cannot be null", this.getClass().getSimpleName()));
-      }
-      this.address = address;
-   }
+    public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address, String username, String password) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address, username, password);
+    }
 
-   public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address) {
-      this(serverLocator, address, null, null);
-   }
+    public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address) {
+        this.activeMQProducer = new ActiveMQProducerDelegate(serverLocator, address);
+    }
 
-   public boolean isUseDurableMessage() {
-      return useDurableMessage;
-   }
+    @Override
+    protected void before() throws Throwable {
+        super.before();
+        activeMQProducer.start();
+    }
 
-   /**
-    * Disables/Enables creating durable messages.  By default, durable messages are created
-    *
-    * @param useDurableMessage if true, durable messages will be created
-    */
-   public void setUseDurableMessage(boolean useDurableMessage) {
-      this.useDurableMessage = useDurableMessage;
-   }
+    @Override
+    protected void after() {
+        activeMQProducer.stop();
+        super.after();
+    }
 
-   @Override
-   protected void createClient() {
-      try {
-         if (!session.addressQuery(address).isExists() && autoCreateQueue) {
-            log.warn("{}: queue does not exist - creating queue: address = {}, name = {}", this.getClass().getSimpleName(), address.toString(), address.toString());
-            session.createQueue(new QueueConfiguration(address));
-         }
-         producer = session.createProducer(address);
-      } catch (ActiveMQException amqEx) {
-         throw new ActiveMQClientResourceException(String.format("Error creating producer for address %s", address.toString()), amqEx);
-      }
-   }
+    public boolean isUseDurableMessage() {
+        return activeMQProducer.isUseDurableMessage();
+    }
 
-   @Override
-   protected void stopClient() {
-      if (producer != null) {
-         try {
-            producer.close();
-         } catch (ActiveMQException amqEx) {
-            log.warn("ActiveMQException encountered closing InternalClient ClientProducer - ignoring", amqEx);
-         } finally {
-            producer = null;
-         }
-      }
-   }
+    public void setUseDurableMessage(boolean useDurableMessage) {
+        activeMQProducer.setUseDurableMessage(useDurableMessage);
+    }
 
-   /**
-    * Create a ClientMessage
-    * <p>
-    * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
-    *
-    * @return a new ClientMessage
-    */
-   public ClientMessage createMessage() {
-      if (session == null) {
-         throw new IllegalStateException("ClientSession is null");
-      }
-      return session.createMessage(isUseDurableMessage());
-   }
+    protected void createClient() {
+        activeMQProducer.createClient();
+    }
 
-   /**
-    * Create a ClientMessage with the specified body
-    * <p>
-    * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
-    *
-    * @param body the body for the new message
-    * @return a new ClientMessage with the specified body
-    */
-   public ClientMessage createMessage(byte[] body) {
-      ClientMessage message = createMessage();
+    protected void stopClient() {
+        activeMQProducer.stopClient();
+    }
 
-      if (body != null) {
-         message.writeBodyBufferBytes(body);
-      }
+    public ClientMessage createMessage() {
+        return activeMQProducer.createMessage();
+    }
 
-      return message;
-   }
+    public ClientMessage createMessage(byte[] body) {
+        return activeMQProducer.createMessage(body);
+    }
 
-   /**
-    * Create a ClientMessage with the specified body
-    * <p>
-    * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
-    *
-    * @param body the body for the new message
-    * @return a new ClientMessage with the specified body
-    */
-   public ClientMessage createMessage(String body) {
-      ClientMessage message = createMessage();
+    public ClientMessage createMessage(String body) {
+        return activeMQProducer.createMessage(body);
+    }
 
-      if (body != null) {
-         message.writeBodyBufferString(body);
-      }
+    public ClientMessage createMessage(Map<String, Object> properties) {
+        return activeMQProducer.createMessage(properties);
+    }
 
-      return message;
-   }
+    public ClientMessage createMessage(byte[] body, Map<String, Object> properties) {
+        return activeMQProducer.createMessage(body, properties);
+    }
 
-   /**
-    * Create a ClientMessage with the specified message properties
-    * <p>
-    * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
-    *
-    * @param properties message properties for the new message
-    * @return a new ClientMessage with the specified message properties
-    */
-   public ClientMessage createMessage(Map<String, Object> properties) {
-      ClientMessage message = createMessage();
+    public ClientMessage createMessage(String body, Map<String, Object> properties) {
+        return activeMQProducer.createMessage(body, properties);
+    }
 
-      addMessageProperties(message, properties);
+    public void sendMessage(ClientMessage message) {
+        activeMQProducer.sendMessage(message);
+    }
 
-      return message;
-   }
+    public ClientMessage sendMessage(byte[] body) {
+        return activeMQProducer.sendMessage(body);
+    }
 
-   /**
-    * Create a ClientMessage with the specified body and message properties
-    * <p>
-    * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
-    *
-    * @param body       the body for the new message
-    * @param properties message properties for the new message
-    * @return a new ClientMessage with the specified body and message properties
-    */
-   public ClientMessage createMessage(byte[] body, Map<String, Object> properties) {
-      ClientMessage message = createMessage(body);
+    public ClientMessage sendMessage(String body) {
+        return activeMQProducer.sendMessage(body);
+    }
 
-      addMessageProperties(message, properties);
+    public ClientMessage sendMessage(Map<String, Object> properties) {
+        return activeMQProducer.sendMessage(properties);
+    }
 
-      return message;
-   }
+    public ClientMessage sendMessage(byte[] body, Map<String, Object> properties) {
+        return activeMQProducer.sendMessage(body, properties);
+    }
 
-   /**
-    * Create a ClientMessage with the specified body and message properties
-    * <p>
-    * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
-    *
-    * @param body       the body for the new message
-    * @param properties message properties for the new message
-    * @return a new ClientMessage with the specified body and message properties
-    */
-   public ClientMessage createMessage(String body, Map<String, Object> properties) {
-      ClientMessage message = createMessage(body);
+    public ClientMessage sendMessage(String body, Map<String, Object> properties) {
+        return activeMQProducer.sendMessage(body, properties);
+    }
 
-      addMessageProperties(message, properties);
+    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
+        AbstractActiveMQClientDelegate.addMessageProperties(message, properties);
+    }
 
-      return message;
-   }
+    public boolean isAutoCreateQueue() {
+        return activeMQProducer.isAutoCreateQueue();
+    }
 
-   /**
-    * Send a ClientMessage to the server
-    *
-    * @param message the message to send
-    */
-   public void sendMessage(ClientMessage message) {
-      try {
-         producer.send(message);
-      } catch (ActiveMQException amqEx) {
-         throw new ActiveMQClientResourceException(String.format("Failed to send message to %s", producer.getAddress().toString()), amqEx);
-      }
-   }
-
-   /**
-    * Create a new ClientMessage with the specified body and send to the server
-    *
-    * @param body the body for the new message
-    * @return the message that was sent
-    */
-   public ClientMessage sendMessage(byte[] body) {
-      ClientMessage message = createMessage(body);
-      sendMessage(message);
-      return message;
-   }
-
-   /**
-    * Create a new ClientMessage with the specified body and send to the server
-    *
-    * @param body the body for the new message
-    * @return the message that was sent
-    */
-   public ClientMessage sendMessage(String body) {
-      ClientMessage message = createMessage(body);
-      sendMessage(message);
-      return message;
-   }
-
-   /**
-    * Create a new ClientMessage with the specified properties and send to the server
-    *
-    * @param properties the properties for the new message
-    * @return the message that was sent
-    */
-   public ClientMessage sendMessage(Map<String, Object> properties) {
-      ClientMessage message = createMessage(properties);
-      sendMessage(message);
-      return message;
-   }
-
-   /**
-    * Create a new ClientMessage with the specified body and and properties and send to the server
-    *
-    * @param properties the properties for the new message
-    * @return the message that was sent
-    */
-   public ClientMessage sendMessage(byte[] body, Map<String, Object> properties) {
-      ClientMessage message = createMessage(body);
-      sendMessage(message);
-      return message;
-   }
-
-   /**
-    * Create a new ClientMessage with the specified body and and properties and send to the server
-    *
-    * @param properties the properties for the new message
-    * @return the message that was sent
-    */
-   public ClientMessage sendMessage(String body, Map<String, Object> properties) {
-      ClientMessage message = createMessage(body);
-      sendMessage(message);
-      return message;
-   }
-
+    public void setAutoCreateQueue(boolean autoCreateQueue) {
+        activeMQProducer.setAutoCreateQueue(autoCreateQueue);
+    }
 }
