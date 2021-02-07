@@ -450,6 +450,18 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
+   public void largeMessageClosed(LargeServerMessage largeServerMessage) throws ActiveMQException {
+      readLock();
+      try {
+         if (isReplicated()) {
+            replicator.largeMessageClosed(largeServerMessage.toMessage().getMessageID(), JournalStorageManager.this);
+         }
+      } finally {
+         readUnLock();
+      }
+   }
+
+   @Override
    public void deleteLargeMessageBody(final LargeServerMessage largeServerMessage) throws ActiveMQException {
       synchronized (largeServerMessage) {
          if (!largeServerMessage.hasPendingRecord()) {

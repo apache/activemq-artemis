@@ -346,7 +346,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
 
       for (ReplicatedLargeMessage largeMessage : largeMessages.values()) {
-         largeMessage.releaseResources(true);
+         largeMessage.releaseResources(true, false);
       }
       largeMessages.clear();
 
@@ -615,22 +615,29 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (logger.isTraceEnabled()) {
          logger.trace("handleLargeMessageEnd on " + packet.getMessageId());
       }
-      final ReplicatedLargeMessage message = lookupLargeMessage(packet.getMessageId(), true, false);
+      final ReplicatedLargeMessage message = lookupLargeMessage(packet.getMessageId(), packet.isDelete(), false);
       if (message != null) {
          message.setPendingRecordID(packet.getPendingRecordId());
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("Deleting LargeMessage " + packet.getMessageId() + " on the executor @ handleLargeMessageEnd");
-                  }
-                  message.deleteFile();
-               } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.errorDeletingLargeMessage(e, packet.getMessageId());
-               }
+         if (!packet.isDelete()) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("Closing LargeMessage " + packet.getMessageId() + " on the executor @ handleLargeMessageEnd");
             }
-         });
+            message.releaseResources(true, false);
+         } else {
+            executor.execute(new Runnable() {
+               @Override
+               public void run() {
+                  try {
+                     if (logger.isTraceEnabled()) {
+                        logger.trace("Deleting LargeMessage " + packet.getMessageId() + " on the executor @ handleLargeMessageEnd");
+                     }
+                     message.deleteFile();
+                  } catch (Exception e) {
+                     ActiveMQServerLogger.LOGGER.errorDeletingLargeMessage(e, packet.getMessageId());
+                  }
+               }
+            });
+         }
       }
    }
 
@@ -902,5 +909,12 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     */
    public void setExecutor(Executor executor2) {
       this.executor = executor2;
+   }
+
+   /**
+    * This is for tests basically, do not use it as its API is not guaranteed for future usage.
+    */
+   public ConcurrentMap<Long, ReplicatedLargeMessage> getLargeMessages() {
+      return largeMessages;
    }
 }

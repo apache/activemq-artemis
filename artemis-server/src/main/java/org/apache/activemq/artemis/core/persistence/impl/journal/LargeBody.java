@@ -116,7 +116,7 @@ public class LargeBody {
    public synchronized void deleteFile() {
       try {
          validateFile();
-         releaseResources(false);
+         releaseResources(false, false);
          storageManager.deleteLargeMessageBody(message);
       } catch (Exception e) {
          storageManager.criticalError(e);
@@ -303,13 +303,20 @@ public class LargeBody {
       }
    }
 
-   public synchronized void releaseResources(boolean sync) {
+   /**
+    * sendEvent means it's a close happening from end of write largemessage.
+    * While reading the largemessage we don't need (and shouldn't inform the backup
+    */
+   public synchronized void releaseResources(boolean sync, boolean sendEvent) {
       if (file != null && file.isOpen()) {
          try {
             if (sync) {
                file.sync();
             }
             file.close(false, false);
+            if (sendEvent) {
+               storageManager.largeMessageClosed(message);
+            }
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.largeMessageErrorReleasingResources(e);
          }

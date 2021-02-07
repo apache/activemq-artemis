@@ -252,6 +252,11 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void largeMessageClosed(LargeServerMessage largeServerMessage) throws ActiveMQException {
+
+      }
+
+      @Override
       public void addBytesToLargeMessage(SequentialFile file, long messageId, ActiveMQBuffer bytes) throws Exception {
 
       }

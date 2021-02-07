@@ -150,7 +150,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    }
 
    public void closeLargeMessage() throws Exception {
-      largeBody.releaseResources(false);
+      largeBody.releaseResources(false, true);
       parsingData.freeDirectBuffer();
       parsingData = null;
    }
@@ -443,8 +443,8 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    }
 
    @Override
-   public void releaseResources(boolean sync) {
-      largeBody.releaseResources(sync);
+   public void releaseResources(boolean sync, boolean sendEvent) {
+      largeBody.releaseResources(sync, sendEvent);
 
    }
 
@@ -526,7 +526,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          }
 
          largeBody.copyInto(copy, bufferNewHeader, place.intValue());
-         copy.releaseResources(true);
+         copy.releaseResources(true, true);
          return copy;
 
       } catch (Exception e) {

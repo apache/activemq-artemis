@@ -293,7 +293,7 @@ public class PageTest extends ActiveMQTestBase {
          msg.addBytes(content);
          msg.setAddress(address);
          page.write(new PagedMessageImpl(msg, new long[0]));
-         msg.releaseResources(false);
+         msg.releaseResources(false, false);
       } else {
          ICoreMessage msg = new CoreMessage().initBuffer(100);
          msg.setMessageID(msgID);

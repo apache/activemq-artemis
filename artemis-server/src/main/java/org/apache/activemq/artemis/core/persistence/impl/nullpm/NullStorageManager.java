@@ -608,6 +608,11 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
+   public void largeMessageClosed(LargeServerMessage largeServerMessage) throws ActiveMQException {
+
+   }
+
+   @Override
    public boolean addToPage(PagingStore store,
                             Message msg,
                             Transaction tx,

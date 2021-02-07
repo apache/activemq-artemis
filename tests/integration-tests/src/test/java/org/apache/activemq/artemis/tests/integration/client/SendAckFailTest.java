@@ -863,6 +863,11 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
+      public void largeMessageClosed(LargeServerMessage largeServerMessage) throws ActiveMQException {
+         manager.largeMessageClosed(largeServerMessage);
+      }
+
+      @Override
       public void addBytesToLargeMessage(SequentialFile file, long messageId, ActiveMQBuffer bytes) throws Exception {
          manager.addBytesToLargeMessage(file, messageId, bytes);
       }

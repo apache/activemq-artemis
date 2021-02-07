@@ -1418,7 +1418,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                context = null;
             }
 
-            largeMessage.releaseResources(false);
+            largeMessage.releaseResources(false, false);
 
             largeMessage.toMessage().usageDown();
 

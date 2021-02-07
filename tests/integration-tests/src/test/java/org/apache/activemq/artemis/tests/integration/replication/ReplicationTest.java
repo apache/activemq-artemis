@@ -71,6 +71,7 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
@@ -78,6 +79,7 @@ import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -537,6 +539,29 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       Assert.assertEquals(0, manager.getActiveTokens().size());
+   }
+
+   @Test
+   public void testReplicationLargeMessageFileClose() throws Exception {
+      setupServer(true);
+
+      JournalStorageManager storage = getStorage();
+
+      manager = liveServer.getReplicationManager();
+      waitForComponent(manager);
+
+      CoreMessage msg = new CoreMessage().initBuffer(1024).setMessageID(1);
+      LargeServerMessage largeMsg = liveServer.getStorageManager().createLargeMessage(500, msg);
+      largeMsg.addBytes(new byte[1024]);
+      largeMsg.releaseResources(true, true);
+
+      blockOnReplication(storage, manager);
+
+      LargeServerMessageImpl message1 = (LargeServerMessageImpl) backupServer.getReplicationEndpoint().getLargeMessages().get(Long.valueOf(500));
+
+      Assert.assertNotNull(message1);
+      Assert.assertFalse(largeMsg.getAppendFile().isOpen());
+      Assert.assertFalse(message1.getAppendFile().isOpen());
    }
 
    class FakeData implements EncodingSupport {
