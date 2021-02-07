@@ -261,6 +261,33 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testDefaultBridgeProducerWindowSize() throws Exception {
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = firstPart +
+         "<bridges>\n" +
+         "   <bridge name=\"my-bridge\">\n" +
+         "      <queue-name>sausage-factory</queue-name>\n" +
+         "      <forwarding-address>mincing-machine</forwarding-address>\n" +
+         "      <static-connectors>\n" +
+         "         <connector-ref>remote-connector</connector-ref>\n" +
+         "      </static-connectors>\n" +
+         "   </bridge>\n" +
+         "</bridges>\n"
+         + lastPart;
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+
+      List<BridgeConfiguration> bridgeConfigs = config.getBridgeConfigurations();
+      assertEquals(1, bridgeConfigs.size());
+
+      BridgeConfiguration bconfig = bridgeConfigs.get(0);
+
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize(), bconfig.getProducerWindowSize());
+   }
+
+   @Test
    public void testParsingOverflowPageSize() throws Exception {
       testParsingOverFlow("<address-settings>" + "\n" + "<address-setting match=\"#\">" + "\n" + "<page-size-bytes>2147483648</page-size-bytes>\n" + "</address-setting>" + "\n" + "</address-settings>" + "\n");
       testParsingOverFlow("<journal-file-size>2147483648</journal-file-size>");
