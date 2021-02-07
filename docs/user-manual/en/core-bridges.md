@@ -132,23 +132,6 @@ Let's take a look at all the parameters in turn:
   value of `-1` signifies an unlimited number of attempts. The default value is
   `-1`.
 
-- `failover-on-server-shutdown`. This optional parameter determines whether the
-  bridge will attempt to failover onto a backup server (if specified) when the
-  target server is cleanly shutdown rather than crashed.
-
-  The bridge connector can specify both a live and a backup server, if it
-  specifies a backup server and this parameter is set to `true` then if the
-  target server is *cleanly* shutdown the bridge connection will attempt to
-  failover onto its backup. If the bridge connector has no backup server
-  configured then this parameter has no effect.
-
-  Sometimes you want a bridge configured with a live and a backup target
-  server, but you don't want to failover to the backup if the live server is
-  simply taken down temporarily for maintenance, this is when this parameter
-  comes in handy.
-
-  The default value for this parameter is `false`.
-
 - `use-duplicate-detection`. This optional parameter determines whether the
   bridge will automatically insert a duplicate id property into each message
   that it forwards.

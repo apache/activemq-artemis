@@ -1589,7 +1589,9 @@
          <xsd:element name="failover-on-server-shutdown" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  should failover be prompted if target server is cleanly shutdown?
+                  DEPRECATED: This setting has no impact, but it's being left here to avoid XML parsing errors for users
+                  who still have it set. Failover on shutdown is controlled via the ha-policy set on the *broker* to
+                  which the bridge connects.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
