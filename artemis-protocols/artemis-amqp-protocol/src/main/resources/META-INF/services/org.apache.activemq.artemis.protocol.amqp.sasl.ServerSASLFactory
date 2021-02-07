@@ -1,0 +1,4 @@
+org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASLFactory
+org.apache.activemq.artemis.protocol.amqp.sasl.PlainServerSASLFactory
+org.apache.activemq.artemis.protocol.amqp.sasl.GSSAPIServerSASLFactory
+org.apache.activemq.artemis.protocol.amqp.sasl.ExternalServerSASLFactory

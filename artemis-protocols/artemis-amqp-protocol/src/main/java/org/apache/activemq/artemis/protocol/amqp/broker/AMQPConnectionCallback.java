@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.net.URI;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +28,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -44,11 +42,10 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
-import org.apache.activemq.artemis.protocol.amqp.sasl.ExternalServerSASL;
-import org.apache.activemq.artemis.protocol.amqp.sasl.GSSAPIServerSASL;
-import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
+import org.apache.activemq.artemis.protocol.amqp.sasl.MechanismFinder;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
+import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASLFactory;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -63,7 +60,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
    private static final Logger logger = Logger.getLogger(AMQPConnectionCallback.class);
 
-   private ConcurrentMap<Binary, Transaction> transactions = new ConcurrentHashMap<>();
+   private final ConcurrentMap<Binary, Transaction> transactions = new ConcurrentHashMap<>();
 
    private final ProtonProtocolManager manager;
 
@@ -105,36 +102,11 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    public ServerSASL getServerSASL(final String mechanism) {
       ServerSASL result = null;
       if (isPermittedMechanism(mechanism)) {
-         switch (mechanism) {
-            case PlainSASL.NAME:
-               result = new PlainSASL(server.getSecurityStore(), manager.getSecurityDomain(), connection.getProtocolConnection());
-               break;
-
-            case AnonymousServerSASL.NAME:
-               result = new AnonymousServerSASL();
-               break;
-
-            case GSSAPIServerSASL.NAME:
-               GSSAPIServerSASL gssapiServerSASL = new GSSAPIServerSASL();
-               gssapiServerSASL.setLoginConfigScope(manager.getSaslLoginConfigScope());
-               result = gssapiServerSASL;
-               break;
-
-            case ExternalServerSASL.NAME:
-               // validate ssl cert present
-               Principal principal = CertificateUtil.getPeerPrincipalFromConnection(protonConnectionDelegate);
-               if (principal != null) {
-                  ExternalServerSASL externalServerSASL = new ExternalServerSASL();
-                  externalServerSASL.setPrincipal(principal);
-                  result = externalServerSASL;
-               } else {
-                  logger.debug("SASL EXTERNAL mechanism requires a TLS peer principal");
-               }
-               break;
-
-            default:
-               logger.debug("Mo matching mechanism found for: " + mechanism);
-               break;
+         ServerSASLFactory factory = MechanismFinder.getFactory(mechanism);
+         if (factory != null) {
+            result = factory.create(server, manager, connection, protonConnectionDelegate);
+         } else {
+            logger.debug("Mo matching mechanism found for: " + mechanism);
          }
       }
       return result;
