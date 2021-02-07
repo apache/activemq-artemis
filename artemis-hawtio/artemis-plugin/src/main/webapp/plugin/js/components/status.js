@@ -30,7 +30,7 @@ var Artemis;
                 <div class="container-fluid">
                      <div class="row">
                         <div class="col-md-3 text-center">
-                            <label>'Address Memory Used'</label>
+                            <label>Address Memory Used</label>
                             <p class="text-left">
                             <pf-donut-pct-chart config="$ctrl.addressMemoryConfig" data="$ctrl.addressMemoryData" center-label="$ctrl.addressMemoryLabel"></pf-donut-pct-chart>
                             </p>
