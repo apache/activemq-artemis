@@ -29,29 +29,29 @@ var Artemis;
                 </h1>
                 <pf-topology items="$ctrl.data.items" relations="$ctrl.data.relations" kinds="$ctrl.kinds" icons="$ctrl.data.icons" nodes="$ctrl.nodes" item-selected="$ctrl.itemSelected(item)" search-text="searchText" show-labels="$ctrl.showLabels" tooltip-function="$ctrl.tooltip(node)">
 
-                <label>Show labels:
+                <label style="margin-right: 1em">Show labels:
                     <input type="checkbox" ng-model="$ctrl.showLabels">
                 </label>
-                 <label>Show addresses:
+                 <label style="margin-right: 1em">Show addresses:
                     <input type="checkbox" ng-model="$ctrl.showAddresses">
                 </label>
-                <label>Show queues:
+                <label style="margin-right: 1em">Show queues:
                     <input type="checkbox" ng-model="$ctrl.showQueues">
                 </label>
-                <label>Show internal addresses:
+                <label style="margin-right: 1em">Show internal addresses:
                     <input type="checkbox" ng-model="$ctrl.showInternalAddresses">
                 </label>
-                <label>Show internal queues:
+                <label style="margin-right: 1em">Show internal queues:
                     <input type="checkbox" ng-model="$ctrl.showInternalQueues">
                 </label>
 
-                <label>Show Live Brokers:
+                <label style="margin-right: 1em">Show Live Brokers:
                     <input type="checkbox" ng-model="$ctrl.showLiveBrokers">
                 </label>
-                <label>Show Backup Brokers:
+                <label style="margin-right: 1em">Show Backup Brokers:
                     <input type="checkbox" ng-model="$ctrl.showBackupBrokers">
                 </label>
-                <label>Show Connectors:
+                <label style="margin-right: 1em">Show Connectors:
                     <input type="checkbox" ng-model="$ctrl.showConnectors">
                 </label>
                 <button type="submit" class="btn btn-primary"
