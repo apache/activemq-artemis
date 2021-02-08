@@ -876,7 +876,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
                                                                       final String password,
                                                                       final boolean isXA,
                                                                       final int type) throws JMSException {
-      readOnly = true;
+      makeReadOnly();
 
       ClientSessionFactory factory;
 
@@ -964,5 +964,10 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
          //not much we can do here
       }
       super.finalize();
+   }
+
+   // this may need to be set by classes which extend this class
+   protected void makeReadOnly() {
+      this.readOnly = true;
    }
 }
