@@ -95,35 +95,47 @@ var Artemis;
         ctrl.showBackupBrokers = true;
         ctrl.showConnectors = true;
         ctrl.hiddenRelations = [];
-        $scope.$watch('$ctrl.showAddresses', function () {
+        function updateAddressKind() {
             if(ctrl.kinds.Address && !ctrl.showAddresses) {
                delete ctrl.kinds.Address;
             } else if (!ctrl.kinds.Address && ctrl.showAddresses) {
                 ctrl.kinds.Address = true;
             }
+        }
+        $scope.$watch('$ctrl.showAddresses', function () {
+            updateAddressKind();
         });
-        $scope.$watch('$ctrl.showQueues', function () {
+        function updateQueueKind() {
             if(ctrl.kinds.Queue && !ctrl.showQueues) {
                delete ctrl.kinds.Queue;
             } else if (!ctrl.kinds.Queues && ctrl.showQueues) {
                 ctrl.kinds.Queue = true;
             }
+        }
+        $scope.$watch('$ctrl.showQueues', function () {
+            updateQueueKind();
         });
-        $scope.$watch('$ctrl.showInternalAddresses', function () {
+        function updateInternalAddressKind() {
             if(ctrl.kinds.InternalAddress && !ctrl.showInternalAddresses) {
                delete ctrl.kinds.InternalAddress;
             } else if (!ctrl.kinds.InternalAddress && ctrl.showInternalAddresses) {
                 ctrl.kinds.InternalAddress = true;
             }
+        }
+        $scope.$watch('$ctrl.showInternalAddresses', function () {
+            updateInternalAddressKind();
         });
-        $scope.$watch('$ctrl.showInternalQueues', function () {
+        function updateInternalQueueKind() {
             if(ctrl.kinds.InternalQueue && !ctrl.showInternalQueues) {
                delete ctrl.kinds.InternalQueue;
             } else if (!ctrl.kinds.InternalQueues && ctrl.showInternalQueues) {
                 ctrl.kinds.InternalQueue = true;
             }
+        }
+        $scope.$watch('$ctrl.showInternalQueues', function () {
+            updateInternalQueueKind();
         });
-        $scope.$watch('$ctrl.showLiveBrokers', function () {
+        function updateLiveBrokerKind() {
             if(ctrl.kinds.ThisBroker && !ctrl.showLiveBrokers) {
                delete ctrl.kinds.ThisBroker;
             } else if (!ctrl.kinds.ThisBroker && ctrl.showLiveBrokers) {
@@ -134,22 +146,29 @@ var Artemis;
             } else if (!ctrl.kinds.MasterBroker && ctrl.showLiveBrokers) {
                 ctrl.kinds.MasterBroker = true;
             }
+        }
+        $scope.$watch('$ctrl.showLiveBrokers', function () {
+            updateLiveBrokerKind();
         });
-
-        $scope.$watch('$ctrl.showBackupBrokers', function () {
+        function updateBackupBrokerKind() {
             if(ctrl.kinds.SlaveBroker && !ctrl.showBackupBrokers) {
                delete ctrl.kinds.SlaveBroker;
             } else if (!ctrl.kinds.SlaveBroker && ctrl.showBackupBrokers) {
                 ctrl.kinds.SlaveBroker = true;
             }
+        }
+        $scope.$watch('$ctrl.showBackupBrokers', function () {
+            updateBackupBrokerKind();
         });
-
-        $scope.$watch('$ctrl.showConnectors', function () {
+        function updateConnectors() {
             if(!ctrl.showConnectors) {
                 ctrl.data.relations = [];
             } else {
                 ctrl.data.relations = ctrl.hiddenRelations;
             }
+        }
+        $scope.$watch('$ctrl.showConnectors', function () {
+            updateConnectors();
         });
         ctrl.datasets = [];
         //icons can be found at https://www.patternfly.org/v3/styles/icons/index.html
@@ -295,6 +314,15 @@ var Artemis;
                 showCheckboxes: false
             };
             ctrl.showAttributes = false;
+
+            updateAddressKind();
+            updateQueueKind();
+            updateInternalAddressKind();
+            updateInternalQueueKind();
+            updateLiveBrokerKind();
+            updateBackupBrokerKind();
+            updateConnectors();
+
             loadThisBroker();
             Core.$apply($scope);
         }
