@@ -8,6 +8,21 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.17.0
+
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12349326).
+
+Highlights:
+- [Message-level authorization](broker-plugins.md#using-the-brokermessageauthorizationplugin) similar to ActiveMQ 5.x.
+- A count of addresses and queues is now available from the management API.
+- You can now reload the broker's configuration from disk via the management API rather than waiting for the periodic 
+  disk scan to pick it up
+- New command-line option to transfer messages.
+- Performance improvements for the wildcard address manager.
+- JDBC datasource property values can now be masked.
+- Lots of usability improvements to the Hawtio 2 based web console introduced in 2.16.0
+- New management method to create a core bridge using JSON-based configuration input.
+
 ## 2.16.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12348718).
