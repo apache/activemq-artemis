@@ -195,6 +195,15 @@
             <producer-window-size>555k</producer-window-size>
             <discovery-group-ref discovery-group-name="dg1"/>
          </bridge>
+         <bridge name="bridge4">
+            <queue-name>queue3</queue-name>
+            <forwarding-address>bridge-forwarding-address2</forwarding-address>
+            <confirmation-window-size>-1</confirmation-window-size>
+            <producer-window-size>-1</producer-window-size>
+            <static-connectors>
+               <connector-ref>connector1</connector-ref>
+            </static-connectors>
+         </bridge>
       </bridges>
 
       <metrics>
