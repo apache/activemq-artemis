@@ -17,6 +17,7 @@ Highlights:
 - A count of addresses and queues is now available from the management API.
 - You can now reload the broker's configuration from disk via the management API rather than waiting for the periodic 
   disk scan to pick it up
+- Performance improvements on libaio journal.
 - New command-line option to transfer messages.
 - Performance improvements for the wildcard address manager.
 - JDBC datasource property values can now be masked.
