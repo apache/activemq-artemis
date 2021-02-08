@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A Pair is a holder for 1 object and a >= 0 primitive long value.
+ * A Pair is a holder for 1 object and 'a' being greater or equal than 0.
  * <p>
  * This is a utility class.
  */
