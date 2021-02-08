@@ -255,7 +255,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
          }
       }
 
-      Assert.assertEquals(3, conf.getBridgeConfigurations().size());
+      Assert.assertEquals(4, conf.getBridgeConfigurations().size());
       for (BridgeConfiguration bc : conf.getBridgeConfigurations()) {
          if (bc.getName().equals("bridge1")) {
             Assert.assertEquals("bridge1", bc.getName());
@@ -286,7 +286,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("dg1", bc.getDiscoveryGroupName());
             Assert.assertEquals(568320, bc.getProducerWindowSize());
             Assert.assertEquals(ComponentConfigurationRoutingType.PASS, bc.getRoutingType());
-         } else {
+         } else if (bc.getName().equals("bridge3")) {
             Assert.assertEquals("bridge3", bc.getName());
             Assert.assertEquals("org.foo.BridgeTransformer3", bc.getTransformerConfiguration().getClassName());
             Assert.assertEquals("bridgeTransformerValue1", bc.getTransformerConfiguration().getProperties().get("bridgeTransformerKey1"));
