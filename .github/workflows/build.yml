@@ -29,6 +29,11 @@ jobs:
       # use 'install' so smoke-tests will work
       # use '-Pextra-tests' to ensure extra-tests compiles even though they won't actually run
       # By setting anything to org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED we are disabling libaio loading on the testsuite
+      - name: Build javadoc
+        run: |
+          mvn -Prelease javadoc:javadoc
+        with:
+          java-version: [8]
       - name: Build Main
         run: |
           mvn -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Djdk8-errorprone -Pfast-tests -Pextra-tests -Ptests-CI -Pjmh install
@@ -36,4 +41,3 @@ jobs:
         run: |
           cd examples
           mvn install -PnoRun
-
