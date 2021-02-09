@@ -38,6 +38,7 @@
          should use this descriptor directly in future -->
          <excludes>
             <exclude>tests/extra-tests/</exclude>
+            <exclude>tests/performance-jmh/</exclude>
 
             <!-- in case some of the build generates data, this needs to be ignored -->
             <exclude>data/</exclude>
