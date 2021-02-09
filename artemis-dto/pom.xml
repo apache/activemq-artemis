@@ -29,7 +29,6 @@
 
    <properties>
       <version.activation>1.1.1</version.activation>
-      <version.jaxb>2.2.7</version.jaxb>
 
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
@@ -47,17 +46,17 @@
       <dependency>
          <groupId>javax.xml.bind</groupId>
          <artifactId>jaxb-api</artifactId>
-         <version>${version.jaxb}</version>
+         <version>${version.jaxb.api}</version>
       </dependency>
       <dependency>
          <groupId>com.sun.xml.bind</groupId>
          <artifactId>jaxb-impl</artifactId>
-         <version>${version.jaxb}</version>
+         <version>${version.jaxb.runtime}</version>
       </dependency>
       <dependency>
          <groupId>com.sun.xml.bind</groupId>
          <artifactId>jaxb-jxc</artifactId>
-         <version>${version.jaxb}</version>
+         <version>${version.jaxb.runtime}</version>
       </dependency>
       <dependency>
          <groupId>javax.activation</groupId>
@@ -126,17 +125,17 @@
                <dependency>
                   <groupId>javax.xml.bind</groupId>
                   <artifactId>jaxb-api</artifactId>
-                  <version>${version.jaxb}</version>
+                  <version>${version.jaxb.api}</version>
                </dependency>
                <dependency>
                   <groupId>com.sun.xml.bind</groupId>
                   <artifactId>jaxb-impl</artifactId>
-                  <version>${version.jaxb}</version>
+                  <version>${version.jaxb.runtime}</version>
                </dependency>
                <dependency>
                   <groupId>com.sun.xml.bind</groupId>
                   <artifactId>jaxb-jxc</artifactId>
-                  <version>${version.jaxb}</version>
+                  <version>${version.jaxb.runtime}</version>
                </dependency>
                <dependency>
                    <groupId>javax.activation</groupId>
