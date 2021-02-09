@@ -3491,7 +3491,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private void expire(final Transaction tx, final MessageReference ref) throws Exception {
       SimpleString expiryAddress = addressSettingsRepository.getMatch(address.toString()).getExpiryAddress();
 
-      if (expiryAddress != null) {
+      if (expiryAddress != null && expiryAddress.length() != 0) {
 
          createExpiryResources();
 
@@ -3507,7 +3507,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (!printErrorExpiring) {
             printErrorExpiring = true;
             // print this only once
-            ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoQueue(name);
+            ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoAddress(name);
          }
 
          acknowledge(tx, ref, AckReason.EXPIRED, null);
