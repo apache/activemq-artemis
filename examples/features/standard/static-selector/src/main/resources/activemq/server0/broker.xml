@@ -50,11 +50,11 @@ under the License.
 
       <addresses>
          <address name="exampleQueue">
-            <multicast>
+            <anycast>
                <queue name="exampleQueue">
                   <filter string="color='red'"/>
                </queue>
-            </multicast>
+            </anycast>
          </address>
       </addresses>
    </core>

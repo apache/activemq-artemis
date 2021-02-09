@@ -28,6 +28,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A simple JMS example that shows how static message selectors work.
@@ -35,7 +36,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class StaticSelectorExample {
 
    public static void main(final String[] args) throws Exception {
-      AtomicBoolean result = new AtomicBoolean(true);
+      AtomicInteger good = new AtomicInteger(0);
+      AtomicInteger bad = new AtomicInteger(0);
+      AtomicBoolean failed = new AtomicBoolean(false);
       Connection connection = null;
       InitialContext initialContext = null;
       try {
@@ -63,7 +66,7 @@ public class StaticSelectorExample {
 
          // Step 8. Create a JMS Message Consumer that receives 'red' messages
          MessageConsumer redConsumer = session.createConsumer(queue);
-         redConsumer.setMessageListener(new SimpleMessageListener("red", result));
+         redConsumer.setMessageListener(new SimpleMessageListener("red", failed, good, bad));
 
          // Step 9. Create five messages with different 'color' properties
          TextMessage redMessage1 = session.createTextMessage("Red-1");
@@ -91,7 +94,7 @@ public class StaticSelectorExample {
          // Step 11. Waiting for the message listener to check the received messages.
          Thread.sleep(5000);
 
-         if (!result.get())
+         if (good.get() != 2 || bad.get() != 0 || failed.get())
             throw new IllegalStateException();
       } finally {
          // Step 12. Be sure to close our JMS resources!
@@ -108,11 +111,15 @@ public class StaticSelectorExample {
 class SimpleMessageListener implements MessageListener {
 
    private final String name;
-   private AtomicBoolean result;
+   private AtomicInteger good;
+   private AtomicInteger bad;
+   private AtomicBoolean failed;
 
-   SimpleMessageListener(final String listener, AtomicBoolean result) {
+   SimpleMessageListener(final String listener, AtomicBoolean failed, AtomicInteger good, AtomicInteger bad) {
       name = listener;
-      this.result = result;
+      this.failed = failed;
+      this.good = good;
+      this.bad = bad;
    }
 
    @Override
@@ -125,12 +132,14 @@ class SimpleMessageListener implements MessageListener {
                                textMessage.getText() +
                                "] with color property: " +
                                colorProp);
-         if (colorProp != null && !colorProp.equals(name)) {
-            result.set(false);
+         if (colorProp != null && colorProp.equals(name)) {
+            good.incrementAndGet();
+         } else {
+            bad.incrementAndGet();
          }
       } catch (JMSException e) {
          e.printStackTrace();
-         result.set(false);
+         failed.set(true);
       }
    }
 }
