@@ -188,28 +188,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
          // authentication failed, send a notification & throw an exception
          if (!userIsValid && validatedUser == null) {
-            String certSubjectDN = getCertSubjectDN(connection);
-
-            if (notificationService != null) {
-               TypedProperties props = new TypedProperties();
-               props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
-               props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
-               props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection == null ? "null" : connection.getRemoteAddress()));
-
-               Notification notification = new Notification(null, CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION, props);
-
-               notificationService.sendNotification(notification);
-            }
-
-            Exception e = ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection == null ? "null" : connection.getRemoteAddress(), user, certSubjectDN);
-
-            ActiveMQServerLogger.LOGGER.securityProblemWhileAuthenticating(e.getMessage());
-
-            if (AuditLogger.isResourceLoggingEnabled()) {
-               AuditLogger.userFailedLoggedInAudit(subject, e.getMessage());
-            }
-
-            throw e;
+            authenticationFailed(user, connection);
          }
 
          if (AuditLogger.isAnyLoggingEnabled() && connection != null) {
@@ -280,6 +259,18 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          final Boolean validated;
          if (securityManager instanceof ActiveMQSecurityManager5) {
             Subject subject = getSubjectForAuthorization(session, ((ActiveMQSecurityManager5) securityManager));
+
+            /**
+             * A user may authenticate successfully at first, but then later when their Subject is evicted from the
+             * local cache re-authentication may fail. This could happen, for example, if the user was removed
+             * from LDAP or the user's token expired.
+             *
+             * If the subject is null then authorization will *always* fail.
+             */
+            if (subject == null) {
+               authenticationFailed(user, session.getRemotingConnection());
+            }
+
             validated = ((ActiveMQSecurityManager5) securityManager).authorize(subject, roles, checkType, fqqn != null ? fqqn.toString() : bareAddress.toString());
          } else if (securityManager instanceof ActiveMQSecurityManager4) {
             validated = ((ActiveMQSecurityManager4) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection(), session.getSecurityDomain()) != null;
@@ -363,6 +354,31 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          return getSubjectForAuthorization(session, (ActiveMQSecurityManager5) securityManager);
       }
       return null;
+   }
+
+   private void authenticationFailed(String user, RemotingConnection connection) throws Exception {
+      String certSubjectDN = getCertSubjectDN(connection);
+
+      if (notificationService != null) {
+         TypedProperties props = new TypedProperties();
+         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
+         props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
+         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection == null ? "null" : connection.getRemoteAddress()));
+
+         Notification notification = new Notification(null, CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION, props);
+
+         notificationService.sendNotification(notification);
+      }
+
+      Exception e = ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection == null ? "null" : connection.getRemoteAddress(), user, certSubjectDN);
+
+      ActiveMQServerLogger.LOGGER.securityProblemWhileAuthenticating(e.getMessage());
+
+      if (AuditLogger.isResourceLoggingEnabled()) {
+         AuditLogger.userFailedLoggedInAudit(null, e.getMessage());
+      }
+
+      throw e;
    }
 
    /**
