@@ -235,7 +235,7 @@ The release notes can be found here:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=<releaseNotesVersionID>&projectId=12315920
 
 Ths git commit report is here:
-http://activemq.apache.org/artemis/commit-report-<version>.html
+https://activemq.apache.org/components/artemis/download/commit-report-<version>
 
 Source and binary distributions can be found here:
 https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/<version>/
@@ -244,7 +244,7 @@ The Maven repository is here:
 https://repository.apache.org/content/repositories/orgapacheactivemq-<repoID>
 
 In case you want to give it a try with the maven repo on examples:
-http://activemq.apache.org/artemis/docs/latest/hacking-guide/validating-releases.html
+https://activemq.apache.org/components/artemis/documentation/hacking-guide/validating-releases.html
 
 The source tag:
 https://gitbox.apache.org/repos/asf/activemq-artemis.git;a=tag;h=refs/tags/<version>
