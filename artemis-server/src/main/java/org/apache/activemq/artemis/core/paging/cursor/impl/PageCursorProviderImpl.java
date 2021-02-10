@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.SoftValueLongObjectHashMap;
+import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.jboss.logging.Logger;
@@ -336,7 +337,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    private void waitForFuture() {
       if (!executor.flush(10, TimeUnit.SECONDS)) {
          ActiveMQServerLogger.LOGGER.timedOutStoppingPagingCursor(executor);
-
+         ActiveMQServerLogger.LOGGER.threadDump(ThreadDumpUtil.threadDump(""));
       }
    }
 
