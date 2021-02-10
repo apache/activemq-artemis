@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jndi.JNDIStorable;
+import org.apache.activemq.artemis.utils.DestinationUtil;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Destination.
@@ -42,6 +43,8 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
    private static final long serialVersionUID = 5027962425462382883L;
 
+   // INFO: These variables are duplicated as part of AMQPMessageSupport in artemis-amqp-protocols
+   //       The duplication there is to avoid a dependency on this module from a server's module
    public static final String QUEUE_QUALIFIED_PREFIX = "queue://";
    public static final String TOPIC_QUALIFIED_PREFIX = "topic://";
    public static final String TEMP_QUEUE_QUALIFED_PREFIX = "temp-queue://";
@@ -167,25 +170,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    public static SimpleString createQueueNameForSubscription(final boolean isDurable,
                                                        final String clientID,
                                                        final String subscriptionName) {
-      final String queueName;
-      if (clientID != null) {
-         if (isDurable) {
-            queueName = ActiveMQDestination.escape(clientID) + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
-         } else {
-            queueName = "nonDurable" + SEPARATOR +
-               ActiveMQDestination.escape(clientID) + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
-         }
-      } else {
-         if (isDurable) {
-            queueName = ActiveMQDestination.escape(subscriptionName);
-         } else {
-            queueName = "nonDurable" + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
-         }
-      }
-      return SimpleString.toSimpleString(queueName);
+      return DestinationUtil.createQueueNameForSubscription(isDurable, clientID, subscriptionName);
    }
 
    public static String createQueueNameForSharedSubscription(final boolean isDurable,

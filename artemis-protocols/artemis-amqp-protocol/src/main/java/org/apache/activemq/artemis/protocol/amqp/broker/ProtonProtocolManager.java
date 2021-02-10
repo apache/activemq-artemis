@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnectio
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConstants;
@@ -47,6 +46,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 import io.netty.channel.ChannelPipeline;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.jboss.logging.Logger;
 
 /**
@@ -102,7 +102,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    * the address. This can be changed on the acceptor.
    * */
    // TODO fix this
-   private String pubSubPrefix = ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
+   private String pubSubPrefix = AMQPMessageSupport.TOPIC_QUALIFIED_PREFIX;
 
    private int maxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
 

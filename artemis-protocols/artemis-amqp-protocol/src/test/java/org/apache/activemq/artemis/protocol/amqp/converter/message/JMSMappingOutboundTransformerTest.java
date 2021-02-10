@@ -40,15 +40,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
-import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryQueue;
-import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
-import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
@@ -473,7 +467,8 @@ public class JMSMappingOutboundTransformerTest {
       doTestConvertMessageWithJMSDestination(createDestination(QUEUE_TYPE), QUEUE_TYPE);
    }
 
-   private void doTestConvertMessageWithJMSDestination(Destination jmsDestination, Object expectedAnnotationValue) throws Exception {
+
+   private void doTestConvertMessageWithJMSDestination(String jmsDestination, Object expectedAnnotationValue) throws Exception {
       ServerJMSTextMessage textMessage = createTextMessage();
       textMessage.setText("myTextMessageContent");
       textMessage.setJMSDestination(jmsDestination);
@@ -490,7 +485,7 @@ public class JMSMappingOutboundTransformerTest {
       }
 
       if (jmsDestination != null) {
-         assertEquals("Unexpected 'to' address", AMQPMessageSupport.toAddress(jmsDestination), amqp.getAddress());
+         assertEquals("Unexpected 'to' address", jmsDestination, amqp.getAddress());
       }
    }
 
@@ -506,7 +501,7 @@ public class JMSMappingOutboundTransformerTest {
       doTestConvertMessageWithJMSReplyTo(createDestination(QUEUE_TYPE), QUEUE_TYPE);
    }
 
-   private void doTestConvertMessageWithJMSReplyTo(Destination jmsReplyTo, Object expectedAnnotationValue) throws Exception {
+   private void doTestConvertMessageWithJMSReplyTo(String jmsReplyTo, Object expectedAnnotationValue) throws Exception {
       ServerJMSTextMessage textMessage = createTextMessage();
       textMessage.setText("myTextMessageContent");
       textMessage.setJMSReplyTo(jmsReplyTo);
@@ -523,34 +518,24 @@ public class JMSMappingOutboundTransformerTest {
       }
 
       if (jmsReplyTo != null) {
-         assertEquals("Unexpected 'reply-to' address", AMQPMessageSupport.toAddress(jmsReplyTo).toString(), amqp.getReplyTo().toString());
+         assertEquals("Unexpected 'reply-to' address", jmsReplyTo, amqp.getReplyTo().toString());
       }
    }
 
    // ----- Utility Methods used for this Test -------------------------------//
 
-   private Destination createDestination(byte destType) {
-      Destination destination = null;
+   private String createDestination(byte destType) {
       String prefix = PrefixUtil.getURIPrefix(TEST_ADDRESS);
       String address = PrefixUtil.removePrefix(TEST_ADDRESS, prefix);
       switch (destType) {
          case QUEUE_TYPE:
-            destination = new ActiveMQQueue(address);
-            break;
          case TOPIC_TYPE:
-            destination = new ActiveMQTopic(address);
-            break;
          case TEMP_QUEUE_TYPE:
-            destination = new ActiveMQTemporaryQueue(address, null);
-            break;
          case TEMP_TOPIC_TYPE:
-            destination = new ActiveMQTemporaryTopic(address, null);
-            break;
+            return address;
          default:
             throw new IllegalArgumentException("Invliad Destination Type given/");
       }
-
-      return destination;
    }
 
    private ServerJMSMessage createMessage() {
@@ -597,7 +582,7 @@ public class JMSMappingOutboundTransformerTest {
 
       try {
          result.setText(text);
-      } catch (JMSException e) {
+      } catch (Exception e) {
       }
 
       return result;
