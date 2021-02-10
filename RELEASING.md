@@ -329,10 +329,8 @@ Once the mirrors are up-to-date then update the following:
 1. Copy `src/components/artemis/download/release-notes-<old-version>.md` to `src/components/artemis/download/release-notes-<new-version>.md`
    and update it deleting the existing list of bugs, features, improvements, etc. and replacing it
    with the HTML from the bottom of the release notes url you sent out with your VOTE email (appending `&styleName=Text`).
-2. Update `src/components/artemis/download/past-releases.md`. Copy the block of HTML dealing with the 2nd-to-last release, paste it above the original, 
-   and modify the version numbers for the last release.
-3. Update `src/components/artemis/download/index.md`. Modify the block of HTML dealing with the last release so that the version numbers are for
-   the new release.
+2. Copy `src/_artemis_releases/artemis-<old-version>-release.md` to `src/_artemis_releases/artemis-<new-version>-release.md`. Update the versions and dates.
+3. Update _current_artemis_releases_ within the Jekyll `_config.yml` file (in the repo root) if needed.
 4. Copy `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
 5. Create `src/components/artemis/documentation/latest` and copy these files into it:
     1. the contents of user-manual from `apache-artemis-<new-version>/web/user-manual`
@@ -344,11 +342,9 @@ Once the mirrors are up-to-date then update the following:
     2. book.pdf version of hacking-guide (generated with `gitbook pdf`)        
 7. Copy `src/components/artemis/documentation/javadocs/javadoc-latest` to `src/components/artemis/documentation/javadocs/javadoc-<old-version>`.
 8. Create `src/components/artemis/documentation/javadocs/javadoc-latest` and copy the contents of `apache-artemis-<new-version>/web/api` into it.
-9. Update `src/components/artemis/documentation/previous-docs.md`. Copy the block of HTML dealing with the 2nd-to-last release, paste it above the original, 
-   and modify the version numbers for the last release.
    
-Run `svn add` for all the added directories & files and then `svn commit -m "updates for <version> release"`.
-The changes should be published automatically by the `jekyll_websites` builder of the [apache buildbot](https://ci2.apache.org/#/builders). 
+Run `git add` for all the added directories & files and then `git commit -m "updates for <version> release"`.
+Once pushed, the changes should be published automatically by the `jekyll_websites` builder of the [apache buildbot](https://ci2.apache.org/#/builders).
 
 Note: Generating PDFs, etc. with gitbook requires the installation of [Calibre](https://calibre-ebook.com).
 You can install this manually, but it is recommended you use your platform's package management to install
