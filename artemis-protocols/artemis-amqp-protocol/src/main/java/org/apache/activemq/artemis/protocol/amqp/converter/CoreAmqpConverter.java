@@ -45,9 +45,10 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_PROPERTIES;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_REPLY_TO_TYPE_MSG_ANNOTATION;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.toAddress;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -57,6 +58,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MessageEOFException;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -143,7 +149,7 @@ public class CoreAmqpConverter {
          header.setDurable(true);
       }
       byte priority = (byte) message.getJMSPriority();
-      if (priority != JMSConstants.MESSAGE_DEFAULT_PRIORITY) {
+      if (priority != javax.jms.Message.DEFAULT_PRIORITY) {
          if (header == null) {
             header = new Header();
          }
@@ -165,15 +171,15 @@ public class CoreAmqpConverter {
             properties.setMessageId("ID:" + message.getInnerMessage().getUserID().toString());
          }
       }
-      SimpleString destination = message.getJMSDestination();
+      Destination destination = message.getJMSDestination();
       if (destination != null) {
-         properties.setTo(destination.toString());
-         maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(destination.toString()));
+         properties.setTo(toAddress(destination));
+         maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(destination));
       }
-      SimpleString replyTo = message.getJMSReplyTo();
+      Destination replyTo = message.getJMSReplyTo();
       if (replyTo != null) {
-         properties.setReplyTo(replyTo.toString());
-         maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(replyTo.toString()));
+         properties.setReplyTo(toAddress(replyTo));
+         maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(replyTo));
       }
 
       Object correlationID = message.getInnerMessage().getCorrelationID();
@@ -387,7 +393,7 @@ public class CoreAmqpConverter {
       return decodedType;
    }
 
-   private static Section convertBody(ServerJMSMessage message, Map<Symbol, Object> maMap, Properties properties) throws Exception {
+   private static Section convertBody(ServerJMSMessage message, Map<Symbol, Object> maMap, Properties properties) throws JMSException {
 
       Section body = null;
       short orignalEncoding = AMQP_UNKNOWN;
@@ -419,7 +425,7 @@ public class CoreAmqpConverter {
                break;
          }
       } else if (message instanceof ServerJMSTextMessage) {
-         String text = (((ServerJMSTextMessage) message).getText());
+         String text = (((TextMessage) message).getText());
 
          switch (orignalEncoding) {
             case AMQP_NULL:
@@ -450,7 +456,7 @@ public class CoreAmqpConverter {
             while (true) {
                list.add(m.readObject());
             }
-         } catch (Exception e) {
+         } catch (MessageEOFException e) {
          }
 
          switch (orignalEncoding) {
@@ -515,7 +521,7 @@ public class CoreAmqpConverter {
       return body;
    }
 
-   private static Binary getBinaryFromMessageBody(ServerJMSBytesMessage message) throws Exception {
+   private static Binary getBinaryFromMessageBody(ServerJMSBytesMessage message) throws JMSException {
       byte[] data = new byte[(int) message.getBodyLength()];
       message.readBytes(data);
       message.reset(); // Need to reset after readBytes or future readBytes
@@ -523,11 +529,11 @@ public class CoreAmqpConverter {
       return new Binary(data);
    }
 
-   private static Binary getBinaryFromMessageBody(ServerJMSObjectMessage message) throws Exception {
+   private static Binary getBinaryFromMessageBody(ServerJMSObjectMessage message) throws JMSException {
       return message.getSerializedForm();
    }
 
-   private static Map<String, Object> getMapFromMessageBody(ServerJMSMapMessage message) throws Exception {
+   private static Map<String, Object> getMapFromMessageBody(ServerJMSMapMessage message) throws JMSException {
       final HashMap<String, Object> map = new LinkedHashMap<>();
 
       @SuppressWarnings("unchecked")

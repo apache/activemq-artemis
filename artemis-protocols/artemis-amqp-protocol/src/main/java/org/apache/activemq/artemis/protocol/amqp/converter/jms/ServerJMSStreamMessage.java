@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
+import javax.jms.JMSException;
+import javax.jms.MessageEOFException;
+import javax.jms.MessageFormatException;
+import javax.jms.StreamMessage;
+
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -33,7 +38,7 @@ import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadObj
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadShort;
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadString;
 
-public final class ServerJMSStreamMessage extends ServerJMSMessage {
+public final class ServerJMSStreamMessage extends ServerJMSMessage implements StreamMessage {
 
    public static final byte TYPE = Message.STREAM_TYPE;
 
@@ -45,101 +50,110 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage {
 
    // StreamMessage implementation ----------------------------------
 
-   public boolean readBoolean() throws Exception {
+   @Override
+   public boolean readBoolean() throws JMSException {
 
       try {
          return streamReadBoolean(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public byte readByte() throws Exception {
+   @Override
+   public byte readByte() throws JMSException {
       try {
          return streamReadByte(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public short readShort() throws Exception {
+   @Override
+   public short readShort() throws JMSException {
 
       try {
          return streamReadShort(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public char readChar() throws Exception {
+   @Override
+   public char readChar() throws JMSException {
 
       try {
          return streamReadChar(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public int readInt() throws Exception {
+   @Override
+   public int readInt() throws JMSException {
 
       try {
          return streamReadInteger(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public long readLong() throws Exception {
+   @Override
+   public long readLong() throws JMSException {
 
       try {
          return streamReadLong(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public float readFloat() throws Exception {
+   @Override
+   public float readFloat() throws JMSException {
 
       try {
          return streamReadFloat(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public double readDouble() throws Exception {
+   @Override
+   public double readDouble() throws JMSException {
 
       try {
          return streamReadDouble(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public String readString() throws Exception {
+   @Override
+   public String readString() throws JMSException {
 
       try {
          return streamReadString(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
@@ -148,7 +162,8 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage {
     */
    private int len = 0;
 
-   public int readBytes(final byte[] value) throws Exception {
+   @Override
+   public int readBytes(final byte[] value) throws JMSException {
 
       try {
          Pair<Integer, Integer> pairRead = streamReadBytes(getReadBodyBuffer(), len, value);
@@ -156,95 +171,108 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage {
          len = pairRead.getA();
          return pairRead.getB();
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public Object readObject() throws Exception {
+   @Override
+   public Object readObject() throws JMSException {
 
       if (getReadBodyBuffer().readerIndex() >= getReadBodyBuffer().writerIndex()) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
       try {
          return streamReadObject(getReadBodyBuffer());
       } catch (IllegalStateException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       } catch (IndexOutOfBoundsException e) {
-         throw new RuntimeException("");
+         throw new MessageEOFException("");
       }
    }
 
-   public void writeBoolean(final boolean value) throws Exception {
+   @Override
+   public void writeBoolean(final boolean value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.BOOLEAN);
       getWriteBodyBuffer().writeBoolean(value);
    }
 
-   public void writeByte(final byte value) throws Exception {
+   @Override
+   public void writeByte(final byte value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.BYTE);
       getWriteBodyBuffer().writeByte(value);
    }
 
-   public void writeShort(final short value) throws Exception {
+   @Override
+   public void writeShort(final short value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.SHORT);
       getWriteBodyBuffer().writeShort(value);
    }
 
-   public void writeChar(final char value) throws Exception {
+   @Override
+   public void writeChar(final char value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.CHAR);
       getWriteBodyBuffer().writeShort((short) value);
    }
 
-   public void writeInt(final int value) throws Exception {
+   @Override
+   public void writeInt(final int value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.INT);
       getWriteBodyBuffer().writeInt(value);
    }
 
-   public void writeLong(final long value) throws Exception {
+   @Override
+   public void writeLong(final long value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.LONG);
       getWriteBodyBuffer().writeLong(value);
    }
 
-   public void writeFloat(final float value) throws Exception {
+   @Override
+   public void writeFloat(final float value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.FLOAT);
       getWriteBodyBuffer().writeInt(Float.floatToIntBits(value));
    }
 
-   public void writeDouble(final double value) throws Exception {
+   @Override
+   public void writeDouble(final double value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.DOUBLE);
       getWriteBodyBuffer().writeLong(Double.doubleToLongBits(value));
    }
 
-   public void writeString(final String value) throws Exception {
+   @Override
+   public void writeString(final String value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.STRING);
       getWriteBodyBuffer().writeNullableString(value);
    }
 
-   public void writeBytes(final byte[] value) throws Exception {
+   @Override
+   public void writeBytes(final byte[] value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.BYTES);
       getWriteBodyBuffer().writeInt(value.length);
       getWriteBodyBuffer().writeBytes(value);
    }
 
-   public void writeBytes(final byte[] value, final int offset, final int length) throws Exception {
+   @Override
+   public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.BYTES);
       getWriteBodyBuffer().writeInt(length);
       getWriteBodyBuffer().writeBytes(value, offset, length);
    }
 
-   public void writeObject(final Object value) throws Exception {
+   @Override
+   public void writeObject(final Object value) throws JMSException {
       if (value instanceof String) {
          writeString((String) value);
       } else if (value instanceof Boolean) {
@@ -268,18 +296,19 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage {
       } else if (value == null) {
          writeString(null);
       } else {
-         throw new RuntimeException("Invalid object type: " + value.getClass());
+         throw new MessageFormatException("Invalid object type: " + value.getClass());
       }
    }
 
-   public void reset() throws Exception {
+   @Override
+   public void reset() throws JMSException {
       getWriteBodyBuffer().resetReaderIndex();
    }
 
    // ActiveMQRAMessage overrides ----------------------------------------
 
    @Override
-   public void clearBody() throws Exception {
+   public void clearBody() throws JMSException {
       super.clearBody();
 
       getWriteBodyBuffer().clear();
@@ -292,7 +321,6 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage {
 
    /**
     * Encode the body into the internal message
-     * @throws java.lang.Exception
     */
    @Override
    public void encode() throws Exception {

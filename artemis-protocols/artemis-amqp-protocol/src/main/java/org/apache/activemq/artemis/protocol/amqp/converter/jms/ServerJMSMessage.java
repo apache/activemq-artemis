@@ -16,13 +16,17 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
-
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
 import java.util.Collections;
 import java.util.Enumeration;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.reader.MessageUtil;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
@@ -32,10 +36,7 @@ import static org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
 import static org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
 import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
 
-import static org.apache.activemq.artemis.protocol.amqp.converter.JMSConstants.DeliveryMode_NON_PERSISTENT;
-import static org.apache.activemq.artemis.protocol.amqp.converter.JMSConstants.DeliveryMode_PERSISTENT;
-
-public class ServerJMSMessage  {
+public class ServerJMSMessage implements Message {
 
    protected final ICoreMessage message;
    private ActiveMQBuffer readBodyBuffer;
@@ -67,7 +68,6 @@ public class ServerJMSMessage  {
 
    /**
     * When reading we use a protected copy so multi-threads can work fine
-     * @return
     */
    protected ActiveMQBuffer getReadBodyBuffer() {
       if (readBodyBuffer == null) {
@@ -79,46 +79,52 @@ public class ServerJMSMessage  {
 
    /**
     * When writing on the conversion we use the buffer directly
-     * @return
     */
    protected ActiveMQBuffer getWriteBodyBuffer() {
       readBodyBuffer = null; // it invalidates this buffer if anything is written
       return message.getBodyBuffer();
    }
 
-   public final String getJMSMessageID() throws Exception {
+   @Override
+   public final String getJMSMessageID() throws JMSException {
       if (message.containsProperty(NATIVE_MESSAGE_ID)) {
          return getStringProperty(NATIVE_MESSAGE_ID);
       }
       return null;
    }
 
-   public final void setJMSMessageID(String id) throws Exception {
+   @Override
+   public final void setJMSMessageID(String id) throws JMSException {
       if (id != null) {
          message.putStringProperty(NATIVE_MESSAGE_ID, id);
       }
    }
 
-   public final long getJMSTimestamp() throws Exception {
+   @Override
+   public final long getJMSTimestamp() throws JMSException {
       return message.getTimestamp();
    }
 
-   public final void setJMSTimestamp(long timestamp) throws Exception {
+   @Override
+   public final void setJMSTimestamp(long timestamp) throws JMSException {
       message.setTimestamp(timestamp);
    }
 
-   public final byte[] getJMSCorrelationIDAsBytes() throws Exception {
+   @Override
+   public final byte[] getJMSCorrelationIDAsBytes() throws JMSException {
       return MessageUtil.getJMSCorrelationIDAsBytes(message);
    }
 
-   public final void setJMSCorrelationIDAsBytes(byte[] correlationID) throws Exception {
+   @Override
+   public final void setJMSCorrelationIDAsBytes(byte[] correlationID) throws JMSException {
       if (correlationID == null || correlationID.length == 0) {
-         throw new Exception("Please specify a non-zero length byte[]");
+         throw new JMSException("Please specify a non-zero length byte[]");
       }
       message.setCorrelationID(correlationID);
    }
 
-   public final String getJMSCorrelationID() throws Exception {
+   @Override
+   public final String getJMSCorrelationID() throws JMSException {
 
       Object correlationID = message.getCorrelationID();
       if (correlationID instanceof String) {
@@ -131,178 +137,226 @@ public class ServerJMSMessage  {
       }
    }
 
-   public final void setJMSCorrelationID(String correlationID) throws Exception {
+   @Override
+   public final void setJMSCorrelationID(String correlationID) throws JMSException {
       message.setCorrelationID(correlationID);
    }
 
-   public final SimpleString getJMSReplyTo() throws Exception {
-      return MessageUtil.getJMSReplyTo(message);
-   }
-
-   public final void setJMSReplyTo(String replyTo) throws Exception {
-      MessageUtil.setJMSReplyTo(message, SimpleString.toSimpleString(replyTo));
-   }
-
-   public SimpleString getJMSDestination() throws Exception {
-      return message.getAddressSimpleString();
-   }
-
-   public final void setJMSDestination(String destination) throws Exception {
-      message.setAddress(destination);
-   }
-
-   public final int getJMSDeliveryMode() throws Exception {
-      return message.isDurable() ? DeliveryMode_PERSISTENT : DeliveryMode_NON_PERSISTENT;
-   }
-
-   public final void setJMSDeliveryMode(int deliveryMode) throws Exception {
-      switch (deliveryMode) {
-         case DeliveryMode_PERSISTENT:
-            message.setDurable(true);
-            break;
-         case DeliveryMode_NON_PERSISTENT:
-            message.setDurable(false);
-            break;
-         default:
-            throw new Exception("Invalid mode " + deliveryMode);
+   @Override
+   public final Destination getJMSReplyTo() throws JMSException {
+      SimpleString reply = MessageUtil.getJMSReplyTo(message);
+      if (reply != null) {
+         return ActiveMQDestination.fromPrefixedName(reply.toString());
+      } else {
+         return null;
       }
    }
 
-   public final boolean getJMSRedelivered() throws Exception {
+   @Override
+   public final void setJMSReplyTo(Destination replyTo) throws JMSException {
+      MessageUtil.setJMSReplyTo(message, replyTo == null ? null : ((ActiveMQDestination) replyTo).getSimpleAddress());
+   }
+
+   @Override
+   public Destination getJMSDestination() throws JMSException {
+      return ActiveMQDestination.createDestination(message.getRoutingType(), message.getAddressSimpleString());
+   }
+
+   @Override
+   public final void setJMSDestination(Destination destination) throws JMSException {
+      if (destination == null) {
+         message.setAddress((SimpleString) null);
+      } else {
+         message.setAddress(((ActiveMQDestination) destination).getSimpleAddress());
+      }
+
+   }
+
+   @Override
+   public final int getJMSDeliveryMode() throws JMSException {
+      return message.isDurable() ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT;
+   }
+
+   @Override
+   public final void setJMSDeliveryMode(int deliveryMode) throws JMSException {
+      if (deliveryMode == DeliveryMode.PERSISTENT) {
+         message.setDurable(true);
+      } else if (deliveryMode == DeliveryMode.NON_PERSISTENT) {
+         message.setDurable(false);
+      } else {
+         throw new JMSException("Invalid mode " + deliveryMode);
+      }
+   }
+
+   @Override
+   public final boolean getJMSRedelivered() throws JMSException {
       return false;
    }
 
-   public final void setJMSRedelivered(boolean redelivered) throws Exception {
+   @Override
+   public final void setJMSRedelivered(boolean redelivered) throws JMSException {
       // no op
    }
 
-   public final String getJMSType() throws Exception {
+   @Override
+   public final String getJMSType() throws JMSException {
       return MessageUtil.getJMSType(message);
    }
 
-   public final void setJMSType(String type) throws Exception {
+   @Override
+   public final void setJMSType(String type) throws JMSException {
       MessageUtil.setJMSType(message, type);
    }
 
-   public final long getJMSExpiration() throws Exception {
+   @Override
+   public final long getJMSExpiration() throws JMSException {
       return message.getExpiration();
    }
 
-   public final void setJMSExpiration(long expiration) throws Exception {
+   @Override
+   public final void setJMSExpiration(long expiration) throws JMSException {
       message.setExpiration(expiration);
    }
 
-   public final long getJMSDeliveryTime() throws Exception {
+   @Override
+   public final long getJMSDeliveryTime() throws JMSException {
       // no op
       return 0;
    }
 
-   public final void setJMSDeliveryTime(long deliveryTime) throws Exception {
+   @Override
+   public final void setJMSDeliveryTime(long deliveryTime) throws JMSException {
       // no op
    }
 
-   public final int getJMSPriority() throws Exception {
+   @Override
+   public final int getJMSPriority() throws JMSException {
       return message.getPriority();
    }
 
-   public final void setJMSPriority(int priority) throws Exception {
+   @Override
+   public final void setJMSPriority(int priority) throws JMSException {
       message.setPriority((byte) priority);
    }
 
-   public final void clearProperties() throws Exception {
+   @Override
+   public final void clearProperties() throws JMSException {
       MessageUtil.clearProperties(message);
 
    }
 
-   public final boolean propertyExists(String name) throws Exception {
+   @Override
+   public final boolean propertyExists(String name) throws JMSException {
       return MessageUtil.propertyExists(message, name);
    }
 
-   public final boolean getBooleanProperty(String name) throws Exception {
+   @Override
+   public final boolean getBooleanProperty(String name) throws JMSException {
       return message.getBooleanProperty(name);
    }
 
-   public final byte getByteProperty(String name) throws Exception {
+   @Override
+   public final byte getByteProperty(String name) throws JMSException {
       return message.getByteProperty(name);
    }
 
-   public final short getShortProperty(String name) throws Exception {
+   @Override
+   public final short getShortProperty(String name) throws JMSException {
       return message.getShortProperty(name);
    }
 
-   public final int getIntProperty(String name) throws Exception {
+   @Override
+   public final int getIntProperty(String name) throws JMSException {
       return MessageUtil.getIntProperty(message, name);
    }
 
-   public final long getLongProperty(String name) throws Exception {
+   @Override
+   public final long getLongProperty(String name) throws JMSException {
       return MessageUtil.getLongProperty(message, name);
    }
 
-   public final float getFloatProperty(String name) throws Exception {
+   @Override
+   public final float getFloatProperty(String name) throws JMSException {
       return message.getFloatProperty(name);
    }
 
-   public final double getDoubleProperty(String name) throws Exception {
+   @Override
+   public final double getDoubleProperty(String name) throws JMSException {
       return message.getDoubleProperty(name);
    }
 
-   public final String getStringProperty(String name) throws Exception {
+   @Override
+   public final String getStringProperty(String name) throws JMSException {
       return MessageUtil.getStringProperty(message, name);
    }
 
-   public final Object getObjectProperty(String name) throws Exception {
+   @Override
+   public final Object getObjectProperty(String name) throws JMSException {
       return MessageUtil.getObjectProperty(message, name);
    }
 
-   public final Enumeration getPropertyNames() throws Exception {
+   @Override
+   public final Enumeration getPropertyNames() throws JMSException {
       return Collections.enumeration(MessageUtil.getPropertyNames(message));
    }
 
-   public final void setBooleanProperty(String name, boolean value) throws Exception {
+   @Override
+   public final void setBooleanProperty(String name, boolean value) throws JMSException {
       message.putBooleanProperty(name, value);
    }
 
-   public final void setByteProperty(String name, byte value) throws Exception {
+   @Override
+   public final void setByteProperty(String name, byte value) throws JMSException {
       message.putByteProperty(name, value);
    }
 
-   public final void setShortProperty(String name, short value) throws Exception {
+   @Override
+   public final void setShortProperty(String name, short value) throws JMSException {
       message.putShortProperty(name, value);
    }
 
-   public final void setIntProperty(String name, int value) throws Exception {
+   @Override
+   public final void setIntProperty(String name, int value) throws JMSException {
       MessageUtil.setIntProperty(message, name, value);
    }
 
-   public final void setLongProperty(String name, long value) throws Exception {
+   @Override
+   public final void setLongProperty(String name, long value) throws JMSException {
       MessageUtil.setLongProperty(message, name, value);
    }
 
-   public final void setFloatProperty(String name, float value) throws Exception {
+   @Override
+   public final void setFloatProperty(String name, float value) throws JMSException {
       message.putFloatProperty(name, value);
    }
 
-   public final void setDoubleProperty(String name, double value) throws Exception {
+   @Override
+   public final void setDoubleProperty(String name, double value) throws JMSException {
       message.putDoubleProperty(name, value);
    }
 
-   public final void setStringProperty(String name, String value) throws Exception {
+   @Override
+   public final void setStringProperty(String name, String value) throws JMSException {
       MessageUtil.setStringProperty(message, name, value);
    }
 
-   public final void setObjectProperty(String name, Object value) throws Exception {
+   @Override
+   public final void setObjectProperty(String name, Object value) throws JMSException {
       MessageUtil.setObjectProperty(message, name, value);
    }
 
-   public final void acknowledge() throws Exception {
+   @Override
+   public final void acknowledge() throws JMSException {
       // no op
    }
 
-   public void clearBody() throws Exception {
+   @Override
+   public void clearBody() throws JMSException {
       message.getBodyBuffer().clear();
    }
 
-   public final <T> T getBody(Class<T> c) throws Exception {
+   @Override
+   public final <T> T getBody(Class<T> c) throws JMSException {
       // no op.. jms2 not used on the conversion
       return null;
    }
@@ -322,7 +376,8 @@ public class ServerJMSMessage  {
       }
    }
 
-   public final boolean isBodyAssignableTo(Class c) throws Exception {
+   @Override
+   public final boolean isBodyAssignableTo(Class c) throws JMSException {
       // no op.. jms2 not used on the conversion
       return false;
    }

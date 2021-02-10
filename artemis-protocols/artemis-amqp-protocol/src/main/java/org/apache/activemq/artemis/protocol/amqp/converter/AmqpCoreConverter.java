@@ -39,11 +39,7 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.QUEUE_QUALIFIED_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.TEMP_QUEUE_QUALIFED_PREFIX;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.TEMP_TOPIC_QUALIFED_PREFIX;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.TOPIC_QUALIFIED_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createBytesMessage;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMapMessage;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMessage;
@@ -64,9 +60,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
+
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
@@ -98,14 +98,12 @@ import org.apache.qpid.proton.codec.WritableBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 
-import static org.apache.activemq.artemis.protocol.amqp.converter.JMSConstants.DeliveryMode_NON_PERSISTENT;
-import static org.apache.activemq.artemis.protocol.amqp.converter.JMSConstants.DeliveryMode_PERSISTENT;
-import static org.apache.activemq.artemis.protocol.amqp.converter.JMSConstants.MESSAGE_DEFAULT_PRIORITY;
 /**
  *  This class was created just to separate concerns on AMQPConverter.
  *  For better organization of the code.
  * */
 public class AmqpCoreConverter {
+
    public static ICoreMessage toCore(AMQPMessage message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
       return message.toCore(coreMessageObjectPools);
    }
@@ -217,7 +215,7 @@ public class AmqpCoreConverter {
       // If the JMS expiration has not yet been set...
       if (header != null && result.getJMSExpiration() == 0) {
          // Then lets try to set it based on the message TTL.
-         long ttl = JMSConstants.MESSAGE_DEFAULT_TIME_TO_LIVE;
+         long ttl = javax.jms.Message.DEFAULT_TIME_TO_LIVE;
          if (header.getTtl() != null) {
             ttl = header.getTtl().longValue();
          }
@@ -244,16 +242,16 @@ public class AmqpCoreConverter {
 
          if (header.getDurable() != null) {
             jms.setBooleanProperty(JMS_AMQP_HEADER_DURABLE, true);
-            jms.setJMSDeliveryMode(header.getDurable().booleanValue() ? DeliveryMode_PERSISTENT : DeliveryMode_NON_PERSISTENT);
+            jms.setJMSDeliveryMode(header.getDurable().booleanValue() ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
          } else {
-            jms.setJMSDeliveryMode(DeliveryMode_NON_PERSISTENT);
+            jms.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
          }
 
          if (header.getPriority() != null) {
             jms.setBooleanProperty(JMS_AMQP_HEADER_PRIORITY, true);
             jms.setJMSPriority(header.getPriority().intValue());
          } else {
-            jms.setJMSPriority(MESSAGE_DEFAULT_PRIORITY);
+            jms.setJMSPriority(javax.jms.Message.DEFAULT_PRIORITY);
          }
 
          if (header.getFirstAcquirer() != null) {
@@ -266,8 +264,8 @@ public class AmqpCoreConverter {
             jms.setLongProperty("JMSXDeliveryCount", header.getDeliveryCount().longValue() + 1);
          }
       } else {
-         jms.setJMSPriority((byte) MESSAGE_DEFAULT_PRIORITY);
-         jms.setJMSDeliveryMode(DeliveryMode_NON_PERSISTENT);
+         jms.setJMSPriority((byte) javax.jms.Message.DEFAULT_PRIORITY);
+         jms.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
       }
 
       return jms;
@@ -339,7 +337,7 @@ public class AmqpCoreConverter {
          }
          if (properties.getTo() != null) {
             byte queueType = parseQueueAnnotation(annotations, AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION);
-            jms.setJMSDestination(properties.getTo());
+            jms.setJMSDestination(AMQPMessageSupport.destination(queueType, properties.getTo()));
          }
          if (properties.getSubject() != null) {
             jms.setJMSType(properties.getSubject());
@@ -349,19 +347,19 @@ public class AmqpCoreConverter {
 
             switch (value) {
                case AMQPMessageSupport.QUEUE_TYPE:
-                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), QUEUE_QUALIFIED_PREFIX + properties.getReplyTo());
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + properties.getReplyTo());
                   break;
                case AMQPMessageSupport.TEMP_QUEUE_TYPE:
-                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), TEMP_QUEUE_QUALIFED_PREFIX + properties.getReplyTo());
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX + properties.getReplyTo());
                   break;
                case AMQPMessageSupport.TOPIC_TYPE:
-                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), TOPIC_QUALIFIED_PREFIX + properties.getReplyTo());
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + properties.getReplyTo());
                   break;
                case AMQPMessageSupport.TEMP_TOPIC_TYPE:
-                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), TEMP_TOPIC_QUALIFED_PREFIX + properties.getReplyTo());
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX + properties.getReplyTo());
                   break;
                default:
-                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), QUEUE_QUALIFIED_PREFIX + properties.getReplyTo());
+                  org.apache.activemq.artemis.reader.MessageUtil.setJMSReplyTo(jms.getInnerMessage(), ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + properties.getReplyTo());
                   break;
             }
          }
@@ -427,7 +425,7 @@ public class AmqpCoreConverter {
       return jms;
    }
 
-   private static void encodeUnsupportedMessagePropertyType(ServerJMSMessage jms, String key, Object value) throws Exception {
+   private static void encodeUnsupportedMessagePropertyType(ServerJMSMessage jms, String key, Object value) throws JMSException {
       final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer();
       final EncoderImpl encoder = TLSEncode.getEncoder();
 
@@ -446,7 +444,7 @@ public class AmqpCoreConverter {
       }
    }
 
-   private static void setProperty(ServerJMSMessage msg, String key, Object value) throws Exception {
+   private static void setProperty(javax.jms.Message msg, String key, Object value) throws JMSException {
       if (value instanceof UnsignedLong) {
          long v = ((UnsignedLong) value).longValue();
          msg.setLongProperty(key, v);

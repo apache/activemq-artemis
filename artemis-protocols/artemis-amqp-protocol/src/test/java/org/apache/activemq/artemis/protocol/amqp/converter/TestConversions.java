@@ -120,7 +120,7 @@ public class TestConversions extends Assert {
       Assert.assertArrayEquals(bodyBytes, newBodyBytes);
    }
 
-   private void verifyProperties(ServerJMSMessage message) throws Exception {
+   private void verifyProperties(javax.jms.Message message) throws Exception {
       assertEquals(true, message.getBooleanProperty("true"));
       assertEquals(false, message.getBooleanProperty("false"));
       assertEquals("bar", message.getStringProperty("foo"));

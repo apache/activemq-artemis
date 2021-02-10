@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
-
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.MessageFormatException;
 import java.util.Collections;
 import java.util.Enumeration;
 
@@ -36,7 +38,7 @@ import static org.apache.activemq.artemis.reader.MapMessageUtil.writeBodyMap;
 /**
  * ActiveMQ Artemis implementation of a JMS MapMessage.
  */
-public final class ServerJMSMapMessage extends ServerJMSMessage  {
+public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMessage {
    // Constants -----------------------------------------------------
 
    public static final byte TYPE = Message.MAP_TYPE;
@@ -59,56 +61,68 @@ public final class ServerJMSMapMessage extends ServerJMSMessage  {
 
    // MapMessage implementation -------------------------------------
 
-   public void setBoolean(final String name, final boolean value) throws Exception {
+   @Override
+   public void setBoolean(final String name, final boolean value) throws JMSException {
       map.putBooleanProperty(new SimpleString(name), value);
    }
 
-   public void setByte(final String name, final byte value) throws Exception {
+   @Override
+   public void setByte(final String name, final byte value) throws JMSException {
       map.putByteProperty(new SimpleString(name), value);
    }
 
-   public void setShort(final String name, final short value) throws Exception {
+   @Override
+   public void setShort(final String name, final short value) throws JMSException {
       map.putShortProperty(new SimpleString(name), value);
    }
 
-   public void setChar(final String name, final char value) throws Exception {
+   @Override
+   public void setChar(final String name, final char value) throws JMSException {
       map.putCharProperty(new SimpleString(name), value);
    }
 
-   public void setInt(final String name, final int value) throws Exception {
+   @Override
+   public void setInt(final String name, final int value) throws JMSException {
       map.putIntProperty(new SimpleString(name), value);
    }
 
-   public void setLong(final String name, final long value) throws Exception {
+   @Override
+   public void setLong(final String name, final long value) throws JMSException {
       map.putLongProperty(new SimpleString(name), value);
    }
 
-   public void setFloat(final String name, final float value) throws Exception {
+   @Override
+   public void setFloat(final String name, final float value) throws JMSException {
       map.putFloatProperty(new SimpleString(name), value);
    }
 
-   public void setDouble(final String name, final double value) throws Exception {
+   @Override
+   public void setDouble(final String name, final double value) throws JMSException {
       map.putDoubleProperty(new SimpleString(name), value);
    }
 
-   public void setString(final String name, final String value) throws Exception {
+   @Override
+   public void setString(final String name, final String value) throws JMSException {
       map.putSimpleStringProperty(new SimpleString(name), value == null ? null : new SimpleString(value));
    }
 
-   public void setBytes(final String name, final byte[] value) throws Exception {
+   @Override
+   public void setBytes(final String name, final byte[] value) throws JMSException {
       map.putBytesProperty(new SimpleString(name), value);
    }
 
-   public void setBytes(final String name, final byte[] value, final int offset, final int length) throws Exception {
+   @Override
+   public void setBytes(final String name, final byte[] value, final int offset, final int length) throws JMSException {
       if (offset + length > value.length) {
-         throw new Exception("Invalid offset/length");
+         throw new JMSException("Invalid offset/length");
       }
       byte[] newBytes = new byte[length];
       System.arraycopy(value, offset, newBytes, 0, length);
       map.putBytesProperty(new SimpleString(name), newBytes);
    }
 
-   public void setObject(final String name, final Object value) throws Exception {
+   @Override
+   public void setObject(final String name, final Object value) throws JMSException {
       try {
          // primitives and String
          Object val = value;
@@ -123,75 +137,84 @@ public final class ServerJMSMapMessage extends ServerJMSMessage  {
          }
          TypedProperties.setObjectProperty(new SimpleString(name), val, map);
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public boolean getBoolean(final String name) throws Exception {
+   @Override
+   public boolean getBoolean(final String name) throws JMSException {
       try {
          return map.getBooleanProperty(new SimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public byte getByte(final String name) throws Exception {
+   @Override
+   public byte getByte(final String name) throws JMSException {
       try {
          return map.getByteProperty(new SimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public short getShort(final String name) throws Exception {
+   @Override
+   public short getShort(final String name) throws JMSException {
       try {
          return map.getShortProperty(new SimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public char getChar(final String name) throws Exception {
+   @Override
+   public char getChar(final String name) throws JMSException {
       try {
          return map.getCharProperty(new SimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public int getInt(final String name) throws Exception {
+   @Override
+   public int getInt(final String name) throws JMSException {
       try {
          return map.getIntProperty(new SimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public long getLong(final String name) throws Exception {
+   @Override
+   public long getLong(final String name) throws JMSException {
       try {
          return map.getLongProperty(new SimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public float getFloat(final String name) throws Exception {
+   @Override
+   public float getFloat(final String name) throws JMSException {
       try {
          return map.getFloatProperty(new SimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public double getDouble(final String name) throws Exception {
+   @Override
+   public double getDouble(final String name) throws JMSException {
       try {
          return map.getDoubleProperty(new SimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public String getString(final String name) throws Exception {
+   @Override
+   public String getString(final String name) throws JMSException {
       try {
          SimpleString str = map.getSimpleStringProperty(new SimpleString(name));
          if (str == null) {
@@ -200,19 +223,21 @@ public final class ServerJMSMapMessage extends ServerJMSMessage  {
             return str.toString();
          }
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public byte[] getBytes(final String name) throws Exception {
+   @Override
+   public byte[] getBytes(final String name) throws JMSException {
       try {
          return map.getBytesProperty(new SimpleString(name));
       } catch (ActiveMQPropertyConversionException e) {
-         throw new RuntimeException(e.getMessage());
+         throw new MessageFormatException(e.getMessage());
       }
    }
 
-   public Object getObject(final String name) throws Exception {
+   @Override
+   public Object getObject(final String name) throws JMSException {
       Object val = map.getProperty(new SimpleString(name));
 
       if (val instanceof SimpleString) {
@@ -222,16 +247,18 @@ public final class ServerJMSMapMessage extends ServerJMSMessage  {
       return val;
    }
 
-   public Enumeration getMapNames() throws Exception {
+   @Override
+   public Enumeration getMapNames() throws JMSException {
       return Collections.enumeration(map.getMapNames());
    }
 
-   public boolean itemExists(final String name) throws Exception {
+   @Override
+   public boolean itemExists(final String name) throws JMSException {
       return map.containsProperty(new SimpleString(name));
    }
 
    @Override
-   public void clearBody() throws Exception {
+   public void clearBody() throws JMSException {
       super.clearBody();
 
       map.clear();
