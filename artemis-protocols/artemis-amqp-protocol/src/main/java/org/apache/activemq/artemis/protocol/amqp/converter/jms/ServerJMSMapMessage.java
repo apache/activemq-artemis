@@ -230,17 +230,20 @@ public final class ServerJMSMapMessage extends ServerJMSMessage  {
       return map.containsProperty(new SimpleString(name));
    }
 
+   @Override
    public void clearBody() throws Exception {
       super.clearBody();
 
       map.clear();
    }
 
+   @Override
    public void encode() throws Exception {
       super.encode();
       writeBodyMap(getWriteBodyBuffer(), map);
    }
 
+   @Override
    public void decode() throws Exception {
       super.decode();
       readBodyMap(getReadBodyBuffer(), map);

@@ -67,6 +67,7 @@ public class ServerJMSMessage  {
 
    /**
     * When reading we use a protected copy so multi-threads can work fine
+     * @return
     */
    protected ActiveMQBuffer getReadBodyBuffer() {
       if (readBodyBuffer == null) {
@@ -78,6 +79,7 @@ public class ServerJMSMessage  {
 
    /**
     * When writing on the conversion we use the buffer directly
+     * @return
     */
    protected ActiveMQBuffer getWriteBodyBuffer() {
       readBodyBuffer = null; // it invalidates this buffer if anything is written
@@ -154,12 +156,15 @@ public class ServerJMSMessage  {
    }
 
    public final void setJMSDeliveryMode(int deliveryMode) throws Exception {
-      if (deliveryMode == DeliveryMode_PERSISTENT) {
-         message.setDurable(true);
-      } else if (deliveryMode == DeliveryMode_NON_PERSISTENT) {
-         message.setDurable(false);
-      } else {
-         throw new Exception("Invalid mode " + deliveryMode);
+      switch (deliveryMode) {
+         case DeliveryMode_PERSISTENT:
+            message.setDurable(true);
+            break;
+         case DeliveryMode_NON_PERSISTENT:
+            message.setDurable(false);
+            break;
+         default:
+            throw new Exception("Invalid mode " + deliveryMode);
       }
    }
 

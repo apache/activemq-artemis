@@ -278,19 +278,23 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage {
 
    // ActiveMQRAMessage overrides ----------------------------------------
 
+   @Override
    public void clearBody() throws Exception {
       super.clearBody();
 
       getWriteBodyBuffer().clear();
    }
 
+   @Override
    public void decode() throws Exception {
       super.decode();
    }
 
    /**
     * Encode the body into the internal message
+     * @throws java.lang.Exception
     */
+   @Override
    public void encode() throws Exception {
       super.encode();
       bodyLength = message.getEndOfBodyPosition();

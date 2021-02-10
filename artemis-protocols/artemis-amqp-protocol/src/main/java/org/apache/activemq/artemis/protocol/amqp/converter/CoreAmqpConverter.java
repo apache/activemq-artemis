@@ -46,6 +46,8 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_PROPERTIES;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_REPLY_TO_TYPE_MSG_ANNOTATION;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -166,14 +168,12 @@ public class CoreAmqpConverter {
       SimpleString destination = message.getJMSDestination();
       if (destination != null) {
          properties.setTo(destination.toString());
-         // IMPORTANT-TODO : how to get this?
-         //maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(destination));
+         maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(destination.toString()));
       }
       SimpleString replyTo = message.getJMSReplyTo();
       if (replyTo != null) {
          properties.setReplyTo(replyTo.toString());
-         // IMPORTANT-TODO: how to get this?
-         //maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(replyTo));
+         maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(replyTo.toString()));
       }
 
       Object correlationID = message.getInnerMessage().getCorrelationID();

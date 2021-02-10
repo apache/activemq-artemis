@@ -52,6 +52,12 @@ public final class AMQPMessageSupport {
 
    private static final Logger logger = Logger.getLogger(AMQPMessageSupport.class);
 
+   // These are dupliciates from ActiveMQDestination on the jms module.
+   public static final String QUEUE_QUALIFIED_PREFIX = "queue://";
+   public static final String TOPIC_QUALIFIED_PREFIX = "topic://";
+   public static final String TEMP_QUEUE_QUALIFED_PREFIX = "temp-queue://";
+   public static final String TEMP_TOPIC_QUALIFED_PREFIX = "temp-topic://";
+
 
    public static SimpleString HDR_ORIGINAL_ADDRESS_ANNOTATION = SimpleString.toSimpleString("x-opt-ORIG-ADDRESS");
 
@@ -402,6 +408,22 @@ public final class AMQPMessageSupport {
 
       return QUEUE_TYPE;
    } */
+
+   public static byte destinationType(String destination) {
+      if (destination.startsWith(QUEUE_QUALIFIED_PREFIX)) {
+         return QUEUE_TYPE;
+      }
+      if (destination.startsWith(TOPIC_QUALIFIED_PREFIX)) {
+         return TOPIC_TYPE;
+      }
+      if (destination.startsWith(TEMP_QUEUE_QUALIFED_PREFIX)) {
+         return TEMP_QUEUE_TYPE;
+      }
+      if (destination.startsWith(TEMP_TOPIC_QUALIFED_PREFIX)) {
+         return TEMP_TOPIC_TYPE;
+      }
+      return QUEUE_TYPE;
+   }
 
    public static String destination(byte destinationType, String address) {
       return address;

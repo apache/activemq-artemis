@@ -52,6 +52,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.netty.buffer.Unpooled;
+import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 
 public class JMSMappingInboundTransformerTest {
 
@@ -459,7 +461,7 @@ public class JMSMappingInboundTransformerTest {
       assertTrue("Expected TextMessage", jmsMessage instanceof ServerJMSTextMessage);
       assertEquals("Unexpected message class type", ServerJMSTextMessage.class, jmsMessage.getClass());
 
-      ServerJMSTextMessage textMessage = (ServerJMSTextMessage) jmsMessage;
+      ServerJMSTextMessage textMessage = jmsMessage;
 
       assertNotNull(textMessage.getText());
       assertEquals(contentString, textMessage.getText());
@@ -467,33 +469,32 @@ public class JMSMappingInboundTransformerTest {
 
    // ----- Destination Conversions ------------------------------------------//
 
-   // IMPORTANT-TODO NEED TO FIX THESE TESTS
-   /*@Test
+   @Test
    public void testTransformWithNoToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithToTypeDestinationTypeAnnotationTestImpl(null, Destination.class);
+      doTransformWithToTypeDestinationTypeAnnotationTestImpl(null);
    }
 
    @Test
    public void testTransformWithQueueStringToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithToTypeDestinationTypeAnnotationTestImpl("queue", Queue.class);
+      doTransformWithToTypeDestinationTypeAnnotationTestImpl("queue");
    }
 
    @Test
    public void testTransformWithTemporaryQueueStringToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithToTypeDestinationTypeAnnotationTestImpl("queue,temporary", TemporaryQueue.class);
+      doTransformWithToTypeDestinationTypeAnnotationTestImpl("queue,temporary");
    }
 
    @Test
    public void testTransformWithTopicStringToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithToTypeDestinationTypeAnnotationTestImpl("topic", Topic.class);
+      doTransformWithToTypeDestinationTypeAnnotationTestImpl("topic");
    }
 
    @Test
    public void testTransformWithTemporaryTopicStringToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithToTypeDestinationTypeAnnotationTestImpl("topic,temporary", TemporaryTopic.class);
+      doTransformWithToTypeDestinationTypeAnnotationTestImpl("topic,temporary");
    }
 
-   private void doTransformWithToTypeDestinationTypeAnnotationTestImpl(Object toTypeAnnotationValue, Class<? extends Destination> expectedClass)
+   private void doTransformWithToTypeDestinationTypeAnnotationTestImpl(Object toTypeAnnotationValue)
       throws Exception {
 
       String toAddress = "toAddress";
@@ -508,39 +509,38 @@ public class JMSMappingInboundTransformerTest {
       }
 
       ServerJMSMessage jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
-      assertTrue("Expected TextMessage", jmsMessage instanceof TextMessage);
-   } */
+      assertTrue("Expected ServerJMSTextMessage", jmsMessage instanceof ServerJMSTextMessage);
+   }
 
    // ----- ReplyTo Conversions ----------------------------------------------//
 
-   // IMPORTANT-TODO: need to fix these tests
-   /*
+
    @Test
    public void testTransformWithNoReplyToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl(null, Destination.class);
+      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl(null);
    }
 
    @Test
    public void testTransformWithQueueStringReplyToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl("queue", Queue.class);
+      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl("queue");
    }
 
    @Test
    public void testTransformWithTemporaryQueueStringReplyToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl("queue,temporary", TemporaryQueue.class);
+      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl("queue,temporary");
    }
 
    @Test
    public void testTransformWithTopicStringReplyToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl("topic", Topic.class);
+      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl("topic");
    }
 
    @Test
    public void testTransformWithTemporaryTopicStringReplyToTypeDestinationTypeAnnotation() throws Exception {
-      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl("topic,temporary", TemporaryTopic.class);
+      doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl("topic,temporary");
    }
 
-   private void doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl(Object replyToTypeAnnotationValue, Class<? extends Destination> expectedClass)
+   private void doTransformWithReplyToTypeDestinationTypeAnnotationTestImpl(Object replyToTypeAnnotationValue)
       throws Exception {
 
       String replyToAddress = "replyToAddress";
@@ -556,7 +556,7 @@ public class JMSMappingInboundTransformerTest {
 
       ServerJMSMessage jmsMessage = ServerJMSMessage.wrapCoreMessage(encodeAndCreateAMQPMessage(message).toCore());
       assertTrue("Expected TextMessage", jmsMessage instanceof ServerJMSTextMessage);
-   } */
+   }
 
    private AMQPStandardMessage encodeAndCreateAMQPMessage(MessageImpl message) {
       NettyWritable encoded = new NettyWritable(Unpooled.buffer(1024));

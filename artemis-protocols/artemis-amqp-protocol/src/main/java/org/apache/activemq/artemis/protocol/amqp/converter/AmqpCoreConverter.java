@@ -39,7 +39,11 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.QUEUE_QUALIFIED_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.TEMP_QUEUE_QUALIFED_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.TEMP_TOPIC_QUALIFED_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.TOPIC_QUALIFIED_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createBytesMessage;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMapMessage;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMessage;
@@ -102,13 +106,6 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.JMSConstants.M
  *  For better organization of the code.
  * */
 public class AmqpCoreConverter {
-
-   // These are duplciates from ActiveMQDestination on the jms module.
-   public static final String QUEUE_QUALIFIED_PREFIX = "queue://";
-   public static final String TOPIC_QUALIFIED_PREFIX = "topic://";
-   public static final String TEMP_QUEUE_QUALIFED_PREFIX = "temp-queue://";
-   public static final String TEMP_TOPIC_QUALIFED_PREFIX = "temp-topic://";
-
    public static ICoreMessage toCore(AMQPMessage message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
       return message.toCore(coreMessageObjectPools);
    }

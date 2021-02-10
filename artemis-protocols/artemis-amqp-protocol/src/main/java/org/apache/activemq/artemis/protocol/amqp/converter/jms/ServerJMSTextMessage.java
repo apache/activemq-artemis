@@ -70,17 +70,20 @@ public class ServerJMSTextMessage extends ServerJMSMessage  {
       }
    }
 
+   @Override
    public void clearBody() throws Exception {
       super.clearBody();
 
       text = null;
    }
 
+   @Override
    public void encode() throws Exception {
       super.encode();
       writeBodyText(getWriteBodyBuffer(), text);
    }
 
+   @Override
    public void decode() throws Exception {
       super.decode();
       text = readBodyText(getReadBodyBuffer());
