@@ -28,42 +28,40 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.TemporaryQueue;
-import javax.jms.TemporaryTopic;
-import javax.jms.Topic;
-
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
-import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryQueue;
-import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
-import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreBytesMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreMapMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreObjectMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreStreamMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreTextMessageWrapper;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInvalidContentTypeException;
+import org.apache.activemq.artemis.utils.DestinationUtil;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.message.Message;
-import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.utils.DestinationUtil.QUEUE_QUALIFIED_PREFIX;
+import static org.apache.activemq.artemis.utils.DestinationUtil.TEMP_QUEUE_QUALIFED_PREFIX;
+import static org.apache.activemq.artemis.utils.DestinationUtil.TEMP_TOPIC_QUALIFED_PREFIX;
+import static org.apache.activemq.artemis.utils.DestinationUtil.TOPIC_QUALIFIED_PREFIX;
 
 /**
  * Support class containing constant values and static methods that are used to map to / from
  * AMQP Message types being sent or received.
  */
 public final class AMQPMessageSupport {
+   public static final int NON_PERSISTENT = 1;
 
-   private static final Logger logger = Logger.getLogger(AMQPMessageSupport.class);
+   public static final int PERSISTENT = 2;
 
+   public static final long MESSAGE_DEFAULT_TIME_TO_LIVE = 0;
+
+   public static final int MESSAGE_DEFAULT_PRIORITY = 4;
 
    public static SimpleString HDR_ORIGINAL_ADDRESS_ANNOTATION = SimpleString.toSimpleString("x-opt-ORIG-ADDRESS");
 
@@ -303,79 +301,56 @@ public final class AMQPMessageSupport {
       return  key;
    }
 
-
-   public static String toAddress(Destination destination) {
-      try {
-         if (destination instanceof ActiveMQDestination) {
-            return ((ActiveMQDestination) destination).getAddress();
-         } else {
-            if (destination instanceof Queue) {
-               return ((Queue) destination).getQueueName();
-            } else if (destination instanceof Topic) {
-
-               return ((Topic) destination).getTopicName();
-            }
-         }
-      } catch (JMSException e) {
-         // ActiveMQDestination (and most JMS implementations I know) will never throw an Exception here
-         // this is here for compilation support (as JMS declares it), and I don't want to propagate exceptions into
-         // the converter...
-         // and for the possibility of who knows in the future!!!
-         logger.warn(e.getMessage(), e);
-      }
-      return null;
+   public static CoreBytesMessageWrapper createBytesMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new CoreBytesMessageWrapper(newMessage(id, BYTES_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSBytesMessage createBytesMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
-      return new ServerJMSBytesMessage(newMessage(id, BYTES_TYPE, coreMessageObjectPools));
-   }
-
-   public static ServerJMSBytesMessage createBytesMessage(long id, byte[] array, int arrayOffset, int length, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
-      ServerJMSBytesMessage message = createBytesMessage(id, coreMessageObjectPools);
+   public static CoreBytesMessageWrapper createBytesMessage(long id, byte[] array, int arrayOffset, int length, CoreMessageObjectPools coreMessageObjectPools) {
+      CoreBytesMessageWrapper message = createBytesMessage(id, coreMessageObjectPools);
       message.writeBytes(array, arrayOffset, length);
       return message;
    }
 
-   public static ServerJMSStreamMessage createStreamMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
-      return new ServerJMSStreamMessage(newMessage(id, STREAM_TYPE, coreMessageObjectPools));
+   public static CoreStreamMessageWrapper createStreamMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new CoreStreamMessageWrapper(newMessage(id, STREAM_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMessage createMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
-      return new ServerJMSMessage(newMessage(id, DEFAULT_TYPE, coreMessageObjectPools));
+   public static CoreMessageWrapper createMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new CoreMessageWrapper(newMessage(id, DEFAULT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSTextMessage createTextMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
-      return new ServerJMSTextMessage(newMessage(id, TEXT_TYPE, coreMessageObjectPools));
+   public static CoreTextMessageWrapper createTextMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new CoreTextMessageWrapper(newMessage(id, TEXT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSTextMessage createTextMessage(long id, String text, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
-      ServerJMSTextMessage message = createTextMessage(id, coreMessageObjectPools);
+   public static CoreTextMessageWrapper createTextMessage(long id, String text, CoreMessageObjectPools coreMessageObjectPools) {
+      CoreTextMessageWrapper message = createTextMessage(id, coreMessageObjectPools);
       message.setText(text);
       return message;
    }
 
-   public static ServerJMSObjectMessage createObjectMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
-      return new ServerJMSObjectMessage(newMessage(id, OBJECT_TYPE, coreMessageObjectPools));
+   public static CoreObjectMessageWrapper createObjectMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new CoreObjectMessageWrapper(newMessage(id, OBJECT_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMessage createObjectMessage(long id, Binary serializedForm, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
-      ServerJMSObjectMessage message = createObjectMessage(id, coreMessageObjectPools);
+   public static CoreMessageWrapper createObjectMessage(long id, Binary serializedForm, CoreMessageObjectPools coreMessageObjectPools) {
+      CoreObjectMessageWrapper message = createObjectMessage(id, coreMessageObjectPools);
       message.setSerializedForm(serializedForm);
       return message;
    }
 
-   public static ServerJMSMessage createObjectMessage(long id, byte[] array, int offset, int length, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
-      ServerJMSObjectMessage message = createObjectMessage(id, coreMessageObjectPools);
+   public static CoreMessageWrapper createObjectMessage(long id, byte[] array, int offset, int length, CoreMessageObjectPools coreMessageObjectPools) {
+      CoreObjectMessageWrapper message = createObjectMessage(id, coreMessageObjectPools);
       message.setSerializedForm(new Binary(array, offset, length));
       return message;
    }
 
-   public static ServerJMSMapMessage createMapMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
-      return new ServerJMSMapMessage(newMessage(id, MAP_TYPE, coreMessageObjectPools));
+   public static CoreMapMessageWrapper createMapMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
+      return new CoreMapMessageWrapper(newMessage(id, MAP_TYPE, coreMessageObjectPools));
    }
 
-   public static ServerJMSMapMessage createMapMessage(long id, Map<String, Object> content, CoreMessageObjectPools coreMessageObjectPools) throws JMSException {
-      ServerJMSMapMessage message = createMapMessage(id, coreMessageObjectPools);
+   public static CoreMapMessageWrapper createMapMessage(long id, Map<String, Object> content, CoreMessageObjectPools coreMessageObjectPools) {
+      CoreMapMessageWrapper message = createMapMessage(id, coreMessageObjectPools);
       final Set<Map.Entry<String, Object>> set = content.entrySet();
       for (Map.Entry<String, Object> entry : set) {
          Object value = entry.getValue();
@@ -396,36 +371,54 @@ public final class AMQPMessageSupport {
    }
 
 
-   public static byte destinationType(Destination destination) {
-      if (destination instanceof Queue) {
-         if (destination instanceof TemporaryQueue) {
-            return TEMP_QUEUE_TYPE;
-         } else {
-            return QUEUE_TYPE;
-         }
-      } else if (destination instanceof Topic) {
-         if (destination instanceof TemporaryTopic) {
-            return TEMP_TOPIC_TYPE;
-         } else {
-            return TOPIC_TYPE;
-         }
-      }
+   public static String toAddress(String destination) {
 
+      if (destination.startsWith(DestinationUtil.QUEUE_QUALIFIED_PREFIX)) {
+         return destination.substring(DestinationUtil.QUEUE_QUALIFIED_PREFIX.length());
+      } else if (destination.startsWith(DestinationUtil.TOPIC_QUALIFIED_PREFIX)) {
+         return destination.substring(DestinationUtil.TOPIC_QUALIFIED_PREFIX.length());
+      } else if (destination.startsWith(DestinationUtil.TEMP_QUEUE_QUALIFED_PREFIX)) {
+         return destination.substring(DestinationUtil.TEMP_QUEUE_QUALIFED_PREFIX.length());
+      } else if (destination.startsWith(DestinationUtil.TEMP_TOPIC_QUALIFED_PREFIX)) {
+         return destination.substring(DestinationUtil.TEMP_TOPIC_QUALIFED_PREFIX.length());
+      } else {
+         return destination;
+      }
+   }
+
+   public static byte destinationType(String destination) {
+      if (destination.startsWith(QUEUE_QUALIFIED_PREFIX)) {
+         return QUEUE_TYPE;
+      }
+      if (destination.startsWith(TOPIC_QUALIFIED_PREFIX)) {
+         return TOPIC_TYPE;
+      }
+      if (destination.startsWith(TEMP_QUEUE_QUALIFED_PREFIX)) {
+         return TEMP_QUEUE_TYPE;
+      }
+      if (destination.startsWith(TEMP_TOPIC_QUALIFED_PREFIX)) {
+         return TEMP_TOPIC_TYPE;
+      }
       return QUEUE_TYPE;
    }
 
-   public static Destination destination(byte destinationType, String address) {
+   public static String destination(RoutingType destinationType, String address) {
+      String prefix;
+
+      if (destinationType == null) {
+         destinationType = RoutingType.ANYCAST;
+      }
+
       switch (destinationType) {
-         case TEMP_QUEUE_TYPE:
-            return new ActiveMQTemporaryQueue(address, null);
-         case TEMP_TOPIC_TYPE:
-            return new ActiveMQTemporaryTopic(address, null);
-         case TOPIC_TYPE:
-            return new ActiveMQTopic(address);
-         case QUEUE_TYPE:
-            return new ActiveMQQueue(address);
-         default:
-            return new ActiveMQQueue(address);
+         case ANYCAST: prefix = QUEUE_QUALIFIED_PREFIX; break;
+         case MULTICAST: prefix = TOPIC_QUALIFIED_PREFIX; break;
+         default: prefix = QUEUE_QUALIFIED_PREFIX; break;
+      }
+
+      if (!address.startsWith(prefix)) {
+         return prefix + address;
+      } else {
+         return address;
       }
    }
 

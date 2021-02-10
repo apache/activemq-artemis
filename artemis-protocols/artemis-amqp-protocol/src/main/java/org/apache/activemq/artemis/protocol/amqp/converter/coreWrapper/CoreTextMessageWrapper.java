@@ -14,25 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.protocol.amqp.converter.jms;
+package org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper;
 
-import javax.jms.JMSException;
-import javax.jms.TextMessage;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
+import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.AmqpValue;
+import org.apache.qpid.proton.amqp.messaging.Data;
+import org.apache.qpid.proton.amqp.messaging.Properties;
+import org.apache.qpid.proton.amqp.messaging.Section;
 
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_DATA;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_NULL;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_UNKNOWN;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_STRING;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.EMPTY_BINARY;
 import static org.apache.activemq.artemis.reader.TextMessageUtil.readBodyText;
 import static org.apache.activemq.artemis.reader.TextMessageUtil.writeBodyText;
 
-/**
- * ActiveMQ Artemis implementation of a JMS TextMessage.
- * <br>
- * This class was ported from SpyTextMessage in JBossMQ.
- */
-public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessage {
-   // Constants -----------------------------------------------------
+
+public class CoreTextMessageWrapper extends CoreMessageWrapper {
 
    public static final byte TYPE = Message.TEXT_TYPE;
 
@@ -49,14 +56,40 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    /*
     * This constructor is used to construct messages prior to sending
     */
-   public ServerJMSTextMessage(ICoreMessage message) {
+   public CoreTextMessageWrapper(ICoreMessage message) {
       super(message);
 
    }
-   // TextMessage implementation ------------------------------------
 
    @Override
-   public void setText(final String text) throws JMSException {
+   public Section createAMQPSection(Map<Symbol, Object> maMap, Properties properties) {
+      Section body = null;
+
+      String text = getText();
+
+      switch (getOrignalEncoding()) {
+         case AMQP_NULL:
+            break;
+         case AMQP_DATA:
+            if (text == null) {
+               body = new Data(EMPTY_BINARY);
+            } else {
+               body = new Data(new Binary(text.getBytes(StandardCharsets.UTF_8)));
+            }
+            break;
+         case AMQP_VALUE_STRING:
+         case AMQP_UNKNOWN:
+         default:
+            body = new AmqpValue(text);
+            break;
+      }
+
+      maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_TEXT_MESSAGE);
+
+      return body;
+   }
+
+   public void setText(final String text)  {
       if (text != null) {
          this.text = new SimpleString(text);
       } else {
@@ -66,7 +99,6 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
       writeBodyText(getWriteBodyBuffer(), this.text);
    }
 
-   @Override
    public String getText() {
       if (text != null) {
          return text.toString();
@@ -76,20 +108,20 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    }
 
    @Override
-   public void clearBody() throws JMSException {
+   public void clearBody()  {
       super.clearBody();
 
       text = null;
    }
 
    @Override
-   public void encode() throws Exception {
+   public void encode()  {
       super.encode();
       writeBodyText(getWriteBodyBuffer(), text);
    }
 
    @Override
-   public void decode() throws Exception {
+   public void decode()  {
       super.decode();
       text = readBodyText(getReadBodyBuffer());
    }

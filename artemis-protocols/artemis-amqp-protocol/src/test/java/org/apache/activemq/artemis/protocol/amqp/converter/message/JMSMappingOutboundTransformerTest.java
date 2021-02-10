@@ -40,24 +40,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
-import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryQueue;
-import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
-import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreBytesMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreMapMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreObjectMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreStreamMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreTextMessageWrapper;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -81,7 +75,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertMessageToAmqpMessageWithNoBody() throws Exception {
-      ServerJMSMessage outbound = createMessage();
+      CoreMessageWrapper outbound = createMessage();
       outbound.encode();
 
       AMQPMessage amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage(), null);
@@ -91,7 +85,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertTextMessageToAmqpMessageWithNoBodyOriginalEncodingWasNull() throws Exception {
-      ServerJMSMessage outbound = createMessage();
+      CoreMessageWrapper outbound = createMessage();
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_NULL);
       outbound.encode();
 
@@ -105,7 +99,7 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertBytesMessageToAmqpMessageWithDataBody() throws Exception {
       byte[] expectedPayload = new byte[]{8, 16, 24, 32};
-      ServerJMSBytesMessage outbound = createBytesMessage();
+      CoreBytesMessageWrapper outbound = createBytesMessage();
       outbound.writeBytes(expectedPayload);
       outbound.encode();
 
@@ -124,7 +118,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertEmptyBytesMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSBytesMessage outbound = createBytesMessage();
+      CoreBytesMessageWrapper outbound = createBytesMessage();
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.encode();
 
@@ -139,7 +133,7 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertBytesMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       byte[] expectedPayload = new byte[]{8, 16, 24, 32};
-      ServerJMSBytesMessage outbound = createBytesMessage();
+      CoreBytesMessageWrapper outbound = createBytesMessage();
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.writeBytes(expectedPayload);
       outbound.encode();
@@ -161,7 +155,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertMapMessageToAmqpMessageWithNoBody() throws Exception {
-      ServerJMSMapMessage outbound = createMapMessage();
+      CoreMapMessageWrapper outbound = createMapMessage();
       outbound.encode();
 
       AMQPMessage amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage(), null);
@@ -175,7 +169,7 @@ public class JMSMappingOutboundTransformerTest {
    public void testConvertMapMessageToAmqpMessageWithByteArrayValueInBody() throws Exception {
       final byte[] byteArray = new byte[]{1, 2, 3, 4, 5};
 
-      ServerJMSMapMessage outbound = createMapMessage();
+      CoreMapMessageWrapper outbound = createMapMessage();
       outbound.setBytes("bytes", byteArray);
       outbound.encode();
 
@@ -195,7 +189,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertMapMessageToAmqpMessage() throws Exception {
-      ServerJMSMapMessage outbound = createMapMessage();
+      CoreMapMessageWrapper outbound = createMapMessage();
       outbound.setString("property-1", "string");
       outbound.setInt("property-2", 1);
       outbound.setBoolean("property-3", true);
@@ -218,7 +212,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertStreamMessageToAmqpMessageWithAmqpValueBodyNoPropertySet() throws Exception {
-      ServerJMSStreamMessage outbound = createStreamMessage();
+      CoreStreamMessageWrapper outbound = createStreamMessage();
       outbound.writeBoolean(false);
       outbound.writeString("test");
       outbound.encode();
@@ -238,7 +232,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertStreamMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSStreamMessage outbound = createStreamMessage();
+      CoreStreamMessageWrapper outbound = createStreamMessage();
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_LIST);
       outbound.writeBoolean(false);
       outbound.writeString("test");
@@ -259,7 +253,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertStreamMessageToAmqpMessageWithAmqpSequencey() throws Exception {
-      ServerJMSStreamMessage outbound = createStreamMessage();
+      CoreStreamMessageWrapper outbound = createStreamMessage();
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_SEQUENCE);
       outbound.writeBoolean(false);
       outbound.writeString("test");
@@ -281,7 +275,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertEmptyObjectMessageToAmqpMessageWithDataBody() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage();
+      CoreObjectMessageWrapper outbound = createObjectMessage();
       outbound.encode();
 
       AMQPMessage amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage(), null);
@@ -293,7 +287,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertEmptyObjectMessageToAmqpMessageUnknownEncodingGetsDataSection() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage();
+      CoreObjectMessageWrapper outbound = createObjectMessage();
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_UNKNOWN);
       outbound.encode();
 
@@ -306,7 +300,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertObjectMessageToAmqpMessageWithDataBody() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
+      CoreObjectMessageWrapper outbound = createObjectMessage(TEST_OBJECT_VALUE);
       outbound.encode();
 
       AMQPMessage amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage(), null);
@@ -322,7 +316,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertObjectMessageToAmqpMessageUnknownEncodingGetsDataSection() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
+      CoreObjectMessageWrapper outbound = createObjectMessage(TEST_OBJECT_VALUE);
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_UNKNOWN);
       outbound.encode();
 
@@ -339,7 +333,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
+      CoreObjectMessageWrapper outbound = createObjectMessage(TEST_OBJECT_VALUE);
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.encode();
 
@@ -357,7 +351,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertEmptyObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage();
+      CoreObjectMessageWrapper outbound = createObjectMessage();
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.encode();
 
@@ -373,7 +367,7 @@ public class JMSMappingOutboundTransformerTest {
 
    @Test
    public void testConvertTextMessageToAmqpMessageWithNoBody() throws Exception {
-      ServerJMSTextMessage outbound = createTextMessage();
+      CoreTextMessageWrapper outbound = createTextMessage();
       outbound.encode();
 
       AMQPMessage amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage(), null);
@@ -386,7 +380,7 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertTextMessageCreatesAmqpValueStringBody() throws Exception {
       String contentString = "myTextMessageContent";
-      ServerJMSTextMessage outbound = createTextMessage(contentString);
+      CoreTextMessageWrapper outbound = createTextMessage(contentString);
       outbound.encode();
 
       AMQPMessage amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage(), null);
@@ -399,7 +393,7 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertTextMessageContentNotStoredCreatesAmqpValueStringBody() throws Exception {
       String contentString = "myTextMessageContent";
-      ServerJMSTextMessage outbound = createTextMessage(contentString);
+      CoreTextMessageWrapper outbound = createTextMessage(contentString);
       outbound.encode();
 
       AMQPMessage amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage(), null);
@@ -412,7 +406,7 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertTextMessageCreatesDataSectionBody() throws Exception {
       String contentString = "myTextMessageContent";
-      ServerJMSTextMessage outbound = createTextMessage(contentString);
+      CoreTextMessageWrapper outbound = createTextMessage(contentString);
       outbound.encode();
 
       AMQPMessage amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage(), null);
@@ -428,7 +422,7 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertTextMessageCreatesBodyUsingOriginalEncodingWithDataSection() throws Exception {
       String contentString = "myTextMessageContent";
-      ServerJMSTextMessage outbound = createTextMessage(contentString);
+      CoreTextMessageWrapper outbound = createTextMessage(contentString);
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
       outbound.encode();
 
@@ -446,7 +440,7 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertTextMessageContentNotStoredCreatesBodyUsingOriginalEncodingWithDataSection() throws Exception {
       String contentString = "myTextMessageContent";
-      ServerJMSTextMessage outbound = createTextMessage(contentString);
+      CoreTextMessageWrapper outbound = createTextMessage(contentString);
       outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
       outbound.encode();
 
@@ -473,10 +467,11 @@ public class JMSMappingOutboundTransformerTest {
       doTestConvertMessageWithJMSDestination(createDestination(QUEUE_TYPE), QUEUE_TYPE);
    }
 
-   private void doTestConvertMessageWithJMSDestination(Destination jmsDestination, Object expectedAnnotationValue) throws Exception {
-      ServerJMSTextMessage textMessage = createTextMessage();
+
+   private void doTestConvertMessageWithJMSDestination(String jmsDestination, Object expectedAnnotationValue) throws Exception {
+      CoreTextMessageWrapper textMessage = createTextMessage();
       textMessage.setText("myTextMessageContent");
-      textMessage.setJMSDestination(jmsDestination);
+      textMessage.setDestination(jmsDestination);
 
       AMQPMessage amqp = AMQPConverter.getInstance().fromCore(textMessage.getInnerMessage(), null);
 
@@ -490,7 +485,7 @@ public class JMSMappingOutboundTransformerTest {
       }
 
       if (jmsDestination != null) {
-         assertEquals("Unexpected 'to' address", AMQPMessageSupport.toAddress(jmsDestination), amqp.getAddress());
+         assertEquals("Unexpected 'to' address", jmsDestination, amqp.getAddress());
       }
    }
 
@@ -506,8 +501,8 @@ public class JMSMappingOutboundTransformerTest {
       doTestConvertMessageWithJMSReplyTo(createDestination(QUEUE_TYPE), QUEUE_TYPE);
    }
 
-   private void doTestConvertMessageWithJMSReplyTo(Destination jmsReplyTo, Object expectedAnnotationValue) throws Exception {
-      ServerJMSTextMessage textMessage = createTextMessage();
+   private void doTestConvertMessageWithJMSReplyTo(String jmsReplyTo, Object expectedAnnotationValue) throws Exception {
+      CoreTextMessageWrapper textMessage = createTextMessage();
       textMessage.setText("myTextMessageContent");
       textMessage.setJMSReplyTo(jmsReplyTo);
 
@@ -523,58 +518,48 @@ public class JMSMappingOutboundTransformerTest {
       }
 
       if (jmsReplyTo != null) {
-         assertEquals("Unexpected 'reply-to' address", AMQPMessageSupport.toAddress(jmsReplyTo).toString(), amqp.getReplyTo().toString());
+         assertEquals("Unexpected 'reply-to' address", jmsReplyTo, amqp.getReplyTo().toString());
       }
    }
 
    // ----- Utility Methods used for this Test -------------------------------//
 
-   private Destination createDestination(byte destType) {
-      Destination destination = null;
+   private String createDestination(byte destType) {
       String prefix = PrefixUtil.getURIPrefix(TEST_ADDRESS);
       String address = PrefixUtil.removePrefix(TEST_ADDRESS, prefix);
       switch (destType) {
          case QUEUE_TYPE:
-            destination = new ActiveMQQueue(address);
-            break;
          case TOPIC_TYPE:
-            destination = new ActiveMQTopic(address);
-            break;
          case TEMP_QUEUE_TYPE:
-            destination = new ActiveMQTemporaryQueue(address, null);
-            break;
          case TEMP_TOPIC_TYPE:
-            destination = new ActiveMQTemporaryTopic(address, null);
-            break;
+            return address;
          default:
             throw new IllegalArgumentException("Invliad Destination Type given/");
       }
-
-      return destination;
    }
 
-   private ServerJMSMessage createMessage() {
-      return new ServerJMSMessage(newMessage(org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE));
+   private CoreMessageWrapper createMessage() {
+      return new CoreMessageWrapper(newMessage(org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE));
    }
 
-   private ServerJMSBytesMessage createBytesMessage() {
-      return new ServerJMSBytesMessage(newMessage(org.apache.activemq.artemis.api.core.Message.BYTES_TYPE));
+   private CoreBytesMessageWrapper createBytesMessage() {
+      return new CoreBytesMessageWrapper(newMessage(org.apache.activemq.artemis.api.core.Message.BYTES_TYPE));
    }
 
-   private ServerJMSMapMessage createMapMessage() {
-      return new ServerJMSMapMessage(newMessage(org.apache.activemq.artemis.api.core.Message.MAP_TYPE));
+   private CoreMapMessageWrapper createMapMessage() {
+      return new CoreMapMessageWrapper(newMessage(org.apache.activemq.artemis.api.core.Message.MAP_TYPE));
    }
 
-   private ServerJMSStreamMessage createStreamMessage() {
-      return new ServerJMSStreamMessage(newMessage(org.apache.activemq.artemis.api.core.Message.STREAM_TYPE));
+   private CoreStreamMessageWrapper createStreamMessage() {
+      return new CoreStreamMessageWrapper(newMessage(org.apache.activemq.artemis.api.core.Message.STREAM_TYPE));
    }
 
-   private ServerJMSObjectMessage createObjectMessage() {
+   private CoreObjectMessageWrapper createObjectMessage() {
       return createObjectMessage(null);
    }
 
-   private ServerJMSObjectMessage createObjectMessage(Serializable payload) {
-      ServerJMSObjectMessage result = AMQPMessageSupport.createObjectMessage(0, null);
+   private CoreObjectMessageWrapper createObjectMessage(Serializable payload) {
+      CoreObjectMessageWrapper result = AMQPMessageSupport.createObjectMessage(0, null);
 
       try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(baos);) {
 
@@ -588,16 +573,16 @@ public class JMSMappingOutboundTransformerTest {
       return result;
    }
 
-   private ServerJMSTextMessage createTextMessage() {
+   private CoreTextMessageWrapper createTextMessage() {
       return createTextMessage(null);
    }
 
-   private ServerJMSTextMessage createTextMessage(String text) {
-      ServerJMSTextMessage result = AMQPMessageSupport.createTextMessage(0, null);
+   private CoreTextMessageWrapper createTextMessage(String text) {
+      CoreTextMessageWrapper result = AMQPMessageSupport.createTextMessage(0, null);
 
       try {
          result.setText(text);
-      } catch (JMSException e) {
+      } catch (Exception e) {
       }
 
       return result;

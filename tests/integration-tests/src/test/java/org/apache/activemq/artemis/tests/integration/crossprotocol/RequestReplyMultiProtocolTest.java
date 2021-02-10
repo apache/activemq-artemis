@@ -62,7 +62,7 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
       this.protocolConsumer = protocolConsumer;
    }
 
-   @Parameterized.Parameters(name = "openWireOnSender={0},openWireOnConsumer={1}")
+   @Parameterized.Parameters(name = "senderProtocol={0},receiverProtocol={1}")
    public static Iterable<Object[]> data() {
       return Arrays.asList(new Object[][] {
          {"OPENWIRE", "OPENWIRE"},

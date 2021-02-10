@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreMapMessageWrapper;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -89,7 +89,7 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
       int sequence = 42;
       LinkedHashMap<String, Object> map = new LinkedHashMap<>();
       map.put("sequence", new UnsignedInteger(sequence));
-      ServerJMSMapMessage msg = createMapMessage(1, map, null);
+      CoreMapMessageWrapper msg = createMapMessage(1, map, null);
       assertEquals(msg.getInt("sequence"), sequence);
 
       map.clear();
