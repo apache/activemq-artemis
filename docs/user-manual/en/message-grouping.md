@@ -239,6 +239,28 @@ message groups are configured and used with JMS and via a connection factory.
 
 ## Clustered Grouping
 
+Before looking at the details for configuring clustered grouping support it is
+worth examing the idea of clustered grouping as a whole. In general, combining
+clustering and message grouping is a poor choice because the fundamental ideas
+of grouped (i.e. ordered) messages and horizontal scaling through clustering are
+essentially at odds with each other. 
+
+Message grouping enforces ordered message consumption. Ordered message consumption
+requires that each message be fully consumed and acknowledged before the next 
+message in the group is consumed. This results in *serial* message processing
+(i.e. no concurrency). 
+
+However, the idea of clustering is to scale brokers horizontally in order to
+increase message throughput by adding consumers which can process messages
+concurrently. But since the message groups are ordered the messages in each group
+cannot be consumed concurrently which defeats the purpose of horizontal scaling.
+
+If you've evaluated your overall use-case with these design caveats in mind and
+determined that clustered grouping is still viable read on for all the
+configuration details and best practices.
+
+### Clustered Grouping Configuration
+
 Using message groups in a cluster is a bit more complex. This is because
 messages with a particular group id can arrive on any node so each node needs
 to know about which group id's are bound to which consumer on which node. The
@@ -298,7 +320,7 @@ Any messages sent will be not be delivered and an exception thrown. To avoid
 this happening Local Handlers can be replicated on another backup node. Simple
 create your back up node and configure it with the same Local handler.
 
-## Clustered Grouping Best Practices
+### Clustered Grouping Best Practices
 
 Some best practices should be followed when using clustered grouping:
 
@@ -326,7 +348,7 @@ Some best practices should be followed when using clustered grouping:
    is because this will determine how often the last-time-use value should be
    updated with a round trip for a request to the group between the nodes.
 
-## Clustered Grouping Example
+### Clustered Grouping Example
 
 See the [Clustered Grouping Example](examples.md#clustered-grouping) which
 shows how to configure message groups with a ActiveMQ Artemis Cluster.
