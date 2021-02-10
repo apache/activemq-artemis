@@ -33,11 +33,11 @@
 
    <dependencies>
       <!-- JMS Client because of some conversions that are done -->
-      <dependency>
+      <!-- <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
-      </dependency>
+      </dependency> -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-selector</artifactId>
@@ -109,11 +109,6 @@
          <groupId>commons-collections</groupId>
          <artifactId>commons-collections</artifactId>
          <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jms_2.0_spec</artifactId>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
