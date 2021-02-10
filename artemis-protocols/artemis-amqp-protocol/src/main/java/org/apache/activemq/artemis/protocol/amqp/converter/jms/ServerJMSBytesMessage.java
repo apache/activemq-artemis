@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesMessageReset;
@@ -46,142 +43,116 @@ import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteObje
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteShort;
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteUTF;
 
-public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMessage {
+public class ServerJMSBytesMessage extends ServerJMSMessage {
 
    public ServerJMSBytesMessage(ICoreMessage message) {
       super(message);
    }
 
-   @Override
-   public long getBodyLength() throws JMSException {
+   public long getBodyLength() throws Exception {
       return message.getBodyBufferSize();
    }
 
-   @Override
-   public boolean readBoolean() throws JMSException {
+   public boolean readBoolean() throws Exception {
       return bytesReadBoolean(getReadBodyBuffer());
    }
 
-   @Override
-   public byte readByte() throws JMSException {
+   public byte readByte() throws Exception {
       return bytesReadByte(getReadBodyBuffer());
    }
 
-   @Override
-   public int readUnsignedByte() throws JMSException {
+   public int readUnsignedByte() throws Exception {
       return bytesReadUnsignedByte(getReadBodyBuffer());
    }
 
-   @Override
-   public short readShort() throws JMSException {
+   public short readShort() throws Exception {
       return bytesReadShort(getReadBodyBuffer());
    }
 
-   @Override
-   public int readUnsignedShort() throws JMSException {
+   public int readUnsignedShort() throws Exception {
       return bytesReadUnsignedShort(getReadBodyBuffer());
    }
 
-   @Override
-   public char readChar() throws JMSException {
+   public char readChar() throws Exception {
       return bytesReadChar(getReadBodyBuffer());
    }
 
-   @Override
-   public int readInt() throws JMSException {
+   public int readInt() throws Exception {
       return bytesReadInt(getReadBodyBuffer());
    }
 
-   @Override
-   public long readLong() throws JMSException {
+   public long readLong() throws Exception {
       return bytesReadLong(getReadBodyBuffer());
    }
 
-   @Override
-   public float readFloat() throws JMSException {
+   public float readFloat() throws Exception {
       return bytesReadFloat(getReadBodyBuffer());
    }
 
-   @Override
-   public double readDouble() throws JMSException {
+   public double readDouble() throws Exception {
       return bytesReadDouble(getReadBodyBuffer());
    }
 
-   @Override
-   public String readUTF() throws JMSException {
+   public String readUTF() throws Exception {
       return bytesReadUTF(getReadBodyBuffer());
    }
 
-   @Override
-   public int readBytes(byte[] value) throws JMSException {
+   public int readBytes(byte[] value) throws Exception {
       return bytesReadBytes(getReadBodyBuffer(), value);
    }
 
-   @Override
-   public int readBytes(byte[] value, int length) throws JMSException {
+   public int readBytes(byte[] value, int length) throws Exception {
       return bytesReadBytes(getReadBodyBuffer(), value, length);
    }
 
-   @Override
-   public void writeBoolean(boolean value) throws JMSException {
+   public void writeBoolean(boolean value) throws Exception {
       bytesWriteBoolean(getWriteBodyBuffer(), value);
 
    }
 
-   @Override
-   public void writeByte(byte value) throws JMSException {
+   public void writeByte(byte value) throws Exception {
       bytesWriteByte(getWriteBodyBuffer(), value);
    }
 
-   @Override
-   public void writeShort(short value) throws JMSException {
+   public void writeShort(short value) throws Exception {
       bytesWriteShort(getWriteBodyBuffer(), value);
    }
 
-   @Override
-   public void writeChar(char value) throws JMSException {
+   public void writeChar(char value) throws Exception {
       bytesWriteChar(getWriteBodyBuffer(), value);
    }
 
-   @Override
-   public void writeInt(int value) throws JMSException {
+   public void writeInt(int value) throws Exception {
       bytesWriteInt(getWriteBodyBuffer(), value);
    }
 
-   @Override
-   public void writeLong(long value) throws JMSException {
+   public void writeLong(long value) throws Exception {
       bytesWriteLong(getWriteBodyBuffer(), value);
    }
 
-   @Override
-   public void writeFloat(float value) throws JMSException {
+   public void writeFloat(float value) throws Exception {
       bytesWriteFloat(getWriteBodyBuffer(), value);
    }
 
-   @Override
-   public void writeDouble(double value) throws JMSException {
+   public void writeDouble(double value) throws Exception {
       bytesWriteDouble(getWriteBodyBuffer(), value);
    }
 
-   @Override
-   public void writeUTF(String value) throws JMSException {
+   public void writeUTF(String value) throws Exception {
       bytesWriteUTF(getWriteBodyBuffer(), value);
    }
 
-   @Override
-   public void writeBytes(byte[] value) throws JMSException {
+   public void writeBytes(byte[] value) throws Exception {
       bytesWriteBytes(getWriteBodyBuffer(), value);
    }
 
-   @Override
-   public void writeBytes(byte[] value, int offset, int length) throws JMSException {
+   public void writeBytes(byte[] value, int offset, int length) throws Exception {
       bytesWriteBytes(getWriteBodyBuffer(), value, offset, length);
    }
 
-   @Override
-   public void writeObject(Object value) throws JMSException {
+   public void writeObject(Object value) throws Exception {
       if (!bytesWriteObject(getWriteBodyBuffer(), value)) {
-         throw new JMSException("Can't make conversion of " + value + " to any known type");
+         throw new Exception("Can't make conversion of " + value + " to any known type");
       }
    }
 
@@ -198,8 +169,7 @@ public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMess
 
    }
 
-   @Override
-   public void reset() throws JMSException {
+   public void reset() throws Exception {
       if (!message.isLargeMessage()) {
          bytesMessageReset(getReadBodyBuffer());
          bytesMessageReset(getWriteBodyBuffer());

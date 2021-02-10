@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
-import javax.jms.JMSException;
-import javax.jms.TextMessage;
-
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -31,7 +28,7 @@ import static org.apache.activemq.artemis.reader.TextMessageUtil.writeBodyText;
  * <br>
  * This class was ported from SpyTextMessage in JBossMQ.
  */
-public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessage {
+public class ServerJMSTextMessage extends ServerJMSMessage  {
    // Constants -----------------------------------------------------
 
    public static final byte TYPE = Message.TEXT_TYPE;
@@ -55,8 +52,7 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    }
    // TextMessage implementation ------------------------------------
 
-   @Override
-   public void setText(final String text) throws JMSException {
+   public void setText(final String text) throws Exception {
       if (text != null) {
          this.text = new SimpleString(text);
       } else {
@@ -66,7 +62,6 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
       writeBodyText(getWriteBodyBuffer(), this.text);
    }
 
-   @Override
    public String getText() {
       if (text != null) {
          return text.toString();
@@ -76,7 +71,7 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    }
 
    @Override
-   public void clearBody() throws JMSException {
+   public void clearBody() throws Exception {
       super.clearBody();
 
       text = null;

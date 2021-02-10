@@ -18,15 +18,12 @@ package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
 import java.io.Serializable;
 
-import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.qpid.proton.amqp.Binary;
 
-public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMessage {
+public class ServerJMSObjectMessage extends ServerJMSMessage {
 
    public static final byte TYPE = Message.OBJECT_TYPE;
 
@@ -36,13 +33,11 @@ public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMe
       super(message);
    }
 
-   @Override
-   public void setObject(Serializable object) throws JMSException {
+   public void setObject(Serializable object) throws Exception {
       throw new UnsupportedOperationException("Cannot set Object on this internal message");
    }
 
-   @Override
-   public Serializable getObject() throws JMSException {
+   public Serializable getObject() throws Exception {
       throw new UnsupportedOperationException("Cannot set Object on this internal message");
    }
 
