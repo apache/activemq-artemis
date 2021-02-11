@@ -394,7 +394,7 @@ of the message to **one** of the `ANYCAST` queues and to **all** of the
 However, clients can specify a special prefix when connecting to an address to
 indicate which kind of routing type to use. The prefixes are custom values that
 are designated using the anycastPrefix and multicastPrefix parameters within
-the URL of an acceptor.
+the URL of an acceptor. When multiple values are needed, these can be separated by a comma.
 
 ### Configuring an Anycast Prefix
 
