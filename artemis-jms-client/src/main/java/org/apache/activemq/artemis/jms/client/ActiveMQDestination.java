@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jndi.JNDIStorable;
+import org.apache.activemq.artemis.utils.DestinationUtil;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Destination.
@@ -42,19 +43,10 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
    private static final long serialVersionUID = 5027962425462382883L;
 
-   public static final String QUEUE_QUALIFIED_PREFIX = "queue://";
-   public static final String TOPIC_QUALIFIED_PREFIX = "topic://";
-   public static final String TEMP_QUEUE_QUALIFED_PREFIX = "temp-queue://";
-   public static final String TEMP_TOPIC_QUALIFED_PREFIX = "temp-topic://";
-
-   private static final char SEPARATOR = '.';
-
-   private static String escape(final String input) {
-      if (input == null) {
-         return "";
-      }
-      return input.replace("\\", "\\\\").replace(".", "\\.");
-   }
+   public static final String QUEUE_QUALIFIED_PREFIX = DestinationUtil.QUEUE_QUALIFIED_PREFIX;
+   public static final String TOPIC_QUALIFIED_PREFIX = DestinationUtil.TOPIC_QUALIFIED_PREFIX;
+   public static final String TEMP_QUEUE_QUALIFED_PREFIX = DestinationUtil.TEMP_QUEUE_QUALIFED_PREFIX;
+   public static final String TEMP_TOPIC_QUALIFED_PREFIX = DestinationUtil.TEMP_TOPIC_QUALIFED_PREFIX;
 
    /** createQueue and createTopic from {@link ActiveMQSession} may change the name
     *  in case Prefix usage */
@@ -167,38 +159,13 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    public static SimpleString createQueueNameForSubscription(final boolean isDurable,
                                                        final String clientID,
                                                        final String subscriptionName) {
-      final String queueName;
-      if (clientID != null) {
-         if (isDurable) {
-            queueName = ActiveMQDestination.escape(clientID) + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
-         } else {
-            queueName = "nonDurable" + SEPARATOR +
-               ActiveMQDestination.escape(clientID) + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
-         }
-      } else {
-         if (isDurable) {
-            queueName = ActiveMQDestination.escape(subscriptionName);
-         } else {
-            queueName = "nonDurable" + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
-         }
-      }
-      return SimpleString.toSimpleString(queueName);
+      return DestinationUtil.createQueueNameForSubscription(isDurable, clientID, subscriptionName);
    }
 
    public static String createQueueNameForSharedSubscription(final boolean isDurable,
                                                              final String clientID,
                                                              final String subscriptionName) {
-      if (clientID != null) {
-         return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
-            ActiveMQDestination.escape(clientID) + SEPARATOR +
-            ActiveMQDestination.escape(subscriptionName);
-      } else {
-         return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
-            ActiveMQDestination.escape(subscriptionName);
-      }
+      return DestinationUtil.createQueueNameForSharedSubscription(isDurable, clientID, subscriptionName);
    }
 
    public static Pair<String, String> decomposeQueueNameForDurableSubscription(final String queueName) {
@@ -213,7 +180,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
          char ch = queueName.charAt(pos);
          pos++;
 
-         if (ch == SEPARATOR) {
+         if (ch == DestinationUtil.SEPARATOR) {
             currentPart++;
             if (currentPart >= parts.length) {
                throw new JMSRuntimeException("Invalid message queue name: " + queueName);

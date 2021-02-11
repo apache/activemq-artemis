@@ -42,7 +42,6 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccessor;
@@ -64,6 +63,7 @@ import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.DestinationUtil;
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
@@ -842,7 +842,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          final boolean durable = !isVolatile;
          final String subscriptionName = pubId.contains("|") ? pubId.split("\\|")[0] : pubId;
          final String clientID = clientId == null || clientId.isEmpty() || global ? null : clientId;
-         return ActiveMQDestination.createQueueNameForSubscription(durable, clientID, subscriptionName);
+         return DestinationUtil.createQueueNameForSubscription(durable, clientID, subscriptionName);
       } else {
          String queue = clientId == null || clientId.isEmpty() || global ? pubId : clientId + "." + pubId;
          if (shared) {

@@ -31,11 +31,11 @@ import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBu
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreBytesMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreMapMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreStreamMessageWrapper;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreTextMessageWrapper;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
@@ -85,7 +85,7 @@ public class TestConversions extends Assert {
 
       ICoreMessage serverMessage = encodedMessage.toCore();
 
-      verifyProperties(ServerJMSMessage.wrapCoreMessage(serverMessage));
+      verifyProperties(CoreMessageWrapper.wrap(serverMessage));
    }
 
    @Test
@@ -107,7 +107,7 @@ public class TestConversions extends Assert {
 
       ICoreMessage serverMessage = encodedMessage.toCore();
 
-      ServerJMSBytesMessage bytesMessage = (ServerJMSBytesMessage) ServerJMSMessage.wrapCoreMessage(serverMessage);
+      CoreBytesMessageWrapper bytesMessage = (CoreBytesMessageWrapper) CoreMessageWrapper.wrap(serverMessage);
 
       verifyProperties(bytesMessage);
 
@@ -120,7 +120,7 @@ public class TestConversions extends Assert {
       Assert.assertArrayEquals(bodyBytes, newBodyBytes);
    }
 
-   private void verifyProperties(javax.jms.Message message) throws Exception {
+   private void verifyProperties(CoreMessageWrapper message) throws Exception {
       assertEquals(true, message.getBooleanProperty("true"));
       assertEquals(false, message.getBooleanProperty("false"));
       assertEquals("bar", message.getStringProperty("foo"));
@@ -161,7 +161,7 @@ public class TestConversions extends Assert {
       ICoreMessage serverMessage = encodedMessage.toCore();
       serverMessage.getReadOnlyBodyBuffer();
 
-      ServerJMSMapMessage mapMessage = (ServerJMSMapMessage) ServerJMSMessage.wrapCoreMessage(serverMessage);
+      CoreMapMessageWrapper mapMessage = (CoreMapMessageWrapper) CoreMessageWrapper.wrap(serverMessage);
       mapMessage.decode();
 
       verifyProperties(mapMessage);
@@ -190,7 +190,7 @@ public class TestConversions extends Assert {
 
       ICoreMessage serverMessage = encodedMessage.toCore();
 
-      ServerJMSStreamMessage streamMessage = (ServerJMSStreamMessage) ServerJMSMessage.wrapCoreMessage(serverMessage);
+      CoreStreamMessageWrapper streamMessage = (CoreStreamMessageWrapper) CoreMessageWrapper.wrap(serverMessage);
 
       verifyProperties(streamMessage);
 
@@ -214,7 +214,7 @@ public class TestConversions extends Assert {
 
       ICoreMessage serverMessage = encodedMessage.toCore();
 
-      ServerJMSTextMessage textMessage = (ServerJMSTextMessage) ServerJMSMessage.wrapCoreMessage(serverMessage);
+      CoreTextMessageWrapper textMessage = (CoreTextMessageWrapper) CoreMessageWrapper.wrap(serverMessage);
       textMessage.decode();
 
       verifyProperties(textMessage);
@@ -236,7 +236,7 @@ public class TestConversions extends Assert {
 
       ICoreMessage serverMessage = encodedMessage.toCore();
 
-      ServerJMSTextMessage textMessage = (ServerJMSTextMessage) ServerJMSMessage.wrapCoreMessage(serverMessage);
+      CoreTextMessageWrapper textMessage = (CoreTextMessageWrapper) CoreMessageWrapper.wrap(serverMessage);
       textMessage.decode();
 
       verifyProperties(textMessage);
@@ -277,7 +277,7 @@ public class TestConversions extends Assert {
       ICoreMessage serverMessage = encodedMessage.toCore();
       serverMessage.getReadOnlyBodyBuffer();
 
-      ServerJMSMapMessage mapMessage = (ServerJMSMapMessage) ServerJMSMessage.wrapCoreMessage(serverMessage);
+      CoreMapMessageWrapper mapMessage = (CoreMapMessageWrapper) CoreMessageWrapper.wrap(serverMessage);
       mapMessage.decode();
 
       verifyProperties(mapMessage);
@@ -329,7 +329,7 @@ public class TestConversions extends Assert {
       ICoreMessage serverMessage = encodedMessage.toCore();
       serverMessage.getReadOnlyBodyBuffer();
 
-      ServerJMSMapMessage mapMessage = (ServerJMSMapMessage) ServerJMSMessage.wrapCoreMessage(serverMessage);
+      CoreMapMessageWrapper mapMessage = (CoreMapMessageWrapper) CoreMessageWrapper.wrap(serverMessage);
       mapMessage.decode();
 
       verifyProperties(mapMessage);
@@ -363,7 +363,7 @@ public class TestConversions extends Assert {
 
       byte[] encodedEmbeddedMap = encodeObject(embeddedMap);
 
-      ServerJMSMessage serverMessage = createMessage();
+      CoreMessageWrapper serverMessage = createMessage();
 
       serverMessage.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_NULL);
       serverMessage.setObjectProperty(JMS_AMQP_ENCODED_DELIVERY_ANNOTATION_PREFIX + annotationName, encodedEmbeddedMap);
@@ -524,8 +524,8 @@ public class TestConversions extends Assert {
       return new AMQPStandardMessage(AMQPMessage.DEFAULT_MESSAGE_FORMAT, readable, null, null);
    }
 
-   private ServerJMSMessage createMessage() {
-      return new ServerJMSMessage(newMessage(org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE));
+   private CoreMessageWrapper createMessage() {
+      return new CoreMessageWrapper(newMessage(org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE));
    }
 
    private CoreMessage newMessage(byte messageType) {
