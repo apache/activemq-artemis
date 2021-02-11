@@ -159,6 +159,19 @@ end asynchronous systems which is not possible using the standard JMS API. For
 more information on this advanced feature please see the section [Guarantees of
 sends and commits](send-guarantees.md).
 
+###Identifying your session for management and debugging
+
+Assigning IDs to your core sessions can help you with monitoring and debugging the cluster using the [management console](management-console.md).
+```java
+ ClientSession session;
+ // ...
+ session.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "jms-client-id");
+ session.addMetaData("jms-client-id", "my-session");
+ ```
+Such ID will then appear in the **Client ID** column under the **Connections**, **Consumers** and **Producers** tabs.
+
+If you are using the JMS API, the ``setClientID`` would give you the same effect.
+
 ### ClientConsumer
 
 Clients use `ClientConsumer` instances to consume messages from a queue. Core
