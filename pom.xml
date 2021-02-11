@@ -140,6 +140,8 @@
       <version.micrometer>1.6.1</version.micrometer>
       <hamcrest.version>2.1</hamcrest.version>
       <surefire.version>2.22.2</surefire.version>
+      <version.jaxb.api>2.3.1</version.jaxb.api>
+      <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <!-- for JakrtaEE -->
       <version.batavia>1.0.5.Final</version.batavia>
 
