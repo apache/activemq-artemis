@@ -570,11 +570,12 @@ public class PagingStoreImpl implements PagingStore {
       SequentialFileFactory factory = null;
       try {
          factory = checkFileFactory();
+         SequentialFile file = factory.createSequentialFile(fileName);
+         return file.exists();
       } catch (Exception ignored) {
+         logger.debug("PagingStoreFactory::checkPageFileExists never-throws assumption failed.", ignored);
+         return false;
       }
-
-      SequentialFile file = factory.createSequentialFile(fileName);
-      return file.exists();
    }
 
    @Override
