@@ -149,7 +149,7 @@ public class MessageTransformationTest {
       AMQPMessage outboudMessage = AMQPConverter.getInstance().fromCore(core, null);
 
       assertEquals(10, outboudMessage.getApplicationProperties().getValue().size());
-      assertEquals(4, outboudMessage.getMessageAnnotations().getValue().size());
+      assertEquals(5, outboudMessage.getMessageAnnotations().getValue().size());
    }
 
    private AMQPMessage encodeAndCreateAMQPMessage(MessageImpl message) {
