@@ -57,7 +57,6 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.ConversionException;
 import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreMessageWrapper;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
-import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
@@ -65,21 +64,12 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
-import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
-import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
-import org.apache.qpid.proton.amqp.messaging.Footer;
 import org.apache.qpid.proton.amqp.messaging.Header;
-import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.codec.DecoderImpl;
-import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.ReadableBuffer.ByteBufferReader;
-import org.apache.qpid.proton.codec.WritableBuffer;
 import org.jboss.logging.Logger;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 
 public class CoreAmqpConverter {
 
@@ -108,7 +98,6 @@ public class CoreAmqpConverter {
       CoreMessageWrapper message = CoreMessageWrapper.wrap(coreMessage);
       message.decode();
 
-      long messageFormat = 0;
       Header header = null;
       final Properties properties = new Properties();
       Map<Symbol, Object> daMap = null;
@@ -156,6 +145,12 @@ public class CoreAmqpConverter {
       if (replyTo != null) {
          properties.setReplyTo(toAddress(replyTo.toString()));
          maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, AMQPMessageSupport.destinationType(replyTo.toString()));
+      }
+
+      long scheduledDelivery = coreMessage.getScheduledDeliveryTime();
+
+      if (scheduledDelivery > 0) {
+         maMap.put(AMQPMessageSupport.SCHEDULED_DELIVERY_TIME, scheduledDelivery);
       }
 
       Object correlationID = message.getInnerMessage().getCorrelationID();
@@ -314,42 +309,8 @@ public class CoreAmqpConverter {
          apMap.put(key, objectProperty);
       }
 
-      ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
-
-      try {
-         EncoderImpl encoder = TLSEncode.getEncoder();
-         encoder.setByteBuffer(new NettyWritable(buffer));
-
-         if (header != null) {
-            encoder.writeObject(header);
-         }
-         if (daMap != null) {
-            encoder.writeObject(new DeliveryAnnotations(daMap));
-         }
-         encoder.writeObject(new MessageAnnotations(maMap));
-         encoder.writeObject(properties);
-         if (apMap != null) {
-            encoder.writeObject(new ApplicationProperties(apMap));
-         }
-         if (body != null) {
-            encoder.writeObject(body);
-         }
-         if (footerMap != null) {
-            encoder.writeObject(new Footer(footerMap));
-         }
-
-         byte[] data = new byte[buffer.writerIndex()];
-         buffer.readBytes(data);
-
-         AMQPMessage amqpMessage = new AMQPStandardMessage(messageFormat, data, null);
-         amqpMessage.setMessageID(message.getInnerMessage().getMessageID());
-         amqpMessage.setReplyTo(coreMessage.getReplyTo());
-         return amqpMessage;
-
-      } finally {
-         TLSEncode.getEncoder().setByteBuffer((WritableBuffer) null);
-         buffer.release();
-      }
+      long messageID = message.getInnerMessage().getMessageID();
+      return AMQPStandardMessage.createMessage(messageID, 0, replyTo, header, properties, daMap, maMap, apMap, footerMap, body);
    }
 
    private static Object decodeEmbeddedAMQPType(Object payload) {
