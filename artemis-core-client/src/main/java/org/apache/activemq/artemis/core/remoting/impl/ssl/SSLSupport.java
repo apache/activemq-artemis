@@ -52,10 +52,12 @@ import org.apache.activemq.artemis.utils.ClassloadingUtil;
 /**
  * Please note, this class supports PKCS#11 keystores, but there are no specific tests in the ActiveMQ Artemis test-suite to
  * validate/verify this works because this requires a functioning PKCS#11 provider which is not available by default
- * (see java.security.Security#getProviders()).  The main thing to keep in mind is that PKCS#11 keystores will have a
- * null keystore path.
+ * (see java.security.Security#getProviders()).  The main thing to keep in mind is that PKCS#11 keystores will either use
+ * null, and empty string, or NONE for their keystore path.
  */
 public class SSLSupport {
+
+   public static final String NONE = "NONE";
    private String keystoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
    private String keystorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
    private String keystorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
@@ -222,7 +224,7 @@ public class SSLSupport {
       } else if (trustAll) {
          //This is useful for testing but not should be used outside of that purpose
          return InsecureTrustManagerFactory.INSTANCE;
-      } else if (truststorePath == null && (truststoreProvider == null || !"PKCS11".equals(truststoreProvider.toUpperCase()))) {
+      } else if ((truststorePath == null || truststorePath.isEmpty() || truststorePath.equalsIgnoreCase(NONE)) && (truststoreProvider == null || !truststoreProvider.toUpperCase().contains("PKCS11"))) {
          return null;
       } else {
          TrustManagerFactory trustMgrFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -271,10 +273,16 @@ public class SSLSupport {
    private static KeyStore loadKeystore(final String keystoreProvider,
                                         final String keystorePath,
                                         final String keystorePassword) throws Exception {
-      KeyStore ks = KeyStore.getInstance(keystoreProvider);
+      KeyStore ks;
+      if (keystorePath == null|| keystorePath.isEmpty() || keystorePath.equalsIgnoreCase(NONE)) {
+          ks = KeyStore.getInstance(keystoreProvider, "PKCS11");
+      } else {
+          ks = KeyStore.getInstance(keystoreProvider);
+      }
+
       InputStream in = null;
       try {
-         if (keystorePath != null) {
+         if (keystorePath != null && !keystorePath.isEmpty() && !keystorePath.equalsIgnoreCase(NONE)) {
             URL keystoreURL = SSLSupport.validateStoreURL(keystorePath);
             in = keystoreURL.openStream();
          }
@@ -299,7 +307,7 @@ public class SSLSupport {
    }
 
    private KeyManagerFactory loadKeyManagerFactory() throws Exception {
-      if (keystorePath == null && (keystoreProvider == null || !"PKCS11".equals(keystoreProvider.toUpperCase()))) {
+      if ((keystorePath == null || keystorePath.isEmpty() || keystorePath.equalsIgnoreCase(NONE)) && (keystoreProvider == null || !keystoreProvider.toUpperCase().contains("PKCS11"))) {
          return null;
       } else {
          KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
