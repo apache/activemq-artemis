@@ -103,7 +103,7 @@ public class NettyReplicationStopTest extends FailoverTestBase {
 
       final int numMessages = 10;
 
-      ReplicationEndpoint endpoint = backupServer.getServer().getReplicationEndpoint();
+      ReplicationEndpoint endpoint = getReplicationEndpoint(backupServer.getServer());
 
       endpoint.pause();
 

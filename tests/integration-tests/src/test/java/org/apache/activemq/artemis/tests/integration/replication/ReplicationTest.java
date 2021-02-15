@@ -558,7 +558,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       blockOnReplication(storage, manager);
 
-      LargeServerMessageImpl message1 = (LargeServerMessageImpl) backupServer.getReplicationEndpoint().getLargeMessages().get(Long.valueOf(500));
+      LargeServerMessageImpl message1 = (LargeServerMessageImpl) getReplicationEndpoint(backupServer).getLargeMessages().get(Long.valueOf(500));
 
       Assert.assertNotNull(message1);
       Assert.assertFalse(largeMsg.getAppendFile().isOpen());

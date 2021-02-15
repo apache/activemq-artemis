@@ -113,6 +113,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -2515,6 +2516,14 @@ public abstract class ActiveMQTestBase extends Assert {
       // we are returning true if it ran ok.
       // had to Interrupt is exactly the opposite of what we are returning
       return !hadToInterrupt;
+   }
+
+   protected static ReplicationEndpoint getReplicationEndpoint(ActiveMQServer server) {
+      final Activation activation = server.getActivation();
+      if (activation instanceof SharedNothingBackupActivation) {
+         return ((SharedNothingBackupActivation) activation).getReplicationEndpoint();
+      }
+      return null;
    }
 
    // Private -------------------------------------------------------
