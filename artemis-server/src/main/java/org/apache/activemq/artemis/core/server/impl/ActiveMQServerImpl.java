@@ -109,7 +109,6 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
-import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
@@ -798,14 +797,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public ReplicationEndpoint getReplicationEndpoint() {
-      if (activation instanceof SharedNothingBackupActivation) {
-         return ((SharedNothingBackupActivation) activation).getReplicationEndpoint();
-      }
-      return null;
-   }
-
-   @Override
    public void unlockActivation() {
       activationLock.release();
    }
@@ -921,7 +912,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return threadPool;
    }
 
-   public void setActivation(SharedNothingLiveActivation activation) {
+   public void setActivation(Activation activation) {
       this.activation = activation;
    }
 
@@ -1145,19 +1136,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public boolean isReplicaSync() {
-      if (activation instanceof SharedNothingLiveActivation) {
-         ReplicationManager replicationManager = getReplicationManager();
-
-         if (replicationManager == null) {
-            return false;
-         } else {
-            return !replicationManager.isSynchronizing();
-         }
-      } else if (activation instanceof SharedNothingBackupActivation) {
-         return ((SharedNothingBackupActivation) activation).isRemoteBackupUpToDate();
-      } else {
-         return false;
-      }
+      return activation.isReplicaSync();
    }
 
    public void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting) {
@@ -3116,7 +3095,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       postOffice = new PostOfficeImpl(this, storageManager, pagingManager, queueFactory, managementService, configuration.getMessageExpiryScanPeriod(), configuration.getAddressQueueScanPeriod(), configuration.getWildcardConfiguration(), configuration.getIDCacheSize(), configuration.isPersistIDCache(), addressSettingsRepository);
 
       // This can't be created until node id is set
-      clusterManager = new ClusterManager(executorFactory, this, postOffice, scheduledPool, managementService, configuration, nodeManager, haPolicy.isBackup());
+      clusterManager = new ClusterManager(executorFactory, this, postOffice, scheduledPool, managementService, configuration, nodeManager, true);
 
       federationManager = new FederationManager(this);
 

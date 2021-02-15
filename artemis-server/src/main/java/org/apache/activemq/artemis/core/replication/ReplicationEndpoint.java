@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.EncoderPersister;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -82,9 +81,8 @@ import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERA
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.jboss.logging.Logger;
 
@@ -94,12 +92,20 @@ import org.jboss.logging.Logger;
  */
 public final class ReplicationEndpoint implements ChannelHandler, ActiveMQComponent {
 
+   public interface ReplicationEndpointEventListener {
+
+      void onRemoteBackupUpToDate();
+
+      void onLiveStopping(ReplicationLiveIsStoppingMessage.LiveStopping message) throws ActiveMQException;
+
+      void onLiveNodeId(String nodeId);
+   }
+
    private static final Logger logger = Logger.getLogger(ReplicationEndpoint.class);
 
-   private final IOCriticalErrorListener criticalErrorListener;
    private final ActiveMQServerImpl server;
    private final boolean wantedFailBack;
-   private final SharedNothingBackupActivation activation;
+   private final ReplicationEndpointEventListener eventListener;
    private final boolean noSync = false;
    private Channel channel;
    private boolean supportResponseBatching;
@@ -129,8 +135,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private boolean deletePages = true;
    private volatile boolean started;
 
-   private SharedNothingBackupQuorum backupQuorum;
-
    private Executor executor;
 
    private List<Interceptor> outgoingInterceptors = null;
@@ -140,13 +144,11 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    // Constructors --------------------------------------------------
    public ReplicationEndpoint(final ActiveMQServerImpl server,
-                              IOCriticalErrorListener criticalErrorListener,
                               boolean wantedFailBack,
-                              SharedNothingBackupActivation activation) {
+                              ReplicationEndpointEventListener eventListener) {
       this.server = server;
-      this.criticalErrorListener = criticalErrorListener;
       this.wantedFailBack = wantedFailBack;
-      this.activation = activation;
+      this.eventListener = eventListener;
       this.pendingPackets = new ArrayDeque<>();
       this.supportResponseBatching = false;
    }
@@ -287,7 +289,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     * @throws ActiveMQException
     */
    private void handleLiveStopping(ReplicationLiveIsStoppingMessage packet) throws ActiveMQException {
-      activation.remoteFailOver(packet.isFinalMessage());
+      eventListener.onLiveStopping(packet.isFinalMessage());
    }
 
    @Override
@@ -474,8 +476,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
 
       journalsHolder = null;
-      backupQuorum.liveIDSet(liveID);
-      activation.setRemoteBackupUpToDate();
+      eventListener.onLiveNodeId(liveID);
+      eventListener.onRemoteBackupUpToDate();
 
       if (logger.isTraceEnabled()) {
          logger.trace("Backup is synchronized / BACKUP-SYNC-DONE");
@@ -597,7 +599,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             if (packet.getNodeID() != null) {
                // At the start of replication, we still do not know which is the nodeID that the live uses.
                // This is the point where the backup gets this information.
-               backupQuorum.liveIDSet(packet.getNodeID());
+               eventListener.onLiveNodeId(packet.getNodeID());
             }
 
             break;
@@ -898,16 +900,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       public String toString() {
          return "JournalSyncFile(file=" + file.getAbsolutePath() + ")";
       }
-   }
-
-   /**
-    * Sets the quorumManager used by the server in the replicationEndpoint. It is used to inform the
-    * backup server of the live's nodeID.
-    *
-    * @param backupQuorum
-    */
-   public void setBackupQuorum(SharedNothingBackupQuorum backupQuorum) {
-      this.backupQuorum = backupQuorum;
    }
 
    /**
