@@ -862,18 +862,12 @@ public class NettyAcceptor extends AbstractAcceptor {
       return this;
    }
 
-   private static String getProtocols(Map<String, ProtocolManager> protocolManager) {
-      StringBuilder sb = new StringBuilder();
-      if (protocolManager != null) {
-         Set<String> strings = protocolManager.keySet();
-         for (String string : strings) {
-            if (sb.length() > 0) {
-               sb.append(",");
-            }
-            sb.append(string);
-         }
+   private static String getProtocols(final Map<String, ProtocolManager> protocolManagers) {
+      if (protocolManagers == null || protocolManagers.isEmpty()) {
+         return "";
       }
-      return sb.toString();
+
+      return String.join(",", protocolManagers.keySet());
    }
 
    // Inner classes -----------------------------------------------------------------------------
