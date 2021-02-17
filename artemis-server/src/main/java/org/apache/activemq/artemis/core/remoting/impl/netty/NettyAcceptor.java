@@ -92,6 +92,7 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactoryProvider;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
@@ -645,16 +646,10 @@ public class NettyAcceptor extends AbstractAcceptor {
       final SslContext context;
       try {
          checkSSLConfiguration();
-         context = new SSLSupport()
-            .setKeystoreProvider(keyStoreProvider)
-            .setKeystorePath(keyStorePath)
-            .setKeystorePassword(keyStorePassword)
-            .setTruststoreProvider(trustStoreProvider)
-            .setTruststorePath(trustStorePath)
-            .setTruststorePassword(trustStorePassword)
-            .setSslProvider(sslProvider)
-            .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
-            .createNettyContext();
+         context = OpenSSLContextFactoryProvider.getOpenSSLContextFactory().getServerSslContext(configuration,
+                 keyStoreProvider, keyStorePath, keyStorePassword,
+                 trustStoreProvider, trustStorePath, trustStorePassword,
+                 crlPath, trustManagerFactoryPlugin, TransportConstants.DEFAULT_TRUST_ALL);
       } catch (Exception e) {
          IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port, e);
          throw ise;

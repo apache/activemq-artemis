@@ -124,6 +124,7 @@ import org.jboss.logging.Logger;
 import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactoryProvider;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
 
 public class NettyConnector extends AbstractConnector {
@@ -748,19 +749,10 @@ public class NettyConnector extends AbstractConnector {
                                        String truststoreProvider,
                                        String truststorePath,
                                        String truststorePassword) throws Exception {
-
-
-      SslContext context = new SSLSupport()
-         .setKeystoreProvider(keystoreProvider)
-         .setKeystorePath(keystorePath)
-         .setKeystorePassword(keystorePassword)
-         .setTruststoreProvider(truststoreProvider)
-         .setTruststorePath(truststorePath)
-         .setTruststorePassword(truststorePassword)
-         .setSslProvider(sslProvider)
-         .setTrustAll(trustAll)
-         .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
-         .createNettyClientContext();
+      final SslContext context = OpenSSLContextFactoryProvider.getOpenSSLContextFactory().getClientSslContext(configuration,
+         keystoreProvider, keystorePath, keystorePassword,
+         truststoreProvider, truststorePath, truststorePassword,
+         crlPath, trustManagerFactoryPlugin, trustAll);
 
       Subject subject = null;
       if (kerb5Config != null) {
