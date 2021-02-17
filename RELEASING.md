@@ -360,10 +360,10 @@ Once the website is updated then send an email with a subject like `[ANNOUNCE] A
 I'm pleased to announce the release of ActiveMQ Artemis <version>.
 
 Downloads are now available at:
-http://activemq.apache.org/artemis/download.html
+https://activemq.apache.org/components/artemis/download/
 
 For a complete list of updates:
-http://activemq.apache.org/artemis/release-notes-<version>.html
+https://activemq.apache.org/components/artemis/download/release-notes-<version>
 
 I would like to highlight these improvements:
 
