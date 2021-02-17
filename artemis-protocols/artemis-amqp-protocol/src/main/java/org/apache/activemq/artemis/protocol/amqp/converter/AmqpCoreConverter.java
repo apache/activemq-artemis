@@ -210,6 +210,10 @@ public class AmqpCoreConverter {
          throw new RuntimeException("Unexpected body type: " + body.getClass());
       }
 
+      // Initialize the JMS expiration with the value calculated during the scan of the AMQP message
+      // to avoid a different value for each conversion based on System.currentTimeMillis() and ttl.
+      result.setJMSExpiration(message.getExpiration());
+
       processHeader(result, header);
       processMessageAnnotations(result, annotations);
       processApplicationProperties(result, applicationProperties);
