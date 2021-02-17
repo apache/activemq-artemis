@@ -993,6 +993,19 @@ public class AMQPMessageTest {
    }
 
    @Test
+   public void testGetExpirationFromCoreMessageUsingTTL() {
+      final long ttl = 100000;
+
+      MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
+      protonMessage.setHeader(new Header());
+      protonMessage.setTtl(ttl);
+      AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
+
+      ICoreMessage coreMessage = decoded.toCore();
+      assertEquals(decoded.getExpiration(), coreMessage.getExpiration());
+   }
+
+   @Test
    public void testGetExpirationFromMessageUsingAbsoluteExpiration() {
       final Date expirationTime = new Date(System.currentTimeMillis());
 
