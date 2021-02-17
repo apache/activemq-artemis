@@ -425,6 +425,9 @@ var Artemis;
              if (isNaN(timestamp)) {
                 return timestamp;
              }
+             if (timestamp == 0) {
+                return "never";
+             }
              var expiresIn = timestamp - Date.now();
              if (Math.abs(expiresIn) < MS_PER_DAY) {
                 var duration = expiresIn < 0 ? -expiresIn : expiresIn;
