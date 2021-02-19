@@ -46,6 +46,7 @@ import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.apache.activemq.artemis.api.core.TrustManagerFactoryPlugin;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
 /**
@@ -65,6 +66,21 @@ public class SSLSupport {
    private String sslProvider = TransportConstants.DEFAULT_SSL_PROVIDER;
    private boolean trustAll = TransportConstants.DEFAULT_TRUST_ALL;
    private String trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;
+
+   public SSLSupport() {
+   }
+
+   public SSLSupport(final SSLContextConfig config) {
+      keystoreProvider = config.getKeystoreProvider();
+      keystorePath = config.getKeystorePath();
+      keystorePassword = config.getKeystorePassword();
+      truststoreProvider = config.getTruststoreProvider();
+      truststorePath = config.getTruststorePath();
+      truststorePassword = config.getTruststorePassword();
+      crlPath = config.getCrlPath();
+      trustAll = config.isTrustAll();
+      trustManagerFactoryPlugin = config.getTrustManagerFactoryPlugin();
+   }
 
    public String getKeystoreProvider() {
       return keystoreProvider;

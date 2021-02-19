@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.remoting.impl.ssl;
 import java.util.Map;
 import javax.net.ssl.SSLContext;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
@@ -26,43 +27,23 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
  */
 public class DefaultSSLContextFactory implements SSLContextFactory {
 
-
    @Override
-   public SSLContext getSSLContext(Map<String, Object> configuration,
-           String keystoreProvider, String keystorePath, String keystorePassword,
-           String truststoreProvider, String truststorePath, String truststorePassword,
-           String crlPath, String trustManagerFactoryPlugin, boolean trustAll) throws Exception {
-      return createSSLContext(configuration,
-              keystoreProvider, keystorePath, keystorePassword,
-              truststoreProvider, truststorePath, truststorePassword,
-              crlPath, trustManagerFactoryPlugin, trustAll);
-   }
+   public SSLContext getSSLContext(final SSLContextConfig config, final Map<String, Object> additionalOpts) throws Exception {
+      final boolean useDefaultSslContext = ConfigurationHelper.getBooleanProperty(
+         TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME,
+         TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT,
+         additionalOpts
+      );
 
-   protected SSLContext createSSLContext(Map<String, Object> configuration,
-           String keystoreProvider, String keystorePath, String keystorePassword,
-           String truststoreProvider, String truststorePath, String truststorePassword,
-           String crlPath, String trustManagerFactoryPlugin, boolean trustAll) throws Exception {
-      if (log.isDebugEnabled()) {
-         final StringBuilder builder = new StringBuilder();
-         configuration.forEach((k, v) -> builder.append("\r\n").append(k).append("=").append(k.toLowerCase().contains("password") ? "****" : v));
-         log.debugf("Creating SSL context with configuration %s", builder.toString());
-      }
-      boolean useDefaultSslContext = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT, configuration);
       if (useDefaultSslContext) {
+         log.debug("Using the Default JDK SSLContext.");
          return SSLContext.getDefault();
       }
-      return new SSLSupport()
-              .setKeystoreProvider(keystoreProvider)
-              .setKeystorePath(keystorePath)
-              .setKeystorePassword(keystorePassword)
-              .setTruststoreProvider(truststoreProvider)
-              .setTruststorePath(truststorePath)
-              .setTruststorePassword(truststorePassword)
-              .setTrustAll(trustAll)
-              .setCrlPath(crlPath)
-              .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
-              .createContext();
+
+      log.debugf("Creating JDK SSLContext with %s", config);
+      return new SSLSupport(config).createContext();
    }
+
    @Override
    public int getPriority() {
       return 5;

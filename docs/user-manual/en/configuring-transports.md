@@ -318,9 +318,12 @@ additional properties:
 
 - `sslContext`
 
-A key that can be used in conjunction with `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory`
-to cache created SSLContext and avoid recreating. Look [Configuring a SSLContextFactory](#Configuring a SSLContextFactory)
-for more details.
+  An optional cache key only evaluated if `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory`
+  is active, to cache the initial created SSL context and reuse it. If not
+  specified CachingSSLContextFactory will automatically calculate a cache key based on
+  the given keystore/truststore parameters.
+  See [Configuring an SSLContextFactory](#Configuring an SSLContextFactory)
+  for more details.
 
 - `sslEnabled`
 
@@ -499,22 +502,34 @@ for more details.
   [broker's classpath](using-server.md#adding-runtime-dependencies).
 
 
-#### Configuring a SSLContextFactory
+#### Configuring an SSLContextFactory
 
-If you have a `JDK` provider you can configure which SSLContextFactory to use.
-Currently we provide two implementations: 
+If you use `JDK` as SSL provider (the default), you can configure which
+SSLContextFactory to use.
+Currently the following two implementations are provided:
 - `org.apache.activemq.artemis.core.remoting.impl.ssl.DefaultSSLContextFactory`
+  (registered by the default)
 - `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory`
-but you can also add your own implementation of `org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory`.
 
-The implementations are loaded by a ServiceLoader, thus you need to declare your implementation in
+You may also create your own implementation of 
+`org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory`.
+
+The implementations are loaded by a `java.util.ServiceLoader`, thus you need to declare your implementation in
 a `META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory` file.
 If several implementations are available, the one with the highest `priority` will be selected.
+
 So for example, if you want to use `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory`
 you need to add a `META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory` file
 to your classpath with the content `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory`.
 
-**Note:** This mechanism doesn't work if you have selected `OPENSSL` as provider.
+A similar mechanism exists for the `OPENSSL` SSL provider in which case you can configure an OpenSSLContextFactory.
+Currently the following two implementations are provided:
+- `org.apache.activemq.artemis.core.remoting.impl.ssl.DefaultOpenSSLContextFactory`
+  (registered by the default)
+- `org.apache.activemq.artemis.core.remoting.impl.ssl.CachingOpenSSLContextFactory`
+
+You may also create your own implementation of 
+`org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactory`.
 
 
 ### Configuring Netty HTTP
