@@ -15,66 +15,61 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.ssl;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.net.ssl.SSLContext;
+
+import io.netty.handler.ssl.SslContext;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
 /**
- * SSLContextFactory providing a cache of SSLContext.
- * Since SSLContext should be reused instead of recreated and are thread safe.
- * To activate it uou need to allow this Service to be discovered by having a
+ * {@link SSLContextFactory} providing a cache of {@link SSLContext}.
+ * Since {@link SSLContext} should be reused instead of recreated and are thread safe.
+ * To activate it you need to allow this Service to be discovered by having a
  * <code>META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory</code>
- * file with <code> org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory</code>
+ * file with <code>org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory</code>
  * as value.
  */
 public class CachingSSLContextFactory extends DefaultSSLContextFactory {
 
-   private static final Map<String, SSLContext> SSL_CONTEXTS = Collections.synchronizedMap(new HashMap<>());
+   private static final ConcurrentMap<Object, SSLContext> sslContextCache = new ConcurrentHashMap<>(2);
 
    @Override
    public void clearSSLContexts() {
-      SSL_CONTEXTS.clear();
+      sslContextCache.clear();
    }
 
    @Override
-   public SSLContext getSSLContext(Map<String, Object> configuration,
-           String keystoreProvider, String keystorePath, String keystorePassword,
-           String truststoreProvider, String truststorePath, String truststorePassword,
-           String crlPath, String trustManagerFactoryPlugin, boolean trustAll) throws Exception {
-      String sslContextName = getSSLContextName(configuration, keystorePath, keystoreProvider, truststorePath, truststoreProvider);
-      if (!SSL_CONTEXTS.containsKey(sslContextName)) {
-         SSL_CONTEXTS.put(sslContextName, createSSLContext(configuration,
-              keystoreProvider, keystorePath, keystorePassword,
-              truststoreProvider, truststorePath, truststorePassword,
-              crlPath, trustManagerFactoryPlugin, trustAll));
-      }
-      return SSL_CONTEXTS.get(sslContextName);
+   public SSLContext getSSLContext(final SSLContextConfig config, final Map<String, Object> additionalOpts) throws Exception {
+      final Object cacheKey = getCacheKey(config, additionalOpts);
+      return sslContextCache.computeIfAbsent(cacheKey, key -> {
+         try {
+            return CachingSSLContextFactory.super.getSSLContext(config, additionalOpts);
+         } catch (final Exception ex) {
+            throw new RuntimeException("An unexpected exception occured while creating JDK SSLContext with " + config, ex);
+         }
+      });
    }
 
    /**
-    * Obtain the sslContextName :
-    *  - if available the 'sslContext' from the configuration
-    *  - otherwise if available the keyStorePath + '_' + keystoreProvider
-    *  - otherwise the truststorePath + '_' + truststoreProvider.
-    * @param configuration
-    * @param keyStorePath
-    * @param keystoreProvider
-    * @param truststorePath
-    * @param truststoreProvider
-    * @return the ley associated to the SSLContext.
+    * Obtains/calculates a cache key for the corresponding {@link SslContext}.
+    * <ol>
+    * <li>If <code>config</code> contains an entry with key "sslContext", the associated value is returned
+    * <li>Otherwise, the provided {@link SSLContextConfig} is used as cache key.
+    * </ol>
+    *
+    * @return the SSL context name to cache/retrieve the {@link SslContext}.
     */
-   protected String getSSLContextName(Map<String, Object> configuration, String keyStorePath, String keystoreProvider, String truststorePath, String truststoreProvider) {
-      String sslContextName = ConfigurationHelper.getStringProperty(TransportConstants.SSL_CONTEXT_PROP_NAME, null, configuration);
-      if (sslContextName == null) {
-         if (keyStorePath != null) {
-            return keyStorePath + '_' + keystoreProvider;
-         }
-         return truststorePath + '_' + truststoreProvider;
-      }
-      return sslContextName;
+   protected Object getCacheKey(final SSLContextConfig config, final Map<String, Object> additionalOpts) {
+      final Object cacheKey = ConfigurationHelper.getStringProperty(TransportConstants.SSL_CONTEXT_PROP_NAME, null, additionalOpts);
+      if (cacheKey != null)
+         return cacheKey;
+
+      return config;
    }
 
    @Override
