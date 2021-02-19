@@ -232,6 +232,11 @@ public final class ChannelImpl implements Channel {
    }
 
    @Override
+   public void flushConnection() {
+      connection.getTransportConnection().flush();
+   }
+
+   @Override
    public boolean send(Packet packet, boolean flushConnection) {
       if (invokeInterceptors(packet, interceptors, connection) != null) {
          return false;
@@ -557,7 +562,7 @@ public final class ChannelImpl implements Channel {
    public static String invokeInterceptors(final Packet packet,
                                            final List<Interceptor> interceptors,
                                            final RemotingConnection connection) {
-      if (interceptors != null) {
+      if (interceptors != null && !interceptors.isEmpty()) {
          for (final Interceptor interceptor : interceptors) {
             try {
                boolean callNext = interceptor.intercept(packet, connection);
