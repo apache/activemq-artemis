@@ -343,8 +343,8 @@ additional properties:
   override the server-side setting by either using the customary
   "javax.net.ssl.keyStore" system property or the ActiveMQ-specific
   "org.apache.activemq.ssl.keyStore" system property. The ActiveMQ-specific
-  system property is useful if another component on client is already making use
-  of the standard, Java system property.
+  system property is useful if another component on the client is already making
+  use of the standard Java system property.
 
 - `keyStorePassword`
 
@@ -358,8 +358,26 @@ additional properties:
   setting by either using the customary "javax.net.ssl.keyStorePassword" system
   property or the ActiveMQ-specific "org.apache.activemq.ssl.keyStorePassword"
   system property. The ActiveMQ-specific system property is useful if another
-  component on client is already making use of the standard, Java system
+  component on the client is already making use of the standard Java system
   property.
+
+- `keyStoreType`
+
+  The type of keystore being used. For example, `JKS`, `JCEKS`, `PKCS12`, etc.
+  This value can also be set via the "javax.net.ssl.keyStoreType" system property
+  or the ActiveMQ-specific "org.apache.activemq.ssl.keyStoreType" system property.
+  The ActiveMQ-specific system property is useful if another component on the 
+  client is already making use of the standard Java system property. Default is
+  `JKS`.
+
+- `keyStoreProvider`
+
+  The provider used for the keystore. For example, `SUN`, `SunJCE`, etc. This 
+  value can also be set via the "javax.net.ssl.keyStoreProvider" system property
+  or the ActiveMQ-specific "org.apache.activemq.ssl.keyStoreProvider" system
+  property. The ActiveMQ-specific system property is useful if another component
+  on the client is already making use of the standard Java system property.
+  Default is `null`.
 
 - `trustStorePath`
 
@@ -375,8 +393,8 @@ additional properties:
   then it can override the server-side setting by either using the customary
   "javax.net.ssl.trustStore" system property or the ActiveMQ-specific
   "org.apache.activemq.ssl.trustStore" system property. The ActiveMQ-specific
-  system property is useful if another component on client is already making use
-  of the standard, Java system property.
+  system property is useful if another component on the client is already making
+  use of the standard Java system property.
 
 - `trustStorePassword`
 
@@ -391,8 +409,25 @@ additional properties:
   setting by either using the customary "javax.net.ssl.trustStorePassword" system
   property or the ActiveMQ-specific "org.apache.activemq.ssl.trustStorePassword"
   system property. The ActiveMQ-specific system property is useful if another
-  component on client is already making use of the standard, Java system
+  component on the client is already making use of the standard Java system
   property.
+
+- `trustStoreType`
+
+  The type of truststore being used. For example, `JKS`, `JCEKS`, `PKCS12`, etc.
+  This value can also be set via the "javax.net.ssl.trustStoreType" system property
+  or the ActiveMQ-specific "org.apache.activemq.ssl.trustStoreType" system property.
+  The ActiveMQ-specific system property is useful if another component on the client
+  is already making use of the standard Java system property. Default is `JKS`.
+
+- `trustStoreProvider`
+
+  The provider used for the truststore. For example, `SUN`, `SunJCE`, etc. This
+  value can also be set via the "javax.net.ssl.trustStoreProvider" system property
+  or the ActiveMQ-specific "org.apache.activemq.ssl.trustStoreProvider" system
+  property. The ActiveMQ-specific system property is useful if another component
+  on the client is already making use of the standard Java system property.
+  Default is `null`.
 
 - `enabledCipherSuites`
 

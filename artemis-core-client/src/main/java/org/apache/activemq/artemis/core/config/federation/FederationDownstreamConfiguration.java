@@ -52,9 +52,11 @@ public class FederationDownstreamConfiguration extends FederationStreamConfigura
       params.remove(TransportConstants.KEYSTORE_PATH_PROP_NAME);
       params.remove(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
       params.remove(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME);
+      params.remove(TransportConstants.KEYSTORE_TYPE_PROP_NAME);
       params.remove(TransportConstants.TRUSTSTORE_PATH_PROP_NAME);
       params.remove(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME);
       params.remove(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME);
+      params.remove(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME);
 
       this.upstreamConfiguration = new TransportConfiguration(transportConfiguration.getFactoryClassName(), params,
                                                               transportConfiguration.getName(), transportConfiguration.getExtraParams());

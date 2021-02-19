@@ -70,11 +70,15 @@ public class BackwardsCompatibilityUtils {
 
    public static final String KEYSTORE_PROVIDER_PROP_NAME = "key-store-provider";
 
+   public static final String KEYSTORE_TYPE_PROP_NAME = "key-store-type";
+
    public static final String KEYSTORE_PATH_PROP_NAME = "key-store-path";
 
    public static final String KEYSTORE_PASSWORD_PROP_NAME = "key-store-password";
 
    public static final String TRUSTSTORE_PROVIDER_PROP_NAME = "trust-store-provider";
+
+   public static final String TRUSTSTORE_TYPE_PROP_NAME = "trust-store-type";
 
    public static final String TRUSTSTORE_PATH_PROP_NAME = "trust-store-path";
 
@@ -121,9 +125,11 @@ public class BackwardsCompatibilityUtils {
       OLD_PARAMETERS_MAP.put(TransportConstants.LOCAL_ADDRESS_PROP_NAME, LOCAL_ADDRESS_PROP_NAME);
       OLD_PARAMETERS_MAP.put(TransportConstants.LOCAL_PORT_PROP_NAME, LOCAL_PORT_PROP_NAME);
       OLD_PARAMETERS_MAP.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, KEYSTORE_PROVIDER_PROP_NAME);
+      OLD_PARAMETERS_MAP.put(TransportConstants.KEYSTORE_TYPE_PROP_NAME, KEYSTORE_TYPE_PROP_NAME);
       OLD_PARAMETERS_MAP.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, KEYSTORE_PATH_PROP_NAME);
       OLD_PARAMETERS_MAP.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, KEYSTORE_PASSWORD_PROP_NAME);
       OLD_PARAMETERS_MAP.put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, TRUSTSTORE_PROVIDER_PROP_NAME);
+      OLD_PARAMETERS_MAP.put(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME, TRUSTSTORE_TYPE_PROP_NAME);
       OLD_PARAMETERS_MAP.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, TRUSTSTORE_PATH_PROP_NAME);
       OLD_PARAMETERS_MAP.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, TRUSTSTORE_PASSWORD_PROP_NAME);
       OLD_PARAMETERS_MAP.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, NEED_CLIENT_AUTH_PROP_NAME);

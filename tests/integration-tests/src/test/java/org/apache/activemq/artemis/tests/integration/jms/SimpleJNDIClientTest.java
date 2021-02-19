@@ -371,9 +371,11 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
          TransportConstants.LOCAL_ADDRESS_PROP_NAME + "=myLocalAddressPropValue&" +
          TransportConstants.LOCAL_PORT_PROP_NAME + "=myLocalPortPropValue&" +
          TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "=myKeystoreProviderPropValue&" +
+         TransportConstants.KEYSTORE_TYPE_PROP_NAME + "=myKeystoreTypePropValue&" +
          TransportConstants.KEYSTORE_PATH_PROP_NAME + "=myKeystorePathPropValue&" +
          TransportConstants.KEYSTORE_PASSWORD_PROP_NAME + "=myKeystorePasswordPropValue&" +
          TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME + "=myTruststoreProviderPropValue&" +
+         TransportConstants.TRUSTSTORE_TYPE_PROP_NAME + "=myTruststoreTypePropValue&" +
          TransportConstants.TRUSTSTORE_PATH_PROP_NAME + "=myTruststorePathPropValue&" +
          TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME + "=myTruststorePasswordPropValue&" +
          TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME + "=myEnabledCipherSuitesPropValue&" +
@@ -406,9 +408,11 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Assert.assertEquals(parametersFromJNDI.get(TransportConstants.LOCAL_ADDRESS_PROP_NAME), "myLocalAddressPropValue");
       Assert.assertEquals(parametersFromJNDI.get(TransportConstants.LOCAL_PORT_PROP_NAME), "myLocalPortPropValue");
       Assert.assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME), "myKeystoreProviderPropValue");
+      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_TYPE_PROP_NAME), "myKeystoreTypePropValue");
       Assert.assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PATH_PROP_NAME), "myKeystorePathPropValue");
       Assert.assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME), "myKeystorePasswordPropValue");
       Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME), "myTruststoreProviderPropValue");
+      Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME), "myTruststoreTypePropValue");
       Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PATH_PROP_NAME), "myTruststorePathPropValue");
       Assert.assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME), "myTruststorePasswordPropValue");
       Assert.assertEquals(parametersFromJNDI.get(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME), "myEnabledCipherSuitesPropValue");

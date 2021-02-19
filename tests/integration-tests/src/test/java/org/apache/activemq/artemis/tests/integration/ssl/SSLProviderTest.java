@@ -59,7 +59,7 @@ public class SSLProviderTest extends SSLTestBase {
 
       uri.append("?").append(TransportConstants.SSL_ENABLED_PROP_NAME).append("=true");
       uri.append("&").append(TransportConstants.SSL_PROVIDER).append("=").append(clientSslProvider);
-      uri.append("&").append(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME).append("=JKS");
+      uri.append("&").append(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME).append("=JKS");
       uri.append("&").append(TransportConstants.TRUSTSTORE_PATH_PROP_NAME).append("=").append(CLIENT_SIDE_TRUSTSTORE);
       uri.append("&").append(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME).append("=").append(PASSWORD);
 

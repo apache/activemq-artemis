@@ -82,9 +82,11 @@ public class ManagementConnector implements ActiveMQComponent {
          connectorServerFactory.setSecured(configuration.isSecured());
          connectorServerFactory.setKeyStorePath(configuration.getKeyStorePath());
          connectorServerFactory.setkeyStoreProvider(configuration.getKeyStoreProvider());
+         connectorServerFactory.setkeyStoreType(configuration.getKeyStoreType());
          connectorServerFactory.setKeyStorePassword(configuration.getKeyStorePassword());
          connectorServerFactory.setTrustStorePath(configuration.getTrustStorePath());
          connectorServerFactory.setTrustStoreProvider(configuration.getTrustStoreProvider());
+         connectorServerFactory.setTrustStoreType(configuration.getTrustStoreType());
          connectorServerFactory.setTrustStorePassword(configuration.getTrustStorePassword());
          connectorServerFactory.init();
       } catch (Exception e) {

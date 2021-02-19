@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -32,16 +33,28 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class SSLSupportTest extends ActiveMQTestBase {
 
-   @Parameterized.Parameters(name = "storeType={0}")
+   @Parameterized.Parameters(name = "storeProvider={0}, storeType={1}")
    public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{"JCEKS"}, {"JKS"}});
+      return Arrays.asList(new Object[][]{
+         {TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_TYPE},
+         {"SunJCE", "JCEKS"},
+         {"SUN", "JKS"},
+         {"SunJSSE", "PKCS12"}
+      });
    }
 
-   public SSLSupportTest(String storeType) {
+   public SSLSupportTest(String storeProvider, String storeType) {
+      this.storeProvider = storeProvider;
       this.storeType = storeType;
-      keyStorePath = "server-side-keystore." + storeType.toLowerCase();
-      trustStorePath = "server-side-truststore." + storeType.toLowerCase();
+      String suffix = storeType.toLowerCase();
+      if (storeType.equals("PKCS12")) {
+         suffix = "p12";
+      }
+      keyStorePath = "server-side-keystore." + suffix;
+      trustStorePath = "server-side-truststore." + suffix;
    }
+
+   private String storeProvider;
 
    private String storeType;
 
@@ -74,10 +87,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
    @Test
    public void testContextWithRightParameters() throws Exception {
       new SSLSupport()
-         .setKeystoreProvider(storeType)
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
          .setKeystorePath(keyStorePath)
          .setKeystorePassword(keyStorePassword)
-         .setTruststoreProvider(storeType)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
          .setTruststorePath(trustStorePath)
          .setTruststorePassword(trustStorePassword)
          .createContext();
@@ -93,10 +108,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
    public void testContextWithKeyStorePathAsURL() throws Exception {
       URL url = Thread.currentThread().getContextClassLoader().getResource(keyStorePath);
       new SSLSupport()
-         .setKeystoreProvider(storeType)
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
          .setKeystorePath(url.toString())
          .setKeystorePassword(keyStorePassword)
-         .setTruststoreProvider(storeType)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
          .setTruststorePath(trustStorePath)
          .setTruststorePassword(trustStorePassword)
          .createContext();
@@ -107,10 +124,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
       URL url = Thread.currentThread().getContextClassLoader().getResource(keyStorePath);
       File file = new File(url.toURI());
       new SSLSupport()
-         .setKeystoreProvider(storeType)
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
          .setKeystorePath(file.getAbsolutePath())
          .setKeystorePassword(keyStorePassword)
-         .setTruststoreProvider(storeType)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
          .setTruststorePath(trustStorePath)
          .setTruststorePassword(trustStorePassword)
          .createContext();
@@ -120,10 +139,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
    public void testContextWithBadKeyStorePath() throws Exception {
       try {
          new SSLSupport()
-            .setKeystoreProvider(storeType)
+            .setKeystoreProvider(storeProvider)
+            .setKeystoreType(storeType)
             .setKeystorePath("not a keystore")
             .setKeystorePassword(keyStorePassword)
-            .setTruststoreProvider(storeType)
+            .setTruststoreProvider(storeProvider)
+            .setTruststoreType(storeType)
             .setTruststorePath(trustStorePath)
             .setTruststorePassword(trustStorePassword)
             .createContext();
@@ -136,10 +157,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
    public void testContextWithNullKeyStorePath() throws Exception {
       try {
          new SSLSupport()
-            .setKeystoreProvider(storeType)
+            .setKeystoreProvider(storeProvider)
+            .setKeystoreType(storeType)
             .setKeystorePath(null)
             .setKeystorePassword(keyStorePassword)
-            .setTruststoreProvider(storeType)
+            .setTruststoreProvider(storeProvider)
+            .setTruststoreType(storeType)
             .setTruststorePath(trustStorePath)
             .setTruststorePassword(trustStorePassword)
             .createContext();
@@ -158,10 +181,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
       }
 
       new SSLSupport()
-         .setKeystoreProvider(storeType)
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
          .setKeystorePath("src/test/resources/" + keyStorePath)
          .setKeystorePassword(keyStorePassword)
-         .setTruststoreProvider(storeType)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
          .setTruststorePath(trustStorePath)
          .setTruststorePassword(trustStorePassword)
          .createContext();
@@ -171,10 +196,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
    public void testContextWithBadKeyStorePassword() throws Exception {
       try {
          new SSLSupport()
-            .setKeystoreProvider(storeType)
+            .setKeystoreProvider(storeProvider)
+            .setKeystoreType(storeType)
             .setKeystorePath(keyStorePath)
             .setKeystorePassword("bad password")
-            .setTruststoreProvider(storeType)
+            .setTruststoreProvider(storeProvider)
+            .setTruststoreType(storeType)
             .setTruststorePath(trustStorePath)
             .setTruststorePassword(trustStorePassword)
             .createContext();
@@ -187,10 +214,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
    public void testContextWithNullKeyStorePassword() throws Exception {
       try {
          new SSLSupport()
-            .setKeystoreProvider(storeType)
+            .setKeystoreProvider(storeProvider)
+            .setKeystoreType(storeType)
             .setKeystorePath(keyStorePath)
             .setKeystorePassword(null)
-            .setTruststoreProvider(storeType)
+            .setTruststoreProvider(storeProvider)
+            .setTruststoreType(storeType)
             .setTruststorePath(trustStorePath)
             .setTruststorePassword(trustStorePassword)
             .createContext();
@@ -204,10 +233,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
    public void testContextWithBadTrustStorePath() throws Exception {
       try {
          new SSLSupport()
-            .setKeystoreProvider(storeType)
+            .setKeystoreProvider(storeProvider)
+            .setKeystoreType(storeType)
             .setKeystorePath(keyStorePath)
             .setKeystorePassword(keyStorePassword)
-            .setTruststoreProvider(storeType)
+            .setTruststoreProvider(storeProvider)
+            .setTruststoreType(storeType)
             .setTruststorePath("not a trust store")
             .setTruststorePassword(trustStorePassword)
             .createContext();
@@ -220,10 +251,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
    public void testContextWithBadTrustStorePassword() throws Exception {
       try {
          new SSLSupport()
-            .setKeystoreProvider(storeType)
+            .setKeystoreProvider(storeProvider)
+            .setKeystoreType(storeType)
             .setKeystorePath(keyStorePath)
             .setKeystorePassword(keyStorePassword)
-            .setTruststoreProvider(storeType)
+            .setTruststoreProvider(storeProvider)
+            .setTruststoreType(storeType)
             .setTruststorePath(trustStorePath)
             .setTruststorePassword("bad passord")
             .createContext();
@@ -237,10 +270,12 @@ public class SSLSupportTest extends ActiveMQTestBase {
       //This is using a bad password but should not fail because the trust store should be ignored with
       //the trustAll flag set to true
       new SSLSupport()
-         .setKeystoreProvider(storeType)
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
          .setKeystorePath(keyStorePath)
          .setKeystorePassword(keyStorePassword)
-         .setTruststoreProvider(storeType)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
          .setTruststorePath(trustStorePath)
          .setTruststorePassword("bad passord")
          .setTrustAll(true)
