@@ -85,7 +85,7 @@ public abstract class SSLTestBase extends ActiveMQTestBase {
    protected void configureSSLParameters(Map<String, Object> params) {
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.SSL_PROVIDER, sslProvider);
-      params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, "JKS");
+      params.put(TransportConstants.KEYSTORE_TYPE_PROP_NAME, "JKS");
       params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
       params.put(TransportConstants.HOST_PROP_NAME, "localhost");

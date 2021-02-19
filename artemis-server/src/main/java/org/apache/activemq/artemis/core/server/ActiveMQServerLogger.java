@@ -1725,6 +1725,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222299, value = "No bootstrap credentials found. User management may not function.", format = Message.Format.MESSAGE_FORMAT)
    void noBootstrapCredentialsFound();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222300, value = "Getting SSL handler failed when serving client from {0}: {1}.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void gettingSslHandlerFailed(String clientAddress, String cause);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);

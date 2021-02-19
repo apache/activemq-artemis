@@ -37,13 +37,14 @@ public interface SSLContextFactory extends Comparable<SSLContextFactory> {
    @SuppressWarnings("unused")
    @Deprecated
    default SSLContext getSSLContext(Map<String, Object> configuration,
-           String keystoreProvider, String keystorePath, String keystorePassword,
-           String truststoreProvider, String truststorePath, String truststorePassword,
+           String keystoreProvider, String keystorePath, String keystoreType, String keystorePassword,
+           String truststoreProvider, String truststorePath, String truststoreType, String truststorePassword,
            String crlPath, String trustManagerFactoryPlugin, boolean trustAll) throws Exception {
 
       final SSLContextConfig sslContextConfig = SSLContextConfig.builder()
          .keystoreProvider(keystoreProvider)
          .keystorePath(keystorePath)
+         .keystoreType(keystoreType)
          .keystorePassword(keystorePassword)
          .truststoreProvider(truststoreProvider)
          .truststorePath(truststorePath)
@@ -62,8 +63,8 @@ public interface SSLContextFactory extends Comparable<SSLContextFactory> {
     */
    default SSLContext getSSLContext(SSLContextConfig config, Map<String, Object> additionalOpts) throws Exception {
       return getSSLContext(additionalOpts,
-         config.getKeystoreProvider(), config.getKeystorePath(), config.getKeystorePassword(),
-         config.getTruststoreProvider(), config.getTruststorePath(), config.getTruststorePassword(),
+         config.getKeystoreProvider(), config.getKeystorePath(), config.getKeystoreType(), config.getKeystorePassword(),
+         config.getTruststoreProvider(), config.getTruststorePath(), config.getTruststoreType(), config.getTruststorePassword(),
          config.getCrlPath(), config.getTrustManagerFactoryPlugin(), config.isTrustAll()
       );
    }

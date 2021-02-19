@@ -29,9 +29,11 @@ public final class SSLContextConfig {
 
    public static final class Builder {
       private String keystorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
+      private String keystoreType = TransportConstants.DEFAULT_KEYSTORE_TYPE;
       private String keystorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
       private String keystoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
       private String truststorePath = TransportConstants.DEFAULT_TRUSTSTORE_PATH;
+      private String truststoreType = TransportConstants.DEFAULT_TRUSTSTORE_TYPE;
       private String truststorePassword = TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD;
       private String truststoreProvider = TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER;
       private String crlPath = TransportConstants.DEFAULT_CRL_PATH;
@@ -46,9 +48,11 @@ public final class SSLContextConfig {
             return this;
 
          keystorePath = config.getKeystorePath();
+         keystoreType = config.getKeystoreType();
          keystorePassword = config.getKeystorePassword();
          keystoreProvider = config.getKeystoreProvider();
          truststorePath = config.getTruststorePath();
+         truststoreType = config.getTruststoreType();
          truststorePassword = config.getTruststorePassword();
          crlPath = config.getCrlPath();
          truststoreProvider = config.getTruststoreProvider();
@@ -58,14 +62,19 @@ public final class SSLContextConfig {
 
       public SSLContextConfig build() {
          return new SSLContextConfig(
-            keystoreProvider, keystorePath, keystorePassword,
-            truststoreProvider, truststorePath, truststorePassword,
+            keystoreProvider, keystorePath, keystoreType, keystorePassword,
+            truststoreProvider, truststorePath, truststoreType, truststorePassword,
             crlPath, trustManagerFactoryPlugin, trustAll
          );
       }
 
       public Builder keystorePath(final String keystorePath) {
          this.keystorePath = keystorePath;
+         return this;
+      }
+
+      public Builder keystoreType(final String keystoreType) {
+         this.keystoreType = keystoreType;
          return this;
       }
 
@@ -81,6 +90,11 @@ public final class SSLContextConfig {
 
       public Builder truststorePath(final String truststorePath) {
          this.truststorePath = truststorePath;
+         return this;
+      }
+
+      public Builder truststoreType(final String truststoreType) {
+         this.truststoreType = truststoreType;
          return this;
       }
 
@@ -115,9 +129,11 @@ public final class SSLContextConfig {
    }
 
    private final String keystorePath;
+   private final String keystoreType;
    private final String keystorePassword;
    private final String keystoreProvider;
    private final String truststorePath;
+   private final String truststoreType;
    private final String truststorePassword;
    private final String truststoreProvider;
    private final String trustManagerFactoryPlugin;
@@ -125,23 +141,31 @@ public final class SSLContextConfig {
    private final boolean trustAll;
    private final int hashCode;
 
-   private SSLContextConfig(
-      final String keystoreProvider, final String keystorePath, final String keystorePassword,
-      final String truststoreProvider, final String truststorePath, final String truststorePassword,
-      final String crlPath, final String trustManagerFactoryPlugin, final boolean trustAll
-   ) {
+   private SSLContextConfig(final String keystoreProvider,
+                            final String keystorePath,
+                            final String keystoreType,
+                            final String keystorePassword,
+                            final String truststoreProvider,
+                            final String truststorePath,
+                            final String truststoreType,
+                            final String truststorePassword,
+                            final String crlPath,
+                            final String trustManagerFactoryPlugin,
+                            final boolean trustAll) {
       this.keystorePath = keystorePath;
+      this.keystoreType = keystoreType;
       this.keystoreProvider = keystoreProvider;
       this.keystorePassword = keystorePassword;
       this.truststorePath = truststorePath;
+      this.truststoreType = truststoreType;
       this.truststorePassword = truststorePassword;
       this.truststoreProvider = truststoreProvider;
       this.trustManagerFactoryPlugin = trustManagerFactoryPlugin;
       this.crlPath = crlPath;
       this.trustAll = trustAll;
       hashCode = Objects.hash(
-         keystorePath, keystoreProvider,
-         truststorePath, truststoreProvider,
+         keystorePath, keystoreType, keystoreProvider,
+         truststorePath, truststoreType, truststoreProvider,
          crlPath, trustManagerFactoryPlugin, trustAll
       );
    }
@@ -154,8 +178,10 @@ public final class SSLContextConfig {
          return false;
       final SSLContextConfig other = (SSLContextConfig) obj;
       return Objects.equals(keystorePath, other.keystorePath)
+         && Objects.equals(keystoreType, other.keystoreType)
          && Objects.equals(keystoreProvider, other.keystoreProvider)
          && Objects.equals(truststorePath, other.truststorePath)
+         && Objects.equals(truststoreType, other.truststoreType)
          && Objects.equals(truststoreProvider, other.truststoreProvider)
          && Objects.equals(crlPath, other.crlPath)
          && Objects.equals(trustManagerFactoryPlugin, other.trustManagerFactoryPlugin)
@@ -174,6 +200,10 @@ public final class SSLContextConfig {
       return keystorePath;
    }
 
+   public String getKeystoreType() {
+      return keystoreType;
+   }
+
    public String getKeystoreProvider() {
       return keystoreProvider;
    }
@@ -188,6 +218,10 @@ public final class SSLContextConfig {
 
    public String getTruststorePath() {
       return truststorePath;
+   }
+
+   public String getTruststoreType() {
+      return truststoreType;
    }
 
    public String getTruststoreProvider() {
@@ -208,9 +242,11 @@ public final class SSLContextConfig {
       return "SSLSupport [" +
          "keystoreProvider=" + keystoreProvider +
          ", keystorePath=" + keystorePath +
+         ", keystoreType=" + keystoreType +
          ", keystorePassword=" + (keystorePassword == null ? null : "******") +
          ", truststoreProvider=" + truststoreProvider +
          ", truststorePath=" + truststorePath +
+         ", truststoreType=" + truststoreType +
          ", truststorePassword=" + (truststorePassword == null ? null : "******") +
          ", crlPath=" + crlPath +
          ", trustAll=" + trustAll +

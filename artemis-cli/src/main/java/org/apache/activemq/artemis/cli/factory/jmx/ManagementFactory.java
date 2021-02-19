@@ -112,6 +112,9 @@ public class ManagementFactory {
          if (jmxConnector.getKeyStoreProvider() != null) {
             jmxConnectorConfiguration.setKeyStoreProvider(jmxConnector.getKeyStoreProvider());
          }
+         if (jmxConnector.getKeyStoreType() != null) {
+            jmxConnectorConfiguration.setKeyStoreType(jmxConnector.getKeyStoreType());
+         }
          if (jmxConnector.getKeyStorePassword() != null) {
             jmxConnectorConfiguration.setKeyStorePassword(jmxConnector.getKeyStorePassword());
          }
@@ -120,6 +123,9 @@ public class ManagementFactory {
          }
          if (jmxConnector.getTrustStoreProvider() != null) {
             jmxConnectorConfiguration.setTrustStoreProvider(jmxConnector.getTrustStoreProvider());
+         }
+         if (jmxConnector.getTrustStoreType() != null) {
+            jmxConnectorConfiguration.setTrustStoreType(jmxConnector.getTrustStoreType());
          }
          if (jmxConnector.getTrustStorePassword() != null) {
             jmxConnectorConfiguration.setTrustStorePassword(jmxConnector.getTrustStorePassword());

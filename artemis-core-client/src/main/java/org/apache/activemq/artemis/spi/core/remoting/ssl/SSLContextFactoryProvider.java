@@ -36,8 +36,8 @@ public class SSLContextFactoryProvider {
          factory = new SSLContextFactory() {
             @Override
             public SSLContext getSSLContext(Map<String, Object> configuration,
-                  String keystoreProvider, String keystorePath, String keystorePassword,
-                  String truststoreProvider, String truststorePath, String truststorePassword,
+                  String keystoreProvider, String keystoreType, String keystorePath, String keystorePassword,
+                  String truststoreProvider, String truststoreType, String truststorePath, String truststorePassword,
                   String crlPath, String trustManagerFactoryPlugin, boolean trustAll) throws Exception {
                return SSLContext.getDefault();
             }

@@ -43,6 +43,10 @@ public class ConnectorServerFactory {
       this.keyStoreProvider = keyStoreProvider;
    }
 
+   public void setkeyStoreType(String keyStoreType) {
+      this.keyStoreType = keyStoreType;
+   }
+
    public void setKeyStorePassword(String keyStorePassword) {
       this.keyStorePassword = keyStorePassword;
    }
@@ -53,6 +57,10 @@ public class ConnectorServerFactory {
 
    public void setTrustStoreProvider(String trustStoreProvider) {
       this.trustStoreProvider = trustStoreProvider;
+   }
+
+   public void setTrustStoreType(String trustStoreType) {
+      this.trustStoreType = trustStoreType;
    }
 
    public void setTrustStorePassword(String trustStorePassword) {
@@ -74,11 +82,15 @@ public class ConnectorServerFactory {
 
    private String keyStoreProvider;
 
+   private String keyStoreType;
+
    private String keyStorePath;
 
    private String keyStorePassword;
 
    private String trustStoreProvider;
+
+   private String trustStoreType;
 
    private String trustStorePath;
 
@@ -87,6 +99,10 @@ public class ConnectorServerFactory {
 
    public String getKeyStoreProvider() {
       return keyStoreProvider;
+   }
+
+   public String getKeyStoreType() {
+      return keyStoreType;
    }
 
    public String getKeyStorePath() {
@@ -103,6 +119,10 @@ public class ConnectorServerFactory {
 
    public String getTrustStoreProvider() {
       return trustStoreProvider;
+   }
+
+   public String getTrustStoreType() {
+      return trustStoreType;
    }
 
    public String getTrustStorePath() {
@@ -234,9 +254,11 @@ public class ConnectorServerFactory {
    private void setupSsl() throws Exception {
       SSLContext context = new SSLSupport()
          .setKeystoreProvider(keyStoreProvider)
+         .setKeystoreType(keyStoreType)
          .setKeystorePath(keyStorePath)
          .setKeystorePassword(keyStorePassword)
          .setTruststoreProvider(trustStoreProvider)
+         .setTruststoreType(trustStoreType)
          .setTruststorePath(trustStorePath)
          .setTruststorePassword(trustStorePassword)
          .createContext();

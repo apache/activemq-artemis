@@ -381,7 +381,7 @@ public class SecurityTest extends ActiveMQTestBase {
     * This test requires a client-side certificate that will be trusted by the server but whose dname will be rejected
     * by the CertLogin login module. I created this cert with the follow commands:
     *
-    * keytool -genkey -keystore bad-client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=Bad Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
+    * keytool -genkey -keystore bad-client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=Bad Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
     * keytool -export -keystore bad-client-side-keystore.jks -file activemq-jks.cer -storepass secureexample
     * keytool -import -keystore server-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt -alias bad
     */
