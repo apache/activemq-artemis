@@ -14,32 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.config;
+package org.apache.activemq.artemis.core.config.ha;
 
 import java.io.Serializable;
+import java.util.Map;
 
-public interface HAPolicyConfiguration extends Serializable {
+public class DistributedPrimitiveManagerConfiguration implements Serializable {
 
-   enum TYPE {
-      LIVE_ONLY("Live Only"),
-      REPLICATED("Replicated"),
-      REPLICA("Replica"),
-      SHARED_STORE_MASTER("Shared Store Master"),
-      SHARED_STORE_SLAVE("Shared Store Slave"),
-      COLOCATED("Colocated"),
-      PRIMARY("Primary"),
-      BACKUP("Backup");
+   private final String className;
+   private final Map<String, String> properties;
 
-      private String name;
-
-      TYPE(String name) {
-         this.name = name;
-      }
-
-      public String getName() {
-         return name;
-      }
+   public DistributedPrimitiveManagerConfiguration(String className, Map<String, String> properties) {
+      this.className = className;
+      this.properties = properties;
    }
 
-   TYPE getType();
+   public Map<String, String> getProperties() {
+      return properties;
+   }
+
+   public String getClassName() {
+      return className;
+   }
 }

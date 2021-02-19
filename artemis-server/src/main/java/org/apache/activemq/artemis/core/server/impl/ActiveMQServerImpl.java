@@ -3095,7 +3095,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       postOffice = new PostOfficeImpl(this, storageManager, pagingManager, queueFactory, managementService, configuration.getMessageExpiryScanPeriod(), configuration.getAddressQueueScanPeriod(), configuration.getWildcardConfiguration(), configuration.getIDCacheSize(), configuration.isPersistIDCache(), addressSettingsRepository);
 
       // This can't be created until node id is set
-      clusterManager = new ClusterManager(executorFactory, this, postOffice, scheduledPool, managementService, configuration, nodeManager, true);
+      clusterManager = new ClusterManager(executorFactory, this, postOffice, scheduledPool, managementService, configuration, nodeManager, haPolicy.useQuorumManager());
 
       federationManager = new FederationManager(this);
 
@@ -4157,10 +4157,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * move any older data away and log a warning about it.
     */
    void moveServerData(int maxSavedReplicated) throws IOException {
+      moveServerData(maxSavedReplicated, false);
+   }
+
+   void moveServerData(int maxSavedReplicated, boolean preserveLockFiles) throws IOException {
       File[] dataDirs = new File[]{configuration.getBindingsLocation(), configuration.getJournalLocation(), configuration.getPagingLocation(), configuration.getLargeMessagesLocation()};
 
       for (File data : dataDirs) {
-         FileMoveManager moveManager = new FileMoveManager(data, maxSavedReplicated);
+         final boolean isLockFolder = preserveLockFiles ? data.equals(configuration.getNodeManagerLockLocation()) : false;
+         final String[] lockPrefixes = isLockFolder ? new String[]{FileBasedNodeManager.SERVER_LOCK_NAME, "serverlock"} : null;
+         FileMoveManager moveManager = new FileMoveManager(data, maxSavedReplicated, lockPrefixes);
          moveManager.doMove();
       }
    }
