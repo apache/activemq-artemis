@@ -231,7 +231,7 @@ public class CoreClientOverTwoWayOpenSSLTest extends ActiveMQTestBase {
       try {
          ClientSessionFactory sf = createSessionFactory(locator);
          fail("Creating a session here should fail due to a certificate with a CN that doesn't match the host name.");
-      } catch (ActiveMQNotConnectedException se) {
+      } catch (ActiveMQException ignore) {
          // ignore
       }
    }
