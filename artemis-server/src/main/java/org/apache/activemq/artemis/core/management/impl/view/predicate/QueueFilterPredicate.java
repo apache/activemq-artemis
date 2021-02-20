@@ -95,6 +95,8 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
                return matches(queue.isLastValue());
             case SCHEDULED_COUNT:
                return matches(queue.getScheduledCount());
+            case USER:
+               return matches(queue.getUser());
             default:
                return true;
          }
