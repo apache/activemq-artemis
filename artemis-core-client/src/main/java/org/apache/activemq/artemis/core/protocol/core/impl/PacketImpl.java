@@ -470,5 +470,4 @@ public class PacketImpl implements Packet {
    public void setCorrelationID(long correlationID) {
    }
 
-
 }

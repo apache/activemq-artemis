@@ -40,6 +40,11 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
    }
 
    @Override
+   public void setCorrelationID(long correlationID) {
+      this.correlationID = correlationID;
+   }
+
+   @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeLong(correlationID);
@@ -51,6 +56,11 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
       if (buffer.readableBytes() >= DataConstants.SIZE_LONG) {
          correlationID = buffer.readLong();
       }
+   }
+
+   @Override
+   public int expectedEncodeSize() {
+      return super.expectedEncodeSize() + DataConstants.SIZE_LONG;
    }
 
    @Override
@@ -92,5 +102,11 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
          return false;
       }
       return true;
+   }
+
+   @Override
+   public void reset() {
+      super.reset();
+      correlationID = 0;
    }
 }
