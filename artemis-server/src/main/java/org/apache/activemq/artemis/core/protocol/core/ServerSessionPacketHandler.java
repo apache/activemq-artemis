@@ -20,7 +20,9 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 
+import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
@@ -35,7 +37,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage_V2;
@@ -144,6 +145,8 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 
 public class ServerSessionPacketHandler implements ChannelHandler {
 
+   private static final int MAX_CACHED_NULL_RESPONSES = 32;
+
    private static final Logger logger = Logger.getLogger(ServerSessionPacketHandler.class);
 
    private final ServerSession session;
@@ -158,8 +161,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final ArtemisExecutor callExecutor;
 
-   private final CoreProtocolManager manager;
-
    // The current currentLargeMessage being processed
    private volatile LargeServerMessage currentLargeMessage;
 
@@ -167,18 +168,18 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final Object largeMessageLock = new Object();
 
-   public ServerSessionPacketHandler(final ActiveMQServer server,
-                                     final CoreProtocolManager manager,
-                                     final ServerSession session,
-                                     final StorageManager storageManager,
-                                     final Channel channel) {
-      this.manager = manager;
+   private final Queue<NullResponseMessage> cachedNullRes;
 
+   private final Queue<NullResponseMessage_V2> cachedNullRes_V2;
+
+   public ServerSessionPacketHandler(final ActiveMQServer server,
+                                     final ServerSession session,
+                                     final Channel channel) {
       this.session = session;
 
       session.addCloseable((boolean failed) -> clearLargeMessage());
 
-      this.storageManager = storageManager;
+      this.storageManager = server.getStorageManager();
 
       this.channel = channel;
 
@@ -195,6 +196,16 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       this.packetActor = new Actor<>(callExecutor, this::onMessagePacket);
 
       this.direct = conn.isDirectDeliver();
+
+      // no confirmation window size means no resend cache hence NullResponsePackets
+      // won't get cached on it because need confirmation
+      if (this.channel.getConfirmationWindowSize() == -1) {
+         cachedNullRes = PlatformDependent.newFixedMpscQueue(MAX_CACHED_NULL_RESPONSES);
+         cachedNullRes_V2 = PlatformDependent.newFixedMpscQueue(MAX_CACHED_NULL_RESPONSES);
+      } else {
+         cachedNullRes = null;
+         cachedNullRes_V2 = null;
+      }
    }
 
    private void clearLargeMessage() {
@@ -653,15 +664,49 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       return RoutingType.MULTICAST;
    }
 
+   private boolean requireNullResponseMessage_V1(Packet packet) {
+      return !packet.isResponseAsync() || channel.getConnection().isVersionBeforeAsyncResponseChange();
+   }
 
-   private Packet createNullResponseMessage(Packet packet) {
-      final Packet response;
-      if (!packet.isResponseAsync() || channel.getConnection().isVersionBeforeAsyncResponseChange()) {
+   private NullResponseMessage createNullResponseMessage_V1(Packet packet) {
+      assert requireNullResponseMessage_V1(packet);
+      NullResponseMessage response;
+      if (cachedNullRes != null) {
+         response = cachedNullRes.poll();
+         if (response == null) {
+            response = new NullResponseMessage();
+         } else {
+            response.reset();
+         }
+      } else {
          response = new NullResponseMessage();
+      }
+      return response;
+   }
+
+   private NullResponseMessage_V2 createNullResponseMessage_V2(Packet packet) {
+      assert !requireNullResponseMessage_V1(packet);
+      NullResponseMessage_V2 response;
+      if (cachedNullRes_V2 != null) {
+         response = cachedNullRes_V2.poll();
+         if (response == null) {
+            response = new NullResponseMessage_V2(packet.getCorrelationID());
+         } else {
+            response.reset();
+            // this should be already set by the channel too, but let's do it just in case
+            response.setCorrelationID(packet.getCorrelationID());
+         }
       } else {
          response = new NullResponseMessage_V2(packet.getCorrelationID());
       }
       return response;
+   }
+
+   private Packet createNullResponseMessage(Packet packet) {
+      if (requireNullResponseMessage_V1(packet)) {
+         return createNullResponseMessage_V1(packet);
+      }
+      return createNullResponseMessage_V2(packet);
    }
 
    private Packet createSessionXAResponseMessage(Packet packet) {
@@ -672,6 +717,19 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
       }
       return response;
+   }
+
+   private void releaseResponse(Packet packet) {
+      if (cachedNullRes == null || cachedNullRes_V2 == null) {
+         return;
+      }
+      if (packet instanceof NullResponseMessage) {
+         cachedNullRes.offer((NullResponseMessage) packet);
+         return;
+      }
+      if (packet instanceof NullResponseMessage_V2) {
+         cachedNullRes_V2.offer((NullResponseMessage_V2) packet);
+      }
    }
 
    private void onSessionAcknowledge(Packet packet) {
@@ -921,7 +979,11 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       }
 
       if (response != null) {
-         channel.send(response);
+         try {
+            channel.send(response);
+         } finally {
+            releaseResponse(response);
+         }
       }
 
       if (closeChannel) {
