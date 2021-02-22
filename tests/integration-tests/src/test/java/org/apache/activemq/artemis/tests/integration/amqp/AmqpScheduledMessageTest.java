@@ -18,7 +18,13 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -79,14 +85,25 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
          final Queue queueView = getProxyToQueue(getQueueName());
          assertNotNull(queueView);
 
+         final SimpleString queueNameSS = SimpleString.toSimpleString(getQueueName());
+         PagingStore targetPagingStore = server.getPagingManager().getPageStore(queueNameSS);
+         assertNotNull(targetPagingStore);
+
+         QueueControl queueControl = ManagementControlHelper.createQueueControl(queueNameSS, queueNameSS, RoutingType.ANYCAST, this.mBeanServer);
+         assertNotNull(queueControl);
+
          AmqpMessage message = new AmqpMessage();
          long deliveryTime = System.currentTimeMillis() + 6000;
          message.setMessageAnnotation("x-opt-delivery-time", deliveryTime);
          message.setText("Test-Message");
+         message.setApplicationProperty("OneOfThose", "Please");
          sender.send(message);
          sender.close();
 
          assertEquals(1, queueView.getScheduledCount());
+
+         assertTrue(targetPagingStore.getAddressSize() > 0);
+         assertEquals(1, queueControl.listScheduledMessages().length);
 
          AmqpReceiver receiver = session.createReceiver(getQueueName());
          receiver.flow(1);
@@ -99,6 +116,8 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
          received = receiver.receive(10, TimeUnit.SECONDS);
          assertNotNull(received);
          received.accept();
+
+         Wait.assertEquals(0L, targetPagingStore::getAddressSize);
       } finally {
          connection.close();
       }
