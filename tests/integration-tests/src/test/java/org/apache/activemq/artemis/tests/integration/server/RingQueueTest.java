@@ -149,12 +149,12 @@ public class RingQueueTest extends ActiveMQTestBase {
       producer.send(message);
       message = createTextMessage(clientSession, "hello1");
       producer.send(message);
-      Wait.assertTrue(() -> queue.getMessageCount() == 2);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 2);
+      Wait.assertEquals(2, queue::getMessageCount);
+      Wait.assertEquals(2, queue::getDeliveringCount);
       consumer.close();
-      Wait.assertTrue(() -> queue.getMessageCount() == 1);
-      Wait.assertTrue(() -> queue.getDeliveringCount() == 0);
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 1);
+      Wait.assertEquals(1, queue::getMessageCount);
+      Wait.assertEquals(0,  queue::getDeliveringCount);
+      Wait.assertEquals(1, queue::getMessagesReplaced);
       consumer = clientSession.createConsumer(qName);
       message = consumer.receiveImmediate();
       assertNotNull(message);
@@ -242,13 +242,20 @@ public class RingQueueTest extends ActiveMQTestBase {
          message.acknowledge();
       }
       consumer.close();
-      Wait.assertTrue(() -> queue.getMessageCount() == 5);
+      Wait.assertEquals(5, queue::getMessageCount);
 
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 5; i++) {
          producer.send(clientSession.createMessage(true));
       }
-      Wait.assertTrue(() -> queue.getMessageCount() == 10);
-      Wait.assertTrue(() -> queue.getMessagesReplaced() == 5);
+      Wait.assertEquals(10, queue::getMessageCount);
+
+      // these sends will be replacing the old values
+      for (int i = 0; i < 5; i++) {
+         producer.send(clientSession.createMessage(true));
+         Wait.assertEquals(10, queue::getMessageCount);
+      }
+
+      Wait.assertEquals(5, queue::getMessagesReplaced);
       consumer = clientSession.createConsumer(qName);
       message = consumer.receiveImmediate();
       assertNotNull(message);

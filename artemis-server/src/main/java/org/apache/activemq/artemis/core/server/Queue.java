@@ -220,8 +220,7 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void cancel(Transaction tx, MessageReference ref, boolean ignoreRedeliveryCheck);
 
-   /** @param sorted it should use the messageID as a reference to where to add it in the queue */
-   void cancel(MessageReference reference, long timeBase, boolean sorted) throws Exception;
+   void cancel(MessageReference reference, long timeBase) throws Exception;
 
    void deliverAsync();
 
