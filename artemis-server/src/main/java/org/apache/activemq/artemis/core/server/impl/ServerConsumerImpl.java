@@ -539,12 +539,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public void close(final boolean failed) throws Exception {
-      close(failed, false);
-   }
-
-   @Override
-   public synchronized void close(final boolean failed, boolean sorted) throws Exception {
+   public synchronized void close(final boolean failed) throws Exception {
 
       // Close should only ever be done once per consumer.
       if (isClosed) return;
@@ -570,7 +565,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       List<MessageReference> refs = cancelRefs(failed, false, null);
 
-      Transaction tx = new TransactionImpl(storageManager, sorted);
+      Transaction tx = new TransactionImpl(storageManager);
 
       refs.forEach(ref -> {
          if (logger.isTraceEnabled()) {
@@ -1022,7 +1017,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public synchronized void individualCancel(final long messageID, boolean failed, boolean sorted) throws Exception {
+   public synchronized void individualCancel(final long messageID, boolean failed) throws Exception {
       if (browseOnly) {
          return;
       }
@@ -1037,7 +1032,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          ref.decrementDeliveryCount();
       }
 
-      ref.getQueue().cancel(ref, System.currentTimeMillis(), sorted);
+      ref.getQueue().cancel(ref, System.currentTimeMillis());
    }
 
 

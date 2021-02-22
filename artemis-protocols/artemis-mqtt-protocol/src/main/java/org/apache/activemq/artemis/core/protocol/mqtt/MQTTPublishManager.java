@@ -133,7 +133,7 @@ public class MQTTPublishManager {
             sendServerMessage(mqttid, message, deliveryCount, qos);
          } else {
             // Client must have disconnected and it's Subscription QoS cleared
-            consumer.individualCancel(message.getMessageID(), false, true);
+            consumer.individualCancel(message.getMessageID(), false);
          }
       }
    }

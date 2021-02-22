@@ -63,8 +63,6 @@ public class TransactionImpl implements Transaction {
 
    private final long createTime;
 
-   private final boolean sorted;
-
    private volatile boolean containsPersistent;
 
    private int timeoutSeconds = -1;
@@ -98,34 +96,23 @@ public class TransactionImpl implements Transaction {
    }
 
    public TransactionImpl(final StorageManager storageManager, final int timeoutSeconds) {
-      this(storageManager.generateID(), null, storageManager, timeoutSeconds, false);
+      this(storageManager.generateID(), null, storageManager, timeoutSeconds);
    }
 
    public TransactionImpl(final StorageManager storageManager) {
-      this(storageManager, false);
+      this(storageManager.generateID(), null, storageManager,-1);
    }
 
-   public TransactionImpl(final StorageManager storageManager, boolean sorted) {
-      this(storageManager.generateID(), null, storageManager,-1, sorted);
-   }
 
    public TransactionImpl(final Xid xid, final StorageManager storageManager, final int timeoutSeconds) {
-      this(storageManager.generateID(), xid, storageManager, timeoutSeconds, false);
-   }
-
-   public TransactionImpl(final Xid xid, final StorageManager storageManager, final int timeoutSeconds, final boolean sorted) {
-      this(storageManager.generateID(), xid, storageManager, timeoutSeconds, sorted);
+      this(storageManager.generateID(), xid, storageManager, timeoutSeconds);
    }
 
    public TransactionImpl(final long id, final Xid xid, final StorageManager storageManager) {
-      this(id, xid, storageManager, -1, false);
+      this(id, xid, storageManager, -1);
    }
 
-   public TransactionImpl(final long id, final Xid xid, final StorageManager storageManager, boolean sorted) {
-      this(id, xid, storageManager, -1, sorted);
-   }
-
-   private TransactionImpl(final long id, final Xid xid, final StorageManager storageManager, final int timeoutSeconds, boolean sorted) {
+   private TransactionImpl(final long id, final Xid xid, final StorageManager storageManager, final int timeoutSeconds) {
       this.storageManager = storageManager;
 
       this.xid = xid;
@@ -135,8 +122,6 @@ public class TransactionImpl implements Transaction {
       this.createTime = System.currentTimeMillis();
 
       this.timeoutSeconds = timeoutSeconds;
-
-      this.sorted = sorted;
    }
 
    // Transaction implementation
@@ -217,7 +202,7 @@ public class TransactionImpl implements Transaction {
                   logger.trace("TransactionImpl::prepare::rollbackonly, rollingback " + this);
                }
 
-               internalRollback(sorted);
+               internalRollback();
 
                if (exception != null) {
                   throw exception;
@@ -276,7 +261,7 @@ public class TransactionImpl implements Transaction {
             return;
          }
          if (state == State.ROLLBACK_ONLY) {
-            internalRollback(sorted);
+            internalRollback();
 
             if (exception != null) {
                throw exception;
@@ -367,7 +352,7 @@ public class TransactionImpl implements Transaction {
          }
          if (state != State.PREPARED) {
             try {
-               internalRollback(sorted);
+               internalRollback();
             } catch (Exception e) {
                // nothing we can do beyond logging
                // no need to special handler here as this was not even supposed to happen at this point
@@ -400,11 +385,11 @@ public class TransactionImpl implements Transaction {
             }
          }
 
-         internalRollback(sorted);
+         internalRollback();
       }
    }
 
-   private void internalRollback(boolean sorted) throws Exception {
+   private void internalRollback() throws Exception {
       if (logger.isTraceEnabled()) {
          logger.trace("TransactionImpl::internalRollback " + this);
       }
@@ -439,7 +424,7 @@ public class TransactionImpl implements Transaction {
 
          @Override
          public void done() {
-            afterRollback(operationsToComplete, sorted);
+            afterRollback(operationsToComplete);
          }
       });
 
@@ -453,7 +438,7 @@ public class TransactionImpl implements Transaction {
 
             @Override
             public void done() {
-               afterRollback(storeOperationsToComplete, sorted);
+               afterRollback(storeOperationsToComplete);
             }
          });
       }
@@ -583,10 +568,10 @@ public class TransactionImpl implements Transaction {
       }
    }
 
-   private synchronized void afterRollback(List<TransactionOperation> operationsToComplete, boolean sorted) {
+   private synchronized void afterRollback(List<TransactionOperation> operationsToComplete) {
       if (operationsToComplete != null) {
          for (TransactionOperation operation : operationsToComplete) {
-            operation.afterRollback(this, sorted);
+            operation.afterRollback(this);
          }
          // Help out GC here
          operationsToComplete.clear();

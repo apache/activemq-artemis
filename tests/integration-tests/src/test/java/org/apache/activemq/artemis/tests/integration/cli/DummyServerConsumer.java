@@ -92,11 +92,6 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
-   public void close(boolean failed, boolean sorted) throws Exception {
-
-   }
-
-   @Override
    public void removeItself() throws Exception {
 
    }
@@ -156,7 +151,7 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
-   public void individualCancel(long messageID, boolean failed, boolean sorted) throws Exception {
+   public void individualCancel(long messageID, boolean failed) throws Exception {
 
    }
 

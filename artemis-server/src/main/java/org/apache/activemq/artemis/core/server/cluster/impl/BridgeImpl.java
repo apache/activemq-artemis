@@ -355,7 +355,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          refqueue = ref.getQueue();
 
          try {
-            refqueue.cancel(ref, timeBase, false);
+            refqueue.cancel(ref, timeBase);
          } catch (Exception e) {
             // There isn't much we can do besides log an error
             ActiveMQServerLogger.LOGGER.errorCancellingRefOnBridge(e, ref);

@@ -30,8 +30,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -176,5 +183,102 @@ public class JMSOrderTest extends JMSTestBase {
       }
 
    }
+
+   @Test
+   public void testMultipleConsumersRollback() throws Exception {
+      internalMultipleConsumers(true);
+   }
+
+   @Test
+   public void testMultipleConsumersClose() throws Exception {
+      internalMultipleConsumers(false);
+   }
+
+   private void internalMultipleConsumers(final boolean rollback) throws Exception {
+
+
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+
+      int numberOfMessages = 100;
+      int numberOfConsumers = 3;
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+      final javax.jms.Queue jmsQueue;
+
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         jmsQueue = session.createQueue(getName());
+         MessageProducer producer = session.createProducer(jmsQueue);
+
+         for (int i = 0; i < numberOfMessages; i++) {
+            TextMessage message = session.createTextMessage("test " + i);
+            message.setIntProperty("i", i);
+            producer.send(message);
+         }
+      }
+
+      Wait.assertEquals(numberOfMessages, serverQueue::getMessageCount);
+
+      AtomicBoolean running = new AtomicBoolean(true);
+      AtomicInteger errors = new AtomicInteger(0);
+      Runnable r = () -> {
+         try (Connection c = factory.createConnection()) {
+            Session s = c.createSession(true, Session.SESSION_TRANSACTED);
+            MessageConsumer cs = s.createConsumer(jmsQueue);
+            c.start();
+            int rollbacks = 0;
+            while (running.get()) {
+               TextMessage txt = (TextMessage)cs.receive(500);
+               if (txt != null) {
+                  if (rollback) {
+                     s.rollback();
+                     rollbacks++;
+
+                     if (rollbacks >= 3) {
+                        break;
+                     }
+                  }
+               } else {
+                  return;
+               }
+            }
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
+            running.set(false);
+         }
+      };
+
+      Thread[] threads = new Thread[numberOfConsumers];
+
+      for (int i = 0; i < numberOfConsumers; i++) {
+         threads[i] = new Thread(r, "consumer " + i);
+         threads[i].start();
+      }
+
+      for (Thread t : threads) {
+         t.join();
+      }
+
+      Assert.assertEquals(0, errors.get());
+
+      Wait.assertEquals(numberOfMessages, serverQueue::getMessageCount);
+
+      try (Connection c = factory.createConnection()) {
+         Session s = c.createSession(true, Session.SESSION_TRANSACTED);
+         MessageConsumer cs = s.createConsumer(jmsQueue);
+         c.start();
+
+         for (int i = 0; i < numberOfMessages; i++) {
+            TextMessage message = (TextMessage) cs.receive(1000);
+            Assert.assertNotNull(message);
+            Assert.assertEquals(i, message.getIntProperty("i"));
+         }
+
+         Assert.assertNull(cs.receiveNoWait());
+      }
+
+   }
+
 
 }

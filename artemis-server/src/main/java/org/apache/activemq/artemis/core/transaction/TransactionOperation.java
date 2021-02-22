@@ -52,10 +52,6 @@ public interface TransactionOperation {
     */
    void afterRollback(Transaction tx);
 
-   default void afterRollback(Transaction tx, boolean sorted) {
-      afterRollback(tx);
-   }
-
    List<MessageReference> getRelatedMessageReferences();
 
    List<MessageReference> getListOnConsumer(long consumerID);

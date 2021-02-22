@@ -50,7 +50,7 @@ public class ProtonTransactionImpl extends TransactionImpl {
    private boolean discharged;
 
    public ProtonTransactionImpl(final Xid xid, final StorageManager storageManager, final int timeoutSeconds, final AMQPConnectionContext connection) {
-      super(xid, storageManager, timeoutSeconds, true);
+      super(xid, storageManager, timeoutSeconds);
       addOperation(new TransactionOperationAbstract() {
          @Override
          public void afterCommit(Transaction tx) {
