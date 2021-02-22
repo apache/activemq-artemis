@@ -16,10 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -34,6 +37,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 import java.util.Map;
 
 public class JMXManagementTest extends JMSClientTestSupport {
@@ -111,6 +116,53 @@ public class JMXManagementTest extends JMSClientTestSupport {
          QueueControl queueControl = createManagementControl(queue, queue);
          String firstMessageAsJSON = queueControl.getFirstMessageAsJSON();
          Assert.assertNotNull(firstMessageAsJSON);
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
+   public void testAddressSizeOnDelete() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getQueueName());
+
+         session.begin();
+         AmqpMessage message = new AmqpMessage();
+         message.setApplicationProperty("TEST_STRING", "TEST");
+         message.setTimeToLive(100);
+         message.setText("TEST");
+         // send 2 so we can verify getFirstMessage and List
+         sender.send(message);
+         sender.send(message);
+         session.commit();
+
+         PagingStore targetPagingStore = server.getPagingManager().getPageStore(SimpleString.toSimpleString(getQueueName()));
+         assertNotNull(targetPagingStore);
+
+         assertTrue(targetPagingStore.getAddressSize() > 0);
+
+         SimpleString queue = new SimpleString(getQueueName());
+         QueueControl queueControl = createManagementControl(queue, queue);
+
+         Assert.assertEquals(2, queueControl.getMessageCount());
+
+         JsonArray array = JsonUtil.readJsonArray(queueControl.getFirstMessageAsJSON());
+         JsonObject object = (JsonObject) array.get(0);
+         queueControl.removeMessage(object.getJsonNumber("messageID").longValue());
+
+         Wait.assertEquals(1L, queueControl::getMessageCount);
+
+         Map<String, Object>[] messages = queueControl.listMessages("");
+         Assert.assertEquals(1, messages.length);
+         queueControl.removeMessage((Long) messages[0].get("messageID"));
+
+         Assert.assertEquals(0, queueControl.getMessageCount());
+         Wait.assertEquals(0L, targetPagingStore::getAddressSize);
+
       } finally {
          connection.close();
       }

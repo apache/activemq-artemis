@@ -3072,7 +3072,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          if (existingMemoryEstimate > 0 ) {
-            accountForChangeInMemoryEstimate(ref, existingMemoryEstimate);
+            MessageReferenceImpl.accountForChangeInMemoryEstimate(ref, existingMemoryEstimate);
          }
       }
 
@@ -3702,7 +3702,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             HandleStatus status = handle(ref, consumer);
 
-            accountForChangeInMemoryEstimate(ref, existingMemoryEstimate);
+            MessageReferenceImpl.accountForChangeInMemoryEstimate(ref, existingMemoryEstimate);
 
             if (status == HandleStatus.HANDLED) {
                final MessageReference reference;
@@ -3730,16 +3730,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             logger.tracef("Queue " + getName() + " is out of direct delivery as no consumers handled a delivery");
          }
          return false;
-      }
-   }
-
-   private static void accountForChangeInMemoryEstimate(final MessageReference ref, final int existingMemoryEstimate) {
-      final int delta = ref.getMessageMemoryEstimate() - existingMemoryEstimate;
-      if (delta > 0) {
-         PagingStore pageStore = ref.getOwner();
-         if (pageStore != null) {
-            pageStore.addSize(delta);
-         }
       }
    }
 

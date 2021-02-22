@@ -179,6 +179,16 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
       return MessageReferenceImpl.memoryOffset;
    }
 
+   public static void accountForChangeInMemoryEstimate(final MessageReference ref, final int existingMemoryEstimate) {
+      final int delta = ref.getMessageMemoryEstimate() - existingMemoryEstimate;
+      if (delta > 0) {
+         PagingStore pageStore = ref.getOwner();
+         if (pageStore != null) {
+            pageStore.addSize(delta);
+         }
+      }
+   }
+
    @Override
    public int getDeliveryCount() {
       return DELIVERY_COUNT_UPDATER.get(this);
