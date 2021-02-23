@@ -570,16 +570,6 @@ public class LastValueQueue extends QueueImpl {
          return new StringBuilder().append("HolderReference").append("@").append(Integer.toHexString(System.identityHashCode(this))).append("[ref=").append(ref).append("]").toString();
       }
 
-      @Override
-      public PagingStore getOwner() {
-         return ref.getOwner();
-      }
-
-      @Override
-      public void setOwner(PagingStore owner) {
-
-         ref.setOwner(owner);
-      }
    }
 
    @Override

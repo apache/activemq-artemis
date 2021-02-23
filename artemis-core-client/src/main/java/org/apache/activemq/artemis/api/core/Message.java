@@ -758,4 +758,7 @@ public interface Message {
     */
    long getPersistentSize() throws ActiveMQException;
 
+   Object getOwner();
+
+   void setOwner(Object object);
 }

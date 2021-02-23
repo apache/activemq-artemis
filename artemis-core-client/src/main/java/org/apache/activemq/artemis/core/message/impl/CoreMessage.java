@@ -101,6 +101,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    private final CoreMessageObjectPools coreMessageObjectPools;
 
+   private volatile Object owner;
+
    public CoreMessage(final CoreMessageObjectPools coreMessageObjectPools) {
       this.coreMessageObjectPools = coreMessageObjectPools;
    }
@@ -1258,5 +1260,15 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public long getPersistentSize() throws ActiveMQException {
       return getEncodeSize();
+   }
+
+   @Override
+   public Object getOwner() {
+      return owner;
+   }
+
+   @Override
+   public void setOwner(Object object) {
+      this.owner = object;
    }
 }

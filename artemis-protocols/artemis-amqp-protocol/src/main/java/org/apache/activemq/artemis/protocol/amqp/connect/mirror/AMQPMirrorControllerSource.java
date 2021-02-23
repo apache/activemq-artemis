@@ -23,7 +23,6 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -153,15 +152,8 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
 
       try {
          context.setReusable(false);
-         PagingStore storeOwner = null;
-         if (refs.size() > 0) {
-            storeOwner = refs.get(0).getOwner();
-         }
-         if (storeOwner != null && !storeOwner.getAddress().equals(message.getAddressSimpleString())) {
-            storeOwner = server.getPagingManager().getPageStore(message.getAddressSimpleString());
-         }
-         MessageReference ref = MessageReference.Factory.createReference(message, snfQueue, storeOwner);
 
+         MessageReference ref = MessageReference.Factory.createReference(message, snfQueue);
          snfQueue.refUp(ref);
 
          Map<Symbol, Object> daMap = new HashMap<>();

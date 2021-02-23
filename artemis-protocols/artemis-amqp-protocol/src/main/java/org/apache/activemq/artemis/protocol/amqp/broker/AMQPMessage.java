@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -212,6 +213,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    // These are properties set at the broker level and carried only internally by broker storage.
    protected volatile TypedProperties extraProperties;
+
+   private volatile Object owner;
 
    /**
     * Creates a new {@link AMQPMessage} instance from binary encoded message data.
@@ -490,10 +493,28 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected ApplicationProperties lazyDecodeApplicationProperties(ReadableBuffer data) {
       if (applicationProperties == null && applicationPropertiesPosition != VALUE_NOT_PRESENT) {
          applicationProperties = scanForMessageSection(data, applicationPropertiesPosition, ApplicationProperties.class);
-         memoryEstimate = -1;
+         if (owner != null && memoryEstimate != -1) {
+            // the memory has already been tracked and needs to be updated to reflect the new decoding
+            int addition = unmarshalledApplicationPropertiesMemoryEstimateFromData(data);
+            ((PagingStore)owner).addSize(addition);
+            final int updatedEstimate = memoryEstimate + addition;
+            memoryEstimate = updatedEstimate;
+         }
       }
 
       return applicationProperties;
+   }
+
+   protected int unmarshalledApplicationPropertiesMemoryEstimateFromData(ReadableBuffer data) {
+      if (applicationProperties != null) {
+         // they have been unmarshalled, estimate memory usage based on their encoded size
+         if (remainingBodyPosition != VALUE_NOT_PRESENT) {
+            return remainingBodyPosition - applicationPropertiesPosition;
+         } else {
+            return data.capacity() - applicationPropertiesPosition;
+         }
+      }
+      return 0;
    }
 
    @SuppressWarnings("unchecked")
@@ -1691,5 +1712,15 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    protected SimpleString.StringSimpleStringPool getPropertyValuesPool() {
       return coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesStringSimpleStringPools().getPropertyValuesPool();
+   }
+
+   @Override
+   public Object getOwner() {
+      return owner;
+   }
+
+   @Override
+   public void setOwner(Object object) {
+      this.owner = object;
    }
 }

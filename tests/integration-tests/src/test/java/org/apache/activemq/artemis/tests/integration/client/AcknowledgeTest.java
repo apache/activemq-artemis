@@ -839,5 +839,14 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       public long getPersistentSize() throws ActiveMQException {
          return 0;
       }
+
+      @Override
+      public Object getOwner() {
+         return null;
+      }
+
+      @Override
+      public void setOwner(Object object) {
+      }
    }
 }

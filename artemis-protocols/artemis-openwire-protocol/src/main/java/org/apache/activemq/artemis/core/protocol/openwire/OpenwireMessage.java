@@ -499,6 +499,15 @@ public class OpenwireMessage implements Message {
    }
 
    @Override
+   public Object getOwner() {
+      return null;
+   }
+
+   @Override
+   public void setOwner(Object object) {
+   }
+
+   @Override
    public int getUsage() {
       return 0;
    }
