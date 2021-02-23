@@ -62,12 +62,50 @@ previous example to be `convert_string_expressions:age > 18`, then it would
 match the aforementioned message.
 
 The JMS spec also states that property identifiers (and therefore the
-identifiers which are valid for use in a filter expression) are an, 
-"unlimited-length sequence of letters and digits, the first of which must be
-a letter. A letter is any character for which the method 
-`Character.isJavaLetter` returns `true`. This includes `_` and `$`. A letter
-or digit is any character for which the method `Character.isJavaLetterOrDigit`
-returns `true`." This constraint means that hyphens (i.e. `-`) cannot be used.
+identifiers which are valid for use in a filter expression) are an: 
+
+> unlimited-length sequence of letters and digits, the first of which must be
+> a letter. A letter is any character for which the method 
+> `Character.isJavaLetter` returns `true`. This includes `_` and `$`. A letter
+> or digit is any character for which the method `Character.isJavaLetterOrDigit`
+> returns `true`.
+ 
+This constraint means that hyphens (i.e. `-`) cannot be used.
 However, this constraint can be overcome by using the `hyphenated_props:` 
 prefix. For example, if a message had the `foo-bar` property set to `0` then
 the filter expression `hyphenated_props:foo-bar = 0` would match it.
+
+## XPath
+
+Apache ActiveMQ Artemis also supports special [XPath](https://en.wikipedia.org/wiki/XPath)
+filters which operate on the *body* of a message. The body must be XML. To
+use an XPath filter use this syntax:
+```
+XPATH '<xpath-expression>'
+```
+
+XPath filters are supported with and between producers and consumers using
+the following protocols:
+
+ - OpenWire JMS 
+ - Core (and Core JMS)
+ - STOMP
+ - AMQP
+
+Since XPath applies to the body of the message and requires parsing of XML
+**it may be significantly slower** than normal filters.
+
+Large messages are **not** supported.
+
+The XML parser used for XPath is configured with these default "features":
+
+ - `http://xml.org/sax/features/external-general-entities`: `false`
+ - `http://xml.org/sax/features/external-parameter-entities`: `false`
+ - `http://apache.org/xml/features/disallow-doctype-decl`: `true`
+
+However, in order to deal with any implementation-specific issues the features
+can be customized by using system properties starting with the
+`org.apache.activemq.documentBuilderFactory.feature:` prefix, e.g.:
+```
+-Dorg.apache.activemq.documentBuilderFactory.feature:http://xml.org/sax/features/external-general-entities=true
+```

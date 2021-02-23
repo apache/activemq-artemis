@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.filter.impl;
 
 import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.FilterConstants;
 import org.apache.activemq.artemis.api.core.Message;
@@ -29,9 +30,9 @@ import org.apache.activemq.artemis.selector.filter.BooleanExpression;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
+import org.apache.activemq.artemis.utils.ByteUtil;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
-import org.apache.activemq.artemis.utils.ByteUtil;
 
 /**
  * This class implements an ActiveMQ Artemis filter
@@ -251,8 +252,15 @@ public class FilterImpl implements Filter {
 
       @Override
       public <T> T getBodyAs(Class<T> type) throws FilterException {
-         // TODO: implement to support content based selection
-         return null;
+         T body = null;
+         if (!message.isLargeMessage() && type == String.class) {
+            try {
+               body = type.cast(message.getStringBody());
+            } catch (Exception e) {
+               // ignore
+            }
+         }
+         return body;
       }
 
       @Override
