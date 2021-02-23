@@ -143,7 +143,8 @@ public class FederatedQueue extends FederatedAbstract implements ActiveMQServerC
       //We check the session meta data to see if its a federation session, if so by default we ignore these.
       //To not ignore these, set include-federated to true, which will mean no meta data filter.
       ServerSession serverSession = server.getSessionByID(consumer.getSessionID());
-      if (metaDataFilter != null && serverSession != null && metaDataFilter.match(serverSession.getMetaData())) {
+      if (metaDataFilter != null && serverSession != null && serverSession.getMetaData() != null &&
+          metaDataFilter.match(serverSession.getMetaData())) {
          return;
       }
       if (match(consumer)) {
