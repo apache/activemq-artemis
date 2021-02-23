@@ -23,7 +23,6 @@ import java.util.function.Consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -36,7 +35,6 @@ import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference, Runnable {
 
    private static final MessageReferenceComparatorByID idComparator = new MessageReferenceComparatorByID();
-   private volatile PagingStore owner;
 
    public static Comparator<MessageReference> getIDComparator() {
       return idComparator;
@@ -107,15 +105,13 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
       this.queue = queue;
 
-      this.owner = other.owner;
    }
 
-   public MessageReferenceImpl(final Message message, final Queue queue, final PagingStore owner) {
+   public MessageReferenceImpl(final Message message, final Queue queue) {
       this.message = message;
 
       this.queue = queue;
 
-      this.owner = owner;
    }
 
    // MessageReference implementation -------------------------------
@@ -179,15 +175,6 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
       return MessageReferenceImpl.memoryOffset;
    }
 
-   public static void accountForChangeInMemoryEstimate(final MessageReference ref, final int existingMemoryEstimate) {
-      final int delta = ref.getMessageMemoryEstimate() - existingMemoryEstimate;
-      if (delta > 0) {
-         PagingStore pageStore = ref.getOwner();
-         if (pageStore != null) {
-            pageStore.addSize(delta);
-         }
-      }
-   }
 
    @Override
    public int getDeliveryCount() {
@@ -367,13 +354,4 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
       return this.getMessage().getPersistentSize();
    }
 
-   @Override
-   public PagingStore getOwner() {
-      return this.owner;
-   }
-
-   @Override
-   public void setOwner(PagingStore owner) {
-      this.owner = owner;
-   }
 }

@@ -709,4 +709,14 @@ public class MessageInternalImpl implements MessageInternal {
       return message.getPersistentSize();
    }
 
+   @Override
+   public Object getOwner() {
+      return message.getOwner();
+   }
+
+   @Override
+   public void setOwner(Object object) {
+      message.setOwner(object);
+   }
+
 }

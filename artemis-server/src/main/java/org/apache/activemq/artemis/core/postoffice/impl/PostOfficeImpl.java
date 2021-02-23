@@ -1244,7 +1244,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public MessageReference reload(final Message message, final Queue queue, final Transaction tx) throws Exception {
 
-      MessageReference reference = MessageReference.Factory.createReference(message, queue, pagingManager.getPageStore(message.getAddressSimpleString()));
+      MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
       Long scheduledDeliveryTime;
       if (message.hasScheduledDeliveryTime()) {
@@ -1499,6 +1499,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       PagingStore owningStore = pagingManager.getPageStore(message.getAddressSimpleString());
+      message.setOwner(owningStore);
       for (Map.Entry<SimpleString, RouteContextList> entry : context.getContexListing().entrySet()) {
          PagingStore store;
          if (entry.getKey() == message.getAddressSimpleString() || entry.getKey().equals(message.getAddressSimpleString())) {
@@ -1518,7 +1519,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
 
          for (Queue queue : entry.getValue().getNonDurableQueues()) {
-            MessageReference reference = MessageReference.Factory.createReference(message, queue, owningStore);
+            MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
             if (deliveryTime != null) {
                reference.setScheduledDeliveryTime(deliveryTime);
@@ -1533,7 +1534,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          while (iter.hasNext()) {
             Queue queue = iter.next();
 
-            MessageReference reference = MessageReference.Factory.createReference(message, queue, owningStore);
+            MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
             if (context.isAlreadyAcked(context.getAddress(message), queue)) {
                reference.setAlreadyAcked();

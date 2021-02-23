@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -35,8 +34,8 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 public interface MessageReference {
 
    final class Factory {
-      public static MessageReference createReference(Message encode, final Queue queue, PagingStore pageStore) {
-         return new MessageReferenceImpl(encode, queue, pageStore);
+      public static MessageReference createReference(Message encode, final Queue queue) {
+         return new MessageReferenceImpl(encode, queue);
       }
    }
    boolean isPaged();
@@ -138,7 +137,4 @@ public interface MessageReference {
     */
    long getPersistentSize() throws ActiveMQException;
 
-   PagingStore getOwner();
-
-   void setOwner(PagingStore owner);
 }

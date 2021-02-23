@@ -51,7 +51,6 @@ import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -793,9 +792,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       int i = 0;
       for (MessageReference ref : refs) {
          Message message = ref.getMessage();
-         final int currentMemoryEstimate = message.getMemoryEstimate();
          messages[i++] = message.toMap();
-         MessageReferenceImpl.accountForChangeInMemoryEstimate(ref, currentMemoryEstimate);
       }
       return messages;
    }
@@ -856,9 +853,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                   MessageReference ref = iterator.next();
                   if (filter == null || filter.match(ref.getMessage())) {
                      Message message = ref.getMessage();
-                     final int currentMemoryEstimate = message.getMemoryEstimate();
                      messages.add(message.toMap());
-                     MessageReferenceImpl.accountForChangeInMemoryEstimate(ref, currentMemoryEstimate);
                   }
                }
             } catch (NoSuchElementException ignored) {
@@ -903,9 +898,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             if (iterator.hasNext()) {
                MessageReference ref = iterator.next();
                Message message = ref.getMessage();
-               final int currentMemoryEstimate = message.getMemoryEstimate();
                messages.add(message.toMap());
-               MessageReferenceImpl.accountForChangeInMemoryEstimate(ref, currentMemoryEstimate);
             }
             return messages.toArray(new Map[1]);
          }

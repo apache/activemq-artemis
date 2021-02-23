@@ -1005,8 +1005,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void refUp(MessageReference messageReference) {
       int count = messageReference.getMessage().refUp();
       if (count == 1) {
-         if (messageReference.getOwner() != null) {
-            messageReference.getOwner().addSize(messageReference.getMessageMemoryEstimate());
+         if (messageReference.getMessage().getOwner() != null) {
+            ((PagingStore)messageReference.getMessage().getOwner()).addSize(messageReference.getMessageMemoryEstimate());
          }
       }
       if (pagingStore != null) {
@@ -1018,8 +1018,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void refDown(MessageReference messageReference) {
       int count = messageReference.getMessage().refDown();
       if (count == 0) {
-         if (messageReference.getOwner() != null) {
-            messageReference.getOwner().addSize(-messageReference.getMessageMemoryEstimate());
+         if (messageReference.getMessage().getOwner() != null) {
+            ((PagingStore)messageReference.getMessage().getOwner()).addSize(-messageReference.getMessageMemoryEstimate());
          }
       }
       if (pagingStore != null) {
@@ -3071,9 +3071,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             proceedDeliver(handledconsumer, ref);
          }
 
-         if (existingMemoryEstimate > 0 ) {
-            MessageReferenceImpl.accountForChangeInMemoryEstimate(ref, existingMemoryEstimate);
-         }
       }
 
       return true;
@@ -3697,13 +3694,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                consumer = groupConsumer;
             }
 
-            // filter evaluation may cause properties to be lazyDecoded
-            final int existingMemoryEstimate = ref.getMessageMemoryEstimate();
-
             HandleStatus status = handle(ref, consumer);
-
-            MessageReferenceImpl.accountForChangeInMemoryEstimate(ref, existingMemoryEstimate);
-
             if (status == HandleStatus.HANDLED) {
                final MessageReference reference;
                if (redistributor == null) {

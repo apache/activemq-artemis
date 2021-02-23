@@ -218,13 +218,4 @@ public class GroupFirstMessageReference implements MessageReference {
       return messageReference.getPersistentSize();
    }
 
-   @Override
-   public PagingStore getOwner() {
-      return this.owner;
-   }
-
-   @Override
-   public void setOwner(PagingStore owner) {
-      this.owner = owner;
-   }
 }

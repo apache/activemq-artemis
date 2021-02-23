@@ -140,7 +140,7 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
          while (System.currentTimeMillis() - start < testTime) {
             Message message = generateMessage(i);
 
-            MessageReference ref = MessageReference.Factory.createReference(message, queue, null);
+            MessageReference ref = MessageReference.Factory.createReference(message, queue);
 
             queue.addTail(ref, false);
 

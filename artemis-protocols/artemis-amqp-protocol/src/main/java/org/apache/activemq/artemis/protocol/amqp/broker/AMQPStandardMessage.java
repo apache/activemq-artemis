@@ -187,23 +187,12 @@ public class AMQPStandardMessage extends AMQPMessage {
    @Override
    public int getMemoryEstimate() {
       if (memoryEstimate == -1) {
-         memoryEstimate = memoryOffset + (data != null ? data.capacity() + unmarshalledApplicationPropertiesMemoryEstimateFromData() : 0);
+         memoryEstimate = memoryOffset + (data != null ? data.capacity() + unmarshalledApplicationPropertiesMemoryEstimateFromData(data) : 0);
       }
 
       return memoryEstimate;
    }
 
-   private int unmarshalledApplicationPropertiesMemoryEstimateFromData() {
-      if (applicationProperties != null) {
-         // they have been unmarshalled, estimate memory usage based on their encoded size
-         if (remainingBodyPosition != VALUE_NOT_PRESENT) {
-            return remainingBodyPosition - applicationPropertiesPosition;
-         } else {
-            return data.capacity() - applicationPropertiesPosition;
-         }
-      }
-      return 0;
-   }
 
    @Override
    public void persist(ActiveMQBuffer targetRecord) {

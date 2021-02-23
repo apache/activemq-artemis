@@ -2150,7 +2150,7 @@ public abstract class ActiveMQTestBase extends Assert {
    protected MessageReference generateReference(final Queue queue, final long id) {
       Message message = generateMessage(id);
 
-      return MessageReference.Factory.createReference(message, queue, null);
+      return MessageReference.Factory.createReference(message, queue);
    }
 
    protected int calculateRecordSize(final int size, final int alignment) {
