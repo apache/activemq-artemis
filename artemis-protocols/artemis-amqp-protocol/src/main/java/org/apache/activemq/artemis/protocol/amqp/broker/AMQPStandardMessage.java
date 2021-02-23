@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Footer;
@@ -322,6 +323,16 @@ public class AMQPStandardMessage extends AMQPMessage {
       // as large messages might need to do extra work to parse it
       ensureScanning();
       return super.toString();
+   }
+
+   @Override
+   public String getStringBody() {
+      final Section body = getBody();
+      if (body instanceof AmqpValue && ((AmqpValue) body).getValue() instanceof String) {
+         return (String) ((AmqpValue) body).getValue();
+      } else {
+         return null;
+      }
    }
 }
 
