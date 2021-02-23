@@ -148,13 +148,13 @@ public class JMXManagementTest extends JMSClientTestSupport {
          SimpleString queue = new SimpleString(getQueueName());
          QueueControl queueControl = createManagementControl(queue, queue);
 
-         Assert.assertEquals(2, queueControl.getMessageCount());
+         Wait.assertEquals(2, queueControl::getMessageCount);
 
          JsonArray array = JsonUtil.readJsonArray(queueControl.getFirstMessageAsJSON());
          JsonObject object = (JsonObject) array.get(0);
          queueControl.removeMessage(object.getJsonNumber("messageID").longValue());
 
-         Wait.assertEquals(1L, queueControl::getMessageCount);
+         Wait.assertEquals(1, queueControl::getMessageCount);
 
          Map<String, Object>[] messages = queueControl.listMessages("");
          Assert.assertEquals(1, messages.length);
