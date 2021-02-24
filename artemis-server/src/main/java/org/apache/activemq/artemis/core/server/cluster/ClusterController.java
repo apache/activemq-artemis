@@ -198,6 +198,11 @@ public class ClusterController implements ActiveMQComponent {
       //this is used for replication so need to use the server packet decoder
       serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator, server.getStorageManager()));
       serverLocator.setThreadPools(server.getThreadPool(), server.getScheduledPool());
+      SimpleString nodeID = server.getNodeID();
+      if (nodeID != null) {
+         // this is used to allow a live server to ignore it's same connector ref
+         serverLocator.setNodeID(nodeID.toString());
+      }
       try {
          serverLocator.initialize();
       } catch (Exception e) {
