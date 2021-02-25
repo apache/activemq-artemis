@@ -16,7 +16,6 @@
 
 package org.apache.activemq.artemis.protocol.amqp.sasl.scram;
 
-import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 
 import javax.crypto.Mac;
@@ -47,10 +46,9 @@ public interface ScramServerFunctionality {
     * Prepares server's final message
     * @param clientFinalMessage Client's final message
     * @return Server's final message
-    * @throws GeneralSecurityException if there is an error processing clients message
     * @throws ScramException
     */
-   String prepareFinalMessage(String clientFinalMessage) throws GeneralSecurityException, ScramException;
+   String prepareFinalMessage(String clientFinalMessage) throws ScramException;
 
    /**
     * Checks if authentication is completed, either successfully or not. Authentication is completed

@@ -17,17 +17,25 @@
 
 	<parent>
 		<groupId>org.apache.activemq.examples.amqp</groupId>
-		<artifactId>amqp</artifactId>
+		<artifactId>sasl-scram</artifactId>
 		<version>2.18.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>sasl-scram</artifactId>
-	<packaging>pom</packaging>
-	<name>ActiveMQ Artemis SASL-SCRAM Example</name>
+	<artifactId>sasl-scram-client</artifactId>
+	<packaging>jar</packaging>
+	<name>ActiveMQ Artemis SASL-SCRAM-Client Example</name>
 
-	<modules>
-		<module>sasl-client</module>
-		<module>sasl-server</module>
-	</modules>
+	<properties>
+		<activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
+		<artemis-version>${project.version}</artemis-version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.qpid</groupId>
+			<artifactId>qpid-jms-client</artifactId>
+			<version>${qpid.jms.version}</version>
+		</dependency>
+	</dependencies>
 
 </project>

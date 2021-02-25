@@ -24,7 +24,7 @@ under the License.
 
 		<persistence-enabled>false</persistence-enabled>
 
-		<security-enabled>false</security-enabled>
+		<security-enabled>true</security-enabled>
 
 		<acceptors>
 			<acceptor name="amqp">tcp://localhost:5672?protocols=AMQP;saslMechanisms=SCRAM-SHA-256,SCRAM-SHA-1;saslLoginConfigScope=amqp-sasl-scram</acceptor>

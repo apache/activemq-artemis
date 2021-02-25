@@ -17,12 +17,14 @@ package org.apache.activemq.artemis.jms.example;
 import java.io.File;
 
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 
 public class TestServer {
 	public static void main(String[] args) throws Exception {
 		File configFolder = new File(args.length > 0 ? args[0] : "src/main/resources/").getAbsoluteFile();
 		System.setProperty("java.security.auth.login.config", new File(configFolder, "login.conf").getAbsolutePath());
 		EmbeddedActiveMQ embedded = new EmbeddedActiveMQ();
+		embedded.setSecurityManager(new ActiveMQJAASSecurityManager("artemis"));
 		embedded.setConfigResourcePath(new File(configFolder, "broker.xml").getAbsoluteFile().toURI().toASCIIString());
 		embedded.start();
 		while (true)

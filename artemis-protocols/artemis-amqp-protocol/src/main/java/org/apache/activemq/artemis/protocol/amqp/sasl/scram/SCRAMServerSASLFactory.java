@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -45,6 +46,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.SCRAMMechanismCallback
 import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 import org.apache.activemq.artemis.spi.core.security.scram.ScramException;
 import org.apache.activemq.artemis.spi.core.security.scram.UserData;
+import org.jboss.logging.Logger;
 
 /**
  * abstract class that implements the SASL-SCRAM authentication scheme, concrete implementations
@@ -52,6 +54,10 @@ import org.apache.activemq.artemis.spi.core.security.scram.UserData;
  */
 public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
 
+   /**
+    *
+    */
+   private final Logger logger = Logger.getLogger(getClass());
    private final SCRAM scramType;
 
    public SCRAMServerSASLFactory(SCRAM scram) {
@@ -77,7 +83,7 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
                      new ScramServerFunctionalityImpl(scramType.getDigest(), scramType.getHmac(),
                                                       UUID.randomUUID().toString());
             String loginConfigScope = ((ProtonProtocolManager) manager).getSaslLoginConfigScope();
-            return new SCRAMServerSASL(scramType.getName(), scram, loginConfigScope);
+            return new SCRAMServerSASL(scramType.getName(), scram, loginConfigScope, logger);
          }
       } catch (NoSuchAlgorithmException e) {
          // can't be used then...
@@ -91,11 +97,13 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
       private final ScramServerFunctionality scram;
       private SASLResult result;
       private final String loginConfigScope;
+      private final Logger logger;
 
-      SCRAMServerSASL(String name, ScramServerFunctionality scram, String loginConfigScope) {
+      SCRAMServerSASL(String name, ScramServerFunctionality scram, String loginConfigScope, Logger logger) {
          this.name = name;
          this.scram = scram;
          this.loginConfigScope = loginConfigScope;
+         this.logger = logger;
       }
 
       @Override
@@ -135,6 +143,8 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
                      loginContext.login();
                      Subject subject = loginContext.getSubject();
                      Iterator<UserData> credentials = subject.getPublicCredentials(UserData.class).iterator();
+                     Principal[] principals = subject.getPrincipals().toArray(Principal[]::new);
+                     subject.getPrivateCredentials().add(principals);
                      if (credentials.hasNext()) {
                         result = new SCRAMSASLResult(userName, scram, subject);
                         String challenge = scram.prepareFirstMessage(credentials.next());
@@ -145,10 +155,7 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
                }
                case PREPARED_FIRST: {
                   String finalMessage = scram.prepareFinalMessage(message);
-                  if (finalMessage != null) {
-                     return finalMessage.getBytes(StandardCharsets.US_ASCII);
-                  }
-                  break;
+                  return finalMessage.getBytes(StandardCharsets.US_ASCII);
                }
 
                default:
@@ -156,6 +163,7 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
                   break;
             }
          } catch (GeneralSecurityException | ScramException | RuntimeException e) {
+            logger.warn("SASL-SCRAM Authentication failed", e);
             result = new SCRAMFailedSASLResult();
          }
          return null;

@@ -16,17 +16,18 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.security.Principal;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 public class Krb5LoginModuleTest {
 
@@ -52,7 +53,7 @@ public class Krb5LoginModuleTest {
       underTest.initialize(subject, new CallbackHandler() {
          @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            ((Krb5Callback) callbacks[0]).setPeerPrincipal(new UserPrincipal("A"));
+            ((PrincipalsCallback) callbacks[0]).setPeerPrincipals(new Principal[] {new UserPrincipal("A")});
          }
       }, null, null);
 
