@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
 /**
- * populate a subject with kerberos credential from the handler
+ * Handles the actual login after channel authentication has succeed
  */
-public class Krb5LoginModule extends AbstractPrincipalLoginModule {
+public class SCRAMLoginModule extends AbstractPrincipalLoginModule {
 
 
 }

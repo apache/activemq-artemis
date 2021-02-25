@@ -14,33 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.spi.core.security.jaas;
+package org.apache.activemq.artemis.protocol.amqp.sasl.scram;
 
-import javax.security.auth.callback.Callback;
-import java.security.Principal;
+import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 
 /**
- * A Callback for kerberos peer principal.
+ * provides SASL SCRAM-SHA512
  */
-public class Krb5Callback implements Callback {
+public class SHA512CRAMServerSASLFactory extends SCRAMServerSASLFactory {
 
-   Principal peerPrincipal;
-
-   /**
-    * Setter for peer Principal.
-    *
-    * @param principal The certificates to be returned.
-    */
-   public void setPeerPrincipal(Principal principal) {
-      peerPrincipal = principal;
+   public SHA512CRAMServerSASLFactory() {
+      super(SCRAM.SHA512);
    }
 
-   /**
-    * Getter for peer Principal.
-    *
-    * @return The principal being carried.
-    */
-   public Principal getPeerPrincipal() {
-      return peerPrincipal;
+   @Override
+   public int getPrecedence() {
+      return 500;
    }
 }

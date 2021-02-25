@@ -16,10 +16,30 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
+import java.security.Principal;
+
+import javax.security.auth.callback.Callback;
+
 /**
- * populate a subject with kerberos credential from the handler
+ * A Callback for getting the peer principal.
  */
-public class Krb5LoginModule extends AbstractPrincipalLoginModule {
+public class PrincipalsCallback implements Callback {
 
+   Principal[] peerPrincipals;
 
+   /**
+    * Setter for peer Principals.
+    * @param principal The certificates to be returned.
+    */
+   public void setPeerPrincipals(Principal[] principal) {
+      peerPrincipals = principal;
+   }
+
+   /**
+    * Getter for peer Principals.
+    * @return The principal being carried.
+    */
+   public Principal[] getPeerPrincipals() {
+      return peerPrincipals;
+   }
 }
