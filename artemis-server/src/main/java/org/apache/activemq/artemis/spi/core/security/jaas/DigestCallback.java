@@ -22,27 +22,24 @@ import javax.security.auth.callback.Callback;
 
 /**
  * Callback to obtain a {@link MessageDigest} for login purpose
- * 
- *
  */
 public class DigestCallback implements Callback {
 
-	private MessageDigest digest;
+   private MessageDigest digest;
 
-	/**
-	 * set the digest to use
-	 * 
-	 * @param digest the digest
-	 */
-	public void setDigest(MessageDigest digest) {
-		this.digest = digest;
-	}
+   /**
+    * set the digest to use
+    * @param digest the digest
+    */
+   public void setDigest(MessageDigest digest) {
+      this.digest = digest;
+   }
 
-	/**
-	 * @return the digest or <code>null</code> if not known
-	 */
-	public MessageDigest getDigest() {
-		return digest;
-	}
+   /**
+    * @return the digest or <code>null</code> if not known
+    */
+   public MessageDigest getDigest() {
+      return digest;
+   }
 
 }

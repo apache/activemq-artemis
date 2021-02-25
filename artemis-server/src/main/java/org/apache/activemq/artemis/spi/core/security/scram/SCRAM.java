@@ -17,45 +17,46 @@
 package org.apache.activemq.artemis.spi.core.security.scram;
 
 /**
- * Defines sets of known SCRAM types with methods to fetch matching digest and
- * hmac names
+ * Defines sets of known SCRAM types with methods to fetch matching digest and hmac names
  */
 public enum SCRAM {
-	SHA1, SHA256, SHA512;
+                   SHA1,
+                   SHA256,
+                   SHA512;
 
-	public String getName() {
-		switch (this) {
-		case SHA1:
-			return "SCRAM-SHA-1";
-		case SHA256:
-			return "SCRAM-SHA-256";
-		case SHA512:
-			return "SCRAM-SHA-512";
-		}
-		throw new UnsupportedOperationException();
-	}
+   public String getName() {
+      switch (this) {
+         case SHA1:
+            return "SCRAM-SHA-1";
+         case SHA256:
+            return "SCRAM-SHA-256";
+         case SHA512:
+            return "SCRAM-SHA-512";
+      }
+      throw new UnsupportedOperationException();
+   }
 
-	public String getDigest() {
-		switch (this) {
-		case SHA1:
-			return "SHA-1";
-		case SHA256:
-			return "SHA-256";
-		case SHA512:
-			return "SHA-512";
-		}
-		throw new UnsupportedOperationException();
-	}
+   public String getDigest() {
+      switch (this) {
+         case SHA1:
+            return "SHA-1";
+         case SHA256:
+            return "SHA-256";
+         case SHA512:
+            return "SHA-512";
+      }
+      throw new UnsupportedOperationException();
+   }
 
-	public String getHmac() {
-		switch (this) {
-		case SHA1:
-			return "HmacSHA1";
-		case SHA256:
-			return "HmacSHA256";
-		case SHA512:
-			return "HmacSHA512";
-		}
-		throw new UnsupportedOperationException();
-	}
+   public String getHmac() {
+      switch (this) {
+         case SHA1:
+            return "HmacSHA1";
+         case SHA256:
+            return "HmacSHA256";
+         case SHA512:
+            return "HmacSHA512";
+      }
+      throw new UnsupportedOperationException();
+   }
 }

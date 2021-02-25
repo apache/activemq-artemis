@@ -23,13 +23,13 @@ import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
  */
 public class SHA1SCRAMServerSASLFactory extends SCRAMServerSASLFactory {
 
-	public SHA1SCRAMServerSASLFactory() {
-		super(SCRAM.SHA1);
-	}
+   public SHA1SCRAMServerSASLFactory() {
+      super(SCRAM.SHA1);
+   }
 
-	@Override
-	public int getPrecedence() {
-		return 100;
-	}
+   @Override
+   public int getPrecedence() {
+      return 100;
+   }
 
 }

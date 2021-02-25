@@ -92,7 +92,7 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
       private SASLResult result;
       private final String loginConfigScope;
 
-      public SCRAMServerSASL(String name, ScramServerFunctionality scram, String loginConfigScope) {
+      SCRAMServerSASL(String name, ScramServerFunctionality scram, String loginConfigScope) {
          this.name = name;
          this.scram = scram;
          this.loginConfigScope = loginConfigScope;
@@ -181,7 +181,7 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
       private final ScramServerFunctionality scram;
       private final Subject subject;
 
-      public SCRAMSASLResult(String userName, ScramServerFunctionality scram, Subject subject) {
+      SCRAMSASLResult(String userName, ScramServerFunctionality scram, Subject subject) {
          this.userName = userName;
          this.scram = scram;
          this.subject = subject;

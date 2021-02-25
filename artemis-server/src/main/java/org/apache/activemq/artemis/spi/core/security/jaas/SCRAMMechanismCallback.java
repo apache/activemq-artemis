@@ -20,27 +20,25 @@ import javax.security.auth.callback.Callback;
 
 /**
  * callback to obtain the a mechanism used in a SASL-SCRAM authentication
- *
  */
 public class SCRAMMechanismCallback implements Callback {
 
-	private String name;
+   private String name;
 
-	/**
-	 * sets the name of the mechanism
-	 * 
-	 * @param name the name of the mechanism
-	 */
-	public void setMechanism(String name) {
-		this.name = name;
+   /**
+    * sets the name of the mechanism
+    * @param name the name of the mechanism
+    */
+   public void setMechanism(String name) {
+      this.name = name;
 
-	}
+   }
 
-	/**
-	 * @return the name of the mechanism
-	 */
-	public String getMechanism() {
-		return name;
-	}
+   /**
+    * @return the name of the mechanism
+    */
+   public String getMechanism() {
+      return name;
+   }
 
 }
