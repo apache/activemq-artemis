@@ -51,6 +51,7 @@ under the License.
             <module>proton-clustered-cpp</module>
             <module>queue</module>
             <module>proton-ruby</module>
+            <module>sasl-scram</module>
          </modules>
       </profile>
       <profile>

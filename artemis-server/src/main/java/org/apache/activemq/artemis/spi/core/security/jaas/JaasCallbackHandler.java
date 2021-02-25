@@ -16,7 +16,12 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
+import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getPeerPrincipalFromConnection;
+
+import java.io.IOException;
+import java.security.Principal;
+import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -25,11 +30,8 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.kerberos.KerberosPrincipal;
-import java.io.IOException;
-import java.security.Principal;
 
-import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
-import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getPeerPrincipalFromConnection;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * A JAAS username password CallbackHandler.
@@ -67,18 +69,26 @@ public class JaasCallbackHandler implements CallbackHandler {
             CertificateCallback certCallback = (CertificateCallback) callback;
 
             certCallback.setCertificates(getCertsFromConnection(remotingConnection));
-         } else if (callback instanceof Krb5Callback) {
-            Krb5Callback krb5Callback = (Krb5Callback) callback;
+         } else if (callback instanceof PrincipalsCallback) {
+            PrincipalsCallback principalsCallback = (PrincipalsCallback) callback;
 
             Subject peerSubject = remotingConnection.getSubject();
             if (peerSubject != null) {
-               for (Principal principal : peerSubject.getPrivateCredentials(KerberosPrincipal.class)) {
-                  krb5Callback.setPeerPrincipal(principal);
+               for (KerberosPrincipal principal : peerSubject.getPrivateCredentials(KerberosPrincipal.class)) {
+                  principalsCallback.setPeerPrincipals(new Principal[] {principal});
+                  return;
+               }
+               Set<Principal> principals = peerSubject.getPrincipals();
+               if (principals.size() > 0) {
+                  principalsCallback.setPeerPrincipals(principals.toArray(new Principal[0]));
                   return;
                }
             }
 
-            krb5Callback.setPeerPrincipal(getPeerPrincipalFromConnection(remotingConnection));
+            Principal peerPrincipalFromConnection = getPeerPrincipalFromConnection(remotingConnection);
+            if (peerPrincipalFromConnection != null) {
+               principalsCallback.setPeerPrincipals(new Principal[] {peerPrincipalFromConnection});
+            }
          } else {
             throw new UnsupportedCallbackException(callback);
          }

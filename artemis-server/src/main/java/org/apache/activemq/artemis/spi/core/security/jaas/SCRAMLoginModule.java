@@ -16,31 +16,10 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import javax.security.auth.callback.Callback;
-import java.security.Principal;
-
 /**
- * A Callback for kerberos peer principal.
+ * Handles the actual login after channel authentication has succeed
  */
-public class Krb5Callback implements Callback {
+public class SCRAMLoginModule extends AbstractPrincipalLoginModule {
 
-   Principal peerPrincipal;
 
-   /**
-    * Setter for peer Principal.
-    *
-    * @param principal The certificates to be returned.
-    */
-   public void setPeerPrincipal(Principal principal) {
-      peerPrincipal = principal;
-   }
-
-   /**
-    * Getter for peer Principal.
-    *
-    * @return The principal being carried.
-    */
-   public Principal getPeerPrincipal() {
-      return peerPrincipal;
-   }
 }

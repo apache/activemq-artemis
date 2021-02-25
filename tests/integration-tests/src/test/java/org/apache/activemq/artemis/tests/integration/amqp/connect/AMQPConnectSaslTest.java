@@ -17,13 +17,24 @@
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import javax.crypto.Mac;
+import javax.security.auth.login.LoginException;
+
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
+import org.apache.activemq.artemis.protocol.amqp.sasl.scram.SCRAMServerSASL;
+import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
+import org.apache.activemq.artemis.spi.core.security.scram.ScramUtils;
+import org.apache.activemq.artemis.spi.core.security.scram.UserData;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.qpid.proton.engine.Sasl;
 import org.apache.qpid.proton.engine.Sasl.SaslOutcome;
@@ -107,7 +118,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
 
       // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
       AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://localhost:" + mockServer.actualPort());
+               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://localhost:" + mockServer.actualPort());
       amqpConnection.setReconnectAttempts(0);// No reconnects
 
       server.getConfiguration().addAMQPConnection(amqpConnection);
@@ -135,7 +146,8 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       });
 
       // User and pass are given, it will select PLAIN
-      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://localhost:" + mockServer.actualPort());
+      AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://localhost:" + mockServer.actualPort());
       amqpConnection.setReconnectAttempts(0);// No reconnects
       amqpConnection.setUser(USER);
       amqpConnection.setPassword(PASSWD);
@@ -151,6 +163,36 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       assertArrayEquals(expectedPlainInitialResponse(USER, PASSWD), authenticator.getInitialResponse());
    }
 
+   @Test(timeout = 200000)
+   public void testConnectsWithSCRAM() throws Exception {
+      CountDownLatch serverConnectionOpen = new CountDownLatch(1);
+      SCRAMTestAuthenticator authenticator = new SCRAMTestAuthenticator(SCRAM.SHA512);
+
+      mockServer = new MockServer(vertx, () -> authenticator, serverConnection -> {
+         serverConnection.openHandler(serverSender -> {
+            serverConnectionOpen.countDown();
+            serverConnection.closeHandler(x -> serverConnection.close());
+            serverConnection.open();
+         });
+      });
+
+      AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration("testSScramConnect", "tcp://localhost:" + mockServer.actualPort());
+      amqpConnection.setReconnectAttempts(0);// No reconnects
+      amqpConnection.setUser(USER);
+      amqpConnection.setPassword(PASSWD);
+
+      server.getConfiguration().addAMQPConnection(amqpConnection);
+
+      server.start();
+
+      boolean awaitConnectionOpen = serverConnectionOpen.await(10, TimeUnit.SECONDS);
+      assertTrue("Broker did not open connection in alotted time", awaitConnectionOpen);
+      assertEquals(SCRAM.SHA512.getName(), authenticator.chosenMech);
+      assertTrue(authenticator.succeeded());
+
+   }
+
    @Test(timeout = 20000)
    public void testConnectsWithExternal() throws Exception {
       doConnectWithExternalTestImpl(true);
@@ -161,10 +203,13 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       doConnectWithExternalTestImpl(false);
    }
 
-   private void doConnectWithExternalTestImpl(boolean requireClientCert) throws ExecutionException, InterruptedException, Exception {
+   private void doConnectWithExternalTestImpl(boolean requireClientCert) throws ExecutionException,
+                                                                         InterruptedException, Exception {
       CountDownLatch serverConnectionOpen = new CountDownLatch(1);
-      // The test server always offers EXTERNAL, i.e sometimes mistakenly, to verify that the broker only selects it when it actually
-      // has a client-cert. Real servers shouldnt actually offer the mechanism to a client that didnt have to provide a cert.
+      // The test server always offers EXTERNAL, i.e sometimes mistakenly, to verify that the broker
+      // only selects it when it actually
+      // has a client-cert. Real servers shouldnt actually offer the mechanism to a client that
+      // didnt have to provide a cert.
       TestAuthenticator authenticator = new TestAuthenticator(true, EXTERNAL, PLAIN);
 
       final String keyStorePath = this.getClass().getClassLoader().getResource(SERVER_KEYSTORE_NAME).getFile();
@@ -191,14 +236,17 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       });
 
       String amqpServerConnectionURI = "tcp://localhost:" + mockServer.actualPort() +
-            "?sslEnabled=true;trustStorePath=" + TRUSTSTORE_NAME + ";trustStorePassword=" + TRUSTSTORE_PASSWORD;
+               "?sslEnabled=true;trustStorePath=" + TRUSTSTORE_NAME + ";trustStorePassword=" + TRUSTSTORE_PASSWORD;
       if (requireClientCert) {
-         amqpServerConnectionURI += ";keyStorePath=" + CLIENT_KEYSTORE_NAME + ";keyStorePassword=" + CLIENT_KEYSTORE_PASSWORD;
+         amqpServerConnectionURI +=
+                  ";keyStorePath=" + CLIENT_KEYSTORE_NAME + ";keyStorePassword=" + CLIENT_KEYSTORE_PASSWORD;
       }
 
-      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("testSimpleConnect", amqpServerConnectionURI);
+      AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration("testSimpleConnect", amqpServerConnectionURI);
       amqpConnection.setReconnectAttempts(0);// No reconnects
-      amqpConnection.setUser(USER); // Wont matter if EXTERNAL is offered and a client-certificate is provided, but will otherwise.
+      amqpConnection.setUser(USER); // Wont matter if EXTERNAL is offered and a client-certificate
+                                    // is provided, but will otherwise.
       amqpConnection.setPassword(PASSWD);
 
       server.getConfiguration().addAMQPConnection(amqpConnection);
@@ -236,8 +284,8 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
 
    private static final class TestAuthenticator implements ProtonSaslAuthenticator {
       private Sasl sasl;
-      private boolean succeed;
-      private String[] offeredMechs;
+      private final boolean succeed;
+      private final String[] offeredMechs;
       String chosenMech = null;
       byte[] initialResponse = null;
       boolean done = false;
@@ -268,7 +316,6 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
 
                initialResponse = new byte[sasl.pending()];
                sasl.recv(initialResponse, 0, initialResponse.length);
-
                if (succeed) {
                   sasl.done(SaslOutcome.PN_SASL_OK);
                } else {
@@ -294,6 +341,105 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       public byte[] getInitialResponse() {
          return initialResponse;
       }
+   }
+
+   private static final class SCRAMTestAuthenticator implements ProtonSaslAuthenticator {
+
+      private final SCRAM mech;
+      private Sasl sasl;
+      private TestSCRAMServerSASL serverSASL;
+      private String chosenMech;
+
+      SCRAMTestAuthenticator(SCRAM mech) {
+         this.mech = mech;
+      }
+
+      @Override
+      public void init(NetSocket socket, ProtonConnection protonConnection, Transport transport) {
+         this.sasl = transport.sasl();
+         sasl.server();
+         sasl.allowSkip(false);
+         sasl.setMechanisms(mech.getName(), PLAIN, ANONYMOUS);
+         try {
+            serverSASL = new TestSCRAMServerSASL(mech);
+         } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError(e);
+         }
+
+      }
+
+      @Override
+      public void process(Handler<Boolean> completionHandler) {
+         String[] remoteMechanisms = sasl.getRemoteMechanisms();
+         int pending = sasl.pending();
+         if (remoteMechanisms.length == 0 || pending == 0) {
+            completionHandler.handle(false);
+            return;
+         }
+         chosenMech = remoteMechanisms[0];
+         byte[] msg = new byte[pending];
+         sasl.recv(msg, 0, msg.length);
+         byte[] result = serverSASL.processSASL(msg);
+         if (result != null) {
+            sasl.send(result, 0, result.length);
+         }
+         boolean ended = serverSASL.isEnded();
+         if (ended) {
+            if (succeeded()) {
+               sasl.done(SaslOutcome.PN_SASL_OK);
+            } else {
+               sasl.done(SaslOutcome.PN_SASL_AUTH);
+            }
+            completionHandler.handle(true);
+         } else {
+            completionHandler.handle(false);
+         }
+      }
+
+      @Override
+      public boolean succeeded() {
+         SASLResult result = serverSASL.result();
+         return result != null && result.isSuccess() && serverSASL.e == null;
+      }
+
+   }
+
+   private static final class TestSCRAMServerSASL extends SCRAMServerSASL {
+
+      private Exception e;
+
+      TestSCRAMServerSASL(SCRAM mechanism) throws NoSuchAlgorithmException {
+         super(mechanism);
+      }
+
+      @Override
+      public void done() {
+         // nothing to do
+      }
+
+      @Override
+      protected UserData aquireUserData(String userName) throws LoginException {
+         if (!USER.equals(userName)) {
+            throw new LoginException("invalid username");
+         }
+         byte[] salt = new byte[32];
+         new SecureRandom().nextBytes(salt);
+         try {
+            MessageDigest digest = MessageDigest.getInstance(mechanism.getDigest());
+            Mac hmac = Mac.getInstance(mechanism.getHmac());
+            ScramUtils.NewPasswordStringData data =
+                     ScramUtils.byteArrayToStringData(ScramUtils.newPassword(PASSWD, salt, 4096, digest, hmac));
+            return new UserData(data.salt, data.iterations, data.serverKey, data.storedKey);
+         } catch (Exception e) {
+            throw new LoginException(e.getMessage());
+         }
+      }
+
+      @Override
+      protected void failed(Exception e) {
+         this.e = e;
+      }
+
    }
 
 }
