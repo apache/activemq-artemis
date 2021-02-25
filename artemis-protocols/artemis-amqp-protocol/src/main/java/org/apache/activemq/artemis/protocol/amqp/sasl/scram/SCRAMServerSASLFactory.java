@@ -143,7 +143,7 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
                      loginContext.login();
                      Subject subject = loginContext.getSubject();
                      Iterator<UserData> credentials = subject.getPublicCredentials(UserData.class).iterator();
-                     Principal[] principals = subject.getPrincipals().toArray(Principal[]::new);
+                     Principal[] principals = subject.getPrincipals().toArray(new Principal[0]);
                      subject.getPrivateCredentials().add(principals);
                      if (credentials.hasNext()) {
                         result = new SCRAMSASLResult(userName, scram, subject);
