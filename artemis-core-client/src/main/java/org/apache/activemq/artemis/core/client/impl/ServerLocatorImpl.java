@@ -1546,20 +1546,22 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (receivedTopology) {
          return;
       }
-      TransportConfiguration[] newInitialconnectors = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class, newConnectors.size());
 
-      int count = 0;
+      final List<TransportConfiguration> newInitialconnectors = new ArrayList<>(newConnectors.size());
+
       for (DiscoveryEntry entry : newConnectors) {
-         newInitialconnectors[count++] = entry.getConnector();
-
          if (ha && topology.getMember(entry.getNodeID()) == null) {
             TopologyMemberImpl member = new TopologyMemberImpl(entry.getNodeID(), null, null, entry.getConnector(), null);
             // on this case we set it as zero as any update coming from server should be accepted
             topology.updateMember(0, entry.getNodeID(), member);
          }
+         // ignore its own transport connector
+         if (!entry.getConnector().equals(clusterTransportConfiguration)) {
+            newInitialconnectors.add(entry.getConnector());
+         }
       }
 
-      this.initialConnectors = newInitialconnectors.length == 0 ? null : newInitialconnectors;
+      this.initialConnectors = newInitialconnectors.toArray(new TransportConfiguration[newInitialconnectors.size()]);
 
       if (clusterConnection && !receivedTopology && this.getNumInitialConnectors() > 0) {
          // The node is alone in the cluster. We create a connection to the new node
