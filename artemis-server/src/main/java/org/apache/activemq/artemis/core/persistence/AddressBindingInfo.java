@@ -28,6 +28,8 @@ public interface AddressBindingInfo {
 
    SimpleString getName();
 
+   boolean getAutoCreated();
+
    EnumSet<RoutingType> getRoutingTypes();
 
    AddressStatusEncoding getAddressStatusEncoding();
