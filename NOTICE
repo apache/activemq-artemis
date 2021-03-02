@@ -3,3 +3,8 @@ Copyright [2014-2021] The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
+
+The Initial Developer of the ScramServerFunctionality.java, ScramServerFunctionalityImpl.java,
+ScramException.java,  ScramUtils.java, UserData.java
+is "SCRAM SASL authentication for Java" (https://github.com/ogrebgr/scram-sasl)
+Copyright 2016 Ognyan Bankov, Licensed under the Apache License, Version 2.0
