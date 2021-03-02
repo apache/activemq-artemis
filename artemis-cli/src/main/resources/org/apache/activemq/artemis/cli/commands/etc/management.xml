@@ -34,6 +34,9 @@
             <access method="get*" roles="${role}"/>
             <access method="is*" roles="${role}"/>
             <access method="set*" roles="${role}"/>
+            <!-- Note count and browse are need to access the browse tab in the console-->
+            <access method="browse*" roles="${role}"/>
+            <access method="count*" roles="${role}"/>
             <access method="*" roles="${role}"/>
          </match>
          <!--example of how to configure a specific object-->
