@@ -84,7 +84,15 @@ var Artemis;
 
             </div>
             <div class="form-group" ng-show="$ctrl.showMessageDetails">
-                <button class="btn btn-primary" ng-click="$ctrl.showMessageDetails = false">Back</button>
+                <button class="btn btn-primary" ng-click="$ctrl.currentMessage.selected = false;$ctrl.showMessageDetails = false">Back</button>
+                <button class="btn btn-primary" ng-click="$ctrl.currentMessage.selected = true;$ctrl.actionText = 'You are about to move message ID=' + $ctrl.currentMessage.messageID;$ctrl.moveDialog = true">Move</button>
+                <button class="btn btn-primary" ng-click="$ctrl.currentMessage.selected = true;$ctrl.actionText = 'You are about to delete this message ID=' + $ctrl.currentMessage.messageID;$ctrl.deleteDialog = true">Delete</button>
+                <button class="btn btn-primary" title="First Page"  ng-disabled="$ctrl.pagination.pageNumber == 1" ng-click="$ctrl.firstPage()"><i class="fa fa-fast-backward" aria-hidden="true"/></button>
+                <button class="btn btn-primary" title="Previous Page" ng-disabled="$ctrl.pagination.pageNumber == 1" ng-click="$ctrl.previousPage()"><i class="fa fa-step-backward" aria-hidden="true"/></button>
+                <button class="btn btn-primary" title="Previous Message" ng-disabled="$ctrl.pagination.pageNumber == 1 && $ctrl.currentMessage.idx == 0" ng-click="$ctrl.previousMessage()"><i class="fa fa-backward" aria-hidden="true"/></button>
+                <button class="btn btn-primary" title="Next Message" ng-disabled="$ctrl.pagination.pageNumber == $ctrl.pagination.pages && $ctrl.currentMessage.idx >= ($ctrl.messages.length - 1)" ng-click="$ctrl.nextMessage()"><i class="fa fa-forward" aria-hidden="true"/></button>
+                <button class="btn btn-primary" title="Next Page" ng-disabled="$ctrl.pagination.pageNumber == $ctrl.pagination.pages" ng-click="$ctrl.nextPage()"><i class="fa fa-step-forward" aria-hidden="true"/></button>
+                <button class="btn btn-primary" title="Last Page" ng-disabled="$ctrl.pagination.pageNumber == $ctrl.pagination.pages" ng-click="$ctrl.lastPage()"><i class="fa fa-fast-forward" aria-hidden="true"/></button>
                 <h4>Message ID: {{$ctrl.currentMessage.messageID}}</h4>
 
                 <h4>Displaying body as <span ng-bind="$ctrl.currentMessage.textMode"></span></h4>
@@ -189,7 +197,8 @@ var Artemis;
                 <p>
                     Clicking on the <code>show</code> buton will show the messages details in more detail including, headers, properties
                     and the body if viewable. Clicking on the <code>resend</code> button will navigate to the <code>Send Message</code>
-                    tab and copy the message details so a copy of the message can be resent.
+                    tab and copy the message details so a copy of the message can be resent. You can also use the cassette
+                    buttons to move to the next/previous message, next/previous page or first/last page.
                 </p>
               </div>
             </script>
@@ -401,7 +410,7 @@ var Artemis;
         ctrl.retryDialog = false;
         ctrl.showMessageDetails = false;
 
-        var ignoreColumns = ["PropertiesText", "bodyText", "BodyPreview", "text", "headers", "properties", "textMode"];
+        var ignoreColumns = ["PropertiesText", "bodyText", "BodyPreview", "text", "headers", "properties", "textMode", "idx"];
         var flattenColumns = ["BooleanProperties", "ByteProperties", "ShortProperties", "IntProperties", "LongProperties", "FloatProperties", "DoubleProperties", "StringProperties"];
 
         function openMessageDialog(action, item) {
@@ -410,6 +419,53 @@ var Artemis;
             ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
             ctrl.currentMessage.bodyText = createBodyText(ctrl.currentMessage);
             ctrl.showMessageDetails = true;
+        };
+
+        ctrl.previousMessage = function() {
+            ctrl.currentMessage.selected = false;
+            nextIdx = ctrl.currentMessage.idx - 1;
+            if (nextIdx < 0) {
+                ctrl.pagination.previousPage();
+                ctrl.loadPrevousPage = true;
+                //we return here and let the next table load in and move to message idx 0
+                return;
+            }
+            nextMessage =  ctrl.messages.find(tree => tree.idx == nextIdx);
+            ctrl.currentMessage = nextMessage;
+            ctrl.currentMessage.headers = createHeaders(ctrl.currentMessage)
+            ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
+            ctrl.currentMessage.bodyText = createBodyText(ctrl.currentMessage);
+        };
+
+        ctrl.nextMessage = function() {
+            ctrl.currentMessage.selected = false;
+            nextIdx = ctrl.currentMessage.idx + 1;
+            if (nextIdx == ctrl.pagination.pageSize) {
+                ctrl.pagination.nextPage();
+                //we return here and let the next table load in and move to messae idx 0
+                return;
+            }
+            nextMessage =  ctrl.messages.find(tree => tree.idx == nextIdx);
+            ctrl.currentMessage = nextMessage;
+            ctrl.currentMessage.headers = createHeaders(ctrl.currentMessage)
+            ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
+            ctrl.currentMessage.bodyText = createBodyText(ctrl.currentMessage);
+        };
+
+        ctrl.previousPage = function() {
+            ctrl.pagination.previousPage();
+        };
+
+        ctrl.nextPage = function() {
+            ctrl.pagination.nextPage();
+        };
+
+        ctrl.firstPage = function() {
+            ctrl.pagination.firstPage();
+        };
+
+        ctrl.lastPage = function() {
+            ctrl.pagination.lastPage();
         };
 
         var MS_PER_SEC  = 1000;
@@ -611,8 +667,23 @@ var Artemis;
             } else {
                 ctrl.allMessages = data;
             }
+            idx = 0;
             angular.forEach(ctrl.allMessages, function(message) {
                 message.bodyText = createBodyText(message);
+                if (idx == 0 && !ctrl.loadPrevousPage) {
+                //always load n the first message for paination when viewing message details
+                    ctrl.currentMessage = message;
+                    ctrl.currentMessage.headers = createHeaders(ctrl.currentMessage)
+                    ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
+                }
+                else if (idx == (pagination.pageSize - 1) && ctrl.loadPrevousPage) {
+                    delete ctrl.loadPrevousPage;
+                    ctrl.currentMessage = message;
+                    ctrl.currentMessage.headers = createHeaders(ctrl.currentMessage)
+                    ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
+                }
+                message.idx = idx;
+                idx++;
             });
             ctrl.messages = ctrl.allMessages;
             ctrl.isLoading = false;
