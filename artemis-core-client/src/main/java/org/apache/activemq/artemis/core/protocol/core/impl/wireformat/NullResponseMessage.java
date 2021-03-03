@@ -28,4 +28,14 @@ public class NullResponseMessage extends PacketImpl {
    public boolean isResponse() {
       return true;
    }
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE;
+   }
+
+   public void reset() {
+      size = 0;
+      channelID = 0;
+   }
 }
