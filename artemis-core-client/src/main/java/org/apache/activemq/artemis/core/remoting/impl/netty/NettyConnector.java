@@ -104,6 +104,7 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.ResourceLeakDetector.Level;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
@@ -116,15 +117,15 @@ import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactoryProvider;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.IPV6Util;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
-
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
 
 public class NettyConnector extends AbstractConnector {
 
@@ -621,11 +622,23 @@ public class NettyConnector extends AbstractConnector {
 
             if (sslEnabled && !useServlet) {
 
-               SSLEngine engine;
+               final SSLContextConfig sslContextConfig = SSLContextConfig.builder()
+                  .keystoreProvider(realKeyStoreProvider)
+                  .keystorePath(realKeyStorePath)
+                  .keystorePassword(realKeyStorePassword)
+                  .truststoreProvider(realTrustStoreProvider)
+                  .truststorePath(realTrustStorePath)
+                  .truststorePassword(realTrustStorePassword)
+                  .trustManagerFactoryPlugin(trustManagerFactoryPlugin)
+                  .crlPath(crlPath)
+                  .trustAll(trustAll)
+                  .build();
+
+               final SSLEngine engine;
                if (sslProvider.equals(TransportConstants.OPENSSL_PROVIDER)) {
-                  engine = loadOpenSslEngine(channel.alloc(), realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
+                  engine = loadOpenSslEngine(channel.alloc(), sslContextConfig);
                } else {
-                  engine = loadJdkSslEngine(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
+                  engine = loadJdkSslEngine(sslContextConfig);
                }
 
                engine.setUseClientMode(true);
@@ -710,16 +723,10 @@ public class NettyConnector extends AbstractConnector {
       ActiveMQClientLogger.LOGGER.startedNettyConnector(connectorType, TransportConstants.NETTY_VERSION, host, port);
    }
 
-   private SSLEngine loadJdkSslEngine(String keystoreProvider,
-                                      String keystorePath,
-                                      String keystorePassword,
-                                      String truststoreProvider,
-                                      String truststorePath,
-                                      String truststorePassword) throws Exception {
-      SSLContext context = SSLContextFactoryProvider.getSSLContextFactory().getSSLContext(configuration,
-              keystoreProvider, keystorePath, keystorePassword,
-           truststoreProvider, truststorePath, truststorePassword,
-           crlPath, trustManagerFactoryPlugin, trustAll);
+   private SSLEngine loadJdkSslEngine(final SSLContextConfig sslContextConfig) throws Exception {
+      final SSLContext context = SSLContextFactoryProvider.getSSLContextFactory()
+         .getSSLContext(sslContextConfig, configuration);
+
       Subject subject = null;
       if (kerb5Config != null) {
          LoginContext loginContext = new LoginContext(kerb5Config);
@@ -741,26 +748,9 @@ public class NettyConnector extends AbstractConnector {
       return engine;
    }
 
-   private SSLEngine loadOpenSslEngine(ByteBufAllocator alloc,
-                                       String keystoreProvider,
-                                       String keystorePath,
-                                       String keystorePassword,
-                                       String truststoreProvider,
-                                       String truststorePath,
-                                       String truststorePassword) throws Exception {
-
-
-      SslContext context = new SSLSupport()
-         .setKeystoreProvider(keystoreProvider)
-         .setKeystorePath(keystorePath)
-         .setKeystorePassword(keystorePassword)
-         .setTruststoreProvider(truststoreProvider)
-         .setTruststorePath(truststorePath)
-         .setTruststorePassword(truststorePassword)
-         .setSslProvider(sslProvider)
-         .setTrustAll(trustAll)
-         .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
-         .createNettyClientContext();
+   private SSLEngine loadOpenSslEngine(final ByteBufAllocator alloc, final SSLContextConfig sslContextConfig) throws Exception {
+      final SslContext context = OpenSSLContextFactoryProvider.getOpenSSLContextFactory()
+         .getClientSslContext(sslContextConfig, configuration);
 
       Subject subject = null;
       if (kerb5Config != null) {

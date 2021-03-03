@@ -92,6 +92,8 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactoryProvider;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
@@ -167,6 +169,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final String crlPath;
 
+   private SSLContextConfig sslContextConfig;
+
    private final String enabledCipherSuites;
 
    private final String enabledProtocols;
@@ -228,7 +232,6 @@ public class NettyAcceptor extends AbstractAcceptor {
    private final long connectionsAllowed;
 
    private final boolean autoStart;
-
 
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
@@ -309,6 +312,17 @@ public class NettyAcceptor extends AbstractAcceptor {
          sniHost = ConfigurationHelper.getStringProperty(TransportConstants.SNIHOST_PROP_NAME, TransportConstants.DEFAULT_SNIHOST_CONFIG, configuration);
 
          trustManagerFactoryPlugin = ConfigurationHelper.getStringProperty(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME, TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN, configuration);
+
+         sslContextConfig = SSLContextConfig.builder()
+            .keystoreProvider(keyStoreProvider)
+            .keystorePath(keyStorePath)
+            .keystorePassword(keyStorePassword)
+            .truststoreProvider(trustStoreProvider)
+            .truststorePath(trustStorePath)
+            .truststorePassword(trustStorePassword)
+            .trustManagerFactoryPlugin(trustManagerFactoryPlugin)
+            .crlPath(crlPath)
+            .build();
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
@@ -498,6 +512,10 @@ public class NettyAcceptor extends AbstractAcceptor {
    public void setKeyStorePath(String keyStorePath) {
       this.keyStorePath = keyStorePath;
       this.configuration.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, keyStorePath);
+      sslContextConfig = SSLContextConfig.builder()
+         .from(sslContextConfig)
+         .keystorePath(keyStorePath)
+         .build();
    }
 
    /**
@@ -604,10 +622,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       final SSLContext context;
       try {
          checkSSLConfiguration();
-         context =  SSLContextFactoryProvider.getSSLContextFactory().getSSLContext(configuration,
-                 keyStoreProvider, keyStorePath, keyStorePassword,
-                 trustStoreProvider, trustStorePath, trustStorePassword,
-                 crlPath, trustManagerFactoryPlugin, TransportConstants.DEFAULT_TRUST_ALL);
+         context =  SSLContextFactoryProvider.getSSLContextFactory().getSSLContext(sslContextConfig, configuration);
       } catch (Exception e) {
          IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port, e);
          throw ise;
@@ -645,16 +660,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       final SslContext context;
       try {
          checkSSLConfiguration();
-         context = new SSLSupport()
-            .setKeystoreProvider(keyStoreProvider)
-            .setKeystorePath(keyStorePath)
-            .setKeystorePassword(keyStorePassword)
-            .setTruststoreProvider(trustStoreProvider)
-            .setTruststorePath(trustStorePath)
-            .setTruststorePassword(trustStorePassword)
-            .setSslProvider(sslProvider)
-            .setTrustManagerFactoryPlugin(trustManagerFactoryPlugin)
-            .createNettyContext();
+         context = OpenSSLContextFactoryProvider.getOpenSSLContextFactory().getServerSslContext(sslContextConfig, configuration);
       } catch (Exception e) {
          IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port, e);
          throw ise;
