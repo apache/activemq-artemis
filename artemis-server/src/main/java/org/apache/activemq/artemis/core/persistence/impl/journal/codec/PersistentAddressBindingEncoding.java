@@ -79,6 +79,11 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    @Override
+   public boolean getAutoCreated() {
+      return autoCreated;
+   }
+
+   @Override
    public EnumSet<RoutingType> getRoutingTypes() {
       return routingTypes;
    }
