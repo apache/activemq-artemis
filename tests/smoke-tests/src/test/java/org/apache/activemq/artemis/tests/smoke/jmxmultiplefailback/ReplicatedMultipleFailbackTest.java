@@ -98,10 +98,14 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
          Map<String, Pair<String, String>> networkTopology = new HashMap<>(nodeCount);
          for (int i = 0; i < nodeCount; i++) {
             final JsonObject nodePair = nodeIDs.getJsonObject(i);
-            final String nodeID = nodePair.getString("nodeID");
-            final String live = nodePair.getString("live");
-            final String backup = nodePair.getString("backup", null);
-            networkTopology.put(nodeID, new Pair<>(live, backup));
+            try {
+               final String nodeID = nodePair.getString("nodeID");
+               final String live = nodePair.getString("live");
+               final String backup = nodePair.getString("backup", null);
+               networkTopology.put(nodeID, new Pair<>(live, backup));
+            } catch (Exception e) {
+               LOGGER.warnf(e, "Error on %s", nodePair);
+            }
          }
          return networkTopology;
       }
