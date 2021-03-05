@@ -627,7 +627,7 @@ another query parameter with an integer value between 0 and 9 expressing
 the priority of the message. i.e.:
 
 ```
-POST /queues/bar/create?expiration=30000&priority=3
+POST /queues/bar/create?ttl=30000&priority=3
 Host: example.com
 Content-Type: application/xml
 
