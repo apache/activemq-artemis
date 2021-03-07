@@ -40,6 +40,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -112,6 +113,7 @@ public class NettyAcceptor extends AbstractAcceptor {
    public static final String NIO_ACCEPTOR_TYPE = "NIO";
    public static final String EPOLL_ACCEPTOR_TYPE = "EPOLL";
    public static final String KQUEUE_ACCEPTOR_TYPE = "KQUEUE";
+   public static final String IOURING_ACCEPTOR_TYPE = "IO_URING";
 
    static {
       // Disable default Netty leak detection if the Netty leak detection level system properties are not in use
@@ -147,6 +149,8 @@ public class NettyAcceptor extends AbstractAcceptor {
    private final boolean useEpoll;
 
    private final boolean useKQueue;
+
+   private final boolean useIoUring;
 
    private final ProtocolHandler protocolHandler;
 
@@ -268,6 +272,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       useEpoll = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_EPOLL_PROP_NAME, TransportConstants.DEFAULT_USE_EPOLL, configuration);
       useKQueue = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_KQUEUE_PROP_NAME, TransportConstants.DEFAULT_USE_KQUEUE, configuration);
+      useIoUring = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_IOURING_PROP_NAME, TransportConstants.DEFAULT_USE_IOURING, configuration);
 
       backlog = ConfigurationHelper.getIntProperty(TransportConstants.BACKLOG_PROP_NAME, -1, configuration);
       useInvm = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_INVM_PROP_NAME, TransportConstants.DEFAULT_USE_INVM, configuration);
@@ -401,6 +406,21 @@ public class NettyAcceptor extends AbstractAcceptor {
             acceptorType = KQUEUE_ACCEPTOR_TYPE;
 
             logger.debug("Acceptor using native kqueue");
+         } else if (useIoUring && CheckDependencies.isIoUringAvailable()) {
+            channelClazz = (Class<? extends ServerChannel>) Class.forName("io.netty.incubator.channel.uring.IOUringServerSocketChannel",
+                                                                          true, ClientSessionFactoryImpl.class.getClassLoader());
+            eventLoopGroup = (EventLoopGroup) Class.forName("io.netty.incubator.channel.uring.IOUringEventLoopGroup",
+                                                            true, ClientSessionFactoryImpl.class.getClassLoader())
+               .getConstructor(int.class, ThreadFactory.class)
+               .newInstance(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+                  @Override
+                  public ActiveMQThreadFactory run() {
+                     return new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+                  }
+               }));
+            acceptorType = IOURING_ACCEPTOR_TYPE;
+
+            logger.debug("Acceptor using native io_uring");
          } else {
             channelClazz = NioServerSocketChannel.class;
             eventLoopGroup = new NioEventLoopGroup(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {

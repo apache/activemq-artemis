@@ -396,6 +396,11 @@ public interface ActiveMQClientLogger extends BasicLogger {
    void unableToCheckEpollAvailability(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212080, value = "Unable to check IoUring availability ",
+      format = Message.Format.MESSAGE_FORMAT)
+   void unableToCheckIoUringAvailability(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212072, value = "Failed to change channel state to ReadyForWriting ",
            format = Message.Format.MESSAGE_FORMAT)
    void failedToSetChannelReadyForWriting(@Cause Throwable e);
@@ -419,6 +424,11 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @Message(id = 212076, value = "Epoll is not available, please add to the classpath or configure useEpoll=false to remove this warning",
            format = Message.Format.MESSAGE_FORMAT)
    void unableToCheckEpollAvailabilitynoClass();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212079, value = "IoUring is not available, please add to the classpath or configure useIoUring=false to remove this warning",
+      format = Message.Format.MESSAGE_FORMAT)
+   void unableToCheckIoUringAvailabilitynoClass();
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212077, value = "Timed out waiting to receive initial broadcast from cluster. Retry {0} of {1}",

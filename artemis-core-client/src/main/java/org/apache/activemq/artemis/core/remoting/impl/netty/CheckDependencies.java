@@ -54,4 +54,17 @@ public class CheckDependencies {
          return false;
       }
    }
+
+   public static boolean isIoUringAvailable() {
+      try {
+         return Env.isLinuxOs() && (boolean) (Class.forName("io.netty.incubator.channel.uring.IOUring")
+            .getMethod("isAvailable").invoke(null));
+      } catch (NoClassDefFoundError noClassDefFoundError) {
+         ActiveMQClientLogger.LOGGER.unableToCheckIoUringAvailabilitynoClass();
+         return false;
+      } catch (Throwable e) {
+         ActiveMQClientLogger.LOGGER.unableToCheckIoUringAvailability(e);
+         return false;
+      }
+   }
 }
