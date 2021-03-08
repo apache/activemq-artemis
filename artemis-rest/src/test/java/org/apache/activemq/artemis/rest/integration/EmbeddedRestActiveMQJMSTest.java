@@ -37,6 +37,7 @@ import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
 import org.jboss.resteasy.test.TestPortProvider;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -125,7 +126,7 @@ public class EmbeddedRestActiveMQJMSTest {
 
       ClientResponse<?> res = consumeNext.request().header("Accept-Wait", "2").accept("application/xml").post(String.class);
 
-      assertEquals("application/xml", res.getHeaders().getFirst("Content-Type").toString().toLowerCase());
+      Assert.assertTrue(res.getHeaders().getFirst("Content-Type").toString().toLowerCase().contains("application/xml"));
 
       consumeNext = res.getLinkHeader().getLinkByTitle("consume-next");
       res.releaseConnection();
@@ -139,7 +140,7 @@ public class EmbeddedRestActiveMQJMSTest {
 
       ClientResponse<?> res = consumeNext.request().header("Accept-Wait", "2").post(String.class);
 
-      assertEquals("application/xml", res.getHeaders().getFirst("Content-Type").toString().toLowerCase());
+      Assert.assertTrue(res.getHeaders().getFirst("Content-Type").toString().toLowerCase().contains("application/xml"));
 
       consumeNext = res.getLinkHeader().getLinkByTitle("consume-next");
       res.releaseConnection();
