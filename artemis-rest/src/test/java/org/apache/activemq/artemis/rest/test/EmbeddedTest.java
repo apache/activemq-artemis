@@ -111,7 +111,7 @@ public class EmbeddedTest {
 
          ClientResponse<?> res = consumeNext.request().header("Accept-Wait", "2").accept("application/xml").post(String.class);
          Assert.assertEquals(200, res.getStatus());
-         Assert.assertEquals("application/xml", res.getHeaders().getFirst("Content-Type").toString().toLowerCase());
+         Assert.assertTrue(res.getHeaders().getFirst("Content-Type").toString().toLowerCase().contains("application/xml"));
          TransformTest.Order order2 = res.getEntity(TransformTest.Order.class);
          Assert.assertEquals(order, order2);
          consumeNext = res.getLinkHeader().getLinkByTitle("consume-next");
@@ -145,7 +145,7 @@ public class EmbeddedTest {
 
          ClientResponse<?> res = consumeNext.request().header("Accept-Wait", "2").post(String.class);
          Assert.assertEquals(200, res.getStatus());
-         Assert.assertEquals("application/xml", res.getHeaders().getFirst("Content-Type").toString().toLowerCase());
+         Assert.assertTrue(res.getHeaders().getFirst("Content-Type").toString().toLowerCase().contains("application/xml"));
          TransformTest.Order order2 = res.getEntity(TransformTest.Order.class);
          Assert.assertEquals(order, order2);
          consumeNext = res.getLinkHeader().getLinkByTitle("consume-next");
