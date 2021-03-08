@@ -1025,6 +1025,19 @@ do role mapping for the TLS client certificate.
 org.apache.activemq.artemis.spi.core.security.jaas.ExternalCertificateLoginModule required
     ;
 ```    
+
+#### PrincipalConversionLoginModule
+
+The principal conversion login module is used to convert an existing validated Principal 
+into a JAAS UserPrincipal. The module is configured with a list of class names used to
+match existing Principals. If no UserPrincipal exists, the first matching Principal
+will be added as a UserPrincipal of the same Name.
+
+```
+org.apache.activemq.artemis.spi.core.security.jaas.PrincipalConversionLoginModule required
+     principalClassList=org.apache.x.Principal,org.apache.y.Principal
+    ;
+```    
  
 
 The simplest way to make the login configuration available to JAAS is to add
