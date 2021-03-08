@@ -61,12 +61,6 @@
       <version>${hawtio.version}</version>
       <scope>provided</scope>
     </dependency>
-    <!--<dependency>
-      <groupId>io.hawt</groupId>
-      <artifactId>hawtio-git</artifactId>
-      <version>${hawtio.version}</version>
-      <scope>provided</scope>
-    </dependency>-->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
