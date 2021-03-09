@@ -45,7 +45,7 @@
         <maven-plugin-version>3.3</maven-plugin-version>
         <maven-source-plugin-version>2.1.2</maven-source-plugin-version>
         <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
-        <servlet-api-version>2.5</servlet-api-version>
+        <geronimo.servlet.3.0.spec.version>1.0</geronimo.servlet.3.0.spec.version>
 
         <!-- use slf4j-api 1.6.x to be easy compatible with older Karaf/Camel releases -->
         <slf4j-api-version>1.6.6</slf4j-api-version>
@@ -67,9 +67,9 @@
 
             <!-- servlet API is provided by the container -->
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>${servlet-api-version}</version>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-servlet_3.0_spec</artifactId>
+                <version>${geronimo.servlet.3.0.spec.version}</version>
                 <scope>provided</scope>
             </dependency>
 
