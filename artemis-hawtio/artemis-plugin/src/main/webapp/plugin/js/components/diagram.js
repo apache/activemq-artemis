@@ -27,7 +27,9 @@ var Artemis;
                         <span class="pficon pficon-help"></span>
                     </button>
                 </h1>
-                <pf-topology items="$ctrl.data.items" relations="$ctrl.data.relations" kinds="$ctrl.kinds" icons="$ctrl.data.icons" nodes="$ctrl.nodes" item-selected="$ctrl.itemSelected(item)" search-text="searchText" show-labels="$ctrl.showLabels" tooltip-function="$ctrl.tooltip(node)">
+                <!-- Inhibit the context menu of pf-topology for the its items -->
+                <style type="text/css">pf-topology .popup { visibility: hidden; }</style>
+                <pf-topology items="$ctrl.data.items" relations="$ctrl.data.relations" kinds="$ctrl.kinds" icons="$ctrl.data.icons" nodes="$ctrl.nodes" item-selected="$ctrl.itemSelected(item)" search-text="searchText" show-labels="$ctrl.showLabels" tooltip-function="$ctrl.tooltip(node)" chart-rendered="$ctrl.chartRendered(vertices, added)">
 
                 <label style="margin-right: 1em">Show labels:
                     <input type="checkbox" ng-model="$ctrl.showLabels">
@@ -353,6 +355,10 @@ var Artemis;
                 'Type: ' + node.item.brokerKind
             ];
             return status;
+        }
+        ctrl.chartRendered = function (vertices, added) {
+            // Inhibit the dblclick handler of pf-topology for the its items.
+            added.each(function (d) { d.url = "javascript:void(0)"; });
         }
         ctrl.refresh = function () {
             ctrl.datasets = [];
