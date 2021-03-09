@@ -1,0 +1,9 @@
+{
+  "realm": "artemis-keycloak-demo",
+  "resource": "artemis-console",
+  "auth-server-url": "http://localhost:8080/auth",
+  "principal-attribute": "preferred_username",
+  "use-resource-role-mappings": true,
+  "ssl-required": "external",
+  "confidential-port": 0
+}

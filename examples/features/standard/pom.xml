@@ -91,6 +91,7 @@ under the License.
             <module>request-reply</module>
             <module>scheduled-message</module>
             <module>security</module>
+            <module>security-keycloak</module>
             <module>security-ldap</module>
             <module>security-manager</module>
             <module>send-acknowledgements</module>

@@ -1750,6 +1750,7 @@
                   <exclude>**/*.txt</exclude>
                   <exclude>**/*.md</exclude>
                   <exclude>etc/ide-settings/**</exclude>
+                  <exclude>**/*.json</exclude>
                   <exclude>docs/**/*.json</exclude>
                   <exclude>docs/**/_book/</exclude>
                   <exclude>docs/**/_layouts/</exclude>
