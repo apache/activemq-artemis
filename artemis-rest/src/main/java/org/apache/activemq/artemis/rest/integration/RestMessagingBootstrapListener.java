@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.MessageServiceManager;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.jboss.resteasy.spi.Registry;
+import org.jboss.resteasy.spi.ResteasyDeployment;
 
 public class RestMessagingBootstrapListener implements ServletContextListener, ConnectionFactoryOptions {
 
@@ -34,10 +35,11 @@ public class RestMessagingBootstrapListener implements ServletContextListener, C
    @Override
    public void contextInitialized(ServletContextEvent contextEvent) {
       ServletContext context = contextEvent.getServletContext();
-      Registry registry = (Registry) context.getAttribute(Registry.class.getName());
-      if (registry == null) {
+      ResteasyDeployment resteasyDeployment = (ResteasyDeployment) context.getAttribute(ResteasyDeployment.class.getName());
+      if (resteasyDeployment == null) {
          throw new RuntimeException("You must install RESTEasy as a Bootstrap Listener and it must be listed before this class");
       }
+      Registry registry = resteasyDeployment.getRegistry();
       String configfile = context.getInitParameter("rest.messaging.config.file");
       deserializationBlackList = context.getInitParameter(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY);
       deserializationWhiteList = context.getInitParameter(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY);

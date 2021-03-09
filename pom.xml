@@ -108,7 +108,7 @@
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.33.Final</netty-tcnative-version>
       <proton.version>0.33.8</proton.version>
-      <resteasy.version>3.0.19.Final</resteasy.version>
+      <resteasy.version>3.15.0.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
       <qpid.jms.version>0.55.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
@@ -702,7 +702,7 @@
          </dependency>
          <dependency>
             <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jackson-provider</artifactId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
             <version>${resteasy.version}</version>
             <exclusions>
                <exclusion>

@@ -140,7 +140,7 @@ public class TransformTest extends MessageTestBase {
 
          response = consumeNext.request().accept("application/xml").post(String.class);
          Assert.assertEquals(200, response.getStatus());
-         Assert.assertEquals("application/xml", response.getHeaders().getFirst("Content-Type").toString().toLowerCase());
+         Assert.assertTrue(response.getHeaders().getFirst("Content-Type").toString().toLowerCase().contains("application/xml"));
          Order order2 = response.getEntity(Order.class);
          response.releaseConnection();
          Assert.assertEquals(order, order2);
@@ -174,7 +174,7 @@ public class TransformTest extends MessageTestBase {
 
          response = consumeNext.request().post(String.class);
          Assert.assertEquals(200, response.getStatus());
-         Assert.assertEquals("application/xml", response.getHeaders().getFirst("Content-Type").toString().toLowerCase());
+         Assert.assertTrue(response.getHeaders().getFirst("Content-Type").toString().toLowerCase().contains("application/xml"));
          Order order2 = response.getEntity(Order.class);
          response.releaseConnection();
          Assert.assertEquals(order, order2);
