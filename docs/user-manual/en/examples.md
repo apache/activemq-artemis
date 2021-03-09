@@ -724,6 +724,12 @@ The `security-ldap` example shows you how configure and use role based security
 with Apache ActiveMQ Artemis & an embedded instance of the Apache DS LDAP
 server.
 
+## Security keycloak
+
+The `security-keycloak` example shows you how to delegate security
+with Apache ActiveMQ Artemis & an external Keycloak. Using
+OAuth of the web console and direct access for JMS clients.
+
 ## Send Acknowledgements
 
 The `send-acknowledgements` example shows you how to use Apache ActiveMQ

@@ -1,0 +1,197 @@
+<?xml version='1.0'?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.apache.activemq.examples.broker</groupId>
+      <artifactId>jms-examples</artifactId>
+      <version>2.18.0-SNAPSHOT</version>
+   </parent>
+
+   <artifactId>security-keycloak</artifactId>
+   <packaging>jar</packaging>
+   <name>ActiveMQ Artemis JMS Security Keycloak Example</name>
+
+   <properties>
+      <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
+      <version.org.keycloak>12.0.3</version.org.keycloak>
+      <version.org.apache.httpcomponents>4.5.13</version.org.apache.httpcomponents>
+   </properties>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client-all</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>com.googlecode.maven-download-plugin</groupId>
+            <artifactId>download-maven-plugin</artifactId>
+            <version>1.6.1</version>
+            <executions>
+               <execution>
+                  <id>install-keycloak</id>
+                  <phase>pre-integration-test</phase>
+                  <goals>
+                     <goal>wget</goal>
+                  </goals>
+                  <configuration>
+                     <url>https://github.com/keycloak/keycloak/releases/download/${version.org.keycloak}/keycloak-${version.org.keycloak}.tar.gz</url>
+                     <unpack>true</unpack>
+                     <overwrite>false</overwrite>
+                     <skip>${noServer}</skip>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>create</id>
+                  <phase>pre-integration-test</phase>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <ignore>${noServer}</ignore>
+                     <noWeb>false</noWeb>
+                     <!-- enable keycloak for hawtio via system property overrides, note use of "console" realm in login.config -->
+                     <javaOptions>-Dhawtio.keycloakEnabled=true -Dhawtio.keycloakClientConfig=${ARTEMIS_INSTANCE_ETC_URI}keycloak-js-client.json -Dhawtio.authenticationEnabled=true -Dhawtio.realm=console</javaOptions>
+                     <libListWithDeps>
+                        <!-- allow keycloak login module classloading from the artemis lib dir-->
+                        <arg>org.keycloak:keycloak-adapter-core:jar:${version.org.keycloak}</arg>
+                        <arg>org.keycloak:keycloak-core:jar:${version.org.keycloak}</arg>
+                        <arg>org.apache.httpcomponents:httpclient:jar:${version.org.apache.httpcomponents}</arg>
+                     </libListWithDeps>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>start</id>
+                  <goals>
+                     <goal>cli</goal>
+                  </goals>
+                  <configuration>
+                     <ignore>${noServer}</ignore>
+                     <spawn>true</spawn>
+                     <args>
+                        <param>run</param>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>runClient</id>
+                  <phase>verify</phase>
+                  <goals>
+                     <goal>runClient</goal>
+                  </goals>
+                  <configuration>
+                     <clientClass>org.apache.activemq.artemis.jms.example.KeycloakSecurityExample</clientClass>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>stop</id>
+                  <goals>
+                     <goal>cli</goal>
+                  </goals>
+                  <configuration>
+                     <ignore>${noServer}</ignore>
+                     <args>
+                        <param>stop</param>
+                     </args>
+                  </configuration>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.apache.activemq.examples.broker</groupId>
+                  <artifactId>security-keycloak</artifactId>
+                  <version>${project.version}</version>
+               </dependency>
+               <dependency>
+                  <groupId>org.keycloak</groupId>
+                  <artifactId>keycloak-adapter-core</artifactId>
+                  <version>${version.org.keycloak}</version>
+               </dependency>
+               <dependency>
+                  <groupId>org.keycloak</groupId>
+                  <artifactId>keycloak-core</artifactId>
+                  <version>${version.org.keycloak}</version>
+               </dependency>
+               <dependency>
+                  <groupId>org.apache.httpcomponents</groupId>
+                  <artifactId>httpclient</artifactId>
+                  <version>${version.org.apache.httpcomponents}</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.0.0</version>
+            <executions>
+               <execution>
+                  <id>run-keycloak</id>
+                  <phase>integration-test</phase>
+                  <goals>
+                     <goal>exec</goal>
+                  </goals>
+                  <configuration>
+                     <skip>${noServer}</skip>
+                     <async>true</async>
+                     <executable>./target/keycloak-${version.org.keycloak}/bin/standalone.sh</executable>
+                     <arguments>
+                        <argument>-Dkeycloak.migration.action=import</argument>
+                        <argument>-Dkeycloak.migration.provider=singleFile</argument>
+                        <argument>-Dkeycloak.migration.file=./src/main/resources/artemis-keycloak-demo-realm.json</argument>
+                     </arguments>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>stop-keycloak</id>
+                  <phase>verify</phase>
+                  <goals>
+                     <goal>exec</goal>
+                  </goals>
+                  <configuration>
+                     <skip>${noServer}</skip>
+                     <executable>./target/keycloak-${version.org.keycloak}/bin/jboss-cli.sh</executable>
+                     <arguments>
+                        <argument>--connect</argument>
+                        <argument>command=:shutdown</argument>
+                     </arguments>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+         </plugin>
+      </plugins>
+   </build>
+</project>
