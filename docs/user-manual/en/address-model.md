@@ -922,8 +922,8 @@ config reload, by delete policy: `OFF` or `FORCE`. Default is `OFF`. Read more
 about [configuration reload](config-reload.md).
 
 `management-browse-page-size` is the number of messages a management resource
-can browse. This is relevant for the "browse" management method exposed on the
-queue control. Default is `200`.
+can browse. This is relevant for the `browse, list and count-with-filter` management
+methods exposed on the queue control. Default is `200`.
 
 `default-purge-on-no-consumers` defines a queue's default
 `purge-on-no-consumers` setting if none is provided on the queue itself.

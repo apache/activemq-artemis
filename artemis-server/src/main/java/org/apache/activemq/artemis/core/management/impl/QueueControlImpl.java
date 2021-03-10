@@ -847,9 +847,11 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          Filter filter = FilterImpl.createFilter(filterStr);
          List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
+         final int limit = addressSettingsRepository.getMatch(queue.getAddress().toString()).getManagementBrowsePageSize();
+         int count = 0;
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             try {
-               while (iterator.hasNext()) {
+               while (iterator.hasNext() && count++ < limit) {
                   MessageReference ref = iterator.next();
                   if (filter == null || filter.match(ref.getMessage())) {
                      Message message = ref.getMessage();
@@ -983,9 +985,11 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          if (filter == null && groupByProperty == null) {
             result.put(null, getMessageCount());
          } else {
+            final int limit = addressSettingsRepository.getMatch(queue.getAddress().toString()).getManagementBrowsePageSize();
+            int count = 0;
             try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
                try {
-                  while (iterator.hasNext()) {
+                  while (iterator.hasNext() && count++ < limit) {
                      Message message = iterator.next().getMessage();
                      internalComputeMessage(result, filter, groupByProperty, message);
                   }
@@ -1593,14 +1597,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         int pageSize = addressSettingsRepository.getMatch(queue.getName().toString()).getManagementBrowsePageSize();
+         int limit = addressSettingsRepository.getMatch(queue.getAddress().toString()).getManagementBrowsePageSize();
          int currentPageSize = 0;
          ArrayList<CompositeData> c = new ArrayList<>();
          Filter thefilter = FilterImpl.createFilter(filter);
          queue.flushExecutor();
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             try {
-               while (iterator.hasNext() && currentPageSize++ < pageSize) {
+               while (iterator.hasNext() && currentPageSize++ < limit) {
                   MessageReference ref = iterator.next();
                   if (thefilter == null || thefilter.match(ref.getMessage())) {
                      c.add(OpenTypeSupport.convert(ref));
