@@ -34,7 +34,7 @@ under the License.
     <name>ActiveMQ Artemis SASL-SCRAM-Server Example</name>
 
     <properties>
-        <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
+        <activemq.basedir>${project.basedir}/../../../../..</activemq.basedir>
         <artemis-version>${project.version}</artemis-version>
     </properties>
 
