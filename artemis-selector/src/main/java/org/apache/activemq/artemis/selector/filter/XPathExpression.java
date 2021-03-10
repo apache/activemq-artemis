@@ -16,37 +16,55 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.util.Map;
+import java.util.Properties;
+
 /**
  * Used to evaluate an XPath Expression in a JMS selector.
  */
 public final class XPathExpression implements BooleanExpression {
 
+   private final String xpath;
+   private final XPathEvaluator evaluator;
+
+   private static DocumentBuilder builder;
+
    public static XPathEvaluatorFactory XPATH_EVALUATOR_FACTORY = null;
+   public static final String DOCUMENT_BUILDER_FACTORY_FEATURE_PREFIX = "org.apache.activemq.documentBuilderFactory.feature:";
 
    static {
-      // Install the xalan xpath evaluator if it available.
-      new XalanXPathEvaluator("//root").evaluate("<root></root>");
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
+      factory.setIgnoringElementContentWhitespace(true);
+      factory.setIgnoringComments(true);
+
       try {
-         XPATH_EVALUATOR_FACTORY = new XPathExpression.XPathEvaluatorFactory() {
-            @Override
-            public XPathExpression.XPathEvaluator create(String xpath) {
-               return new XalanXPathEvaluator(xpath);
-            }
-         };
+         factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+         factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
+         // setup features from system properties (if any)
+         setupFeatures(factory);
+         builder = factory.newDocumentBuilder();
+      } catch (ParserConfigurationException e) {
+         throw new RuntimeException(e);
+      }
+
+      new JAXPXPathEvaluator("//root", builder).evaluate("<root></root>");
+      try {
+         XPATH_EVALUATOR_FACTORY = xpath -> new JAXPXPathEvaluator(xpath, builder);
       } catch (Throwable e) {
       }
    }
 
-   private final String xpath;
-   private final XPathEvaluator evaluator;
-
    public interface XPathEvaluatorFactory {
-
       XPathEvaluator create(String xpath);
    }
 
    public interface XPathEvaluator {
-
       boolean evaluate(Filterable message) throws FilterException;
    }
 
@@ -79,4 +97,14 @@ public final class XPathExpression implements BooleanExpression {
       return object == Boolean.TRUE;
    }
 
+   protected static void setupFeatures(DocumentBuilderFactory factory) throws ParserConfigurationException {
+      Properties properties = System.getProperties();
+      for (Map.Entry<Object, Object> prop : properties.entrySet()) {
+         String key = (String) prop.getKey();
+         if (key.startsWith(DOCUMENT_BUILDER_FACTORY_FEATURE_PREFIX)) {
+            Boolean value = Boolean.valueOf((String)prop.getValue());
+            factory.setFeature(key.substring(DOCUMENT_BUILDER_FACTORY_FEATURE_PREFIX.length()), value);
+         }
+      }
+   }
 }

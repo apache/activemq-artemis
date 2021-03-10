@@ -844,6 +844,21 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testSubscribeWithAutoAckAndXpathSelector() throws Exception {
+      conn.connect(defUser, defPass);
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, "XPATH 'root/a'");
+
+      sendJmsMessage("<root><b key='first' num='1'/><c key='second' num='2'>c</c></root>");
+      sendJmsMessage("<root><a key='first' num='1'/><b key='second' num='2'>b</b></root>");
+
+      ClientStompFrame frame = conn.receiveFrame(10000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertTrue("Should have received the real message but got: " + frame, frame.getBody().equals("<root><a key='first' num='1'/><b key='second' num='2'>b</b></root>"));
+
+      conn.disconnect();
+   }
+
+   @Test
    public void testSubscribeWithClientAck() throws Exception {
       conn.connect(defUser, defPass);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.CLIENT);

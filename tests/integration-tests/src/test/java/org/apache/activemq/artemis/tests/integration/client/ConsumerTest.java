@@ -1275,4 +1275,30 @@ public class ConsumerTest extends ActiveMQTestBase {
          Assert.assertEquals("The consumer " + i + " must receive all the messages sent.", messages * runs, receivedMessages.get(i));
       }
    }
+
+   @Test
+   public void testConsumerXpathSelector() throws Exception {
+      final SimpleString BODY = SimpleString.toSimpleString("<root><a key='first' num='1'/><b key='second' num='2'>b</b></root>");
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, true, false, true);
+
+      ClientProducer producer = session.createProducer(QUEUE);
+
+      ClientMessage message = session.createMessage(false);
+      message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString("wrong"));
+      producer.send(message);
+      message = session.createMessage(false);
+      message.getBodyBuffer().writeNullableSimpleString(BODY);
+      producer.send(message);
+
+      ClientConsumer consumer = session.createConsumer(QUEUE.toString(), "XPATH 'root/a'");
+      session.start();
+      ClientMessage message2 = consumer.receive(1000);
+
+      Assert.assertEquals(BODY, message2.getBodyBuffer().readNullableSimpleString());
+      Assert.assertEquals(1, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+
+      session.close();
+   }
 }

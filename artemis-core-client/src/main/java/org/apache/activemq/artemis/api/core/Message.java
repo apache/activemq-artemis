@@ -761,4 +761,8 @@ public interface Message {
    Object getOwner();
 
    void setOwner(Object object);
+
+   default String getStringBody() {
+      return null;
+   }
 }
