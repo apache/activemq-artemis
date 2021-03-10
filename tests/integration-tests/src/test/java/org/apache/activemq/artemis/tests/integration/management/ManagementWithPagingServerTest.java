@@ -206,7 +206,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
 
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(5120).setMaxSizeBytes(10240).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(5120).setMaxSizeBytes(10240).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setManagementBrowsePageSize(1000);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
