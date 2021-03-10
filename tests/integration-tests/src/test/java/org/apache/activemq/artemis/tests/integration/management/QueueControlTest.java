@@ -3332,6 +3332,40 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testBrowseLimitOnListBrowseAndFilteredCount() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      AddressSettings addressSettings = new AddressSettings().setManagementBrowsePageSize(5);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      ClientProducer producer = session.createProducer(address);
+      for (int i = 0; i < 10; i++) {
+         producer.send(session.createMessage(true));
+      }
+      producer.close();
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+
+      // no filter, delegates to count metric
+      Wait.assertEquals(10, queueControl::getMessageCount);
+
+      assertEquals(5, queueControl.browse().length);
+      assertEquals(5, queueControl.listMessages("").length);
+
+      JsonArray array = JsonUtil.readJsonArray(queueControl.listMessagesAsJSON(""));
+      assertEquals(5, array.size());
+
+      // filer could match all
+      assertEquals(5, queueControl.countMessages("AMQSize > 0"));
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testResetGroups() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
