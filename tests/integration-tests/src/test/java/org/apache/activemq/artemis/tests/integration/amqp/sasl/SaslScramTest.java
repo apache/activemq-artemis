@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.amqp.connect;
+package org.apache.activemq.artemis.tests.integration.amqp.sasl;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,6 +32,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.qpid.jms.exceptions.JMSSecuritySaslException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,6 +47,7 @@ public class SaslScramTest {
    @BeforeClass
    public static void startBroker() throws Exception {
       String loginConfPath = new File(SaslScramTest.class.getResource("/login.config").toURI()).getAbsolutePath();
+      System.out.println(loginConfPath);
       System.setProperty("java.security.auth.login.config", loginConfPath);
       BROKER = new EmbeddedActiveMQ();
       BROKER.setConfigResourcePath(SaslScramTest.class.getResource("/broker-saslscram.xml").toExternalForm());
@@ -59,29 +61,34 @@ public class SaslScramTest {
    }
 
    @Test
-   public void testSendReceive() throws JMSException {
-      for (String method : new String[] {"SCRAM-SHA-1", "SCRAM-SHA-256"}) {
-         ConnectionFactory connectionFactory =
-                  new JmsConnectionFactory("amqp://localhost:5672?amqp.saslMechanisms=" + method);
-         Connection connection;
-         if ("SCRAM-SHA-256".equals(method)) {
-            connection = connectionFactory.createConnection("test", "test");
-         } else {
-            connection = connectionFactory.createConnection("hello", "ogre1234");
-         }
-         try {
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = session.createQueue("exampleQueue");
-            MessageProducer sender = session.createProducer(queue);
-            String text = "Hello " + method;
-            sender.send(session.createTextMessage(text));
-            connection.start();
-            MessageConsumer consumer = session.createConsumer(queue);
-            TextMessage m = (TextMessage) consumer.receive(5000);
-            assertEquals(text, m.getText());
-         } finally {
-            connection.close();
-         }
+   public void testUnencryptedWorksWithAllMechanism() throws JMSException {
+      sendRcv("SCRAM-SHA-1", "hello", "ogre1234");
+      sendRcv("SCRAM-SHA-256", "hello", "ogre1234");
+   }
+
+   @Test(expected = JMSSecuritySaslException.class)
+   public void testEncryptedWorksOnlyWithMechanism() throws JMSException {
+      sendRcv("SCRAM-SHA-1", "test", "test");
+   }
+
+   @Test
+   public void testEncryptedWorksWithMechanism() throws JMSException {
+      sendRcv("SCRAM-SHA-256", "test", "test");
+   }
+
+   private void sendRcv(String method, String username, String password) throws JMSException {
+      ConnectionFactory connectionFactory =
+               new JmsConnectionFactory("amqp://localhost:5672?amqp.saslMechanisms=" + method);
+      try (Connection connection = connectionFactory.createConnection(username, password)) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue("exampleQueue");
+         MessageProducer sender = session.createProducer(queue);
+         String text = "Hello " + method;
+         sender.send(session.createTextMessage(text));
+         connection.start();
+         MessageConsumer consumer = session.createConsumer(queue);
+         TextMessage m = (TextMessage) consumer.receive(5000);
+         assertEquals(text, m.getText());
       }
    }
 }

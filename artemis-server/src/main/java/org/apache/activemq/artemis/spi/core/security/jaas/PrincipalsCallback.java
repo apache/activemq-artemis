@@ -21,7 +21,7 @@ import java.security.Principal;
 import javax.security.auth.callback.Callback;
 
 /**
- * A Callback for getting the peer principal.
+ * A Callback for getting the peer principals.
  */
 public class PrincipalsCallback implements Callback {
 

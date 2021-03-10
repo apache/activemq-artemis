@@ -54,9 +54,6 @@ import org.jboss.logging.Logger;
  */
 public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
 
-   /**
-    *
-    */
    private final Logger logger = Logger.getLogger(getClass());
    private final SCRAM scramType;
 

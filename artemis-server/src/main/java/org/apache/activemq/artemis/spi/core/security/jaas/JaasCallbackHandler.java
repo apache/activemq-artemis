@@ -69,21 +69,21 @@ public class JaasCallbackHandler implements CallbackHandler {
 
             certCallback.setCertificates(getCertsFromConnection(remotingConnection));
          } else if (callback instanceof PrincipalsCallback) {
-            PrincipalsCallback krb5Callback = (PrincipalsCallback) callback;
+            PrincipalsCallback principalsCallback = (PrincipalsCallback) callback;
 
             Subject peerSubject = remotingConnection.getSubject();
             if (peerSubject != null) {
                for (Principal principal : peerSubject.getPrivateCredentials(KerberosPrincipal.class)) {
-                  krb5Callback.setPeerPrincipals(new Principal[] {principal});
+                  principalsCallback.setPeerPrincipals(new Principal[] {principal});
                   return;
                }
                for (Principal[] principals : peerSubject.getPrivateCredentials(Principal[].class)) {
-                  krb5Callback.setPeerPrincipals(principals);
+                  principalsCallback.setPeerPrincipals(principals);
                   return;
                }
             }
 
-            krb5Callback.setPeerPrincipals(new Principal[] {getPeerPrincipalFromConnection(remotingConnection)});
+            principalsCallback.setPeerPrincipals(new Principal[] {getPeerPrincipalFromConnection(remotingConnection)});
          } else {
             throw new UnsupportedCallbackException(callback);
          }
