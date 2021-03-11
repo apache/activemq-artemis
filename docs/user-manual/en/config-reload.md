@@ -1,8 +1,8 @@
 # Configuration Reload
 
 The system will perform a periodic check on the configuration files, configured
-by `configuration-file-refresh-period`, with the default at 5000, in
-milliseconds.
+by `configuration-file-refresh-period`, with the default at `5000`, in
+milliseconds. These checks can be disabled by specifying `-1`.
 
 Once the configuration file is changed (broker.xml) the following modules will
 be reloaded automatically:
