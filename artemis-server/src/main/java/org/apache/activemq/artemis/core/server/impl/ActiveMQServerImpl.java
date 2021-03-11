@@ -3122,18 +3122,21 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       deployGroupingHandlerConfiguration(configuration.getGroupingHandlerConfiguration());
 
-      this.reloadManager = new ReloadManagerImpl(getScheduledPool(), executorFactory.getExecutor(), configuration.getConfigurationFileRefreshPeriod());
+      long configurationFileRefreshPeriod = configuration.getConfigurationFileRefreshPeriod();
+      if (configurationFileRefreshPeriod > 0) {
+         this.reloadManager = new ReloadManagerImpl(getScheduledPool(), executorFactory.getExecutor(), configurationFileRefreshPeriod);
 
-      if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
-         reloadManager.addCallback(configuration.getConfigurationUrl(), uri -> reloadConfigurationFile(uri));
-      }
+         if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
+            reloadManager.addCallback(configuration.getConfigurationUrl(), uri -> reloadConfigurationFile(uri));
+         }
 
-      if (System.getProperty("logging.configuration") != null) {
-         try {
-            reloadManager.addCallback(new URL(System.getProperty("logging.configuration")), new LoggingConfigurationFileReloader());
-         } catch (Exception e) {
-            // a syntax error with the logging system property shouldn't prevent the server from starting
-            ActiveMQServerLogger.LOGGER.problemAddingConfigReloadCallback(System.getProperty("logging.configuration"), e);
+         if (System.getProperty("logging.configuration") != null) {
+            try {
+               reloadManager.addCallback(new URL(System.getProperty("logging.configuration")), new LoggingConfigurationFileReloader());
+            } catch (Exception e) {
+               // a syntax error with the logging system property shouldn't prevent the server from starting
+               ActiveMQServerLogger.LOGGER.problemAddingConfigReloadCallback(System.getProperty("logging.configuration"), e);
+            }
          }
       }
 
