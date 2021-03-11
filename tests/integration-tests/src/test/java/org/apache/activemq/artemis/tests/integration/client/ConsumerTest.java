@@ -1286,15 +1286,18 @@ public class ConsumerTest extends ActiveMQTestBase {
       ClientProducer producer = session.createProducer(QUEUE);
 
       ClientMessage message = session.createMessage(false);
+      message.setType(Message.TEXT_TYPE);
       message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString("wrong"));
       producer.send(message);
       message = session.createMessage(false);
+      message.setType(Message.TEXT_TYPE);
       message.getBodyBuffer().writeNullableSimpleString(BODY);
       producer.send(message);
 
       ClientConsumer consumer = session.createConsumer(QUEUE.toString(), "XPATH 'root/a'");
       session.start();
-      ClientMessage message2 = consumer.receive(1000);
+      ClientMessage message2 = consumer.receive(5000);
+      Assert.assertNotNull(message2);
 
       Assert.assertEquals(BODY, message2.getBodyBuffer().readNullableSimpleString());
       Assert.assertEquals(1, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));

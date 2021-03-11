@@ -1283,7 +1283,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
                body = simpleBody.toString();
             }
          } catch (Exception e) {
-            // ignore
+            e.printStackTrace();
          }
       }
 

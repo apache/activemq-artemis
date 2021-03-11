@@ -132,6 +132,7 @@ public interface ClientMessage extends ICoreMessage {
 
    /**
     * The buffer to write the body.
+    * Warning: If you just want to read the content of a message, use getDataBuffer() or getReadOnlyBuffer();
     * @return
     */
    @Override
