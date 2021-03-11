@@ -1018,6 +1018,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       newConnection.syncIDGeneratorSequence(remotingConnection.getIDGeneratorSequence());
 
+      session.transferConnection(newConnection);
+
       Connection oldTransportConnection = remotingConnection.getTransportConnection();
 
       remotingConnection = newConnection;

@@ -58,6 +58,8 @@ public interface ServerSession extends SecurityAuth {
    @Override
    RemotingConnection getRemotingConnection();
 
+   void transferConnection(RemotingConnection newConnection);
+
    Transaction newTransaction();
 
    boolean removeConsumer(long consumerID) throws Exception;
