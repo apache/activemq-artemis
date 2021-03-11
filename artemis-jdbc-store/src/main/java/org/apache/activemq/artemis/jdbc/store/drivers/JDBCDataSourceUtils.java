@@ -29,7 +29,7 @@ public class JDBCDataSourceUtils {
       ActiveMQJournalLogger.LOGGER.initializingJdbcDataSource(dataSourceClassName, dataSourceProperties
          .keySet()
          .stream()
-         .map(key -> key + "=" + dataSourceProperties.get(key))
+         .map(key -> key + "=" + (key.equalsIgnoreCase("password") ? "****" : dataSourceProperties.get(key)))
          .collect(Collectors.joining(", ", "{", "}")));
       try {
          DataSource dataSource = (DataSource) Class.forName(dataSourceClassName).newInstance();
