@@ -28,6 +28,7 @@ import javax.management.openmbean.CompositeDataSupport;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,52 +46,7 @@ public final class JsonUtil {
       JsonArrayBuilder jsonArray = JsonLoader.createArrayBuilder();
 
       for (Object parameter : array) {
-         if (parameter instanceof Map) {
-            Map<String, Object> map = (Map<String, Object>) parameter;
-
-            JsonObjectBuilder jsonObject = JsonLoader.createObjectBuilder();
-
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-               String key = entry.getKey();
-
-               Object val = entry.getValue();
-
-               if (val != null) {
-                  if (val.getClass().isArray()) {
-                     JsonArray objectArray = toJSONArray((Object[]) val);
-                     jsonObject.add(key, objectArray);
-                  } else {
-                     addToObject(key, val, jsonObject);
-                  }
-               }
-            }
-            jsonArray.add(jsonObject);
-         } else {
-            if (parameter != null) {
-               Class<?> clz = parameter.getClass();
-
-               if (clz.isArray()) {
-                  Object[] innerArray = (Object[]) parameter;
-
-                  if (innerArray instanceof CompositeData[]) {
-                     JsonArrayBuilder innerJsonArray = JsonLoader.createArrayBuilder();
-                     for (Object data : innerArray) {
-                        String s = Base64.encodeObject((CompositeDataSupport) data);
-                        innerJsonArray.add(s);
-                     }
-                     JsonObjectBuilder jsonObject = JsonLoader.createObjectBuilder();
-                     jsonObject.add(CompositeData.class.getName(), innerJsonArray);
-                     jsonArray.add(jsonObject);
-                  } else {
-                     jsonArray.add(toJSONArray(innerArray));
-                  }
-               } else {
-                  addToArray(parameter, jsonArray);
-               }
-            } else {
-               jsonArray.addNull();
-            }
-         }
+         addToArray(parameter, jsonArray);
       }
       return jsonArray.build();
    }
@@ -210,6 +166,12 @@ public final class JsonUtil {
       } else if (param instanceof byte[]) {
          JsonArrayBuilder byteArrayObject = toJsonArrayBuilder((byte[]) param);
          jsonObjectBuilder.add(key, byteArrayObject);
+      } else if (param instanceof Object[]) {
+         final JsonArrayBuilder objectArrayBuilder = JsonLoader.createArrayBuilder();
+         for (Object parameter : (Object[])param) {
+            addToArray(parameter, objectArrayBuilder);
+         }
+         jsonObjectBuilder.add(key, objectArrayBuilder);
       } else {
          throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
       }
@@ -238,6 +200,21 @@ public final class JsonUtil {
       } else if (param instanceof byte[]) {
          JsonArrayBuilder byteArrayObject = toJsonArrayBuilder((byte[]) param);
          jsonArrayBuilder.add(byteArrayObject);
+      } else if (param instanceof CompositeData[]) {
+         JsonArrayBuilder innerJsonArray = JsonLoader.createArrayBuilder();
+         for (Object data : (CompositeData[])param) {
+            String s = Base64.encodeObject((CompositeDataSupport) data);
+            innerJsonArray.add(s);
+         }
+         JsonObjectBuilder jsonObject = JsonLoader.createObjectBuilder();
+         jsonObject.add(CompositeData.class.getName(), innerJsonArray);
+         jsonArrayBuilder.add(jsonObject);
+      } else if (param instanceof Object[]) {
+         JsonArrayBuilder objectArrayBuilder = JsonLoader.createArrayBuilder();
+         for (Object parameter : (Object[])param) {
+            addToArray(parameter, objectArrayBuilder);
+         }
+         jsonArrayBuilder.add(objectArrayBuilder);
       } else {
          throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
       }
@@ -343,6 +320,29 @@ public final class JsonUtil {
    }
 
    private JsonUtil() {
+   }
+
+   public static Object truncate(final Object value, final int valueSizeLimit) {
+      Object result = value;
+      if (valueSizeLimit >= 0) {
+         if (String.class.equals(value.getClass())) {
+            String str = (String) value;
+            if (str.length() > valueSizeLimit) {
+               result = new StringBuilder(valueSizeLimit + 32).append(str.substring(0, valueSizeLimit)).append(", + ").append(str.length() - valueSizeLimit).append(" more").toString();
+            }
+         } else if (value.getClass().isArray()) {
+            if (byte[].class.equals(value.getClass())) {
+               if (((byte[]) value).length > valueSizeLimit) {
+                  result = Arrays.copyOfRange((byte[]) value, 0, valueSizeLimit);
+               }
+            } else if (char[].class.equals(value.getClass())) {
+               if (((char[]) value).length > valueSizeLimit) {
+                  result = Arrays.copyOfRange((char[]) value, 0, valueSizeLimit);
+               }
+            }
+         }
+      }
+      return result;
    }
 
    private static class NullableJsonString implements JsonValue, JsonString {

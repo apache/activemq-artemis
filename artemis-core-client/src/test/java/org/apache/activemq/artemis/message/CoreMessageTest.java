@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.message;
 
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 
 import io.netty.buffer.ByteBuf;
@@ -209,6 +210,32 @@ public class CoreMessageTest {
       } catch (Exception expected) {
 
       }
+   }
+
+   @Test
+   public void testToMapLimit() throws Exception {
+
+      CoreMessage coreMessage = new CoreMessage().initBuffer(BIGGER_TEXT.length() * 2);
+      coreMessage.putStringProperty("prop", BIGGER_TEXT);
+      coreMessage.putBytesProperty("bytesProp", BIGGER_TEXT.getBytes(StandardCharsets.UTF_8));
+
+      Assert.assertEquals(BIGGER_TEXT.length(), ((String)coreMessage.toMap().get("prop")).length());
+      Assert.assertEquals(BIGGER_TEXT.getBytes(StandardCharsets.UTF_8).length, ((byte[])coreMessage.toMap().get("bytesProp")).length);
+
+      // limit the values
+      Assert.assertNotEquals(BIGGER_TEXT.getBytes(StandardCharsets.UTF_8).length, ((byte[])coreMessage.toMap(40).get("bytesProp")).length);
+      String mapVal = ((String)coreMessage.toMap(40).get("prop"));
+      Assert.assertNotEquals(BIGGER_TEXT.length(), mapVal.length());
+      Assert.assertTrue(mapVal.contains("more"));
+
+      mapVal = ((String)coreMessage.toMap(0).get("prop"));
+      Assert.assertNotEquals(BIGGER_TEXT.length(), mapVal.length());
+      Assert.assertTrue(mapVal.contains("more"));
+
+      Assert.assertEquals(BIGGER_TEXT.length(), Integer.parseInt(mapVal.substring(mapVal.lastIndexOf('+') + 1, mapVal.lastIndexOf('m')).trim()));
+
+      Assert.assertEquals(BIGGER_TEXT.getBytes(StandardCharsets.UTF_8).length, ((byte[])coreMessage.toPropertyMap().get("bytesProp")).length);
+      Assert.assertNotEquals(BIGGER_TEXT.getBytes(StandardCharsets.UTF_8).length, ((byte[])coreMessage.toPropertyMap(40).get("bytesProp")).length);
    }
 
    @Test

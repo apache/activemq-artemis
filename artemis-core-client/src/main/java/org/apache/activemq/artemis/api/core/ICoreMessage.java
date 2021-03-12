@@ -102,10 +102,11 @@ public interface ICoreMessage extends Message {
 
    /**
     * @return Returns the message in Map form, useful when encoding to JSON
+    * @param valueSizeLimit
     */
    @Override
-   default Map<String, Object> toMap() {
-      Map map = toPropertyMap();
+   default Map<String, Object> toMap(int valueSizeLimit) {
+      Map map = toPropertyMap(valueSizeLimit);
       map.put("messageID", getMessageID());
       Object userID = getUserID();
       if (getUserID() != null) {

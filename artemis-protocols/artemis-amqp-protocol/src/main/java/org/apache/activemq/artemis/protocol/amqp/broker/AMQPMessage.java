@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -835,7 +836,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    public abstract int getMemoryEstimate();
 
    @Override
-   public Map<String, Object> toPropertyMap() {
+   public Map<String, Object> toPropertyMap(int valueSizeLimit) {
       Map map = new HashMap<>();
       for (SimpleString name : getPropertyNames()) {
          Object value = getObjectProperty(name.toString());
@@ -843,6 +844,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          if (value instanceof Binary) {
             value = ((Binary)value).getArray();
          }
+         value = JsonUtil.truncate(value, valueSizeLimit);
          map.put(name.toString(), value);
       }
       return map;

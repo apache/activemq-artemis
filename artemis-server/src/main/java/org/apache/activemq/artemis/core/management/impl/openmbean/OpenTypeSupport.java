@@ -34,6 +34,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -46,7 +47,7 @@ public final class OpenTypeSupport {
    private OpenTypeSupport() {
    }
 
-   public static CompositeData convert(MessageReference ref) throws OpenDataException {
+   public static CompositeData convert(MessageReference ref, int valueSizeLimit) throws OpenDataException {
       CompositeType ct;
 
       ICoreMessage message = ref.getMessage().toCore();
@@ -57,11 +58,11 @@ public final class OpenTypeSupport {
       switch(type) {
          case Message.TEXT_TYPE:
             ct = TEXT_FACTORY.getCompositeType();
-            fields = TEXT_FACTORY.getFields(ref);
+            fields = TEXT_FACTORY.getFields(ref, valueSizeLimit);
             break;
          default:
             ct = BYTES_FACTORY.getCompositeType();
-            fields = BYTES_FACTORY.getFields(ref);
+            fields = BYTES_FACTORY.getFields(ref, valueSizeLimit);
             break;
       }
       return new CompositeDataSupport(ct, fields);
@@ -82,6 +83,7 @@ public final class OpenTypeSupport {
       protected TabularType longPropertyTabularType;
       protected TabularType floatPropertyTabularType;
       protected TabularType doublePropertyTabularType;
+      protected Object[][] typedPropertyFields;
 
       protected String getTypeName() {
          return Message.class.getName();
@@ -129,9 +131,21 @@ public final class OpenTypeSupport {
          addItem(CompositeDataConstants.LONG_PROPERTIES, CompositeDataConstants.LONG_PROPERTIES_DESCRIPTION, longPropertyTabularType);
          addItem(CompositeDataConstants.FLOAT_PROPERTIES, CompositeDataConstants.FLOAT_PROPERTIES_DESCRIPTION, floatPropertyTabularType);
          addItem(CompositeDataConstants.DOUBLE_PROPERTIES, CompositeDataConstants.DOUBLE_PROPERTIES_DESCRIPTION, doublePropertyTabularType);
+
+         typedPropertyFields = new Object[][] {
+            {CompositeDataConstants.STRING_PROPERTIES, stringPropertyTabularType, String.class},
+            {CompositeDataConstants.BOOLEAN_PROPERTIES, booleanPropertyTabularType, Boolean.class},
+            {CompositeDataConstants.BYTE_PROPERTIES, bytePropertyTabularType, Byte.class},
+            {CompositeDataConstants.SHORT_PROPERTIES, shortPropertyTabularType, Short.class},
+            {CompositeDataConstants.INT_PROPERTIES, intPropertyTabularType, Integer.class},
+            {CompositeDataConstants.LONG_PROPERTIES, longPropertyTabularType, Long.class},
+            {CompositeDataConstants.FLOAT_PROPERTIES, floatPropertyTabularType, Float.class},
+            {CompositeDataConstants.DOUBLE_PROPERTIES, doublePropertyTabularType, Double.class}
+         };
+
       }
 
-      public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
+      public Map<String, Object> getFields(MessageReference ref, int valueSizeLimit) throws OpenDataException {
          Map<String, Object> rc = new HashMap<>();
          ICoreMessage m = ref.getMessage().toCore();
          rc.put(CompositeDataConstants.MESSAGE_ID, "" + m.getMessageID());
@@ -154,49 +168,23 @@ public final class OpenTypeSupport {
             rc.put(CompositeDataConstants.PERSISTENT_SIZE, -1);
          }
 
-         Map<String, Object> propertyMap = m.toPropertyMap();
+         Map<String, Object> propertyMap = m.toPropertyMap(valueSizeLimit);
 
-         rc.put(CompositeDataConstants.PROPERTIES, "" + propertyMap);
+         rc.put(CompositeDataConstants.PROPERTIES, JsonUtil.truncate("" + propertyMap, valueSizeLimit));
 
-         try {
-            rc.put(CompositeDataConstants.STRING_PROPERTIES, createTabularData(propertyMap, stringPropertyTabularType, String.class));
-         } catch (IOException e) {
-            rc.put(CompositeDataConstants.STRING_PROPERTIES, new TabularDataSupport(stringPropertyTabularType));
-         }
-         try {
-            rc.put(CompositeDataConstants.BOOLEAN_PROPERTIES, createTabularData(propertyMap, booleanPropertyTabularType, Boolean.class));
-         } catch (IOException e) {
-            rc.put(CompositeDataConstants.BOOLEAN_PROPERTIES, new TabularDataSupport(booleanPropertyTabularType));
-         }
-         try {
-            rc.put(CompositeDataConstants.BYTE_PROPERTIES, createTabularData(propertyMap, bytePropertyTabularType, Byte.class));
-         } catch (IOException e) {
-            rc.put(CompositeDataConstants.BYTE_PROPERTIES, new TabularDataSupport(bytePropertyTabularType));
-         }
-         try {
-            rc.put(CompositeDataConstants.SHORT_PROPERTIES, createTabularData(propertyMap, shortPropertyTabularType, Short.class));
-         } catch (IOException e) {
-            rc.put(CompositeDataConstants.SHORT_PROPERTIES, new TabularDataSupport(shortPropertyTabularType));
-         }
-         try {
-            rc.put(CompositeDataConstants.INT_PROPERTIES, createTabularData(propertyMap, intPropertyTabularType, Integer.class));
-         } catch (IOException e) {
-            rc.put(CompositeDataConstants.INT_PROPERTIES, new TabularDataSupport(intPropertyTabularType));
-         }
-         try {
-            rc.put(CompositeDataConstants.LONG_PROPERTIES, createTabularData(propertyMap, longPropertyTabularType, Long.class));
-         } catch (IOException e) {
-            rc.put(CompositeDataConstants.LONG_PROPERTIES, new TabularDataSupport(longPropertyTabularType));
-         }
-         try {
-            rc.put(CompositeDataConstants.FLOAT_PROPERTIES, createTabularData(propertyMap, floatPropertyTabularType, Float.class));
-         } catch (IOException e) {
-            rc.put(CompositeDataConstants.FLOAT_PROPERTIES, new TabularDataSupport(floatPropertyTabularType));
-         }
-         try {
-            rc.put(CompositeDataConstants.DOUBLE_PROPERTIES, createTabularData(propertyMap, doublePropertyTabularType, Double.class));
-         } catch (IOException e) {
-            rc.put(CompositeDataConstants.DOUBLE_PROPERTIES, new TabularDataSupport(doublePropertyTabularType));
+         // only populate if there are some values
+         TabularDataSupport tabularData;
+         for (Object[] typedPropertyInfo : typedPropertyFields) {
+            tabularData = null;
+            try {
+               tabularData = createTabularData(propertyMap, (TabularType) typedPropertyInfo[1], (Class) typedPropertyInfo[2]);
+            } catch (Exception ignored) {
+            }
+            if (tabularData != null && !tabularData.isEmpty()) {
+               rc.put((String) typedPropertyInfo[0], tabularData);
+            } else {
+               rc.put((String) typedPropertyInfo[0], null);
+            }
          }
          return rc;
       }
@@ -273,14 +261,14 @@ public final class OpenTypeSupport {
       }
 
       @Override
-      public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
-         Map<String, Object> rc = super.getFields(ref);
+      public Map<String, Object> getFields(MessageReference ref, int valueSizeLimit) throws OpenDataException {
+         Map<String, Object> rc = super.getFields(ref, valueSizeLimit);
          ICoreMessage m = ref.getMessage().toCore();
          if (!m.isLargeMessage()) {
             ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
-            byte[] bytes = new byte[bodyCopy.readableBytes()];
+            byte[] bytes = new byte[bodyCopy.readableBytes() <= valueSizeLimit ? bodyCopy.readableBytes() : valueSizeLimit + 1];
             bodyCopy.readBytes(bytes);
-            rc.put(CompositeDataConstants.BODY, bytes);
+            rc.put(CompositeDataConstants.BODY, JsonUtil.truncate(bytes, valueSizeLimit));
          } else {
             rc.put(CompositeDataConstants.BODY, new byte[0]);
          }
@@ -298,15 +286,15 @@ public final class OpenTypeSupport {
       }
 
       @Override
-      public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
-         Map<String, Object> rc = super.getFields(ref);
+      public Map<String, Object> getFields(MessageReference ref, int valueSizeLimit) throws OpenDataException {
+         Map<String, Object> rc = super.getFields(ref, valueSizeLimit);
          ICoreMessage m = ref.getMessage().toCore();
          if (!m.isLargeMessage()) {
             if (m.containsProperty(Message.HDR_LARGE_COMPRESSED)) {
                rc.put(CompositeDataConstants.TEXT_BODY, "[compressed]");
             } else {
-               SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
-               rc.put(CompositeDataConstants.TEXT_BODY, text != null ? text.toString() : "");
+               final String text = m.getReadOnlyBodyBuffer().readString();
+               rc.put(CompositeDataConstants.TEXT_BODY, text != null ? JsonUtil.truncate(text, valueSizeLimit) : "");
             }
          } else {
             rc.put(CompositeDataConstants.TEXT_BODY, "[large message]");

@@ -788,11 +788,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
     * @return
     */
    private Map<String, Object>[] convertMessagesToMaps(List<MessageReference> refs) throws ActiveMQException {
+      final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
       Map<String, Object>[] messages = new Map[refs.size()];
       int i = 0;
       for (MessageReference ref : refs) {
          Message message = ref.getMessage();
-         messages[i++] = message.toMap();
+         messages[i++] = message.toMap(attributeSizeLimit);
       }
       return messages;
    }
@@ -847,7 +848,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          Filter filter = FilterImpl.createFilter(filterStr);
          List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
-         final int limit = addressSettingsRepository.getMatch(queue.getAddress().toString()).getManagementBrowsePageSize();
+         final AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
+         final int attributeSizeLimit = addressSettings.getManagementMessageAttributeSizeLimit();
+         final int limit = addressSettings.getManagementBrowsePageSize();
          int count = 0;
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             try {
@@ -855,7 +858,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                   MessageReference ref = iterator.next();
                   if (filter == null || filter.match(ref.getMessage())) {
                      Message message = ref.getMessage();
-                     messages.add(message.toMap());
+                     messages.add(message.toMap(attributeSizeLimit));
                   }
                }
             } catch (NoSuchElementException ignored) {
@@ -895,12 +898,13 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
+         final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             // returns just the first, as it's the first only
             if (iterator.hasNext()) {
                MessageReference ref = iterator.next();
                Message message = ref.getMessage();
-               messages.add(message.toMap());
+               messages.add(message.toMap(attributeSizeLimit));
             }
             return messages.toArray(new Map[1]);
          }
@@ -985,7 +989,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          if (filter == null && groupByProperty == null) {
             result.put(null, getMessageCount());
          } else {
-            final int limit = addressSettingsRepository.getMatch(queue.getAddress().toString()).getManagementBrowsePageSize();
+            final int limit = addressSettingsRepository.getMatch(address).getManagementBrowsePageSize();
             int count = 0;
             try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
                try {
@@ -1552,13 +1556,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          Filter thefilter = FilterImpl.createFilter(filter);
          queue.flushExecutor();
 
+         final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             try {
                while (iterator.hasNext() && index < end) {
                   MessageReference ref = iterator.next();
                   if (thefilter == null || thefilter.match(ref.getMessage())) {
                      if (index >= start) {
-                        c.add(OpenTypeSupport.convert(ref));
+                        c.add(OpenTypeSupport.convert(ref, attributeSizeLimit));
                      }
                   }
                   index++;
@@ -1597,7 +1602,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         int limit = addressSettingsRepository.getMatch(queue.getAddress().toString()).getManagementBrowsePageSize();
+         final AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
+         final int attributeSizeLimit = addressSettings.getManagementMessageAttributeSizeLimit();
+         final int limit = addressSettings.getManagementBrowsePageSize();
          int currentPageSize = 0;
          ArrayList<CompositeData> c = new ArrayList<>();
          Filter thefilter = FilterImpl.createFilter(filter);
@@ -1607,7 +1614,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                while (iterator.hasNext() && currentPageSize++ < limit) {
                   MessageReference ref = iterator.next();
                   if (thefilter == null || thefilter.match(ref.getMessage())) {
-                     c.add(OpenTypeSupport.convert(ref));
+                     c.add(OpenTypeSupport.convert(ref, attributeSizeLimit));
 
                   }
                }
