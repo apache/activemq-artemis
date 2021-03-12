@@ -39,6 +39,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class JMXManagementTest extends JMSClientTestSupport {
@@ -107,8 +108,11 @@ public class JMXManagementTest extends JMSClientTestSupport {
          session.begin();
          AmqpMessage message = new AmqpMessage();
          message.setApplicationProperty("TEST_BINARY", new Binary("TEST".getBytes()));
-         message.setApplicationProperty("TEST_STRING", "TEST");
-         message.setText("TEST");
+
+         final String oneK = new String(new char[1024]).replace("\0", "$");
+         message.setApplicationProperty("TEST_BIG_BINARY", new Binary(oneK.getBytes(StandardCharsets.UTF_8)));
+         message.setApplicationProperty("TEST_STRING", oneK);
+         message.setText("NOT_VISIBLE");
          sender.send(message);
          session.commit();
 
@@ -116,6 +120,18 @@ public class JMXManagementTest extends JMSClientTestSupport {
          QueueControl queueControl = createManagementControl(queue, queue);
          String firstMessageAsJSON = queueControl.getFirstMessageAsJSON();
          Assert.assertNotNull(firstMessageAsJSON);
+
+         // Json is still bulky!
+         Assert.assertTrue(firstMessageAsJSON.length() < 1500);
+         Assert.assertFalse(firstMessageAsJSON.contains("NOT_VISIBLE"));
+
+         // composite data limits
+         Map<String, Object>[] result = queueControl.listMessages("");
+         assertEquals(1, result.length);
+
+         final Map<String, Object> msgMap = result[0];
+         Assert.assertTrue(msgMap.get("TEST_STRING").toString().length() < 512);
+
       } finally {
          connection.close();
       }

@@ -708,7 +708,15 @@ public interface Message {
     * @return Returns the message in Map form, useful when encoding to JSON
     */
    default Map<String, Object> toMap() {
-      Map map = toPropertyMap();
+      return toMap(-1);
+   }
+
+   /**
+    * @return Returns the message in Map form, useful when encoding to JSON
+    * @param valueSizeLimit that limits [] map values
+    */
+   default Map<String, Object> toMap(int valueSizeLimit) {
+      Map map = toPropertyMap(valueSizeLimit);
       map.put("messageID", getMessageID());
       Object userID = getUserID();
       if (getUserID() != null) {
@@ -728,6 +736,14 @@ public interface Message {
     * @return Returns the message properties in Map form, useful when encoding to JSON
     */
    default Map<String, Object> toPropertyMap() {
+      return toPropertyMap(-1);
+   }
+
+   /**
+    * @return Returns the message properties in Map form, useful when encoding to JSON
+    * @param valueSizeLimit that limits [] map values
+    */
+   default Map<String, Object> toPropertyMap(int valueSizeLimit) {
       Map map = new HashMap<>();
       for (SimpleString name : getPropertyNames()) {
          Object value = getObjectProperty(name.toString());
@@ -735,11 +751,11 @@ public interface Message {
          if (value instanceof SimpleString) {
             value = value.toString();
          }
+         value = JsonUtil.truncate(value, valueSizeLimit);
          map.put(name.toString(), value);
       }
       return map;
    }
-
 
    /** This should make you convert your message into Core format. */
    ICoreMessage toCore();

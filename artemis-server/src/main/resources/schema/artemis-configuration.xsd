@@ -3804,7 +3804,15 @@
             <xsd:element name="management-browse-page-size" type="xsd:int" default="200" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     how many message a management resource can browse
+                     how many message a management resource can browse, list or filter
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="management-message-attribute-size-limit" type="xsd:int" default="256" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the size limit of any message attribute value returned from a browse ,list or filter. Attribute values that exceed with be truncated
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>

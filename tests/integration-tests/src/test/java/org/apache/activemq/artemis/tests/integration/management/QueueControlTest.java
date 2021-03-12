@@ -489,6 +489,122 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testMessageAttributeLimits() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      AddressSettings addressSettings = new AddressSettings().setManagementMessageAttributeSizeLimit(100);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      byte[] twoKBytes = new byte[2048];
+      for (int i = 0; i < 2048; i++) {
+         twoKBytes[i] = '*';
+      }
+
+      String twoKString = new String(twoKBytes);
+
+      ClientMessage clientMessage = session.createMessage(false);
+
+      clientMessage.putStringProperty("y", "valueY");
+      clientMessage.putStringProperty("bigString", twoKString);
+      clientMessage.putBytesProperty("bigBytes", twoKBytes);
+      clientMessage.putObjectProperty("bigObject", twoKString);
+
+      clientMessage.getBodyBuffer().writeBytes(twoKBytes);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      ClientProducer producer = session.createProducer(address);
+      producer.send(clientMessage);
+
+      Wait.assertEquals(1, () -> getMessageCount(queueControl));
+
+      assertTrue(server.getPagingManager().getPageStore(address).getAddressSize() > 2048);
+
+      Map<String, Object>[] messages = queueControl.listMessages("");
+      assertEquals(1, messages.length);
+      for (String key : messages[0].keySet()) {
+         Object value = messages[0].get(key);
+         System.err.println( key + " " + value);
+         assertTrue(value.toString().length() <= 150);
+
+         if (value instanceof byte[]) {
+            assertTrue(((byte[])value).length <= 150);
+         }
+      }
+
+      String all = queueControl.listMessagesAsJSON("");
+      assertTrue(all.length() < 1024);
+
+      String first = queueControl.getFirstMessageAsJSON();
+      assertTrue(first.length() < 1024);
+
+      CompositeData[] browseResult = queueControl.browse(1, 100);
+      for (CompositeData compositeData : browseResult) {
+         for (String key : compositeData.getCompositeType().keySet()) {
+            Object value = compositeData.get(key);
+            System.err.println("" + key + ", " + value);
+
+            if (value != null) {
+
+               if (key.equals("StringProperties")) {
+                  // these are very verbose composite data structures
+                  assertTrue(value.toString().length() + " truncated? " + key, value.toString().length() <= 2048);
+               } else {
+                  assertTrue(value.toString().length() + " truncated? " + key, value.toString().length() <= 512);
+               }
+
+               if (value instanceof byte[]) {
+                  assertTrue("truncated? " + key, ((byte[]) value).length <= 150);
+               }
+            }
+         }
+      }
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testTextMessageAttributeLimits() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      AddressSettings addressSettings = new AddressSettings().setManagementMessageAttributeSizeLimit(10);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      final String twentyBytes = new String(new char[20]).replace("\0", "#");
+
+      ClientMessage clientMessage = createTextMessage(session, twentyBytes, true);
+      clientMessage.putStringProperty("x", twentyBytes);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      ClientProducer producer = session.createProducer(address);
+      producer.send(clientMessage);
+
+      Wait.assertEquals(1, () -> getMessageCount(queueControl));
+
+      Map<String, Object>[] messages = queueControl.listMessages("");
+      assertEquals(1, messages.length);
+      assertTrue("truncated? ", ((String)messages[0].get("x")).contains("more"));
+
+      CompositeData[] browseResult = queueControl.browse(1, 100);
+      for (CompositeData compositeData : browseResult) {
+         for (String key : new String[] {"text", "PropertiesText", "StringProperties"}) {
+            assertTrue("truncated? : " + key, compositeData.get(key).toString().contains("more"));
+         }
+      }
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testGetMessagesAdded() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
@@ -1082,7 +1198,7 @@ public class QueueControlTest extends ManagementTestBase {
       QueueControl queueControl = createManagementControl(address, queue);
 
       ClientProducer producer = session.createProducer(address);
-      producer.send(session.createMessage(durable));
+      producer.send(session.createMessage(durable).putBytesProperty("bytes", new byte[]{'%'}));
       producer.send(session.createMessage(durable));
 
       Wait.assertEquals(2, () -> queueControl.listMessages(null).length);

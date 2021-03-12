@@ -56,6 +56,6 @@ public class CoreTransactionDetail extends TransactionDetail {
 
    @Override
    public Map<String, Object> decodeMessageProperties(Message msg) {
-      return msg.toMap();
+      return msg.toMap(256);
    }
 }
