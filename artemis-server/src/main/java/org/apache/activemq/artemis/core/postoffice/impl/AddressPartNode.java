@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.core.postoffice.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -137,23 +138,33 @@ public final class AddressPartNode<T> {
       }
 
       // look for a path match after 0-N skips among immediate children
-      AddressPartNode<T> match = null;
+      ArrayList<AddressPartNode> visitedSet = new ArrayList<>(paths.length);
       for (int i = startIndex; i < paths.length; i++) {
-         match = getChild(paths[i]);
+         final AddressPartNode<T> match = getChild(paths[i]);
          if (match != null) {
             match.visitMatchingWildcards(paths, i + 1, collector);
-            break;
+            visitedSet.add(match);
          }
       }
 
       // walk the rest of the sub tree to find a tail path match
       for (AddressPartNode<T> child : childNodes.values()) {
-         // instance equality arranged in node creation
-         if (child != match && ANY_DESCENDENT != child.getPath()) {
+         if (alreadyVisited(child, visitedSet)) {
+            continue;
+         }
+         child.visitPathTailMatch(paths, startIndex, collector);
+      }
+   }
 
-            child.visitPathTailMatch(paths, startIndex, collector);
+   private boolean alreadyVisited(final AddressPartNode<T> child, final ArrayList<AddressPartNode> matches) {
+      if (!matches.isEmpty()) {
+         for (AddressPartNode alreadyMatched : matches) {
+            if (child == alreadyMatched) {
+               return true;
+            }
          }
       }
+      return false;
    }
 
    // wildcards in the paths, ignore wildcard expansions in the map
