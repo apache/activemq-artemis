@@ -638,7 +638,7 @@ public class AddressMapUnitTest {
       assertFalse(aABCA.matches(aHashA));
       assertFalse(aHashA.matches(aABCA));
 
-      assertEquals(0, countMatchingWildcards(abcaS));
+      assertEquals(1, countMatchingWildcards(abcaS));
 
       assertEquals(0, countMatchingWildcards(new SimpleString("a.b")));
 
@@ -650,7 +650,7 @@ public class AddressMapUnitTest {
       SimpleString AHashA = new SimpleString("a.#.a");
       underTest.put(AHashA, AHashA);
 
-      assertEquals(1, countMatchingWildcards(new SimpleString("a.b.c.a")));
+      assertEquals(2, countMatchingWildcards(new SimpleString("a.b.c.a")));
 
       assertEquals(0, countNonWildcardMatching(new SimpleString("a.b.c.a")));
 
@@ -772,6 +772,67 @@ public class AddressMapUnitTest {
    }
 
    @Test
+   public void testHashAandHashB() throws Exception {
+
+      SimpleString hashAhash = new SimpleString("test.#.aaa.#");
+      underTest.put(hashAhash, hashAhash);
+
+      SimpleString hashBhash = new SimpleString("test.#.bbb.#");
+      underTest.put(hashBhash, hashBhash);
+
+      assertEquals(2, countMatchingWildcards(SimpleString.toSimpleString("test.aaa.bbb")));
+      assertEquals(2, countMatchingWildcards(SimpleString.toSimpleString("test.bbb.aaa")));
+
+      assertEquals(2, countMatchingWildcards(SimpleString.toSimpleString("test.bbb.aaa.ccc")));
+      assertEquals(2, countMatchingWildcards(SimpleString.toSimpleString("test.aaa.bbb.ccc")));
+   }
+
+   @Test
+   public void testHashNoHashNo() throws Exception {
+
+      SimpleString hashAhash = new SimpleString("test.#.0.#.168");
+      underTest.put(hashAhash, hashAhash);
+
+      assertEquals(1, countMatchingWildcards(SimpleString.toSimpleString("test.0.168")));
+   }
+
+   @Test
+   public void testHashNoHashHashNo() throws Exception {
+
+      SimpleString v = new SimpleString("test.#.0.#.168");
+      underTest.put(v, v);
+
+      v = new SimpleString("test.#.0.#");
+      underTest.put(v, v);
+
+      v = new SimpleString("test.0.#");
+      underTest.put(v, v);
+
+      assertEquals(3, countMatchingWildcards(SimpleString.toSimpleString("test.0.168")));
+   }
+
+   @Test
+   public void testHashNoHashNoWithNMatch() throws Exception {
+
+      for (String s : new String[] {"t.#.0.#", "t.#.1.#", "t.#.2.#", "t.#.3.#", "t.#.1.2.3", "t.0.1.2.3"}) {
+         SimpleString v = new SimpleString(s);
+         underTest.put(v, v);
+      }
+      assertEquals(6, countMatchingWildcards(SimpleString.toSimpleString("t.0.1.2.3")));
+   }
+
+   @Test
+   public void testSomeMoreHashPlacement() throws Exception {
+
+      for (String s : new String[] {"t.#.0.#", "t.0.1.#", "t.0.1.2.#", "t.0.1.#.2.3", "t.*.#.1.2.3"}) {
+         SimpleString v = new SimpleString(s);
+         underTest.put(v, v);
+      }
+      assertEquals(5, countMatchingWildcards(SimpleString.toSimpleString("t.0.1.2.3")));
+      assertEquals(3, countMatchingWildcards(SimpleString.toSimpleString("t.0.1.2.3.4")));
+   }
+
+   @Test
    public void testManyEntries() throws Exception {
 
       for (int i = 0; i < 10; i++) {
@@ -875,7 +936,7 @@ public class AddressMapUnitTest {
       underTest.put(new SimpleString("#.a"), new SimpleString("#.a"));
 
       assertEquals(3, countMatchingWildcards(new SimpleString("test.a")));
-      assertEquals(1, countMatchingWildcards(new SimpleString("test.a.a")));
+      assertEquals(3, countMatchingWildcards(new SimpleString("test.a.a")));
    }
 
 }
