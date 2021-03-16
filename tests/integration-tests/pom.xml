@@ -29,7 +29,6 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-      <paho.client.mqttv3.version>1.2.2</paho.client.mqttv3.version>
    </properties>
 
    <dependencies>
@@ -202,7 +201,6 @@
       <dependency>
          <groupId>org.eclipse.paho</groupId>
          <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-         <version>${paho.client.mqttv3.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
