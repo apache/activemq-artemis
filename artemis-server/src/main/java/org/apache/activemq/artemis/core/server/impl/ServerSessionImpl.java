@@ -1075,7 +1075,26 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void transferConnection(RemotingConnection newConnection) {
-      remotingConnection = newConnection;
+      synchronized (this) {
+         // Remove failure listeners from old connection
+         remotingConnection.removeFailureListener(this);
+         tempQueueCleannerUppers.values()
+                 .forEach(cleanerUpper -> {
+                    remotingConnection.removeCloseListener(cleanerUpper);
+                    remotingConnection.removeFailureListener(cleanerUpper);
+                 });
+
+         // Set the new connection
+         remotingConnection = newConnection;
+
+         // Add failure listeners to new connection
+         newConnection.addFailureListener(this);
+         tempQueueCleannerUppers.values()
+                 .forEach(cleanerUpper -> {
+                    newConnection.addCloseListener(cleanerUpper);
+                    newConnection.addFailureListener(cleanerUpper);
+                 });
+      }
    }
 
    @Override

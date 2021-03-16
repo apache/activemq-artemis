@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
@@ -133,18 +134,31 @@ public class ReattachTest extends ActiveMQTestBase {
       locator.setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(1024 * 1024);
       ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
+      ClientSession secondSession = sf.createSession(false, true, true);
 
-      // there's only one session on the broker
-      Object originalConnectionID = ((ServerSession)server.getSessions().toArray()[0]).getConnectionID();
+      // there's only one connection on the broker
+      Object originalConnectionID = ((ServerSession) server.getSessions().toArray()[0]).getConnectionID();
+      RemotingConnection oldConnection = ((ServerSession) server.getSessions().toArray()[0]).getRemotingConnection();
+
+      // ensure sessions are set as failure listeners on old connection
+      Set<ServerSession> originalServerSessions = server.getSessions();
+      assertTrue(oldConnection.getFailureListeners().containsAll(originalServerSessions));
 
       // trigger re-attach
       ((ClientSessionInternal) session).getConnection().fail(new ActiveMQNotConnectedException());
 
       session.start();
+      secondSession.start();
 
-      assertFalse(Objects.equals(((ServerSession)server.getSessions().toArray()[0]).getConnectionID(), originalConnectionID));
+      assertFalse(Objects.equals(((ServerSession) server.getSessions().toArray()[0]).getConnectionID(), originalConnectionID));
+
+      // ensure sessions were removed as failure listeners of old connection and are now failure listeners of new connection
+      assertTrue(originalServerSessions.stream().noneMatch(oldConnection.getFailureListeners()::contains));
+      RemotingConnection newConnection = ((ServerSession) server.getSessions().toArray()[0]).getRemotingConnection();
+      assertTrue(newConnection.getFailureListeners().containsAll(originalServerSessions));
 
       session.close();
+      secondSession.close();
       sf.close();
    }
 
