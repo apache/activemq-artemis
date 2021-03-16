@@ -136,17 +136,4 @@
          <type>jar</type>
       </dependency>
    </dependencies>
-
-   <repositories>
-      <repository>
-         <id>bintray</id>
-         <url>https://jcenter.bintray.com</url>
-         <releases>
-            <enabled>true</enabled>
-         </releases>
-         <snapshots>
-            <enabled>false</enabled>
-         </snapshots>
-      </repository>
-   </repositories>
 </project>
