@@ -70,10 +70,6 @@
    <name>ActiveMQ Artemis Parent</name>
    <url>http://apache.org/activemq</url>
 
-   <prerequisites>
-      <maven>3.1.0</maven>
-   </prerequisites>
-
    <properties>
       <modular.jdk.surefire.arg />
       <javac.version>9+181-r4173-1</javac.version>
@@ -142,6 +138,7 @@
       <surefire.version>2.22.2</surefire.version>
       <version.jaxb.api>2.3.1</version.jaxb.api>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
+      <paho.client.mqttv3.version>1.2.5</paho.client.mqttv3.version>
       <!-- for JakrtaEE -->
       <version.batavia>1.0.5.Final</version.batavia>
 
@@ -287,6 +284,11 @@
          </dependency>
 
          <!-- ### For MQTT Tests && Examples -->
+	 <dependency>
+           <groupId>org.eclipse.paho</groupId>
+           <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+           <version>${paho.client.mqttv3.version}</version>
+         </dependency>
          <dependency>
             <groupId>org.fusesource.mqtt-client</groupId>
             <artifactId>mqtt-client</artifactId>

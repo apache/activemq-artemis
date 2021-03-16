@@ -78,14 +78,6 @@
           <artifactId>wildfly-common</artifactId>
          <scope>test</scope>
       </dependency>
-
-      <!-- this is for the log assertion -->
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging</artifactId>
