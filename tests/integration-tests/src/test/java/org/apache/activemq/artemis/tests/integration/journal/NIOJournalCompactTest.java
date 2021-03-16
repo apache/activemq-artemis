@@ -844,7 +844,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          journal.testCompact();
          journal.testCompact();
          journal.testCompact();
-         logger.info("going to commit");
+         logger.debug("going to commit");
          commit(tx);
       }
 
@@ -1737,14 +1737,14 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
                      survivingMsgs.add(message.getMessageID());
 
-                     logger.info("Going to store " + message);
+                     logger.debug("Going to store " + message);
                      // This one will stay here forever
                      storage.storeMessage(message);
-                     logger.info("message storeed " + message);
+                     logger.debug("message stored " + message);
 
-                     logger.info("Going to commit " + tx);
+                     logger.debug("Going to commit " + tx);
                      storage.commit(tx);
-                     logger.info("Committed " + tx);
+                     logger.debug("Committed " + tx);
 
                      ctx.executeOnCompletion(new IOCallback() {
                         @Override
