@@ -1004,9 +1004,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       // before we have transferred the connection, leaving it in a started state
       session.setTransferring(true);
 
-      List<CloseListener> closeListeners = remotingConnection.removeCloseListeners();
-      List<FailureListener> failureListeners = remotingConnection.removeFailureListeners();
-
       // Note. We do not destroy the replicating connection here. In the case the live server has really crashed
       // then the connection will get cleaned up anyway when the server ping timeout kicks in.
       // In the case the live server is really still up, i.e. a split brain situation (or in tests), then closing
@@ -1023,9 +1020,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       Connection oldTransportConnection = remotingConnection.getTransportConnection();
 
       remotingConnection = newConnection;
-
-      remotingConnection.setCloseListeners(closeListeners);
-      remotingConnection.setFailureListeners(failureListeners);
 
       int serverLastReceivedCommandID = channel.getLastConfirmedCommandID();
 
