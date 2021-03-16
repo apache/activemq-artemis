@@ -934,7 +934,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       return "ActiveMQConnectionFactory [serverLocator=" + serverLocator +
          ", clientID=" +
          clientID +
-         ", consumerWindowSize = " +
+         ", consumerWindowSize=" +
          getConsumerWindowSize() +
          ", dupsOKBatchSize=" +
          dupsOKBatchSize +
@@ -942,7 +942,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
          transactionBatchSize +
          ", readOnly=" +
          readOnly +
-         "EnableSharedClientID=" +
+         ", EnableSharedClientID=" +
          enableSharedClientID +
          "]";
    }
