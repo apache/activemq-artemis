@@ -153,6 +153,55 @@ public class FileBrokerTest {
       }
    }
 
+   @Test
+   public void testConfigFileReloadNegative() throws Exception {
+      ServerDTO serverDTO = new ServerDTO();
+      serverDTO.configuration = "broker-reload-disabled.xml";
+      FileBroker broker = null;
+      String path = null;
+      try {
+         SecurityConfiguration securityConfiguration = new SecurityConfiguration();
+         securityConfiguration.addUser("myUser", "myPass");
+         securityConfiguration.addRole("myUser", "guest");
+         ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
+         broker = new FileBroker(serverDTO, securityManager, null);
+         broker.start();
+         ActiveMQServerImpl activeMQServer = (ActiveMQServerImpl) broker.getComponents().get("core");
+         Assert.assertNotNull(activeMQServer);
+         Assert.assertTrue(activeMQServer.isStarted());
+         Assert.assertTrue(broker.isStarted());
+         File file = new File(activeMQServer.getConfiguration().getConfigurationUrl().toURI());
+         path = file.getPath();
+         Assert.assertNotNull(activeMQServer.getConfiguration().getConfigurationUrl());
+
+         Thread.sleep(1000);
+
+         ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
+         ClientSessionFactory sf = locator.createSessionFactory();
+         ClientSession session = sf.createSession("myUser", "myPass", false, true, false, false, 0);
+         ClientProducer producer = session.createProducer("DLQ");
+         producer.send(session.createMessage(true));
+
+         replacePatternInFile(path, "guest", "X");
+
+         Thread.sleep(1000);
+
+         try {
+            producer.send(session.createMessage(true));
+         } catch (Exception e) {
+            fail("Should not throw an exception: " + e.getMessage());
+         }
+
+         locator.close();
+      } finally {
+         assert broker != null;
+         broker.stop();
+         if (path != null) {
+            replacePatternInFile(path, "X", "guest");
+         }
+      }
+   }
+
    private void replacePatternInFile(String file, String regex, String replacement) throws IOException {
       Path path = Paths.get(file);
       Charset charset = StandardCharsets.UTF_8;
