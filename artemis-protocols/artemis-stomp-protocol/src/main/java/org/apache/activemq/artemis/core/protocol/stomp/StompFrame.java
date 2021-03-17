@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -79,7 +80,11 @@ public class StompFrame {
    public String toString() {
       StringBuilder result = new StringBuilder()
          .append("StompFrame[command=").append(command)
-         .append(", headers=").append(headers);
+         .append(", headers=").append(headers
+                                         .keySet()
+                                         .stream()
+                                         .map(key -> key + "=" + (key.equals(Stomp.Headers.Connect.PASSCODE) ? "****" : headers.get(key)))
+                                         .collect(Collectors.joining(", ", "{", "}")));
 
       if (command.equals(Stomp.Responses.MESSAGE) || command.equals(Stomp.Responses.ERROR) || command.equals(Stomp.Commands.SEND)) {
          result.append(", body=").append(this.getBody())
