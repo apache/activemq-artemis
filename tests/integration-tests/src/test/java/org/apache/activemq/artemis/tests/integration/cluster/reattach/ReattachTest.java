@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
@@ -41,6 +42,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionPro
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -119,6 +121,30 @@ public class ReattachTest extends ActiveMQTestBase {
 
       session.close();
 
+      sf.close();
+   }
+
+   @Test
+   public void testReattachTransferConnectionOnSession() throws Exception {
+      final long retryInterval = 50;
+      final double retryMultiplier = 1d;
+      final int reconnectAttempts = 10;
+
+      locator.setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(1024 * 1024);
+      ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
+      ClientSession session = sf.createSession(false, true, true);
+
+      // there's only one session on the broker
+      Object originalConnectionID = ((ServerSession)server.getSessions().toArray()[0]).getConnectionID();
+
+      // trigger re-attach
+      ((ClientSessionInternal) session).getConnection().fail(new ActiveMQNotConnectedException());
+
+      session.start();
+
+      assertFalse(Objects.equals(((ServerSession)server.getSessions().toArray()[0]).getConnectionID(), originalConnectionID));
+
+      session.close();
       sf.close();
    }
 
