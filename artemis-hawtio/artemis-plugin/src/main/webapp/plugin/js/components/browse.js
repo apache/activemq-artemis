@@ -160,31 +160,18 @@ var Artemis;
                     <p>{{$ctrl.actionText}}</p>
                 </div>
             </div>
-            <div class="form-group" ng-show="$ctrl.showColumns">
-                <button class="btn btn-default" data-toggle="modal" data-target="#myModal">Columns</button>
-                <div class="modal ng-scope">
-                  <div class="modal-dialog ">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h4 class="modal-title ng-binding">Column Selector</h4>
-                      </div>
-                      <div class="modal-body">
-                        <table class="table-view-container table table-striped table-bordered table-hover dataTable ng-scope ng-isolate-scope no-footer">
-                            <tbody>
-                                <tr ng-repeat="col in $ctrl.dtOptions.columns">
-                                    <td>{{ col.name }}</td>
-                                    <td><input type="checkbox" ng-model="col.visible" placeholder="Name" autocomplete="off" id="name"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-default ng-binding" ng-click="$ctrl.showColumns = false;$ctrl.updateColumns()">
-                          Close
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+            <div hawtio-confirm-dialog="$ctrl.showColumns"
+              title="Column Selector"
+              cancel-button-text="Close"
+              on-cancel="$ctrl.updateColumns()"
+              show-ok-button="false">
+                <div class="dialog-body ng-non-bindable" >
+                    <table class="table-view-container table table-striped table-bordered table-hover dataTable ng-scope ng-isolate-scope no-footer">
+                        <tr ng-repeat="col in $ctrl.dtOptions.columns">
+                            <td>{{ col.name }}</td>
+                            <td><input type="checkbox" ng-model="col.visible" placeholder="Name" autocomplete="off" id="name"></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
             <script type="text/ng-template" id="browse-instructions.html">
