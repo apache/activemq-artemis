@@ -25,7 +25,7 @@ var Artemis;
                     <form class="toolbar-pf-actions">
                         <div class="form-group toolbar-pf-filter">
                             <div class="input-group">
-                                <div class="input-group-btn">
+                                <div class="input-group-btn" style="padding-left: 10px">
                                     <button id="filter.values.field" type="button" class="btn btn-default dropdown-toggle" id="filter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{$ctrl.filter.text.fieldText}} <span class="caret"></span></button>
                                     <ul class="dropdown-menu">
                                         <li ng-repeat="option in $ctrl.filter.fieldOptions"
@@ -40,7 +40,7 @@ var Artemis;
                                       </ul>
                                 </div>
                                 <input type="text" class="form-control" ng-model="$ctrl.filter.values.value" placeholder="Value" autocomplete="off" id="filterInput">
-                                <div class="input-group-btn">
+                                <div class="input-group-btn" style="padding-left: 10px">
                                       <button type="button" class="btn btn-default dropdown-toggle" id="filter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{$ctrl.filter.text.sortOrderText}}<span class="caret"></span></button>
                                       <ul class="dropdown-menu">
                                         <li ng-repeat="option in $ctrl.filter.sortOptions"
@@ -66,7 +66,7 @@ var Artemis;
                                         ng-click="$ctrl.reset()">Reset
                                     </button>
                                 </div>
-                                <div class="input-group-btn">
+                                <div class="input-group-btn" style="padding-left: 10px">
                                     <button class="btn btn-default primary-action ng-binding ng-scope"
                                         type="button"
                                         title=""
