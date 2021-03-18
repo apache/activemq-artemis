@@ -437,9 +437,7 @@ public final class BindingsImpl implements Bindings {
             }
          }
 
-         Filter filter = binding.getFilter();
-
-         if (filter == null || filter.match(message)) {
+         if (matchBinding(message, binding)) {
             // bindings.length == 1 ==> only a local queue so we don't check for matching consumers (it's an
             // unnecessary overhead)
             if (length == 1 || (binding.isConnected() && (messageLoadBalancingType.equals(MessageLoadBalancingType.STRICT) || binding.isHighAcceptPriority(message)))) {
@@ -486,29 +484,21 @@ public final class BindingsImpl implements Bindings {
       if (pos != startPos) {
          routingNamePositions.put(routingName, pos);
       }
-
-      if (messageLoadBalancingType.equals(MessageLoadBalancingType.OFF) && theBinding instanceof RemoteQueueBinding) {
-         if (exclusivelyRemote(bindings)) {
-            theBinding = null;
-         } else {
-            theBinding = getNextBinding(message, routingName, bindings);
-         }
-      }
-
       return theBinding;
    }
 
-   private boolean exclusivelyRemote(List<Binding> bindings) {
-      boolean result = true;
-
-      for (Binding binding : bindings) {
-         if (!(binding instanceof RemoteQueueBinding)) {
-            result = false;
-            break;
-         }
+   private boolean matchBinding(Message message, Binding binding) {
+      if (messageLoadBalancingType.equals(MessageLoadBalancingType.OFF) && binding instanceof RemoteQueueBinding) {
+         return false;
       }
 
-      return result;
+      Filter filter = binding.getFilter();
+
+      if (filter == null || filter.match(message)) {
+         return true;
+      } else {
+         return false;
+      }
    }
 
    private void routeUsingStrictOrdering(final Message message,
