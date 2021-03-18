@@ -11,7 +11,6 @@
 package org.apache.activemq.artemis.utils;
 
 import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
-import org.jboss.logging.Logger;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -151,8 +150,6 @@ public class Base64 {
     * The new line character (\n) as a byte.
     */
    private static final byte NEW_LINE = (byte) '\n';
-
-   private static final Logger logger = Logger.getLogger(Base64.class);
 
    /**
     * Preferred encoding.
