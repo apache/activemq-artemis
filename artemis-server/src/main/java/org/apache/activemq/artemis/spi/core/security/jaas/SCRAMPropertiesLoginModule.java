@@ -51,6 +51,7 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
 
    private static final String SEPARATOR = ":";
    private static final int MIN_ITERATIONS = 4096;
+   private static final SecureRandom RANDOM_GENERATOR = new SecureRandom();
    private Subject subject;
    private CallbackHandler callbackHandler;
    private Properties users;
@@ -81,33 +82,39 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
       }
       String password = users.getProperty(user);
       if (password == null) {
-         throw new FailedLoginException("User does not exist: " + user);
-      }
-      if (PasswordMaskingUtil.isEncMasked(password)) {
+         // if the user is not available generate a random password here so an attacker can't
+         // distinguish between a missing username and a wrong password
+         byte[] randomPassword = new byte[256];
+         RANDOM_GENERATOR.nextBytes(randomPassword);
+         userData = generateUserData(new String(randomPassword));
+      } else if (PasswordMaskingUtil.isEncMasked(password)) {
          String[] unwrap = PasswordMaskingUtil.unwrap(password).split(SEPARATOR);
          userData = new UserData(unwrap[0], Integer.parseInt(unwrap[1]), unwrap[2], unwrap[3]);
       } else {
-         DigestCallback digestCallback = new DigestCallback();
-         HmacCallback hmacCallback = new HmacCallback();
-         executeCallbacks(new Callback[] {digestCallback, hmacCallback});
-         byte[] salt = generateSalt();
-         try {
-            ScramUtils.NewPasswordStringData data =
-                     ScramUtils.byteArrayToStringData(ScramUtils.newPassword(password, salt, 4096,
-                                                                             digestCallback.getDigest(),
-                                                                             hmacCallback.getHmac()));
-            userData = new UserData(data.salt, data.iterations, data.serverKey, data.storedKey);
-         } catch (ScramException e) {
-            throw new LoginException();
-         }
+         userData = generateUserData(password);
       }
       return true;
    }
 
+   private UserData generateUserData(String plainTextPassword) throws LoginException {
+      DigestCallback digestCallback = new DigestCallback();
+      HmacCallback hmacCallback = new HmacCallback();
+      executeCallbacks(new Callback[] {digestCallback, hmacCallback});
+      byte[] salt = generateSalt();
+      try {
+         ScramUtils.NewPasswordStringData data =
+                  ScramUtils.byteArrayToStringData(ScramUtils.newPassword(plainTextPassword, salt, 4096,
+                                                                          digestCallback.getDigest(),
+                                                                          hmacCallback.getHmac()));
+         return new UserData(data.salt, data.iterations, data.serverKey, data.storedKey);
+      } catch (ScramException e) {
+         throw new LoginException();
+      }
+   }
+
    private static byte[] generateSalt() {
       byte[] salt = new byte[24];
-      SecureRandom random = new SecureRandom();
-      random.nextBytes(salt);
+      RANDOM_GENERATOR.nextBytes(salt);
       return salt;
    }
 

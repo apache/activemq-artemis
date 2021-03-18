@@ -21,8 +21,7 @@ package org.apache.activemq.artemis.spi.core.security.scram;
  */
 public enum SCRAM {
                    SHA1,
-                   SHA256,
-                   SHA512;
+                   SHA256;
 
    public String getName() {
       switch (this) {
@@ -30,8 +29,6 @@ public enum SCRAM {
             return "SCRAM-SHA-1";
          case SHA256:
             return "SCRAM-SHA-256";
-         case SHA512:
-            return "SCRAM-SHA-512";
       }
       throw new UnsupportedOperationException();
    }
@@ -42,8 +39,6 @@ public enum SCRAM {
             return "SHA-1";
          case SHA256:
             return "SHA-256";
-         case SHA512:
-            return "SHA-512";
       }
       throw new UnsupportedOperationException();
    }
@@ -54,8 +49,6 @@ public enum SCRAM {
             return "HmacSHA1";
          case SHA256:
             return "HmacSHA256";
-         case SHA512:
-            return "HmacSHA512";
       }
       throw new UnsupportedOperationException();
    }
