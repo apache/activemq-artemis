@@ -67,6 +67,27 @@ public class RemoteBindingWithoutLoadBalancingTest extends ClusterTestBase {
    }
 
    @Test
+   public void testStackOverflowWithLocalConsumerAndFilter() throws Exception {
+      setupCluster();
+
+      startServers();
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, "queues.testaddress", "queue0", "0", true);
+      createQueue(1, "queues.testaddress", "queue0", "1", true);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, true);
+
+      waitForBindings(1, "queues.testaddress", 1, 0, false);
+
+      for (int i = 0; i < 10; i++) {
+         send(1, "queues.testaddress", 10, false, "" + i % 2);
+      }
+   }
+
+   @Test
    public void testStackOverflowJMS() throws Exception {
       final String QUEUE_NAME = "queues.queue0";
 
