@@ -25,10 +25,6 @@
 	<packaging>pom</packaging>
 	<name>ActiveMQ Artemis Features</name>
 
-    <properties>
-        <karaf.version>4.3.0</karaf.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.karaf.features</groupId>
