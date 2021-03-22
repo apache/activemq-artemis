@@ -35,7 +35,7 @@ are:
 
 - `useKeepAlive`
 
-  Whether or not to send a KeepAliveInfo on an idle connection to prevent it
+  Indicates whether to send a KeepAliveInfo on an idle connection to prevent it
   from timing out. Enabled by default.  Disabling the keep alive will still make
   connections time out if no data was received on the connection for the
   specified amount of time.
@@ -64,13 +64,13 @@ broker side.
 
 - `supportAdvisory`
 
-  Whether or not the broker supports advisory messages. If the value is true,
+  Indicates whether the broker supports advisory messages. If the value is true,
   advisory addresses/queues will be created.  If the value is false, no advisory
   addresses/queues are created. Default value is `true`. 
 
 - `suppressInternalManagementObjects`
 
-  Whether or not the advisory addresses/queues, if any, will be registered to
+  Indicates whether advisory addresses/queues, if any, will be registered to
   management service (e.g. JMX registry). If set to true, no advisory
   addresses/queues will be registered. If set to false, those are registered and
   will be displayed on the management console. Default value is `true`.
@@ -88,12 +88,14 @@ configure a mapping function that will translate the virtual topic consumer
 destination into a FQQN address. This address will then represents the consumer as a
 multicast binding to an address representing the virtual topic. 
 
-The configuration string property `virtualTopicConsumerWildcards` has two parts
-separated by a `;`. The first is the 5.x style destination filter that
+The configuration string list property `virtualTopicConsumerWildcards` has parts
+separated by a `;`. The first is the classic style destination filter that
 identifies the destination as belonging to a virtual topic. The second
 identifies the number of `paths` that identify the consumer queue such that it
-can be parsed from the destination. For example, the default 5.x virtual topic
-with consumer prefix of `Consumer.*.`, would require a
+can be parsed from the destination. Any subsequent parts are additional configuration
+parameters for that mapping.
+
+For example, the default virtual topic with consumer prefix of `Consumer.*.`, would require a
 `virtualTopicConsumerWildcards` filter of `Consumer.*.>;2`. As a url parameter
 this transforms to `Consumer.*.%3E%3B2` when the url significant characters
 `>;` are escaped with their hex code points. In an `acceptor` url it would be:
@@ -105,8 +107,13 @@ this transforms to `Consumer.*.%3E%3B2` when the url significant characters
 This will translate `Consumer.A.VirtualTopic.Orders` into a FQQN of
 `VirtualTopic.Orders::Consumer.A.VirtualTopic.Orders` using the int component `2` of the
 configuration to identify the consumer queue as the first two paths of the
-destination.  `virtualTopicConsumerWildcards` is multi valued using a `,`
+destination. `virtualTopicConsumerWildcards` is multi valued using a `,`
 separator.
+
+### selectorAware
+The mappings support an optional parameter, `selectorAware` which when true, transfers any selector information from the
+OpenWire consumer into a queue filter of any auto-created subscription queue. Note: the selector/filter is persisted with
+the queue binding in the normal way, such that it works independent of connected consumers.
 
 Please see Virtual Topic Mapping example contained in the OpenWire
 [examples](examples.md).
