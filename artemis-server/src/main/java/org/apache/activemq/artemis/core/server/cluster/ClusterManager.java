@@ -476,14 +476,15 @@ public final class ClusterManager implements ActiveMQComponent {
       clusterLocators.add(serverLocator);
 
       for (int i = 0; i < config.getConcurrency(); i++) {
+         String name = (config.getName() + "-" + i);
          Bridge bridge = new BridgeImpl(serverLocator, config.getInitialConnectAttempts(), config.getReconnectAttempts(),
                config.getReconnectAttemptsOnSameNode(), config.getRetryInterval(), config.getRetryIntervalMultiplier(),
-               config.getMaxRetryInterval(), nodeManager.getUUID(), new SimpleString(config.getName()), queue,
+               config.getMaxRetryInterval(), nodeManager.getUUID(), new SimpleString(name), queue,
                executorFactory.getExecutor(), FilterImpl.createFilter(config.getFilterString()),
                SimpleString.toSimpleString(config.getForwardingAddress()), scheduledExecutor, transformer,
                config.isUseDuplicateDetection(), config.getUser(), config.getPassword(), server,
                config.getRoutingType());
-         bridges.put(config.getName(), bridge);
+         bridges.put(name, bridge);
          managementService.registerBridge(bridge, config);
          bridge.start();
 
