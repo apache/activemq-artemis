@@ -748,6 +748,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public int getJournalPoolFiles() {
+            return (Integer) proxy.retrieveAttributeValue("getJournalPoolFiles", Integer.class);
+         }
+
+         @Override
          public int getJournalBufferTimeout() {
             return (Integer) proxy.retrieveAttributeValue("JournalBufferTimeout", Integer.class);
          }
