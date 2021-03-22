@@ -61,6 +61,7 @@ actually from the bridge example):
    <user>foouser</user>
    <password>foopassword</password>
    <routing-type>PASS</routing-type>
+   <concurrency>1</concurrency>
    <static-connectors>
       <connector-ref>remote-connector</connector-ref>
    </static-connectors>
@@ -185,6 +186,14 @@ Let's take a look at all the parameters in turn:
   flexibility to deal with any situation. Valid values are `ANYCAST`,
   `MULTICAST`, `PASS`, & `STRIP`. The default is `PASS`.
 
+- `concurrency`. For bridging high latency networks, and particularly for destinations
+  with a high throughput, more workers might have to be commited to the bridge. This is 
+  done with the concurrency parameter. Increasing the concurrency will get reflected 
+  by more consumers and producers showing up on the bridged destination, allowing
+  for increased parallelism across high latency networks.
+
+  Default=1
+ 
 - `static-connectors` or `discovery-group-ref`. Pick either of these options to
   connect the bridge to the target server.
 

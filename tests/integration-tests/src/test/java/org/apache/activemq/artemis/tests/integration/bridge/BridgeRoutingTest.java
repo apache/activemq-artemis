@@ -141,6 +141,7 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
                               .setForwardingAddress(destination.toString())
                               .setQueueName(source.toString())
                               .setConfirmationWindowSize(10)
+                              .setConcurrency(2)
                               .setStaticConnectors(Arrays.asList("connector")));
 
       try (ServerLocator locator = ActiveMQClient.createServerLocator(getServer0URL());
@@ -149,10 +150,10 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
            ClientProducer producer = session.createProducer(source)) {
          producer.send(session.createMessage(true).setRoutingType(sourceRoutingType));
       }
-
       Wait.waitFor(() -> server0.locateQueue(source).getMessageCount() == 0, 2000, 100);
       Wait.waitFor(() -> server0.getClusterManager().getBridges().get("bridge").getMetrics().getMessagesAcknowledged() == 1, 2000, 100);
       Thread.sleep(sleepTime);
       assertTrue(Wait.waitFor(() -> server1.locateQueue(destination).getMessageCount() == destinationMessageCount, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server0.locateQueue(source).getConsumerCount() == 2, 2000, 100));
    }
 }
