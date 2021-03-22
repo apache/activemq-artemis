@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
+import org.apache.activemq.command.ConsumerInfo;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.XATransactionId;
 
@@ -36,6 +37,19 @@ public class OpenWireUtil {
    }
 
    public static final WildcardConfiguration OPENWIRE_WILDCARD = new OpenWireWildcardConfiguration();
+
+   public static final String SELECTOR_AWARE_OPTION = "selectorAware";
+
+   public static String extractFilterStringOrNull(final ConsumerInfo info, final ActiveMQDestination openWireDest) {
+      if (info.getSelector() != null) {
+         if (openWireDest.getOptions()  != null) {
+            if (Boolean.valueOf(openWireDest.getOptions().get(SELECTOR_AWARE_OPTION))) {
+               return info.getSelector();
+            }
+         }
+      }
+      return null;
+   }
 
    /**
     * We convert the core address to an ActiveMQ Destination. We use the actual address on the message rather than the

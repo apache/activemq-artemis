@@ -2,7 +2,7 @@ Virtual Topics
 ==============
 
 Virtual Topics (a specialisation of virtual destinations) in ActiveMQ 5.x typically address two different but related
-problems. Lets take each in turn:
+problems. Let's take each in turn:
  
 Shared access to a JMS durable topic subscription
 -------------------------------------------------
@@ -20,7 +20,7 @@ JMS 2.0 adds the possibility of shared subscriptions with new API's that are ful
 
 Fully Qualified Queue name (FQQN)
 ---------------------------------
-Secondly, Artemis uses a queue per topic subscriber model internally and it is possibly to directly address the
+Secondly, Artemis uses a queue per topic subscriber model internally, and it is possibly to directly address the
 subscription queue using its Fully Qualified Queue name (FQQN).
 
 For example, a default 5.x consumer destination for topic `VirtualTopic.Orders` subscription `A`:
@@ -42,7 +42,7 @@ If OpenWire clients cannot be modified, Artemis supports a virtual topic wildcar
 mechanism on the OpenWire protocol handler that will automatically convert the consumer destination into the
 corresponding FQQN.
 The format is a comma separated list of strings pairs, delimited with a ';'. Each pair identifies a filter to match
-the virtual topic consumer destination and an int that specifies the number of path matches that terminate the consumer
+the virtual topic consumer destination, and an int that specifies the number of path matches that terminate the consumer
 queue identity.
 
 E.g: For the default 5.x virtual topic consumer prefix of ```Consumer.*.``` the parameter ```virtualTopicConsumerWildcards``` should be: ```Consumer.*.>;2```.
@@ -55,8 +55,8 @@ In this way a consumer destination of ```Consumer.A.VirtualTopic.Orders``` will 
 Durable topic subscribers in a network of brokers
 -------------------------------------------------
 The store and forward network bridges in 5.x create a durable subscriber per destination. As demand migrates across a
-network, duplicate durable subs get created on each node in the network but they do not migrate. The end result can
+network, duplicate durable subs get created on each node in the network, but they do not migrate. The end result can
 result in duplicate message storage and ultimately duplicate delivery, which is not good.
-When durable subscribers map to virtual topic subscriber queues, the queues can migrate and the problem can be avoided.
+When durable subscribers map to virtual topic subscriber queues, the queues can migrate, and the problem can be avoided.
 
 In Artemis, because a durable sub is modeled as a queue, this problem does not arise.

@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
+import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
@@ -181,7 +182,7 @@ public class AMQSession implements SessionCallback {
             openWireDest = protocolManager.virtualTopicConsumerToFQQN(openWireDest);
             SimpleString queueName = new SimpleString(convertWildcard(openWireDest));
 
-            if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary())) {
+            if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary(), OpenWireUtil.extractFilterStringOrNull(info, openWireDest))) {
                throw new InvalidDestinationException("Destination doesn't exist: " + queueName);
             }
          }
@@ -223,6 +224,10 @@ public class AMQSession implements SessionCallback {
    }
 
    private boolean checkAutoCreateQueue(SimpleString queueName, boolean isTemporary) throws Exception {
+      return checkAutoCreateQueue(queueName, isTemporary, null);
+   }
+
+   private boolean checkAutoCreateQueue(SimpleString queueName, boolean isTemporary, String filter) throws Exception {
       boolean hasQueue = true;
       if (!connection.containsKnownDestination(queueName)) {
 
@@ -245,7 +250,7 @@ public class AMQSession implements SessionCallback {
                         routingTypeToUse = as.getDefaultAddressRoutingType();
                      }
                   }
-                  coreSession.createQueue(new QueueConfiguration(queueNameToUse).setAddress(addressToUse).setRoutingType(routingTypeToUse).setTemporary(isTemporary).setAutoCreated(true));
+                  coreSession.createQueue(new QueueConfiguration(queueNameToUse).setAddress(addressToUse).setRoutingType(routingTypeToUse).setTemporary(isTemporary).setAutoCreated(true).setFilterString(filter));
                   connection.addKnownDestination(queueName);
                } else {
                   hasQueue = false;

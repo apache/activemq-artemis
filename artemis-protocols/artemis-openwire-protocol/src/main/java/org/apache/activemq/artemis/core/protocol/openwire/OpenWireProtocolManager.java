@@ -80,6 +80,8 @@ import org.apache.activemq.util.IdGenerator;
 import org.apache.activemq.util.InetAddressUtil;
 import org.apache.activemq.util.LongSequenceGenerator;
 
+import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.SELECTOR_AWARE_OPTION;
+
 public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, ClusterTopologyListener {
 
    private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
@@ -133,7 +135,29 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
-   private final Map<DestinationFilter, Integer> vtConsumerDestinationMatchers = new HashMap<>();
+   protected class VirtualTopicConfig {
+      public int filterPathTerminus;
+      public boolean selectorAware;
+
+      public VirtualTopicConfig(String[] configuration) {
+         filterPathTerminus = Integer.valueOf(configuration[1]);
+         // optional config
+         for (int i = 2; i < configuration.length; i++) {
+            String[] optionPair = configuration[i].split("=");
+            consumeOption(optionPair);
+         }
+      }
+
+      private void consumeOption(String[] optionPair) {
+         if (optionPair.length == 2) {
+            if (SELECTOR_AWARE_OPTION.equals(optionPair[0])) {
+               selectorAware = Boolean.valueOf(optionPair[1]);
+            }
+         }
+      }
+   }
+
+   private final Map<DestinationFilter, VirtualTopicConfig> vtConsumerDestinationMatchers = new HashMap<>();
    protected final LRUCache<ActiveMQDestination, ActiveMQDestination> vtDestMapCache = new LRUCache();
 
    public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server) {
@@ -622,8 +646,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    public void setVirtualTopicConsumerWildcards(String virtualTopicConsumerWildcards) {
       for (String filter : virtualTopicConsumerWildcards.split(",")) {
-         String[] wildcardLimitPair = filter.split(";");
-         vtConsumerDestinationMatchers.put(DestinationFilter.parseFilter(new ActiveMQQueue(wildcardLimitPair[0])), Integer.valueOf(wildcardLimitPair[1]));
+         String[] configuration = filter.split(";");
+         vtConsumerDestinationMatchers.put(DestinationFilter.parseFilter(new ActiveMQQueue(configuration[0])), new VirtualTopicConfig(configuration));
       }
    }
 
@@ -646,15 +670,15 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
          return mappedDestination;
       }
 
-      for (Map.Entry<DestinationFilter, Integer> candidate : vtConsumerDestinationMatchers.entrySet()) {
+      for (Map.Entry<DestinationFilter, VirtualTopicConfig> candidate : vtConsumerDestinationMatchers.entrySet()) {
          if (candidate.getKey().matches(destination)) {
             // convert to matching FQQN
             String[] paths = DestinationPath.getDestinationPaths(destination);
             StringBuilder fqqn = new StringBuilder();
-            int filterPathTerminus = candidate.getValue();
+            VirtualTopicConfig virtualTopicConfig = candidate.getValue();
             // address - ie: topic
-            for (int i = filterPathTerminus; i < paths.length; i++) {
-               if (i > filterPathTerminus) {
+            for (int i = virtualTopicConfig.filterPathTerminus; i < paths.length; i++) {
+               if (i > virtualTopicConfig.filterPathTerminus) {
                   fqqn.append(ActiveMQDestination.PATH_SEPERATOR);
                }
                fqqn.append(paths[i]);
@@ -667,7 +691,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
                }
                fqqn.append(paths[i]);
             }
-            mappedDestination = new ActiveMQQueue(fqqn.toString());
+            mappedDestination = new ActiveMQQueue(fqqn.toString() + ( virtualTopicConfig.selectorAware ? "?" + SELECTOR_AWARE_OPTION + "=true" : "" ));
             break;
          }
       }
