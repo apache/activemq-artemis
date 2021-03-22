@@ -707,6 +707,38 @@
                   <configuration>${basedir}/target/classes/servers/brokerConnectBridgeSecurityB</configuration>
                </configuration>
             </execution>
+               <!-- used on BrokerConnectionBridgeSecurityTest  -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createBrokerConnectMirrorSecurityA</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <allowAnonymous>false</allowAnonymous>
+                     <user>A</user>
+                     <password>A</password>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/brokerConnectMirrorSecurityA</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnectMirrorSecurityA</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createBrokerConnectMirrorSecurityB</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <allowAnonymous>false</allowAnonymous>
+                     <user>B</user>
+                     <password>B</password>
+                     <noWeb>true</noWeb>
+                     <portOffset>1</portOffset>
+                     <instance>${basedir}/target/brokerConnectMirrorSecurityB</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnectMirrorSecurityB</configuration>
+                  </configuration>
+               </execution>
          </executions>
          <dependencies>
                <dependency>
