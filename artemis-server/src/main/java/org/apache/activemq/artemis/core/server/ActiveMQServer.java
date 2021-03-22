@@ -342,6 +342,21 @@ public interface ActiveMQServer extends ServiceComponent {
                                Map<SimpleString, RoutingType> prefixes,
                                String securityDomain) throws Exception;
 
+   /** This is to be used in places where security is bypassed, like internal sessions, broker connections, etc... */
+   ServerSession createInternalSession(String name,
+                               int minLargeMessageSize,
+                               RemotingConnection remotingConnection,
+                               boolean autoCommitSends,
+                               boolean autoCommitAcks,
+                               boolean preAcknowledge,
+                               boolean xa,
+                               String defaultAddress,
+                               SessionCallback callback,
+                               boolean autoCreateQueues,
+                               OperationContext context,
+                               Map<SimpleString, RoutingType> prefixes,
+                               String securityDomain) throws Exception;
+
    SecurityStore getSecurityStore();
 
    void removeSession(String name) throws Exception;

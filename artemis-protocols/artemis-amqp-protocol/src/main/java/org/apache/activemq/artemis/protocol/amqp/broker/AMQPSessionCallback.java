@@ -207,12 +207,21 @@ public class AMQPSessionCallback implements SessionCallback {
          }
       }
 
-      serverSession = manager.getServer().createSession(name, user, passcode, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, protonSPI.getProtonConnectionDelegate(), // RemotingConnection remotingConnection,
-                                                        false, // boolean autoCommitSends
-                                                        false, // boolean autoCommitAcks,
-                                                        false, // boolean preAcknowledge,
-                                                        true, //boolean xa,
-                                                        (String) null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain());
+      if (connection.isBridgeConnection())  {
+         serverSession = manager.getServer().createInternalSession(name, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, protonSPI.getProtonConnectionDelegate(), // RemotingConnection remotingConnection,
+                                                           false, // boolean autoCommitSends
+                                                           false, // boolean autoCommitAcks,
+                                                           false, // boolean preAcknowledge,
+                                                           true, //boolean xa,
+                                                           (String) null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain());
+      } else {
+         serverSession = manager.getServer().createSession(name, user, passcode, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, protonSPI.getProtonConnectionDelegate(), // RemotingConnection remotingConnection,
+                                                           false, // boolean autoCommitSends
+                                                           false, // boolean autoCommitAcks,
+                                                           false, // boolean preAcknowledge,
+                                                           true, //boolean xa,
+                                                           (String) null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain());
+      }
    }
 
    @Override

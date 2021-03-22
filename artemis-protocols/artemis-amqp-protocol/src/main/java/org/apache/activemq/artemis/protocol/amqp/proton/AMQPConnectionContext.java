@@ -172,6 +172,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       }
    }
 
+   public boolean isBridgeConnection() {
+      return bridgeConnection;
+   }
+
    public void requireInHandler() {
       handler.requireHandler();
    }
