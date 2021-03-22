@@ -1681,20 +1681,30 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       checkSessionLimit(validatedUser);
 
-      if (hasBrokerSessionPlugins()) {
-         callBrokerSessionPlugins(plugin -> plugin.beforeCreateSession(name, username, minLargeMessageSize, connection,
-                 autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes));
-      }
       final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes, securityDomain);
-
-      sessions.put(name, session);
-
-      if (hasBrokerSessionPlugins()) {
-         callBrokerSessionPlugins(plugin -> plugin.afterCreateSession(session));
-      }
 
       return session;
    }
+
+   @Override
+   public ServerSession createInternalSession(String name,
+                                       int minLargeMessageSize,
+                                       RemotingConnection connection,
+                                       boolean autoCommitSends,
+                                       boolean autoCommitAcks,
+                                       boolean preAcknowledge,
+                                       boolean xa,
+                                       String defaultAddress,
+                                       SessionCallback callback,
+                                       boolean autoCreateQueues,
+                                       OperationContext context,
+                                       Map<SimpleString, RoutingType> prefixes,
+                                       String securityDomain) throws Exception {
+      ServerSessionImpl session = internalCreateSession(name, null, null, null, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes, securityDomain);
+      session.disableSecurity();
+      return session;
+   }
+
 
    private void checkSessionLimit(String username) throws Exception {
       if (configuration.getResourceLimitSettings() != null && configuration.getResourceLimitSettings().containsKey(username)) {
@@ -1759,10 +1769,24 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                                      String defaultAddress,
                                                      SessionCallback callback,
                                                      OperationContext context,
-                                                     boolean autoCreateJMSQueues,
+                                                     boolean autoCreateQueues,
                                                      Map<SimpleString, RoutingType> prefixes,
                                                      String securityDomain) throws Exception {
-      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, pagingManager, prefixes, securityDomain);
+
+      if (hasBrokerSessionPlugins()) {
+         callBrokerSessionPlugins(plugin -> plugin.beforeCreateSession(name, username, minLargeMessageSize, connection,
+                                                                       autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes));
+      }
+
+      ServerSessionImpl session = new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, pagingManager, prefixes, securityDomain);
+
+      sessions.put(name, session);
+
+      if (hasBrokerSessionPlugins()) {
+         callBrokerSessionPlugins(plugin -> plugin.afterCreateSession(session));
+      }
+
+      return session;
    }
 
    @Override

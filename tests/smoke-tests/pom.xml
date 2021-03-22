@@ -143,6 +143,14 @@
          <version>1.15.1</version>
          <scope>test</scope>
       </dependency>
+      <!-- this dependency is needed for CFUtil and other tools from integration-tests -->
+      <dependency>
+         <groupId>org.apache.activemq.tests</groupId>
+         <artifactId>integration-tests</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+         <type>test-jar</type>
+      </dependency>
    </dependencies>
 
    <build>
@@ -665,6 +673,38 @@
                   <noWeb>true</noWeb>
                   <portOffset>100</portOffset>
                   <instance>${basedir}/target/transfer2</instance>
+               </configuration>
+            </execution>
+            <!-- used on BrokerConnectionBridgeSecurityTest  -->
+            <execution>
+               <phase>test-compile</phase>
+               <id>createBrokerConnectBridgeSecurityA</id>
+               <goals>
+                  <goal>create</goal>
+               </goals>
+               <configuration>
+                  <allowAnonymous>false</allowAnonymous>
+                  <user>A</user>
+                  <password>A</password>
+                  <noWeb>true</noWeb>
+                  <instance>${basedir}/target/brokerConnectBridgeSecurityA</instance>
+                  <configuration>${basedir}/target/classes/servers/brokerConnectBridgeSecurityA</configuration>
+               </configuration>
+            </execution>
+            <execution>
+               <phase>test-compile</phase>
+               <id>createBrokerConnectBridgeSecurityB</id>
+               <goals>
+                  <goal>create</goal>
+               </goals>
+               <configuration>
+                  <allowAnonymous>false</allowAnonymous>
+                  <user>B</user>
+                  <password>B</password>
+                  <noWeb>true</noWeb>
+                  <portOffset>100</portOffset>
+                  <instance>${basedir}/target/brokerConnectBridgeSecurityB</instance>
+                  <configuration>${basedir}/target/classes/servers/brokerConnectBridgeSecurityB</configuration>
                </configuration>
             </execution>
          </executions>
