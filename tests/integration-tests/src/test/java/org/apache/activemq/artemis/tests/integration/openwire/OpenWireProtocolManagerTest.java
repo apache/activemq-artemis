@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.openwire;
 
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
+import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -27,8 +28,6 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class OpenWireProtocolManagerTest extends ActiveMQTestBase {
 
@@ -36,7 +35,7 @@ public class OpenWireProtocolManagerTest extends ActiveMQTestBase {
    LRUCache lruCacheRef;
 
    @Test
-   public void testVtAutoConversion() throws Exception {
+   public void testVtAutoConversion() {
       underTest = new OpenWireProtocolManager(null, new DummyServer()) {
          @Override
          public ActiveMQDestination virtualTopicConsumerToFQQN(ActiveMQDestination destination) {
@@ -49,16 +48,23 @@ public class OpenWireProtocolManagerTest extends ActiveMQTestBase {
 
       final int maxCacheSize = 10;
       underTest.setVirtualTopicConsumerLruCacheMax(10);
-      underTest.setVirtualTopicConsumerWildcards("A.>;1,B.*.>;2,C.*.*.*.EE;3");
+      underTest.setVirtualTopicConsumerWildcards("A.>;1;selectorAware=true,B.*.>;2,C.*.*.*.EE;3;selectorAware=false");
 
       ActiveMQDestination A = new org.apache.activemq.command.ActiveMQQueue("A.SomeTopic");
       assertEquals(new org.apache.activemq.command.ActiveMQQueue("SomeTopic::A.SomeTopic"), underTest.virtualTopicConsumerToFQQN(A));
+
+      ActiveMQDestination checkOption = underTest.virtualTopicConsumerToFQQN(A);
+      assertNotNull(checkOption.getOptions());
+      assertTrue(Boolean.parseBoolean(checkOption.getOptions().get(OpenWireUtil.SELECTOR_AWARE_OPTION)));
 
       ActiveMQDestination B = new org.apache.activemq.command.ActiveMQQueue("B.b.SomeTopic.B");
       assertEquals(new org.apache.activemq.command.ActiveMQQueue("SomeTopic.B::B.b.SomeTopic.B"), underTest.virtualTopicConsumerToFQQN(B));
 
       ActiveMQDestination C = new org.apache.activemq.command.ActiveMQQueue("C.c.c.SomeTopic.EE");
       assertEquals(new org.apache.activemq.command.ActiveMQQueue("SomeTopic.EE::C.c.c.SomeTopic.EE"), underTest.virtualTopicConsumerToFQQN(C));
+
+      checkOption = underTest.virtualTopicConsumerToFQQN(C);
+      assertNull(checkOption.getOptions());
 
       for (int i = 0; i < maxCacheSize; i++) {
          ActiveMQDestination identity = new org.apache.activemq.command.ActiveMQQueue("Identity" + i);
