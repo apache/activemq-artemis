@@ -2085,6 +2085,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(getString(brNode, "routing-type", ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType(), Validators.COMPONENT_ROUTING_TYPE));
 
+      int concurrency = getInteger(brNode, "concurrency", ActiveMQDefaultConfiguration.getDefaultBridgeConcurrency(), Validators.GT_ZERO);
 
       NodeList clusterPassNodes = brNode.getElementsByTagName("password");
       String password = null;
@@ -2151,7 +2152,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          .setHA(ha)
          .setUser(user)
          .setPassword(password)
-         .setRoutingType(routingType);
+         .setRoutingType(routingType)
+         .setConcurrency(concurrency);
 
       if (!staticConnectorNames.isEmpty()) {
          config.setStaticConnectors(staticConnectorNames);

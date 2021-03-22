@@ -60,6 +60,7 @@ public final class BridgeConfiguration implements Serializable {
    public static String MIN_LARGE_MESSAGE_SIZE = "min-large-message-size";
    public static String CALL_TIMEOUT = "call-timeout";
    public static String ROUTING_TYPE = "routing-type";
+   public static String CONCURRENCY = "concurrency";
 
    private String name = null;
 
@@ -112,6 +113,8 @@ public final class BridgeConfiguration implements Serializable {
 
    private ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType());
 
+   private int concurrency = ActiveMQDefaultConfiguration.getDefaultBridgeConcurrency();
+
    public BridgeConfiguration() {
    }
 
@@ -147,6 +150,7 @@ public final class BridgeConfiguration implements Serializable {
     * <li>min-large-message-size: {@link #MIN_LARGE_MESSAGE_SIZE}
     * <li>call-timeout: {@link #CALL_TIMEOUT}
     * <li>routing-type: {@link #ROUTING_TYPE}
+    * <li>concurrency: {@link #CONCURRENCY}
     * </ul><p>
     * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
     * example, if you pass the value "TRUE" for the key "auto-created" the {@code String} "TRUE" will be converted to
@@ -214,6 +218,8 @@ public final class BridgeConfiguration implements Serializable {
             setCallTimeout(Long.parseLong(value));
          } else if (key.equals(ROUTING_TYPE)) {
             setRoutingType(ComponentConfigurationRoutingType.valueOf(value));
+         } else if (key.equals(CONCURRENCY)) {
+            setConcurrency(Integer.parseInt(value));
          }
       }
       return this;
@@ -488,6 +494,21 @@ public final class BridgeConfiguration implements Serializable {
    }
 
    /**
+    * @return the bridge concurrency
+    */
+   public int getConcurrency() {
+      return concurrency;
+   }
+
+   /**
+    * @param concurrency the bridge concurrency to set
+    */
+   public BridgeConfiguration setConcurrency(int concurrency) {
+      this.concurrency = concurrency;
+      return this;
+   }
+
+   /**
     * At this point this is only changed on testcases
     * The bridge shouldn't be sending blocking anyways
     *
@@ -546,6 +567,7 @@ public final class BridgeConfiguration implements Serializable {
       builder.add(MAX_RETRY_INTERVAL, getMaxRetryInterval());
       builder.add(MIN_LARGE_MESSAGE_SIZE, getMinLargeMessageSize());
       builder.add(CALL_TIMEOUT, getCallTimeout());
+      builder.add(CONCURRENCY, getConcurrency());
 
       // complex fields (only serialize if value is not null)
 
@@ -639,6 +661,7 @@ public final class BridgeConfiguration implements Serializable {
       result = prime * result + ((transformerConfiguration == null) ? 0 : transformerConfiguration.hashCode());
       result = prime * result + (useDuplicateDetection ? 1231 : 1237);
       result = prime * result + ((user == null) ? 0 : user.hashCode());
+      result = prime * result + concurrency;
       return result;
    }
 
@@ -721,6 +744,8 @@ public final class BridgeConfiguration implements Serializable {
          if (other.user != null)
             return false;
       } else if (!user.equals(other.user))
+         return false;
+      if (concurrency != other.concurrency)
          return false;
       return true;
    }

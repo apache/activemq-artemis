@@ -131,6 +131,7 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
                                    int destinationMessageCount) throws Exception {
       SimpleString source = SimpleString.toSimpleString("source");
       SimpleString destination = SimpleString.toSimpleString("destination");
+      int concurrency = 2;
 
       server0.createQueue(new QueueConfiguration(source).setRoutingType(sourceRoutingType));
       server1.createQueue(new QueueConfiguration(destination).setRoutingType(destinationRoutingType));
@@ -141,6 +142,7 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
                               .setForwardingAddress(destination.toString())
                               .setQueueName(source.toString())
                               .setConfirmationWindowSize(10)
+                              .setConcurrency(concurrency)
                               .setStaticConnectors(Arrays.asList("connector")));
 
       try (ServerLocator locator = ActiveMQClient.createServerLocator(getServer0URL());
@@ -149,10 +151,10 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
            ClientProducer producer = session.createProducer(source)) {
          producer.send(session.createMessage(true).setRoutingType(sourceRoutingType));
       }
-
       Wait.waitFor(() -> server0.locateQueue(source).getMessageCount() == 0, 2000, 100);
-      Wait.waitFor(() -> server0.getClusterManager().getBridges().get("bridge").getMetrics().getMessagesAcknowledged() == 1, 2000, 100);
+      Wait.waitFor(() -> server0.getClusterManager().getBridges().get("bridge-0").getMetrics().getMessagesAcknowledged() == 1,2000, 100);
       Thread.sleep(sleepTime);
       assertTrue(Wait.waitFor(() -> server1.locateQueue(destination).getMessageCount() == destinationMessageCount, 2000, 100));
+      assertTrue(Wait.waitFor(() -> server0.locateQueue(source).getConsumerCount() == concurrency, 2000, 100));
    }
 }
