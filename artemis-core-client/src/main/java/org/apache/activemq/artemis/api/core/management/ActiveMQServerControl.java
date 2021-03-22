@@ -184,6 +184,12 @@ public interface ActiveMQServerControl {
    int getJournalBufferSize();
 
    /**
+    * Number of files that would be acceptable to keep on a pool
+    */
+   @Attribute(desc = "Number of files that would be acceptable to keep on a pool")
+   int getJournalPoolFiles();
+
+   /**
     * Returns the timeout (in nanoseconds) used to flush internal buffers on the journal.
     */
    @Attribute(desc = "Timeout (in nanoseconds) used to flush internal buffers on the journal")

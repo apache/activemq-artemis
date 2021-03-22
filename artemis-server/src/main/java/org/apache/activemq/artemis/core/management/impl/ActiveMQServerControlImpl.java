@@ -312,6 +312,21 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public int getJournalPoolFiles() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.getJournalBufferSize(this.server);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return configuration.getJournalPoolFiles();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public int getJournalBufferSize() {
       if (AuditLogger.isEnabled()) {
          AuditLogger.getJournalBufferSize(this.server);
