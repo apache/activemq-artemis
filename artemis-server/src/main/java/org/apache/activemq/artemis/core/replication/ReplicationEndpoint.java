@@ -265,10 +265,17 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (pendingPackets.isEmpty()) {
          return;
       }
+      final CoreRemotingConnection connection = channel.getConnection();
       for (int i = 0, size = pendingPackets.size(); i < size; i++) {
          final Packet packet = pendingPackets.poll();
          final boolean isLast = i == (size - 1);
-         channel.send(packet, isLast);
+         final boolean flush;
+         if (isLast) {
+            flush = true;
+         } else {
+            flush = !connection.blockUntilWritable(0);
+         }
+         channel.send(packet, flush);
       }
    }
 
