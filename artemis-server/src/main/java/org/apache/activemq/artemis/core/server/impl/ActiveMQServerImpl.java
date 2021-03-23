@@ -1744,16 +1744,22 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    public int getQueueCountForUser(String username) throws Exception {
-      int queuesForUser = 0;
+      SimpleString userNameSimpleString = SimpleString.toSimpleString(username);
 
-      for (Binding binding : iterableOf(postOffice.getAllBindings())) {
-         if (binding instanceof LocalQueueBinding && ((LocalQueueBinding) binding).getQueue().getUser().equals(SimpleString.toSimpleString(username))) {
-            queuesForUser++;
+      AtomicInteger bindingsCount = new AtomicInteger(0);
+      postOffice.getAllBindings().forEach((b) -> {
+         if (b instanceof LocalQueueBinding) {
+            LocalQueueBinding l = (LocalQueueBinding) b;
+            SimpleString user = l.getQueue().getUser();
+            if (user != null) {
+               if (user.equals(userNameSimpleString)) {
+                  bindingsCount.incrementAndGet();
+               }
+            }
          }
-      }
+      });
 
-      return queuesForUser;
-
+      return bindingsCount.get();
    }
 
    protected ServerSessionImpl internalCreateSession(String name,
