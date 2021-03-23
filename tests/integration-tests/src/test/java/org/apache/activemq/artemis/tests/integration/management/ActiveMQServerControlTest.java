@@ -66,6 +66,7 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
+import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
@@ -1770,6 +1771,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       divertNames = serverControl.getDivertNames();
       assertEquals(1, divertNames.length);
       assertEquals(name, divertNames[0]);
+      //now check its been persisted
+      PersistedDivertConfiguration pdc = server.getStorageManager().recoverDivertConfigurations().get(0);
+      assertEquals(pdc.getDivertConfiguration().getForwardingAddress(), updatedForwardingAddress);
 
       // check that a message is no longer exclusively diverted
       message = session.createMessage(false);

@@ -742,6 +742,101 @@ public class DivertTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testSinglePersistedDivert() throws Exception {
+      final String testAddress = "testAddress";
+
+      final String forwardAddress = "forwardAddress";
+
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
+
+
+      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).addQueueConfiguration(q1);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
+
+      server.start();
+
+      server.stop();
+
+      divertConf.setRoutingName("divert2");
+
+      server.start();
+
+      Binding divert1 = server.getPostOffice().getBinding(new SimpleString("divert1"));
+
+      Assert.assertNotNull(divert1);
+
+      Assert.assertEquals(divert1.getRoutingName(), new SimpleString("divert2"));
+   }
+
+   @Test
+   public void testSinglePersistedNewDivert() throws Exception {
+      final String testAddress = "testAddress";
+
+      final String forwardAddress = "forwardAddress";
+
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
+
+
+      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).addQueueConfiguration(q1);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
+
+      server.start();
+
+      server.stop();
+
+      divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert2").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
+
+      config.getDivertConfigurations().clear();
+
+      config.getDivertConfigurations().add(divertConf);
+
+      server.start();
+
+      Binding divert1 = server.getPostOffice().getBinding(new SimpleString("divert1"));
+
+      Assert.assertNotNull(divert1);
+
+      Assert.assertEquals(divert1.getRoutingName(), new SimpleString("divert2"));
+   }
+
+   @Test
+   public void testSinglePersistedNoDeleteDivert() throws Exception {
+      final String testAddress = "testAddress";
+
+      final String forwardAddress = "forwardAddress";
+
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
+
+
+      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).addQueueConfiguration(q1);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
+
+      server.start();
+
+      server.stop();
+
+      config.getDivertConfigurations().clear();
+
+      server.start();
+
+      Binding divert1 = server.getPostOffice().getBinding(new SimpleString("divert1"));
+
+      Assert.assertNotNull(divert1);
+
+      Assert.assertEquals(divert1.getRoutingName(), new SimpleString("divert1"));
+   }
+
+
+   @Test
    public void testMultipleNonExclusiveDivert() throws Exception {
       final String testAddress = "testAddress";
 
