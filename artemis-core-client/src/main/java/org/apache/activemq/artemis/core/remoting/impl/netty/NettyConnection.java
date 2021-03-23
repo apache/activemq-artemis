@@ -27,6 +27,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelOutboundBuffer;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.FastThreadLocal;
@@ -99,7 +100,11 @@ public class NettyConnection implements Connection {
     * Returns an estimation of the current size of the write buffer in the channel.
     */
    private static long batchBufferSize(Channel channel) {
-      return channel.unsafe().outboundBuffer().totalPendingWriteBytes();
+      final ChannelOutboundBuffer outboundBuffer = channel.unsafe().outboundBuffer();
+      if (outboundBuffer == null) {
+         return 0;
+      }
+      return outboundBuffer.totalPendingWriteBytes();
    }
 
    public final Channel getNettyChannel() {
@@ -248,10 +253,10 @@ public class NettyConnection implements Connection {
    // This is called periodically to flush the batch buffer
    @Override
    public final void checkFlushBatchBuffer() {
-      if (this.batchingEnabled) {
+      if (batchingEnabled) {
          // perform the flush only if necessary
-         if (batchBufferSize(this.channel) > 0 && !channel.isWritable()) {
-            this.channel.flush();
+         if (batchBufferSize(channel) > 0) {
+            channel.flush();
          }
       }
    }
