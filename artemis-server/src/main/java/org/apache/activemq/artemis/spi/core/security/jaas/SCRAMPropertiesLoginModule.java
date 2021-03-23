@@ -122,7 +122,7 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
    }
 
    private static byte[] generateSalt() {
-      byte[] salt = new byte[24];
+      byte[] salt = new byte[32];
       RANDOM_GENERATOR.nextBytes(salt);
       return salt;
    }
