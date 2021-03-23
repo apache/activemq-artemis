@@ -60,17 +60,40 @@ public class SaslScramTest {
       BROKER.stop();
    }
 
+   /**
+    * Checks if a user with plain text password can login using all mechanisms
+    * @throws JMSException should not happen
+    */
    @Test
    public void testUnencryptedWorksWithAllMechanism() throws JMSException {
       sendRcv("SCRAM-SHA-1", "hello", "ogre1234");
       sendRcv("SCRAM-SHA-256", "hello", "ogre1234");
    }
 
+   /**
+    * Checks that a user that has encrypted passwords for all mechanism can login with any of them
+    * @throws JMSException should not happen
+    */
+   @Test
+   public void testEncryptedWorksWithAllMechanism() throws JMSException {
+      sendRcv("SCRAM-SHA-1", "multi", "worksforall");
+      sendRcv("SCRAM-SHA-256", "multi", "worksforall");
+   }
+
+   /**
+    * Checks that a user that is only stored with one explicit mechanism can't use another mechanism
+    * @throws JMSException is expected
+    */
    @Test(expected = JMSSecuritySaslException.class)
    public void testEncryptedWorksOnlyWithMechanism() throws JMSException {
       sendRcv("SCRAM-SHA-1", "test", "test");
    }
 
+   /**
+    * Checks that a user that is only stored with one explicit mechanism can login with this
+    * mechanism
+    * @throws JMSException should not happen
+    */
    @Test
    public void testEncryptedWorksWithMechanism() throws JMSException {
       sendRcv("SCRAM-SHA-256", "test", "test");

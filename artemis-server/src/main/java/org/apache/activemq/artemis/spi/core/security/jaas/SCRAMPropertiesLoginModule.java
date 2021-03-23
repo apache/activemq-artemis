@@ -33,7 +33,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 
 import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
@@ -41,6 +40,7 @@ import org.apache.activemq.artemis.spi.core.security.scram.ScramException;
 import org.apache.activemq.artemis.spi.core.security.scram.ScramUtils;
 import org.apache.activemq.artemis.spi.core.security.scram.UserData;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.jgroups.util.UUID;
 
 /**
  * Login modules that uses properties files similar to the {@link PropertiesLoginModule}. It can
@@ -49,7 +49,11 @@ import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
  */
 public class SCRAMPropertiesLoginModule extends PropertiesLoader implements AuditLoginModule {
 
-   private static final String SEPARATOR = ":";
+   /**
+    *
+    */
+   private static final String SEPARATOR_MECHANISM = "|";
+   private static final String SEPARATOR_PARAMETER = ":";
    private static final int MIN_ITERATIONS = 4096;
    private static final SecureRandom RANDOM_GENERATOR = new SecureRandom();
    private Subject subject;
@@ -75,20 +79,17 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
    @Override
    public boolean login() throws LoginException {
       NameCallback nameCallback = new NameCallback("Username: ");
-      executeCallbacks(new Callback[] {nameCallback});
+      executeCallbacks(nameCallback);
       user = nameCallback.getName();
       if (user == null) {
-         throw new FailedLoginException("User is null");
+         user = UUID.randomUUID().toString();
       }
-      String password = users.getProperty(user);
-      if (password == null) {
-         // if the user is not available generate a random password here so an attacker can't
-         // distinguish between a missing username and a wrong password
-         byte[] randomPassword = new byte[256];
-         RANDOM_GENERATOR.nextBytes(randomPassword);
-         userData = generateUserData(new String(randomPassword));
-      } else if (PasswordMaskingUtil.isEncMasked(password)) {
-         String[] unwrap = PasswordMaskingUtil.unwrap(password).split(SEPARATOR);
+      SCRAMMechanismCallback mechanismCallback = new SCRAMMechanismCallback();
+      executeCallbacks(mechanismCallback);
+      SCRAM scram = getTypeByString(mechanismCallback.getMechanism());
+      String password = users.getProperty(user, users.getProperty(user + SEPARATOR_MECHANISM + scram.name()));
+      if (PasswordMaskingUtil.isEncMasked(password)) {
+         String[] unwrap = PasswordMaskingUtil.unwrap(password).split(SEPARATOR_PARAMETER);
          userData = new UserData(unwrap[0], Integer.parseInt(unwrap[1]), unwrap[2], unwrap[3]);
       } else {
          userData = generateUserData(password);
@@ -97,9 +98,17 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
    }
 
    private UserData generateUserData(String plainTextPassword) throws LoginException {
+      if (plainTextPassword == null) {
+         // if the user is not available (or the password) generate a random password here so an
+         // attacker can't
+         // distinguish between a missing username and a wrong password
+         byte[] randomPassword = new byte[256];
+         RANDOM_GENERATOR.nextBytes(randomPassword);
+         plainTextPassword = new String(randomPassword);
+      }
       DigestCallback digestCallback = new DigestCallback();
       HmacCallback hmacCallback = new HmacCallback();
-      executeCallbacks(new Callback[] {digestCallback, hmacCallback});
+      executeCallbacks(digestCallback, hmacCallback);
       byte[] salt = generateSalt();
       try {
          ScramUtils.NewPasswordStringData data =
@@ -118,7 +127,7 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
       return salt;
    }
 
-   private void executeCallbacks(Callback[] callbacks) throws LoginException {
+   private void executeCallbacks(Callback... callbacks) throws LoginException {
       try {
          callbackHandler.handle(callbacks);
       } catch (UnsupportedCallbackException | IOException e) {
@@ -169,37 +178,43 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
     * @throws ScramException if invalid data is supplied
     */
    public static void main(String[] args) throws GeneralSecurityException, ScramException {
-      if (args.length < 3) {
+      if (args.length < 2) {
          System.out.println("Usage: " + SCRAMPropertiesLoginModule.class.getSimpleName() +
-                  " <username> <password> <type> [<iterations>]");
+                  " <username> <password> [<iterations>]");
          System.out.println("\ttype: " + getSupportedTypes());
          System.out.println("\titerations desired number of iteration (min value: " + MIN_ITERATIONS + ")");
          return;
       }
       String username = args[0];
       String password = args[1];
-      String type = args[2];
+      for (SCRAM scram : SCRAM.values()) {
+         MessageDigest digest = MessageDigest.getInstance(scram.getDigest());
+         Mac hmac = Mac.getInstance(scram.getHmac());
+         byte[] salt = generateSalt();
+         int iterations;
+         if (args.length > 2) {
+            iterations = Integer.parseInt(args[2]);
+            if (iterations < MIN_ITERATIONS) {
+               throw new IllegalArgumentException("minimum of " + MIN_ITERATIONS + " required!");
+            }
+         } else {
+            iterations = MIN_ITERATIONS;
+         }
+         ScramUtils.NewPasswordStringData data =
+                  ScramUtils.byteArrayToStringData(ScramUtils.newPassword(password, salt, iterations, digest, hmac));
+         System.out.println(username + SEPARATOR_MECHANISM + scram.name() + " = " +
+                  PasswordMaskingUtil.wrap(data.salt + SEPARATOR_PARAMETER + data.iterations + SEPARATOR_PARAMETER +
+                           data.serverKey + SEPARATOR_PARAMETER + data.storedKey));
+      }
+   }
+
+   private static SCRAM getTypeByString(String type) {
       SCRAM scram = Arrays.stream(SCRAM.values())
                           .filter(v -> v.getName().equals(type))
                           .findFirst()
                           .orElseThrow(() -> new IllegalArgumentException("unkown type " + type +
                                    ", supported ones are " + getSupportedTypes()));
-      MessageDigest digest = MessageDigest.getInstance(scram.getDigest());
-      Mac hmac = Mac.getInstance(scram.getHmac());
-      byte[] salt = generateSalt();
-      int iterations;
-      if (args.length > 3) {
-         iterations = Integer.parseInt(args[3]);
-         if (iterations < MIN_ITERATIONS) {
-            throw new IllegalArgumentException("minimum of " + MIN_ITERATIONS + " required!");
-         }
-      } else {
-         iterations = MIN_ITERATIONS;
-      }
-      ScramUtils.NewPasswordStringData data =
-               ScramUtils.byteArrayToStringData(ScramUtils.newPassword(password, salt, iterations, digest, hmac));
-      System.out.println(username + " = " + PasswordMaskingUtil.wrap(data.salt + SEPARATOR + data.iterations +
-               SEPARATOR + data.serverKey + SEPARATOR + data.storedKey));
+      return scram;
    }
 
    private static String getSupportedTypes() {
