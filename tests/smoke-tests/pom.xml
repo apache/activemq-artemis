@@ -739,7 +739,24 @@
                      <configuration>${basedir}/target/classes/servers/brokerConnectMirrorSecurityB</configuration>
                   </configuration>
                </execution>
-         </executions>
+
+               <!-- used on MaxQueueResourceTest  -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createBrokerMaxQueueResourceTest</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <allowAnonymous>false</allowAnonymous>
+                     <user>A</user>
+                     <password>A</password>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/MaxQueueResourceTest</instance>
+                     <configuration>${basedir}/target/classes/servers/MaxQueueResourceTest</configuration>
+                  </configuration>
+               </execution>
+            </executions>
          <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.tests</groupId>

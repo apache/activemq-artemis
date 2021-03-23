@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.server;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -104,7 +105,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       try {
          clientSession.createQueue(new QueueConfiguration("anotherQueue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertTrue(e instanceof ActiveMQSecurityException);
       }
 
       clientSession.deleteQueue("queue");
@@ -114,13 +115,13 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       try {
          clientSession.createQueue(new QueueConfiguration("anotherQueue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertTrue(e instanceof ActiveMQSecurityException);
       }
 
       try {
          clientSession.createSharedQueue(new QueueConfiguration("anotherQueue").setAddress("address").setDurable(false));
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertTrue(e instanceof ActiveMQSecurityException);
       }
    }
 }
