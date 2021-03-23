@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.broker.AmqpInterceptor;
@@ -111,13 +113,14 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
       @Override
       public byte[] processSASL(byte[] bytes) {
          String message = new String(bytes, StandardCharsets.US_ASCII);
+         LoginContext loginContext = null;
          try {
             switch (scram.getState()) {
                case INITIAL: {
                   String userName = scram.handleClientFirstMessage(message);
                   if (userName != null) {
 
-                     LoginContext loginContext = new LoginContext(loginConfigScope, new CallbackHandler() {
+                     loginContext = new LoginContext(loginConfigScope, new CallbackHandler() {
 
                         @Override
                         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
@@ -138,14 +141,23 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
                         }
                      });
                      loginContext.login();
-                     Subject subject = loginContext.getSubject();
-                     Iterator<UserData> credentials = subject.getPublicCredentials(UserData.class).iterator();
-                     Principal[] principals = subject.getPrincipals().toArray(new Principal[0]);
-                     subject.getPrivateCredentials().add(principals);
-                     if (credentials.hasNext()) {
-                        result = new SCRAMSASLResult(userName, scram, subject);
-                        String challenge = scram.prepareFirstMessage(credentials.next());
-                        return challenge.getBytes(StandardCharsets.US_ASCII);
+                     try {
+                        Subject subject = loginContext.getSubject();
+                        Iterator<UserData> credentials = subject.getPublicCredentials(UserData.class).iterator();
+                        Principal[] principals = subject.getPrincipals().toArray(new Principal[0]);
+                        Subject saslSubject = new Subject(true, subject.getPrincipals(), subject.getPublicCredentials(),
+                                                          Collections.singleton(principals));
+                        if (credentials.hasNext()) {
+                           result = new SCRAMSASLResult(userName, scram, saslSubject);
+                           String challenge = scram.prepareFirstMessage(credentials.next());
+                           return challenge.getBytes(StandardCharsets.US_ASCII);
+                        }
+                     } finally {
+                        try {
+                           loginContext.logout();
+                        } catch (LoginException e1) {
+                           // we can't do anything useful then but also don'T want to fail here...
+                        }
                      }
                   }
                   break;
@@ -162,6 +174,13 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
          } catch (GeneralSecurityException | ScramException | RuntimeException e) {
             logger.warn("SASL-SCRAM Authentication failed", e);
             result = new SCRAMFailedSASLResult();
+            if (loginContext != null) {
+               try {
+                  loginContext.logout();
+               } catch (LoginException e1) {
+                  // we can't do anything useful then...
+               }
+            }
          }
          return null;
       }
