@@ -15,6 +15,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl.scram;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
@@ -2118,7 +2119,7 @@ public class StringPrep {
 
       // 2) Normalize
       // rfc4013: 2.2. Normalization
-      s = Normalizer.normalize(s);
+      s = Normalizer.normalize(s, Normalizer.Form.NFKC);
 
       // 3) Prohibit
       int idx = containsCharacterInClass(s, saslProhibited);
