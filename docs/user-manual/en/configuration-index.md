@@ -249,6 +249,7 @@ Name | Description | Default
 [auto-delete-addresses](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete auto-created addresses automatically | `true`
 [auto-delete-addresses-delay](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delay for deleting auto-created addresses | 0
 [config-delete-addresses](config-reload.md) | How to deal with addresses deleted from XML at runtime | `OFF`
+[config-delete-diverts](config-reload.md) | How to deal with diverts deleted from XML at runtime | `OFF`
 [management-browse-page-size]() | Number of messages a management resource can browse| 200
 [default-purge-on-no-consumers](address-model.md#non-durable-subscription-queue) | `purge-on-no-consumers` value if none is set on the queue | `false`
 [default-max-consumers](address-model.md#shared-durable-subscription-queue-using-max-consumers) | `max-consumers` value if none is set on the queue | -1

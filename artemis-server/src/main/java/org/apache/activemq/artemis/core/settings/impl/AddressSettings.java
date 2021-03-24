@@ -90,6 +90,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final DeletionPolicy DEFAULT_CONFIG_DELETE_ADDRESSES = DeletionPolicy.OFF;
 
+   public static final DeletionPolicy DEFAULT_CONFIG_DELETE_DIVERTS = DeletionPolicy.OFF;
+
    public static final long DEFAULT_REDISTRIBUTION_DELAY = -1;
 
    public static final boolean DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES = false;
@@ -222,6 +224,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private Long autoDeleteAddressesDelay = null;
 
    private DeletionPolicy configDeleteAddresses = null;
+
+   private DeletionPolicy configDeleteDiverts = null;
 
    private Integer managementBrowsePageSize = AddressSettings.MANAGEMENT_BROWSE_PAGE_SIZE;
 
@@ -462,6 +466,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    public AddressSettings setConfigDeleteAddresses(DeletionPolicy configDeleteAddresses) {
       this.configDeleteAddresses = configDeleteAddresses;
       return this;
+   }
+
+   public AddressSettings setConfigDeleteDiverts(DeletionPolicy configDeleteDiverts) {
+      this.configDeleteDiverts = configDeleteDiverts;
+      return this;
+   }
+
+   public DeletionPolicy getConfigDeleteDiverts() {
+      return configDeleteDiverts != null ? configDeleteDiverts : AddressSettings.DEFAULT_CONFIG_DELETE_DIVERTS;
    }
 
    public int getDefaultMaxConsumers() {
@@ -1581,6 +1594,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((autoDeleteAddresses == null) ? 0 : autoDeleteAddresses.hashCode());
       result = prime * result + ((autoDeleteAddressesDelay == null) ? 0 : autoDeleteAddressesDelay.hashCode());
       result = prime * result + ((configDeleteAddresses == null) ? 0 : configDeleteAddresses.hashCode());
+      result = prime * result + ((configDeleteDiverts == null) ? 0 : configDeleteDiverts.hashCode());
       result = prime * result + ((managementBrowsePageSize == null) ? 0 : managementBrowsePageSize.hashCode());
       result = prime * result + ((queuePrefetch == null) ? 0 : queuePrefetch.hashCode());
       result = prime * result + ((maxSizeBytesRejectThreshold == null) ? 0 : maxSizeBytesRejectThreshold.hashCode());
@@ -1815,6 +1829,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       } else if (!configDeleteAddresses.equals(other.configDeleteAddresses))
          return false;
+      if (configDeleteDiverts == null) {
+         if (other.configDeleteDiverts != null)
+            return false;
+      } else if (!configDeleteDiverts.equals(other.configDeleteDiverts))
+         return false;
       if (managementBrowsePageSize == null) {
          if (other.managementBrowsePageSize != null)
             return false;
@@ -2043,7 +2062,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          ", autoDeleteAddressesDelay=" +
          autoDeleteAddressesDelay +
          ", configDeleteAddresses=" +
-         configDeleteAddresses +
+         configDeleteAddresses  +
+         ", configDeleteDiverts=" +
+         configDeleteDiverts +
          ", managementBrowsePageSize=" +
          managementBrowsePageSize +
          ", managementMessageAttributeSizeLimit=" +

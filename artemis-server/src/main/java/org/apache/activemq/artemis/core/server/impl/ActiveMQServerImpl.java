@@ -4056,20 +4056,21 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployDiverts() throws Exception {
       if (storageManager.recoverDivertConfigurations() != null) {
-         for (PersistedDivertConfiguration persistedDivertConfiguration : storageManager.recoverDivertConfigurations()) {
-            boolean deleted = true;
-            for (DivertConfiguration config : configuration.getDivertConfigurations()) {
-               if (persistedDivertConfiguration.getName().equals(config.getName())) {
-                  deleted = false;
-               }
-            }
 
+         for (PersistedDivertConfiguration persistedDivertConfiguration : storageManager.recoverDivertConfigurations()) {
+            //has it been removed from config
+            boolean deleted = configuration.getDivertConfigurations().stream().noneMatch(divertConfiguration -> divertConfiguration.getName().equals(persistedDivertConfiguration.getName()));
+            // if it has remove it if configured to do so
             if (deleted) {
-               //todo add a flag to specify whether to delete or not
-               deployDivert(persistedDivertConfiguration.getDivertConfiguration());
+               if (addressSettingsRepository.getMatch(persistedDivertConfiguration.getDivertConfiguration().getAddress()).getConfigDeleteDiverts() == DeletionPolicy.FORCE) {
+                  storageManager.deleteDivertConfiguration(persistedDivertConfiguration.getName());
+               } else {
+                  deployDivert(persistedDivertConfiguration.getDivertConfiguration());
+               }
             }
          }
       }
+      //deploy the configured diverts
       for (DivertConfiguration config : configuration.getDivertConfigurations()) {
          deployDivert(config);
       }
