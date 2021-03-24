@@ -271,6 +271,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String CONFIG_DELETE_ADDRESSES = "config-delete-addresses";
 
+   private static final String CONFIG_DELETE_DIVERTS = "config-delete-diverts";
+
    private static final String DEFAULT_PURGE_ON_NO_CONSUMERS = "default-purge-on-no-consumers";
 
    private static final String DEFAULT_MAX_CONSUMERS = "default-max-consumers";
@@ -1250,6 +1252,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             Validators.DELETION_POLICY_TYPE.validate(CONFIG_DELETE_ADDRESSES, value);
             DeletionPolicy policy = Enum.valueOf(DeletionPolicy.class, value);
             addressSettings.setConfigDeleteAddresses(policy);
+         } else if (CONFIG_DELETE_DIVERTS.equalsIgnoreCase(name)) {
+            String value = getTrimmedTextContent(child);
+            Validators.DELETION_POLICY_TYPE.validate(CONFIG_DELETE_DIVERTS, value);
+            DeletionPolicy policy = Enum.valueOf(DeletionPolicy.class, value);
+            addressSettings.setConfigDeleteDiverts(policy);
          } else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setManagementBrowsePageSize(XMLUtil.parseInt(child));
          } else if (MANAGEMENT_MESSAGE_ATTRIBUTE_SIZE_LIMIT.equalsIgnoreCase(name)) {

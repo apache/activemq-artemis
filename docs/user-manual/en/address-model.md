@@ -672,6 +672,7 @@ that would be found in the `broker.xml` file.
       <auto-delete-queues-delay>0</auto-delete-queues-delay>
       <auto-delete-queues-message-count>0</auto-delete-queues-message-count>
       <config-delete-queues>OFF</config-delete-queues>
+      <config-delete-diverts>OFF</config-delete-diverts>
       <auto-create-addresses>true</auto-create-addresses>
       <auto-delete-addresses>true</auto-delete-addresses>
       <auto-delete-addresses-delay>0</auto-delete-addresses-delay>
@@ -900,6 +901,9 @@ For Core JMS you can set it using the destination queue attributes
 reload, by delete policy: `OFF` or `FORCE`.  Default is `OFF`. Read more about
 [configuration reload](config-reload.md).
 
+`config-delete-diverts`. How the broker should handle diverts deleted on config
+reload, by delete policy: `OFF` or `FORCE`.  Default is `OFF`. Read more about
+[configuration reload](config-reload.md).
 `auto-create-addresses`. Whether or not the broker should automatically create
 an address when a message is sent to or a consumer tries to consume from a
 queue which is mapped to an address whose name fits the address `match`.

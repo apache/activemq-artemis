@@ -3801,6 +3801,22 @@
                </xsd:simpleType>
             </xsd:element>
 
+            <xsd:element name="config-delete-diverts" default="OFF" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     What to do when a divert is no longer in broker.xml.
+                     OFF = will do nothing queues will remain,
+                     FORCE = delete queues even if messages remaining.
+                  </xsd:documentation>
+               </xsd:annotation>
+               <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                     <xsd:enumeration value="OFF"/>
+                     <xsd:enumeration value="FORCE"/>
+                  </xsd:restriction>
+               </xsd:simpleType>
+            </xsd:element>
+
             <xsd:element name="management-browse-page-size" type="xsd:int" default="200" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>

@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -833,6 +834,92 @@ public class DivertTest extends ActiveMQTestBase {
       Assert.assertNotNull(divert1);
 
       Assert.assertEquals(divert1.getRoutingName(), new SimpleString("divert1"));
+   }
+
+   @Test
+   public void testSinglePersistedDeleteDivert() throws Exception {
+      final String testAddress = "testAddress";
+
+      final String forwardAddress = "forwardAddress";
+
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
+
+
+      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+
+      AddressSettings addressSettings = new AddressSettings();
+
+      addressSettings.setConfigDeleteDiverts(DeletionPolicy.FORCE);
+
+
+
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).addQueueConfiguration(q1);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
+
+      server.getAddressSettingsRepository().addMatch(testAddress, addressSettings);
+
+      server.start();
+
+      server.stop();
+
+      config.getDivertConfigurations().clear();
+
+      server.start();
+
+      Binding divert1 = server.getPostOffice().getBinding(new SimpleString("divert1"));
+
+      Assert.assertNull(divert1);
+   }
+
+   @Test
+   public void testMixedPersistedDeleteDivert() throws Exception {
+      final String testAddress = "testAddress";
+
+      final String testAddress2 = "testAddress2";
+
+      final String forwardAddress = "forwardAddress";
+
+      final String forwardAddress2 = "forwardAddress2";
+
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
+
+      DivertConfiguration divertConf2 = new DivertConfiguration().setName("divert2").setRoutingName("divert2").setAddress(testAddress2).setForwardingAddress(forwardAddress2).setExclusive(true);
+
+
+      QueueConfiguration q1 = new QueueConfiguration("forwardAddress1").setDurable(true).setRoutingType(RoutingType.ANYCAST);
+
+      AddressSettings addressSettings = new AddressSettings();
+
+      addressSettings.setConfigDeleteDiverts(DeletionPolicy.FORCE);
+
+      AddressSettings addressSettings2 = new AddressSettings();
+
+      addressSettings2.setConfigDeleteDiverts(DeletionPolicy.OFF);
+
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).addDivertConfiguration(divertConf2).addQueueConfiguration(q1);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
+
+      server.getAddressSettingsRepository().addMatch(testAddress, addressSettings);
+
+      server.getAddressSettingsRepository().addMatch(testAddress2, addressSettings2);
+
+      server.start();
+
+      server.stop();
+
+      config.getDivertConfigurations().clear();
+
+      server.start();
+
+      Binding divert1 = server.getPostOffice().getBinding(new SimpleString("divert1"));
+
+      Assert.assertNull(divert1);
+
+      Binding divert2 = server.getPostOffice().getBinding(new SimpleString("divert2"));
+
+      Assert.assertNotNull(divert2);
    }
 
 
