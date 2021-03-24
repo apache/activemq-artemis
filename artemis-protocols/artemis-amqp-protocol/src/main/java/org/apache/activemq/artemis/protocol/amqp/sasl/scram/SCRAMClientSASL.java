@@ -59,7 +59,6 @@ public class SCRAMClientSASL implements ClientSASL {
    public byte[] getInitialResponse() {
       try {
          String firstMessage = client.prepareFirstMessage(username);
-         System.out.println("SCRAMClientSASL.getInitialResponse() >> " + firstMessage);
          return firstMessage.getBytes(StandardCharsets.US_ASCII);
       } catch (ScramException e) {
          throw new DecodeException("prepareFirstMessage failed", e);
@@ -69,11 +68,9 @@ public class SCRAMClientSASL implements ClientSASL {
    @Override
    public byte[] getResponse(byte[] challenge) {
       String msg = new String(challenge, StandardCharsets.US_ASCII);
-      System.out.println("SCRAMClientSASL.getResponse() << " + msg);
       if (client.getState() == State.FIRST_PREPARED) {
          try {
             String finalMessage = client.prepareFinalMessage(password, msg);
-            System.out.println("SCRAMClientSASL.getResponse() >> " + finalMessage);
             return finalMessage.getBytes(StandardCharsets.US_ASCII);
          } catch (ScramException e) {
             throw new DecodeException("prepareFinalMessage failed", e);
