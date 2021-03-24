@@ -123,12 +123,12 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       server.start();
 
       HashMap<String, Object> httpConnectorParams = new HashMap<>();
-      httpAcceptorParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
-      httpAcceptorParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
+      httpConnectorParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
+      httpConnectorParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
       if (useSSL) {
-         httpAcceptorParams.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-         httpAcceptorParams.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
-         httpAcceptorParams.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+         httpConnectorParams.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+         httpConnectorParams.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+         httpConnectorParams.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       }
       locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, httpConnectorParams));
       addServerLocator(locator);
