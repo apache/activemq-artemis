@@ -19,17 +19,16 @@ package org.apache.activemq.artemis.protocol.amqp.sasl.scram;
 import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 
 /**
- * provides SASL SCRAM-SHA1
+ * provides SASL SRAM-SHA512
  */
-public class SHA1SCRAMServerSASLFactory extends SCRAMServerSASLFactory {
+public class SHA512SCRAMServerSASLFactory extends SCRAMServerSASLFactory {
 
-   public SHA1SCRAMServerSASLFactory() {
-      super(SCRAM.SHA1);
+   public SHA512SCRAMServerSASLFactory() {
+      super(SCRAM.SHA512);
    }
 
    @Override
    public int getPrecedence() {
-      return 160;
+      return 512;
    }
-
 }

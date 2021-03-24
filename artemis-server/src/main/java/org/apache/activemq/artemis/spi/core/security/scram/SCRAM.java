@@ -20,8 +20,10 @@ package org.apache.activemq.artemis.spi.core.security.scram;
  * Defines sets of known SCRAM types with methods to fetch matching digest and hmac names
  */
 public enum SCRAM {
-                   SHA1,
-                   SHA256;
+                   // ordered by precedence
+                   SHA512,
+                   SHA256,
+                   SHA1;
 
    public String getName() {
       switch (this) {
@@ -29,6 +31,8 @@ public enum SCRAM {
             return "SCRAM-SHA-1";
          case SHA256:
             return "SCRAM-SHA-256";
+         case SHA512:
+            return "SCRAM-SHA-512";
       }
       throw new UnsupportedOperationException();
    }
@@ -39,6 +43,8 @@ public enum SCRAM {
             return "SHA-1";
          case SHA256:
             return "SHA-256";
+         case SHA512:
+            return "SHA-512";
       }
       throw new UnsupportedOperationException();
    }
@@ -49,6 +55,8 @@ public enum SCRAM {
             return "HmacSHA1";
          case SHA256:
             return "HmacSHA256";
+         case SHA512:
+            return "HmacSHA512";
       }
       throw new UnsupportedOperationException();
    }

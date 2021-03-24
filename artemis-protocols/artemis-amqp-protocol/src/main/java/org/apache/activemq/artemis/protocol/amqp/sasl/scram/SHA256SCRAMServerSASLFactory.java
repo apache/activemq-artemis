@@ -29,6 +29,6 @@ public class SHA256SCRAMServerSASLFactory extends SCRAMServerSASLFactory {
 
    @Override
    public int getPrecedence() {
-      return 200;
+      return 256;
    }
 }

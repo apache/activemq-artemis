@@ -63,10 +63,12 @@ import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContex
 import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASLFactory;
+import org.apache.activemq.artemis.protocol.amqp.sasl.scram.SCRAMClientSASL;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -96,8 +98,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private int retryCounter = 0;
    private boolean connecting = false;
    private volatile ScheduledFuture reconnectFuture;
-   private Set<Queue> senders = new HashSet<>();
-   private Set<Queue> receivers = new HashSet<>();
+   private final Set<Queue> senders = new HashSet<>();
+   private final Set<Queue> receivers = new HashSet<>();
 
    final Executor connectExecutor;
    final ScheduledExecutorService scheduledExecutorService;
@@ -676,7 +678,15 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          if (availableMechanisms.contains(EXTERNAL) && ExternalSASLMechanism.isApplicable(connection)) {
             return new ExternalSASLMechanism();
          }
-
+         if (SCRAMClientSASL.isApplicable(brokerConnectConfiguration.getUser(),
+                                          brokerConnectConfiguration.getPassword())) {
+            for (SCRAM scram : SCRAM.values()) {
+               if (availableMechanisms.contains(scram.getName())) {
+                  return new SCRAMClientSASL(scram, brokerConnectConfiguration.getUser(),
+                                             brokerConnectConfiguration.getPassword());
+               }
+            }
+         }
          if (availableMechanisms.contains(PLAIN) && PlainSASLMechanism.isApplicable(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword())) {
             return new PlainSASLMechanism(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword());
          }
