@@ -60,9 +60,7 @@ public abstract class SCRAMServerSASL implements ServerSASL {
             case INITIAL: {
                String userName = scram.handleClientFirstMessage(message);
                UserData userData = aquireUserData(userName);
-               Subject saslSubject = new Subject(false, Collections.singleton(new UserPrincipal(userName)),
-                                                 Collections.singleton(userData), Collections.emptySet());
-               result = new SCRAMSASLResult(userName, scram, saslSubject);
+               result = new SCRAMSASLResult(userName, scram, createSaslSubject(userName, userData));
                String challenge = scram.prepareFirstMessage(userData);
                return challenge.getBytes(StandardCharsets.US_ASCII);
             }
@@ -82,6 +80,13 @@ public abstract class SCRAMServerSASL implements ServerSASL {
    }
 
    protected abstract UserData aquireUserData(String userName) throws LoginException;
+
+   protected Subject createSaslSubject(String userName, UserData userData) {
+      UserPrincipal userPrincipal = new UserPrincipal(userName);
+      Subject saslSubject = new Subject(true, Collections.singleton(userPrincipal), Collections.singleton(userData),
+                                        Collections.emptySet());
+      return saslSubject;
+   }
 
    @Override
    public SASLResult result() {

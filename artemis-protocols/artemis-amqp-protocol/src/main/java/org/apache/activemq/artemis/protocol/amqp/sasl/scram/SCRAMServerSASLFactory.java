@@ -84,6 +84,7 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
 
       private final String loginConfigScope;
       private LoginContext loginContext = null;
+      private Subject loginSubject;
 
       JAASSCRAMServerSASL(SCRAM scram, String loginConfigScope, Logger logger) throws NoSuchAlgorithmException {
          super(scram, logger);
@@ -113,13 +114,22 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
             }
          });
          loginContext.login();
-         Subject subject = loginContext.getSubject();
-         Iterator<UserData> credentials = subject.getPublicCredentials(UserData.class).iterator();
+         loginSubject = loginContext.getSubject();
+         Iterator<UserData> credentials = loginSubject.getPublicCredentials(UserData.class).iterator();
          if (credentials.hasNext()) {
             return credentials.next();
          }
          throw new LoginException("can't aquire user data through configured login config scope (" + loginConfigScope +
                   ")");
+      }
+
+      @Override
+      protected Subject createSaslSubject(String userName, UserData userData) {
+         if (loginSubject != null) {
+            return new Subject(true, loginSubject.getPrincipals(), loginSubject.getPublicCredentials(),
+                                              loginSubject.getPrivateCredentials());
+         }
+         return super.createSaslSubject(userName, userData);
       }
 
       @Override
@@ -130,8 +140,9 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
             } catch (LoginException e1) {
                // we can't do anything useful then...
             }
-            loginContext = null;
          }
+         loginContext = null;
+         loginSubject = null;
       }
 
    }

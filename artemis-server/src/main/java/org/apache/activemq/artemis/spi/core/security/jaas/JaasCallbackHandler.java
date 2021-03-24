@@ -21,6 +21,7 @@ import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getPeerP
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -73,17 +74,21 @@ public class JaasCallbackHandler implements CallbackHandler {
 
             Subject peerSubject = remotingConnection.getSubject();
             if (peerSubject != null) {
-               for (Principal principal : peerSubject.getPrivateCredentials(KerberosPrincipal.class)) {
+               for (KerberosPrincipal principal : peerSubject.getPrivateCredentials(KerberosPrincipal.class)) {
                   principalsCallback.setPeerPrincipals(new Principal[] {principal});
                   return;
                }
-               for (Principal[] principals : peerSubject.getPrivateCredentials(Principal[].class)) {
-                  principalsCallback.setPeerPrincipals(principals);
+               Set<Principal> principals = peerSubject.getPrincipals();
+               if (principals.size() > 0) {
+                  principalsCallback.setPeerPrincipals(principals.toArray(new Principal[0]));
                   return;
                }
             }
 
-            principalsCallback.setPeerPrincipals(new Principal[] {getPeerPrincipalFromConnection(remotingConnection)});
+            Principal peerPrincipalFromConnection = getPeerPrincipalFromConnection(remotingConnection);
+            if (peerPrincipalFromConnection != null) {
+               principalsCallback.setPeerPrincipals(new Principal[] {peerPrincipalFromConnection});
+            }
          } else {
             throw new UnsupportedCallbackException(callback);
          }
