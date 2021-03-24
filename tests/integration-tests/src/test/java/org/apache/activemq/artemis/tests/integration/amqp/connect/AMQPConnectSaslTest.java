@@ -415,6 +415,9 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
 
       @Override
       protected UserData aquireUserData(String userName) throws LoginException {
+         if (!USER.equals(userName)) {
+            throw new LoginException("invalid username");
+         }
          byte[] salt = new byte[32];
          new SecureRandom().nextBytes(salt);
          try {
