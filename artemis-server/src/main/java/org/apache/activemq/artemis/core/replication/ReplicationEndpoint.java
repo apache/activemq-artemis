@@ -254,7 +254,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             logger.trace("Returning " + response);
          }
          if (supportResponseBatching) {
-            addBatch(response);
+            addToBatch(response);
          } else {
             channel.send(response);
          }
@@ -263,15 +263,23 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
-   private void addBatch(Packet packet) {
+   private void addToBatch(Packet packet) {
       assert supportResponseBatching;
       final int encodedSize = packet.expectedEncodeSize();
+      if (encodedSize >= maxBatchSize) {
+         // special case: a single packet already big enough won't worth
+         // to await more before sending it, let's send it now
+         pendingPackets.add(packet);
+         batchSize += encodedSize;
+         endOfBatch();
+         assert batchSize == 0 && pendingPackets.isEmpty();
+         return;
+      }
       if (batchSize + encodedSize > maxBatchSize) {
          endOfBatch();
          assert batchSize == 0 && pendingPackets.isEmpty();
       }
       pendingPackets.add(packet);
-      batchSize += encodedSize;
    }
 
    @Override
@@ -280,17 +288,10 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (pendingPackets.isEmpty()) {
          return;
       }
-      final CoreRemotingConnection connection = channel.getConnection();
       for (int i = 0, size = pendingPackets.size(); i < size; i++) {
          final Packet packet = pendingPackets.poll();
          final boolean isLast = i == (size - 1);
-         final boolean flush;
-         if (isLast) {
-            flush = true;
-         } else {
-            flush = !connection.blockUntilWritable(0);
-         }
-         channel.send(packet, flush);
+         channel.send(packet, isLast);
       }
       batchSize = 0;
    }
