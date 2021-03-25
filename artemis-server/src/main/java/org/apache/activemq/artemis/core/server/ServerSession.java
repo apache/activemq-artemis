@@ -62,6 +62,8 @@ public interface ServerSession extends SecurityAuth {
 
    boolean removeConsumer(long consumerID) throws Exception;
 
+   void acknowledgeUpTo(long consumerID, long messageID) throws Exception;
+
    List<Long> acknowledge(long consumerID, long messageID) throws Exception;
 
    void individualAcknowledge(long consumerID, long messageID) throws Exception;

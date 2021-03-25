@@ -98,6 +98,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.MaxSizeMap;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
@@ -138,7 +139,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected final RemotingConnection remotingConnection;
 
-   protected final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<>();
+   protected final ConcurrentLongHashMap<ServerConsumer> consumers = new ConcurrentLongHashMap<>();
 
    protected final Map<String, ServerProducer> producers = new ConcurrentHashMap<>();
 
@@ -359,8 +360,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public Set<ServerConsumer> getServerConsumers() {
-      Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
-      return Collections.unmodifiableSet(consumersClone);
+      final int consumersCount = consumers.size();
+      if (consumersCount == 0) {
+         return Collections.emptySet();
+      }
+      final Set<ServerConsumer> consumersSet = new HashSet<>(consumersCount);
+      consumers.forEach((key, value) -> consumersSet.add(value));
+      return Collections.unmodifiableSet(consumersSet);
    }
 
    @Override
@@ -431,9 +437,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       //putting closing of consumers outside the sync block
       //https://issues.jboss.org/browse/HORNETQ-1141
-      Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
-
-      for (ServerConsumer consumer : consumersClone) {
+      consumers.forEach((key, consumer) -> {
          try {
             consumer.close(failed);
          } catch (Throwable e) {
@@ -444,8 +448,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                ActiveMQServerLogger.LOGGER.unableToRemoveConsumer(e2);
             }
          }
-      }
-
+      });
       consumers.clear();
       producers.clear();
 
@@ -1200,29 +1203,43 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
+   public void acknowledgeUpTo(long consumerID, long messageID) throws Exception {
+      final ServerConsumer consumer = findConsumer(consumerID);
+      if (tx != null && tx.getState() == State.ROLLEDBACK) {
+         // given that's a slow path case there's no need to duplicate this
+         // function to save some garbage to be allocated
+         acknowledgeRollbackTxUpTo(consumer, messageID);
+      } else {
+         consumer.acknowledgeUpTo(autoCommitAcks ? null : tx, messageID);
+      }
+   }
+
+   private List<Long> acknowledgeRollbackTxUpTo(ServerConsumer consumer, long messageID) throws Exception {
+      assert tx != null && tx.getState() == State.ROLLEDBACK;
+      // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
+      // have these messages to be stuck on the limbo until the server is restarted
+      // The tx has already timed out, so we need to ack and rollback immediately
+      final Transaction newTX = newTransaction();
+      try {
+         return consumer.acknowledge(newTX, messageID);
+      } catch (Exception e) {
+         // just ignored
+         // will log it just in case
+         logger.debugf("Ignored exception while acking messageID %d on a rolledback TX", e);
+         return null;
+      } finally {
+         newTX.rollback();
+      }
+   }
+
+   @Override
    public List<Long> acknowledge(final long consumerID, final long messageID) throws Exception {
       ServerConsumer consumer = findConsumer(consumerID);
-      List<Long> ackedRefs = null;
 
       if (tx != null && tx.getState() == State.ROLLEDBACK) {
-         // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
-         // have these messages to be stuck on the limbo until the server is restarted
-         // The tx has already timed out, so we need to ack and rollback immediately
-         Transaction newTX = newTransaction();
-         try {
-            ackedRefs = consumer.acknowledge(newTX, messageID);
-         } catch (Exception e) {
-            // just ignored
-            // will log it just in case
-            logger.debug("Ignored exception while acking messageID " + messageID +
-                            " on a rolledback TX", e);
-         }
-         newTX.rollback();
-      } else {
-         ackedRefs = consumer.acknowledge(autoCommitAcks ? null : tx, messageID);
+         return acknowledgeRollbackTxUpTo(consumer, messageID);
       }
-
-      return ackedRefs;
+      return consumer.acknowledge(autoCommitAcks ? null : tx, messageID);
    }
 
    @Override
@@ -1844,11 +1861,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void setTransferring(final boolean transferring) {
-      Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
-
-      for (ServerConsumer consumer : consumersClone) {
-         consumer.setTransferring(transferring);
-      }
+      consumers.forEach((ignored, consumer) -> consumer.setTransferring(transferring));
    }
 
    @Override
@@ -2014,12 +2027,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    private void setStarted(final boolean s) {
-      Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
-
-      for (ServerConsumer consumer : consumersClone) {
-         consumer.setStarted(s);
-      }
-
+      consumers.forEach((ignored, consumer) -> consumer.setStarted(s));
       started = s;
    }
 
@@ -2063,13 +2071,19 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       List<MessageReference> toCancel = new ArrayList<>();
 
-      for (ServerConsumer consumer : consumers.values()) {
+      consumers.forEach((ignored, consumer) -> {
          if (wasStarted) {
             consumer.setStarted(false);
          }
-
-         toCancel.addAll(consumer.cancelRefs(clientFailed, lastMessageAsDelived, theTx));
-      }
+         try {
+            final List<MessageReference> refs = consumer.cancelRefs(clientFailed, lastMessageAsDelived, theTx);
+            toCancel.addAll(refs);
+         } catch (RuntimeException re) {
+            throw re;
+         } catch (Exception e) {
+            throw new RuntimeException(e);
+         }
+      });
 
       //we need to check this before we cancel the refs and add them to the tx, any delivering refs will have been delivered
       //after the last tx was rolled back so we should handle them separately. if not they
@@ -2096,9 +2110,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
             @Override
             public void afterRollback(Transaction tx) {
-               for (ServerConsumer consumer : consumers.values()) {
-                  consumer.setStarted(true);
-               }
+               consumers.forEach((ignored, consumer) -> consumer.setStarted(true));
             }
 
          });

@@ -717,7 +717,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          try {
             final SessionAcknowledgeMessage message = (SessionAcknowledgeMessage) packet;
             requiresResponse = message.isRequiresResponse();
-            this.session.acknowledge(message.getConsumerID(), message.getMessageID());
+            this.session.acknowledgeUpTo(message.getConsumerID(), message.getMessageID());
             if (requiresResponse) {
                response = createNullResponseMessage(packet);
             }
