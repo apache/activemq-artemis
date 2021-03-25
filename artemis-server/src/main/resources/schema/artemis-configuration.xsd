@@ -1654,6 +1654,15 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="concurrency" type="xsd:int" default="1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Number of concurrent workers, more workers can help increase throughput on high latency networks. 
+                  Defaults to 1
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:choice>
             <xsd:element name="static-connectors" maxOccurs="1" minOccurs="1">
                <xsd:complexType>
@@ -1676,16 +1685,6 @@
                </xsd:complexType>
             </xsd:element>
          </xsd:choice>
-
-         <xsd:element name="concurrency" type="xsd:int" default="1" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Number of concurrent workers, more workers can help increase throughput on high latency networks. 
-                  Defaults to 1
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
       </xsd:sequence>
 
       <xsd:attribute name="name" type="xsd:ID" use="required">
