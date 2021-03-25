@@ -117,6 +117,14 @@ public class ScramServerFunctionalityImpl implements ScramServerFunctionality {
 
    @Override
    public String prepareFinalMessage(String clientFinalMessage) throws ScramException {
+      String finalMessage = prepareFinalMessageUnchecked(clientFinalMessage);
+      if (!mIsSuccessful) {
+         throw new ScramException("client credentials missmatch");
+      }
+      return finalMessage;
+   }
+
+   public String prepareFinalMessageUnchecked(String clientFinalMessage) throws ScramException {
       mState = State.ENDED;
       Matcher m = CLIENT_FINAL_MESSAGE.matcher(clientFinalMessage);
       if (!m.matches()) {
@@ -144,13 +152,8 @@ public class ScramServerFunctionalityImpl implements ScramServerFunctionality {
       }
 
       byte[] resultKey = digest.digest(clientKey);
-      if (!Arrays.equals(storedKeyArr, resultKey)) {
-         throw new ScramException("Nonce mismatch");
-      }
-
-      String result = "v=" + Base64.getEncoder().encodeToString(serverSignature);
-      mIsSuccessful = true;
-      return result;
+      mIsSuccessful = Arrays.equals(storedKeyArr, resultKey);
+      return "v=" + Base64.getEncoder().encodeToString(serverSignature);
    }
 
    @Override

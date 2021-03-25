@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.qpid.proton.engine.Sasl;
 import org.apache.qpid.proton.engine.Sasl.SaslOutcome;
 import org.apache.qpid.proton.engine.Transport;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -359,7 +358,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
          sasl.allowSkip(false);
          sasl.setMechanisms(mech.getName());
          try {
-            serverSASL = new TestSCRAMServerSASL(mech, Logger.getLogger(getClass()));
+            serverSASL = new TestSCRAMServerSASL(mech);
          } catch (NoSuchAlgorithmException e) {
             throw new AssertionError(e);
          }
@@ -381,7 +380,6 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
             sasl.send(result, 0, result.length);
          }
          boolean ended = serverSASL.isEnded();
-         System.out.println("end=" + ended);
          if (ended) {
             if (succeeded()) {
                sasl.done(SaslOutcome.PN_SASL_OK);
@@ -397,15 +395,17 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       @Override
       public boolean succeeded() {
          SASLResult result = serverSASL.result();
-         return result != null && result.isSuccess();
+         return result != null && result.isSuccess() && serverSASL.e == null;
       }
 
    }
 
    private static final class TestSCRAMServerSASL extends SCRAMServerSASL {
 
-      TestSCRAMServerSASL(SCRAM mechanism, Logger logger) throws NoSuchAlgorithmException {
-         super(mechanism, logger);
+      private Exception e;
+
+      TestSCRAMServerSASL(SCRAM mechanism) throws NoSuchAlgorithmException {
+         super(mechanism);
       }
 
       @Override
@@ -429,6 +429,11 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
          } catch (Exception e) {
             throw new LoginException(e.getMessage());
          }
+      }
+
+      @Override
+      protected void failed(Exception e) {
+         this.e = e;
       }
 
    }

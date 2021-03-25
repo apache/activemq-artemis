@@ -38,9 +38,10 @@ import javax.security.auth.login.LoginException;
 import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 import org.apache.activemq.artemis.spi.core.security.scram.ScramException;
 import org.apache.activemq.artemis.spi.core.security.scram.ScramUtils;
+import org.apache.activemq.artemis.spi.core.security.scram.StringPrep;
+import org.apache.activemq.artemis.spi.core.security.scram.StringPrep.StringPrepError;
 import org.apache.activemq.artemis.spi.core.security.scram.UserData;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.jgroups.util.UUID;
 
 /**
  * Login modules that uses properties files similar to the {@link PropertiesLoginModule}. It can
@@ -81,18 +82,23 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
       NameCallback nameCallback = new NameCallback("Username: ");
       executeCallbacks(nameCallback);
       user = nameCallback.getName();
-      if (user == null) {
-         user = UUID.randomUUID().toString();
-      }
       SCRAMMechanismCallback mechanismCallback = new SCRAMMechanismCallback();
       executeCallbacks(mechanismCallback);
       SCRAM scram = getTypeByString(mechanismCallback.getMechanism());
-      String password = users.getProperty(user, users.getProperty(user + SEPARATOR_MECHANISM + scram.name()));
-      if (PasswordMaskingUtil.isEncMasked(password)) {
-         String[] unwrap = PasswordMaskingUtil.unwrap(password).split(SEPARATOR_PARAMETER);
-         userData = new UserData(unwrap[0], Integer.parseInt(unwrap[1]), unwrap[2], unwrap[3]);
+      if (user == null) {
+         userData = generateUserData(null); // generate random user data
       } else {
-         userData = generateUserData(password);
+         String password = users.getProperty(user + SEPARATOR_MECHANISM + scram.name());
+         if (password == null) {
+            // fallback for probably unencoded user/password or a single encoded entry
+            password = users.getProperty(user);
+         }
+         if (PasswordMaskingUtil.isEncMasked(password)) {
+            String[] unwrap = PasswordMaskingUtil.unwrap(password).split(SEPARATOR_PARAMETER);
+            userData = new UserData(unwrap[0], Integer.parseInt(unwrap[1]), unwrap[2], unwrap[3]);
+         } else {
+            userData = generateUserData(password);
+         }
       }
       return true;
    }
@@ -176,8 +182,11 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
     * @param args username password type [iterations]
     * @throws GeneralSecurityException if any security mechanism is not available on this JVM
     * @throws ScramException if invalid data is supplied
+    * @throws StringPrepError if username can't be encoded according to SASL StringPrep
+    * @throws IOException if writing as properties failed
     */
-   public static void main(String[] args) throws GeneralSecurityException, ScramException {
+   public static void main(String[] args) throws GeneralSecurityException, ScramException, StringPrepError,
+                                          IOException {
       if (args.length < 2) {
          System.out.println("Usage: " + SCRAMPropertiesLoginModule.class.getSimpleName() +
                   " <username> <password> [<iterations>]");
@@ -187,6 +196,8 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
       }
       String username = args[0];
       String password = args[1];
+      Properties properties = new Properties();
+      String encodedUser = StringPrep.prepAsQueryString(username);
       for (SCRAM scram : SCRAM.values()) {
          MessageDigest digest = MessageDigest.getInstance(scram.getDigest());
          Mac hmac = Mac.getInstance(scram.getHmac());
@@ -202,10 +213,12 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
          }
          ScramUtils.NewPasswordStringData data =
                   ScramUtils.byteArrayToStringData(ScramUtils.newPassword(password, salt, iterations, digest, hmac));
-         System.out.println(username + SEPARATOR_MECHANISM + scram.name() + " = " +
-                  PasswordMaskingUtil.wrap(data.salt + SEPARATOR_PARAMETER + data.iterations + SEPARATOR_PARAMETER +
-                           data.serverKey + SEPARATOR_PARAMETER + data.storedKey));
+         String encodedPassword = PasswordMaskingUtil.wrap(data.salt + SEPARATOR_PARAMETER + data.iterations +
+                  SEPARATOR_PARAMETER + data.serverKey + SEPARATOR_PARAMETER + data.storedKey);
+         properties.setProperty(encodedUser + SEPARATOR_MECHANISM + scram.name(), encodedPassword);
       }
+      properties.store(System.out,
+                       "Insert the lines stating with '" + encodedUser + "' into the desired user properties file");
    }
 
    private static SCRAM getTypeByString(String type) {

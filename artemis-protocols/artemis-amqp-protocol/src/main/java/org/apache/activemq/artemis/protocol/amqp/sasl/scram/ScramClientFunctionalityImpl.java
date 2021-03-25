@@ -30,6 +30,7 @@ import javax.crypto.Mac;
 
 import org.apache.activemq.artemis.spi.core.security.scram.ScramException;
 import org.apache.activemq.artemis.spi.core.security.scram.ScramUtils;
+import org.apache.activemq.artemis.spi.core.security.scram.StringPrep;
 
 /**
  * Provides building blocks for creating SCRAM authentication client

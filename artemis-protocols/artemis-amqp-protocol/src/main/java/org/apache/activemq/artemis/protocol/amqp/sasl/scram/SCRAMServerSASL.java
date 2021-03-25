@@ -31,20 +31,20 @@ import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 import org.apache.activemq.artemis.spi.core.security.scram.ScramException;
 import org.apache.activemq.artemis.spi.core.security.scram.UserData;
-import org.jboss.logging.Logger;
 
 public abstract class SCRAMServerSASL implements ServerSASL {
 
    protected final ScramServerFunctionality scram;
    protected final SCRAM mechanism;
    private SASLResult result;
-   private final Logger logger;
 
-   public SCRAMServerSASL(SCRAM mechanism, Logger logger) throws NoSuchAlgorithmException {
+   public SCRAMServerSASL(SCRAM mechanism) throws NoSuchAlgorithmException {
+      this(mechanism, UUID.randomUUID().toString());
+   }
+
+   protected SCRAMServerSASL(SCRAM mechanism, String nonce) throws NoSuchAlgorithmException {
       this.mechanism = mechanism;
-      this.logger = logger;
-      this.scram = new ScramServerFunctionalityImpl(mechanism.getDigest(), mechanism.getHmac(),
-                                                    UUID.randomUUID().toString());
+      this.scram = new ScramServerFunctionalityImpl(mechanism.getDigest(), mechanism.getHmac(), nonce);
    }
 
    @Override
@@ -73,13 +73,15 @@ public abstract class SCRAMServerSASL implements ServerSASL {
                break;
          }
       } catch (GeneralSecurityException | ScramException | RuntimeException e) {
-         logger.warn("SASL-SCRAM Authentication failed", e);
          result = new SCRAMFailedSASLResult();
+         failed(e);
       }
       return null;
    }
 
    protected abstract UserData aquireUserData(String userName) throws LoginException;
+
+   protected abstract void failed(Exception e);
 
    protected Subject createSaslSubject(String userName, UserData userData) {
       UserPrincipal userPrincipal = new UserPrincipal(userName);

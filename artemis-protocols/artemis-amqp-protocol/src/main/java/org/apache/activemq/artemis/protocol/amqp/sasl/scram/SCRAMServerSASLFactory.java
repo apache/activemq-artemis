@@ -85,10 +85,12 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
       private final String loginConfigScope;
       private LoginContext loginContext = null;
       private Subject loginSubject;
+      private final Logger logger;
 
       JAASSCRAMServerSASL(SCRAM scram, String loginConfigScope, Logger logger) throws NoSuchAlgorithmException {
-         super(scram, logger);
+         super(scram);
          this.loginConfigScope = loginConfigScope;
+         this.logger = logger;
       }
 
       @Override
@@ -143,6 +145,11 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
          }
          loginContext = null;
          loginSubject = null;
+      }
+
+      @Override
+      protected void failed(Exception e) {
+         logger.warn("SASL-SCRAM Authentication failed", e);
       }
 
    }

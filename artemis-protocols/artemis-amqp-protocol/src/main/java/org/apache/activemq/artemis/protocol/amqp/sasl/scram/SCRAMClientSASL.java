@@ -40,14 +40,19 @@ public class SCRAMClientSASL implements ClientSASL {
     * @param username the username for authentication
     * @param password the password for authentication
     */
+
    public SCRAMClientSASL(SCRAM scram, String username, String password) {
+      this(scram, username, password, UUID.randomUUID().toString());
+   }
+
+   protected SCRAMClientSASL(SCRAM scram, String username, String password, String nonce) {
       Objects.requireNonNull(scram);
       Objects.requireNonNull(username);
       Objects.requireNonNull(password);
       this.username = username;
       this.password = password;
       this.scramType = scram;
-      client = new ScramClientFunctionalityImpl(scram.getDigest(), scram.getHmac(), UUID.randomUUID().toString());
+      client = new ScramClientFunctionalityImpl(scram.getDigest(), scram.getHmac(), nonce);
    }
 
    @Override
