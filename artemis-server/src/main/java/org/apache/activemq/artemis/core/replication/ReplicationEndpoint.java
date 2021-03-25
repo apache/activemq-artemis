@@ -134,7 +134,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private List<Interceptor> outgoingInterceptors = null;
 
    private final ArrayDeque<Packet> pendingPackets;
-
+   // this is valid only iff supportResponseBatching == true
+   private int maxBatchSize;
+   private int batchSize;
 
    // Constructors --------------------------------------------------
    public ReplicationEndpoint(final ActiveMQServerImpl server,
@@ -147,6 +149,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       this.activation = activation;
       this.pendingPackets = new ArrayDeque<>();
       this.supportResponseBatching = false;
+      this.maxBatchSize = -1;
+      this.batchSize = 0;
    }
 
    // Public --------------------------------------------------------
@@ -250,13 +254,24 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             logger.trace("Returning " + response);
          }
          if (supportResponseBatching) {
-            pendingPackets.add(response);
+            addBatch(response);
          } else {
             channel.send(response);
          }
       } else {
          logger.trace("Response is null, ignoring response");
       }
+   }
+
+   private void addBatch(Packet packet) {
+      assert supportResponseBatching;
+      final int encodedSize = packet.expectedEncodeSize();
+      if (batchSize + encodedSize > maxBatchSize) {
+         endOfBatch();
+         assert batchSize == 0 && pendingPackets.isEmpty();
+      }
+      pendingPackets.add(packet);
+      batchSize += encodedSize;
    }
 
    @Override
@@ -277,6 +292,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          }
          channel.send(packet, flush);
       }
+      batchSize = 0;
    }
 
    /**
@@ -398,6 +414,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             final CoreRemotingConnection connection = channel.getConnection();
             if (connection != null) {
                this.supportResponseBatching = connection.getTransportConnection() instanceof NettyConnection;
+               if (supportResponseBatching) {
+                  this.maxBatchSize = ((NettyConnection) connection.getTransportConnection()).getNettyChannel().config().getWriteBufferHighWaterMark();
+               }
             } else {
                this.supportResponseBatching = false;
             }
