@@ -392,7 +392,7 @@ public interface Queue extends Bindable,CriticalComponent {
    Pair<Boolean, Boolean> checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
 
    /**
-    * It will iterate thorugh memory only (not paging)
+    * It will iterate through memory only (not paging)
     *
     * @return
     */

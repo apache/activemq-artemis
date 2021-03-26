@@ -25,17 +25,21 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.management.openmbean.CompositeData;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -348,6 +352,15 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          server.stop();
 
          server.start();
+
+
+         QueueControl queueControl = ManagementControlHelper.createQueueControl(queue.getAddress(), queue.getName(), RoutingType.ANYCAST, this.mBeanServer);
+         CompositeData[] browseResult = queueControl.browse();
+         assertEquals(1, browseResult.length);
+
+         if ((boolean) browseResult[0].get("largeMessage")) {
+            assertTrue(browseResult[0].containsKey("BodyPreview"));
+         }
 
          connection = client.createConnection();
          addConnection(connection);
