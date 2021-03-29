@@ -48,7 +48,7 @@ public class SSLProviderTwoWayTest extends SSLTestBase {
 
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, SERVER_SIDE_TRUSTSTORE);
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
-      params.put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, "JKS");
+      params.put(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME, "JKS");
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
    }
 
