@@ -188,7 +188,9 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
 
       boolean awaitConnectionOpen = serverConnectionOpen.await(10, TimeUnit.SECONDS);
       assertTrue("Broker did not open connection in alotted time", awaitConnectionOpen);
+      assertEquals(SCRAM.SHA512.getName(), authenticator.chosenMech);
       assertTrue(authenticator.succeeded());
+
    }
 
    @Test(timeout = 20000)
@@ -346,6 +348,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       private final SCRAM mech;
       private Sasl sasl;
       private TestSCRAMServerSASL serverSASL;
+      private String chosenMech;
 
       SCRAMTestAuthenticator(SCRAM mech) {
          this.mech = mech;
@@ -356,7 +359,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
          this.sasl = transport.sasl();
          sasl.server();
          sasl.allowSkip(false);
-         sasl.setMechanisms(mech.getName());
+         sasl.setMechanisms(mech.getName(), PLAIN, ANONYMOUS);
          try {
             serverSASL = new TestSCRAMServerSASL(mech);
          } catch (NoSuchAlgorithmException e) {
@@ -373,6 +376,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
             completionHandler.handle(false);
             return;
          }
+         chosenMech = remoteMechanisms[0];
          byte[] msg = new byte[pending];
          sasl.recv(msg, 0, msg.length);
          byte[] result = serverSASL.processSASL(msg);
