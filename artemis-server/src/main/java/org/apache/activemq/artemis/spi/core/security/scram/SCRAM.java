@@ -22,13 +22,10 @@ package org.apache.activemq.artemis.spi.core.security.scram;
 public enum SCRAM {
                    // ordered by precedence
                    SHA512,
-                   SHA256,
-                   SHA1;
+                   SHA256;
 
    public String getName() {
       switch (this) {
-         case SHA1:
-            return "SCRAM-SHA-1";
          case SHA256:
             return "SCRAM-SHA-256";
          case SHA512:
@@ -39,8 +36,6 @@ public enum SCRAM {
 
    public String getDigest() {
       switch (this) {
-         case SHA1:
-            return "SHA-1";
          case SHA256:
             return "SHA-256";
          case SHA512:
@@ -51,8 +46,6 @@ public enum SCRAM {
 
    public String getHmac() {
       switch (this) {
-         case SHA1:
-            return "HmacSHA1";
          case SHA256:
             return "HmacSHA256";
          case SHA512:
