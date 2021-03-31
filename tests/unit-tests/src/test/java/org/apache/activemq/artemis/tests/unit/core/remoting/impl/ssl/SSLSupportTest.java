@@ -35,12 +35,19 @@ public class SSLSupportTest extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "storeProvider={0}, storeType={1}")
    public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{
-         {TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_TYPE},
-         {"SunJCE", "JCEKS"},
-         {"SUN", "JKS"},
-         {"SunJSSE", "PKCS12"}
-      });
+      if (System.getProperty("java.vendor").contains("IBM")) {
+         return Arrays.asList(new Object[][]{
+            {TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_TYPE},
+            {"IBMJCE", "JCEKS"}
+         });
+      } else {
+         return Arrays.asList(new Object[][]{
+            {TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_TYPE},
+            {"SunJCE", "JCEKS"},
+            {"SUN", "JKS"},
+            {"SunJSSE", "PKCS12"}
+         });
+      }
    }
 
    public SSLSupportTest(String storeProvider, String storeType) {
