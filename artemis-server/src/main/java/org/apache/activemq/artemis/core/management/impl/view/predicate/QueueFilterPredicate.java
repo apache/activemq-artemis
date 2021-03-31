@@ -18,19 +18,14 @@ package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.core.management.impl.view.QueueField;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.Queue;
 
 public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> {
 
-   enum Field {
-      ID, NAME, CONSUMER_ID, QUEUE, ADDRESS, MAX_CONSUMERS, FILTER, MESSAGE_COUNT, CONSUMER_COUNT, DELIVERING_COUNT,
-      MESSAGES_ADDED, MESSAGES_ACKED, RATE, ROUTING_TYPE, USER, AUTO_CREATED, DURABLE, PAUSED, TEMPORARY,
-      PURGE_ON_NO_CONSUMERS, MESSAGES_KILLED, DIRECT_DELIVER, LAST_VALUE, EXCLUSIVE, SCHEDULED_COUNT
-   }
-
-   private Field f;
+   private QueueField f;
 
    private ActiveMQServer server;
 
@@ -109,7 +104,12 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
    @Override
    public void setField(String field) {
       if (field != null && !field.equals("")) {
-         this.f = Field.valueOf(field.toUpperCase());
+         this.f = QueueField.valueOfName(field);
+
+         //for backward compatibility
+         if (this.f == null) {
+            this.f = QueueField.valueOf(field);
+         }
       }
    }
 }

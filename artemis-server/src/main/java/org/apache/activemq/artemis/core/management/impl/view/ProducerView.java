@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
 
-   private static final String defaultSortColumn = "creationTime";
+   private static final String defaultSortColumn = ProducerField.CREATION_TIME.getName();
 
    private final ActiveMQServer server;
 
@@ -51,21 +51,22 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          return null;
       }
 
-      String jmsSessionClientID = null;
+      String sessionClientID = session.getRemotingConnection().getClientID();
       //for the special case for JMS
-      if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
-         jmsSessionClientID = session.getMetaData("jms-client-id");
+      if (sessionClientID == null && session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
+         sessionClientID = session.getMetaData("jms-client-id");
       }
 
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(producer.getID()))
-         .add("session", toString(session.getName()))
-         .add("clientID", toString(session.getRemotingConnection().getClientID() != null ? session.getRemotingConnection().getClientID() : jmsSessionClientID))
-         .add("user", toString(session.getUsername()))
-         .add("protocol", toString(session.getRemotingConnection().getProtocolName()))
-         .add("address", toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress()))
-         .add("localAddress", toString(session.getRemotingConnection().getTransportConnection().getLocalAddress()))
-         .add("remoteAddress", toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress()))
-         .add("creationTime", toString(producer.getCreationTime()));
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
+         .add(ProducerField.ID.getName(), toString(producer.getID()))
+         .add(ProducerField.SESSION.getName(), toString(session.getName()))
+         .add(ProducerField.CLIENT_ID.getName(), toString(sessionClientID))
+         .add(ProducerField.USER.getName(), toString(session.getUsername()))
+         .add(ProducerField.PROTOCOL.getName(), toString(session.getRemotingConnection().getProtocolName()))
+         .add(ProducerField.ADDRESS.getName(), toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress()))
+         .add(ProducerField.LOCAL_ADDRESS.getName(), toString(session.getRemotingConnection().getTransportConnection().getLocalAddress()))
+         .add(ProducerField.REMOTE_ADDRESS.getName(), toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress()))
+         .add(ProducerField.CREATION_TIME.getName(), toString(producer.getCreationTime()));
       return obj;
    }
 
@@ -78,24 +79,26 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          return null;
       }
 
-      switch (fieldName) {
-         case "id":
+      ProducerField field = ProducerField.valueOfName(fieldName);
+
+      switch (field) {
+         case ID:
             return producer.getID();
-         case "session":
+         case SESSION:
             return session.getName();
-         case "user":
+         case USER:
             return session.getUsername();
-         case "clientID":
+         case CLIENT_ID:
             return session.getRemotingConnection().getClientID();
-         case "protocol":
+         case PROTOCOL:
             return session.getRemotingConnection().getProtocolName();
-         case "address":
+         case ADDRESS:
             return producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress();
-         case "localAddress":
+         case LOCAL_ADDRESS:
             return session.getRemotingConnection().getTransportConnection().getLocalAddress();
-         case "remoteAddress":
+         case REMOTE_ADDRESS:
             return session.getRemotingConnection().getTransportConnection().getRemoteAddress();
-         case "creationTime":
+         case CREATION_TIME:
             return producer.getCreationTime();
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);

@@ -16,16 +16,13 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
+import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 
 public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsumer> {
 
-   enum Field {
-      ID, SESSION_ID, QUEUE, FILTER, ADDRESS, USER, PROTOCOL, CLIENT_ID, LOCAL_ADDRESS, REMOTE_ADDRESS
-   }
-
-   private Field f;
+   private ConsumerField f;
 
    private final ActiveMQServer server;
 
@@ -42,7 +39,7 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
       switch (f) {
          case ID:
             return matches(consumer.getSequentialID());
-         case SESSION_ID:
+         case SESSION:
             return matches(consumer.getSessionID());
          case USER:
             return matches(server.getSessionByID(consumer.getSessionID()).getUsername());
@@ -67,7 +64,12 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
    @Override
    public void setField(String field) {
       if (field != null && !field.equals("")) {
-         this.f = Field.valueOf(field.toUpperCase());
+         this.f = ConsumerField.valueOfName(field);
+
+         //for backward compatibility
+         if (this.f == null) {
+            this.f = ConsumerField.valueOf(field);
+         }
       }
    }
 }

@@ -118,14 +118,14 @@ var Artemis;
 
         ctrl.filter = {
             fieldOptions: [
-                {id: 'connection_id', name: 'ID'},
-                {id: 'client_id', name: 'Client ID'},
+                {id: 'connectionID', name: 'ID'},
+                {id: 'clientID', name: 'Client ID'},
                 {id: 'users', name: 'Users'},
                 {id: 'protocol', name: 'Protocol'},
-                {id: 'session_count', name: 'Session Count'},
-                {id: 'remote_address', name: 'Remote Address'},
-                {id: 'local_address', name: 'Local Address'},
-                {id: 'session_id', name: 'Session ID'}
+                {id: 'sessionCount', name: 'Session Count'},
+                {id: 'remoteAddress', name: 'Remote Address'},
+                {id: 'localAddress', name: 'Local Address'},
+                {id: 'sessionID', name: 'Session ID'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},

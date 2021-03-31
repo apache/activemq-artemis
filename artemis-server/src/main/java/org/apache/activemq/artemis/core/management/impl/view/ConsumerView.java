@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
 
-   private static final String defaultSortColumn = "id";
+   private static final String defaultSortColumn = ConsumerField.ID.getName();
 
    private final ActiveMQServer server;
 
@@ -52,24 +52,25 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          return null;
       }
 
-      String jmsSessionClientID = null;
-      //for the special case for JMS
-      if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
-         jmsSessionClientID = session.getMetaData("jms-client-id");
+      String consumerClientID = consumer.getConnectionClientID();
+      if (consumerClientID == null && session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
+         //for the special case for JMS
+         consumerClientID = session.getMetaData("jms-client-id");
       }
 
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(consumer.getSequentialID()))
-         .add("session", toString(consumer.getSessionName()))
-         .add("clientID", toString(consumer.getConnectionClientID() != null ? consumer.getConnectionClientID() : jmsSessionClientID))
-         .add("user", toString(session.getUsername()))
-         .add("protocol", toString(consumer.getConnectionProtocolName()))
-         .add("queue", toString(consumer.getQueueName()))
-         .add("queueType", toString(consumer.getQueueType()).toLowerCase())
-         .add("filter", toString(consumer.getFilterString()))
-         .add("address", toString(consumer.getQueueAddress()))
-         .add("localAddress", toString(consumer.getConnectionLocalAddress()))
-         .add("remoteAddress", toString(consumer.getConnectionRemoteAddress()))
-         .add("creationTime", new Date(consumer.getCreationTime()).toString());
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
+         .add(ConsumerField.ID.getName(), toString(consumer.getSequentialID()))
+         .add(ConsumerField.SESSION.getName(), toString(consumer.getSessionName()))
+         .add(ConsumerField.CLIENT_ID.getName(), toString(consumerClientID))
+         .add(ConsumerField.USER.getName(), toString(session.getUsername()))
+         .add(ConsumerField.PROTOCOL.getName(), toString(consumer.getConnectionProtocolName()))
+         .add(ConsumerField.QUEUE.getName(), toString(consumer.getQueueName()))
+         .add(ConsumerField.QUEUE_TYPE.getName(), toString(consumer.getQueueType()).toLowerCase())
+         .add(ConsumerField.FILTER.getName(), toString(consumer.getFilterString()))
+         .add(ConsumerField.ADDRESS.getName(), toString(consumer.getQueueAddress()))
+         .add(ConsumerField.LOCAL_ADDRESS.getName(), toString(consumer.getConnectionLocalAddress()))
+         .add(ConsumerField.REMOTE_ADDRESS.getName(), toString(consumer.getConnectionRemoteAddress()))
+         .add(ConsumerField.CREATION_TIME.getName(), new Date(consumer.getCreationTime()).toString());
       return obj;
    }
 
@@ -82,28 +83,30 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          return null;
       }
 
-      switch (fieldName) {
-         case "id":
+      ConsumerField field = ConsumerField.valueOfName(fieldName);
+
+      switch (field) {
+         case ID:
             return consumer.getSequentialID();
-         case "session":
+         case SESSION:
             return consumer.getSessionName();
-         case "user":
+         case USER:
             return session.getUsername();
-         case "clientID":
+         case CLIENT_ID:
             return consumer.getConnectionClientID();
-         case "protocol":
+         case PROTOCOL:
             return consumer.getConnectionProtocolName();
-         case "queue":
+         case QUEUE:
             return consumer.getQueueName();
-         case "queueType":
+         case QUEUE_TYPE:
             return consumer.getQueueType();
-         case "filter":
+         case FILTER:
             return consumer.getFilterString();
-         case "localAddress":
+         case LOCAL_ADDRESS:
             return consumer.getConnectionLocalAddress();
-         case "remoteAddress":
+         case REMOTE_ADDRESS:
             return consumer.getConnectionRemoteAddress();
-         case "creationTime":
+         case CREATION_TIME:
             return new Date(consumer.getCreationTime());
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);

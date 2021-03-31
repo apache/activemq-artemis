@@ -16,15 +16,12 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
+import org.apache.activemq.artemis.core.management.impl.view.SessionField;
 import org.apache.activemq.artemis.core.server.ServerSession;
 
 public class SessionFilterPredicate extends ActiveMQFilterPredicate<ServerSession> {
 
-   enum Field {
-      ID, CONNECTION_ID, CONSUMER_COUNT, PRODUCER_COUNT, USER, PROTOCOL, CLIENT_ID, LOCAL_ADDRESS, REMOTE_ADDRESS
-   }
-
-   private Field f;
+   private SessionField f;
 
    public SessionFilterPredicate() {
       super();
@@ -59,7 +56,12 @@ public class SessionFilterPredicate extends ActiveMQFilterPredicate<ServerSessio
    @Override
    public void setField(String field) {
       if (field != null && !field.equals("")) {
-         this.f = Field.valueOf(field.toUpperCase());
+         this.f = SessionField.valueOfName(field);
+
+         //for backward compatibility
+         if (this.f == null) {
+            this.f = SessionField.valueOf(field);
+         }
       }
    }
 }
