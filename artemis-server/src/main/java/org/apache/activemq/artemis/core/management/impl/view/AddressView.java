@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class AddressView extends ActiveMQAbstractView<AddressInfo> {
 
-   private static final String defaultSortColumn = "id";
+   private static final String defaultSortColumn = AddressField.ID.getName();
 
    private final ActiveMQServer server;
 
@@ -45,13 +45,16 @@ public class AddressView extends ActiveMQAbstractView<AddressInfo> {
          return null;
       }
 
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(address.getId())).add("name", toString(address.getName())).add("routingTypes", toString(address.getRoutingTypes()));
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
+         .add(AddressField.ID.getName(), toString(address.getId()))
+         .add(AddressField.NAME.getName(), toString(address.getName()))
+         .add(AddressField.ROUTING_TYPES.getName(), toString(address.getRoutingTypes()));
 
       try {
-         obj.add("queueCount", toString(server.bindingQuery(address.getName()).getQueueNames().size()));
+         obj.add(AddressField.QUEUE_COUNT.getName(), toString(server.bindingQuery(address.getName()).getQueueNames().size()));
          return obj;
       } catch (Exception e) {
-         obj.add("queueCount", 0);
+         obj.add(AddressField.QUEUE_COUNT.getName(), 0);
       }
       return obj;
    }
@@ -62,14 +65,16 @@ public class AddressView extends ActiveMQAbstractView<AddressInfo> {
          return null;
       }
 
-      switch (fieldName) {
-         case "id":
+      AddressField field = AddressField.valueOfName(fieldName);
+
+      switch (field) {
+         case ID:
             return address.getId();
-         case "name":
+         case NAME:
             return address.getName();
-         case "routingTypes":
+         case ROUTING_TYPES:
             return address.getRoutingTypes();
-         case "queueCount":
+         case QUEUE_COUNT:
             try {
                return server.bindingQuery(address.getName()).getQueueNames().size();
             } catch (Exception e) {

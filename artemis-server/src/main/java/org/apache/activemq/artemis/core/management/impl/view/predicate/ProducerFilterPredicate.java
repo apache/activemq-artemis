@@ -16,16 +16,13 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
+import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 
 public class ProducerFilterPredicate extends ActiveMQFilterPredicate<ServerProducer> {
 
-   enum Field {
-      ID, SESSION_ID, CONNECTION_ID, ADDRESS, USER, PROTOCOL, CLIENT_ID, LOCAL_ADDRESS, REMOTE_ADDRESS
-   }
-
-   private Field f;
+   private ProducerField f;
 
    private final ActiveMQServer server;
 
@@ -44,7 +41,7 @@ public class ProducerFilterPredicate extends ActiveMQFilterPredicate<ServerProdu
             return matches(producer.getID());
          case CONNECTION_ID:
             return matches(producer.getConnectionID());
-         case SESSION_ID:
+         case SESSION:
             return matches(producer.getSessionID());
          case USER:
             return matches(server.getSessionByID(producer.getSessionID()).getUsername());
@@ -65,7 +62,12 @@ public class ProducerFilterPredicate extends ActiveMQFilterPredicate<ServerProdu
    @Override
    public void setField(String field) {
       if (field != null && !field.equals("")) {
-         this.f = Field.valueOf(field.toUpperCase());
+         this.f = ProducerField.valueOfName(field);
+
+         //for backward compatibility
+         if (this.f == null) {
+            this.f = ProducerField.valueOf(field);
+         }
       }
    }
 }

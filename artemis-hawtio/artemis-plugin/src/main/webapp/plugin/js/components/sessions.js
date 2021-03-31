@@ -114,13 +114,13 @@ var Artemis;
         ctrl.filter = {
             fieldOptions: [
                 {id: 'id', name: 'ID'},
-                {id: 'connection_id', name: 'Connection ID'},
-                {id: 'consumer_count', name: 'Consumer Count'},
+                {id: 'connectionID', name: 'Connection ID'},
+                {id: 'consumerCount', name: 'Consumer Count'},
                 {id: 'user', name: 'User'},
                 {id: 'protocol', name: 'Protocol'},
-                {id: 'client_id', name: 'Client ID'},
-                {id: 'local_address', name: 'Local Address'},
-                {id: 'remote_address', name: 'Remote Address'}
+                {id: 'clientID', name: 'Client ID'},
+                {id: 'localAddress', name: 'Local Address'},
+                {id: 'remoteAddress', name: 'Remote Address'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},

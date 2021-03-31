@@ -117,15 +117,15 @@ var Artemis;
         }
         ctrl.filter = {
             fieldOptions: [
-                {id: 'ID', name: 'ID'},
-                {id: 'SESSION_ID', name: 'Session ID'},
-                {id: 'CLIENT_ID', name: 'Client ID'},
-                {id: 'USER', name: 'User'},
-                {id: 'ADDRESS', name: 'Address'},
-                {id: 'QUEUE', name: 'Queue'},
-                {id: 'PROTOCOL', name: 'Protocol'},
-                {id: 'LOCAL_ADDRESS', name: 'Local Address'},
-                {id: 'REMOTE_ADDRESS', name: 'Remote Address'}
+                {id: 'id', name: 'ID'},
+                {id: 'session', name: 'Session'},
+                {id: 'clientID', name: 'Client ID'},
+                {id: 'user', name: 'User'},
+                {id: 'address', name: 'Address'},
+                {id: 'queue', name: 'Queue'},
+                {id: 'protocol', name: 'Protocol'},
+                {id: 'localAddress', name: 'Local Address'},
+                {id: 'remoteAddress', name: 'Remote Address'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -197,10 +197,10 @@ var Artemis;
         };
 
         if (artemisConsumer.consumer) {
-            Artemis.log.debug("navigating to consumer = " + artemisConsumer.consumer.sessionID);
+            Artemis.log.debug("navigating to consumer = " + artemisConsumer.consumer.session);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
-            ctrl.filter.values.value = artemisConsumer.consumer.sessionID;
+            ctrl.filter.values.value = artemisConsumer.consumer.session;
             artemisConsumer.consumer = null;
         }
 

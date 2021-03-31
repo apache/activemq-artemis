@@ -20,17 +20,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingConnection> {
 
-   enum Field {
-      CONNECTION_ID, CLIENT_ID, USERS, PROTOCOL, SESSION_COUNT, REMOTE_ADDRESS, LOCAL_ADDRESS, SESSION_ID
-   }
-
-   private Field f;
+   private ConnectionField f;
 
    private ActiveMQServer server;
 
@@ -66,6 +63,10 @@ public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingC
             return matches(connection.getTransportConnection().getLocalAddress());
          case SESSION_ID:
             return matchAny(server.getSessions(connection.getID().toString()));
+         case CREATION_TIME:
+            return matches(connection.getCreationTime());
+         case IMPLEMENTATION:
+            return matches(connection.getClass().getSimpleName());
       }
       return true;
    }
@@ -73,7 +74,12 @@ public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingC
    @Override
    public void setField(String field) {
       if (field != null && !field.equals("")) {
-         this.f = Field.valueOf(field.toUpperCase());
+         this.f = ConnectionField.valueOfName(field);
+
+         //for backward compatibility
+         if (this.f == null) {
+            this.f = ConnectionField.valueOf(field);
+         }
       }
    }
 }

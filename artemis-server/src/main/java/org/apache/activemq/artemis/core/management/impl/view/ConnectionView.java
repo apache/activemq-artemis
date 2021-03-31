@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.utils.StringUtil;
 
 public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
-   private static final String defaultSortColumn = "connectionID";
+   private static final String defaultSortColumn = ConnectionField.CONNECTION_ID.getName();
 
    private final ActiveMQServer server;
 
@@ -62,25 +62,28 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          }
       }
 
-      return JsonLoader.createObjectBuilder().add("connectionID", toString(connection.getID()))
-         .add("remoteAddress", toString(connection.getRemoteAddress()))
-         .add("users", StringUtil.joinStringList(users, ","))
-         .add("creationTime", new Date(connection.getCreationTime()).toString())
-         .add("implementation", toString(connection.getClass().getSimpleName()))
-         .add("protocol", toString(connection.getProtocolName()))
-         .add("clientID", toString(connection.getClientID() != null ? connection.getClientID() : jmsSessionClientID))
-         .add("localAddress", toString(connection.getTransportLocalAddress()))
-         .add("sessionCount", sessions.size());
+      return JsonLoader.createObjectBuilder()
+         .add(ConnectionField.CONNECTION_ID.getName(), toString(connection.getID()))
+         .add(ConnectionField.REMOTE_ADDRESS.getName(), toString(connection.getRemoteAddress()))
+         .add(ConnectionField.USERS.getName(), StringUtil.joinStringList(users, ","))
+         .add(ConnectionField.CREATION_TIME.getName(), new Date(connection.getCreationTime()).toString())
+         .add(ConnectionField.IMPLEMENTATION.getName(), toString(connection.getClass().getSimpleName()))
+         .add(ConnectionField.PROTOCOL.getName(), toString(connection.getProtocolName()))
+         .add(ConnectionField.CLIENT_ID.getName(), toString(connection.getClientID() != null ? connection.getClientID() : jmsSessionClientID))
+         .add(ConnectionField.LOCAL_ADDRESS.getName(), toString(connection.getTransportLocalAddress()))
+         .add(ConnectionField.SESSION_COUNT.getName(), sessions.size());
    }
 
    @Override
    public Object getField(RemotingConnection connection, String fieldName) {
-      switch (fieldName) {
-         case "connectionID":
+      ConnectionField field = ConnectionField.valueOfName(fieldName);
+
+      switch (field) {
+         case CONNECTION_ID:
             return connection.getID();
-         case "remoteAddress":
+         case REMOTE_ADDRESS:
             return connection.getRemoteAddress();
-         case "users":
+         case USERS:
             Set<String> users = new TreeSet<>();
             List<ServerSession> sessions = server.getSessions(connection.getID().toString());
             for (ServerSession session : sessions) {
@@ -88,17 +91,17 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
                users.add(username);
             }
             return StringUtil.joinStringList(users, ",");
-         case "creationTime":
+         case CREATION_TIME:
             return new Date(connection.getCreationTime());
-         case "implementation":
+         case IMPLEMENTATION:
             return connection.getClass().getSimpleName();
-         case "protocol":
+         case PROTOCOL:
             return connection.getProtocolName();
-         case "clientID":
+         case CLIENT_ID:
             return connection.getClientID();
-         case "localAddress":
+         case LOCAL_ADDRESS:
             return connection.getTransportLocalAddress();
-         case "sessionCount":
+         case SESSION_COUNT:
             return server.getSessions(connection.getID().toString()).size();
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);

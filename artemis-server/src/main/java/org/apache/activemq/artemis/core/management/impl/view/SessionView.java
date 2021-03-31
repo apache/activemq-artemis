@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class SessionView extends ActiveMQAbstractView<ServerSession> {
 
-   private static final String defaultSortColumn = "id";
+   private static final String defaultSortColumn = SessionField.ID.getName();
 
    public SessionView() {
       super();
@@ -39,29 +39,32 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
 
    @Override
    public JsonObjectBuilder toJson(ServerSession session) {
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(session.getName()))
-         .add("user", toString(session.getUsername()))
-         .add("creationTime", new Date(session.getCreationTime()).toString())
-         .add("consumerCount", session.getConsumerCount())
-         .add("producerCount", session.getProducerCount())
-         .add("connectionID", session.getConnectionID().toString());
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
+         .add(SessionField.ID.getName(), toString(session.getName()))
+         .add(SessionField.USER.getName(), toString(session.getUsername()))
+         .add(SessionField.CREATION_TIME.getName(), new Date(session.getCreationTime()).toString())
+         .add(SessionField.CONSUMER_COUNT.getName(), session.getConsumerCount())
+         .add(SessionField.PRODUCER_COUNT.getName(), session.getProducerCount())
+         .add(SessionField.CONNECTION_ID.getName(), session.getConnectionID().toString());
       return obj;
    }
 
    @Override
    public Object getField(ServerSession session, String fieldName) {
-      switch (fieldName) {
-         case "id":
+      SessionField field = SessionField.valueOfName(fieldName);
+
+      switch (field) {
+         case ID:
             return session.getName();
-         case "user":
+         case USER:
             return session.getUsername();
-         case "creationTime":
+         case CREATION_TIME:
             return new Date(session.getCreationTime());
-         case "consumerCount":
+         case CONSUMER_COUNT:
             return session.getConsumerCount();
-         case "producerCount":
+         case PRODUCER_COUNT:
             return session.getProducerCount();
-         case "connectionID":
+         case CONNECTION_ID:
             return session.getConnectionID();
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);

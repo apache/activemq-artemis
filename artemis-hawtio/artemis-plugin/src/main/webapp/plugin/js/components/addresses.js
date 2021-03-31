@@ -100,8 +100,8 @@ var Artemis;
             fieldOptions: [
                 {id: 'id', name: 'ID'},
                 {id: 'name', name: 'Name'},
-                {id: 'routing_Types', name: 'Routing Types'},
-                {id: 'queue_Count', name: 'Queue Count'}
+                {id: 'routingTypes', name: 'Routing Types'},
+                {id: 'queueCount', name: 'Queue Count'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},

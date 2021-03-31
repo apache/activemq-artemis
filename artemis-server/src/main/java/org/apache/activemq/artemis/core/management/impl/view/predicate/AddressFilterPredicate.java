@@ -16,16 +16,13 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
+import org.apache.activemq.artemis.core.management.impl.view.AddressField;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressInfo> {
 
-   enum Field {
-      ID, NAME, ROUTING_TYPES, PRODUCER_ID, QUEUE_COUNT
-   }
-
-   private Field f;
+   private AddressField f;
 
    private final ActiveMQServer server;
 
@@ -61,7 +58,12 @@ public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressInfo>
    @Override
    public void setField(String field) {
       if (field != null && !field.equals("")) {
-         this.f = Field.valueOf(field.toUpperCase());
+         this.f = AddressField.valueOfName(field);
+
+         //for backward compatibility
+         if (this.f == null) {
+            this.f = AddressField.valueOf(field);
+         }
       }
    }
 }

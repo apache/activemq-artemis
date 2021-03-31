@@ -28,6 +28,8 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Command(name = "stat", description = "prints out basic stats associated with queues. Output includes CONSUMER_COUNT (number of consumers), MESSAGE_COUNT (current message count on the queue, including scheduled, paged and in-delivery messages), MESSAGES_ADDED (messages added to the queue), DELIVERING_COUNT (messages broker is currently delivering to consumer(s)), MESSAGES_ACKED (messages acknowledged from the consumer(s))." + " Queues can be filtered using EITHER '--queueName X' where X is contained in the queue name OR using a full filter '--field NAME --operation EQUALS --value X'."
 
@@ -35,8 +37,15 @@ import java.util.HashMap;
 public class StatQueue extends AbstractAction {
 
    public enum FIELD {
-
       NAME("name"), ADDRESS("address"), CONSUMER_COUNT("consumerCount"), MESSAGE_COUNT("messageCount"), MESSAGES_ADDED("messagesAdded"), DELIVERING_COUNT("deliveringCount"), MESSAGES_ACKED("messagesAcked"), SCHEDULED_COUNT("scheduledCount"), ROUTING_TYPE("routingType");
+
+      private static final Map<String, FIELD> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+      static {
+         for (FIELD e: values()) {
+            lookup.put(e.jsonId, e);
+         }
+      }
 
       private String jsonId;
 
@@ -48,6 +57,9 @@ public class StatQueue extends AbstractAction {
          return this.jsonId;
       }
 
+      public static FIELD valueOfJsonId(String jsonId) {
+         return lookup.get(jsonId);
+      }
    }
 
    public enum OPERATION {
@@ -224,7 +236,13 @@ public class StatQueue extends AbstractAction {
 
       if ((fieldName != null) && (fieldName.trim().length() > 0)) {
          try {
-            FIELD field = FIELD.valueOf(fieldName);
+            FIELD field = FIELD.valueOfJsonId(fieldName);
+
+            //for backward compatibility
+            if (field == null) {
+               field = FIELD.valueOf(fieldName);
+            }
+
             filterMap.put("field", field.toString());
          } catch (IllegalArgumentException ex) {
             context.err.println("'--field' must be set to one of the following " + Arrays.toString(FIELD.values()));
