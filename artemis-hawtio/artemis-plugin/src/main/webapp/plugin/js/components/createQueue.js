@@ -190,6 +190,7 @@ var Artemis;
                 {
                     address = address.substr(1,address.length -2);
                 }
+                address = unescape(address)
                 $scope.message = "Created queue " + queueName + " durable=" + durable + " filter=" + filter + " routing type=" + routingType + " max consumers=" + maxConsumers + " purge..=" + purgeWhenNoConsumers + " on address " + address;
                 if (routingType == "Multicast") {
                     Artemis.log.debug($scope.message);
@@ -200,6 +201,18 @@ var Artemis;
                 }
             }
         };
+
+        // unescape name from JMX https://docs.oracle.com/en/java/javase/11/docs/api/java.management/javax/management/ObjectName.html#quote(java.lang.String)
+        function unescape(input) {
+            var result = input;
+
+            result = result.replace('\\"', '"');
+            result = result.replace("\\*", "*");
+            result = result.replace("\\?", "?");
+            result = result.replace("\\\\", "\\");
+
+            return result;
+        }
     }
     CreateQueueController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage'];
 
