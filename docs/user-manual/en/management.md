@@ -6,18 +6,21 @@ queues), inspect these resources (e.g. how many messages are currently held in
 a queue) and interact with it (e.g. to remove messages from a queue). Apache
 ActiveMQ Artemis also allows clients to subscribe to management notifications.
 
-There are four ways to access Apache ActiveMQ Artemis management API:
+There are numerous ways to access Apache ActiveMQ Artemis management API:
 
 - Using JMX -- *JMX* is the standard way to manage Java applications
 
-- Using Jolokia -- Jolokia exposes the JMX API of an application through a
-  *REST interface*
+- Using Jolokia -- Jolokia exposes the JMX API of an application through an
+  *HTTP interface*
 
 - Using the Core Client -- management operations are sent to Apache ActiveMQ
   Artemis server using *Core Client messages*
 
 - Using any JMS Client -- management operations are sent to Apache ActiveMQ 
   Artemis server using *JMS Client messages*
+
+- Web Console -- a web application which provides a graphical interface to the
+  management API.
 
 Although there are four different ways to manage Apache ActiveMQ Artemis, each
 API supports the same functionality. If it is possible to manage a resource
@@ -29,12 +32,6 @@ ActiveMQ Artemis.
 
 The choice depends on your requirements, your application settings, and your
 environment to decide which way suits you best.
-
-> **Note:**
->
-> In version 2 of Apache ActiveMQ Artemis the syntax used for MBean Object
-> names has changed significantly due to changes in the addressing scheme. See
-> the documentation for each individual resource for details on the new syntax.
 
 ## The Management API
 
@@ -49,14 +46,7 @@ interfaces. They are located in the
 `org.apache.activemq.artemis.api.core.management` package and they are named
 with the word `Control` at the end.
 
-The way to invoke management operations depends on whether JMX, Core messages,
-or JMS messages are used.
-
-### Management API
-
-For full details of the API please consult the Javadoc. In summary:
-
-#### Server Management
+### Server Management
 
 The `ActiveMQServerControl` interface is the entry point for broker management.
 
@@ -127,7 +117,7 @@ The `ActiveMQServerControl` interface is the entry point for broker management.
   > Since this method actually stops the server you will probably receive some
   > sort of error depending on which management service you use to call it.
 
-#### Address Management
+### Address Management
 
 Individual addresses can be managed using the `AddressControl` interface.
 
@@ -144,7 +134,7 @@ Individual addresses can be managed using the `AddressControl` interface.
   Thus all messages sent to the address will be received but not delivered. When it is
   resumed, delivering will occur again.
 
-#### Queue Management
+### Queue Management
 
 The bulk of the management API deals with queues. The `QueueControl` interface
 defines the queue management operations.
@@ -223,7 +213,7 @@ a given property.)
   This is useful where you may need to disable message routing to a queue but wish to keep consumers active
   to investigate issues, without causing further message build up in the queue.
 
-#### Other Resources Management
+### Other Resources Management
 
 Apache ActiveMQ Artemis allows to start and stop its remote resources
 (acceptors, diverts, bridges, etc.) so that a server can be taken off line for
@@ -264,17 +254,15 @@ resources are:
   retrieved using the `ClusterConnectionControl` attributes (see
   [Clusters](clusters.md))
 
-## Using Management Via JMX
+## Management Via JMX
 
 Apache ActiveMQ Artemis can be managed using
 [JMX](http://www.oracle.com/technetwork/java/javase/tech/javamanagement-140525.html).
 
-The management API is exposed by Apache ActiveMQ Artemis using MBeans
-interfaces.  Apache ActiveMQ Artemis registers its resources with the domain
-`org.apache.activemq.artemis`.
-
-For example, the `ObjectName` to manage the anycast queue `exampleQueue` on the
-address `exampleAddress` is:
+The management API is exposed by Apache ActiveMQ Artemis using MBeans. By 
+default, Apache ActiveMQ Artemis registers its resources with the domain 
+`org.apache.activemq.artemis`. For example, the `ObjectName` to manage the
+anycast queue `exampleQueue` on the address `exampleAddress` is:
 
 ```
 org.apache.activemq.artemis:broker=<brokerName>,component=addresses,address="exampleAddress",subcomponent=queues,routing-type="anycast",queue="exampleQueue"
@@ -286,11 +274,9 @@ and the MBean is:
 org.apache.activemq.artemis.api.core.management.QueueControl
 ```
 
-The MBean `ObjectName`'s are built using the helper class
-`org.apache.activemq.artemis.api.core.management.ObjectNameBuilder`. You can
-also use `jconsole` to find the `ObjectName` of the MBean you want to manage.
-
-Example usage of the `ObjectNameBuilder` to obtain `ActiveMQServerControl`'s name:
+The MBean's `ObjectName` is built using the helper class
+`org.apache.activemq.artemis.api.core.management.ObjectNameBuilder`. Example
+usage of the `ObjectNameBuilder` to obtain `ActiveMQServerControl`'s name:
 
 ``` java
 brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
@@ -308,23 +294,22 @@ By default, JMX is enabled to manage Apache ActiveMQ Artemis. It can be
 disabled by setting `jmx-management-enabled` to `false` in `broker.xml`:
 
 ```xml
-<!-- false to disable JMX management for Apache ActiveMQ Artemis -->
 <jmx-management-enabled>false</jmx-management-enabled>
 ```
   
 #### Role Based Authorisation for JMX
 
 Although by default Artemis uses the Java Virtual Machine's `Platform
-MBeanServer` this is guarded using role based authentication that leverages
-Artemis's JAAS plugin support.  This is configured via the `authorisation`
+MBeanServer` this is guarded using role based authorisation that leverages
+the broker's JAAS plugin support.  This is configured via the `authorisation`
 element in the `management.xml` configuration file and can be used to restrict
-access to attributes and methods on mbeans.
+access to attributes and methods on MBeans.
 
 There are 3 elements within the `authorisation` element, `whitelist`,
-`default-access` and `role-access`, Lets discuss each in turn.
+`default-access` and `role-access`. Lets discuss each in turn.
 
-Whitelist contains a list of mBeans that will by pass the authentication, this
-is typically used for any mbeans that are needed by the console to run etc. The
+Whitelist contains a list of MBeans that will bypass the authorisation, this
+is typically used for any MBeans that are needed by the console to run etc. The
 default configuration is:
 
 ```xml
@@ -332,9 +317,9 @@ default configuration is:
    <entry domain="hawtio"/>
 </whitelist>
 ```
-This means that any mbean with the domain `hawtio` will be allowed access
+This means that any MBean with the domain `hawtio` will be allowed access
 without authorisation. for instance `hawtio:plugin=artemis`. You can also use
-wildcards for the mBean properties so the following would also match.
+wildcards for the MBean properties so the following would also match.
 
 ```xml
 <whitelist>
@@ -342,7 +327,7 @@ wildcards for the mBean properties so the following would also match.
 </whitelist>
 ```
 
-The `role-access`defines how roles are mapped to particular mBeans and its
+The `role-access`defines how roles are mapped to particular MBeans and its
 attributes and methods, the default configuration looks like:
 
 ```xml 
@@ -356,12 +341,12 @@ attributes and methods, the default configuration looks like:
   </match>
 </role-access>
 ```
-This contains 1 match and will be applied to any mBean that has the domain
-`org.apache.activemq.artemis`.  Any access to any mBeans that have this domain
+This contains 1 match and will be applied to any MBean that has the domain
+`org.apache.activemq.artemis`.  Any access to any MBeans that have this domain
 are controlled by the `access` elements which contain a method and a set of
 roles. The method being invoked will be used to pick the closest matching
 method and the roles for this will be applied for access. For instance if you
-try the invoke a method called `listMessages` on an mBean with the
+try the invoke a method called `listMessages` on an MBean with the
 `org.apache.activemq.artemis` domain then this would match the `access` with
 the method of `list*`.  You could also explicitly configure this by using the
 full method name, like so:
@@ -369,8 +354,8 @@ full method name, like so:
 ```xml
 <access method="listMessages" roles="view,update,amq"/>
 ```
-You can also match specific mBeans within a domain by adding a key attribute
-that is used to match one of the properties on the mBean, like:
+You can also match specific MBeans within a domain by adding a key attribute
+that is used to match one of the properties on the MBean, like:
 
 ```xml
 <match domain="org.apache.activemq.artemis" key="subcomponent=queues">
@@ -399,8 +384,8 @@ by configuring:
 </match>
 ```
 
-You can also use wildcards for the mBean properties so the following would
-also match, allowing prefix match for the mBean properties.
+You can also use wildcards for the MBean properties so the following would
+also match, allowing prefix match for the MBean properties.
 
 ```xml
 <match domain="org.apache.activemq.artemis" key="queue=example*">
@@ -416,7 +401,7 @@ In case of multiple matches, the exact matches have higher priority than the
 wildcard matches and the longer wildcard matches have higher priority than the
 shorter wildcard matches.
 
-Access to JMX mBean attributes are converted to method calls so these are
+Access to JMX MBean attributes are converted to method calls so these are
 controlled via the `set*`, `get*` and `is*`.  The `*` access is the catch all
 for everything other method that isn't specifically matched.
 
@@ -424,19 +409,22 @@ The `default-access` element is basically the catch all for every method call
 that isn't handled via the `role-access` configuration.  This has the same
 semantics as a `match` element.
 
-> **Note:**
->
-> If JMX is enabled, Apache ActiveMQ Artemis can *not* be managed locally using
-> `jconsole` when connecting as a local process, this is because jconsole does
-> not using any authentication when connecting this way. If you want to use
-> jconsole you will either have to disable authentication, by removing the
-> `authentication` element or enable remote access.
+#### Local JMX Access with JConsole
+
+Due to the authorisation which is enabled by default Apache ActiveMQ Artemis 
+can *not* be managed locally using JConsole when connecting as a *local 
+process*. This is because JConsole does not pass any authentication information
+when connecting this way which means the user cannot therefore be authorised 
+for any management operations. In order to use JConsole the user will either
+have to disable authorisation by completely removing the `authorisation` element
+from `management.xml` or by enabling remote access and providing the proper
+username and password credentials (discussed next).
  
-#### Configuring remote JMX Access
+#### Remote JMX Access
 
 By default remote JMX access to Artemis is disabled for security reasons.
 
-Artemis has a JMX agent which allows access to JMX mBeans remotely. This is
+Artemis has a JMX agent which allows access to JMX MBeans remotely. This is
 configured via the `connector` element in the `management.xml` configuration
 file. To enable this you simply add the following xml:
 
@@ -445,7 +433,7 @@ file. To enable this you simply add the following xml:
 ```
 
 This exposes the agent remotely on the port 1099. If you were connecting via
-jconsole you would connect as a remote process using the service url
+JConsole you would connect as a remote process using the service url
 `service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi` and an appropriate user
 name and password.
 
@@ -519,7 +507,7 @@ You can also configure the connector using the following:
 > **Note:**
 >
 > Remote connections using the default JVM Agent not enabled by default as
-> Artemis exposes the mBean Server via its own configuration.  This is so
+> Artemis exposes the MBean Server via its own configuration.  This is so
 > Artemis can leverage the JAAS authentication layer via JMX. If you want to
 > expose this then you will need to disable both the connector and the
 > authorisation by removing them from the `management.xml` configuration.
@@ -561,14 +549,14 @@ This would give you back something like the following:
 {"request":{"mbean":"org.apache.activemq.artemis:broker=\"0.0.0.0\"","attribute":"Version","type":"read"},"value":"2.0.0-SNAPSHOT","timestamp":1487017918,"status":200}
 ```
 
-### JMX and the Console
+### JMX and the Web Console
 
-The console that ships with Artemis uses Jolokia under the covers which in turn
-uses JMX. This will use the authentication configuration in the
+The web console that ships with Artemis uses Jolokia under the covers which in
+turn uses JMX. This will use the authentication configuration in the
 `management.xml` file as described in the previous section. This means that
-when mBeans are accessed via the console the credentials used to log into the
+when MBeans are accessed via the console the credentials used to log into the
 console and the roles associated with them. By default access to the console is
-only allow via users with the amq role. This is configured in the
+only allow via users with the `amq` role. This is configured in the
 `artemis.profile` via the system property `-Dhawtio.role=amq`.  You can
 configure multiple roles by changing this to `-Dhawtio.roles=amq,view,update`.
 
