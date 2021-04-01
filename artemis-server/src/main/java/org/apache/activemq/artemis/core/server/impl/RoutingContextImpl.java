@@ -192,8 +192,8 @@ public class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public boolean isAlreadyAcked(SimpleString address, Queue queue) {
-      RouteContextList listing = map.get(address);
+   public boolean isAlreadyAcked(Message message, Queue queue) {
+      final RouteContextList listing = map.get(getAddress(message));
       return listing == null ? false : listing.isAlreadyAcked(queue);
    }
 

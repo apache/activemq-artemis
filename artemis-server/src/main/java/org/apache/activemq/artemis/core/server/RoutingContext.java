@@ -68,7 +68,7 @@ public interface RoutingContext {
 
    void addQueueWithAck(SimpleString address, Queue queue);
 
-   boolean isAlreadyAcked(SimpleString address, Queue queue);
+   boolean isAlreadyAcked(Message message, Queue queue);
 
    void setAddress(SimpleString address);
 
