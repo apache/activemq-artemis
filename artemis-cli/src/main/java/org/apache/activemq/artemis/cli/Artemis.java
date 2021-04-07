@@ -46,7 +46,6 @@ import org.apache.activemq.artemis.cli.commands.address.UpdateAddress;
 import org.apache.activemq.artemis.cli.commands.messages.Browse;
 import org.apache.activemq.artemis.cli.commands.messages.Consumer;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
-import org.apache.activemq.artemis.cli.commands.migration1x.Migrate1X;
 import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
 import org.apache.activemq.artemis.cli.commands.queue.HelpQueue;
@@ -177,7 +176,6 @@ public class Artemis {
          builder.withGroup("data").withDescription("data tools group (print) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(PrintData.class);
          builder = builder.withCommand(Create.class);
-         builder = builder.withCommand(Migrate1X.class);
       }
 
       return builder;
