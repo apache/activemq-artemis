@@ -62,7 +62,6 @@
       <module>artemis-hawtio</module>
       <module>integration/activemq-spring-integration</module>
       <module>artemis-distribution</module>
-      <module>artemis-tools</module>
       <module>tests</module>
       <module>artemis-features</module>
    </modules>
@@ -1375,7 +1374,6 @@
                                        <fileset dir="${activemq.basedir}/artemis-server/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-server-osgi/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-service-extensions/target" />
-                                       <fileset dir="${activemq.basedir}/artemis-tools/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-web/target/classes" />
                                     </classfiles>
                                     <sourcefiles encoding="UTF-8">
@@ -1396,7 +1394,6 @@
                                        <fileset dir="${activemq.basedir}/artemis-server/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-server-osgi/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-service-extensions/src/main/java" />
-                                       <fileset dir="${activemq.basedir}/artemis-tools/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-web/src/main/java" />
                                     </sourcefiles>
                                  </structure>
