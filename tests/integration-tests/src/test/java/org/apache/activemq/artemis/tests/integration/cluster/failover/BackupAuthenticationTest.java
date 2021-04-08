@@ -45,9 +45,11 @@ public class BackupAuthenticationTest extends FailoverTestBase {
 
    @Test
    public void testWrongPasswordSetting() throws Exception {
+      FakeServiceComponent fakeServiceComponent = new FakeServiceComponent("fake web server");
       Wait.assertTrue(liveServer.getServer()::isActive);
       waitForServerToStart(liveServer.getServer());
       backupServer.start();
+      backupServer.getServer().addExternalComponent(fakeServiceComponent, true);
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       /*
        * can't intercept the message at the backup, so we intercept the registration message at the
@@ -55,6 +57,7 @@ public class BackupAuthenticationTest extends FailoverTestBase {
        */
       Wait.waitFor(() -> !backupServer.isStarted());
       assertFalse("backup should have stopped", backupServer.isStarted());
+      Wait.assertFalse(fakeServiceComponent::isStarted);
       backupServer.stop();
       liveServer.stop();
    }

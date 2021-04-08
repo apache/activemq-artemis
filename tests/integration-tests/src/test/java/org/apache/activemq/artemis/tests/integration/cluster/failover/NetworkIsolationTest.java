@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -72,7 +73,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
       liveServer.getServer().getNetworkHealthCheck().addAddress(badAddress);
 
-      Assert.assertTrue(Wait.waitFor(() -> !liveServer.isStarted()));
+      Wait.assertFalse(liveServer::isStarted);
 
       liveServer.getServer().getNetworkHealthCheck().clearAddresses();
 
@@ -130,7 +131,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
          backupServer.getServer().getNetworkHealthCheck().clearAddresses();
 
          // This will make sure the backup got synchronized after the network was activated again
-         Assert.assertTrue(backupServer.getServer().getReplicationEndpoint().isStarted());
+         Wait.assertTrue(() -> backupServer.getServer().getReplicationEndpoint().isStarted());
       } finally {
          AssertionLoggerHandler.stopCapture();
       }
@@ -140,13 +141,14 @@ public class NetworkIsolationTest extends FailoverTestBase {
    public void testLiveIsolated() throws Exception {
       backupServer.stop();
 
-      liveServer.stop();
+      FakeServiceComponent component = new FakeServiceComponent("Component for " + getName());
+
+      liveServer.getServer().addExternalComponent(component, true);
       liveServer.getServer().getConfiguration().setNetworkCheckList(badAddress).
          setNetworkCheckPeriod(100).setNetworkCheckTimeout(100);
+      ((ActiveMQServerImpl)liveServer.getServer()).reloadNetworkHealthCheck();
 
       try {
-
-         liveServer.start();
 
          Assert.assertEquals(100L, liveServer.getServer().getNetworkHealthCheck().getPeriod());
 
@@ -154,21 +156,13 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
          Assert.assertFalse(liveServer.getServer().getNetworkHealthCheck().check());
 
-         long timeout = System.currentTimeMillis() + 30000;
-         while (liveServer.isStarted() && System.currentTimeMillis() < timeout) {
-            Thread.sleep(100);
-         }
-
-         Assert.assertFalse(liveServer.isStarted());
+         Wait.assertFalse(liveServer::isStarted);
 
          liveServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress("127.0.0.1");
 
-         timeout = System.currentTimeMillis() + 30000;
-         while (!liveServer.isStarted() && System.currentTimeMillis() < timeout) {
-            Thread.sleep(100);
-         }
+         Wait.assertTrue(liveServer::isStarted);
 
-         Assert.assertTrue(liveServer.isStarted());
+         Assert.assertTrue(component.isStarted());
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
          throw e;
