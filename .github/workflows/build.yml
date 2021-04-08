@@ -44,3 +44,8 @@ jobs:
         run: |
           cd examples
           mvn install -Pexamples,noRun
+
+      - name: javadoc check (mvn javadoc:javadoc -Prelease on JDK 8)
+        if: matrix.java == '8'
+        run: |
+          mvn javadoc:javadoc -Prelease
