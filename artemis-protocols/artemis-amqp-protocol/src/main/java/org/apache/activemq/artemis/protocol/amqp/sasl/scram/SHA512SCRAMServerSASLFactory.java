@@ -14,12 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.spi.core.security.jaas;
+package org.apache.activemq.artemis.protocol.amqp.sasl.scram;
+
+import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 
 /**
- * populate a subject with kerberos credential from the handler
+ * provides SASL SRAM-SHA512
  */
-public class Krb5LoginModule extends AbstractPrincipalLoginModule {
+public class SHA512SCRAMServerSASLFactory extends SCRAMServerSASLFactory {
 
+   public SHA512SCRAMServerSASLFactory() {
+      super(SCRAM.SHA512);
+   }
 
+   @Override
+   public int getPrecedence() {
+      return 512;
+   }
 }

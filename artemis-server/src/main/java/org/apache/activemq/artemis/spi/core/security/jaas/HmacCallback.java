@@ -16,10 +16,29 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-/**
- * populate a subject with kerberos credential from the handler
- */
-public class Krb5LoginModule extends AbstractPrincipalLoginModule {
+import javax.crypto.Mac;
+import javax.security.auth.callback.Callback;
 
+/**
+ * Callback for obtaining information about a used H{@link Mac}
+ */
+public class HmacCallback implements Callback {
+
+   private Mac hmac;
+
+   /**
+    * set the Hmac to use
+    * @param hmac
+    */
+   public void setHmac(Mac hmac) {
+      this.hmac = hmac;
+   }
+
+   /**
+    * @return the Hmac or <code>null</code> if non could be obtained
+    */
+   public Mac getHmac() {
+      return hmac;
+   }
 
 }
