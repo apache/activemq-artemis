@@ -265,10 +265,13 @@ public final class SharedNothingBackupActivation extends Activation {
                         }
                         if (activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPED &&
                             activeMQServer.getState() != ActiveMQServer.SERVER_STATE.STOPPING) {
-                           activeMQServer.stop();
+
                            if (signalToStop == SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_RETRY) {
+                              activeMQServer.stop(false);
                               logger.trace("The server was shutdown for a network isolation, we keep retrying");
                               activeMQServer.start();
+                           } else {
+                              activeMQServer.stop();
                            }
                         }
                      } catch (Exception e) {

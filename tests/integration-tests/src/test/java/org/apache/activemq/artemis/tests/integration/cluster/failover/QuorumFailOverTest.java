@@ -27,9 +27,11 @@ import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.apache.activemq.artemis.utils.RetryRule;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -113,6 +115,12 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
       new BackupSyncDelay(servers[4], servers[1], PacketImpl.REPLICATION_SCHEDULED_FAILOVER);
       startServers(3, 4, 5);
 
+      ActiveMQComponent[] externalComponents = new ActiveMQComponent[6];
+      for (int i = 0; i < 6; i++) {
+         externalComponents[i] = new FakeServiceComponent("server " + i);
+         servers[i].addExternalComponent(externalComponents[i], true);
+      }
+
       for (int i : liveServerIDs) {
          waitForTopology(servers[i], 3, 3);
       }
@@ -146,6 +154,10 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
       assertFalse(servers[0].isReplicaSync());
       waitForRemoteBackupSynchronization(servers[0]);
       assertTrue(servers[0].isReplicaSync());
+
+      for (ActiveMQComponent component : externalComponents) {
+         Assert.assertTrue("component " + component + " is stopped, the web server would been stopped here", component.isStarted());
+      }
    }
 
    @Override

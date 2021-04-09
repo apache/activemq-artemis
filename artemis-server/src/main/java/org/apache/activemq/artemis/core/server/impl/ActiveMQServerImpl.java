@@ -561,17 +561,22 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.failedToStartServer(t);
       } finally {
          if (originalState == SERVER_STATE.STOPPED) {
-            networkHealthCheck.setTimeUnit(TimeUnit.MILLISECONDS).setPeriod(configuration.getNetworkCheckPeriod()).
-               setNetworkTimeout(configuration.getNetworkCheckTimeout()).
-               parseAddressList(configuration.getNetworkCheckList()).
-               parseURIList(configuration.getNetworkCheckURLList()).
-               setNICName(configuration.getNetworkCheckNIC()).
-               setIpv4Command(configuration.getNetworkCheckPingCommand()).
-               setIpv6Command(configuration.getNetworkCheckPing6Command());
+            reloadNetworkHealthCheck();
 
-            networkHealthCheck.addComponent(networkCheckMonitor);
          }
       }
+   }
+
+   public void reloadNetworkHealthCheck() {
+      networkHealthCheck.setTimeUnit(TimeUnit.MILLISECONDS).setPeriod(configuration.getNetworkCheckPeriod()).
+         setNetworkTimeout(configuration.getNetworkCheckTimeout()).
+         parseAddressList(configuration.getNetworkCheckList()).
+         parseURIList(configuration.getNetworkCheckURLList()).
+         setNICName(configuration.getNetworkCheckNIC()).
+         setIpv4Command(configuration.getNetworkCheckPingCommand()).
+         setIpv6Command(configuration.getNetworkCheckPing6Command());
+
+      networkHealthCheck.addComponent(networkCheckMonitor);
    }
 
    @Override
