@@ -70,7 +70,7 @@ public class AMQConsumer {
 
    private int prefetchSize;
    private final AtomicInteger currentWindow;
-   private int deliveredAcks;
+   private int deliveredAcksCreditExtension = 0;
    private long messagePullSequence = 0;
    private final AtomicReference<MessagePullHandler> messagePullHandler = new AtomicReference<>(null);
    //internal means we don't expose
@@ -90,7 +90,6 @@ public class AMQConsumer {
       this.scheduledPool = scheduledPool;
       this.prefetchSize = info.getPrefetchSize();
       this.currentWindow = new AtomicInteger(prefetchSize);
-      this.deliveredAcks = 0;
       if (prefetchSize == 0) {
          messagePullHandler.set(new MessagePullHandler());
       }
@@ -295,6 +294,28 @@ public class AMQConsumer {
     */
    public void acknowledge(MessageAck ack) throws Exception {
 
+      if (ack.isRedeliveredAck()) {
+         // we don't mind if the client thinks it is a redelivery
+         return;
+      }
+
+      final int ackMessageCount = ack.getMessageCount();
+      acquireCredit(ackMessageCount);
+
+      if (ack.isDeliveredAck()) {
+         deliveredAcksCreditExtension += ackMessageCount;
+         // our work is done
+         return;
+      }
+
+      // some sort of real ack, rebalance deliveredAcksCreditExtension
+      if (deliveredAcksCreditExtension > 0) {
+         deliveredAcksCreditExtension -= ackMessageCount;
+         if (deliveredAcksCreditExtension >= 0) {
+            currentWindow.addAndGet(-ackMessageCount);
+         }
+      }
+
       final MessageId startID, lastID;
 
       if (ack.getFirstMessageId() == null) {
@@ -309,59 +330,42 @@ public class AMQConsumer {
       if (serverConsumer.getQueue().isNonDestructive()) {
          removeReferences = false;
       }
-      if (ack.isRedeliveredAck() || ack.isDeliveredAck() || ack.isExpiredAck()) {
-         removeReferences = false;
-      }
 
-      List<MessageReference> ackList = serverConsumer.scanDeliveringReferences(removeReferences, reference -> startID.equals(reference.getProtocolData()), reference -> lastID.equals(reference.getProtocolData()));
+      final List<MessageReference> ackList = serverConsumer.scanDeliveringReferences(removeReferences, reference -> startID.equals(reference.getProtocolData()), reference -> lastID.equals(reference.getProtocolData()));
 
-      if (removeReferences && (ack.isIndividualAck() || ack.isStandardAck() || ack.isPoisonAck())) {
-         if (deliveredAcks < ackList.size()) {
-            acquireCredit(ackList.size() - deliveredAcks);
-            deliveredAcks = 0;
-         } else {
-            deliveredAcks -= ackList.size();
-         }
-      } else {
-         if (ack.isDeliveredAck()) {
-            this.deliveredAcks += ack.getMessageCount();
-         }
-
-         acquireCredit(ack.getMessageCount());
-      }
-
-      if (removeReferences) {
-
-         Transaction originalTX = session.getCoreSession().getCurrentTransaction();
-         Transaction transaction;
-
-         if (originalTX == null) {
-            transaction = session.getCoreSession().newTransaction();
-         } else {
-            transaction = originalTX;
-         }
-
-         if (ack.isIndividualAck() || ack.isStandardAck()) {
+      if (!ackList.isEmpty()) {
+         if (ack.isExpiredAck()) {
             for (MessageReference ref : ackList) {
-               ref.acknowledge(transaction, serverConsumer);
+               ref.getQueue().expire(ref, serverConsumer);
             }
-         } else if (ack.isPoisonAck()) {
-            for (MessageReference ref : ackList) {
-               Throwable poisonCause = ack.getPoisonCause();
-               if (poisonCause != null) {
-                  ref.getMessage().putStringProperty(OpenWireMessageConverter.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, new SimpleString(poisonCause.toString()));
+         } else if (removeReferences) {
+
+            Transaction originalTX = session.getCoreSession().getCurrentTransaction();
+            Transaction transaction;
+
+            if (originalTX == null) {
+               transaction = session.getCoreSession().newTransaction();
+            } else {
+               transaction = originalTX;
+            }
+
+            if (ack.isIndividualAck() || ack.isStandardAck()) {
+               for (MessageReference ref : ackList) {
+                  ref.acknowledge(transaction, serverConsumer);
                }
-               ref.getQueue().sendToDeadLetterAddress(transaction, ref);
+            } else if (ack.isPoisonAck()) {
+               for (MessageReference ref : ackList) {
+                  Throwable poisonCause = ack.getPoisonCause();
+                  if (poisonCause != null) {
+                     ref.getMessage().putStringProperty(OpenWireMessageConverter.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, new SimpleString(poisonCause.toString()));
+                  }
+                  ref.getQueue().sendToDeadLetterAddress(transaction, ref);
+               }
             }
-         }
 
-         if (originalTX == null) {
-            transaction.commit(true);
-         }
-      }
-      if (ack.isExpiredAck()) {
-         for (MessageReference ref : ackList) {
-            ref.getQueue().expire(ref, serverConsumer);
+            if (originalTX == null) {
+               transaction.commit(true);
+            }
          }
       }
    }
