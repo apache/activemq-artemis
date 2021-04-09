@@ -107,23 +107,24 @@
       <slf4j.version>1.7.21</slf4j.version>
       <qpid.jms.version>0.56.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
-      <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
-      <javax.inject.version>1</javax.inject.version>
       <hawtbuff.version>1.11</hawtbuff.version>
       <jb.logmanager.version>2.1.10.Final</jb.logmanager.version>
       <jb.slf4j-jboss-logmanager.version>1.0.4.GA</jb.slf4j-jboss-logmanager.version>
       <version.org.wildfly.common.wildfly-common>1.5.2.Final</version.org.wildfly.common.wildfly-common>
       <airlift.version>0.8</airlift.version>
-      <geronimo.annotation.1.1.spec.version>1.0.1</geronimo.annotation.1.1.spec.version>
-      <geronimo.ejb.3.0.spec.version>1.0.1</geronimo.ejb.3.0.spec.version>
-      <geronimo.jta.1.1.spec.version>1.1.1</geronimo.jta.1.1.spec.version>
-      <geronimo.jms.2.spec.version>1.0-alpha-2</geronimo.jms.2.spec.version>
-      <jakarta.json-api.version>2.0.0</jakarta.json-api.version>
-      <jakarta.annotation-api.version>2.0.0</jakarta.annotation-api.version>
-      <jakarta.ejb-api.version>4.0.0</jakarta.ejb-api.version>
-      <jakarta.resource-api.version>2.0.0</jakarta.resource-api.version>
-      <jakarta.transaction-api.version>2.0.0</jakarta.transaction-api.version>
-      <jakarta.jms-api.version>3.0.0</jakarta.jms-api.version>
+      <jakarta.activation-api.version>1.2.2</jakarta.activation-api.version>
+      <jakarta.annotation-api.version>1.3.5</jakarta.annotation-api.version>
+      <jakarta.ejb-api.version>3.2.6</jakarta.ejb-api.version>
+      <jakarta.enterprise.cdi-api.version>2.0.2</jakarta.enterprise.cdi-api.version>
+      <jakarta.inject-api.version>1.0.3</jakarta.inject-api.version>
+      <jakarta.jms-api.version>2.0.3</jakarta.jms-api.version>
+      <jakarta.json-api.version>1.1.6</jakarta.json-api.version>
+      <jakarta.management.j2ee-api.version>1.1.4</jakarta.management.j2ee-api.version>
+      <jakarta.resource-api.version>1.7.4</jakarta.resource-api.version>
+      <jakarta.security.auth.message-api.version>1.1.3</jakarta.security.auth.message-api.version>
+      <jakarta.transaction-api.version>1.3.3</jakarta.transaction-api.version>
+      <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
+      <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
       <weld.version>2.4.0.Final</weld.version>
       <arquillian-weld-embedded.version>2.0.0.Beta3</arquillian-weld-embedded.version>
       <owb.version>1.7.0</owb.version>
@@ -135,7 +136,6 @@
       <version.micrometer>1.6.1</version.micrometer>
       <hamcrest.version>2.1</hamcrest.version>
       <surefire.version>2.22.2</surefire.version>
-      <version.jaxb.api>2.3.1</version.jaxb.api>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqttv3.version>1.2.5</paho.client.mqttv3.version>
       <!-- for JakrtaEE -->
@@ -201,9 +201,6 @@
 
       <directory-version>2.0.0-M15</directory-version>
       <directory-jdbm2-version>2.0.0-M1</directory-jdbm2-version>
-
-      <cdi-api.version>1.2</cdi-api.version>
-      <geronimo-annotation_1.2_spec.version>1.0</geronimo-annotation_1.2_spec.version>
 
       <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
       <netty-transport-native-kqueue-classifier>osx-x86_64</netty-transport-native-kqueue-classifier>
@@ -411,9 +408,10 @@
 
          <!-- ### Run Time Dependencies: MUST NOT INCLUDE CAT X LICENSES ###-->
          <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>${javax.inject.version}</version>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>${jakarta.inject-api.version}</version>
+            <!-- License: EPL 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.fusesource.hawtbuf</groupId>
@@ -450,12 +448,6 @@
             <artifactId>javacc</artifactId>
             <version>4.0</version>
             <!-- License: BSD -->
-         </dependency>
-         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jms_2.0_spec</artifactId>
-            <version>${geronimo.jms.2.spec.version}</version>
-            <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>jakarta.jms</groupId>
@@ -516,18 +508,6 @@
 
          <!-- ## Examples Dependencies ## -->
          <dependency>
-             <groupId>org.apache.geronimo.specs</groupId>
-             <artifactId>geronimo-ejb_3.0_spec</artifactId>
-             <version>${geronimo.ejb.3.0.spec.version}</version>
-             <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.1_spec</artifactId>
-            <version>${geronimo.jta.1.1.spec.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
              <groupId>org.slf4j</groupId>
              <artifactId>slf4j-simple</artifactId>
              <version>${slf4j.version}</version>
@@ -555,6 +535,12 @@
             <groupId>io.airlift</groupId>
             <artifactId>airline</artifactId>
             <version>${airlift.version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>javax.inject</groupId>
+                  <artifactId>javax.inject</artifactId>
+               </exclusion>
+            </exclusions>
             <!-- License: Apache 2.0 -->
          </dependency>
          <!--needed to compile transport jar-->
@@ -647,6 +633,10 @@
                   <groupId>org.apache.geronimo.specs</groupId>
                   <artifactId>geronimo-jms_1.1_spec</artifactId>
                </exclusion>
+               <exclusion>
+                  <groupId>org.apache.geronimo.specs</groupId>
+                  <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+               </exclusion>
             </exclusions>
             <!-- License: Apache 2.0 -->
          </dependency>
@@ -664,11 +654,6 @@
          </dependency>
          <!-- json -->
          <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-json_1.0_spec</artifactId>
-            <version>${json-p.spec.version}</version>
-         </dependency>
-         <dependency>
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-core</artifactId>
             <version>${johnzon.version}</version>
@@ -679,73 +664,24 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
             <version>${resteasy.version}</version>
-            <exclusions>
-               <exclusion>
-                  <!-- We exclude this dep as it is GPL licensed.  Instead we include the Geronimo annotations -->
-                  <groupId>org.jboss.spec.javax.annotation</groupId>
-                  <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-               </exclusion>
-            </exclusions>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxb-provider</artifactId>
             <version>${resteasy.version}</version>
-            <exclusions>
-               <exclusion>
-                  <!-- We exclude this dep as it is GPL licensed.  Instead we include the Geronimo annotations -->
-                  <groupId>org.jboss.spec.javax.annotation</groupId>
-                  <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-               </exclusion>
-            </exclusions>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jackson2-provider</artifactId>
             <version>${resteasy.version}</version>
-            <exclusions>
-               <exclusion>
-                  <!-- We exclude this dep as it is GPL licensed.  Instead we include the Geronimo annotations -->
-                  <groupId>org.jboss.spec.javax.annotation</groupId>
-                  <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-               </exclusion>
-            </exclusions>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-atom-provider</artifactId>
-            <version>${resteasy.version}</version>
-            <exclusions>
-               <exclusion>
-                  <!-- We exclude this dep as it is GPL licensed.  Instead we include the Geronimo annotations -->
-                  <groupId>org.jboss.spec.javax.annotation</groupId>
-                  <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-               </exclusion>
-            </exclusions>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>tjws</artifactId>
             <version>${resteasy.version}</version>
-            <exclusions>
-               <exclusion>
-                  <!-- We exclude this dep as it is GPL licensed.  Instead we include the Geronimo annotations -->
-                  <groupId>org.jboss.spec.javax.annotation</groupId>
-                  <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-               </exclusion>
-            </exclusions>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-
-         <!-- Replacement for jboss annotations -->
-         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-annotation_1.1_spec</artifactId>
-            <version>${geronimo.annotation.1.1.spec.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
 
@@ -764,13 +700,6 @@
             <version>8.5.5</version>
          </dependency>
          <!-- ## End Jetty Wed Dependencies ## -->
-
-         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-            <version>2.0.0</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
 
          <!-- for URL reflection. Using Populate on URI Factory at activemq-commons -->
          <dependency>
@@ -850,12 +779,6 @@
             <scope>test</scope>
          </dependency>
          <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-annotation_1.2_spec</artifactId>
-            <version>${geronimo-annotation_1.2_spec.version}</version>
-            <scope>provided</scope>
-         </dependency>
-         <dependency>
             <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se</artifactId>
             <version>${weld.version}</version>
@@ -892,9 +815,9 @@
              <scope>test</scope>
          </dependency>
          <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>${cdi-api.version}</version>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <version>${jakarta.enterprise.cdi-api.version}</version>
             <scope>provided</scope>
          </dependency>
          <!--  OSGi support -->
@@ -919,9 +842,9 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-            <version>1.0</version>
+            <groupId>jakarta.security.auth.message</groupId>
+            <artifactId>jakarta.security.auth.message-api</artifactId>
+            <version>${jakarta.security.auth.message-api.version}</version>
          </dependency>
       </dependencies>
 

@@ -94,16 +94,16 @@
          <version>${activemq-artemis-native-version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jms_2.0_spec</artifactId>
+         <groupId>jakarta.jms</groupId>
+         <artifactId>jakarta.jms-api</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+         <groupId>jakarta.resource</groupId>
+         <artifactId>jakarta.resource-api</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jta_1.1_spec</artifactId>
+         <groupId>jakarta.transaction</groupId>
+         <artifactId>jakarta.transaction-api</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>

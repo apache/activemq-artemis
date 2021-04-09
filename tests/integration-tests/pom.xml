@@ -187,6 +187,10 @@
                <groupId>org.apache.geronimo.specs</groupId>
                <artifactId>geronimo-jms_1.1_spec</artifactId>
             </exclusion>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+            </exclusion>
          </exclusions>
       </dependency>
       <dependency>
@@ -203,21 +207,25 @@
          <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-json_1.0_spec</artifactId>
+         <groupId>jakarta.json</groupId>
+         <artifactId>jakarta.json-api</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+         <groupId>jakarta.resource</groupId>
+         <artifactId>jakarta.resource-api</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jta_1.1_spec</artifactId>
+         <groupId>jakarta.transaction</groupId>
+         <artifactId>jakarta.transaction-api</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jms_2.0_spec</artifactId>
+         <groupId>jakarta.jms</groupId>
+         <artifactId>jakarta.jms-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>jakarta.management.j2ee</groupId>
+         <artifactId>jakarta.management.j2ee-api</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.johnzon</groupId>
@@ -347,11 +355,13 @@
          <artifactId>apache-karaf</artifactId>
          <version>${karaf.version}</version>
          <type>tar.gz</type>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.karaf.shell</groupId>
          <artifactId>org.apache.karaf.shell.console</artifactId>
          <version>${karaf.version}</version>
+         <scope>test</scope>
       </dependency>
 
       <!-- rest test -->

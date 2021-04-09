@@ -50,7 +50,19 @@
             <groupId>org.apache.qpid</groupId>
             <artifactId>qpid-jms-client</artifactId>
             <version>${qpid.jms.version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>org.apache.geronimo.specs</groupId>
+                  <artifactId>geronimo-jms_2.0_spec</artifactId>
+               </exclusion>
+            </exclusions>
             <!-- License: Apache: 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>jakarta.management.j2ee</groupId>
+            <artifactId>jakarta.management.j2ee-api</artifactId>
+            <version>${jakarta.management.j2ee-api.version}</version>
+            <!-- License: EPL 2.0 -->
          </dependency>
 
          <!-- End JMS Dependencies -->
