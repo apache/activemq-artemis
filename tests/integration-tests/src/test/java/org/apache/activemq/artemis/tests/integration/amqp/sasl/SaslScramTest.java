@@ -34,10 +34,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.exceptions.JMSSecuritySaslException;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -55,7 +53,6 @@ public class SaslScramTest extends ActiveMQTestBase {
       BROKER = new EmbeddedActiveMQ();
       URL urlScram = SaslScramTest.class.getResource("/broker-saslscram.xml");
       Assert.assertNotNull(urlScram);
-      System.out.println("url::" + urlScram);
       BROKER.setConfigResourcePath(urlScram.toExternalForm());
       BROKER.setSecurityManager(new ActiveMQJAASSecurityManager("artemis-sasl-scram"));
       BROKER.start();
