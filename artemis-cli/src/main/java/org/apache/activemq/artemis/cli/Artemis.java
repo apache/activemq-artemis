@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
 import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Mask;
+import org.apache.activemq.artemis.cli.commands.PrintVersion;
 import org.apache.activemq.artemis.cli.commands.check.HelpCheck;
 import org.apache.activemq.artemis.cli.commands.check.NodeCheck;
 import org.apache.activemq.artemis.cli.commands.check.QueueCheck;
@@ -155,7 +156,9 @@ public class Artemis {
 
    private static Cli.CliBuilder<Action> builder(File artemisInstance) {
       String instance = artemisInstance != null ? artemisInstance.getAbsolutePath() : System.getProperty("artemis.instance");
-      Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line").withCommand(HelpAction.class).withCommand(Producer.class).withCommand(Transfer.class).withCommand(Consumer.class).withCommand(Browse.class).withCommand(Mask.class).withDefaultCommand(HelpAction.class);
+      Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line").
+         withCommand(HelpAction.class).withCommand(Producer.class).withCommand(Transfer.class).withCommand(Consumer.class).
+         withCommand(Browse.class).withCommand(Mask.class).withCommand(PrintVersion.class).withDefaultCommand(HelpAction.class);
 
       builder.withGroup("check").withDescription("Check tools group (node|queue) (example ./artemis check node)").
          withDefaultCommand(HelpCheck.class).withCommands(NodeCheck.class, QueueCheck.class);
