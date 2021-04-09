@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.sasl;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
+import java.net.URL;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -31,32 +30,39 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.exceptions.JMSSecuritySaslException;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * This test SASL-SCRAM Support
  */
-public class SaslScramTest {
+public class SaslScramTest extends ActiveMQTestBase {
 
-   private static EmbeddedActiveMQ BROKER;
+   private EmbeddedActiveMQ BROKER;
 
-   @BeforeClass
-   public static void startBroker() throws Exception {
+   @Before
+   public void startBroker() throws Exception {
       String loginConfPath = new File(SaslScramTest.class.getResource("/login.config").toURI()).getAbsolutePath();
       System.out.println(loginConfPath);
       System.setProperty("java.security.auth.login.config", loginConfPath);
       BROKER = new EmbeddedActiveMQ();
-      BROKER.setConfigResourcePath(SaslScramTest.class.getResource("/broker-saslscram.xml").toExternalForm());
+      URL urlScram = SaslScramTest.class.getResource("/broker-saslscram.xml");
+      Assert.assertNotNull(urlScram);
+      System.out.println("url::" + urlScram);
+      BROKER.setConfigResourcePath(urlScram.toExternalForm());
       BROKER.setSecurityManager(new ActiveMQJAASSecurityManager("artemis-sasl-scram"));
       BROKER.start();
    }
 
-   @AfterClass
-   public static void shutdownBroker() throws Exception {
+   @After
+   public void shutdownBroker() throws Exception {
       BROKER.stop();
    }
 
