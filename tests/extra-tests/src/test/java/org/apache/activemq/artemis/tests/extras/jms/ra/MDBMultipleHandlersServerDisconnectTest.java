@@ -408,8 +408,23 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       }
 
       @Override
+      public MessageEndpoint createEndpoint(XAResource xaResource, long l) throws UnavailableException {
+         return null;
+      }
+
+      @Override
       public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
          return isDeliveryTransacted;
+      }
+
+      @Override
+      public String getActivationName() {
+         return null;
+      }
+
+      @Override
+      public Class<?> getEndpointClass() {
+         return TestEndpoint.class;
       }
    }
 
