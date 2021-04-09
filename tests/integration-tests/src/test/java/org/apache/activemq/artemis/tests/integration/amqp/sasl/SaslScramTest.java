@@ -69,7 +69,6 @@ public class SaslScramTest extends ActiveMQTestBase {
     */
    @Test
    public void testUnencryptedWorksWithAllMechanism() throws JMSException {
-      sendRcv("SCRAM-SHA-1", "hello", "ogre1234");
       sendRcv("SCRAM-SHA-256", "hello", "ogre1234");
    }
 
@@ -79,7 +78,6 @@ public class SaslScramTest extends ActiveMQTestBase {
     */
    @Test
    public void testEncryptedWorksWithAllMechanism() throws JMSException {
-      sendRcv("SCRAM-SHA-1", "multi", "worksforall");
       sendRcv("SCRAM-SHA-256", "multi", "worksforall");
    }
 
