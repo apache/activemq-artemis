@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
-import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +28,8 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.core.config.Configuration;
 
 public class AdvisoryOpenWireTest extends BasicOpenWireTest {
 
@@ -44,12 +45,17 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
       super.setUp();
    }
 
+   @Override
+   protected void extraServerConfig(Configuration serverConfig) {
+      // ensure advisory addresses are visible
+      serverConfig.getAcceptorConfigurations().iterator().next().getExtraParams().put("suppressInternalManagementObjects", "false");
+      super.extraServerConfig(serverConfig);
+   }
+
    @Test
    public void testTempTopicLeak() throws Exception {
-      Connection connection = null;
 
-      try {
-         connection = factory.createConnection();
+      try (Connection connection = factory.createConnection()) {
          connection.start();
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -57,32 +63,32 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          TemporaryTopic temporaryTopic = session.createTemporaryTopic();
          temporaryTopic.delete();
 
-         Object[] queueResources = server.getManagementService().getResources(QueueControl.class);
+         AddressControl advisoryAddress = assertNonNullAddressControl("ActiveMQ.Advisory.TempTopic");
+         Wait.waitFor(() -> advisoryAddress.getMessageCount() == 0);
 
-         for (Object queueResource : queueResources) {
+         Wait.assertEquals(0, advisoryAddress::getMessageCount);
+         Wait.assertEquals(2, advisoryAddress::getRoutedMessageCount);
 
-            if (((QueueControl) queueResource).getAddress().equals("ActiveMQ.Advisory.TempTopic")) {
-               QueueControl queueControl = (QueueControl) queueResource;
-               Wait.waitFor(() -> queueControl.getMessageCount() == 0);
-               assertNotNull("addressControl for temp advisory", queueControl);
+      }
+   }
 
-               Wait.assertEquals(0, queueControl::getMessageCount);
-               Wait.assertEquals(2, queueControl::getMessagesAdded);
-            }
-         }
-      } finally {
-         if (connection != null) {
-            connection.close();
+   private AddressControl assertNonNullAddressControl(String match) {
+      AddressControl advisoryAddressControl = null;
+      Object[] addressResources = server.getManagementService().getResources(AddressControl.class);
+
+      for (Object addressResource : addressResources) {
+         if (((AddressControl) addressResource).getAddress().equals(match)) {
+            advisoryAddressControl = (AddressControl) addressResource;
          }
       }
+      assertNotNull("addressControl for temp advisory", advisoryAddressControl);
+      return advisoryAddressControl;
    }
 
    @Test
    public void testTempQueueLeak() throws Exception {
-      Connection connection = null;
 
-      try {
-         connection = factory.createConnection();
+      try (Connection connection = factory.createConnection()) {
          connection.start();
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -90,23 +96,12 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          TemporaryQueue temporaryQueue = session.createTemporaryQueue();
          temporaryQueue.delete();
 
-         Object[] queueResources = server.getManagementService().getResources(QueueControl.class);
+         AddressControl advisoryAddress = assertNonNullAddressControl("ActiveMQ.Advisory.TempQueue");
+         Wait.waitFor(() -> advisoryAddress.getMessageCount() == 0);
 
-         for (Object queueResource : queueResources) {
+         Wait.assertEquals(0, advisoryAddress::getMessageCount);
+         Wait.assertEquals(2, advisoryAddress::getRoutedMessageCount);
 
-            if (((QueueControl) queueResource).getAddress().equals("ActiveMQ.Advisory.TempQueue")) {
-               QueueControl queueControl = (QueueControl) queueResource;
-               Wait.waitFor(() -> queueControl.getMessageCount() == 0);
-               assertNotNull("addressControl for temp advisory", queueControl);
-               Wait.assertEquals(0, queueControl::getMessageCount);
-               Wait.assertEquals(2, queueControl::getMessagesAdded);
-
-            }
-         }
-      } finally {
-         if (connection != null) {
-            connection.close();
-         }
       }
    }
 
@@ -127,20 +122,45 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
             temporaryQueue.delete();
          }
 
-         Object[] addressResources = server.getManagementService().getResources(AddressControl.class);
+         AddressControl advisoryAddress = assertNonNullAddressControl("ActiveMQ.Advisory.TempQueue");
 
-         for (Object addressResource : addressResources) {
+         Wait.waitFor(() -> advisoryAddress.getMessageCount() == 0);
+         Wait.assertEquals(0, advisoryAddress::getMessageCount);
 
-            if (((AddressControl) addressResource).getAddress().equals("ActiveMQ.Advisory.TempQueue")) {
-               AddressControl addressControl = (AddressControl) addressResource;
-               Wait.waitFor(() -> addressControl.getMessageCount() == 0);
-               assertNotNull("addressControl for temp advisory", addressControl);
-               Wait.assertEquals(0, addressControl::getMessageCount);
+      } finally {
+         for (Connection conn : connections) {
+            if (conn != null) {
+               conn.close();
             }
          }
+      }
+   }
 
+   @Test
+   public void testLongLivedConnectionGetsAllPastPrefetch() throws Exception {
+      final Connection[] connections = new Connection[2];
 
-         //sleep a bit to allow message count to go down.
+      final int numTempDestinations = 600;  // such that 2x exceeds default 1k prefetch for advisory consumer
+      try {
+         for (int i = 0; i < connections.length; i++) {
+            connections[i] = factory.createConnection();
+            connections[i].start();
+         }
+
+         Session session = connections[0].createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         for (int i = 0; i < numTempDestinations; i++) {
+            TemporaryQueue temporaryQueue = session.createTemporaryQueue();
+            temporaryQueue.delete();
+         }
+
+         AddressControl advisoryAddress = assertNonNullAddressControl("ActiveMQ.Advisory.TempQueue");
+         Wait.waitFor(() -> advisoryAddress.getMessageCount() == 0);
+         Wait.assertEquals(0, advisoryAddress::getMessageCount);
+
+         // there is an advisory for create and another for delete
+         assertEquals("all routed", numTempDestinations * 2, advisoryAddress.getRoutedMessageCount());
+
       } finally {
          for (Connection conn : connections) {
             if (conn != null) {
