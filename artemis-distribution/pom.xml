@@ -154,16 +154,20 @@
            <groupId>io.airlift</groupId>
            <artifactId>airline</artifactId>
        </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>activemq-client</artifactId>
-          <exclusions>
-             <exclusion>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jms_1.1_spec</artifactId>
-             </exclusion>
-          </exclusions>
-       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-client</artifactId>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-jms_1.1_spec</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
        <dependency>
            <groupId>org.apache.activemq</groupId>
            <artifactId>activemq-openwire-legacy</artifactId>
@@ -184,6 +188,12 @@
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
          <version>${qpid.jms.version}</version>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-jms_2.0_spec</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
 
 
@@ -226,16 +236,16 @@
          <artifactId>netty-all</artifactId>
       </dependency>
        <dependency>
-           <groupId>org.apache.geronimo.specs</groupId>
-           <artifactId>geronimo-json_1.0_spec</artifactId>
+          <groupId>jakarta.json</groupId>
+          <artifactId>jakarta.json-api</artifactId>
        </dependency>
        <dependency>
            <groupId>org.apache.johnzon</groupId>
            <artifactId>johnzon-core</artifactId>
        </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jaspic_1.0_spec</artifactId>
+         <groupId>jakarta.security.auth.message</groupId>
+         <artifactId>jakarta.security.auth.message-api</artifactId>
       </dependency>
    </dependencies>
 

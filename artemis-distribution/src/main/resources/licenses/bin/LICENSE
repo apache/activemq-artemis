@@ -243,6 +243,42 @@ Notice from author (Robert Harder, rob@iharder.net):
 
 See: http://iharder.sourceforge.net/current/java/base64/
 
+==============================================================================
+For jakarta.activation-api:
+==============================================================================
+This product bundles jakarta.activation-api, which is available under the
+Eclipse Distribution License (EDL) 1.0. For details, see licenses/EDL-1.0.txt
+
+==============================================================================
+For jakarta.jms-api:
+==============================================================================
+This product bundles jakarta.jms-api, which is available under the
+Eclipse Public License (EPL) 2.0. For details, see licenses/EPL-2.0.txt
+
+==============================================================================
+For jakarta.json-api:
+==============================================================================
+This product bundles jakarta.json-api, which is available under the
+Eclipse Public License (EPL) 2.0. For details, see licenses/EPL-2.0.txt
+
+==============================================================================
+For jakarta.security.auth.message-api:
+==============================================================================
+This product bundles jakarta.security.auth.message-api, which is available
+under the Eclipse Public License (EPL) 2.0. For details, see
+licenses/EPL-2.0.txt
+
+==============================================================================
+For jakarta.transaction-api:
+==============================================================================
+This product bundles jakarta.transaction-api, which is available under the
+Eclipse Public License (EPL) 2.0. For details, see licenses/EPL-2.0.txt
+
+==============================================================================
+For jakarta.xml.bind-api:
+==============================================================================
+This product bundles jakarta.xml.bind-api, which is available under the
+Eclipse Distribution License (EDL) 1.0. For details, see licenses/EDL-1.0.txt
 
 ==============================================================================
 Apache ActiveMQ Artemis Subcomponents:

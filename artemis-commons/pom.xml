@@ -81,8 +81,8 @@
          <artifactId>commons-beanutils</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-json_1.0_spec</artifactId>
+         <groupId>jakarta.json</groupId>
+         <artifactId>jakarta.json-api</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>

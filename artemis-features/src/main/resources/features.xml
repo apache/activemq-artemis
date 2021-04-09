@@ -65,9 +65,10 @@
 
 		<!-- this is here because commons-configuration2 requires the package javax.mail.internet from version 2.7 -->
 		<bundle dependency="true">mvn:com.sun.activation/javax.activation/1.2.0</bundle>
-		<bundle dependency="true">mvn:javax.mail/mail/1.4.7</bundle>
+		<bundle dependency="true">mvn:jakarta.mail/jakarta.mail-api/1.6.6</bundle>
 
-		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo.jms.2.spec.version}</bundle>
+		<bundle dependency="true">mvn:jakarta.jms/jakarta.jms-api/${jakarta.jms-api.version}</bundle>
+		<bundle dependency="true">mvn:jakarta.transaction/jakarta.transaction-api/${jakarta.transaction-api.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons.config.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-text/${commons.text.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang.version}</bundle>
@@ -90,14 +91,14 @@
 
 	<feature name="artemis-jms-client" version="${pom.version}" description="ActiveMQ Artemis JMS Client libraries">
 		<feature>artemis-common</feature>
-		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo.jms.2.spec.version}</bundle>
+		<bundle dependency="true">mvn:jakarta.jms/jakarta.jms-api/${jakarta.jms-api.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-jms-client-osgi/${pom.version}</bundle>
 	</feature>
 
 	<feature name="artemis-amqp-client" version="${pom.version}" description="ActiveMQ Artemis AMQP Client libraries">
 		<feature>transaction</feature>
 		<feature>netty-core</feature>
-		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo.jms.2.spec.version}</bundle>
+		<bundle dependency="true">mvn:jakarta.jms/jakarta.jms-api/${jakarta.jms-api.version}</bundle>
 		<bundle>mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
 		<bundle>mvn:org.apache.qpid/qpid-jms-client/${qpid.jms.version}</bundle>
 	</feature>
@@ -129,7 +130,8 @@
 	<feature name="artemis-openwire" version="${pom.version}" description="ActiveMQ Artemis Openwire protocol libraries">
 		<feature>artemis-core</feature>
 		<bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/1.11</bundle>
-		<bundle>mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
+		<bundle>mvn:jakarta.ejb/jakarta.ejb-api/${jakarta.ejb-api.version}</bundle>
+		<bundle>mvn:jakarta.management.j2ee/jakarta.management.j2ee-api/${jakarta.management.j2ee-api.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-openwire-protocol/${pom.version}</bundle>
 	</feature>
 
@@ -137,7 +139,9 @@
 		<feature>transaction</feature>
 		<bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/${hawtbuff.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
-		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
+		<bundle>mvn:jakarta.ejb/jakarta.ejb-api/${jakarta.ejb-api.version}</bundle>
+		<bundle>mvn:jakarta.transaction/jakarta.transaction-api/${jakarta.transaction-api.version}</bundle>
+		<bundle>mvn:jakarta.management.j2ee/jakarta.management.j2ee-api/${jakarta.management.j2ee-api.version}</bundle>
 		<bundle>mvn:org.apache.activemq/activemq-client/${activemq5-version}</bundle>
 	</feature>
 

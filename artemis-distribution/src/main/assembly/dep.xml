@@ -72,11 +72,8 @@
             <include>io.micrometer:micrometer-core</include>
 
             <!-- dependencies -->
-            <include>org.apache.geronimo.specs:geronimo-jms_2.0_spec</include>
-            <include>org.apache.geronimo.specs:geronimo-annotation_1.1_spec</include>
-            <include>org.apache.geronimo.specs:geronimo-j2ee-connector_1.5_spec</include>
-            <include>org.apache.geronimo.specs:geronimo-ejb_3.0_spec</include>
-            <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec</include>
+            <include>jakarta.jms:jakarta.jms-api</include>
+            <include>jakarta.transaction:jakarta.transaction-api</include>
             <include>org.wildfly.common:wildfly-common</include>
             <include>org.jboss.logmanager:jboss-logmanager</include>
             <include>org.jboss.logging:jboss-logging</include>
@@ -91,7 +88,7 @@
             <include>org.slf4j:slf4j-api</include>
             <include>io.airlift:airline</include>
             <include>com.google.guava:guava</include>
-            <include>javax.inject:javax.inject</include>
+            <include>jakarta.inject:jakarta.inject-api</include>
             <include>org.eclipse.jetty.aggregate:jetty-all:jar:uber</include>
             <include>org.apache.tomcat:tomcat-servlet-api</include>
             <include>commons-beanutils:commons-beanutils</include>
@@ -102,13 +99,13 @@
             <include>org.apache.commons:commons-lang3</include>
             <include>org.fusesource.hawtbuf:hawtbuf</include>
             <include>org.jgroups:jgroups</include>
-            <include>org.apache.geronimo.specs:geronimo-json_1.0_spec</include>
+            <include>jakarta.json:jakarta.json-api</include>
             <include>org.apache.johnzon:johnzon-core</include>
-            <include>javax.xml.bind:jaxb-api</include>
+            <include>jakarta.xml.bind:jakarta.xml.bind-api</include>
             <include>com.sun.xml.bind:jaxb-impl</include>
             <include>com.sun.xml.bind:jaxb-core</include>
-            <include>javax.activation:activation</include>
-            <include>org.apache.geronimo.specs:geronimo-jaspic_1.0_spec</include>
+            <include>jakarta.activation:jakarta.activation-api</include>
+            <include>jakarta.security.auth.message:jakarta.security.auth.message-api</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:artemis-website</exclude>

@@ -20,15 +20,27 @@ import javax.resource.spi.UnavailableException;
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.ExecutionContext;
 import javax.resource.spi.work.Work;
+import javax.resource.spi.work.WorkContext;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 import java.util.Timer;
 
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
 
    @Override
    public Timer createTimer() throws UnavailableException {
+      return null;
+   }
+
+   @Override
+   public boolean isContextSupported(Class<? extends WorkContext> aClass) {
+      return false;
+   }
+
+   @Override
+   public TransactionSynchronizationRegistry getTransactionSynchronizationRegistry() {
       return null;
    }
 
