@@ -60,6 +60,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.Mask;
 import org.apache.activemq.artemis.cli.commands.Run;
+import org.apache.activemq.artemis.cli.commands.PrintVersion;
 import org.apache.activemq.artemis.cli.commands.queue.StatQueue;
 import org.apache.activemq.artemis.cli.commands.user.AddUser;
 import org.apache.activemq.artemis.cli.commands.user.ListUser;
@@ -74,6 +75,7 @@ import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
+import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
@@ -1740,6 +1742,14 @@ public class ArtemisTest extends CliTestBase {
          stopServer();
       }
 
+   }
+
+   @Test
+   public void testVersionCommand() throws Exception {
+      TestActionContext context = new TestActionContext();
+      PrintVersion printVersion = new PrintVersion();
+      Version result = (Version) printVersion.execute(context);
+      log.debug(context.getStdout());
    }
 
    //read individual lines from byteStream
