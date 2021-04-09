@@ -27,7 +27,6 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class QPIDClient {
    public static void main(String[] args) throws JMSException {
-      sendReceive("SCRAM-SHA-1", "hello", "ogre1234");
       sendReceive("SCRAM-SHA-256", "test", "test");
    }
 
