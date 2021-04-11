@@ -31,4 +31,4 @@ git fetch $ARTEMIS_GITHUB_REMOTE_NAME
 
 git checkout $ARTEMIS_GITHUB_REMOTE_NAME/pr/$1 -B $1
 
-echo "\ndo your own rebase by typing: git pull --rebase $ARTEMIS_APACHE_REMOTE_NAME master"
+echo "\ndo your own rebase by typing: git pull --rebase $ARTEMIS_APACHE_REMOTE_NAME main"

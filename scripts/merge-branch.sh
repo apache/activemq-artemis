@@ -33,8 +33,8 @@ git fetch $ARTEMIS_GITHUB_REMOTE_NAME
 
 git checkout $1
 
-git pull --rebase $ARTEMIS_APACHE_REMOTE_NAME master
-git checkout $ARTEMIS_APACHE_REMOTE_NAME/master -B master
+git pull --rebase $ARTEMIS_APACHE_REMOTE_NAME main
+git checkout $ARTEMIS_APACHE_REMOTE_NAME/main -B main
 
 git merge --no-ff $1 -m "This closes #$*"
 git branch -D $1
