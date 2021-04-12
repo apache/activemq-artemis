@@ -1519,7 +1519,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
          if (store != null && storageManager.addToPage(store, message, context.getTransaction(), entry.getValue())) {
             if (message.isLargeMessage()) {
-               confirmLargeMessageSend(tx, message);
+               confirmLargeMessageSend(storageManager, tx, message);
             }
 
             // We need to kick delivery so the Queues may check for the cursors case they are empty
@@ -1595,24 +1595,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          refs.add(reference);
          queue.refUp(reference);
          if (message.isDurable()) {
-            final int durableRefCount = queue.durableUp(message);
-            if (durableRefCount == 1) {
-               if (tx != null) {
-                  storageManager.storeMessageTransactional(tx.getID(), message);
-               } else {
-                  storageManager.storeMessage(message);
-               }
-               if (message.isLargeMessage()) {
-                  confirmLargeMessageSend(tx, message);
-               }
-            }
-            if (tx != null) {
-               storageManager.storeReferenceTransactional(tx.getID(), queue.getID(), message.getMessageID());
-               tx.setContainsPersistent();
-            } else {
-               final boolean last = i == (durableQueuesCount - 1);
-               storageManager.storeReference(queue.getID(), message.getMessageID(), last);
-            }
+            storeDurableReference(storageManager, message, tx, queue, durableQueuesCount == i);
             if (deliveryTime != null && deliveryTime > 0) {
                if (tx != null) {
                   storageManager.updateScheduledDeliveryTimeTransactional(tx.getID(), reference);
@@ -1624,12 +1607,36 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
    }
 
+   public static void storeDurableReference(StorageManager storageManager, Message message,
+                          Transaction tx,
+                          Queue queue, boolean sync) throws Exception {
+      assert message.isDurable();
+
+      final int durableRefCount = queue.durableUp(message);
+      if (durableRefCount == 1) {
+         if (tx != null) {
+            storageManager.storeMessageTransactional(tx.getID(), message);
+         } else {
+            storageManager.storeMessage(message);
+         }
+         if (message.isLargeMessage()) {
+            confirmLargeMessageSend(storageManager, tx, message);
+         }
+      }
+      if (tx != null) {
+         storageManager.storeReferenceTransactional(tx.getID(), queue.getID(), message.getMessageID());
+         tx.setContainsPersistent();
+      } else {
+         storageManager.storeReference(queue.getID(), message.getMessageID(), sync);
+      }
+   }
+
    /**
     * @param tx
     * @param message
     * @throws Exception
     */
-   private void confirmLargeMessageSend(Transaction tx, final Message message) throws Exception {
+   private static void confirmLargeMessageSend(StorageManager storageManager, Transaction tx, final Message message) throws Exception {
       LargeServerMessage largeServerMessage = (LargeServerMessage) message;
       synchronized (largeServerMessage) {
          if (largeServerMessage.getPendingRecordID() >= 0) {

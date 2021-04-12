@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
@@ -204,11 +205,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    public void createLink(Queue queue, AMQPBrokerConnectionElement connectionElement) {
       if (connectionElement.getType() == AMQPBrokerConnectionAddressType.PEER) {
-         connectSender(queue, queue.getAddress().toString(), Symbol.valueOf("qd.waypoint"));
+         connectSender(queue, queue.getAddress().toString(), null, Symbol.valueOf("qd.waypoint"));
          connectReceiver(protonRemotingConnection, session, sessionContext, queue, Symbol.valueOf("qd.waypoint"));
       } else {
          if (connectionElement.getType() == AMQPBrokerConnectionAddressType.SENDER) {
-            connectSender(queue, queue.getAddress().toString());
+            connectSender(queue, queue.getAddress().toString(), null);
          }
          if (connectionElement.getType() == AMQPBrokerConnectionAddressType.RECEIVER) {
             connectReceiver(protonRemotingConnection, session, sessionContext, queue);
@@ -278,7 +279,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                   AMQPMirrorBrokerConnectionElement replica = (AMQPMirrorBrokerConnectionElement)connectionElement;
                   Queue queue = server.locateQueue(replica.getSourceMirrorAddress());
 
-                  connectSender(queue, ProtonProtocolManager.MIRROR_ADDRESS);
+                  connectSender(queue, ProtonProtocolManager.MIRROR_ADDRESS, (r) -> AMQPMirrorControllerSource.validateProtocolData(r, replica.getSourceMirrorAddress()));
                }
             }
          }
@@ -457,6 +458,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    private void connectSender(Queue queue,
                               String targetName,
+                              java.util.function.Consumer<? super MessageReference> beforeDeliver,
                               Symbol... capabilities) {
       if (logger.isDebugEnabled()) {
          logger.debug("Connecting outbound for " + queue);
@@ -491,7 +493,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
             AMQPOutgoingController outgoingInitializer = new AMQPOutgoingController(queue, sender, sessionContext.getSessionSPI());
 
-            ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer);
+            ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer).setBeforeDelivery(beforeDeliver);
 
             sessionContext.addSender(sender, senderContext);
          } catch (Exception e) {

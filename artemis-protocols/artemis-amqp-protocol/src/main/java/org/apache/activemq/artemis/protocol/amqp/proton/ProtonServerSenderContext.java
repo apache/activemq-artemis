@@ -135,6 +135,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
     * */
    private final Object creditsLock = new Object();
    private final java.util.function.Consumer<? super MessageReference> executeDelivery;
+   private java.util.function.Consumer<? super MessageReference> beforeDelivery;
    private final boolean amqpTreatRejectAsUnmodifiedDeliveryFailed;
 
    public ProtonServerSenderContext(AMQPConnectionContext connection,
@@ -158,6 +159,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       this.executeDelivery = this::executeDelivery;
       amqpTreatRejectAsUnmodifiedDeliveryFailed = this.connection.getProtocolManager()
                                                                  .isAmqpTreatRejectAsUnmodifiedDeliveryFailed();
+   }
+
+   public ProtonServerSenderContext setBeforeDelivery(java.util.function.Consumer<? super MessageReference> beforeDelivery) {
+      this.beforeDelivery = beforeDelivery;
+      return this;
    }
 
    public Object getBrokerConsumer() {
@@ -490,6 +496,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       if (closed) {
          return 0;
+      }
+
+      if (beforeDelivery != null) {
+         beforeDelivery.accept(messageReference);
       }
 
       try {
