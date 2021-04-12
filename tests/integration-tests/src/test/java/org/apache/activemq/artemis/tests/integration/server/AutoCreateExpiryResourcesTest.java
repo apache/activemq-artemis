@@ -43,6 +43,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
    public final SimpleString addressA = new SimpleString("addressA");
    public final SimpleString queueA = new SimpleString("queueA");
    public final SimpleString expiryAddress = new SimpleString("myExpiry");
+   public final long EXPIRY_DELAY = 100L;
 
    private ActiveMQServer server;
 
@@ -53,7 +54,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       server = createServer(false);
 
       // set common address settings needed for all tests; make sure to use getMatch instead of addMatch in invidual tests or these will be overwritten
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateExpiryResources(true).setExpiryAddress(expiryAddress).setExpiryDelay(100L));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateExpiryResources(true).setExpiryAddress(expiryAddress).setExpiryDelay(EXPIRY_DELAY));
       server.getConfiguration().setMessageExpiryScanPeriod(50L);
 
       server.start();
@@ -193,12 +194,33 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       assertNotNull(context.createConsumer(context.createQueue(fqqn)).receive(2000));
    }
 
+   @Test
+   public void testConcurrentExpirations() throws Exception {
+      SimpleString expiryQueueName = getDefaultExpiryQueueName(addressA);
+      final long COUNT = 5;
+
+      for (int i = 0; i < COUNT; i++) {
+         server.createQueue(new QueueConfiguration(i + "").setAddress(addressA).setRoutingType(RoutingType.MULTICAST));
+      }
+
+      triggerExpiration(false);
+
+      Wait.assertTrue(() -> server.locateQueue(expiryQueueName) != null, EXPIRY_DELAY * 2, 20);
+      Wait.assertEquals(COUNT, () -> server.locateQueue(expiryQueueName).getMessageCount(), EXPIRY_DELAY * 2, 20);
+   }
+
    private SimpleString getDefaultExpiryQueueName(SimpleString address) {
       return AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX.concat(address).concat(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX);
    }
 
    private void triggerExpiration() throws Exception {
-      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      triggerExpiration(true);
+   }
+
+   private void triggerExpiration(boolean createQueue) throws Exception {
+      if (createQueue) {
+         server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      }
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = addClientSession(sessionFactory.createSession(true, false));
