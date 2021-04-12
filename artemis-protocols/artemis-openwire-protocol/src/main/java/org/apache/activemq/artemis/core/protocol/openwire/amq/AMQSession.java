@@ -454,7 +454,7 @@ public class AMQSession implements SessionCallback {
          try {
             getCoreSession().send(coreMsg, false, dest.isTemporary());
          } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.debug("Sending exception to the client", e);
             exceptionToSend = e;
          }
          connection.enableTtl();
