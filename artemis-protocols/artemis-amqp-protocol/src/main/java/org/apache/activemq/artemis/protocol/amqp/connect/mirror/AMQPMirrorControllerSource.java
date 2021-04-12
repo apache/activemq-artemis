@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -155,26 +156,40 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
 
          MessageReference ref = MessageReference.Factory.createReference(message, snfQueue);
          snfQueue.refUp(ref);
-
-         Map<Symbol, Object> daMap = new HashMap<>();
-         DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(daMap);
-         daMap.put(INTERNAL_ID, message.getMessageID());
-         String address = message.getAddress();
-         if (address != null) { // this is the message that was set through routing
-            Properties amqpProperties = getProperties(message);
-            if (amqpProperties == null || !address.equals(amqpProperties.getTo())) {
-               // We set the internal destination property only if we need to
-               // otherwise we just use the one already set over Properties
-               daMap.put(INTERNAL_DESTINATION, message.getAddress());
-            }
-         }
-         ref.setProtocolData(deliveryAnnotations);
-
          refs.add(ref);
          message.usageUp();
+
+         setProtocolData(ref);
+
+         if (message.isDurable() && snfQueue.isDurable()) {
+            PostOfficeImpl.storeDurableReference(server.getStorageManager(), message, context.getTransaction(), snfQueue, true);
+         }
+
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
       }
+   }
+
+   public static void validateProtocolData(MessageReference ref, SimpleString snfAddress) {
+      if (ref.getProtocolData() == null && !ref.getMessage().getAddressSimpleString().equals(snfAddress)) {
+         setProtocolData(ref);
+      }
+   }
+
+   private static void setProtocolData(MessageReference ref) {
+      Map<Symbol, Object> daMap = new HashMap<>();
+      DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(daMap);
+      daMap.put(INTERNAL_ID, ref.getMessage().getMessageID());
+      String address = ref.getMessage().getAddress();
+      if (address != null) { // this is the message that was set through routing
+         Properties amqpProperties = getProperties(ref.getMessage());
+         if (amqpProperties == null || !address.equals(amqpProperties.getTo())) {
+            // We set the internal destination property only if we need to
+            // otherwise we just use the one already set over Properties
+            daMap.put(INTERNAL_DESTINATION, ref.getMessage().getAddress());
+         }
+      }
+      ref.setProtocolData(deliveryAnnotations);
    }
 
    private static Properties getProperties(Message message) {

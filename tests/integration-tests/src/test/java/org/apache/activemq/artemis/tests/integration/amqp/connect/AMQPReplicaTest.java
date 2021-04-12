@@ -446,6 +446,78 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       }
    }
 
+   @Test
+   public void testRouteSurviving() throws Exception {
+      testRouteSurvivor(false);
+   }
+
+   @Test
+   public void testRouteSurvivingStop() throws Exception {
+      testRouteSurvivor(true);
+   }
+
+
+   private void testRouteSurvivor(boolean server1Stopped) throws Exception {
+      if (!server1Stopped) {
+         server.start();
+      }
+      server_2 = createServer(AMQP_PORT_2, false);
+      server_2.setIdentity("server_2");
+      server_2.getConfiguration().setName("thisone");
+
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("OtherSide", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setSourceMirrorAddress("TheSource");
+      amqpConnection.addElement(replica);
+      server_2.getConfiguration().addAMQPConnection(amqpConnection);
+
+      server_2.start();
+
+      // We create the address to avoid auto delete on the queue
+      server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
+      server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+
+      int NUMBER_OF_MESSAGES = 200;
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         producer.send(session.createTextMessage("i=" + i));
+      }
+
+      connection.close();
+
+      {
+         if (!server1Stopped) {
+            Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
+            Queue queueServer1 = server.locateQueue(getQueueName());
+            Wait.assertEquals(NUMBER_OF_MESSAGES, queueServer1::getMessageCount);
+         }
+         Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
+         Queue queueServer2 = server_2.locateQueue(getQueueName());
+         Wait.assertEquals(NUMBER_OF_MESSAGES, queueServer2::getMessageCount);
+      }
+
+      if (!server1Stopped) {
+         server.stop();
+      }
+      server_2.stop();
+
+      server.start();
+      server_2.start();
+
+
+      Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
+      Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
+      Queue queueServer1 = server.locateQueue(getQueueName());
+      Queue queueServer2 = server_2.locateQueue(getQueueName());
+
+      Wait.assertEquals(NUMBER_OF_MESSAGES, queueServer1::getMessageCount);
+      Wait.assertEquals(NUMBER_OF_MESSAGES, queueServer2::getMessageCount);
+   }
 
 
    private void replicaTest(boolean largeMessage,
