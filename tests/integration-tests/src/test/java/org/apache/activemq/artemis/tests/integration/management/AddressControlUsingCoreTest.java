@@ -159,6 +159,21 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public boolean isAutoCreated() {
+            return (boolean) proxy.retrieveAttributeValue("autoCreated");
+         }
+
+         @Override
+         public boolean isInternal() {
+            return (boolean) proxy.retrieveAttributeValue("internal");
+         }
+
+         @Override
+         public boolean isTemporary() {
+            return (boolean) proxy.retrieveAttributeValue("temporary");
+         }
+
+         @Override
          public String sendMessage(Map<String, String> headers,
                                    int type,
                                    String body,

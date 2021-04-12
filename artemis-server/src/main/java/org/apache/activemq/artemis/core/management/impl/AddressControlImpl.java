@@ -506,6 +506,30 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       return false;
    }
 
+   @Override
+   public boolean isAutoCreated() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isAutoCreated(this.addressInfo);
+      }
+      return addressInfo.isAutoCreated();
+   }
+
+   @Override
+   public boolean isInternal() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isInternal(this.addressInfo);
+      }
+      return addressInfo.isInternal();
+   }
+
+   @Override
+   public boolean isTemporary() {
+      if (AuditLogger.isEnabled()) {
+         AuditLogger.isTemporary(this.addressInfo);
+      }
+      return addressInfo.isTemporary();
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

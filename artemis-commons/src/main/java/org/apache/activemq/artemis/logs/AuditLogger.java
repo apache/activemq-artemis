@@ -2817,4 +2817,20 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601745, value = "User {0} is getting delay-before-dispatch property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void delayBeforeDispatch(String user, Object source, Object... args);
+
+   static void isInternal(Object source) {
+      LOGGER.isInternal(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601746, value = "User {0} is getting internal property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void isInternal(String user, Object source, Object... args);
+
+   static void isAutoCreated(Object source) {
+      LOGGER.isAutoCreated(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601747, value = "User {0} is getting auto-created property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void isAutoCreated(String user, Object source, Object... args);
 }
