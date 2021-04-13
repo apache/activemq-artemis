@@ -193,6 +193,9 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void reload(MessageReference ref);
 
+   default void flushOnIntermediate(Runnable runnable) {
+   }
+
    void addTail(MessageReference ref);
 
    void addTail(MessageReference ref, boolean direct);
@@ -405,6 +408,16 @@ public interface Queue extends Bindable,CriticalComponent {
     */
    LinkedListIterator<MessageReference> iterator();
 
+   default void forEach(java.util.function.Consumer<MessageReference> consumer) {
+      synchronized (this) {
+         try (LinkedListIterator<MessageReference> iterator = iterator()) {
+            while (iterator.hasNext()) {
+               consumer.accept(iterator.next());
+            }
+         }
+      }
+   }
+
    LinkedListIterator<MessageReference> browserIterator();
 
    SimpleString getExpiryAddress();
@@ -504,4 +517,10 @@ public interface Queue extends Bindable,CriticalComponent {
    default QueueConfiguration getQueueConfiguration() {
       return null;
    }
+
+   Map<String, String> getMetadata();
+
+   Queue setMetadata(Map<String, String> metadata);
+
+   Queue addMetadata(String k, String v);
 }

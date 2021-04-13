@@ -878,14 +878,14 @@ public final class PriorityLinkedListTest extends Assert {
    @Test
    public void testRemoveWithID() {
 
-      for (int i = 0; i < 3000; i++) {
+      for (int i = 1; i <= 3000; i++) {
          list.addHead(new Wibble("" + i, i), i % 10);
       }
 
       list.setIDSupplier(source -> source.id);
 
       // remove every 3rd
-      for (int i = 0; i < 3000; i += 3) {
+      for (int i = 3; i <= 3000; i += 3) {
          Assert.assertEquals(new Wibble("" + i, i), list.removeWithID(i));
       }
 
@@ -901,7 +901,7 @@ public final class PriorityLinkedListTest extends Assert {
       Assert.assertEquals(2000, values.size());
 
 
-      for (int i = 0; i < 3000; i += 3) {
+      for (int i = 1; i <= 3000; i += 3) {
          if (i % 3 == 0) {
             Assert.assertFalse(values.contains("" + i));
          } else {

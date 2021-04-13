@@ -98,6 +98,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    public void testDefaults() {
       // Check they match the values from the test file
       Assert.assertEquals("SomeNameForUseOnTheApplicationServer", conf.getName());
+      Assert.assertEquals(1, conf.getBrokerMirrorId());
       Assert.assertEquals(false, conf.isPersistenceEnabled());
       Assert.assertEquals(true, conf.isClustered());
       Assert.assertEquals(12345, conf.getScheduledThreadPoolMaxSize());

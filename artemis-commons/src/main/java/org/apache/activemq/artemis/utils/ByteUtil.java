@@ -233,6 +233,21 @@ public class ByteUtil {
       output[offset + 7] = (byte)(x);
    }
 
+   /** the byte ID goes to the first byte, everything else stays where they are. */
+   public static long mixByteAndLong(byte id, long longID) {
+      // this is switching left and right (removing the first byte), and then mixing id on the first byte, returning a composed long
+      return (((id & 0xffL) << 56) | (longID << 8) >>> 8);
+   }
+
+   /** Returns the first Byte of the long */
+   public static byte getFirstByte(long longID) {
+      return (byte) (longID >>> 56);
+   }
+
+   public static long removeFirstByte(long longID) {
+      return (longID << 8) >>> 8;
+   }
+
    public static byte[] doubleLongToBytes(long value1, long value2) {
       byte[] output = new byte[16];
       longToBytes(value1, output, 0);

@@ -23,6 +23,8 @@ import java.util.Objects;
 import java.util.function.ToLongFunction;
 
 import io.netty.util.collection.LongObjectHashMap;
+import org.apache.activemq.artemis.utils.ByteUtil;
+import org.jboss.logging.Logger;
 
 /**
  * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see any
@@ -31,6 +33,8 @@ import io.netty.util.collection.LongObjectHashMap;
  * This class is not thread safe.
  */
 public class LinkedListImpl<E> implements LinkedList<E> {
+
+   private static final Logger logger = Logger.getLogger(LinkedListImpl.class);
 
    private static final int INITIAL_ITERATOR_ARRAY_SIZE = 10;
 
@@ -93,7 +97,11 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    private void putID(E value, Node<E> position) {
       long id = idSupplier.applyAsLong(value);
-      if (id >= 0) {
+      if (id != 0) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Adding " + id + " (firstByte=" + ByteUtil.getFirstByte(id) + " and messageID=" + ByteUtil.removeFirstByte(id));
+         }
+
          nodeMap.put(id, position);
       }
    }

@@ -26,10 +26,9 @@ under the License.
    <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="urn:activemq:core ">
 
-      <name>0.0.0.0</name>
+      <name>ServerB</name>
 
-
-      <persistence-enabled>false</persistence-enabled>
+      <persistence-enabled>true</persistence-enabled>
 
       <!-- this could be ASYNCIO, MAPPED, NIO
            ASYNCIO: Linux Libaio
@@ -120,7 +119,11 @@ under the License.
       
       <page-sync-timeout>40000</page-sync-timeout>
 
-
+      <broker-connections source-mirror-id="2">
+         <amqp-connection uri="tcp://localhost:61616" name="outgoing" reconnect-attempts="-1" retry-interval="100" user="A" password="A">
+            <mirror durable="true" target-mirror-id="1"/>
+         </amqp-connection>
+      </broker-connections>
       <acceptors>
          <acceptor name="artemis">tcp://0.0.0.0:61617?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true</acceptor>
       </acceptors>

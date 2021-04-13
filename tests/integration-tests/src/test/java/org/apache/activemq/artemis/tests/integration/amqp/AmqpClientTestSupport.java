@@ -162,6 +162,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
       final ActiveMQServer server = this.createServer(true, true);
 
+      server.getConfiguration().setBrokerMirrorId((short)1);
       server.getConfiguration().getAcceptorConfigurations().clear();
       server.getConfiguration().getAcceptorConfigurations().add(addAcceptorConfiguration(server, port));
       server.getConfiguration().setName(BROKER_NAME);

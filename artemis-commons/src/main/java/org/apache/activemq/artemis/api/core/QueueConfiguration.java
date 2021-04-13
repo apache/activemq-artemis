@@ -23,6 +23,7 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -109,6 +110,7 @@ public class QueueConfiguration implements Serializable {
    private Boolean internal;
    private Boolean _transient;
    private Boolean autoCreated;
+   private Map<String, String> metadata;
 
    /**
     * Instantiate this object and invoke {@link #setName(SimpleString)}
@@ -234,6 +236,8 @@ public class QueueConfiguration implements Serializable {
             setTransient(Boolean.valueOf(value));
          } else if (key.equals(AUTO_CREATED)) {
             setAutoCreated(Boolean.valueOf(value));
+         } else {
+            addMetadata(key, value);
          }
       }
       return this;
@@ -705,7 +709,23 @@ public class QueueConfiguration implements Serializable {
          builder.add(AUTO_CREATED, isAutoCreated());
       }
 
+      if (metadata != null) {
+         metadata.forEach((k, v) -> builder.add(k, v));
+      }
+
       return builder.build().toString();
+   }
+
+   public Map<String, String> getMetadata() {
+      return metadata;
+   }
+
+   public QueueConfiguration addMetadata(String k, String v) {
+      if (metadata == null) {
+         metadata = new HashMap<>();
+      }
+      metadata.put(k, v);
+      return this;
    }
 
    /**

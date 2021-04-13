@@ -38,6 +38,11 @@ public interface MessageReference {
          return new MessageReferenceImpl(encode, queue);
       }
    }
+
+   default boolean skipDelivery() {
+      return false;
+   }
+
    boolean isPaged();
 
    Message getMessage();

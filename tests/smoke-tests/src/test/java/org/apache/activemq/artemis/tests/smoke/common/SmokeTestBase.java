@@ -71,6 +71,7 @@ public class SmokeTestBase extends ActiveMQTestBase {
    public static void cleanupData(String serverName) {
       String location = getServerLocation(serverName);
       deleteDirectory(new File(location, "data"));
+      deleteDirectory(new File(location, "log"));
    }
 
    public void addProcess(Process process) {

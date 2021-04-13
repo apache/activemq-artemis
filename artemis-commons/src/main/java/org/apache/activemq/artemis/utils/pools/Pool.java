@@ -21,21 +21,25 @@ import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.jboss.logging.Logger;
+
 /**
  * A simple encapsulation to provide a pool of objects.
  * @param <T>
  */
 public abstract class Pool<T> {
 
+   private static final Logger logger = Logger.getLogger(Pool.class);
+
    private final Queue<T> internalPool;
 
    private final Consumer<T> cleaner;
-   private final Supplier<T> supplier;
+   protected final Supplier<T> supplier;
 
    public Pool(int maxSize, Consumer<T> cleaner, Supplier<T> supplier) {
-      internalPool = createQueue(maxSize);
       this.cleaner = cleaner;
       this.supplier = supplier;
+      internalPool = createQueue(maxSize);
    }
 
    abstract Queue<T> createQueue(int maxSize);
@@ -50,6 +54,10 @@ public abstract class Pool<T> {
 
       if (returnObject == null) {
          returnObject = supplier.get();
+         if (logger.isTraceEnabled()) {
+            // this is helpful to trace and find cases where the pool is not working, i.e. always returning new objects
+            logger.trace("Pool<" + returnObject.getClass() + "> creating new instance");
+         }
       } else {
          cleaner.accept(returnObject);
       }
@@ -61,6 +69,10 @@ public abstract class Pool<T> {
    public final void release(T object) {
       if (internalPool != null) {
          internalPool.offer(object);
+      } else {
+         if (logger.isTraceEnabled()) {
+            logger.trace("internalPool was empty");
+         }
       }
    }
 }

@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -96,6 +97,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private ActiveMQProtonRemotingConnection protonRemotingConnection;
    private volatile boolean started = false;
    private final AMQPBrokerConnectionManager bridgeManager;
+   private AMQPMirrorControllerSource mirrorControllerSource;
    private int retryCounter = 0;
    private boolean connecting = false;
    private volatile ScheduledFuture reconnectFuture;
@@ -167,7 +169,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
             for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
                if (connectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR) {
-                  installMirrorController(this, (AMQPMirrorBrokerConnectionElement) connectionElement, server);
+                  installMirrorController((AMQPMirrorBrokerConnectionElement) connectionElement, server);
                }
             }
          }
@@ -205,16 +207,26 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    public void createLink(Queue queue, AMQPBrokerConnectionElement connectionElement) {
       if (connectionElement.getType() == AMQPBrokerConnectionAddressType.PEER) {
-         connectSender(queue, queue.getAddress().toString(), null, Symbol.valueOf("qd.waypoint"));
+         connectSender(queue, queue.getAddress().toString(), null, null, Symbol.valueOf("qd.waypoint"));
          connectReceiver(protonRemotingConnection, session, sessionContext, queue, Symbol.valueOf("qd.waypoint"));
       } else {
          if (connectionElement.getType() == AMQPBrokerConnectionAddressType.SENDER) {
-            connectSender(queue, queue.getAddress().toString(), null);
+            connectSender(queue, queue.getAddress().toString(), null, null);
          }
          if (connectionElement.getType() == AMQPBrokerConnectionAddressType.RECEIVER) {
             connectReceiver(protonRemotingConnection, session, sessionContext, queue);
          }
       }
+   }
+
+
+   SimpleString getMirrorSNF(AMQPMirrorBrokerConnectionElement mirrorElement) {
+      SimpleString snf = mirrorElement.getMirrorSNF();
+      if (snf == null) {
+         snf = SimpleString.toSimpleString(this.brokerConnectConfiguration.getName() + "_MIRRORSNF");
+         mirrorElement.setMirrorSNF(snf);
+      }
+      return snf;
    }
 
    private void doConnect() {
@@ -277,9 +289,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
                if (connectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR) {
                   AMQPMirrorBrokerConnectionElement replica = (AMQPMirrorBrokerConnectionElement)connectionElement;
-                  Queue queue = server.locateQueue(replica.getSourceMirrorAddress());
 
-                  connectSender(queue, ProtonProtocolManager.MIRROR_ADDRESS, (r) -> AMQPMirrorControllerSource.validateProtocolData(r, replica.getSourceMirrorAddress()));
+                  Queue queue = server.locateQueue(getMirrorSNF(replica));
+
+                  connectSender(queue, ProtonProtocolManager.MIRROR_ADDRESS, mirrorControllerSource::setLink, (r) -> AMQPMirrorControllerSource.validateProtocolData(server, r, getMirrorSNF(replica)));
                }
             }
          }
@@ -324,13 +337,13 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
     *  It is returning the snfQueue to the replica, and I needed isolation from the actual instance.
     *  During development I had a mistake where I used a property from the Object,
     *  so, I needed this isolation for my organization and making sure nothing would be shared. */
-   private static Queue installMirrorController(AMQPBrokerConnection brokerConnection, AMQPMirrorBrokerConnectionElement replicaConfig, ActiveMQServer server) throws Exception {
+   private Queue installMirrorController(AMQPMirrorBrokerConnectionElement replicaConfig, ActiveMQServer server) throws Exception {
 
       MirrorController currentMirrorController = server.getMirrorController();
 
       // This following block is to avoid a duplicate on mirror controller
       if (currentMirrorController != null && currentMirrorController instanceof AMQPMirrorControllerSource) {
-         Queue queue = checkCurrentMirror(brokerConnection, (AMQPMirrorControllerSource)currentMirrorController);
+         Queue queue = checkCurrentMirror(this, (AMQPMirrorControllerSource) currentMirrorController);
          // on this case we already had a mirror installed before, we won't duplicate it
          if (queue != null) {
             return queue;
@@ -339,7 +352,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          AMQPMirrorControllerAggregation aggregation = (AMQPMirrorControllerAggregation) currentMirrorController;
 
          for (AMQPMirrorControllerSource source : aggregation.getPartitions()) {
-            Queue queue = checkCurrentMirror(brokerConnection, source);
+            Queue queue = checkCurrentMirror(this, source);
             // on this case we already had a mirror installed before, we won't duplicate it
             if (queue != null) {
                return queue;
@@ -347,9 +360,9 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          }
       }
 
-      AddressInfo addressInfo = server.getAddressInfo(replicaConfig.getSourceMirrorAddress());
+      AddressInfo addressInfo = server.getAddressInfo(getMirrorSNF(replicaConfig));
       if (addressInfo == null) {
-         addressInfo = new AddressInfo(replicaConfig.getSourceMirrorAddress()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false).setTemporary(!replicaConfig.isDurable());
+         addressInfo = new AddressInfo(getMirrorSNF(replicaConfig)).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false).setTemporary(!replicaConfig.isDurable()).setInternal(true);
          server.addAddressInfo(addressInfo);
       }
 
@@ -357,15 +370,15 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          throw new IllegalArgumentException("sourceMirrorAddress is not ANYCAST");
       }
 
-      Queue mirrorControlQueue = server.locateQueue(replicaConfig.getSourceMirrorAddress());
+      Queue mirrorControlQueue = server.locateQueue(getMirrorSNF(replicaConfig));
 
       if (mirrorControlQueue == null) {
-         mirrorControlQueue = server.createQueue(new QueueConfiguration(replicaConfig.getSourceMirrorAddress()).setAddress(replicaConfig.getSourceMirrorAddress()).setRoutingType(RoutingType.ANYCAST).setDurable(replicaConfig.isDurable()), true);
+         mirrorControlQueue = server.createQueue(new QueueConfiguration(getMirrorSNF(replicaConfig)).setAddress(getMirrorSNF(replicaConfig)).setRoutingType(RoutingType.ANYCAST).setDurable(replicaConfig.isDurable()).addMetadata("mirror", "true").setInternal(true), true);
       }
 
       mirrorControlQueue.setMirrorController(true);
 
-      QueueBinding snfReplicaQueueBinding = (QueueBinding)server.getPostOffice().getBinding(replicaConfig.getSourceMirrorAddress());
+      QueueBinding snfReplicaQueueBinding = (QueueBinding)server.getPostOffice().getBinding(getMirrorSNF(replicaConfig));
       if (snfReplicaQueueBinding == null) {
          logger.warn("Queue does not exist even after creation! " + replicaConfig);
          throw new IllegalAccessException("Cannot start replica");
@@ -373,12 +386,14 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
       Queue snfQueue = snfReplicaQueueBinding.getQueue();
 
-      if (!snfQueue.getAddress().equals(replicaConfig.getSourceMirrorAddress())) {
+      if (!snfQueue.getAddress().equals(getMirrorSNF(replicaConfig))) {
          logger.warn("Queue " + snfQueue + " belong to a different address (" + snfQueue.getAddress() + "), while we expected it to be " + addressInfo.getName());
          throw new IllegalAccessException("Cannot start replica");
       }
 
-      AMQPMirrorControllerSource newPartition = new AMQPMirrorControllerSource(snfQueue, server, replicaConfig.isMessageAcknowledgements(), replicaConfig.isQueueCreation(), replicaConfig.isQueueRemoval(), brokerConnection);
+      AMQPMirrorControllerSource newPartition = new AMQPMirrorControllerSource(snfQueue, server, replicaConfig, this);
+
+      this.mirrorControllerSource = newPartition;
 
       server.scanAddresses(newPartition);
 
@@ -458,6 +473,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    private void connectSender(Queue queue,
                               String targetName,
+                              java.util.function.Consumer<Sender> senderConsumer,
                               java.util.function.Consumer<? super MessageReference> beforeDeliver,
                               Symbol... capabilities) {
       if (logger.isDebugEnabled()) {
@@ -490,12 +506,18 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             Source source = new Source();
             source.setAddress(queue.getAddress().toString());
             sender.setSource(source);
+            HashMap<Symbol, Object> mapProperties = new HashMap<>(1);
+            mapProperties.put(AMQPMirrorControllerSource.BROKER_ID, server.getMirrorBrokerId());
+            sender.setProperties(mapProperties);
 
             AMQPOutgoingController outgoingInitializer = new AMQPOutgoingController(queue, sender, sessionContext.getSessionSPI());
 
             ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer).setBeforeDelivery(beforeDeliver);
 
             sessionContext.addSender(sender, senderContext);
+            if (senderConsumer != null) {
+               senderConsumer.accept(sender);
+            }
          } catch (Exception e) {
             error(e);
          }

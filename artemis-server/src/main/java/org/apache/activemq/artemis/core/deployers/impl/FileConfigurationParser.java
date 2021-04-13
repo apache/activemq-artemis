@@ -598,10 +598,29 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          parseClusterConnectionConfigurationURI(ccNode, config);
       }
 
+/*      Integer mirrorBrokerId = getInteger(e, "broker-mirror-id", 0, (name, value) -> {
+         if (value != null) {
+            int valueInteger = (int) value;
+            if (valueInteger < 0 || valueInteger > 255) {
+               throw ActiveMQMessageBundle.BUNDLE.invalidBrokerID(value);
+            }
+         }
+      });
+
+      config.setBrokerMirrorId(mirrorBrokerId.shortValue());
+*/
 
       NodeList ccAMQPConnections = e.getElementsByTagName("broker-connections");
+      System.out.println("Connections length = " + ccAMQPConnections.getLength());
 
       if (ccAMQPConnections != null) {
+         if (ccAMQPConnections.getLength() > 0) {
+            Node brokerIDItem = ccAMQPConnections.item(0).getAttributes().getNamedItem("source-mirror-id");
+            if (brokerIDItem != null) {
+               short value = Short.parseShort(brokerIDItem.getNodeValue());
+               config.setBrokerMirrorId(value);
+            }
+         }
          NodeList ccAMQConnectionsURI = e.getElementsByTagName("amqp-connection");
 
          if (ccAMQConnectionsURI != null) {
@@ -1974,11 +1993,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             if (nodeType == AMQPBrokerConnectionAddressType.MIRROR) {
                boolean messageAcks = getBooleanAttribute(e2, "message-acknowledgements", true);
                boolean queueCreation = getBooleanAttribute(e2,"queue-creation", true);
+               boolean durable = getBooleanAttribute(e2, "durable", true);
                boolean queueRemoval = getBooleanAttribute(e2, "queue-removal", true);
-               String sourceMirrorAddress = getAttributeValue(e2, "source-mirror-address");
+               int targetMirrorID = getAttributeInteger(e2, "target-mirror-id", 0, Validators.GT_ZERO);
                AMQPMirrorBrokerConnectionElement amqpMirrorConnectionElement = new AMQPMirrorBrokerConnectionElement();
-               amqpMirrorConnectionElement.setMessageAcknowledgements(messageAcks).setQueueCreation(queueCreation).setQueueRemoval(queueRemoval).
-                  setSourceMirrorAddress(sourceMirrorAddress);
+               amqpMirrorConnectionElement.setMessageAcknowledgements(messageAcks).setQueueCreation(queueCreation).setQueueRemoval(queueRemoval).setDurable(durable).setTargetMirrorId((short)targetMirrorID);
                connectionElement = amqpMirrorConnectionElement;
                connectionElement.setType(AMQPBrokerConnectionAddressType.MIRROR);
             } else {

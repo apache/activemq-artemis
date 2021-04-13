@@ -1062,6 +1062,9 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public boolean isDurable() {
+      if (!isLargeMessage()) {
+         ensureMessageDataScanned();
+      }
       if (header != null && header .getDurable() != null) {
          return header.getDurable();
       } else {
@@ -1680,13 +1683,22 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public String toString() {
+      String extraPrint = "";
+
+      if (getExtraProperties() != null && !getExtraProperties().isEmpty()) {
+         Long internalID = (Long)getExtraProperties().getProperty(SimpleString.toSimpleString("x-opt-amq-mr-id"));
+         if (internalID != null) {
+            extraPrint = ",x-opt-amq-mr-id mirorrID=" + ByteUtil.getFirstByte(internalID) + ",x-opt-amq-mr-id messageID=" + ByteUtil.removeFirstByte(internalID);
+         }
+      }
       return this.getClass().getSimpleName() + "( [durable=" + isDurable() +
          ", messageID=" + getMessageID() +
          ", address=" + getAddress() +
          ", size=" + getEncodeSize() +
          ", applicationProperties=" + getApplicationPropertiesMap(false) +
+         ", messageAnnotations=" + getMessageAnnotationsMap(false) +
          ", properties=" + properties +
-         ", extraProperties = " + getExtraProperties() +
+         ", extraProperties = " + getExtraProperties() + extraPrint +
          "]";
    }
 

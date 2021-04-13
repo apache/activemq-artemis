@@ -41,6 +41,11 @@ public interface PriorityLinkedList<T> {
     */
    void setIDSupplier(ToLongFunction<T> supplier);
 
+   /**
+    * Use non zeroed IDs. 0 is reserved for null values and it should return always null.
+    * @param id
+    * @return
+    */
    T removeWithID(long id);
 
    /**

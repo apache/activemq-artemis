@@ -389,6 +389,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    // Constructors
    // ---------------------------------------------------------------------------------
 
+   @Override
+   public byte getMirrorBrokerId() {
+      return configuration.getBrokerMirrorId();
+   }
+
    public ActiveMQServerImpl() {
       this(null, null, null);
    }
@@ -1575,7 +1580,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public String getIdentity() {
-      return identity;
+      if (identity == null) {
+         if (configuration != null) {
+            this.identity = configuration.getName();
+         }
+      }
+      return identity == null ? "" : identity;
    }
 
    @Override
@@ -2896,10 +2906,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public String toString() {
-      if (identity != null) {
-         return "ActiveMQServerImpl::" + identity;
+      String localIdentity = "";
+      if (getIdentity() != null) {
+         localIdentity = getIdentity();
       }
-      return "ActiveMQServerImpl::" + (nodeManager != null ? "serverUUID=" + nodeManager.getUUID() : "");
+      return "ActiveMQServerImpl::" + localIdentity + (nodeManager != null ? "serverUUID=" + nodeManager.getUUID() : "");
    }
 
    /**

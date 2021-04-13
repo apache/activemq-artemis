@@ -126,6 +126,11 @@ public interface ActiveMQServer extends ServiceComponent {
     */
    void setIdentity(String identity);
 
+   /** a 0 on a broker mirror ID means not assigned */
+   default byte getMirrorBrokerId() {
+      return 0;
+   }
+
    String getIdentity();
 
    String describe();

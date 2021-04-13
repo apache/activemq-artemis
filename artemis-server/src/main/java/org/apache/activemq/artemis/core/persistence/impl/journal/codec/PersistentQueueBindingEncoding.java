@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -79,6 +81,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    public long autoDeleteMessageCount;
 
    public long ringSize;
+
+   public Map<String, String> metadata;
 
    public PersistentQueueBindingEncoding() {
    }
@@ -158,7 +162,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final long autoDeleteMessageCount,
                                          final byte routingType,
                                          final boolean configurationManaged,
-                                         final long ringSize) {
+                                         final long ringSize,
+                                         final Map<String, String> metadata) {
       this.name = name;
       this.address = address;
       this.filterString = filterString;
@@ -183,6 +188,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.routingType = routingType;
       this.configurationManaged = configurationManaged;
       this.ringSize = ringSize;
+      this.metadata = metadata;
    }
 
    @Override
@@ -397,11 +403,9 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       if (metadata != null) {
          String[] elements = metadata.split(";");
          for (String element : elements) {
-            String[] keyValuePair = element.split("=");
-            if (keyValuePair.length == 2) {
-               if (keyValuePair[0].equals("user")) {
-                  user = SimpleString.toSimpleString(keyValuePair[1]);
-               }
+            String[] kv = element.split("=");
+            if (kv.length == 2) {
+               loadMetaData(kv[0], kv[1]);
             }
          }
       }
@@ -501,6 +505,17 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       }
    }
 
+   private void loadMetaData(String k, String v) {
+      if (k.equals("user")) {
+         user = SimpleString.toSimpleString(v);
+      } else {
+         if (metadata == null) {
+            metadata = new HashMap<>();
+         }
+         metadata.put(k, v);
+      }
+   }
+
    @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(name);
@@ -556,10 +571,13 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    private SimpleString createMetadata() {
-      StringBuilder metadata = new StringBuilder();
+      final StringBuilder metadataBuilder = new StringBuilder();
       if (user != null) {
-         metadata.append("user=").append(user).append(";");
+         metadataBuilder.append("user=").append(user).append(";");
       }
-      return SimpleString.toSimpleString(metadata.toString());
+      if (metadata != null) {
+         metadata.forEach((k, v) -> metadataBuilder.append(k + "=" + v + ";") );
+      }
+      return SimpleString.toSimpleString(metadataBuilder.toString());
    }
 }

@@ -125,7 +125,7 @@ under the License.
          <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true</acceptor>
       </acceptors>
 
-      <broker-connections>
+      <broker-connections source-mirror-id="0">
          <amqp-connection uri="tcp://localhost:61617" name="outgoing" reconnect-attempts="-1" retry-interval="100" user="B" password="B">
             <sender address-match="toB"/>
             <receiver address-match="toA"/>

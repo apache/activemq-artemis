@@ -501,4 +501,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229234, value = "Invalid slow consumer threshold measurement unit {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidSlowConsumerThresholdMeasurementUnit(String val);
+
+   @Message(id = 229235, value = "broker-mirror-id needs to be between 1 and 255, while you passed {0} on the configuration", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException invalidBrokerID(Object val);
 }

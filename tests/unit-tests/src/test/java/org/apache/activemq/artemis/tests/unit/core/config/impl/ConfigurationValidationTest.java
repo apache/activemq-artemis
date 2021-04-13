@@ -99,19 +99,21 @@ public class ConfigurationValidationTest extends ActiveMQTestBase {
       Assert.assertEquals(AMQPBrokerConnectionAddressType.MIRROR, amqpBrokerConnectConfiguration.getConnectionElements().get(4).getType());
       AMQPMirrorBrokerConnectionElement mirrorConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(4);
       Assert.assertFalse(mirrorConnectionElement.isMessageAcknowledgements());
-      Assert.assertTrue(mirrorConnectionElement.isDurable()); // queue name passed, so this is supposed to be true
       Assert.assertFalse(mirrorConnectionElement.isQueueCreation());
       Assert.assertFalse(mirrorConnectionElement.isQueueRemoval());
-      Assert.assertEquals("TEST-REPLICA", mirrorConnectionElement.getSourceMirrorAddress().toString());
+      Assert.assertFalse(mirrorConnectionElement.isDurable());
+      Assert.assertEquals(2, mirrorConnectionElement.getTargetMirrorId());
+
 
       amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(1);
       Assert.assertEquals(null, amqpBrokerConnectConfiguration.getUser());      mirrorConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(0);
       Assert.assertEquals(null, amqpBrokerConnectConfiguration.getPassword());      Assert.assertEquals("test2", amqpBrokerConnectConfiguration.getName());
       Assert.assertEquals("tcp://test2:222", amqpBrokerConnectConfiguration.getUri());
       Assert.assertTrue(mirrorConnectionElement.isMessageAcknowledgements());
-      Assert.assertFalse(mirrorConnectionElement.isDurable()); // queue name not passed (set as null), so this is supposed to be false
+      Assert.assertFalse(mirrorConnectionElement.isDurable());
       Assert.assertTrue(mirrorConnectionElement.isQueueCreation());
       Assert.assertTrue(mirrorConnectionElement.isQueueRemoval());
+      Assert.assertEquals(3, mirrorConnectionElement.getTargetMirrorId());
 
       amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(2);
       Assert.assertFalse(amqpBrokerConnectConfiguration.isAutostart());

@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -186,6 +187,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private volatile boolean printErrorExpiring = false;
 
    private boolean mirrorController;
+
+   private Map<String, String> metadata;
 
    // Messages will first enter intermediateMessageReferences
    // Before they are added to messageReferences
@@ -1193,6 +1196,184 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void flushOnIntermediate(Runnable runnable) {
+      intermediateMessageReferences.add(new MessageReference() {
+
+         @Override
+         public boolean skipDelivery() {
+            runnable.run();
+            return true;
+         }
+
+         @Override
+         public boolean isPaged() {
+            return false;
+         }
+
+         @Override
+         public Message getMessage() {
+            return null;
+         }
+
+         @Override
+         public long getMessageID() {
+            return 0;
+         }
+
+         @Override
+         public boolean isDurable() {
+            return false;
+         }
+
+         @Override
+         public SimpleString getLastValueProperty() {
+            return null;
+         }
+
+         @Override
+         public void onDelivery(java.util.function.Consumer<? super MessageReference> callback) {
+
+         }
+
+         @Override
+         public int getMessageMemoryEstimate() {
+            return 0;
+         }
+
+         @Override
+         public Object getProtocolData() {
+            return null;
+         }
+
+         @Override
+         public void setProtocolData(Object data) {
+
+         }
+
+         @Override
+         public MessageReference copy(Queue queue) {
+            return null;
+         }
+
+         @Override
+         public long getScheduledDeliveryTime() {
+            return 0;
+         }
+
+         @Override
+         public void setScheduledDeliveryTime(long scheduledDeliveryTime) {
+
+         }
+
+         @Override
+         public int getDeliveryCount() {
+            return 0;
+         }
+
+         @Override
+         public void setDeliveryCount(int deliveryCount) {
+
+         }
+
+         @Override
+         public void setPersistedCount(int deliveryCount) {
+
+         }
+
+         @Override
+         public int getPersistedCount() {
+            return 0;
+         }
+
+         @Override
+         public void incrementDeliveryCount() {
+
+         }
+
+         @Override
+         public void decrementDeliveryCount() {
+
+         }
+
+         @Override
+         public Queue getQueue() {
+            return null;
+         }
+
+         @Override
+         public void acknowledge() throws Exception {
+
+         }
+
+         @Override
+         public void acknowledge(Transaction tx) throws Exception {
+
+         }
+
+         @Override
+         public void acknowledge(Transaction tx, ServerConsumer consumer) throws Exception {
+
+         }
+
+         @Override
+         public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer) throws Exception {
+
+         }
+
+         @Override
+         public void emptyConsumerID() {
+
+         }
+
+         @Override
+         public void setConsumerId(long consumerID) {
+
+         }
+
+         @Override
+         public boolean hasConsumerId() {
+            return false;
+         }
+
+         @Override
+         public long getConsumerId() {
+            return 0;
+         }
+
+         @Override
+         public void handled() {
+
+         }
+
+         @Override
+         public void setInDelivery(boolean alreadyDelivered) {
+
+         }
+
+         @Override
+         public boolean isInDelivery() {
+            return false;
+         }
+
+         @Override
+         public void setAlreadyAcked() {
+
+         }
+
+         @Override
+         public boolean isAlreadyAcked() {
+            return false;
+         }
+
+         @Override
+         public long getPersistentSize() throws ActiveMQException {
+            return 0;
+         }
+      });
+      deliverAsync();
+   }
+
+   @Override
    public void addTail(final MessageReference ref, final boolean direct) {
       try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_TAIL)) {
          if (scheduleIfPossible(ref)) {
@@ -1825,6 +2006,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace(this + " acknowledge ref=" + ref + ", reason=" + reason + ", consumer=" + consumer);
+      }
       if (nonDestructive && reason == AckReason.NORMAL) {
          decDelivering(ref);
          if (logger.isDebugEnabled()) {
@@ -1860,6 +2044,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace(this + " acknowledge=tx=" + tx + ", ref=" + ref + ", reason=" + reason + ", consumer=" + consumer);
+      }
       RefsOperation refsOperation = getRefsOperation(tx, reason);
 
       if (nonDestructive && reason == AckReason.NORMAL) {
@@ -2890,6 +3077,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       MessageReference ref;
 
       while ((ref = intermediateMessageReferences.poll()) != null) {
+         if (ref.skipDelivery()) {
+            continue;
+         }
          internalAddTail(ref);
 
          if (!ref.isPaged()) {
@@ -2910,7 +3100,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     */
    private boolean deliver() {
       if (logger.isDebugEnabled()) {
-         logger.debug(this + " doing deliver. messageReferences=" + messageReferences.size());
+         logger.debug("Queue " + this.getName()  + " doing deliver. messageReferences=" + messageReferences.size() + " with consumers=" + getConsumerCount());
       }
 
       scheduledRunners.decrementAndGet();
@@ -3245,7 +3435,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public MessageReference removeWithSuppliedID(long id, ToLongFunction<MessageReference> idSupplier) {
+   public synchronized MessageReference removeWithSuppliedID(long id, ToLongFunction<MessageReference> idSupplier) {
       checkIDSupplier(idSupplier);
       return messageReferences.removeWithID(id);
    }
@@ -4068,6 +4258,28 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          .setAutoCreated(autoCreated);
    }
 
+   @Override
+   public Map<String, String> getMetadata() {
+      if (metadata == null) {
+         return Collections.emptyMap();
+      }
+      return metadata;
+   }
+
+   @Override
+   public Queue setMetadata(Map<String, String> metadata) {
+      this.metadata = metadata;
+      return this;
+   }
+
+   @Override
+   public Queue addMetadata(String k, String v) {
+      if (metadata == null) {
+         metadata = new HashMap<>();
+      }
+      metadata.put(k, v);
+      return this;
+   }
    // Inner classes
    // --------------------------------------------------------------------------
 

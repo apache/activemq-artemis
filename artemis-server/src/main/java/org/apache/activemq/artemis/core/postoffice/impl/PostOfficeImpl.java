@@ -488,7 +488,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             server.callBrokerAddressPlugins(plugin -> plugin.beforeAddAddress(addressInfo, reload));
          }
 
-         if (mirrorControllerSource != null) {
+         if (!reload && mirrorControllerSource != null) {
             mirrorControllerSource.addAddress(addressInfo);
          }
 
@@ -1322,13 +1322,18 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public DuplicateIDCache getDuplicateIDCache(final SimpleString address) {
+      return getDuplicateIDCache(address, idCacheSize);
+   }
+
+   @Override
+   public DuplicateIDCache getDuplicateIDCache(final SimpleString address, int cacheSizeToUse) {
       DuplicateIDCache cache = duplicateIDCaches.get(address);
 
       if (cache == null) {
          if (persistIDCache) {
-            cache = DuplicateIDCaches.persistent(address, idCacheSize, storageManager);
+            cache = DuplicateIDCaches.persistent(address, cacheSizeToUse, storageManager);
          } else {
-            cache = DuplicateIDCaches.inMemory(address, idCacheSize);
+            cache = DuplicateIDCaches.inMemory(address, cacheSizeToUse);
          }
 
          DuplicateIDCache oldCache = duplicateIDCaches.putIfAbsent(address, cache);

@@ -191,7 +191,7 @@ public class LinkedListTest extends ActiveMQTestBase {
       }
 
       // Initial add
-      for (int i = 0; i < 1000; i++) {
+      for (int i = 1; i <= 1000; i++) {
          final ObservableNode o = new ObservableNode(i);
          objs.addTail(o);
       }
@@ -215,7 +215,7 @@ public class LinkedListTest extends ActiveMQTestBase {
 
 
       /** remove all even items */
-      for (int i = 0; i < 1000; i += 2) {
+      for (int i = 1; i <= 1000; i += 2) {
          objs.removeWithID(i);
       }
 
@@ -225,7 +225,7 @@ public class LinkedListTest extends ActiveMQTestBase {
       Iterator<ObservableNode> iterator = objs.iterator();
 
       {
-         int i = 1;
+         int i = 2;
          while (iterator.hasNext()) {
             ObservableNode value = iterator.next();
             Assert.assertEquals(i, value.id);
@@ -233,8 +233,8 @@ public class LinkedListTest extends ActiveMQTestBase {
          }
       }
 
-      for (int i = 1; i < 1000; i += 2) {
-         objs.removeWithID(i);
+      for (int i = 2; i <= 1000; i += 2) {
+         Assert.assertNotNull(objs.removeWithID(i));
       }
 
       Assert.assertEquals(0, objs.getSizeOfSuppliedIDs());

@@ -203,7 +203,6 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.start();
       // if this does not succeed the catch up did not arrive at the other server
       Wait.assertTrue(() -> server.locateQueue("sometest") != null);
-      Wait.assertTrue(() -> server.locateQueue("ToBeGone") == null);
       server_2.stop();
       server.stop();
    }
@@ -214,8 +213,6 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server.start();
       server.setIdentity("Server1");
       server.addAddressInfo(new AddressInfo("sometest").setAutoCreated(false).addRoutingType(RoutingType.MULTICAST));
-      // This queue will disappear from the source, so it should go
-      server.createQueue(new QueueConfiguration("ToBeGone").setDurable(true).setRoutingType(RoutingType.MULTICAST));
       server.stop();
 
       server_2 = createServer(AMQP_PORT_2, false);
@@ -243,12 +240,10 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       server.start();
       Assert.assertTrue(server.locateQueue("sometest") == null);
-      Assert.assertTrue(server.locateQueue("ToBeGone") != null);
       Wait.assertTrue(server::isActive);
       server_2.start();
       // if this does not succeed the catch up did not arrive at the other server
       Wait.assertTrue(() -> server.locateQueue("sometest") != null);
-      Wait.assertTrue(() -> server.locateQueue("ToBeGone") == null);
       server_2.stop();
       server.stop();
    }
@@ -324,9 +319,9 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.setIdentity("server_2");
 
       AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
-      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(true);
+      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(true).setTargetMirrorId(1);
       amqpConnection.addElement(replica);
-      server_2.getConfiguration().addAMQPConnection(amqpConnection);
+      server_2.getConfiguration().addAMQPConnection(amqpConnection).setBrokerMirrorId(2);
 
       int NUMBER_OF_MESSAGES = 20;
 
@@ -392,9 +387,10 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server.start();
       server_2 = createServer(AMQP_PORT_2, false);
       server_2.setIdentity("server_2");
+      server_2.getConfiguration().setBrokerMirrorId(2);
 
       AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
-      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(true);
+      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(true).setTargetMirrorId(1);
       amqpConnection.addElement(replica);
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
 
@@ -463,10 +459,10 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       }
       server_2 = createServer(AMQP_PORT_2, false);
       server_2.setIdentity("server_2");
-      server_2.getConfiguration().setName("thisone");
+      server_2.getConfiguration().setName("thisone").setBrokerMirrorId(2);
 
       AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("OtherSide", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
-      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setSourceMirrorAddress("TheSource");
+      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setDurable(true).setTargetMirrorId((short)1);
       amqpConnection.addElement(replica);
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
 
@@ -537,10 +533,10 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       }
       server_2 = createServer(AMQP_PORT_2, false);
       server_2.setIdentity("server_2");
-      server_2.getConfiguration().setName("thisone");
+      server_2.getConfiguration().setName("thisone").setBrokerMirrorId((short)2);
 
       AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(brokerConnectionName, "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
-      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(acks);
+      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(acks).setTargetMirrorId((short)1);
       amqpConnection.addElement(replica);
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
 
@@ -595,13 +591,13 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       } else {
          queueOnServer1 = locateQueue(server, getQueueName());
       }
-      Queue snfreplica = server_2.locateQueue(replica.getSourceMirrorAddress());
+      Queue snfreplica = server_2.locateQueue(replica.getMirrorSNF());
 
       Assert.assertNotNull(snfreplica);
 
       Wait.assertEquals(0, snfreplica::getMessageCount);
 
-      Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
+      Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount, 2000);
       Queue queueOnServer2 = locateQueue(server_2, getQueueName());
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount);
@@ -696,6 +692,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       ActiveMQServer server_3 = createServer(AMQP_PORT_3, false);
       server_3.setIdentity("server_3");
+      server_3.getConfiguration().setBrokerMirrorId((short)3);
       server_3.start();
       Wait.assertTrue(server_3::isStarted);
 
@@ -703,17 +700,18 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       factory_3.createConnection().close();
 
       server_2 = createServer(AMQP_PORT_2, false);
+      server_2.getConfiguration().setBrokerMirrorId(2);
 
       String brokerConnectionOne = "brokerConnection1:" + UUIDGenerator.getInstance().generateStringUUID();
       String brokerConnectionTwo = "brokerConnection2:" + UUIDGenerator.getInstance().generateStringUUID();
 
       AMQPBrokerConnectConfiguration amqpConnection1 = new AMQPBrokerConnectConfiguration(brokerConnectionOne, "tcp://localhost:" + AMQP_PORT);
-      AMQPMirrorBrokerConnectionElement replica1 = new AMQPMirrorBrokerConnectionElement().setType(AMQPBrokerConnectionAddressType.MIRROR);
+      AMQPMirrorBrokerConnectionElement replica1 = new AMQPMirrorBrokerConnectionElement().setType(AMQPBrokerConnectionAddressType.MIRROR).setTargetMirrorId((short)1);
       amqpConnection1.addElement(replica1);
       server_2.getConfiguration().addAMQPConnection(amqpConnection1);
 
       AMQPBrokerConnectConfiguration amqpConnection3 = new AMQPBrokerConnectConfiguration(brokerConnectionTwo, "tcp://localhost:" + AMQP_PORT_3);
-      AMQPMirrorBrokerConnectionElement replica2 = new AMQPMirrorBrokerConnectionElement().setType(AMQPBrokerConnectionAddressType.MIRROR);
+      AMQPMirrorBrokerConnectionElement replica2 = new AMQPMirrorBrokerConnectionElement().setType(AMQPBrokerConnectionAddressType.MIRROR).setTargetMirrorId((short)3);
       amqpConnection3.addElement(replica2);
       server_2.getConfiguration().addAMQPConnection(amqpConnection3);
 
@@ -765,8 +763,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Wait.assertEquals(NUMBER_OF_MESSAGES, queue_server_3::getMessageCount);
       Wait.assertEquals(NUMBER_OF_MESSAGES, queue_server_1::getMessageCount);
 
-      Queue replica1Queue = server_2.locateQueue(replica1.getSourceMirrorAddress());
-      Queue replica2Queue = server_2.locateQueue(replica2.getSourceMirrorAddress());
+      Queue replica1Queue = server_2.locateQueue(replica1.getMirrorSNF());
+      Queue replica2Queue = server_2.locateQueue(replica2.getMirrorSNF());
 
       Wait.assertEquals(0L, replica2Queue.getPagingStore()::getAddressSize, 1000, 100);
       Wait.assertEquals(0L, replica1Queue.getPagingStore()::getAddressSize, 1000, 100);

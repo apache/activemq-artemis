@@ -14,30 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils.collections;
+package org.apache.activemq.artemis.tests.uri;
 
-import java.util.function.ToLongFunction;
+import java.net.URI;
+import java.util.List;
 
-public interface LinkedList<E> {
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
+import org.junit.Test;
 
-   void addHead(E e);
+public class ConnectorTransportConfigurationParserURITest {
 
-   void addTail(E e);
+   @Test
+   public void testParse() throws Exception {
+      ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser(false);
 
-   E poll();
+      URI transportURI = parser.expandURI("tcp://localhost:6161#other:3333,bababa:4444");
+      System.out.println(transportURI);
+      List<TransportConfiguration> objects = parser.newObject(transportURI, "test");
+      objects.forEach((t) -> System.out.println(t));
+   }
 
-   LinkedListIterator<E> iterator();
-
-   void clear();
-
-   int size();
-
-   void clearID();
-
-   /** The ID Supplier function needs to return non zero IDs.
-    *  If you spply a zero ID, it will be considered a null value, and
-    *  the value will just be ignored. */
-   void setIDSupplier(ToLongFunction<E> supplier);
-
-   E removeWithID(long id);
 }

@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.netty.util.internal.PlatformDependent;
-
+import org.jboss.logging.Logger;
 
 /**
  * A simple encapsulation of Netty MpscQueue to provide a pool of objects.
@@ -33,12 +33,17 @@ import io.netty.util.internal.PlatformDependent;
  */
 public class MpscPool<T> extends Pool<T> {
 
+   private static final Logger logger = Logger.getLogger(MpscPool.class);
+
    public MpscPool(int maxSize, Consumer<T> cleaner, Supplier<T> supplier) {
       super(maxSize, cleaner, supplier);
    }
 
    @Override
    protected Queue<T> createQueue(int maxSize) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("Creating Pool with size=" + maxSize + " for classes for " + supplier.get().getClass());
+      }
       final Queue<T> internalPool;
       if (maxSize > 0) {
          internalPool = PlatformDependent.newFixedMpscQueue(maxSize);

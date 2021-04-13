@@ -62,6 +62,16 @@ public interface Configuration {
     */
    String getName();
 
+   byte getBrokerMirrorId();
+
+   Configuration setBrokerMirrorId(byte mirrorID);
+
+   default Configuration setBrokerMirrorId(int mirrorID) {
+      // this is just a short-cut from int to short (no pun intended) avoiding having to type the cast every time when you are using the
+      // Configuration API directly
+      return setBrokerMirrorId((byte)mirrorID);
+   }
+
    /**
     * To be used on dependency management on the application server
     */

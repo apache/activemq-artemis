@@ -1671,5 +1671,19 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       }
 
+      @Override
+      public Map<String, String> getMetadata() {
+         return null;
+      }
+
+      @Override
+      public Queue setMetadata(Map<String, String> metadata) {
+         return null;
+      }
+
+      @Override
+      public Queue addMetadata(String k, String v) {
+         return null;
+      }
    }
 }

@@ -39,6 +39,49 @@ public class ByteUtilTest {
 
    private static Logger log = Logger.getLogger(ByteUtilTest.class);
 
+
+   @Test
+   public void testMixIDs1() {
+      long mixedID = ByteUtil.mixByteAndLong((byte)3, -1L);  // just a note, -1 is 0Xffffff....
+      Assert.assertEquals((byte)3, ByteUtil.getFirstByte(mixedID));
+
+      long mixedIDWithMaxValue = ByteUtil.mixByteAndLong((byte)3, Long.MAX_VALUE);
+      // first byte is 03, all the rest is fff...
+      Assert.assertEquals(0x03ffffffffffffffL, mixedIDWithMaxValue);
+      // -1 and fff should return you the same value when mixing 03, I'm doing this check just in case.
+      Assert.assertEquals(mixedIDWithMaxValue, mixedID);
+   }
+
+   @Test
+   public void testUnsalt() {
+      byte byteToTalt = RandomUtil.randomByte();
+      long originalID = RandomUtil.randomPositiveInt();
+
+
+      byte[] originalIDBytes = ByteUtil.longToBytes(originalID);
+
+      log.debug("Salt = " + byteToTalt + " ID = " + originalID + ByteUtil.debugByteArray(originalIDBytes));
+
+      originalIDBytes[0] = byteToTalt;
+      long originalIDBytesOutput = ByteUtil.bytesToLong(originalIDBytes);
+
+      long originalIDSalted = ByteUtil.mixByteAndLong(byteToTalt, originalID);
+
+      Assert.assertEquals(originalIDBytesOutput, originalIDSalted);
+      Assert.assertEquals(byteToTalt, ByteUtil.getFirstByte(originalIDSalted));
+      Assert.assertEquals(byteToTalt, ByteUtil.getFirstByte(originalIDBytesOutput));
+      Assert.assertEquals(originalID, ByteUtil.removeFirstByte(originalIDSalted));
+   }
+
+   @Test
+   public void testBytesToLong() {
+      long randomA = RandomUtil.randomLong();
+      byte[] randomABytes = ByteUtil.longToBytes(randomA);
+      long randomAOutput = ByteUtil.bytesToLong(randomABytes);
+
+      Assert.assertEquals(randomA, randomAOutput);
+   }
+
    @Test
    public void testBytesToString() {
       byte[] byteArray = new byte[]{0, 1, 2, 3};

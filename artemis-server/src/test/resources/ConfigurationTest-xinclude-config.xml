@@ -20,6 +20,7 @@
         xmlns:xi="http://www.w3.org/2001/XInclude"
         xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/artemis-server.xsd">
    <core xmlns="urn:activemq:core">
+
       <name>SomeNameForUseOnTheApplicationServer</name>
       <resolve-protocols>false</resolve-protocols>
       <persistence-enabled>false</persistence-enabled>
@@ -266,6 +267,21 @@
             <discovery-group-ref discovery-group-name="dg1"/>
          </cluster-connection>
       </cluster-connections>
+      <broker-connections source-mirror-id="1">
+         <amqp-connection uri="tcp://test1:111" name="test1" retry-interval="333" reconnect-attempts="33" user="testuser" password="testpassword">
+            <sender address-match="TEST-SENDER"  />
+            <receiver address-match="TEST-RECEIVER" />
+            <peer address-match="TEST-PEER"/>
+            <receiver queue-name="TEST-WITH-QUEUE-NAME"/>
+            <mirror message-acknowledgements="false" queue-creation="false" durable="false" target-mirror-id="2" queue-removal="false"/>
+         </amqp-connection>
+         <amqp-connection uri="tcp://test2:222" name="test2">
+            <mirror target-mirror-id="3" durable="false"/>
+         </amqp-connection>
+         <amqp-connection uri="tcp://false" name="auto-start-false" auto-start="false">
+            <mirror target-mirror-id="4"/>
+         </amqp-connection>
+      </broker-connections>
       <grouping-handler name="gh1">
          <type>LOCAL</type>
          <address>jms</address>

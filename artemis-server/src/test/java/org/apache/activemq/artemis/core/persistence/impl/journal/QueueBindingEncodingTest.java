@@ -76,7 +76,8 @@ public class QueueBindingEncodingTest extends Assert {
                                                                                    autoDeleteMessageCount,
                                                                                    routingType,
                                                                                    configurationManaged,
-                                                                                   ringSize);
+                                                                                   ringSize,
+                                                                                   null);
       int size = encoding.getEncodeSize();
       ActiveMQBuffer encodedBuffer = ActiveMQBuffers.fixedBuffer(size);
       encoding.encode(encodedBuffer);
