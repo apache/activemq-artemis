@@ -1225,9 +1225,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222186,
-      value = "unable to authorise cluster control",
+      value = "unable to authorise cluster control: {0}",
       format = Message.Format.MESSAGE_FORMAT)
-   void clusterControlAuthfailure();
+   void clusterControlAuthfailure(String causeMessage);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222187,

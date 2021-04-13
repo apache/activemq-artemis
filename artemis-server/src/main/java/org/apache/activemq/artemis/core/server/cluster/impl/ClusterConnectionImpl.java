@@ -563,7 +563,10 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             clusterControl.authorize();
             clusterControl.sendNodeAnnounce(localMember.getUniqueEventID(), manager.getNodeId(), manager.getBackupGroupName(), manager.getScaleDownGroupName(), false, localMember.getLive(), localMember.getBackup());
          } catch (ActiveMQException e) {
-            ActiveMQServerLogger.LOGGER.clusterControlAuthfailure();
+            ActiveMQServerLogger.LOGGER.clusterControlAuthfailure(e.getMessage());
+            if (logger.isDebugEnabled()) {
+               logger.debug(e);
+            }
          }
       } else {
          ActiveMQServerLogger.LOGGER.noLocalMemborOnClusterConnection(this);
