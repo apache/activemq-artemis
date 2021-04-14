@@ -196,6 +196,7 @@ public class MQTTSubscriptionManager {
       SimpleString internalQueueName = getQueueNameForTopic(internalAddress);
       session.getSessionState().removeSubscription(address);
 
+      Queue queue = session.getServer().locateQueue(internalQueueName);
       SimpleString sAddress = SimpleString.toSimpleString(internalAddress);
       AddressInfo addressInfo = session.getServerSession().getAddress(sAddress);
       if (addressInfo != null && addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST)) {
@@ -207,7 +208,6 @@ public class MQTTSubscriptionManager {
          }
       } else {
          consumers.remove(address);
-         Queue queue = session.getServer().locateQueue(internalQueueName);
          Set<Consumer> queueConsumers;
          if (queue != null && (queueConsumers = (Set<Consumer>) queue.getConsumers()) != null) {
             for (Consumer consumer : queueConsumers) {
@@ -217,8 +217,14 @@ public class MQTTSubscriptionManager {
          }
       }
 
-      if (session.getServerSession().executeQueueQuery(internalQueueName).isExists()) {
-         session.getServerSession().deleteQueue(internalQueueName);
+      if (queue != null) {
+         assert session.getServerSession().executeQueueQuery(internalQueueName).isExists();
+
+         if (queue.isConfigurationManaged()) {
+            queue.deleteAllReferences();
+         } else {
+            session.getServerSession().deleteQueue(internalQueueName);
+         }
       }
    }
 

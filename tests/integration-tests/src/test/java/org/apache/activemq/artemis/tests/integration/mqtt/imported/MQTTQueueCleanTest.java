@@ -17,7 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -30,6 +33,45 @@ import java.util.Set;
 public class MQTTQueueCleanTest extends MQTTTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(MQTTQueueCleanTest.class);
+
+   @Test
+   public void testQueueClean() throws Exception {
+      testQueueClean(false);
+   }
+
+   @Test
+   public void testManagedQueueClean() throws Exception {
+      testQueueClean(true);
+   }
+
+   private void testQueueClean(boolean managed) throws Exception {
+      String address = "clean/test";
+      String clientId = "mqtt-client";
+      String queueName = "::mqtt-client.clean.test";
+
+      if (managed) {
+         server.addAddressInfo(new AddressInfo(address)
+                                  .addRoutingType(RoutingType.MULTICAST));
+
+         server.createQueue(new QueueConfiguration(queueName)
+                               .setAddress(address)
+                               .setRoutingType(RoutingType.MULTICAST)
+                               .setConfigurationManaged(true));
+      }
+
+      MQTTClientProvider clientProvider = getMQTTClientProvider();
+      clientProvider.setClientId(clientId);
+      initializeConnection(clientProvider);
+      clientProvider.subscribe(address, AT_LEAST_ONCE);
+      clientProvider.disconnect();
+
+      if (managed) {
+         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) != null &&
+            server.locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() == 0, 5000, 10));
+      } else {
+         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) == null, 5000, 10));
+      }
+   }
 
    @Test
    public void testQueueCleanWhenConnectionSynExeConnectAndDisconnect() throws Exception {
