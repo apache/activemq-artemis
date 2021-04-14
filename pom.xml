@@ -105,7 +105,7 @@
       <proton.version>0.33.8</proton.version>
       <resteasy.version>3.15.0.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>0.56.0</qpid.jms.version>
+      <qpid.jms.version>0.58.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <hawtbuff.version>1.11</hawtbuff.version>
       <jb.logmanager.version>2.1.10.Final</jb.logmanager.version>
