@@ -241,6 +241,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    final Executor failureExecutor;
 
+   private volatile Object providerAgnosticSslContext;
+
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
                         final Map<String, Object> configuration,
@@ -333,6 +335,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             .trustManagerFactoryPlugin(trustManagerFactoryPlugin)
             .crlPath(crlPath)
             .build();
+         providerAgnosticSslContext = loadSSLContext();
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStoreType = TransportConstants.DEFAULT_KEYSTORE_TYPE;
@@ -369,6 +372,20 @@ public class NettyAcceptor extends AbstractAcceptor {
       connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED, TransportConstants.DEFAULT_CONNECTIONS_ALLOWED, configuration);
 
       autoStart = ConfigurationHelper.getBooleanProperty(TransportConstants.AUTO_START, TransportConstants.DEFAULT_AUTO_START, configuration);
+   }
+
+   private Object loadSSLContext() {
+      checkSSLConfiguration();
+      try {
+         if (TransportConstants.OPENSSL_PROVIDER.equals(sslProvider)) {
+            return OpenSSLContextFactoryProvider.getOpenSSLContextFactory().getServerSslContext(sslContextConfig, configuration);
+         } else {
+            return SSLContextFactoryProvider.getSSLContextFactory().getSSLContext(sslContextConfig, configuration);
+         }
+      } catch (Exception e) {
+         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port, e);
+         throw ise;
+      }
    }
 
    @Override
@@ -434,8 +451,8 @@ public class NettyAcceptor extends AbstractAcceptor {
          @Override
          public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();
-            Pair<String, Integer> peerInfo = getPeerInfo(channel);
             if (sslEnabled) {
+               final Pair<String, Integer> peerInfo = getPeerInfo(channel);
                try {
                   pipeline.addLast("ssl", getSslHandler(channel.alloc(), peerInfo.getA(), peerInfo.getB()));
                   pipeline.addLast("sslHandshakeExceptionHandler", new SslHandshakeExceptionHandler());
@@ -563,10 +580,14 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       serverChannelGroup.clear();
 
+      if (sslEnabled) {
+         providerAgnosticSslContext = loadSSLContext();
+      }
+
       startServerChannels();
    }
 
-   public synchronized SslHandler getSslHandler(ByteBufAllocator alloc, String peerHost, int peerPort) throws Exception {
+   public SslHandler getSslHandler(ByteBufAllocator alloc, String peerHost, int peerPort) throws Exception {
       SSLEngine engine;
       if (TransportConstants.OPENSSL_PROVIDER.equals(sslProvider)) {
          engine = loadOpenSslEngine(alloc, peerHost, peerPort);
@@ -641,14 +662,7 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    private SSLEngine loadJdkSslEngine(String peerHost, int peerPort) throws Exception {
-      final SSLContext context;
-      try {
-         checkSSLConfiguration();
-         context =  SSLContextFactoryProvider.getSSLContextFactory().getSSLContext(sslContextConfig, configuration);
-      } catch (Exception e) {
-         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port, e);
-         throw ise;
-      }
+      final SSLContext context = (SSLContext) providerAgnosticSslContext;
       Subject subject = null;
       if (kerb5Config != null) {
          LoginContext loginContext = new LoginContext(kerb5Config);
@@ -679,14 +693,7 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    private SSLEngine loadOpenSslEngine(ByteBufAllocator alloc, String peerHost, int peerPort) throws Exception {
-      final SslContext context;
-      try {
-         checkSSLConfiguration();
-         context = OpenSSLContextFactoryProvider.getOpenSSLContextFactory().getServerSslContext(sslContextConfig, configuration);
-      } catch (Exception e) {
-         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port, e);
-         throw ise;
-      }
+      final SslContext context = (SslContext) providerAgnosticSslContext;
       Subject subject = null;
       if (kerb5Config != null) {
          LoginContext loginContext = new LoginContext(kerb5Config);
