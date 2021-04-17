@@ -110,7 +110,7 @@ var Artemis;
         function updateQueueKind() {
             if(ctrl.kinds.Queue && !ctrl.showQueues) {
                delete ctrl.kinds.Queue;
-            } else if (!ctrl.kinds.Queues && ctrl.showQueues) {
+            } else if (!ctrl.kinds.Queue && ctrl.showQueues) {
                 ctrl.kinds.Queue = true;
             }
         }
@@ -130,7 +130,7 @@ var Artemis;
         function updateInternalQueueKind() {
             if(ctrl.kinds.InternalQueue && !ctrl.showInternalQueues) {
                delete ctrl.kinds.InternalQueue;
-            } else if (!ctrl.kinds.InternalQueues && ctrl.showInternalQueues) {
+            } else if (!ctrl.kinds.InternalQueue && ctrl.showInternalQueues) {
                 ctrl.kinds.InternalQueue = true;
             }
         }
