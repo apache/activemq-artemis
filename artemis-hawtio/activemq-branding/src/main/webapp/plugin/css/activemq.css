@@ -69,6 +69,14 @@ svg text {
    fill: #78932c;
 }
 
+.pf-topology-svg g.InternalAddress circle {
+   stroke:  #2b326e;
+}
+
+.pf-topology-svg g.InternalQueue circle {
+   stroke:  #50621d;
+}
+
 /*Adds a border to top of page*/
 .pf-c-page__header {
     border-top: 3px solid #B21054;
