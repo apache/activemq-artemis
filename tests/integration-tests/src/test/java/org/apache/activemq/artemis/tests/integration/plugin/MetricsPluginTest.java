@@ -148,7 +148,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
               new Metric("artemis.delivering.durable.persistent.size", "persistent size of durable messages that this queue is currently delivering to its consumers", 0.0),
               new Metric("artemis.delivering.message.count", "number of messages that this queue is currently delivering to its consumers", 0.0),
               new Metric("artemis.delivering.persistent_size", "persistent size of messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.disk.store.usage", "Percentage of total disk store used", 0.0),
+              new Metric("artemis.disk.store.usage", "Fraction of total disk store used", 0.0),
               new Metric("artemis.durable.message.count", "number of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
               new Metric("artemis.durable.persistent.size", "persistent size of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
               new Metric("artemis.message.count", "number of messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
