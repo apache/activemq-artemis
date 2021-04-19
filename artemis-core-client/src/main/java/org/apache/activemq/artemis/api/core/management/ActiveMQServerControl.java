@@ -29,7 +29,7 @@ public interface ActiveMQServerControl {
    String TOTAL_CONNECTION_COUNT_DESCRIPTION = "Number of clients which have connected to this server since it was started";
    String ADDRESS_MEMORY_USAGE_DESCRIPTION = "Memory used by all the addresses on broker for in-memory messages";
    String ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION = "Memory used by all the addresses on broker as a percentage of the global-max-size";
-   String DISK_STORE_USAGE_DESCRIPTION = "Percentage of total disk store used";
+   String DISK_STORE_USAGE_DESCRIPTION = "Fraction of total disk store used";
 
    /**
     * Returns this server's version.
