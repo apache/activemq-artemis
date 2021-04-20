@@ -223,7 +223,7 @@ as a hub and spoke topology.
 All of the same configuration options apply to `downstream` as does `upstream` with the exception of one
 extra configuration flag that needs to be set:
 
-  The `transport-connector-ref` is an element pointing to a
+  The `upstream-connector-ref` is an element pointing to a
   `connector` elements defined elsewhere. This ref is used to tell the downstream broker
   what connector to use to create a new upstream connection back to the downstream broker.
   
@@ -257,14 +257,14 @@ extra configuration flag that needs to be set:
           <static-connectors>
              <connector-ref>eu-east-connector1</connector-ref>
           </static-connectors>
-          <transport-connector-ref>netty-connector</transport-connector-ref>
+          <upstream-connector-ref>netty-connector</upstream-connector-ref>
           <policy ref="news-address-federation"/>
       </downstream>
       <downstream name="eu-west-1" >
          <static-connectors>
             <connector-ref>eu-west-connector1</connector-ref>
          </static-connectors>
-         <transport-connector-ref>netty-connector</transport-connector-ref>
+         <upstream-connector-ref>netty-connector</upstream-connector-ref>
          <policy ref="news-address-federation"/>
       </downstream>
 
