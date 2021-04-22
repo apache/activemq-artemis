@@ -236,7 +236,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    @Override
    public void onReadAddRecordTX(final long transactionID, final RecordInfo info) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("Read Add Recprd TX " + transactionID + " info " + info);
+         logger.trace("Read Add Record TX " + transactionID + " info " + info);
       }
       if (pendingTransactions.get(transactionID) != null || containsRecord(info.id)) {
          JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
