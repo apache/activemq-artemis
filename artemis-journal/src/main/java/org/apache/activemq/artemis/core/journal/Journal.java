@@ -83,6 +83,9 @@ public interface Journal extends ActiveMQComponent {
       appendAddRecord(id, recordType, EncoderPersister.getInstance(), record, sync, completionCallback);
    }
 
+   default void replaceableRecord(int recordType) {
+   }
+
    void appendUpdateRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception;
 
    boolean tryAppendUpdateRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception;

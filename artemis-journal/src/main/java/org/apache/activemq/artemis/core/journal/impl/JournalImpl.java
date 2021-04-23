@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -208,6 +209,20 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     */
    private final ReadWriteLock journalLock = new ReentrantReadWriteLock();
    private final ReadWriteLock compactorLock = new ReentrantReadWriteLock();
+
+   HashSet<Integer> replaceableRecords;
+
+
+   /** This will declare a record type as being replaceable on updates.
+    * Certain update records only need the last value, and they could be replaceable during compacting.
+    * */
+   @Override
+   public void replaceableRecord(int recordType) {
+      if (replaceableRecords == null) {
+         replaceableRecords = new HashSet<>();
+      }
+      replaceableRecords.add(recordType);
+   }
 
    private volatile JournalFile currentFile;
 
@@ -1712,6 +1727,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
             }
 
+            compactor.flushUpdates();
             compactor.flush();
 
             // pointcut for tests
@@ -1846,6 +1862,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
 
          compactor = new JournalCompactor(fileFactory, this, filesRepository, records.keysLongHashSet(), dataFilesToProcess.get(0).getFileID());
+
+         if (replaceableRecords != null) {
+            replaceableRecords.forEach((i) -> compactor.replaceableRecord(i));
+         }
 
          transactions.forEach((id, pendingTransaction) -> {
             compactor.addPendingTransaction(id, pendingTransaction.getPositiveArray());
@@ -2175,7 +2195,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          } else {
             if (changeData) {
                // Empty dataFiles with no data
-               filesRepository.addFreeFile(file, false, false);
+               filesRepository.addFreeFile(file, false, true);
             }
          }
       }

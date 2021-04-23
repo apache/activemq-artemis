@@ -170,6 +170,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       Journal localMessage = createMessageJournal(config, criticalErrorListener, fileSize);
 
       messageJournal = localMessage;
+      messageJournal.replaceableRecord(JournalRecordIds.UPDATE_DELIVERY_COUNT);
+      messageJournal.replaceableRecord(JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME);
+
       originalMessageJournal = localMessage;
 
       largeMessagesDirectory = config.getLargeMessagesDirectory();

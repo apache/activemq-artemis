@@ -376,6 +376,9 @@ public class JournalFilesRepository {
    public synchronized void addFreeFile(final JournalFile file,
                                         final boolean renameTmp,
                                         final boolean checkDelete) throws Exception {
+      if (logger.isDebugEnabled()) {
+         logger.debug("Adding free file " + file + ", renameTMP=" + renameTmp + ", checkDelete=" + checkDelete);
+      }
       long calculatedSize = 0;
       try {
          calculatedSize = file.getFile().size();
@@ -388,7 +391,9 @@ public class JournalFilesRepository {
          // Re-initialise it
 
          if (logger.isTraceEnabled()) {
-            logger.trace("Adding free file " + file);
+            logger.trace("Re-initializing file " + file + " as checkDelete=" + checkDelete +
+                            ", freeFilesCount=" + freeFilesCount + ", dataFiles.size=" + dataFiles.size() +
+                            ", openedFiles=" + openedFiles + ", poolSize=" + poolSize);
          }
 
          JournalFile jf = reinitializeFile(file);
@@ -400,6 +405,9 @@ public class JournalFilesRepository {
          freeFiles.add(jf);
          freeFilesCount.getAndIncrement();
       } else {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Deleting file " + file.getFile());
+         }
          if (logger.isTraceEnabled()) {
             logger.trace("DataFiles.size() = " + dataFiles.size());
             logger.trace("openedFiles.size() = " + openedFiles.size());

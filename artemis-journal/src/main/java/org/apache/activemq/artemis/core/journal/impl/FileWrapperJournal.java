@@ -58,6 +58,11 @@ public final class FileWrapperJournal extends JournalBase {
    private final JournalImpl journal;
    protected volatile JournalFile currentFile;
 
+   @Override
+   public void replaceableRecord(int recordType) {
+      journal.replaceableRecord(recordType);
+   }
+
    /**
     * @param journal
     * @throws Exception

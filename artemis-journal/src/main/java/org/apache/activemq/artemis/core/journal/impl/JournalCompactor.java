@@ -17,9 +17,12 @@
 package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.netty.util.collection.IntObjectHashMap;
+import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncoderPersister;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -32,6 +35,7 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRec
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackRecordTX;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.RunnableEx;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashSet;
 import org.jboss.logging.Logger;
@@ -39,6 +43,9 @@ import org.jboss.logging.Logger;
 public class JournalCompactor extends AbstractJournalUpdateTask implements JournalRecordProvider {
 
    private static final Logger logger = Logger.getLogger(JournalCompactor.class);
+
+   LongObjectHashMap<LinkedList<RunnableEx>> pendingWritesOnTX = new LongObjectHashMap<>();
+   IntObjectHashMap<LongObjectHashMap<RunnableEx>> pendingUpdates = new IntObjectHashMap<>();
 
    // We try to separate old record from new ones when doing the compacting
    // this is a split line
@@ -214,6 +221,18 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       pendingCommands.clear();
    }
 
+   public void flushUpdates() throws Exception {
+      Collection<LongObjectHashMap<RunnableEx>> recordsUpdate = this.pendingUpdates.values();
+      for (LongObjectHashMap<RunnableEx> recordMap : recordsUpdate) {
+         for (RunnableEx ex : recordMap.values()) {
+            ex.run();
+         }
+         // a little hand for GC
+         recordMap.clear();
+      }
+      // a little hand for GC
+      recordsUpdate.clear();
+   }
    // JournalReaderCallback implementation -------------------------------------------
 
    @Override
@@ -238,19 +257,25 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (logger.isTraceEnabled()) {
          logger.trace("Read Add Record TX " + transactionID + " info " + info);
       }
-      if (pendingTransactions.get(transactionID) != null || containsRecord(info.id)) {
-         JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
-
-         JournalInternalRecord record = new JournalAddRecordTX(true, transactionID, info.id, info.getUserRecordType(), EncoderPersister.getInstance(),new ByteArrayEncoding(info.data));
-
-         record.setCompactCount((short) (info.compactCount + 1));
-
-         checkSize(record.getEncodeSize(), info.compactCount);
-
-         newTransaction.addPositive(currentFile, info.id, record.getEncodeSize());
-
-         writeEncoder(record);
+      if (pendingTransactions.get(transactionID) != null) {
+         produceAddRecordTX(transactionID, info);
+      } else if (containsRecord(info.id)) {
+         addTX(transactionID, () -> produceAddRecordTX(transactionID, info));
       }
+   }
+
+   private void produceAddRecordTX(long transactionID, RecordInfo info) throws Exception {
+      JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
+
+      JournalInternalRecord record = new JournalAddRecordTX(true, transactionID, info.id, info.getUserRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
+
+      record.setCompactCount((short) (info.compactCount + 1));
+
+      checkSize(record.getEncodeSize(), info.compactCount);
+
+      newTransaction.addPositive(currentFile, info.id, record.getEncodeSize());
+
+      writeEncoder(record);
    }
 
    @Override
@@ -264,6 +289,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          // Sanity check, this should never happen
          ActiveMQJournalLogger.LOGGER.inconsistencyDuringCompacting(transactionID);
       } else {
+         flushTX(transactionID);
          JournalTransaction newTransaction = newTransactions.remove(transactionID);
          if (newTransaction != null) {
             JournalInternalRecord commitRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.COMMIT, transactionID, null);
@@ -297,23 +323,56 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
 
       if (pendingTransactions.get(transactionID) != null) {
-         JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
-
-         JournalInternalRecord record = new JournalDeleteRecordTX(transactionID, info.id, new ByteArrayEncoding(info.data));
-
-         checkSize(record.getEncodeSize());
-
-         writeEncoder(record);
-
-         newTransaction.addNegative(currentFile, info.id);
+         produceDeleteRecordTX(transactionID, info);
       }
       // else.. nothing to be done
+   }
+
+   private void produceDeleteRecordTX(long transactionID, RecordInfo info) throws Exception {
+      JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
+
+      JournalInternalRecord record = new JournalDeleteRecordTX(transactionID, info.id, new ByteArrayEncoding(info.data));
+
+      checkSize(record.getEncodeSize());
+
+      writeEncoder(record);
+
+      newTransaction.addNegative(currentFile, info.id);
    }
 
    @Override
    public void markAsDataFile(final JournalFile file) {
       // nothing to be done here
    }
+
+   private void addTX(long tx, RunnableEx runnable) {
+      LinkedList<RunnableEx> runnables = pendingWritesOnTX.get(tx);
+      if (runnables == null) {
+         runnables = new LinkedList<>();
+         pendingWritesOnTX.put(tx, runnables);
+      }
+      runnables.add(runnable);
+   }
+
+   private void flushTX(long tx) throws Exception {
+      LinkedList<RunnableEx> runnables = pendingWritesOnTX.remove(tx);
+      if (runnables != null) {
+         for (RunnableEx runnableEx : runnables) {
+            runnableEx.run();
+         }
+         // give a hand to GC...
+         runnables.clear();
+      }
+   }
+
+   private void dropTX(long tx) {
+      LinkedList objects = pendingWritesOnTX.remove(tx);
+      if (objects != null) {
+         // a little hand to GC
+         objects.clear();
+      }
+   }
+
 
    @Override
    public void onReadPrepareRecord(final long transactionID,
@@ -324,18 +383,21 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
 
       if (pendingTransactions.get(transactionID) != null) {
-
-         JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
-
-         JournalInternalRecord prepareRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.PREPARE, transactionID, new ByteArrayEncoding(extraData));
-
-         checkSize(prepareRecord.getEncodeSize());
-
-         writeEncoder(prepareRecord, newTransaction.getCounter(currentFile));
-
-         newTransaction.prepare(currentFile);
-
+         flushTX(transactionID);
+         producePrepareRecord(transactionID, extraData);
       }
+   }
+
+   private void producePrepareRecord(long transactionID, byte[] extraData) throws Exception {
+      JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
+
+      JournalInternalRecord prepareRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.PREPARE, transactionID, new ByteArrayEncoding(extraData));
+
+      checkSize(prepareRecord.getEncodeSize());
+
+      writeEncoder(prepareRecord, newTransaction.getCounter(currentFile));
+
+      newTransaction.prepare(currentFile);
    }
 
    @Override
@@ -351,17 +413,29 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       } else {
          JournalTransaction newTransaction = newTransactions.remove(transactionID);
          if (newTransaction != null) {
-
-            JournalInternalRecord rollbackRecord = new JournalRollbackRecordTX(transactionID);
-
-            checkSize(rollbackRecord.getEncodeSize());
-
-            writeEncoder(rollbackRecord);
-
-            newTransaction.rollback(currentFile);
+            flushTX(transactionID); // ths should be a moot operation, but just in case
+            // we should do this only if there's a prepare record
+            produceRollbackRecord(transactionID, newTransaction);
+         } else {
+            dropTX(transactionID);
          }
 
       }
+   }
+
+   private void produceRollbackRecord(long transactionID, JournalTransaction newTransaction) throws Exception {
+      JournalInternalRecord rollbackRecord = new JournalRollbackRecordTX(transactionID);
+
+      checkSize(rollbackRecord.getEncodeSize());
+
+      writeEncoder(rollbackRecord);
+
+      newTransaction.rollback(currentFile);
+   }
+
+   public void replaceableRecord(int recordType) {
+      LongObjectHashMap<RunnableEx> longmap = new LongObjectHashMap();
+      pendingUpdates.put(recordType, longmap);
    }
 
    @Override
@@ -371,22 +445,32 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
 
       if (containsRecord(info.id)) {
-         JournalInternalRecord updateRecord = new JournalAddRecord(false, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
-
-         updateRecord.setCompactCount((short) (info.compactCount + 1));
-
-         checkSize(updateRecord.getEncodeSize(), info.compactCount);
-
-         JournalRecord newRecord = newRecords.get(info.id);
-
-         if (newRecord == null) {
-            ActiveMQJournalLogger.LOGGER.compactingWithNoAddRecord(info.id);
+         LongObjectHashMap<RunnableEx> longmap = pendingUpdates.get(info.userRecordType);
+         if (longmap == null) {
+            // if not replaceable, we have to always produce the update
+            produceUpdateRecord(info);
          } else {
-            newRecord.addUpdateFile(currentFile, updateRecord.getEncodeSize());
+            longmap.put(info.id, () -> produceUpdateRecord(info));
          }
-
-         writeEncoder(updateRecord);
       }
+   }
+
+   private void produceUpdateRecord(RecordInfo info) throws Exception {
+      JournalInternalRecord updateRecord = new JournalAddRecord(false, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
+
+      updateRecord.setCompactCount((short) (info.compactCount + 1));
+
+      checkSize(updateRecord.getEncodeSize(), info.compactCount);
+
+      JournalRecord newRecord = newRecords.get(info.id);
+
+      if (newRecord == null) {
+         ActiveMQJournalLogger.LOGGER.compactingWithNoAddRecord(info.id);
+      } else {
+         newRecord.addUpdateFile(currentFile, updateRecord.getEncodeSize());
+      }
+
+      writeEncoder(updateRecord);
    }
 
    @Override
@@ -395,21 +479,25 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          logger.trace("onReadUpdateRecordTX " + info);
       }
 
-      if (pendingTransactions.get(transactionID) != null || containsRecord(info.id)) {
-         JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
-
-         JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, transactionID, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
-
-         updateRecordTX.setCompactCount((short) (info.compactCount + 1));
-
-         checkSize(updateRecordTX.getEncodeSize(), info.compactCount);
-
-         writeEncoder(updateRecordTX);
-
-         newTransaction.addPositive(currentFile, info.id, updateRecordTX.getEncodeSize());
-      } else {
-         onReadUpdateRecord(info);
+      if (pendingTransactions.get(transactionID) != null) {
+         produceUpdateRecordTX(transactionID, info);
+      } else if (containsRecord(info.id)) {
+         addTX(transactionID, () -> produceUpdateRecordTX(transactionID, info));
       }
+   }
+
+   private void produceUpdateRecordTX(long transactionID, RecordInfo info) throws Exception {
+      JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
+
+      JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, transactionID, info.id, info.userRecordType, EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
+
+      updateRecordTX.setCompactCount((short) (info.compactCount + 1));
+
+      checkSize(updateRecordTX.getEncodeSize(), info.compactCount);
+
+      writeEncoder(updateRecordTX);
+
+      newTransaction.addPositive(currentFile, info.id, updateRecordTX.getEncodeSize());
    }
 
    /**

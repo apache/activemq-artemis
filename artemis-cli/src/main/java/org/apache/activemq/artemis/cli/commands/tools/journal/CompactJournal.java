@@ -34,9 +34,9 @@ public final class CompactJournal extends LockAbstract {
       super.execute(context);
       try {
          Configuration configuration = getFileConfiguration();
-         compactJournal(new File(getJournal()), "activemq-data", "amq", configuration.getJournalMinFiles(), configuration.getJournalFileSize(), null);
+         compactJournal(new File(getJournal()), "activemq-data", "amq", configuration.getJournalMinFiles(), configuration.getJournalPoolFiles(), configuration.getJournalFileSize(), null);
          System.out.println("Compactation succeeded for " + getJournal());
-         compactJournal(new File(getBinding()), "activemq-bindings", "bindings", 2, 1048576, null);
+         compactJournal(new File(getBinding()), "activemq-bindings", "bindings", 2, 2, 1048576, null);
          System.out.println("Compactation succeeded for " + getBinding());
 
       } catch (Exception e) {
@@ -49,11 +49,12 @@ public final class CompactJournal extends LockAbstract {
                                final String journalPrefix,
                                final String journalSuffix,
                                final int minFiles,
+                               final int poolFiles,
                                final int fileSize,
                                final IOCriticalErrorListener listener) throws Exception {
       NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, listener, 1);
 
-      JournalImpl journal = new JournalImpl(fileSize, minFiles, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
+      JournalImpl journal = new JournalImpl(fileSize, minFiles, poolFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 
       journal.start();
 
