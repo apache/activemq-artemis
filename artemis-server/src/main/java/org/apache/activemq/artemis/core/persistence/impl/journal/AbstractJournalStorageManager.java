@@ -957,6 +957,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       readLock();
       try {
 
+         messageJournal.setRemoveExtraFilesOnLoad(true);
          JournalLoadInformation info = messageJournal.load(records, preparedTransactions, new LargeMessageTXFailureCallback(this));
 
          ArrayList<LargeServerMessage> largeMessages = new ArrayList<>();
@@ -1605,6 +1606,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       SparseArrayLinkedList<RecordInfo> records = new SparseArrayLinkedList<>();
 
       List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
+
+      bindingsJournal.setRemoveExtraFilesOnLoad(true);
 
       JournalLoadInformation bindingsInfo = bindingsJournal.load(records, preparedTransactions, null);
 

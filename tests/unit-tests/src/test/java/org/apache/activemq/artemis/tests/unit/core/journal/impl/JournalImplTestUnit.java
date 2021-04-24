@@ -459,6 +459,33 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       stopJournal();
    }
 
+
+   @Test
+   public void testReduceFreeFilesWithCleanup() throws Exception {
+      setup(10, 10 * 1024, true);
+      createJournal();
+      startJournal();
+      load();
+
+      List<String> files1 = fileFactory.listFiles(fileExtension);
+
+      Assert.assertEquals(10, files1.size());
+
+      stopJournal();
+
+      setup(5, 10 * 1024, true);
+      createJournal();
+      journal.setRemoveExtraFilesOnLoad(true);
+      startJournal();
+      load();
+
+      List<String> files2 = fileFactory.listFiles(fileExtension);
+
+      Assert.assertEquals(5, files2.size());
+
+      stopJournal();
+   }
+
    private int calculateRecordsPerFile(final int fileSize, final int alignment, int recordSize) {
       recordSize = calculateRecordSize(recordSize, alignment);
       int headerSize = calculateRecordSize(JournalImpl.SIZE_HEADER, alignment);

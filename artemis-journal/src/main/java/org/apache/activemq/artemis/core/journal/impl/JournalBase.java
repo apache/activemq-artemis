@@ -28,6 +28,17 @@ abstract class JournalBase implements Journal {
 
    protected final int fileSize;
    private final boolean supportsCallback;
+   protected boolean removeExtraFilesOnLoad = false;
+
+   @Override
+   public void setRemoveExtraFilesOnLoad(boolean setting) {
+      this.removeExtraFilesOnLoad = setting;
+   }
+
+   @Override
+   public boolean isRemoveExtraFilesOnLoad() {
+      return removeExtraFilesOnLoad;
+   }
 
    JournalBase(boolean supportsCallback, int fileSize) {
       if (fileSize < JournalImpl.MIN_FILE_SIZE) {

@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.cli.commands.tools.journal.CompactJournal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
@@ -57,17 +58,19 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
    private static final Logger logger = Logger.getLogger(InfiniteRedeliveryTest.class);
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameterized.Parameters(name = "protocol={0}, useCLI={1}")
    public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{"CORE"}, {"AMQP"}, {"OPENWIRE"}});
+      return Arrays.asList(new Object[][]{{"CORE", true}, {"AMQP", false}, {"OPENWIRE", false}});
    }
 
-   public InfiniteRedeliveryTest(String protocol) {
+   public InfiniteRedeliveryTest(String protocol, boolean useCLI) {
       this.protocol = protocol;
+      this.useCLI = useCLI;
    }
 
 
    String protocol;
+   boolean useCLI;
 
    TestableServer liveServer;
    TestableServer backupServer;
@@ -171,14 +174,22 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       }
       connection.close();
 
-      liveServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
-      backupServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
+      if (!useCLI) {
+         liveServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
+         backupServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
+      }
+
+      liveServer.stop();
+      backupServer.stop();
+
+      if (useCLI) {
+         CompactJournal.compactJournals(backupServer.getServer().getConfiguration());
+         CompactJournal.compactJournals(liveServer.getServer().getConfiguration());
+      }
 
       HashMap<Integer, AtomicInteger> counts = countJournal(liveServer.getServer().getConfiguration());
       counts.forEach((k, v) -> logger.debug(k + "=" + v));
       counts.forEach((k, v) -> Assert.assertTrue("Record type " + k + " has a lot of records:" +  v, v.intValue() < 20));
-
-      backupServer.stop();
 
       HashMap<Integer, AtomicInteger> backupCounts = countJournal(backupServer.getServer().getConfiguration());
       Assert.assertTrue(backupCounts.size() > 0);

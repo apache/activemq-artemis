@@ -62,6 +62,16 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    // Sync Delay in ms
    //private static final int SYNC_DELAY = 5;
 
+   @Override
+   public void setRemoveExtraFilesOnLoad(boolean removeExtraFilesOnLoad) {
+      // no op on JDBC
+   }
+
+   @Override
+   public boolean isRemoveExtraFilesOnLoad() {
+      return false;
+   }
+
    private long syncDelay;
 
    private static int USER_VERSION = 1;

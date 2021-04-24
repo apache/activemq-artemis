@@ -2195,7 +2195,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          } else {
             if (changeData) {
                // Empty dataFiles with no data
-               filesRepository.addFreeFile(file, false, true);
+               filesRepository.addFreeFile(file, false, isRemoveExtraFilesOnLoad());
             }
          }
       }

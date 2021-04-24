@@ -54,6 +54,16 @@ public class ReplicatedJournal implements Journal {
 
    private final byte journalID;
 
+   @Override
+   public void setRemoveExtraFilesOnLoad(boolean removeExtraFilesOnLoad) {
+      this.localJournal.setRemoveExtraFilesOnLoad(removeExtraFilesOnLoad);
+   }
+
+   @Override
+   public boolean isRemoveExtraFilesOnLoad() {
+      return localJournal.isRemoveExtraFilesOnLoad();
+   }
+
    public ReplicatedJournal(final byte journalID,
                             final Journal localJournal,
                             final ReplicationManager replicationManager) {

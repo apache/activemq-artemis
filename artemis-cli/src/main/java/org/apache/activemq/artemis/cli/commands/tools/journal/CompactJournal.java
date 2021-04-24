@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 
 @Command(name = "compact", description = "Compacts the journal of a non running server")
 public final class CompactJournal extends LockAbstract {
@@ -34,10 +35,7 @@ public final class CompactJournal extends LockAbstract {
       super.execute(context);
       try {
          Configuration configuration = getFileConfiguration();
-         compactJournal(new File(getJournal()), "activemq-data", "amq", configuration.getJournalMinFiles(), configuration.getJournalPoolFiles(), configuration.getJournalFileSize(), null);
-         System.out.println("Compactation succeeded for " + getJournal());
-         compactJournal(new File(getBinding()), "activemq-bindings", "bindings", 2, 2, 1048576, null);
-         System.out.println("Compactation succeeded for " + getBinding());
+         compactJournals(configuration);
 
       } catch (Exception e) {
          treatError(e, "data", "compact");
@@ -45,16 +43,30 @@ public final class CompactJournal extends LockAbstract {
       return null;
    }
 
-   private void compactJournal(final File directory,
+   public static void compactJournals(Configuration configuration) throws Exception {
+      compactJournal(configuration.getJournalLocation(), "activemq-data", "amq", configuration.getJournalMinFiles(),
+                     configuration.getJournalPoolFiles(), configuration.getJournalFileSize(), null, JournalRecordIds.UPDATE_DELIVERY_COUNT,
+                     JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME);
+      System.out.println("Compactation succeeded for " + configuration.getJournalLocation().getAbsolutePath());
+      compactJournal(configuration.getBindingsLocation(), "activemq-bindings", "bindings", 2, 2, 1048576, null);
+      System.out.println("Compactation succeeded for " + configuration.getBindingsLocation());
+   }
+
+   public static void compactJournal(final File directory,
                                final String journalPrefix,
                                final String journalSuffix,
                                final int minFiles,
                                final int poolFiles,
                                final int fileSize,
-                               final IOCriticalErrorListener listener) throws Exception {
+                               final IOCriticalErrorListener listener,
+                               int... replaceableRecords) throws Exception {
       NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, listener, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, poolFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
+      for (int i : replaceableRecords) {
+         journal.replaceableRecord(i);
+      }
+      journal.setRemoveExtraFilesOnLoad(true);
 
       journal.start();
 
