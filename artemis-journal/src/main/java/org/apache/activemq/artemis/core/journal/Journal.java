@@ -58,6 +58,10 @@ public interface Journal extends ActiveMQComponent {
       LOADED;
    }
 
+   void setRemoveExtraFilesOnLoad(boolean removeExtraFilesOnLoad);
+
+   boolean isRemoveExtraFilesOnLoad();
+
    // Non transactional operations
 
    void appendAddRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception;

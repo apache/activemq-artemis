@@ -648,6 +648,16 @@ public final class ReplicationTest extends ActiveMQTestBase {
    static final class FakeJournal implements Journal {
 
       @Override
+      public void setRemoveExtraFilesOnLoad(boolean removeExtraFilesOnLoad) {
+
+      }
+
+      @Override
+      public boolean isRemoveExtraFilesOnLoad() {
+         return false;
+      }
+
+      @Override
       public void appendAddRecord(long id,
                                   byte recordType,
                                   Persister persister,
