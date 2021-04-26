@@ -32,6 +32,10 @@ public interface JournalFile {
 
    void decPosCount();
 
+   void incAddRecord();
+
+   int getAddRecord();
+
    void addSize(int bytes);
 
    void decSize(int bytes);

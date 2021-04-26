@@ -42,6 +42,8 @@ public class JournalRecord {
       addFile.incPosCount();
 
       addFile.addSize(size);
+
+      addFile.incAddRecord();
    }
 
    void addUpdateFile(final JournalFile updateFile, final int bytes) {
