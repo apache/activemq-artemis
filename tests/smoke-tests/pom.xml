@@ -765,6 +765,24 @@
                      <configuration>${basedir}/target/classes/servers/MaxQueueResourceTest</configuration>
                   </configuration>
                </execution>
+
+               <!-- used on InfiniteRedeliverySmokeTest  -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createBrokerInfiniteRedelivery</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>A</user>
+                     <password>A</password>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/infinite-redelivery</instance>
+                     <configuration>${basedir}/target/classes/servers/infinite-redelivery</configuration>
+                  </configuration>
+               </execution>
+
             </executions>
          <dependencies>
                <dependency>

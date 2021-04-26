@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.jboss.logging.Logger;
@@ -34,9 +35,13 @@ public class JournalFileImpl implements JournalFile {
 
    private long offset;
 
-   private final AtomicInteger posCount = new AtomicInteger(0);
+   private static final AtomicIntegerFieldUpdater<JournalFileImpl> posCountUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "posCountField");
+   private static final AtomicIntegerFieldUpdater<JournalFileImpl> addRecordUpdate = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "addRecordField");
+   private static final AtomicIntegerFieldUpdater<JournalFileImpl> liveBytesUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "liveBytesField");
 
-   private final AtomicInteger liveBytes = new AtomicInteger(0);
+   private volatile int posCountField = 0;
+   private volatile int addRecordField = 0;
+   private volatile int liveBytesField = 0;
 
    // Flags to be used by determine if the journal file can be reclaimed
    private boolean posReclaimCriteria = false;
@@ -62,7 +67,7 @@ public class JournalFileImpl implements JournalFile {
 
    @Override
    public int getPosCount() {
-      return posCount.intValue();
+      return posCountUpdater.get(this);
    }
 
    @Override
@@ -135,12 +140,22 @@ public class JournalFileImpl implements JournalFile {
 
    @Override
    public void incPosCount() {
-      posCount.incrementAndGet();
+      posCountUpdater.incrementAndGet(this);
+   }
+
+   @Override
+   public void incAddRecord() {
+      addRecordUpdate.incrementAndGet(this);
+   }
+
+   @Override
+   public int getAddRecord() {
+      return addRecordUpdate.get(this);
    }
 
    @Override
    public void decPosCount() {
-      posCount.decrementAndGet();
+      posCountUpdater.decrementAndGet(this);
    }
 
    public long getOffset() {
@@ -191,17 +206,17 @@ public class JournalFileImpl implements JournalFile {
 
    @Override
    public void addSize(final int bytes) {
-      liveBytes.addAndGet(bytes);
+      liveBytesUpdater.addAndGet(this, bytes);
    }
 
    @Override
    public void decSize(final int bytes) {
-      liveBytes.addAndGet(-bytes);
+      liveBytesUpdater.addAndGet(this, -bytes);
    }
 
    @Override
    public int getLiveSize() {
-      return liveBytes.get();
+      return liveBytesUpdater.get(this);
    }
 
    @Override
