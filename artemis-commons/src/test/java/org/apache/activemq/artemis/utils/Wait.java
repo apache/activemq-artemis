@@ -156,6 +156,13 @@ public class Wait {
    public static boolean waitFor(final Condition condition,
                                  final long durationMillis,
                                  final long sleepMillis) {
+      return waitFor(condition, durationMillis, sleepMillis, true);
+   }
+
+   public static boolean waitFor(final Condition condition,
+                                 final long durationMillis,
+                                 final long sleepMillis,
+                                 final boolean printThreadDump) {
 
       try {
          final long expiry = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(durationMillis);
@@ -168,7 +175,7 @@ public class Wait {
             }
             conditionSatisified = condition.isSatisfied();
          }
-         if (!conditionSatisified) {
+         if (!conditionSatisified && printThreadDump) {
             System.out.println(ThreadDumpUtil.threadDump("thread dump"));
          }
          return conditionSatisified;
