@@ -64,6 +64,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.jboss.logging.Logger;
@@ -253,14 +254,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    @Override
    public void stop(boolean ioCriticalError, boolean sendFailover) throws Exception {
-      try {
-         enterCritical(CRITICAL_STOP);
+      try (ArtemisCloseable critical = measureCritical(CRITICAL_STOP)) {
          synchronized (this) {
             if (internalStop(ioCriticalError, sendFailover))
                return;
          }
-      } finally {
-         leaveCritical(CRITICAL_STOP);
       }
    }
 
@@ -290,39 +288,39 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          // that's ok
       }
 
-      enterCritical(CRITICAL_STOP_2);
-      storageManagerLock.writeLock().lock();
-      try {
+      try (ArtemisCloseable critical = measureCritical(CRITICAL_STOP_2)) {
+         storageManagerLock.writeLock().lock();
+         try {
 
-         // We cache the variable as the replicator could be changed between here and the time we call stop
-         // since sendLiveIsStopping may issue a close back from the channel
-         // and we want to ensure a stop here just in case
-         ReplicationManager replicatorInUse = replicator;
-         if (replicatorInUse != null) {
-            if (sendFailover) {
-               final OperationContext token = replicator.sendLiveIsStopping(ReplicationLiveIsStoppingMessage.LiveStopping.FAIL_OVER);
-               if (token != null) {
-                  try {
-                     token.waitCompletion(5000);
-                  } catch (Exception e) {
-                     // ignore it
+            // We cache the variable as the replicator could be changed between here and the time we call stop
+            // since sendLiveIsStopping may issue a close back from the channel
+            // and we want to ensure a stop here just in case
+            ReplicationManager replicatorInUse = replicator;
+            if (replicatorInUse != null) {
+               if (sendFailover) {
+                  final OperationContext token = replicator.sendLiveIsStopping(ReplicationLiveIsStoppingMessage.LiveStopping.FAIL_OVER);
+                  if (token != null) {
+                     try {
+                        token.waitCompletion(5000);
+                     } catch (Exception e) {
+                        // ignore it
+                     }
                   }
                }
+               // we cannot clear replication tokens, otherwise clients will eventually be informed of completion during a server's shutdown
+               // while the backup will never receive then
+               replicatorInUse.stop(false);
             }
-            // we cannot clear replication tokens, otherwise clients will eventually be informed of completion during a server's shutdown
-            // while the backup will never receive then
-            replicatorInUse.stop(false);
+            bindingsJournal.stop();
+
+            messageJournal.stop();
+
+            journalLoaded = false;
+
+            started = false;
+         } finally {
+            storageManagerLock.writeLock().unlock();
          }
-         bindingsJournal.stop();
-
-         messageJournal.stop();
-
-         journalLoaded = false;
-
-         started = false;
-      } finally {
-         storageManagerLock.writeLock().unlock();
-         leaveCritical(CRITICAL_STOP_2);
       }
       return false;
    }
@@ -388,12 +386,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    @Override
    public void pageClosed(final SimpleString storeName, final int pageNumber) {
       if (isReplicated()) {
-         readLock();
-         try {
+         try (ArtemisCloseable lock = closeableReadLock()) {
             if (isReplicated())
                replicator.pageClosed(storeName, pageNumber);
-         } finally {
-            readUnLock();
          }
       }
    }
@@ -401,12 +396,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    @Override
    public void pageDeleted(final SimpleString storeName, final int pageNumber) {
       if (isReplicated()) {
-         readLock();
-         try {
+         try (ArtemisCloseable lock = closeableReadLock()) {
             if (isReplicated())
                replicator.pageDeleted(storeName, pageNumber);
-         } finally {
-            readUnLock();
          }
       }
    }
@@ -420,12 +412,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          // Say you are sending durable and non-durable messages to a page
          // The ACKs would be done to wrong positions, and the backup would be a mess
 
-         readLock();
-         try {
+         try (ArtemisCloseable lock = closeableReadLock()) {
             if (isReplicated())
                replicator.pageWrite(message, pageNumber);
-         } finally {
-            readUnLock();
          }
       }
    }
@@ -441,26 +430,20 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    public long storePendingLargeMessage(final long messageID) throws Exception {
-      readLock();
-      try {
+      try (ArtemisCloseable lock = closeableReadLock()) {
          long recordID = generateID();
          messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true, getContext(true));
 
          return recordID;
-      } finally {
-         readUnLock();
       }
    }
 
    @Override
    public void largeMessageClosed(LargeServerMessage largeServerMessage) throws ActiveMQException {
-      readLock();
-      try {
+      try (ArtemisCloseable lock = closeableReadLock()) {
          if (isReplicated()) {
             replicator.largeMessageClosed(largeServerMessage.toMessage().getMessageID(), JournalStorageManager.this);
          }
-      } finally {
-         readUnLock();
       }
    }
 
@@ -485,22 +468,18 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
 
       if (largeServerMessage.toMessage().isDurable() && isReplicated()) {
-         readLock();
-         try {
+         try (ArtemisCloseable lock = closeableReadLock()) {
             if (isReplicated() && replicator.isSynchronizing()) {
                largeMessagesToDelete.put(largeServerMessage.toMessage().getMessageID(), largeServerMessage);
                return;
             }
-         } finally {
-            readUnLock();
          }
       }
       Runnable deleteAction = new Runnable() {
          @Override
          public void run() {
             try {
-               readLock();
-               try {
+               try (ArtemisCloseable lock = closeableReadLock()) {
                   if (replicator != null) {
                      replicator.largeMessageDelete(largeServerMessage.toMessage().getMessageID(), JournalStorageManager.this);
                   }
@@ -508,8 +487,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
                   // The confirm could only be done after the actual delete is done
                   confirmLargeMessage(largeServerMessage);
-               } finally {
-                  readUnLock();
                }
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeServerMessage.toMessage().getMessageID());
@@ -542,8 +519,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    @Override
    public LargeServerMessage createLargeMessage(final long id, final Message message) throws Exception {
-      readLock();
-      try {
+      try (ArtemisCloseable lock = closeableReadLock()) {
          if (isReplicated()) {
             replicator.largeMessageBegin(id);
          }
@@ -553,8 +529,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          largeMessage.moveHeadersAndProperties(message);
 
          return largeMessageCreated(id, largeMessage);
-      } finally {
-         readUnLock();
       }
    }
 
@@ -865,8 +839,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    public final void addBytesToLargeMessage(final SequentialFile file,
                                             final long messageId,
                                             final ActiveMQBuffer bytes) throws Exception {
-      readLock();
-      try {
+      try (ArtemisCloseable lock = closeableReadLock()) {
          file.position(file.size());
          if (bytes.byteBuf() != null && bytes.byteBuf().nioBufferCount() == 1) {
             final ByteBuffer nioBytes = bytes.byteBuf().internalNioBuffer(bytes.readerIndex(), bytes.readableBytes());
@@ -883,8 +856,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             bytes.readBytes(bytesCopy);
             addBytesToLargeMessage(file, messageId, bytesCopy);
          }
-      } finally {
-         readUnLock();
       }
    }
 
@@ -892,8 +863,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    public final void addBytesToLargeMessage(final SequentialFile file,
                                             final long messageId,
                                             final byte[] bytes) throws Exception {
-      readLock();
-      try {
+      try (ArtemisCloseable lock = closeableReadLock()) {
          file.position(file.size());
          //that's an additional precaution to avoid ByteBuffer to be pooled:
          //NIOSequentialFileFactory doesn't pool heap ByteBuffer, but better to make evident
@@ -903,8 +873,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          if (isReplicated()) {
             replicator.largeMessageWrite(messageId, bytes);
          }
-      } finally {
-         readUnLock();
       }
    }
 

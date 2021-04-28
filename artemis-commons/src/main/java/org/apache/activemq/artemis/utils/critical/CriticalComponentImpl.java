@@ -47,17 +47,11 @@ public class CriticalComponentImpl implements CriticalComponent {
    }
 
    @Override
-   public void enterCritical(int path) {
-      if (analyzer.isMeasuring()) {
-         measures[path].enterCritical();
-      }
-
-   }
-
-   @Override
-   public void leaveCritical(int path) {
-      if (analyzer.isMeasuring()) {
-         measures[path].leaveCritical();
+   public CriticalCloseable measureCritical(int path) {
+      if (!analyzer.isMeasuring()) {
+         return CriticalMeasure.dummyCloseable;
+      } else {
+         return measures[path].measure();
       }
    }
 

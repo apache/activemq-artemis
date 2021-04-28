@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.JournalLoader;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 
 public class NullStorageManager implements StorageManager {
 
@@ -76,6 +77,13 @@ public class NullStorageManager implements StorageManager {
 
    public NullStorageManager(IOCriticalErrorListener ioCriticalErrorListener) {
       this.ioCriticalErrorListener = ioCriticalErrorListener;
+   }
+
+   private static final ArtemisCloseable dummy = () -> { };
+
+   @Override
+   public ArtemisCloseable closeableReadLock() {
+      return dummy;
    }
 
    public NullStorageManager() {
@@ -679,16 +687,6 @@ public class NullStorageManager implements StorageManager {
 
    @Override
    public void storeID(final long journalID, final long id) throws Exception {
-      // no-op
-   }
-
-   @Override
-   public void readLock() {
-      // no-op
-   }
-
-   @Override
-   public void readUnLock() {
       // no-op
    }
 

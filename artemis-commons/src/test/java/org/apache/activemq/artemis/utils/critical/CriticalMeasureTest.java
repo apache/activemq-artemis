@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.utils.critical;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class CriticalMeasureTest {
       CriticalComponent component = new CriticalComponentImpl(analyzer, 5);
       CriticalMeasure measure = new CriticalMeasure(component, 1);
       long time = System.nanoTime();
-      CriticalMeasure.CURRENT_THREAD_UDPATER.set(measure, Thread.currentThread());
+      measure.enterCritical();
       measure.timeEnter = time - TimeUnit.MINUTES.toNanos(30);
       measure.leaveCritical();
       Assert.assertFalse(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
@@ -50,13 +51,26 @@ public class CriticalMeasureTest {
       CriticalComponent component = new CriticalComponentImpl(analyzer, 5);
       CriticalMeasure measure = new CriticalMeasure(component, 1);
       long time = System.nanoTime();
-      measure.enterCritical();
+      AutoCloseable closeable = measure.measure();
       measure.timeEnter = time - TimeUnit.MINUTES.toNanos(5);
-      Assert.assertTrue(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
+      Assert.assertTrue(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false)); // on this call we should had a reset before
       // subsequent call without reset should still fail
       Assert.assertTrue(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), true));
       // previous reset should have cleared it
       Assert.assertFalse(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
-      measure.leaveCritical();
+      closeable.close();
+   }
+
+   @Test
+   public void testWithCloseable() throws Exception {
+      CriticalAnalyzer analyzer = new CriticalAnalyzerImpl();
+      CriticalComponent component = new CriticalComponentImpl(analyzer, 5);
+      CriticalMeasure measure = new CriticalMeasure(component, 1);
+      long time = System.nanoTime();
+      try (AutoCloseable theMeasure = component.measureCritical(0)) {
+         LockSupport.parkNanos(1000);
+         Assert.assertTrue(component.checkExpiration(100, false));
+      }
+      Assert.assertFalse(component.checkExpiration(100, false));
    }
 }

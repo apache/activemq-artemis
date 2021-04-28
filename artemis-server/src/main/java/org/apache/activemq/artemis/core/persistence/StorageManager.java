@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.JournalLoader;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.IDGenerator;
 
 /**
@@ -479,15 +480,9 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * say Paging classes, that use locks of their own AND also write through the StorageManager MUST
     * first read lock the storageManager before taking their own locks. Otherwise, we may dead-lock
     * when starting replication sync.
-    */
-   void readLock();
-
-   /**
-    * Unlock the manager.
     *
-    * @see StorageManager#readLock()
     */
-   void readUnLock();
+   ArtemisCloseable closeableReadLock();
 
    /**
     * Closes the {@link IDGenerator} persisting the current record ID.

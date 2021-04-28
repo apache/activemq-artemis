@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.jboss.logging.Logger;
 
 /**
@@ -254,8 +255,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    @Override
    public void delete(Transaction tx) throws Exception {
       // always lock the StorageManager first.
-      storage.readLock();
-      try {
+      try (ArtemisCloseable lock = storage.closeableReadLock()) {
          synchronized (this) {
             for (Long record : incrementRecords) {
                storage.deleteIncrementRecord(tx.getID(), record.longValue());
@@ -271,8 +271,6 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
             value.set(0);
             incrementRecords.clear();
          }
-      } finally {
-         storage.readUnLock();
       }
    }
 

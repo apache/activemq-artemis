@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.Assert;
 import org.junit.Test;
@@ -102,18 +103,25 @@ public class CriticalCrashTest extends SpawnedTestBase {
 
             JournalStorageManager storageManager = new JournalStorageManager(conf, getCriticalAnalyzer(), executorFactory, scheduledPool, ioExecutorFactory, ioCriticalErrorListener) {
                @Override
-               public void readLock() {
-                  super.readLock();
+               public ArtemisCloseable closeableReadLock() {
+                  ArtemisCloseable measure = measureCritical(CRITICAL_STORE);
+                  storageManagerLock.readLock().lock();
+
                   if (blocked.get()) {
                      while (true) {
                         try {
                            Thread.sleep(1000);
                         } catch (Throwable ignored) {
-
                         }
                      }
                   }
+
+                  return () -> {
+                     storageManagerLock.readLock().unlock();
+                     measure.close();
+                  };
                }
+
 
                @Override
                public void storeMessage(Message message) throws Exception {

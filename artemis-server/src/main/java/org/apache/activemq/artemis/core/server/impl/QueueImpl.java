@@ -100,6 +100,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.BindingsTransactionImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.BooleanUtil;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
@@ -1087,9 +1088,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    /* Called when a message is cancelled back into the queue */
    @Override
    public void addHead(final MessageReference ref, boolean scheduling) {
-      enterCritical(CRITICAL_PATH_ADD_HEAD);
-      synchronized (this) {
-         try {
+      try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_HEAD)) {
+         synchronized (this) {
             if (ringSize != -1) {
                enforceRing(ref, scheduling, true);
             }
@@ -1103,8 +1103,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                directDeliver = false;
             }
-         } finally {
-            leaveCritical(CRITICAL_PATH_ADD_HEAD);
          }
       }
    }
@@ -1112,9 +1110,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    /* Called when a message is cancelled back into the queue */
    @Override
    public void addSorted(final MessageReference ref, boolean scheduling) {
-      enterCritical(CRITICAL_PATH_ADD_HEAD);
-      synchronized (this) {
-         try {
+      try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_HEAD)) {
+         synchronized (this) {
             if (ringSize != -1) {
                enforceRing(ref, false, true);
             }
@@ -1127,8 +1124,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
                directDeliver = false;
             }
-         } finally {
-            leaveCritical(CRITICAL_PATH_ADD_HEAD);
          }
       }
    }
@@ -1136,9 +1131,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    /* Called when a message is cancelled back into the queue */
    @Override
    public void addHead(final List<MessageReference> refs, boolean scheduling) {
-      enterCritical(CRITICAL_PATH_ADD_HEAD);
-      synchronized (this) {
-         try {
+      try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_HEAD)) {
+         synchronized (this) {
             for (MessageReference ref : refs) {
                addHead(ref, scheduling);
             }
@@ -1146,8 +1140,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             resetAllIterators();
 
             deliverAsync();
-         } finally {
-            leaveCritical(CRITICAL_PATH_ADD_HEAD);
          }
       }
    }
@@ -1155,9 +1147,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    /* Called when a message is cancelled back into the queue */
    @Override
    public void addSorted(final List<MessageReference> refs, boolean scheduling) {
-      enterCritical(CRITICAL_PATH_ADD_HEAD);
-      synchronized (this) {
-         try {
+      try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_HEAD)) {
+         synchronized (this) {
             for (MessageReference ref : refs) {
                addSorted(ref, scheduling);
             }
@@ -1165,8 +1156,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             resetAllIterators();
 
             deliverAsync();
-         } finally {
-            leaveCritical(CRITICAL_PATH_ADD_HEAD);
          }
       }
    }
@@ -1192,8 +1181,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void addTail(final MessageReference ref, final boolean direct) {
-      enterCritical(CRITICAL_PATH_ADD_TAIL);
-      try {
+      try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_TAIL)) {
          if (scheduleIfPossible(ref)) {
             return;
          }
@@ -1240,8 +1228,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          // Delivery async will both poll for intermediate reference and deliver to clients
          deliverAsync();
-      } finally {
-         leaveCritical(CRITICAL_PATH_ADD_TAIL);
       }
    }
 
@@ -1405,8 +1391,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          logger.debug(this + " adding consumer " + consumer);
       }
 
-      enterCritical(CRITICAL_CONSUMER);
-      try {
+      try (ArtemisCloseable metric = measureCritical(CRITICAL_CONSUMER)) {
          synchronized (this) {
             if (maxConsumers != MAX_CONSUMERS_UNLIMITED && consumers.size() >= maxConsumers) {
                throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
@@ -1442,10 +1427,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
          }
-      } finally {
-         leaveCritical(CRITICAL_CONSUMER);
       }
-
    }
 
    @Override
@@ -1461,8 +1443,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public void removeConsumer(final Consumer consumer) {
 
-      enterCritical(CRITICAL_CONSUMER);
-      try {
+      try (ArtemisCloseable metric = measureCritical(CRITICAL_CONSUMER)) {
          synchronized (this) {
 
             boolean consumerRemoved = false;
@@ -1498,8 +1479,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
          }
-      } finally {
-         leaveCritical(CRITICAL_CONSUMER);
       }
    }
 
@@ -4131,25 +4110,19 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // this will avoid that possibility
             // We will be using the deliverRunner instance as the guard object to avoid multiple threads executing
             // an asynchronous delivery
-            enterCritical(CRITICAL_DELIVER);
             boolean needCheckDepage = false;
-            try {
+            try (ArtemisCloseable metric = measureCritical(CRITICAL_DELIVER)) {
                deliverLock.lock();
                try {
                   needCheckDepage = deliver();
                } finally {
                   deliverLock.unlock();
                }
-            } finally {
-               leaveCritical(CRITICAL_DELIVER);
             }
 
             if (needCheckDepage) {
-               enterCritical(CRITICAL_CHECK_DEPAGE);
-               try {
+               try (ArtemisCloseable metric = measureCritical(CRITICAL_CHECK_DEPAGE)) {
                   checkDepage(true);
-               } finally {
-                  leaveCritical(CRITICAL_CHECK_DEPAGE);
                }
             }
 

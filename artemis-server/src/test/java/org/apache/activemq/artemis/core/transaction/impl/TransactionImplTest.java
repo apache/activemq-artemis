@@ -66,6 +66,7 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
@@ -214,6 +215,11 @@ public class TransactionImplTest extends ActiveMQTestBase {
       @Override
       public void lineUpContext() {
 
+      }
+
+      @Override
+      public ArtemisCloseable closeableReadLock() {
+         return () -> { };
       }
 
       @Override
@@ -742,16 +748,6 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
       @Override
       public void deleteID(long journalD) throws Exception {
-
-      }
-
-      @Override
-      public void readLock() {
-
-      }
-
-      @Override
-      public void readUnLock() {
 
       }
 

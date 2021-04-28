@@ -85,6 +85,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.After;
@@ -838,13 +839,8 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public void readLock() {
-         manager.readLock();
-      }
-
-      @Override
-      public void readUnLock() {
-         manager.readUnLock();
+      public ArtemisCloseable closeableReadLock() {
+         return manager.closeableReadLock();
       }
 
       @Override

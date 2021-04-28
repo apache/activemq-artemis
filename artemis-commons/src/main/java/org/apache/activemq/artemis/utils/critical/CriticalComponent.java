@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.utils.critical;
 
-
 /**
  * A Critical component enters and leaves a critical state.
  * You update a long every time you enter a critical path
@@ -27,26 +26,9 @@ package org.apache.activemq.artemis.utils.critical;
  */
 public interface CriticalComponent {
 
-   default CriticalAnalyzer getCriticalAnalyzer() {
-      return null;
-   }
-   /**
-    * please save the time you entered here.
-    * Use volatile variables.
-    * No locks through anywhere.
-    */
-   default void enterCritical(int path) {
-      // I'm providing a default as some components may chose to calculate it themselves
-   }
+   CriticalAnalyzer getCriticalAnalyzer();
 
-   /**
-    * please save the time you entered here
-    * Use volatile variables.
-    * No locks through anywhere.
-    */
-   default void leaveCritical(int path) {
-      // I'm providing a default as some components may chose to calculate it themselves
-   }
+   CriticalCloseable measureCritical(int path);
 
    /**
     * Check if the component is expired at a given timeout.. on any of its paths.
