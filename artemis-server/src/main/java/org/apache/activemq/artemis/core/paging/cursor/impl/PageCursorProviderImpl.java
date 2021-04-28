@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.SoftValueLongObjectHashMap;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
@@ -438,80 +439,76 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       //
       // I tried to simplify the locks but each PageStore has its own lock, so this was the best option
       // I found in order to fix https://issues.apache.org/jira/browse/ARTEMIS-3054
-      storageManager.readLock();
+      try (ArtemisCloseable readLock = storageManager.closeableReadLock()) {
 
-      while (true) {
-         if (pagingStore.lock(100)) {
-            break;
+         while (true) {
+            if (pagingStore.lock(100)) {
+               break;
+            }
+            if (!pagingStore.isStarted())
+               return;
          }
-         if (!pagingStore.isStarted())
-            return;
-      }
 
-      logger.tracef("%s locked", this);
+         logger.tracef("%s locked", this);
 
-      synchronized (this) {
-         try {
-            if (!pagingStore.isStarted()) {
-               return;
-            }
-
-            if (pagingStore.getNumberOfPages() == 0) {
-               return;
-            }
-
-            ArrayList<PageSubscription> cursorList = cloneSubscriptions();
-
-            long minPage = checkMinPage(cursorList);
-            deliverIfNecessary(cursorList, minPage);
-
-            logger.debugf("Asserting cleanup for address %s, firstPage=%d", pagingStore.getAddress(), minPage);
-
-            // if the current page is being written...
-            // on that case we need to move to verify it in a different way
-            if (minPage == pagingStore.getCurrentWritingPage() && pagingStore.getCurrentPage().getNumberOfMessages() > 0) {
-               boolean complete = checkPageCompletion(cursorList, minPage);
-
+         synchronized (this) {
+            try {
                if (!pagingStore.isStarted()) {
                   return;
                }
 
-               // All the pages on the cursor are complete.. so we will cleanup everything and store a bookmark
-               if (complete) {
+               if (pagingStore.getNumberOfPages() == 0) {
+                  return;
+               }
 
-                  cleanupComplete(cursorList);
-               }
-            }
+               ArrayList<PageSubscription> cursorList = cloneSubscriptions();
 
-            for (long i = pagingStore.getFirstPage(); i <= minPage; i++) {
-               if (!checkPageCompletion(cursorList, i)) {
-                  break;
-               }
-               Page page = pagingStore.depage();
-               if (page == null) {
-                  break;
-               }
-               depagedPages.add(page);
-            }
+               long minPage = checkMinPage(cursorList);
+               deliverIfNecessary(cursorList, minPage);
 
-            if (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && pagingStore.getCurrentPage().getNumberOfMessages() == 0) {
-               pagingStore.stopPaging();
-            } else {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() +
-                                  " as numberOfPages == " +
-                                  pagingStore.getNumberOfPages() +
-                                  " and currentPage.numberOfMessages = " +
-                                  pagingStore.getCurrentPage().getNumberOfMessages());
+               logger.debugf("Asserting cleanup for address %s, firstPage=%d", pagingStore.getAddress(), minPage);
+
+               // if the current page is being written...
+               // on that case we need to move to verify it in a different way
+               if (minPage == pagingStore.getCurrentWritingPage() && pagingStore.getCurrentPage().getNumberOfMessages() > 0) {
+                  boolean complete = checkPageCompletion(cursorList, minPage);
+
+                  if (!pagingStore.isStarted()) {
+                     return;
+                  }
+
+                  // All the pages on the cursor are complete.. so we will cleanup everything and store a bookmark
+                  if (complete) {
+
+                     cleanupComplete(cursorList);
+                  }
                }
+
+               for (long i = pagingStore.getFirstPage(); i <= minPage; i++) {
+                  if (!checkPageCompletion(cursorList, i)) {
+                     break;
+                  }
+                  Page page = pagingStore.depage();
+                  if (page == null) {
+                     break;
+                  }
+                  depagedPages.add(page);
+               }
+
+               if (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && pagingStore.getCurrentPage().getNumberOfMessages() == 0) {
+                  pagingStore.stopPaging();
+               } else {
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() + " as numberOfPages == " + pagingStore.getNumberOfPages() + " and currentPage.numberOfMessages = " + pagingStore.getCurrentPage().getNumberOfMessages());
+                  }
+               }
+            } catch (Exception ex) {
+               ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
+               logger.warn(ex.getMessage(), ex);
+               return;
+            } finally {
+               pagingStore.unlock();
             }
-         } catch (Exception ex) {
-            ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
-            logger.warn(ex.getMessage(), ex);
-            return;
-         } finally {
-            pagingStore.unlock();
-            storageManager.readUnLock();
          }
       }
       finishCleanup(depagedPages);

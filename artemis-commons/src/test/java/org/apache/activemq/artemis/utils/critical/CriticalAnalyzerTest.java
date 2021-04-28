@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.utils.critical;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.junit.After;
@@ -42,9 +44,74 @@ public class CriticalAnalyzerTest {
    }
 
    @Test
+   public void testDummy() {
+
+      analyzer = new CriticalAnalyzerImpl().setTimeout(100, TimeUnit.MILLISECONDS).setCheckTime(50, TimeUnit.MILLISECONDS);
+      CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
+      analyzer.add(component);
+
+      CriticalCloseable closeable1 = component.measureCritical(0);
+
+      Assert.assertFalse(CriticalMeasure.isDummy(closeable1));
+
+      ArtemisCloseable closeable2 = component.measureCritical(0);
+
+      Assert.assertTrue(CriticalMeasure.isDummy(closeable2));
+
+      closeable1.close();
+
+      closeable2 = component.measureCritical(0);
+
+      Assert.assertFalse(CriticalMeasure.isDummy(closeable2));
+   }
+
+   @Test
+   public void testCall() {
+
+      analyzer = new CriticalAnalyzerImpl().setTimeout(100, TimeUnit.MILLISECONDS).setCheckTime(50, TimeUnit.MILLISECONDS);
+      CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
+      analyzer.add(component);
+
+      CriticalCloseable closeable = component.measureCritical(0);
+      Assert.assertFalse(CriticalMeasure.isDummy(closeable));
+
+      CriticalCloseable dummy = component.measureCritical(0);
+
+      boolean exception = false;
+      try {
+         dummy.beforeClose(() -> System.out.println("never hapening"));
+      } catch (Throwable e) {
+         exception = true;
+      }
+
+      Assert.assertTrue(exception);
+
+      AtomicInteger value = new AtomicInteger(0);
+
+      closeable.beforeClose(() -> value.set(1000));
+
+      Assert.assertEquals(0, value.get());
+
+      closeable.close();
+
+      Assert.assertEquals(1000, value.get());
+   }
+
+
+   @Test
    public void testAction() throws Exception {
       analyzer = new CriticalAnalyzerImpl().setTimeout(100, TimeUnit.MILLISECONDS).setCheckTime(50, TimeUnit.MILLISECONDS);
       analyzer.add(new CriticalComponent() {
+         @Override
+         public CriticalAnalyzer getCriticalAnalyzer() {
+            return null;
+         }
+
+         @Override
+         public CriticalCloseable measureCritical(int path) {
+            return null;
+         }
+
          @Override
          public boolean checkExpiration(long timeout, boolean reset) {
             return true;
@@ -77,9 +144,8 @@ public class CriticalAnalyzerTest {
       CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
       analyzer.add(component);
 
-      component.enterCritical(0);
-      component.leaveCritical(0);
-      component.enterCritical(1);
+      component.measureCritical(0).close();
+      component.measureCritical(1);
 
 
       analyzer.start();
@@ -93,7 +159,7 @@ public class CriticalAnalyzerTest {
    public void testEnterNoLeaveNoExpire() throws Exception {
       analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
       CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
-      component.enterCritical(0);
+      component.measureCritical(0);
       Assert.assertFalse(component.checkExpiration(TimeUnit.MINUTES.toNanos(1), false));
       analyzer.stop();
 
@@ -103,7 +169,7 @@ public class CriticalAnalyzerTest {
    public void testEnterNoLeaveExpire() throws Exception {
       analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
       CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
-      component.enterCritical(0);
+      component.measureCritical(0);
       Thread.sleep(50);
       Assert.assertTrue(component.checkExpiration(0, false));
       analyzer.stop();
@@ -123,8 +189,7 @@ public class CriticalAnalyzerTest {
       CriticalComponent component = new CriticalComponentImpl(analyzer, 1);
       analyzer.add(component);
 
-      component.enterCritical(0);
-      component.leaveCritical(0);
+      component.measureCritical(0).close();
 
       analyzer.start();
 
@@ -146,14 +211,14 @@ public class CriticalAnalyzerTest {
       CriticalComponent component = new CriticalComponentImpl(analyzer, 1);
       analyzer.add(component);
 
-      component.enterCritical(0);
+      AutoCloseable measure = component.measureCritical(0);
       Thread.sleep(50);
 
       analyzer.start();
 
       Assert.assertTrue(latch.await(100, TimeUnit.MILLISECONDS));
 
-      component.leaveCritical(0);
+      measure.close();
 
       latch.setCount(1);
 

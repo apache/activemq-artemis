@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.jboss.logging.Logger;
@@ -56,46 +57,30 @@ public final class TimedBuffer extends CriticalComponentImpl {
    private static final int MAX_CHECKS_ON_SLEEP = 20;
 
    // Attributes ----------------------------------------------------
-
-   private TimedBufferObserver bufferObserver;
-
    // If the TimedBuffer is idle - i.e. no records are being added, then it's pointless the timer flush thread
    // in spinning and checking the time - and using up CPU in the process - this semaphore is used to
    // prevent that
    private final Semaphore spinLimiter = new Semaphore(1);
-
-   private CheckTimer timerRunnable;
-
    private final int bufferSize;
-
    private final ActiveMQBuffer buffer;
-
-   private int bufferLimit = 0;
-
-   private List<IOCallback> callbacks;
-
    private final int timeout;
-
+   private final boolean logRates;
+   private final AtomicLong bytesFlushed = new AtomicLong(0);
+   private final AtomicLong flushesDone = new AtomicLong(0);
+   private TimedBufferObserver bufferObserver;
+   private CheckTimer timerRunnable;
+   private int bufferLimit = 0;
+   private List<IOCallback> callbacks;
    // used to measure sync requests. When a sync is requested, it shouldn't take more than timeout to happen
    private volatile boolean pendingSync = false;
 
+   // for logging write rates
    private Thread timerThread;
-
    private volatile boolean started;
-
    // We use this flag to prevent flush occurring between calling checkSize and addBytes
    // CheckSize must always be followed by it's corresponding addBytes otherwise the buffer
    // can get in an inconsistent state
    private boolean delayFlush;
-
-   // for logging write rates
-
-   private final boolean logRates;
-
-   private final AtomicLong bytesFlushed = new AtomicLong(0);
-
-   private final AtomicLong flushesDone = new AtomicLong(0);
-
    private Timer logRatesTimer;
 
    private TimerTask logRatesTimerTask;
@@ -135,8 +120,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
    }
 
    public void start() {
-      enterCritical(CRITICAL_PATH_START);
-      try {
+      try (ArtemisCloseable critical = measureCritical(CRITICAL_PATH_START)) {
          synchronized (this) {
             if (started) {
                return;
@@ -163,15 +147,12 @@ public final class TimedBuffer extends CriticalComponentImpl {
 
             started = true;
          }
-      } finally {
-         leaveCritical(CRITICAL_PATH_START);
       }
    }
 
    public void stop() {
-      enterCritical(CRITICAL_PATH_STOP);
       Thread localTimer = null;
-      try {
+      try (ArtemisCloseable measure = measureCritical(CRITICAL_PATH_STOP)) {
          // add critical analyzer here.... <<<<
          synchronized (this) {
             try {
@@ -210,14 +191,11 @@ public final class TimedBuffer extends CriticalComponentImpl {
                }
             }
          }
-      } finally {
-         leaveCritical(CRITICAL_PATH_STOP);
       }
    }
 
    public void setObserver(final TimedBufferObserver observer) {
-      enterCritical(CRITICAL_PATH_SET_OBSERVER);
-      try {
+      try (AutoCloseable measure = measureCritical(CRITICAL_PATH_SET_OBSERVER)) {
          synchronized (this) {
             if (bufferObserver != null) {
                flush();
@@ -225,8 +203,8 @@ public final class TimedBuffer extends CriticalComponentImpl {
 
             bufferObserver = observer;
          }
-      } finally {
-         leaveCritical(CRITICAL_PATH_SET_OBSERVER);
+      } catch (Exception shouldNotHappen) {
+         logger.debug(shouldNotHappen);
       }
    }
 
@@ -236,8 +214,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
     * @param sizeChecked
     */
    public boolean checkSize(final int sizeChecked) {
-      enterCritical(CRITICAL_PATH_CHECK_SIZE);
-      try {
+      try (ArtemisCloseable measure = measureCritical(CRITICAL_PATH_CHECK_SIZE)) {
          synchronized (this) {
             if (!started) {
                throw new IllegalStateException("TimedBuffer is not started");
@@ -274,14 +251,11 @@ public final class TimedBuffer extends CriticalComponentImpl {
                return true;
             }
          }
-      } finally {
-         leaveCritical(CRITICAL_PATH_CHECK_SIZE);
       }
    }
 
    public void addBytes(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) {
-      enterCritical(CRITICAL_PATH_ADD_BYTES);
-      try {
+      try (ArtemisCloseable measure = measureCritical(CRITICAL_PATH_ADD_BYTES)) {
          synchronized (this) {
             if (!started) {
                throw new IllegalStateException("TimedBuffer is not started");
@@ -303,14 +277,11 @@ public final class TimedBuffer extends CriticalComponentImpl {
                startSpin();
             }
          }
-      } finally {
-         leaveCritical(CRITICAL_PATH_ADD_BYTES);
       }
    }
 
    public void addBytes(final EncodingSupport bytes, final boolean sync, final IOCallback callback) {
-      enterCritical(CRITICAL_PATH_ADD_BYTES);
-      try {
+      try (ArtemisCloseable measure = measureCritical(CRITICAL_PATH_ADD_BYTES)) {
          synchronized (this) {
             if (!started) {
                throw new IllegalStateException("TimedBuffer is not started");
@@ -328,10 +299,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
                startSpin();
             }
          }
-      } finally {
-         leaveCritical(CRITICAL_PATH_ADD_BYTES);
       }
-
    }
 
    public void flush() {
@@ -344,8 +312,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
     * @return {@code true} when are flushed any bytes, {@code false} otherwise
     */
    public boolean flushBatch() {
-      enterCritical(CRITICAL_PATH_FLUSH);
-      try {
+      try (ArtemisCloseable measure = measureCritical(CRITICAL_PATH_FLUSH)) {
          synchronized (this) {
             if (!started) {
                throw new IllegalStateException("TimedBuffer is not started");
@@ -378,8 +345,6 @@ public final class TimedBuffer extends CriticalComponentImpl {
                return false;
             }
          }
-      } finally {
-         leaveCritical(CRITICAL_PATH_FLUSH);
       }
    }
 
@@ -390,6 +355,43 @@ public final class TimedBuffer extends CriticalComponentImpl {
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
+
+   /**
+    * Sub classes (tests basically) can use this to override how the sleep is being done
+    *
+    * @param sleepNanos
+    */
+   protected void sleep(long sleepNanos) {
+      LockSupport.parkNanos(sleepNanos);
+   }
+
+   /**
+    * Sub classes (tests basically) can use this to override disabling spinning
+    */
+   protected void stopSpin() {
+      if (spinning) {
+         try {
+            // We acquire the spinLimiter semaphore - this prevents the timer flush thread unnecessarily spinning
+            // when the buffer is inactive
+            spinLimiter.acquire();
+         } catch (InterruptedException e) {
+            throw new ActiveMQInterruptedException(e);
+         }
+
+         spinning = false;
+      }
+   }
+
+   /**
+    * Sub classes (tests basically) can use this to override disabling spinning
+    */
+   protected void startSpin() {
+      if (!spinning) {
+         spinLimiter.release();
+
+         spinning = true;
+      }
+   }
 
    private class LogRatesTimerTask extends TimerTask {
 
@@ -434,10 +436,9 @@ public final class TimedBuffer extends CriticalComponentImpl {
 
    private class CheckTimer implements Runnable {
 
-      private volatile boolean closed = false;
-
       int checks = 0;
       int failedChecks = 0;
+      private volatile boolean closed = false;
 
       @Override
       public void run() {
@@ -520,43 +521,6 @@ public final class TimedBuffer extends CriticalComponentImpl {
 
       public void close() {
          closed = true;
-      }
-   }
-
-   /**
-    * Sub classes (tests basically) can use this to override how the sleep is being done
-    *
-    * @param sleepNanos
-    */
-   protected void sleep(long sleepNanos) {
-      LockSupport.parkNanos(sleepNanos);
-   }
-
-   /**
-    * Sub classes (tests basically) can use this to override disabling spinning
-    */
-   protected void stopSpin() {
-      if (spinning) {
-         try {
-            // We acquire the spinLimiter semaphore - this prevents the timer flush thread unnecessarily spinning
-            // when the buffer is inactive
-            spinLimiter.acquire();
-         } catch (InterruptedException e) {
-            throw new ActiveMQInterruptedException(e);
-         }
-
-         spinning = false;
-      }
-   }
-
-   /**
-    * Sub classes (tests basically) can use this to override disabling spinning
-    */
-   protected void startSpin() {
-      if (!spinning) {
-         spinLimiter.release();
-
-         spinning = true;
       }
    }
 

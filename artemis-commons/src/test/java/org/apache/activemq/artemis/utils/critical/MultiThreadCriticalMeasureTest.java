@@ -42,7 +42,7 @@ public class MultiThreadCriticalMeasureTest {
       ReusableLatch latch = new ReusableLatch(0);
       ReusableLatch latchOnMeasure = new ReusableLatch(0);
       try {
-         CriticalMeasure measure = new CriticalMeasure((t, r) -> false, 0);
+         CriticalMeasure measure = new CriticalMeasure(null, 0);
 
          CyclicBarrier barrier = new CyclicBarrier(THREADS + 1);
 
@@ -56,9 +56,9 @@ public class MultiThreadCriticalMeasureTest {
                      latch.await();
                   }
 
-                  measure.enterCritical();
-                  latchOnMeasure.await();
-                  measure.leaveCritical();
+                  try (AutoCloseable closeable = measure.measure()) {
+                     latchOnMeasure.await();
+                  }
                }
             } catch (Throwable e) {
                e.printStackTrace();
