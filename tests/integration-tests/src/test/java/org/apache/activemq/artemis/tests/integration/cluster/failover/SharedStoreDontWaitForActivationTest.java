@@ -41,8 +41,8 @@ public class SharedStoreDontWaitForActivationTest extends ClusterTestBase {
 
       // 1. configure 0 as backup of one to share the same node manager and file
       // storage locations
-      setupBackupServer(0, 1, isFileStorage(), true, isNetty());
-      setupLiveServer(1, isFileStorage(), true, isNetty(), false);
+      setupBackupServer(0, 1, isFileStorage(), HAType.SharedStore, isNetty());
+      setupLiveServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
 
       // now reconfigure the HA policy for both servers to master with automatic
       // failover and wait-for-activation disabled.

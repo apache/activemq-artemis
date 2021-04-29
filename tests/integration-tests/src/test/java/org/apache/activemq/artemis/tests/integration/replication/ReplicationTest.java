@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.replication;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -48,6 +49,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -85,6 +87,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
@@ -97,9 +100,25 @@ import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public final class ReplicationTest extends ActiveMQTestBase {
+
+   @Rule
+   public TemporaryFolder tmpFolder = new TemporaryFolder();
+
+   @Parameterized.Parameter
+   public boolean pluggableQuorum;
+
+   @Parameterized.Parameters(name = "PluggableQuorum={0}")
+   public static Iterable<Object[]> data() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
+   }
 
    private ThreadFactory tFactory;
    private ExecutorService executor;
@@ -144,7 +163,15 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       Configuration backupConfig = createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setIncomingInterceptorClassNames(incomingInterceptors.length > 0 ? Arrays.asList(incomingInterceptors) : new ArrayList<String>());
 
-      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor);
+      if (!pluggableQuorum) {
+         ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor);
+      } else {
+         DistributedPrimitiveManagerConfiguration managerConfiguration =
+            new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
+                                                         Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+
+         ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor, managerConfiguration, managerConfiguration);
+      }
 
       if (extraConfig != null) {
          extraConfig.config(liveConfig, backupConfig);

@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
@@ -173,7 +174,6 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       SequentialFileFactory fileFactory;
 
-      File liveJournalDir = brokersFolder.getRoot().toPath().resolve("live").resolve("data").resolve("journal").toFile();
       fileFactory = new MappedSequentialFileFactory(liveConfiguration.getJournalLocation(), liveConfiguration.getJournalFileSize(), false, liveConfiguration.getJournalBufferSize_NIO(), liveConfiguration.getJournalBufferTimeout_NIO(), null);
 
       JournalImpl liveMessageJournal = new JournalImpl(liveConfiguration.getJournalFileSize(), liveConfiguration.getJournalMinFiles(), liveConfiguration.getJournalPoolFiles(), liveConfiguration.getJournalCompactMinFiles(), liveConfiguration.getJournalCompactPercentage(), fileFactory, "activemq-data", "amq", fileFactory.getMaxIO());
@@ -355,6 +355,12 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       }
    }
 
+   protected HAPolicyConfiguration createReplicationLiveConfiguration() {
+      return new ReplicatedPolicyConfiguration()
+         .setVoteOnReplicationFailure(false)
+         .setCheckForLiveServer(false);
+   }
+
    // Set a small call timeout and write buffer high water mark value to trigger replication flow control
    private Configuration createLiveConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
@@ -370,10 +376,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       conf.setClusterUser("mycluster");
       conf.setClusterPassword("mypassword");
 
-      ReplicatedPolicyConfiguration haPolicy = new ReplicatedPolicyConfiguration();
-      haPolicy.setVoteOnReplicationFailure(false);
-      haPolicy.setCheckForLiveServer(false);
-      conf.setHAPolicyConfiguration(haPolicy);
+      conf.setHAPolicyConfiguration(createReplicationLiveConfiguration());
 
       ClusterConnectionConfiguration ccconf = new ClusterConnectionConfiguration();
       ccconf.setStaticConnectors(new ArrayList<>()).getStaticConnectors().add("backup");
@@ -387,6 +390,10 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       return conf;
    }
 
+   protected HAPolicyConfiguration createReplicationBackupConfiguration() {
+      return new ReplicaPolicyConfiguration().setClusterName("cluster");
+   }
+
    private Configuration createBackupConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
       conf.setName("localhost::backup");
@@ -394,9 +401,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       File backupDir = brokersFolder.newFolder("backup");
       conf.setBrokerInstance(backupDir);
 
-      ReplicaPolicyConfiguration haPolicy = new ReplicaPolicyConfiguration();
-      haPolicy.setClusterName("cluster");
-      conf.setHAPolicyConfiguration(haPolicy);
+      conf.setHAPolicyConfiguration(createReplicationBackupConfiguration());
 
       conf.addAcceptorConfiguration("backup", "tcp://localhost:61617");
       conf.addConnectorConfiguration("live", "tcp://localhost:61616");

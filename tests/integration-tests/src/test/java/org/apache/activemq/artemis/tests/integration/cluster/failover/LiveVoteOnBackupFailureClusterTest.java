@@ -49,14 +49,14 @@ public class LiveVoteOnBackupFailureClusterTest extends ClusterWithBackupFailove
    @Override
    protected void setupServers() throws Exception {
       // The backups
-      setupBackupServer(3, 0, isFileStorage(), isSharedStorage(), isNetty());
-      setupBackupServer(4, 1, isFileStorage(), isSharedStorage(), isNetty());
-      setupBackupServer(5, 2, isFileStorage(), isSharedStorage(), isNetty());
+      setupBackupServer(3, 0, isFileStorage(), haType(), isNetty());
+      setupBackupServer(4, 1, isFileStorage(), haType(), isNetty());
+      setupBackupServer(5, 2, isFileStorage(), haType(), isNetty());
 
       // The lives
-      setupLiveServer(0, isFileStorage(), isSharedStorage(), isNetty(), false);
-      setupLiveServer(1, isFileStorage(), isSharedStorage(), isNetty(), false);
-      setupLiveServer(2, isFileStorage(), isSharedStorage(), isNetty(), false);
+      setupLiveServer(0, isFileStorage(), haType(), isNetty(), false);
+      setupLiveServer(1, isFileStorage(), haType(), isNetty(), false);
+      setupLiveServer(2, isFileStorage(), haType(), isNetty(), false);
 
       //we need to know who is connected to who
       ((ReplicatedPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group0");
@@ -71,9 +71,9 @@ public class LiveVoteOnBackupFailureClusterTest extends ClusterWithBackupFailove
       ((ReplicatedPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setVoteOnReplicationFailure(true);
       ((ReplicatedPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setVoteOnReplicationFailure(true);
    }
-
-   protected boolean isSharedStorage() {
-      return false;
+   @Override
+   protected HAType haType() {
+      return HAType.SharedNothingReplication;
    }
 
    @Test
