@@ -178,9 +178,9 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      setupLiveServer(1, true, isSharedStore(), true, false);
-      setupLiveServer(3, true, isSharedStore(), true, false);
-      setupBackupServer(2, 3, true, isSharedStore(), true);
+      setupLiveServer(1, true, haType(), true, false);
+      setupLiveServer(3, true, haType(), true, false);
+      setupBackupServer(2, 3, true, haType(), true);
 
       final String address = ReplicatedDistributionTest.ADDRESS.toString();
       // notice the abuse of the method call, '3' is not a backup for '1'
@@ -210,7 +210,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
    }
 
    @Override
-   protected boolean isSharedStore() {
-      return false;
+   protected HAType haType() {
+      return HAType.SharedNothingReplication;
    }
 }

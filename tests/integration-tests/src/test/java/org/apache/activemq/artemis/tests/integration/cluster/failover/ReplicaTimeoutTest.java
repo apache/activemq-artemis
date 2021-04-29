@@ -17,12 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -34,16 +32,18 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -77,7 +77,9 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
    }
 
    protected TestableServer createTestableServer(Configuration config, NodeManager nodeManager) throws Exception {
-      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
+      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicationBackupPolicyConfiguration ||
+         config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration ||
+         config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
       return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
    }
 
@@ -119,6 +121,19 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
       liveServer.crash(true, true, sessions);
    }
 
+   protected void configureReplicationPair(Configuration backupConfig,
+                                           Configuration liveConfig,
+                                           TransportConfiguration backupConnector,
+                                           TransportConfiguration backupAcceptor,
+                                           TransportConfiguration liveConnector) throws IOException {
+      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
+      ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setInitialReplicationSyncTimeout(1000);
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setInitialReplicationSyncTimeout(1000);
+      ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
+   }
+
    @Test//(timeout = 120000)
    public void testFailbackTimeout() throws Exception {
       AssertionLoggerHandler.startCapture();
@@ -134,18 +149,12 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
             Configuration backupConfig = createDefaultInVMConfig();
             Configuration liveConfig = createDefaultInVMConfig();
 
-            ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
-            ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setInitialReplicationSyncTimeout(1000);
-            ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setInitialReplicationSyncTimeout(1000);
+            configureReplicationPair(backupConfig, liveConfig, backupConnector, backupAcceptor, liveConnector);
 
             backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).
                setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
             liveConfig.setBindingsDirectory(getBindingsDir(0, false)).setJournalDirectory(getJournalDir(0, false)).
                setPagingDirectory(getPageDir(0, false)).setLargeMessagesDirectory(getLargeMessagesDir(0, false)).setSecurityEnabled(false);
-
-            ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
-            ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
-            ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
 
             NodeManager nodeManager = createReplicatedBackupNodeManager(backupConfig);
 
@@ -154,8 +163,6 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
             liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
             liveServer = createTestableServer(liveConfig, nodeManager);
-
-            AtomicBoolean ignoreIntercept = new AtomicBoolean(false);
 
             final TestableServer theBackup = backupServer;
 
@@ -174,23 +181,30 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
 
             Wait.assertTrue(backupServer.getServer()::isActive);
 
-            ignoreIntercept.set(true);
-
             ((ActiveMQServerImpl) backupServer.getServer()).setAfterActivationCreated(new Runnable() {
                @Override
                public void run() {
-                  //theBackup.getServer().getActivation()
-
-                  SharedNothingBackupActivation activation = (SharedNothingBackupActivation) theBackup.getServer().getActivation();
-                  activation.getReplicationEndpoint().addOutgoingInterceptorForReplication(new Interceptor() {
-                     @Override
-                     public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-                        if (ignoreIntercept.get() && packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
+                  final Activation backupActivation = theBackup.getServer().getActivation();
+                  if (backupActivation instanceof SharedNothingBackupActivation) {
+                     SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupActivation;
+                     ReplicationEndpoint repEnd = activation.getReplicationEndpoint();
+                     repEnd.addOutgoingInterceptorForReplication((packet, connection) -> {
+                        if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
                            return false;
                         }
                         return true;
-                     }
-                  });
+                     });
+                  } else if (backupActivation instanceof ReplicationBackupActivation) {
+                     ReplicationBackupActivation activation = (ReplicationBackupActivation) backupActivation;
+                     activation.spyReplicationEndpointCreation(replicationEndpoint -> {
+                        replicationEndpoint.addOutgoingInterceptorForReplication((packet, connection) -> {
+                           if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
+                              return false;
+                           }
+                           return true;
+                        });
+                     });
+                  }
                }
             });
 
@@ -198,7 +212,9 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
 
             Assert.assertTrue(Wait.waitFor(() -> AssertionLoggerHandler.findText("AMQ229114")));
 
-            Wait.assertFalse(liveServer.getServer()::isStarted);
+            if (expectLiveSuicide()) {
+               Wait.assertFalse(liveServer.getServer()::isStarted);
+            }
 
          } finally {
             if (sf != null) {
@@ -216,6 +232,10 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
       } finally {
          AssertionLoggerHandler.stopCapture();
       }
+   }
+
+   protected boolean expectLiveSuicide() {
+      return true;
    }
 
 }

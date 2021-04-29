@@ -14,12 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover.quorum;
 
-public class GroupingFailoverSharedServerTest extends GroupingFailoverTestBase {
+import org.apache.activemq.artemis.tests.integration.cluster.failover.ReplicatedDistributionTest;
+
+public class PluggableQuorumReplicatedDistributionTest extends ReplicatedDistributionTest {
 
    @Override
    protected HAType haType() {
-      return HAType.SharedStore;
+      return HAType.PluggableQuorumReplication;
    }
 }

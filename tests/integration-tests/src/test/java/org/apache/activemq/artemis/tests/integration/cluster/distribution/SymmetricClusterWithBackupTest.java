@@ -453,18 +453,18 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
    @Override
    protected void setupServers() throws Exception {
       // The backups
-      setupBackupServer(5, 0, isFileStorage(), true, isNetty());
-      setupBackupServer(6, 1, isFileStorage(), true, isNetty());
-      setupBackupServer(7, 2, isFileStorage(), true, isNetty());
-      setupBackupServer(8, 3, isFileStorage(), true, isNetty());
-      setupBackupServer(9, 4, isFileStorage(), true, isNetty());
+      setupBackupServer(5, 0, isFileStorage(), HAType.SharedStore, isNetty());
+      setupBackupServer(6, 1, isFileStorage(), HAType.SharedStore, isNetty());
+      setupBackupServer(7, 2, isFileStorage(), HAType.SharedStore, isNetty());
+      setupBackupServer(8, 3, isFileStorage(), HAType.SharedStore, isNetty());
+      setupBackupServer(9, 4, isFileStorage(), HAType.SharedStore, isNetty());
 
       // The lives
-      setupLiveServer(0, isFileStorage(), true, isNetty(), false);
-      setupLiveServer(1, isFileStorage(), true, isNetty(), false);
-      setupLiveServer(2, isFileStorage(), true, isNetty(), false);
-      setupLiveServer(3, isFileStorage(), true, isNetty(), false);
-      setupLiveServer(4, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(0, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupLiveServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupLiveServer(2, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupLiveServer(3, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupLiveServer(4, isFileStorage(), HAType.SharedStore, isNetty(), false);
    }
 
    @Override
