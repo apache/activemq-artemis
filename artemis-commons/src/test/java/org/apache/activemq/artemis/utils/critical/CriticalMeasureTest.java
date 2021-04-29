@@ -28,7 +28,7 @@ public class CriticalMeasureTest {
    public void testCriticalMeasure() throws Exception {
       CriticalMeasure measure = new CriticalMeasure(null, 1);
       long time = System.nanoTime();
-      CriticalMeasure.TIME_ENTER_UPDATER.set(measure, time - TimeUnit.SECONDS.toNanos(5));
+      measure.timeEnter = time - TimeUnit.SECONDS.toNanos(5);
       Assert.assertFalse(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
    }
 
@@ -39,7 +39,7 @@ public class CriticalMeasureTest {
       CriticalMeasure measure = new CriticalMeasure(component, 1);
       long time = System.nanoTime();
       CriticalMeasure.CURRENT_THREAD_UDPATER.set(measure, Thread.currentThread());
-      CriticalMeasure.TIME_ENTER_UPDATER.set(measure, time - TimeUnit.MINUTES.toNanos(30));
+      measure.timeEnter = time - TimeUnit.MINUTES.toNanos(30);
       measure.leaveCritical();
       Assert.assertFalse(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
    }
@@ -51,8 +51,12 @@ public class CriticalMeasureTest {
       CriticalMeasure measure = new CriticalMeasure(component, 1);
       long time = System.nanoTime();
       measure.enterCritical();
-      CriticalMeasure.TIME_ENTER_UPDATER.set(measure, time - TimeUnit.MINUTES.toNanos(5));
+      measure.timeEnter = time - TimeUnit.MINUTES.toNanos(5);
       Assert.assertTrue(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
+      // subsequent call without reset should still fail
+      Assert.assertTrue(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), true));
+      // previous reset should have cleared it
+      Assert.assertFalse(measure.checkExpiration(TimeUnit.SECONDS.toNanos(30), false));
       measure.leaveCritical();
    }
 }
