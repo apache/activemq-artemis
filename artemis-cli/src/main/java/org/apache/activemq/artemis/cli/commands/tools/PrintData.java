@@ -69,6 +69,10 @@ public class PrintData extends DBOption {
    @Option(name = "--safe", description = "It will print your data structure without showing your data")
    private boolean safe = false;
 
+
+   @Option(name = "--reclaimed", description = "This option will try to print as many records as possible from reclaimed files")
+   private boolean reclaimed = false;
+
    private static final String BINDINGS_BANNER = "B I N D I N G S  J O U R N A L";
    private static final String MESSAGES_BANNER = "M E S S A G E S   J O U R N A L";
    static {
@@ -85,7 +89,7 @@ public class PrintData extends DBOption {
          if (configuration.isJDBC()) {
             printDataJDBC(configuration, context.out);
          } else {
-            printData(new File(getBinding()), new File(getJournal()), new File(getPaging()), context.out, safe);
+            printData(new File(getBinding()), new File(getJournal()), new File(getPaging()), context.out, safe, reclaimed);
          }
       } catch (Exception e) {
          treatError(e, "data", "print");
@@ -117,10 +121,10 @@ public class PrintData extends DBOption {
    }
 
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, boolean secret) throws Exception {
-      printData(bindingsDirectory, messagesDirectory, pagingDirectory, System.out, secret);
+      printData(bindingsDirectory, messagesDirectory, pagingDirectory, System.out, secret, false);
    }
 
-   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out, boolean safe) throws Exception {
+   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out, boolean safe, boolean reclaimed) throws Exception {
          // Having the version on the data report is an information very useful to understand what happened
       // When debugging stuff
       Artemis.printBanner(out);
@@ -140,21 +144,14 @@ public class PrintData extends DBOption {
 
       printBanner(out, BINDINGS_BANNER);
 
-      try {
-         DescribeJournal.describeBindingsJournal(bindingsDirectory, out, safe);
-      } catch (Exception e) {
-         e.printStackTrace();
-      }
+      printBindings(bindingsDirectory, out, safe, true, true, reclaimed);
 
       printBanner(out, MESSAGES_BANNER);
 
       DescribeJournal describeJournal = null;
-      try {
-         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory, out, safe);
-      } catch (Exception e) {
-         e.printStackTrace();
+      describeJournal = printMessages(messagesDirectory, out, safe, true, true, reclaimed);
+      if (describeJournal == null)
          return;
-      }
 
       try {
          printBanner(out, "P A G I N G");
@@ -165,6 +162,25 @@ public class PrintData extends DBOption {
          return;
       }
 
+   }
+
+   public static DescribeJournal printMessages(File messagesDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurving, boolean reclaimed) {
+      DescribeJournal describeJournal;
+      try {
+         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory, out, safe, printRecords, printSurving, reclaimed);
+      } catch (Exception e) {
+         e.printStackTrace();
+         return null;
+      }
+      return describeJournal;
+   }
+
+   public static void printBindings(File bindingsDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed) {
+      try {
+         DescribeJournal.describeBindingsJournal(bindingsDirectory, out, safe, printRecords, printSurviving, reclaimed);
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
    }
 
    protected static void printBanner(PrintStream out, String x2) {

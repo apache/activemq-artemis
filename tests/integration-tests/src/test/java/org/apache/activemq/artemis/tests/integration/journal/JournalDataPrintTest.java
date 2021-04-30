@@ -63,7 +63,7 @@ public class JournalDataPrintTest extends ActiveMQTestBase {
                                 public void write(int b) throws IOException {
                                     // dev/null
                                 }
-                             }), false);
+                             }), false, false);
 
          // list journal file
          File dirFile = server.getConfiguration().getJournalLocation().getAbsoluteFile();

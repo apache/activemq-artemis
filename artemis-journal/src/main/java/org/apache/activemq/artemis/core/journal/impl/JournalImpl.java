@@ -530,10 +530,18 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       return buffer;
    }
 
-   static int readJournalFile(final SequentialFileFactory fileFactory,
+   public static int readJournalFile(final SequentialFileFactory fileFactory,
                               final JournalFile file,
                               final JournalReaderCallback reader,
                               final AtomicReference<ByteBuffer> wholeFileBufferReference) throws Exception {
+      return readJournalFile(fileFactory, file, reader, wholeFileBufferReference, false);
+   }
+
+   public static int readJournalFile(final SequentialFileFactory fileFactory,
+                              final JournalFile file,
+                              final JournalReaderCallback reader,
+                              final AtomicReference<ByteBuffer> wholeFileBufferReference,
+                              boolean reclaimed) throws Exception {
       file.getFile().open(1, false);
       ByteBuffer wholeFileBuffer = null;
       try {
@@ -582,7 +590,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
             // This record is from a previous file-usage. The file was
             // reused and we need to ignore this record
-            if (readFileId != file.getRecordID()) {
+            if (readFileId != file.getRecordID() && !reclaimed) {
                wholeFileBuffer.position(pos + 1);
                continue;
             }
