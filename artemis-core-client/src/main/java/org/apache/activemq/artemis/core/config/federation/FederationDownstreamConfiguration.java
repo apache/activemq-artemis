@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 
 public class FederationDownstreamConfiguration extends FederationStreamConfiguration<FederationDownstreamConfiguration> {
@@ -40,23 +41,30 @@ public class FederationDownstreamConfiguration extends FederationStreamConfigura
       return upstreamConfiguration;
    }
 
+   private void stripParam(Map<String, Object> params, String name) {
+      Object oldValue = params.remove(name);
+      if (oldValue != null) {
+         ActiveMQClientLogger.LOGGER.ignoredParameterForDownstreamFederation(name);
+      }
+   }
+
    public void setUpstreamConfiguration(TransportConfiguration transportConfiguration) {
 
       final Map<String, Object> params = new HashMap<>(transportConfiguration.getParams());
 
       //clear any TLS settings as they won't apply to the federated server that uses this config
       //The federated server that creates the upstream back will rely on its config from the acceptor for TLS
-      params.remove(TransportConstants.SSL_ENABLED_PROP_NAME);
-      params.remove(TransportConstants.SSL_PROVIDER);
-      params.remove(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME);
-      params.remove(TransportConstants.KEYSTORE_PATH_PROP_NAME);
-      params.remove(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
-      params.remove(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME);
-      params.remove(TransportConstants.KEYSTORE_TYPE_PROP_NAME);
-      params.remove(TransportConstants.TRUSTSTORE_PATH_PROP_NAME);
-      params.remove(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME);
-      params.remove(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME);
-      params.remove(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME);
+      stripParam(params, TransportConstants.SSL_ENABLED_PROP_NAME);
+      stripParam(params, TransportConstants.SSL_PROVIDER);
+      stripParam(params, TransportConstants.SSL_KRB5_CONFIG_PROP_NAME);
+      stripParam(params, TransportConstants.KEYSTORE_PATH_PROP_NAME);
+      stripParam(params, TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
+      stripParam(params, TransportConstants.KEYSTORE_PROVIDER_PROP_NAME);
+      stripParam(params, TransportConstants.KEYSTORE_TYPE_PROP_NAME);
+      stripParam(params, TransportConstants.TRUSTSTORE_PATH_PROP_NAME);
+      stripParam(params, TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME);
+      stripParam(params, TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME);
+      stripParam(params, TransportConstants.TRUSTSTORE_TYPE_PROP_NAME);
 
       this.upstreamConfiguration = new TransportConfiguration(transportConfiguration.getFactoryClassName(), params,
                                                               transportConfiguration.getName(), transportConfiguration.getExtraParams());
