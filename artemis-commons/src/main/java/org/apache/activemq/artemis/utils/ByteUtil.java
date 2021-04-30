@@ -205,6 +205,17 @@ public class ByteUtil {
             | ((int) b[0] & 0xff) << 24;
    }
 
+   public static long bytesToLong(byte[] b) {
+      return ((long) b[7] & 0xff)
+         | ((long) b[6] & 0xff) << 8
+         | ((long) b[5] & 0xff) << 16
+         | ((long) b[4] & 0xff) << 24
+         | ((long) b[3] & 0xff) << 32
+         | ((long) b[2] & 0xff) << 40
+         | ((long) b[1] & 0xff) << 48
+         | ((long) b[0] & 0xff) << 56;
+   }
+
    public static byte[] longToBytes(long value) {
       byte[] output = new byte[8];
       longToBytes(value, output, 0);
@@ -212,13 +223,13 @@ public class ByteUtil {
    }
 
    public static void longToBytes(long x, byte[] output, int offset) {
-      output[offset] = (byte)(x >> 56);
-      output[offset + 1] = (byte)(x >> 48);
-      output[offset + 2] = (byte)(x >> 40);
-      output[offset + 3] = (byte)(x >> 32);
-      output[offset + 4] = (byte)(x >> 24);
-      output[offset + 5] = (byte)(x >> 16);
-      output[offset + 6] = (byte)(x >>  8);
+      output[offset] = (byte)(x >>> 56);
+      output[offset + 1] = (byte)(x >>> 48);
+      output[offset + 2] = (byte)(x >>> 40);
+      output[offset + 3] = (byte)(x >>> 32);
+      output[offset + 4] = (byte)(x >>> 24);
+      output[offset + 5] = (byte)(x >>> 16);
+      output[offset + 6] = (byte)(x >>>  8);
       output[offset + 7] = (byte)(x);
    }
 

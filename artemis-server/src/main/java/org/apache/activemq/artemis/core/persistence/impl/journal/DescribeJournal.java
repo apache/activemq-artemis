@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import javax.transaction.xa.Xid;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.HashMap;
@@ -148,30 +150,42 @@ public final class DescribeJournal {
    }
 
    public static void describeBindingsJournal(final File bindingsDir) throws Exception {
-      describeBindingsJournal(bindingsDir, System.out, false);
+      describeBindingsJournal(bindingsDir, System.out, false, true, true);
    }
 
-   public static void describeBindingsJournal(final File bindingsDir, PrintStream out, boolean safe) throws Exception {
+
+   public static void describeBindingsJournal(final File bindingsDir, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving) throws Exception {
+      describeBindingsJournal(bindingsDir, out, safe, printRecords, printSurviving, false);
+   }
+
+   public static void describeBindingsJournal(final File bindingsDir, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed) throws Exception {
 
       SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(bindingsDir, null, 1);
 
       JournalImpl bindings = new JournalImpl(1024 * 1024, 2, 2, -1, 0, bindingsFF, "activemq-bindings", "bindings", 1);
-      describeJournal(bindingsFF, bindings, bindingsDir, out, safe);
+      describeJournal(bindingsFF, bindings, bindingsDir, out, safe, printRecords, printSurviving, reclaimed);
    }
 
    public static DescribeJournal describeMessagesJournal(final File messagesDir) throws Exception {
-      return describeMessagesJournal(messagesDir, System.out, false);
+      return describeMessagesJournal(messagesDir, System.out, false, true, true, false);
    }
 
-   public static DescribeJournal describeMessagesJournal(final File messagesDir, PrintStream out, boolean safe) throws Exception {
+   public static DescribeJournal describeMessagesJournal(final File messagesDir, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed) throws Exception {
       Configuration configuration = getConfiguration();
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(messagesDir, null, 1);
 
       // Will use only default values. The load function should adapt to anything different
       JournalImpl messagesJournal = new JournalImpl(configuration.getJournalFileSize(), configuration.getJournalMinFiles(), configuration.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
 
-      return describeJournal(messagesFF, messagesJournal, messagesDir, out, safe);
+      return describeJournal(messagesFF, messagesJournal, messagesDir, out, safe, printRecords, printSurviving, reclaimed);
    }
+
+   private static final PrintStream nullPrintStream = new PrintStream(new OutputStream() {
+      @Override
+      public void write(int b) throws IOException {
+
+      }
+   });
 
    /**
     * @param fileFactory
@@ -182,66 +196,72 @@ public final class DescribeJournal {
                                                   JournalImpl journal,
                                                   final File path,
                                                   PrintStream out,
-                                                  boolean safe) throws Exception {
+                                                  boolean safe,
+                                                  boolean printRecords,
+                                                  boolean printSurving,
+                                                  boolean reclaimed) throws Exception {
       List<JournalFile> files = journal.orderFiles();
 
       final Map<Long, PageSubscriptionCounterImpl> counters = new HashMap<>();
 
-      out.println("Journal path: " + path);
+      PrintStream recordsPrintStream = printRecords ? out : nullPrintStream;
+      PrintStream survivingPrintStrea = printSurving ? out : nullPrintStream;
+
+      recordsPrintStream.println("Journal path: " + path);
 
       for (JournalFile file : files) {
-         out.println("#" + file + " (size=" + file.getFile().size() + ")");
+         recordsPrintStream.println("#" + file + " (size=" + file.getFile().size() + ")");
 
          JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallback() {
 
             @Override
             public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
-               out.println("operation@UpdateTX;txID=" + transactionID + "," + describeRecord(recordInfo, safe));
+               recordsPrintStream.println("operation@UpdateTX;txID=" + transactionID + "," + describeRecord(recordInfo, safe));
                checkRecordCounter(recordInfo);
             }
 
             @Override
             public void onReadUpdateRecord(final RecordInfo recordInfo) throws Exception {
-               out.println("operation@Update;" + describeRecord(recordInfo, safe));
+               recordsPrintStream.println("operation@Update;" + describeRecord(recordInfo, safe));
                checkRecordCounter(recordInfo);
             }
 
             @Override
             public void onReadRollbackRecord(final long transactionID) throws Exception {
-               out.println("operation@Rollback;txID=" + transactionID);
+               recordsPrintStream.println("operation@Rollback;txID=" + transactionID);
             }
 
             @Override
             public void onReadPrepareRecord(final long transactionID,
                                             final byte[] extraData,
                                             final int numberOfRecords) throws Exception {
-               out.println("operation@Prepare,txID=" + transactionID + ",numberOfRecords=" + numberOfRecords +
+               recordsPrintStream.println("operation@Prepare,txID=" + transactionID + ",numberOfRecords=" + numberOfRecords +
                               ",extraData=" + encode(extraData) + ", xid=" + toXid(extraData));
             }
 
             @Override
             public void onReadDeleteRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
-               out.println("operation@DeleteRecordTX;txID=" + transactionID + "," + describeRecord(recordInfo, safe));
+               recordsPrintStream.println("operation@DeleteRecordTX;txID=" + transactionID + "," + describeRecord(recordInfo, safe));
             }
 
             @Override
             public void onReadDeleteRecord(final long recordID) throws Exception {
-               out.println("operation@DeleteRecord;recordID=" + recordID);
+               recordsPrintStream.println("operation@DeleteRecord;recordID=" + recordID);
             }
 
             @Override
             public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
-               out.println("operation@Commit;txID=" + transactionID + ",numberOfRecords=" + numberOfRecords);
+               recordsPrintStream.println("operation@Commit;txID=" + transactionID + ",numberOfRecords=" + numberOfRecords);
             }
 
             @Override
             public void onReadAddRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
-               out.println("operation@AddRecordTX;txID=" + transactionID + "," + describeRecord(recordInfo, safe));
+               recordsPrintStream.println("operation@AddRecordTX;txID=" + transactionID + "," + describeRecord(recordInfo, safe));
             }
 
             @Override
             public void onReadAddRecord(final RecordInfo recordInfo) throws Exception {
-               out.println("operation@AddRecord;" + describeRecord(recordInfo, safe));
+               recordsPrintStream.println("operation@AddRecord;" + describeRecord(recordInfo, safe));
             }
 
             @Override
@@ -256,18 +276,18 @@ public final class DescribeJournal {
                   PageSubscriptionCounterImpl subsCounter = lookupCounter(counters, queueIDForCounter);
 
                   if (subsCounter.getValue() != 0 && subsCounter.getValue() != encoding.getValue()) {
-                     out.println("####### Counter replace wrongly on queue " + queueIDForCounter + " oldValue=" + subsCounter.getValue() + " newValue=" + encoding.getValue());
+                     recordsPrintStream.println("####### Counter replace wrongly on queue " + queueIDForCounter + " oldValue=" + subsCounter.getValue() + " newValue=" + encoding.getValue());
                   }
 
                   subsCounter.loadValue(info.id, encoding.getValue(), encoding.getPersistentSize());
                   subsCounter.processReload();
-                  out.print("#Counter queue " + queueIDForCounter + " value=" + subsCounter.getValue() + " persistentSize=" + subsCounter.getPersistentSize() + ", result=" + subsCounter.getValue());
+                  recordsPrintStream.print("#Counter queue " + queueIDForCounter + " value=" + subsCounter.getValue() + " persistentSize=" + subsCounter.getPersistentSize() + ", result=" + subsCounter.getValue());
                   if (subsCounter.getValue() < 0) {
-                     out.println(" #NegativeCounter!!!!");
+                     recordsPrintStream.println(" #NegativeCounter!!!!");
                   } else {
-                     out.println();
+                     recordsPrintStream.println();
                   }
-                  out.println();
+                  recordsPrintStream.println();
                } else if (info.getUserRecordType() == JournalRecordIds.PAGE_CURSOR_COUNTER_INC) {
                   PageCountRecordInc encoding = (PageCountRecordInc) newObjectEncoding(info);
                   long queueIDForCounter = encoding.getQueueID();
@@ -276,26 +296,26 @@ public final class DescribeJournal {
 
                   subsCounter.loadInc(info.id, encoding.getValue(), encoding.getPersistentSize());
                   subsCounter.processReload();
-                  out.print("#Counter queue " + queueIDForCounter + " value=" + subsCounter.getValue() + " persistentSize=" + subsCounter.getPersistentSize() + " increased by " + encoding.getValue());
+                  recordsPrintStream.print("#Counter queue " + queueIDForCounter + " value=" + subsCounter.getValue() + " persistentSize=" + subsCounter.getPersistentSize() + " increased by " + encoding.getValue());
                   if (subsCounter.getValue() < 0) {
-                     out.println(" #NegativeCounter!!!!");
+                     recordsPrintStream.println(" #NegativeCounter!!!!");
                   } else {
-                     out.println();
+                     recordsPrintStream.println();
                   }
-                  out.println();
+                  recordsPrintStream.println();
                }
             }
-         });
+         }, null, reclaimed);
       }
 
-      out.println();
+      recordsPrintStream.println();
 
       if (counters.size() != 0) {
-         out.println("#Counters during initial load:");
-         printCounters(out, counters);
+         recordsPrintStream.println("#Counters during initial load:");
+         printCounters(recordsPrintStream, counters);
       }
 
-      return printSurvivingRecords(journal, out, safe);
+      return printSurvivingRecords(journal, survivingPrintStrea, safe);
    }
 
    public static DescribeJournal printSurvivingRecords(Journal journal,
