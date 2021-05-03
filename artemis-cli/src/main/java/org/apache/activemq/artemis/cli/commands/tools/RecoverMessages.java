@@ -57,11 +57,7 @@ public class RecoverMessages extends DBOption {
       Configuration configuration = getParameterConfiguration();
 
       File journalOutput = new File(outputJournal);
-      journalOutput.mkdirs();
 
-      if (!journalOutput.isDirectory()) {
-         throw new IllegalStateException(outputJournal + " is not a directory");
-      }
 
       try {
          if (configuration.isJDBC()) {
@@ -79,7 +75,15 @@ public class RecoverMessages extends DBOption {
 
       File journal = configuration.getJournalLocation();
 
-      journalOutput.mkdirs();
+      if (!journalOutput.exists()) {
+         if (!journalOutput.mkdirs()) {
+            throw new IllegalStateException("It was not possible to create " + journalOutput);
+         }
+      }
+
+      if (journalOutput.exists() && !journalOutput.isDirectory()) {
+         throw new IllegalStateException(journalOutput + " is not a directory");
+      }
 
       SequentialFileFactory outputFF = new NIOSequentialFileFactory(journalOutput, null, 1);
       outputFF.setDatasync(false);
