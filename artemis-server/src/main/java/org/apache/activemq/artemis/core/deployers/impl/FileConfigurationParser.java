@@ -1645,6 +1645,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       configuration.setQuorumSize(getInteger(policyNode, "quorum-size", configuration.getQuorumSize(), Validators.MINUS_ONE_OR_GT_ZERO));
 
+      configuration.setMaxReplicaResponseBatchBytes(getLong(policyNode, "max-replica-response-batch-bytes",
+                                                            configuration.getMaxReplicaResponseBatchBytes(),
+                                                            Validators.MINUS_ONE_OR_GE_ZERO));
+
       return configuration;
    }
 
@@ -1677,6 +1681,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getVoteRetryWait(), Validators.GT_ZERO));
 
       configuration.setQuorumSize(getInteger(policyNode, "quorum-size", configuration.getQuorumSize(), Validators.MINUS_ONE_OR_GT_ZERO));
+
+      configuration.setMaxReplicaResponseBatchBytes(getLong(policyNode, "max-replica-response-batch-bytes",
+                                                            configuration.getMaxReplicaResponseBatchBytes(),
+                                                            Validators.MINUS_ONE_OR_GE_ZERO));
 
       return configuration;
    }

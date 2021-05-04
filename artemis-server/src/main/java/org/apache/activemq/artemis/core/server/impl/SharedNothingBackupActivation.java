@@ -96,7 +96,7 @@ public final class SharedNothingBackupActivation extends Activation {
       assert replicationEndpoint == null;
       activeMQServer.resetNodeManager();
       backupUpToDate = false;
-      replicationEndpoint = new ReplicationEndpoint(activeMQServer, ioCriticalErrorListener, attemptFailBack, this);
+      replicationEndpoint = new ReplicationEndpoint(activeMQServer, attemptFailBack, this, replicaPolicy.getMaxReplicaResponseBatchBytes());
    }
 
    @Override

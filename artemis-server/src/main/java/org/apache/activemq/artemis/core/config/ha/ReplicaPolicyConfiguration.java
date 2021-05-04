@@ -51,6 +51,8 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
 
    private long retryReplicationWait = ActiveMQDefaultConfiguration.getDefaultRetryReplicationWait();
 
+   private long maxReplicaResponseBatchBytes = ActiveMQDefaultConfiguration.getDefaultMaxReplicaResponseBatchBytes();
+
    public ReplicaPolicyConfiguration() {
    }
 
@@ -179,5 +181,13 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
 
    public void setRetryReplicationWait(long retryReplicationWait) {
       this.retryReplicationWait = retryReplicationWait;
+   }
+
+   public long getMaxReplicaResponseBatchBytes() {
+      return maxReplicaResponseBatchBytes;
+   }
+
+   public void setMaxReplicaResponseBatchBytes(long maxReplicaResponseBatchBytes) {
+      this.maxReplicaResponseBatchBytes = maxReplicaResponseBatchBytes;
    }
 }

@@ -27,6 +27,7 @@
                <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
                <cluster-name>33rrrrr</cluster-name>
                <restart-backup>false</restart-backup>
+               <max-replica-response-batch-bytes>-1</max-replica-response-batch-bytes>
             </slave>
          </replication>
       </ha-policy>

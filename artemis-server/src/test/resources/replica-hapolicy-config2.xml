@@ -27,6 +27,7 @@
                <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
                <cluster-name>33rrrrr</cluster-name>
                <restart-backup>false</restart-backup>
+               <max-replica-response-batch-bytes>0</max-replica-response-batch-bytes>
                <scale-down>
                   <!--a grouping of servers that can be scaled down to-->
                   <group-name>boo!</group-name>

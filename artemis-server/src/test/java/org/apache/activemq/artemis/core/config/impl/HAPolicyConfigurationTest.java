@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration.getDefaultMaxReplicaResponseBatchBytes;
 import static org.hamcrest.CoreMatchers.instanceOf;
 
 public class HAPolicyConfigurationTest extends ActiveMQTestBase {
@@ -140,6 +141,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(replicatedPolicy.getClusterName(), "abcdefg");
          assertEquals(replicatedPolicy.getInitialReplicationSyncTimeout(), 9876);
          assertEquals(replicatedPolicy.getRetryReplicationWait(), 12345);
+         assertEquals(replicatedPolicy.getMaxReplicaResponseBatchBytes(), getDefaultMaxReplicaResponseBatchBytes());
       } finally {
          server.stop();
       }
@@ -163,6 +165,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertTrue(replicaPolicy.isAllowFailback());
          assertEquals(replicaPolicy.getInitialReplicationSyncTimeout(), 9876);
          assertEquals(replicaPolicy.getRetryReplicationWait(), 12345);
+         assertEquals(replicaPolicy.getMaxReplicaResponseBatchBytes(), getDefaultMaxReplicaResponseBatchBytes());
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
          assertEquals(scaleDownPolicy.getGroupName(), "boo!");
@@ -190,6 +193,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(replicaPolicy.getMaxSavedReplicatedJournalsSize(), 22);
          assertEquals(replicaPolicy.getClusterName(), "33rrrrr");
          assertFalse(replicaPolicy.isRestartBackup());
+         assertEquals(replicaPolicy.getMaxReplicaResponseBatchBytes(), 0);
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
          assertEquals(scaleDownPolicy.getGroupName(), "boo!");
@@ -219,6 +223,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(replicaPolicy.getMaxSavedReplicatedJournalsSize(), 22);
          assertEquals(replicaPolicy.getClusterName(), "33rrrrr");
          assertFalse(replicaPolicy.isRestartBackup());
+         assertEquals(replicaPolicy.getMaxReplicaResponseBatchBytes(), -1);
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
       } finally {

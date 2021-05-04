@@ -62,6 +62,8 @@ public class ReplicaPolicy extends BackupPolicy {
 
    private long retryReplicationWait;
 
+   private long maxReplicaResponseBatchBytes = ActiveMQDefaultConfiguration.getDefaultMaxReplicaResponseBatchBytes();
+
    public ReplicaPolicy(final NetworkHealthCheck networkHealthCheck, int quorumVoteWait) {
       this.networkHealthCheck = networkHealthCheck;
       this.quorumVoteWait = quorumVoteWait;
@@ -88,7 +90,8 @@ public class ReplicaPolicy extends BackupPolicy {
                         int voteRetries,
                         long voteRetryWait,
                         int quorumVoteWait,
-                        long retryReplicationWait) {
+                        long retryReplicationWait,
+                        long maxReplicaResponseBatchBytes) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
@@ -104,6 +107,7 @@ public class ReplicaPolicy extends BackupPolicy {
       this.voteOnReplicationFailure = voteOnReplicationFailure;
       this.quorumVoteWait = quorumVoteWait;
       this.retryReplicationWait = retryReplicationWait;
+      this.maxReplicaResponseBatchBytes = maxReplicaResponseBatchBytes;
    }
 
    public ReplicaPolicy(String clusterName,
@@ -138,7 +142,7 @@ public class ReplicaPolicy extends BackupPolicy {
 
    public ReplicatedPolicy getReplicatedPolicy() {
       if (replicatedPolicy == null) {
-         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this, networkHealthCheck, voteOnReplicationFailure, quorumSize, voteRetries, voteRetryWait, quorumVoteWait);
+         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this, networkHealthCheck, voteOnReplicationFailure, quorumSize, voteRetries, voteRetryWait, quorumVoteWait, maxReplicaResponseBatchBytes);
       }
       return replicatedPolicy;
    }
@@ -260,5 +264,13 @@ public class ReplicaPolicy extends BackupPolicy {
 
    public void setretryReplicationWait(long retryReplicationWait) {
       this.retryReplicationWait = retryReplicationWait;
+   }
+
+   public void setMaxReplicaResponseBatchBytes(long value) {
+      this.maxReplicaResponseBatchBytes = value;
+   }
+
+   public long getMaxReplicaResponseBatchBytes() {
+      return maxReplicaResponseBatchBytes;
    }
 }

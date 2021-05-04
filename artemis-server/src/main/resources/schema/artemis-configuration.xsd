@@ -2991,6 +2991,14 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="max-replica-response-batch-bytes" type="xsd:long" default="-1" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  It's the amount of response bytes that a replica is going to batch before sending it back.
+                  It applies if this broker is acting as backup.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
@@ -3105,6 +3113,13 @@
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait (in seconds) for vote results
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="max-replica-response-batch-bytes" type="xsd:long" default="-1" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  It's the amount of response bytes that a replica is going to batch before sending it back.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

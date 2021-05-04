@@ -66,6 +66,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    private final int quorumVoteWait;
 
+   private long maxReplicaResponseBatchBytes = ActiveMQDefaultConfiguration.getDefaultMaxReplicaResponseBatchBytes();
+
    public ReplicatedPolicy(NetworkHealthCheck networkHealthCheck, int quorumVoteWait) {
       replicaPolicy = new ReplicaPolicy(networkHealthCheck, this, quorumVoteWait);
       this.networkHealthCheck = networkHealthCheck;
@@ -82,7 +84,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            int voteRetries,
                            long voteRetryWait,
                            int quorumVoteWait,
-                           long retryReplicationWait) {
+                           long retryReplicationWait,
+                           long maxReplicaResponseBatchBytes) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
@@ -94,6 +97,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.voteRetryWait = voteRetryWait;
       this.quorumVoteWait = quorumVoteWait;
       this.retryReplicationWait = retryReplicationWait;
+      this.maxReplicaResponseBatchBytes = maxReplicaResponseBatchBytes;
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
@@ -107,7 +111,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            int quorumSize,
                            int voteRetries,
                            long voteRetryWait,
-                           int quorumVoteWait) {
+                           int quorumVoteWait,
+                           long maxReplicaResponseBatchBytes) {
       this.checkForLiveServer = checkForLiveServer;
       this.clusterName = clusterName;
       this.groupName = groupName;
@@ -118,6 +123,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.voteOnReplicationFailure = voteOnReplicationFailure;
       this.quorumSize = quorumSize;
       this.quorumVoteWait = quorumVoteWait;
+      this.maxReplicaResponseBatchBytes = maxReplicaResponseBatchBytes;
    }
 
    public boolean isCheckForLiveServer() {
@@ -171,6 +177,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
          if (groupName != null && groupName.length() > 0) {
             replicaPolicy.setGroupName(groupName);
          }
+         replicaPolicy.setMaxReplicaResponseBatchBytes(maxReplicaResponseBatchBytes);
       }
       return replicaPolicy;
    }
@@ -250,5 +257,9 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public long getRetryReplicationWait() {
       return retryReplicationWait;
+   }
+
+   public long getMaxReplicaResponseBatchBytes() {
+      return maxReplicaResponseBatchBytes;
    }
 }

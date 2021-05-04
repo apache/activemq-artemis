@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.EncoderPersister;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -96,7 +95,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private static final Logger logger = Logger.getLogger(ReplicationEndpoint.class);
 
-   private final IOCriticalErrorListener criticalErrorListener;
    private final ActiveMQServerImpl server;
    private final boolean wantedFailBack;
    private final SharedNothingBackupActivation activation;
@@ -137,18 +135,23 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private final ArrayDeque<Packet> pendingPackets;
 
+   // it's allowed to grow over maxReplicaResponseBatchBytes, but is flushed right after.
+   private long pendingBytes;
+
+   private final long maxReplicaResponseBatchBytes;
 
    // Constructors --------------------------------------------------
    public ReplicationEndpoint(final ActiveMQServerImpl server,
-                              IOCriticalErrorListener criticalErrorListener,
                               boolean wantedFailBack,
-                              SharedNothingBackupActivation activation) {
+                              SharedNothingBackupActivation activation,
+                              long maxReplicaResponseBatchBytes) {
       this.server = server;
-      this.criticalErrorListener = criticalErrorListener;
       this.wantedFailBack = wantedFailBack;
       this.activation = activation;
       this.pendingPackets = new ArrayDeque<>();
       this.supportResponseBatching = false;
+      this.maxReplicaResponseBatchBytes = maxReplicaResponseBatchBytes;
+      this.pendingBytes = 0;
    }
 
    // Public --------------------------------------------------------
@@ -252,12 +255,24 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             logger.trace("Returning " + response);
          }
          if (supportResponseBatching) {
-            pendingPackets.add(response);
+            addOToResponseBatch(response);
          } else {
             channel.send(response);
          }
       } else {
          logger.trace("Response is null, ignoring response");
+      }
+   }
+
+   private void addOToResponseBatch(PacketImpl response) {
+      assert supportResponseBatching;
+      final int responseSize = response.expectedEncodeSize();
+      pendingPackets.add(response);
+      pendingBytes += responseSize;
+      // < 0   means unbounded ie Netty is going to do it for us
+      // == 0  means no batching ie immediate flush
+      if (maxReplicaResponseBatchBytes >= 0 && pendingBytes >= maxReplicaResponseBatchBytes) {
+         endOfBatch();
       }
    }
 
@@ -267,10 +282,19 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (pendingPackets.isEmpty()) {
          return;
       }
-      for (int i = 0, size = pendingPackets.size(); i < size; i++) {
-         final Packet packet = pendingPackets.poll();
-         final boolean isLast = i == (size - 1);
-         channel.send(packet, isLast);
+      try {
+         if (logger.isDebugEnabled()) {
+            logger.debugf("Flushing %d replica responses for a total of %d/%d bytes",
+                          pendingPackets.size(), pendingBytes, maxReplicaResponseBatchBytes);
+         }
+         for (int i = 0, size = pendingPackets.size(); i < size; i++) {
+            final Packet packet = pendingPackets.poll();
+            final boolean isLast = i == (size - 1);
+            channel.send(packet, isLast);
+         }
+      } finally {
+         pendingPackets.clear();
+         pendingBytes = 0;
       }
    }
 
