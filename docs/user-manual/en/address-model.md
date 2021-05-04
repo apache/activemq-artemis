@@ -660,6 +660,7 @@ that would be found in the `broker.xml` file.
       <redistribution-delay>0</redistribution-delay>
       <send-to-dla-on-no-route>true</send-to-dla-on-no-route>
       <slow-consumer-threshold>-1</slow-consumer-threshold>
+      <slow-consumer-threshold-measurement-unit>MESSAGES_PER_SECOND</slow-consumer-threshold-measurement-unit>
       <slow-consumer-policy>NOTIFY</slow-consumer-policy>
       <slow-consumer-check-period>5</slow-consumer-check-period>
       <auto-create-jms-queues>true</auto-create-jms-queues> <!-- deprecated! see auto-create-queues -->
@@ -823,8 +824,19 @@ message will instead be sent to the `dead-letter-address` (DLA) for that
 address, if it exists.
 
 `slow-consumer-threshold`. The minimum rate of message consumption allowed
-before a consumer is considered "slow." Measured in messages-per-second.
-Default is `-1` (i.e. disabled); any other valid value must be greater than 0.
+before a consumer is considered "slow." Measured in units specified by the
+slow-consumer-threshold-measurement-unit configuration option. Default is `-1`
+ (i.e. disabled); any other valid value must be greater than 0. 
+ Read more about [slow consumers](slow-consumers.md).
+
+`slow-consumer-threshold-measurement-unit`. The units used to measure the 
+slow-consumer-threshold.  Valid options are:
+* MESSAGES_PER_SECOND
+* MESSAGES_PER_MINUTE
+* MESSAGES_PER_HOUR
+* MESSAGES_PER_DAY 
+
+If no unit is specified the default MESSAGES_PER_SECOND will be used.
 Read more about [slow consumers](slow-consumers.md).
 
 `slow-consumer-policy`. What should happen when a slow consumer is detected.
@@ -834,7 +846,13 @@ CONSUMER\_SLOW management notification which an application could receive and
 take action with. Read more about [slow consumers](slow-consumers.md).
 
 `slow-consumer-check-period`. How often to check for slow consumers on a
-particular queue. Measured in *seconds*. Default is `5`. Read more about [slow
+particular queue. Measured in *seconds*. Default is `5`. 
+
+* Note: This should be at least 2x the maximum time it takes a consumer to process
+1 message.  For example, if the slow-consumer-threshold is set to 1 and the 
+slow-consumer-threshold-measurement-unit is set to MESSAGES_PER_MINUTE then this
+should be set to at least 2 x 60s i.e. 120s.
+Read more about [slow
 consumers](slow-consumers.md).
 
 `auto-create-jms-queues` is **deprecated**. See `auto-create-queues`. Whether

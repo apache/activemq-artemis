@@ -94,6 +94,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
@@ -4344,7 +4345,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       } else {
          if (slowConsumerReaperRunnable == null) {
             scheduleSlowConsumerReaper(settings);
-         } else if (slowConsumerReaperRunnable.checkPeriod != settings.getSlowConsumerCheckPeriod() || slowConsumerReaperRunnable.threshold != settings.getSlowConsumerThreshold() || !slowConsumerReaperRunnable.policy.equals(settings.getSlowConsumerPolicy())) {
+         } else if (slowConsumerReaperRunnable.checkPeriod != settings.getSlowConsumerCheckPeriod() || slowConsumerReaperRunnable.thresholdInMsgPerSecond != settings.getSlowConsumerThreshold() || !slowConsumerReaperRunnable.policy.equals(settings.getSlowConsumerPolicy())) {
             if (slowConsumerReaperFuture != null) {
                slowConsumerReaperFuture.cancel(false);
                slowConsumerReaperFuture = null;
@@ -4355,12 +4356,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    void scheduleSlowConsumerReaper(AddressSettings settings) {
-      slowConsumerReaperRunnable = new SlowConsumerReaperRunnable(settings.getSlowConsumerCheckPeriod(), settings.getSlowConsumerThreshold(), settings.getSlowConsumerPolicy());
+      slowConsumerReaperRunnable = new SlowConsumerReaperRunnable(settings.getSlowConsumerCheckPeriod(), settings.getSlowConsumerThreshold(), settings.getSlowConsumerThresholdMeasurementUnit(), settings.getSlowConsumerPolicy());
 
       slowConsumerReaperFuture = scheduledExecutor.scheduleWithFixedDelay(slowConsumerReaperRunnable, settings.getSlowConsumerCheckPeriod(), settings.getSlowConsumerCheckPeriod(), TimeUnit.SECONDS);
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Scheduled slow-consumer-reaper thread for queue \"" + getName() + "\"; slow-consumer-check-period=" + settings.getSlowConsumerCheckPeriod() + ", slow-consumer-threshold=" + settings.getSlowConsumerThreshold() + ", slow-consumer-policy=" + settings.getSlowConsumerPolicy());
+         logger.debug("Scheduled slow-consumer-reaper thread for queue \"" + getName() + "\"; slow-consumer-check-period=" + settings.getSlowConsumerCheckPeriod() + ", slow-consumer-threshold=" + settings.getSlowConsumerThreshold() + ", slow-consumer-threshold-measurement-unit=" + settings.getSlowConsumerThresholdMeasurementUnit().toString() + ", slow-consumer-policy=" + settings.getSlowConsumerPolicy());
       }
    }
 
@@ -4424,13 +4425,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private final class SlowConsumerReaperRunnable implements Runnable {
 
       private final SlowConsumerPolicy policy;
-      private final float threshold;
+      private final float thresholdInMsgPerSecond;
       private final long checkPeriod;
 
-      private SlowConsumerReaperRunnable(long checkPeriod, float threshold, SlowConsumerPolicy policy) {
+      private SlowConsumerReaperRunnable(long checkPeriod, float slowConsumerThreshold, SlowConsumerThresholdMeasurementUnit unit, SlowConsumerPolicy policy) {
          this.checkPeriod = checkPeriod;
          this.policy = policy;
-         this.threshold = threshold;
+         this.thresholdInMsgPerSecond = slowConsumerThreshold / unit.getValue();
       }
 
       @Override
@@ -4447,7 +4448,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             logger.debug("There are no consumers, no need to check slow consumer's rate");
             return;
          } else {
-            float queueThreshold = threshold * consumers.size();
+            float queueThreshold = thresholdInMsgPerSecond * consumers.size();
 
             if (queueRate < queueThreshold && queueMessages < queueThreshold) {
                if (logger.isDebugEnabled()) {
@@ -4462,7 +4463,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (consumer instanceof ServerConsumerImpl) {
                ServerConsumerImpl serverConsumer = (ServerConsumerImpl) consumer;
                float consumerRate = serverConsumer.getRate();
-               if (consumerRate < threshold) {
+               if (consumerRate < thresholdInMsgPerSecond) {
                   RemotingConnection connection = null;
                   ActiveMQServer server = ((PostOfficeImpl) postOffice).getServer();
                   RemotingService remotingService = server.getRemotingService();
@@ -4476,7 +4477,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   serverConsumer.fireSlowConsumer();
 
                   if (connection != null) {
-                     ActiveMQServerLogger.LOGGER.slowConsumerDetected(serverConsumer.getSessionID(), serverConsumer.getID(), getName().toString(), connection.getRemoteAddress(), threshold, consumerRate);
+                     ActiveMQServerLogger.LOGGER.slowConsumerDetected(serverConsumer.getSessionID(), serverConsumer.getID(), getName().toString(), connection.getRemoteAddress(),
+                                                                      thresholdInMsgPerSecond, consumerRate);
                      if (policy.equals(SlowConsumerPolicy.KILL)) {
                         connection.killMessage(server.getNodeID());
                         remotingService.removeConnection(connection.getID());

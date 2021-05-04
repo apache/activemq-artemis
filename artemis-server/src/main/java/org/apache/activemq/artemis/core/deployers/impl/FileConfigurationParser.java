@@ -93,6 +93,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
@@ -238,6 +239,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private static final String SEND_TO_DLA_ON_NO_ROUTE = "send-to-dla-on-no-route";
 
    private static final String SLOW_CONSUMER_THRESHOLD_NODE_NAME = "slow-consumer-threshold";
+
+   private static final String SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT_NODE_NAME = "slow-consumer-threshold-measurement-unit";
 
    private static final String SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME = "slow-consumer-check-period";
 
@@ -1202,6 +1205,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             Validators.MINUS_ONE_OR_GT_ZERO.validate(SLOW_CONSUMER_THRESHOLD_NODE_NAME, slowConsumerThreshold);
 
             addressSettings.setSlowConsumerThreshold(slowConsumerThreshold);
+         } else if (SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT_NODE_NAME.equalsIgnoreCase(name)) {
+            String slowConsumerThresholdMeasurementUnit = getTrimmedTextContent(child);
+            Validators.SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT.validate(SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT_NODE_NAME, slowConsumerThresholdMeasurementUnit);
+
+            addressSettings.setSlowConsumerThresholdMeasurementUnit(SlowConsumerThresholdMeasurementUnit.valueOf(slowConsumerThresholdMeasurementUnit));
          } else if (SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME.equalsIgnoreCase(name)) {
             long slowConsumerCheckPeriod = XMLUtil.parseLong(child);
             Validators.GT_ZERO.validate(SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME, slowConsumerCheckPeriod);

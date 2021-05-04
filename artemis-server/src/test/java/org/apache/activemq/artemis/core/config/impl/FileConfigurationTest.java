@@ -62,6 +62,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.junit.AfterClass;
@@ -363,6 +364,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(10, conf.getAddressesSettings().get("a1").getPageCacheMaxSize());
       assertEquals(4, conf.getAddressesSettings().get("a1").getMessageCounterHistoryDayLimit());
       assertEquals(10, conf.getAddressesSettings().get("a1").getSlowConsumerThreshold());
+      assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR, conf.getAddressesSettings().get("a1").getSlowConsumerThresholdMeasurementUnit());
       assertEquals(5, conf.getAddressesSettings().get("a1").getSlowConsumerCheckPeriod());
       assertEquals(SlowConsumerPolicy.NOTIFY, conf.getAddressesSettings().get("a1").getSlowConsumerPolicy());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoCreateJmsQueues());
@@ -397,6 +399,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(20, conf.getAddressesSettings().get("a2").getPageCacheMaxSize());
       assertEquals(8, conf.getAddressesSettings().get("a2").getMessageCounterHistoryDayLimit());
       assertEquals(20, conf.getAddressesSettings().get("a2").getSlowConsumerThreshold());
+      assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY, conf.getAddressesSettings().get("a2").getSlowConsumerThresholdMeasurementUnit());
       assertEquals(15, conf.getAddressesSettings().get("a2").getSlowConsumerCheckPeriod());
       assertEquals(SlowConsumerPolicy.KILL, conf.getAddressesSettings().get("a2").getSlowConsumerPolicy());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoCreateJmsQueues());
