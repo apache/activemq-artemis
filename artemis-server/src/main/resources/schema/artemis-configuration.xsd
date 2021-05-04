@@ -3685,10 +3685,27 @@
             <xsd:element name="slow-consumer-threshold" type="xsd:long" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     The minimum rate of message consumption allowed before a consumer is considered "slow." Measured
-                     in messages-per-second.
+                     The minimum rate of message consumption allowed before a consumer is considered "slow."  Measurement
+                     unit is defined by the slow-consumer-threshold-measurement-unit parameter.  By default this is
+                     messages-per-seconds
                   </xsd:documentation>
                </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="slow-consumer-threshold-measurement-unit" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     The units used to measure the slow consumer threshold.  Default is messages-per-second.
+                  </xsd:documentation>
+               </xsd:annotation>
+               <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                     <xsd:enumeration value="MESSAGES_PER_SECOND"/>
+                     <xsd:enumeration value="MESSAGES_PER_MINUTE"/>
+                     <xsd:enumeration value="MESSAGES_PER_HOUR"/>
+                     <xsd:enumeration value="MESSAGES_PER_DAY"/>
+                  </xsd:restriction>
+               </xsd:simpleType>
             </xsd:element>
 
             <xsd:element name="slow-consumer-policy" default="NOTIFY" maxOccurs="1" minOccurs="0">

@@ -131,6 +131,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final int MANAGEMENT_MESSAGE_ATTRIBUTE_SIZE_LIMIT = 256;
 
+   public static final SlowConsumerThresholdMeasurementUnit DEFAULT_SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT = SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND;
+
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
    private Long maxSizeBytes = null;
@@ -184,6 +186,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private Boolean sendToDLAOnNoRoute = null;
 
    private Long slowConsumerThreshold = null;
+
+   private SlowConsumerThresholdMeasurementUnit slowConsumerThresholdMeasurementUnit = DEFAULT_SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT;
 
    private Long slowConsumerCheckPeriod = null;
 
@@ -327,6 +331,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.defaultRingSize = other.defaultRingSize;
       this.enableMetrics = other.enableMetrics;
       this.managementMessageAttributeSizeLimit = other.managementMessageAttributeSizeLimit;
+      this.slowConsumerThresholdMeasurementUnit = other.slowConsumerThresholdMeasurementUnit;
    }
 
    public AddressSettings() {
@@ -785,6 +790,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public SlowConsumerThresholdMeasurementUnit getSlowConsumerThresholdMeasurementUnit() {
+      return slowConsumerThresholdMeasurementUnit != null ? slowConsumerThresholdMeasurementUnit : AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT;
+   }
+
+   public AddressSettings setSlowConsumerThresholdMeasurementUnit(final SlowConsumerThresholdMeasurementUnit slowConsumerThresholdMeasurementUnit) {
+      this.slowConsumerThresholdMeasurementUnit = slowConsumerThresholdMeasurementUnit;
+      return this;
+   }
+
    public long getSlowConsumerCheckPeriod() {
       return slowConsumerCheckPeriod != null ? slowConsumerCheckPeriod : AddressSettings.DEFAULT_SLOW_CONSUMER_CHECK_PERIOD;
    }
@@ -1004,6 +1018,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (slowConsumerThreshold == null) {
          slowConsumerThreshold = merged.slowConsumerThreshold;
+      }
+      if (slowConsumerThresholdMeasurementUnit == null) {
+         slowConsumerThresholdMeasurementUnit = merged.slowConsumerThresholdMeasurementUnit;
       }
       if (slowConsumerCheckPeriod == null) {
          slowConsumerCheckPeriod = merged.slowConsumerCheckPeriod;
@@ -1354,6 +1371,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          managementMessageAttributeSizeLimit = BufferHelper.readNullableInteger(buffer);
       }
 
+      if (buffer.readableBytes() > 0) {
+         Integer slowConsumerMeasurementUnitEnumValue = BufferHelper.readNullableInteger(buffer);
+         if (slowConsumerMeasurementUnitEnumValue != null) {
+            slowConsumerThresholdMeasurementUnit = SlowConsumerThresholdMeasurementUnit.valueOf(slowConsumerMeasurementUnitEnumValue);
+         }
+      }
    }
 
    @Override
@@ -1418,7 +1441,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          SimpleString.sizeofNullableString(expiryQueueSuffix) +
          BufferHelper.sizeOfNullableBoolean(enableMetrics) +
          BufferHelper.sizeOfNullableBoolean(defaultGroupRebalancePauseDispatch) +
-         BufferHelper.sizeOfNullableInteger(managementMessageAttributeSizeLimit);
+         BufferHelper.sizeOfNullableInteger(managementMessageAttributeSizeLimit) +
+         BufferHelper.sizeOfNullableInteger(slowConsumerThresholdMeasurementUnit.getValue());
    }
 
    @Override
@@ -1546,6 +1570,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableBoolean(buffer, defaultGroupRebalancePauseDispatch);
 
       BufferHelper.writeNullableInteger(buffer, managementMessageAttributeSizeLimit);
+
+      BufferHelper.writeNullableInteger(buffer, slowConsumerThresholdMeasurementUnit == null ? null : slowConsumerThresholdMeasurementUnit.getValue());
    }
 
    /* (non-Javadoc)
@@ -1619,6 +1645,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((expiryQueueSuffix == null) ? 0 : expiryQueueSuffix.hashCode());
       result = prime * result + ((enableMetrics == null) ? 0 : enableMetrics.hashCode());
       result = prime * result + ((managementMessageAttributeSizeLimit == null) ? 0 : managementMessageAttributeSizeLimit.hashCode());
+      result = prime * result + ((slowConsumerThresholdMeasurementUnit == null) ? 0 : slowConsumerThresholdMeasurementUnit.hashCode());
       return result;
    }
 
@@ -1976,6 +2003,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       } else if (!enableMetrics.equals(other.enableMetrics))
          return false;
 
+      if (slowConsumerThresholdMeasurementUnit != other.slowConsumerThresholdMeasurementUnit)
+         return false;
+
       return true;
    }
 
@@ -2031,6 +2061,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          sendToDLAOnNoRoute +
          ", slowConsumerThreshold=" +
          slowConsumerThreshold +
+         ", slowConsumerThresholdMeasurementUnit=" +
+         slowConsumerThresholdMeasurementUnit +
          ", slowConsumerCheckPeriod=" +
          slowConsumerCheckPeriod +
          ", slowConsumerPolicy=" +

@@ -458,6 +458,7 @@
             <slow-consumer-threshold>10</slow-consumer-threshold>
             <slow-consumer-check-period>5</slow-consumer-check-period>
             <slow-consumer-policy>NOTIFY</slow-consumer-policy>
+            <slow-consumer-threshold-measurement-unit>MESSAGES_PER_HOUR</slow-consumer-threshold-measurement-unit>
             <auto-create-jms-queues>true</auto-create-jms-queues>
             <auto-delete-jms-queues>true</auto-delete-jms-queues>
             <auto-create-jms-topics>true</auto-create-jms-topics>
@@ -488,6 +489,7 @@
             <message-counter-history-day-limit>8</message-counter-history-day-limit>
             <slow-consumer-threshold>20</slow-consumer-threshold>
             <slow-consumer-check-period>15</slow-consumer-check-period>
+            <slow-consumer-threshold-measurement-unit>MESSAGES_PER_DAY</slow-consumer-threshold-measurement-unit>
             <slow-consumer-policy>KILL</slow-consumer-policy>
             <auto-create-jms-queues>false</auto-create-jms-queues>
             <auto-delete-jms-queues>false</auto-delete-jms-queues>

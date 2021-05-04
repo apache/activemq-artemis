@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
@@ -55,24 +56,42 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE;
+import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND;
+
 @RunWith(value = Parameterized.class)
 public class SlowConsumerTest extends ActiveMQTestBase {
 
    private static final Logger logger = Logger.getLogger(SlowConsumerTest.class);
 
-   private int threshold = 10;
+   private int threshold;
+   private float consumerRate; // The rate actual consumers will run in the test.
+
+   private SlowConsumerThresholdMeasurementUnit unit;
    private long checkPeriod = 1;
    private boolean isNetty = false;
    private boolean isPaging = false;
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "netty={0}, paging={1}")
+   @Parameterized.Parameters(name = "netty={0}, paging={1}, threshold={2}, threshold_units={3}")
    public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{true, false}, {false, false}, {true, true}, {false, true}});
+      return Arrays.asList(new Object[][]{
+         {true, false, 10, MESSAGES_PER_SECOND},
+         {false, false, 10, MESSAGES_PER_SECOND},
+         {true, true, 10, MESSAGES_PER_SECOND},
+         {false, true, 10, MESSAGES_PER_SECOND},
+         {true, false, 1, MESSAGES_PER_MINUTE},
+         {false, false, 1, MESSAGES_PER_MINUTE},
+         {true, true, 1, MESSAGES_PER_MINUTE},
+         {false, true, 1, MESSAGES_PER_MINUTE}
+      });
    }
 
-   public SlowConsumerTest(boolean isNetty, boolean isPaging) {
+   public SlowConsumerTest(boolean isNetty, boolean isPaging, int threshold, SlowConsumerThresholdMeasurementUnit unit) {
+      this.threshold = threshold;
+      this.unit = unit;
+      this.consumerRate = threshold / unit.getValue();
       this.isNetty = isNetty;
       this.isPaging = isPaging;
    }
@@ -93,6 +112,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setSlowConsumerCheckPeriod(checkPeriod);
       addressSettings.setSlowConsumerThreshold(threshold);
+      addressSettings.setSlowConsumerThresholdMeasurementUnit(unit);
       addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
 
       if (isPaging) {
@@ -442,14 +462,14 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       final int messages = 10 * threshold;
 
-      FixedRateProducer producer = new FixedRateProducer(threshold * 2, sf1, QUEUE, messages);
+      FixedRateProducer producer = new FixedRateProducer(threshold * 2, unit, sf1, QUEUE, messages);
 
       final Set<FixedRateConsumer> consumers = new ConcurrentHashSet<>();
       final Set<ClientMessage> receivedMessages = new ConcurrentHashSet<>();
 
-      consumers.add(new FixedRateConsumer(threshold, receivedMessages, sf2, QUEUE, 1));
-      consumers.add(new FixedRateConsumer(threshold, receivedMessages, sf3, QUEUE, 2));
-      consumers.add(new FixedRateConsumer(threshold, receivedMessages, sf4, QUEUE, 3));
+      consumers.add(new FixedRateConsumer(threshold, unit, receivedMessages, sf2, QUEUE, 1));
+      consumers.add(new FixedRateConsumer(threshold, unit, receivedMessages, sf3, QUEUE, 2));
+      consumers.add(new FixedRateConsumer(threshold, unit, receivedMessages, sf4, QUEUE, 3));
 
       try {
          producer.start();
@@ -481,8 +501,8 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       int messages;
       ClientProducer producer;
 
-      FixedRateProducer(int rate, ClientSessionFactory sf, SimpleString queue, int messages) throws ActiveMQException {
-         super(sf, queue, rate);
+      FixedRateProducer(int rate, SlowConsumerThresholdMeasurementUnit unit, ClientSessionFactory sf, SimpleString queue, int messages) throws ActiveMQException {
+         super(sf, queue, rate, unit);
          this.messages = messages;
       }
 
@@ -518,11 +538,12 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       int id;
 
       FixedRateConsumer(int rate,
+                        SlowConsumerThresholdMeasurementUnit unit,
                         Set<ClientMessage> receivedMessages,
                         ClientSessionFactory sf,
                         SimpleString queue,
                         int id) throws ActiveMQException {
-         super(sf, queue, rate);
+         super(sf, queue, rate, unit);
          this.id = id;
          this.receivedMessages = receivedMessages;
       }
@@ -568,10 +589,10 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       protected volatile boolean working;
       boolean failed;
 
-      FixedRateClient(ClientSessionFactory sf, SimpleString queue, int rate) throws ActiveMQException {
+      FixedRateClient(ClientSessionFactory sf, SimpleString queue, int rate, SlowConsumerThresholdMeasurementUnit unit) throws ActiveMQException {
          this.sf = sf;
          this.queue = queue;
-         this.sleepTime = 1000 / rate;
+         this.sleepTime = (int) (1000f / (unit.getValue() / rate));
       }
 
       protected void prepareWork() throws ActiveMQException {

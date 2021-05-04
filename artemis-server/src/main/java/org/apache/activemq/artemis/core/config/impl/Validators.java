@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 
 /**
  * A Validators.
@@ -189,6 +190,19 @@ public final class Validators {
             !val.equals(AddressFullMessagePolicy.BLOCK.toString()) &&
             !val.equals(AddressFullMessagePolicy.FAIL.toString())) {
             throw ActiveMQMessageBundle.BUNDLE.invalidAddressFullPolicyType(val);
+         }
+      }
+   };
+
+   public static final Validator SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         String val = (String) value;
+         if (val == null || !val.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_SECOND.toString()) &&
+                            !val.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE.toString()) &&
+                            !val.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR.toString()) &&
+                            !val.equals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY.toString())) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidSlowConsumerThresholdMeasurementUnit(val);
          }
       }
    };
