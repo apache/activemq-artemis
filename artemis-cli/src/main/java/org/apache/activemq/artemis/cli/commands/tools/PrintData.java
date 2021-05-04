@@ -278,7 +278,7 @@ public class PrintData extends DBOption {
                      }
 
                      if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
-                        out.println(" (PG-COMPLETE)");
+                        out.print(" (PG-COMPLETE)");
                      }
 
                      if (i + 1 < q.length) {
