@@ -98,7 +98,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private final ActiveMQServerImpl server;
    private final boolean wantedFailBack;
    private final SharedNothingBackupActivation activation;
-   private final boolean noSync = false;
    private Channel channel;
    private boolean supportResponseBatching;
 
@@ -193,52 +192,66 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    @Override
    public void handlePacket(final Packet packet) {
       if (logger.isTraceEnabled()) {
-         logger.trace("handlePacket::handling " + packet);
+         logger.tracef("handlePacket::handling %d", packet);
+      }
+      if (!started) {
+         if (logger.isTraceEnabled()) {
+            logger.tracef("handlePacket::ignoring %d", packet);
+         }
+         return;
       }
       PacketImpl response = new ReplicationResponseMessage();
-      final byte type = packet.getType();
-
       try {
-         if (!started) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("handlePacket::ignoring " + packet);
-            }
-
-            return;
-         }
-
-         if (type == PacketImpl.REPLICATION_APPEND) {
-            handleAppendAddRecord((ReplicationAddMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_APPEND_TX) {
-            handleAppendAddTXRecord((ReplicationAddTXMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_DELETE) {
-            handleAppendDelete((ReplicationDeleteMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_DELETE_TX) {
-            handleAppendDeleteTX((ReplicationDeleteTXMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_PREPARE) {
-            handlePrepare((ReplicationPrepareMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_COMMIT_ROLLBACK) {
-            handleCommitRollback((ReplicationCommitMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_PAGE_WRITE) {
-            handlePageWrite((ReplicationPageWriteMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_PAGE_EVENT) {
-            handlePageEvent((ReplicationPageEventMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_LARGE_MESSAGE_BEGIN) {
-            handleLargeMessageBegin((ReplicationLargeMessageBeginMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_LARGE_MESSAGE_WRITE) {
-            handleLargeMessageWrite((ReplicationLargeMessageWriteMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_LARGE_MESSAGE_END) {
-            handleLargeMessageEnd((ReplicationLargeMessageEndMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_START_FINISH_SYNC) {
-            response = handleStartReplicationSynchronization((ReplicationStartSyncMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_SYNC_FILE) {
-            handleReplicationSynchronization((ReplicationSyncFileMessage) packet);
-         } else if (type == PacketImpl.REPLICATION_SCHEDULED_FAILOVER) {
-            handleLiveStopping((ReplicationLiveIsStoppingMessage) packet);
-         } else if (type == PacketImpl.BACKUP_REGISTRATION_FAILED) {
-            handleFatalError((BackupReplicationStartFailedMessage) packet);
-         } else {
-            ActiveMQServerLogger.LOGGER.invalidPacketForReplication(packet);
+         final byte type = packet.getType();
+         switch (type) {
+            case PacketImpl.REPLICATION_APPEND:
+               handleAppendAddRecord((ReplicationAddMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_APPEND_TX:
+               handleAppendAddTXRecord((ReplicationAddTXMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_DELETE:
+               handleAppendDelete((ReplicationDeleteMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_DELETE_TX:
+               handleAppendDeleteTX((ReplicationDeleteTXMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_PREPARE:
+               handlePrepare((ReplicationPrepareMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_COMMIT_ROLLBACK:
+               handleCommitRollback((ReplicationCommitMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_PAGE_WRITE:
+               handlePageWrite((ReplicationPageWriteMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_PAGE_EVENT:
+               handlePageEvent((ReplicationPageEventMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_LARGE_MESSAGE_BEGIN:
+               handleLargeMessageBegin((ReplicationLargeMessageBeginMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_LARGE_MESSAGE_END:
+               handleLargeMessageEnd((ReplicationLargeMessageEndMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_LARGE_MESSAGE_WRITE:
+               handleLargeMessageWrite((ReplicationLargeMessageWriteMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_START_FINISH_SYNC:
+               response = handleStartReplicationSynchronization((ReplicationStartSyncMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_SYNC_FILE:
+               handleReplicationSynchronization((ReplicationSyncFileMessage) packet);
+               break;
+            case PacketImpl.REPLICATION_SCHEDULED_FAILOVER:
+               handleLiveStopping((ReplicationLiveIsStoppingMessage) packet);
+               break;
+            case PacketImpl.BACKUP_REGISTRATION_FAILED:
+               handleFatalError((BackupReplicationStartFailedMessage) packet);
+               break;
+            default:
+               ActiveMQServerLogger.LOGGER.invalidPacketForReplication(packet);
+               break;
          }
       } catch (ActiveMQException e) {
          logger.warn(e.getMessage(), e);
@@ -252,7 +265,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
       if (response != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Returning " + response);
+            logger.tracef("Returning %s", response);
          }
          if (supportResponseBatching) {
             addOToResponseBatch(response);
@@ -726,9 +739,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private void handleCommitRollback(final ReplicationCommitMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
       if (packet.isRollback()) {
-         journalToUse.appendRollbackRecord(packet.getTxId(), noSync);
+         journalToUse.appendRollbackRecord(packet.getTxId(), false);
       } else {
-         journalToUse.appendCommitRecord(packet.getTxId(), noSync);
+         journalToUse.appendCommitRecord(packet.getTxId(), false);
       }
    }
 
@@ -737,7 +750,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     */
    private void handlePrepare(final ReplicationPrepareMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
-      journalToUse.appendPrepareRecord(packet.getTxId(), packet.getRecordData(), noSync);
+      journalToUse.appendPrepareRecord(packet.getTxId(), packet.getRecordData(), false);
    }
 
    /**
@@ -754,7 +767,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     */
    private void handleAppendDelete(final ReplicationDeleteMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
-      journalToUse.appendDeleteRecord(packet.getId(), noSync);
+      journalToUse.appendDeleteRecord(packet.getId(), false);
    }
 
    /**
@@ -781,19 +794,19 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             if (logger.isTraceEnabled()) {
                logger.trace("Endpoint appendUpdate id = " + packet.getId());
             }
-            journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
+            journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), false);
             break;
          case ADD:
             if (logger.isTraceEnabled()) {
                logger.trace("Endpoint append id = " + packet.getId());
             }
-            journalToUse.appendAddRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
+            journalToUse.appendAddRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), false);
             break;
          case EVENT:
             if (logger.isTraceEnabled()) {
                logger.trace("Endpoint append id = " + packet.getId());
             }
-            journalToUse.appendAddEvent(packet.getId(), packet.getJournalRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(packet.getRecordData()), noSync, null);
+            journalToUse.appendAddEvent(packet.getId(), packet.getJournalRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(packet.getRecordData()), false, null);
             break;
       }
    }
