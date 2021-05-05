@@ -14,7 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.apache.activemq.tests</groupId>
@@ -87,8 +88,8 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-          <groupId>com.google.errorprone</groupId>
-          <artifactId>error_prone_core</artifactId>
+         <groupId>com.google.errorprone</groupId>
+         <artifactId>error_prone_core</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.qpid</groupId>
@@ -104,8 +105,8 @@
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.wildfly.common</groupId>
-          <artifactId>wildfly-common</artifactId>
+         <groupId>org.wildfly.common</groupId>
+         <artifactId>wildfly-common</artifactId>
       </dependency>
       <dependency>
          <groupId>org.fusesource.mqtt-client</groupId>
@@ -308,7 +309,10 @@
                         <arg>--java-options</arg>
                         <!-- notice these files are only available on dnsswitch, so this is not a copy and paste error
                              where I really meant dnsswitch here -->
-                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security -Djava.rmi.server.hostname=localhost</arg>
+                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf
+                           -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security
+                           -Djava.rmi.server.hostname=localhost
+                        </arg>
                      </args>
                   </configuration>
                </execution>
@@ -329,7 +333,10 @@
                         <arg>--java-options</arg>
                         <!-- notice these files are only available on dnsswitch, so this is not a copy and paste error
                              where I really meant dnsswitch here -->
-                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security -Djava.rmi.server.hostname=localhost</arg>
+                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf
+                           -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security
+                           -Djava.rmi.server.hostname=localhost
+                        </arg>
                      </args>
                   </configuration>
                </execution>
@@ -340,7 +347,8 @@
                      <goal>create</goal>
                   </goals>
                   <configuration>
-                     <configuration>${basedir}/target/classes/servers/dnsswitch-replicated-backup-withping</configuration>
+                     <configuration>${basedir}/target/classes/servers/dnsswitch-replicated-backup-withping
+                     </configuration>
                      <allowAnonymous>true</allowAnonymous>
                      <user>admin</user>
                      <password>admin</password>
@@ -350,7 +358,10 @@
                         <arg>--java-options</arg>
                         <!-- notice these files are only available on dnsswitch, so this is not a copy and paste error
                              where I really meant dnsswitch here -->
-                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security -Djava.rmi.server.hostname=localhost</arg>
+                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf
+                           -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security
+                           -Djava.rmi.server.hostname=localhost
+                        </arg>
                      </args>
                   </configuration>
                </execution>
@@ -361,7 +372,8 @@
                      <goal>create</goal>
                   </goals>
                   <configuration>
-                     <configuration>${basedir}/target/classes/servers/dnsswitch-replicated-main-noretrydns</configuration>
+                     <configuration>${basedir}/target/classes/servers/dnsswitch-replicated-main-noretrydns
+                     </configuration>
                      <allowAnonymous>true</allowAnonymous>
                      <user>admin</user>
                      <password>admin</password>
@@ -371,7 +383,10 @@
                         <arg>--java-options</arg>
                         <!-- notice these files are only available on dnsswitch, so this is not a copy and paste error
                              where I really meant dnsswitch here -->
-                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf -Djava.security.properties=${basedir}/target/dnsswitch/etc/noretrydns.security -Djava.rmi.server.hostname=localhost</arg>
+                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf
+                           -Djava.security.properties=${basedir}/target/dnsswitch/etc/noretrydns.security
+                           -Djava.rmi.server.hostname=localhost
+                        </arg>
                      </args>
                   </configuration>
                </execution>
@@ -392,7 +407,10 @@
                         <arg>--java-options</arg>
                         <!-- notice these files are only available on dnsswitch, so this is not a copy and paste error
                              where I really meant dnsswitch here -->
-                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security -Djava.rmi.server.hostname=localhost</arg>
+                        <arg>-Djdk.net.hosts.file=${basedir}/target/dnsswitch/etc/hosts.conf
+                           -Djava.security.properties=${basedir}/target/dnsswitch/etc/zerocache.security
+                           -Djava.rmi.server.hostname=localhost
+                        </arg>
                      </args>
                   </configuration>
                </execution>
@@ -444,7 +462,10 @@
                      <args>
                         <!-- this is needed to run the server remotely -->
                         <arg>--java-options</arg>
-                        <arg>-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=11099 -Dcom.sun.management.jmxremote.rmi.port=11098 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true
+                           -Dcom.sun.management.jmxremote.port=11099 -Dcom.sun.management.jmxremote.rmi.port=11098
+                           -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+                        </arg>
                      </args>
                   </configuration>
                </execution>
@@ -669,53 +690,53 @@
                   </configuration>
                </execution>
                <execution>
-               <phase>test-compile</phase>
-               <id>create-transfer-2</id>
-               <goals>
-                  <goal>create</goal>
-               </goals>
-               <configuration>
-                  <!-- this makes it easier in certain envs -->
-                  <allowAnonymous>true</allowAnonymous>
-                  <user>admin</user>
-                  <password>admin</password>
-                  <noWeb>true</noWeb>
-                  <portOffset>100</portOffset>
-                  <instance>${basedir}/target/transfer2</instance>
-               </configuration>
-            </execution>
-            <!-- used on BrokerConnectionBridgeSecurityTest  -->
-            <execution>
-               <phase>test-compile</phase>
-               <id>createBrokerConnectBridgeSecurityA</id>
-               <goals>
-                  <goal>create</goal>
-               </goals>
-               <configuration>
-                  <allowAnonymous>false</allowAnonymous>
-                  <user>A</user>
-                  <password>A</password>
-                  <noWeb>true</noWeb>
-                  <instance>${basedir}/target/brokerConnectBridgeSecurityA</instance>
-                  <configuration>${basedir}/target/classes/servers/brokerConnectBridgeSecurityA</configuration>
-               </configuration>
-            </execution>
-            <execution>
-               <phase>test-compile</phase>
-               <id>createBrokerConnectBridgeSecurityB</id>
-               <goals>
-                  <goal>create</goal>
-               </goals>
-               <configuration>
-                  <allowAnonymous>false</allowAnonymous>
-                  <user>B</user>
-                  <password>B</password>
-                  <noWeb>true</noWeb>
-                  <portOffset>100</portOffset>
-                  <instance>${basedir}/target/brokerConnectBridgeSecurityB</instance>
-                  <configuration>${basedir}/target/classes/servers/brokerConnectBridgeSecurityB</configuration>
-               </configuration>
-            </execution>
+                  <phase>test-compile</phase>
+                  <id>create-transfer-2</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <noWeb>true</noWeb>
+                     <portOffset>100</portOffset>
+                     <instance>${basedir}/target/transfer2</instance>
+                  </configuration>
+               </execution>
+               <!-- used on BrokerConnectionBridgeSecurityTest  -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createBrokerConnectBridgeSecurityA</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <allowAnonymous>false</allowAnonymous>
+                     <user>A</user>
+                     <password>A</password>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/brokerConnectBridgeSecurityA</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnectBridgeSecurityA</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createBrokerConnectBridgeSecurityB</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <allowAnonymous>false</allowAnonymous>
+                     <user>B</user>
+                     <password>B</password>
+                     <noWeb>true</noWeb>
+                     <portOffset>100</portOffset>
+                     <instance>${basedir}/target/brokerConnectBridgeSecurityB</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnectBridgeSecurityB</configuration>
+                  </configuration>
+               </execution>
                <!-- used on BrokerConnectionBridgeSecurityTest  -->
                <execution>
                   <phase>test-compile</phase>
@@ -784,7 +805,7 @@
                </execution>
 
             </executions>
-         <dependencies>
+            <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.tests</groupId>
                   <artifactId>smoke-tests</artifactId>
