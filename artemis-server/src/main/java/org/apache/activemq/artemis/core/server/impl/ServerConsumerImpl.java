@@ -1166,17 +1166,19 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * @param message
     */
    private void deliverStandardMessage(final MessageReference ref, Message message) throws ActiveMQException {
-      applyPrefixForLegacyConsumer(message);
-      int packetSize = callback.sendMessage(ref, message, ServerConsumerImpl.this, ref.getDeliveryCount());
+      if (messageQueue.canBeDelivered(ref)) {
+         applyPrefixForLegacyConsumer(message);
+         int packetSize = callback.sendMessage(ref, message, ServerConsumerImpl.this, ref.getDeliveryCount());
 
-      if (availableCredits != null) {
-         availableCredits.addAndGet(-packetSize);
+         if (availableCredits != null) {
+            availableCredits.addAndGet(-packetSize);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace(this + "::FlowControl::delivery standard taking " +
-                            packetSize +
-                            " from credits, available now is " +
-                            availableCredits);
+            if (logger.isTraceEnabled()) {
+               logger.trace(this + "::FlowControl::delivery standard taking " +
+                               packetSize +
+                               " from credits, available now is " +
+                               availableCredits);
+            }
          }
       }
    }

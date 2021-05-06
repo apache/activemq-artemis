@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -157,15 +158,6 @@ public class LastValueQueue extends QueueImpl {
 
             if (isNonDestructive() && hr.isDelivered()) {
                hr.resetDelivered();
-               // --------------------------------------------------------------------------------
-               // If non Destructive, and if a reference was previously delivered
-               // we would not be able to receive this message again
-               // unless we reset the iterators
-               // The message is not removed, so we can't actually remove it
-               // a result of this operation is that previously delivered messages
-               // will probably be delivered again.
-               // if we ever want to avoid other redeliveries we would have to implement a reset or redeliver
-               // operation on the iterator for a single message
                resetAllIterators();
                deliverAsync();
             }
@@ -350,11 +342,20 @@ public class LastValueQueue extends QueueImpl {
       return Collections.unmodifiableSet(map.keySet());
    }
 
+   @Override
+   public boolean canBeDelivered(MessageReference ref) {
+      if (isNonDestructive() && ref instanceof HolderReference) {
+         return !((HolderReference)ref).isDelivered();
+      } else {
+         return true;
+      }
+   }
+
    private static class HolderReference implements MessageReference {
 
       private final SimpleString prop;
 
-      private volatile boolean delivered = false;
+      private volatile AtomicBoolean delivered = new AtomicBoolean(false);
 
       private volatile MessageReference ref;
 
@@ -362,13 +363,12 @@ public class LastValueQueue extends QueueImpl {
 
       private boolean hasConsumerID = false;
 
-
       public void resetDelivered() {
-         delivered = false;
+         delivered.set(false);
       }
 
       public boolean isDelivered() {
-         return delivered;
+         return delivered.get();
       }
 
       HolderReference(final SimpleString prop, final MessageReference ref) {
@@ -388,7 +388,7 @@ public class LastValueQueue extends QueueImpl {
 
       @Override
       public void handled() {
-         delivered = true;
+         delivered.set(true);
          // We need to remove the entry from the map just before it gets delivered
          ref.handled();
          if (!ref.getQueue().isNonDestructive()) {
