@@ -66,10 +66,16 @@ public class Wait {
    }
 
    public static void assertEquals(Long size, LongCondition condition, long timeout, long sleepMillis) throws Exception {
-      boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis);
+      assertEquals(size, condition, timeout, sleepMillis, true);
+   }
+
+   public static void assertEquals(Long size, LongCondition condition, long timeout, long sleepMillis, boolean printThreadDump) throws Exception {
+      boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis, printThreadDump);
 
       if (!result) {
-         System.out.println(ThreadDumpUtil.threadDump("thread dump"));
+         if (printThreadDump) {
+            System.out.println(ThreadDumpUtil.threadDump("thread dump"));
+         }
          Assert.fail(size + " != " + condition.getCount());
       }
    }
