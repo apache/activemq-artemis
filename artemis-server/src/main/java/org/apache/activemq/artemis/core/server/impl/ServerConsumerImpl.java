@@ -984,7 +984,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
 
          if (ref == null) {
-            ActiveMQIllegalStateException ils = new ActiveMQIllegalStateException("Cannot find ref to ack " + messageID);
+            ActiveMQIllegalStateException ils = ActiveMQMessageBundle.BUNDLE.consumerNoReference(id, messageID, messageQueue.getName());
             tx.markAsRollbackOnly(ils);
             throw ils;
          }

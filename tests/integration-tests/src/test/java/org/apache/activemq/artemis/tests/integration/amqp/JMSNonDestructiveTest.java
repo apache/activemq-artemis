@@ -24,8 +24,13 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,6 +49,8 @@ import org.apache.activemq.artemis.core.server.impl.LastValueQueue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RetryRule;
+import org.jboss.logging.Logger;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +58,8 @@ import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class JMSNonDestructiveTest extends JMSClientTestSupport {
+
+   private static final Logger logger = Logger.getLogger(JMSNonDestructiveTest.class);
 
    @Rule
    public RetryRule retryRule = new RetryRule(2);
@@ -586,6 +595,122 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
          message1.setStringProperty(lastValueKey, "KEY");
          message1.setText("tombstone");
          producer.send(message1, javax.jms.Message.DEFAULT_DELIVERY_MODE, javax.jms.Message.DEFAULT_PRIORITY, tombstoneTimeToLive);
+      }
+   }
+
+   @Test
+   public void testMultipleLastValuesCore() throws Exception {
+      testMultipleLastValues(CoreConnection);
+   }
+
+   @Test
+   public void testMultipleLastValuesAMQP() throws Exception {
+      testMultipleLastValues(AMQPConnection);
+   }
+
+   private void testMultipleLastValues(ConnectionSupplier connectionSupplier) throws Exception {
+      final int GROUP_COUNT = 5;
+      final int MESSAGE_COUNT_PER_GROUP = 25;
+      final int PRODUCER_COUNT = 5;
+
+      HashMap<String, List<String>> results = new HashMap<>();
+      for (int i = 0; i < GROUP_COUNT; i++) {
+         results.put(i + "", new ArrayList<>());
+      }
+
+      HashMap<String, Integer> dups = new HashMap<>();
+      List<Producer> producers = new ArrayList<>();
+
+      try (Connection connection = connectionSupplier.createConnection()) {
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+         Queue queue = session.createQueue(NON_DESTRUCTIVE_LVQ_QUEUE_NAME);
+
+         MessageConsumer consumer = session.createConsumer(queue);
+         connection.start();
+
+         for (int i = 0; i < PRODUCER_COUNT; i++) {
+            producers.add(new Producer(connectionSupplier, MESSAGE_COUNT_PER_GROUP, GROUP_COUNT, i));
+         }
+
+         for (Producer producer : producers) {
+            new Thread(producer).start();
+         }
+
+         while (true) {
+            TextMessage tm = (TextMessage) consumer.receive(500);
+            if (tm == null) {
+               break;
+            }
+            results.get(tm.getStringProperty("lastval")).add(tm.getText());
+            tm.acknowledge();
+         }
+
+         for (Producer producer : producers) {
+            assertFalse("Producer failed!", producer.failed);
+         }
+      }
+      for (Map.Entry<String, List<String>> entry : results.entrySet()) {
+         StringBuilder logMessage = new StringBuilder();
+         logMessage.append("Messages received with lastval=" + entry.getKey() + " (");
+         for (String s : entry.getValue()) {
+            int occurrences = Collections.frequency(entry.getValue(), s);
+            if (occurrences > 1 && !dups.containsValue(Integer.parseInt(s))) {
+               dups.put(s, occurrences);
+            }
+            logMessage.append(s + ",");
+         }
+         logger.info(logMessage + ")");
+      }
+      if (dups.size() > 0) {
+         StringBuffer sb = new StringBuffer();
+         for (Map.Entry<String, Integer> stringIntegerEntry : dups.entrySet()) {
+            sb.append(stringIntegerEntry.getKey() + "(" + stringIntegerEntry.getValue() + "),");
+         }
+         Assert.fail("Duplicate messages received " + sb);
+      }
+
+      Wait.assertEquals((long) GROUP_COUNT, () -> server.locateQueue(NON_DESTRUCTIVE_LVQ_QUEUE_NAME).getMessageCount(), 2000, 100, false);
+   }
+
+   private class Producer implements Runnable {
+      private final ConnectionSupplier connectionSupplier;
+      private final int messageCount;
+      private final int groupCount;
+      private final int offset;
+
+      public boolean failed = false;
+
+      Producer(ConnectionSupplier connectionSupplier, int messageCount, int groupCount, int offset) {
+         this.connectionSupplier = connectionSupplier;
+         this.messageCount = messageCount;
+         this.groupCount = groupCount;
+         this.offset = offset;
+      }
+
+      @Override
+      public void run() {
+         try (Connection connection = connectionSupplier.createConnection()) {
+            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            Queue queue = session.createQueue(NON_DESTRUCTIVE_LVQ_QUEUE_NAME);
+            MessageProducer producer = session.createProducer(queue);
+
+            int startingPoint = offset * (messageCount * groupCount);
+            int messagesToSend = messageCount * groupCount;
+
+            for (int i = startingPoint; i < messagesToSend + startingPoint; i++) {
+               String lastval = "" + (i % groupCount);
+               TextMessage message = session.createTextMessage();
+               message.setText("" + i);
+               message.setStringProperty("data", "" + i);
+               message.setStringProperty("lastval", lastval);
+               message.setStringProperty(Message.HDR_LAST_VALUE_NAME.toString(), lastval);
+               producer.send(message);
+            }
+         } catch (JMSException e) {
+            e.printStackTrace();
+            failed = true;
+            return;
+         }
       }
    }
 }
