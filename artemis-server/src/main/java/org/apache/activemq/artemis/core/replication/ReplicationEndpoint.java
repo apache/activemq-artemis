@@ -656,7 +656,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             if (logger.isTraceEnabled()) {
                logger.trace("Closing LargeMessage " + packet.getMessageId() + " on the executor @ handleLargeMessageEnd");
             }
-            message.releaseResources(true, false);
+            message.releaseResources(false, false);
          } else {
             executor.execute(new Runnable() {
                @Override
@@ -815,27 +815,20 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     * @param packet
     */
    private void handlePageEvent(final ReplicationPageEventMessage packet) throws Exception {
-      ConcurrentMap<Integer, Page> pages = getPageMap(packet.getStoreName());
-
-      Page page = pages.remove(packet.getPageNumber());
+      Page page = getPageMap(packet.getStoreName()).remove(packet.getPageNumber());
 
       if (page == null) {
-         // if page is null, we create it the instance and include it on the map
-         // then we must recurse this call
-         // so page.delete or page.close will not leave any closed objects on the hashmap
-         getPage(packet.getStoreName(), packet.getPageNumber());
-         handlePageEvent(packet);
-         return;
+         // if page is null, we create it: no need to put it on page map just to remove it again
+         page = pageManager.getPageStore(packet.getStoreName()).createPage(packet.getPageNumber());
+         page.open();
       }
 
-      if (page != null) {
-         if (packet.isDelete()) {
-            if (deletePages) {
-               page.delete(null);
-            }
-         } else {
-            page.close(false);
+      if (packet.isDelete()) {
+         if (deletePages) {
+            page.delete(null);
          }
+      } else {
+         page.close(false, false);
       }
 
    }
