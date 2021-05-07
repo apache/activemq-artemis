@@ -803,7 +803,29 @@
                      <configuration>${basedir}/target/classes/servers/infinite-redelivery</configuration>
                   </configuration>
                </execution>
-
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-mmfactory</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/mmfactory</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/mmfactory</instance>
+                     <noWeb>false</noWeb>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true
+                           -Dcom.sun.management.jmxremote.port=11099 -Dcom.sun.management.jmxremote.rmi.port=11098
+                           -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+                        </arg>
+                     </args>
+                  </configuration>
+               </execution>
             </executions>
             <dependencies>
                <dependency>
