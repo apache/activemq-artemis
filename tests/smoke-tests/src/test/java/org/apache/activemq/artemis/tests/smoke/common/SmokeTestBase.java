@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.smoke.common;
 
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -86,4 +89,24 @@ public class SmokeTestBase extends ActiveMQTestBase {
       return process;
    }
 
+   protected static JMXConnector getJmxConnector(String hostname, int port) throws Exception {
+      // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
+      System.setProperty("java.rmi.server.hostname", hostname);
+
+      // I don't specify both ports here manually on purpose. See actual RMI registry connection port extraction below.
+      String urlString = "service:jmx:rmi:///jndi/rmi://" + hostname + ":" + port + "/jmxrmi";
+
+      JMXServiceURL url = new JMXServiceURL(urlString);
+      JMXConnector jmxConnector = null;
+
+      try {
+         jmxConnector = JMXConnectorFactory.connect(url);
+         System.out.println("Successfully connected to: " + urlString);
+      } catch (Exception e) {
+         jmxConnector = null;
+         e.printStackTrace();
+         Assert.fail(e.getMessage());
+      }
+      return jmxConnector;
+   }
 }
