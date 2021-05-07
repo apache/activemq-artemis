@@ -133,7 +133,7 @@
       <version.org.jacoco>0.7.9</version.org.jacoco>
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
       <version.maven.jar.plugin>2.4</version.maven.jar.plugin>
-      <version.micrometer>1.6.1</version.micrometer>
+      <version.micrometer>1.6.3</version.micrometer>
       <hamcrest.version>2.1</hamcrest.version>
       <surefire.version>2.22.2</surefire.version>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
