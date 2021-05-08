@@ -1160,7 +1160,28 @@ the basic security manager.
 
 The configuration for the `ActiveMQBasicSecurityManager` happens in
 `bootstrap.xml` just like it does for all security manager implementations.
-Here's an example:
+
+The `ActiveMQBasicSecurityManager` requires some special configuration for the
+following reasons:
+
+ - the bindings data which holds the user & role data cannot be modified
+   manually 
+ - the broker must be running to manage users
+ - the broker often needs to be secured from first boot the
+
+If, for example, the broker was configured to use the 
+`ActiveMQBasicSecurityManager` and was started from scratch then no clients
+would be able to connect because there would be no users & roles configured.
+However, in order to configure users & roles one would need to use the 
+management API which would require the proper credentials. It's a catch-22.
+Therefore, it is possible to configure "bootstrap" credentials that will be
+automatically created when the broker starts. There are properties to define
+either:
+
+ - a single user whose credentials can then be used to add other users 
+ - properties files from which to load users & roles in bulk
+
+Here's an example of the single bootstrap user configuration:
 
 ```xml
 <broker xmlns="http://activemq.org/schema">
@@ -1175,18 +1196,39 @@ Here's an example:
 </broker>
 ```
 
-Because the bindings data which holds the user & role data cannot be modified
-manually and because the broker must be running to manage users and because
-the broker often needs to be secured from first boot the
-`ActiveMQBasicSecurityManager` has 3 properties to define a user whose
-credentials can then be used to add other users.
+- `bootstrapUser` - The name of the bootstrap user.
+- `bootstrapPassword` - The password for the bootstrap user; supports masking.
+- `bootstrapRole` - The role of the bootstrap user.
 
-- `bootstrapUser` - the name of the bootstrap user
-- `bootstrapPassword` - the password for the bootstrap user; supports masking
-- `bootstrapRole` - the role of the bootstrap user
+If your use-case requires *multiple* users to be available when the broker
+starts then you can use a configuration like this:
 
-The value specified in the `bootstrapRole` will need the following permissions
-on the `activemq.management` address:
+```xml
+<broker xmlns="http://activemq.org/schema">
+
+   <security-manager class-name="org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager">
+      <property key="bootstrapUserFile" value="artemis-users.properties"/>
+      <property key="bootstrapRoleFile" value="artemis-roles.properties"/>
+   </security-manager>
+   
+   ...
+</broker>
+```
+
+- `bootstrapUserFile` - The name of the file from which to load users. This is
+  a *properties* file formatted exactly the same as the user properties file 
+  used by the [`PropertiesLoginModule`](#propertiesloginmodule). This file 
+  should be on the broker's classpath (e.g. in the `etc` directory).
+- `bootstrapRoleFile` - The role of the bootstrap user. This is a *properties*
+  file formatted exactly the same as the role properties file used by the
+  [`PropertiesLoginModule`](#propertiesloginmodule). This file should be on the
+  broker's classpath (e.g. in the `etc` directory).
+
+Regardless of whether you configure a single bootstrap user or load many users
+from properties files, any user with which additional users are created should
+be in a role with the appropriate permissions on the `activemq.management` 
+address. For example if you've specified a `bootstrapUser` then the
+`bootstrapRole` will need the following permissions:
 
 - `createNonDurableQueue`
 - `createAddress`
@@ -1208,9 +1250,8 @@ For example:
 
 > **Note:**
 >
-> If the 3 `bootstrap` properties are defined then those credentials will be
-> set whenever you start the broker no matter what changes may have been made
-> to them at runtime previously.
+> Any `bootstrap` credentials will be set **whenever** you start the broker no 
+> matter what changes may have been made to them at runtime previously.
 
 ## Mapping external roles
 Roles from external authentication providers (i.e. LDAP) can be mapped to internally used roles. The is done through role-mapping entries in the security-settings block:

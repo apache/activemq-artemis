@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -35,6 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.SecurityManagerUtil;
 import org.jboss.logging.Logger;
 
@@ -48,6 +50,8 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
    public static final String BOOTSTRAP_USER = "bootstrapUser";
    public static final String BOOTSTRAP_PASSWORD = "bootstrapPassword";
    public static final String BOOTSTRAP_ROLE = "bootstrapRole";
+   public static final String BOOTSTRAP_USER_FILE = "bootstrapUserFile";
+   public static final String BOOTSTRAP_ROLE_FILE = "bootstrapRoleFile";
 
    private Map<String, String> properties;
    private String rolePrincipalClass = RolePrincipal.class.getName();
@@ -55,7 +59,7 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
 
    @Override
    public ActiveMQBasicSecurityManager init(Map<String, String> properties) {
-      if (!properties.containsKey(BOOTSTRAP_USER) || !properties.containsKey(BOOTSTRAP_PASSWORD) || !properties.containsKey(BOOTSTRAP_ROLE)) {
+      if ((!properties.containsKey(BOOTSTRAP_USER) || !properties.containsKey(BOOTSTRAP_PASSWORD) || !properties.containsKey(BOOTSTRAP_ROLE)) && (!properties.containsKey(BOOTSTRAP_USER_FILE) || !properties.containsKey(BOOTSTRAP_ROLE_FILE))) {
          ActiveMQServerLogger.LOGGER.noBootstrapCredentialsFound();
       } else {
          this.properties = properties;
@@ -180,18 +184,48 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
    public void completeInit(StorageManager storageManager) {
       this.storageManager = storageManager;
 
-      // add/update the bootstrap user now that the StorageManager is set
-      if (properties != null && properties.containsKey(BOOTSTRAP_USER) && properties.containsKey(BOOTSTRAP_PASSWORD) && properties.containsKey(BOOTSTRAP_ROLE)) {
-         try {
-            if (userExists(properties.get(BOOTSTRAP_USER))) {
-               updateUser(properties.get(BOOTSTRAP_USER), properties.get(BOOTSTRAP_PASSWORD), new String[]{properties.get(BOOTSTRAP_ROLE)});
-            } else {
-               addNewUser(properties.get(BOOTSTRAP_USER), properties.get(BOOTSTRAP_PASSWORD), new String[]{properties.get(BOOTSTRAP_ROLE)});
+      // add/update the bootstrap credentials now that the StorageManager is set
+      if (properties != null && properties.containsKey(BOOTSTRAP_USER_FILE) && properties.containsKey(BOOTSTRAP_ROLE_FILE)) {
+         Properties users = ClassloadingUtil.loadProperties(properties.get(BOOTSTRAP_USER_FILE));
+         Map<String, Set<String>> rolesByUser = invertProperties(ClassloadingUtil.loadProperties(properties.get(BOOTSTRAP_ROLE_FILE)));
+         for (String user : users.stringPropertyNames()) {
+            addOrUpdateUser(user, users.getProperty(user), rolesByUser.get(user).toArray(new String[0]));
+         }
+      } else if (properties != null && properties.containsKey(BOOTSTRAP_USER) && properties.containsKey(BOOTSTRAP_PASSWORD) && properties.containsKey(BOOTSTRAP_ROLE)) {
+         addOrUpdateUser(properties.get(BOOTSTRAP_USER), properties.get(BOOTSTRAP_PASSWORD), new String[]{properties.get(BOOTSTRAP_ROLE)});
+      }
+   }
+
+   private void addOrUpdateUser(String user, String password, String... roles) {
+      try {
+         if (userExists(user)) {
+            updateUser(user, password, roles);
+         } else {
+            addNewUser(user, password, roles);
+         }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.failedToCreateBootstrapCredentials(e, user);
+      }
+   }
+
+   /*
+    * The roles properties file used by the PropertiesLoginModule is in the format role=user1,user2. We need to change
+    * that so we can look up a user and get their roles instead.
+    */
+   private Map<String, Set<String>> invertProperties(Properties props) {
+      Map<String, Set<String>> invertedProps = new HashMap<>();
+
+      for (Map.Entry<Object, Object> val : props.entrySet()) {
+         for (String user : ((String) val.getValue()).split(",")) {
+            Set<String> tempRoles = invertedProps.get(user);
+            if (tempRoles == null) {
+               tempRoles = new HashSet<>();
+               invertedProps.put(user, tempRoles);
             }
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.failedToCreateBootstrapCredentials(e, properties.get(BOOTSTRAP_USER));
+            tempRoles.add((String) val.getKey());
          }
       }
+      return invertedProps;
    }
 
    private boolean userExists(String user) {
