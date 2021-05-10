@@ -42,6 +42,8 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
    private static final int DEFAULT_MAX_SESSION = 15;
 
+   private static final boolean DEFAULT_SINGLE_CONNECTION = false;
+
    public String strConnectorClassName;
 
    public String strConnectionParameters;
@@ -107,6 +109,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
     * The maximum number of sessions
     */
    private Integer maxSession;
+
+   /*
+   * Should we use a single connection for inbound
+   * */
+   private Boolean singleConnection = false;
 
    /**
     * Transaction timeout
@@ -605,6 +612,35 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    }
 
    /**
+    * Get the number of max session
+    *
+    * @return The value
+    */
+   public Boolean isSingleConnection() {
+      if (logger.isTraceEnabled()) {
+         logger.trace("getSingleConnection()");
+      }
+
+      if (singleConnection == null) {
+         return DEFAULT_SINGLE_CONNECTION;
+      }
+
+      return singleConnection;
+   }
+
+   /**
+    * Set the number of max session
+    *
+    * @param value The value
+    */
+   public void setSingleConnection(final Boolean value) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("setSingleConnection(" + value + ")");
+      }
+      singleConnection = value;
+   }
+
+   /**
     * Get the transaction timeout
     *
     * @return The value
@@ -851,9 +887,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          return false;
       if (maxSession != null ? !maxSession.equals(that.maxSession) : that.maxSession != null)
          return false;
+      if (singleConnection != null ? !useJNDI.equals(that.useJNDI) : that.useJNDI != null)
+         return false;
       if (transactionTimeout != null ? !transactionTimeout.equals(that.transactionTimeout) : that.transactionTimeout != null)
          return false;
-      if (useJNDI != null ? !useJNDI.equals(that.useJNDI) : that.useJNDI != null)
+      if (useJNDI != null ? !singleConnection.equals(that.singleConnection) : that.singleConnection != null)
          return false;
       if (jndiParams != null ? !jndiParams.equals(that.jndiParams) : that.jndiParams != null)
          return false;
@@ -890,6 +928,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       result = 31 * result + (user != null ? user.hashCode() : 0);
       result = 31 * result + (password != null ? password.hashCode() : 0);
       result = 31 * result + (maxSession != null ? maxSession.hashCode() : 0);
+      result = 31 * result + (singleConnection != null ? singleConnection.hashCode() : 0);
       result = 31 * result + (transactionTimeout != null ? transactionTimeout.hashCode() : 0);
       result = 31 * result + (useJNDI != null ? useJNDI.hashCode() : 0);
       result = 31 * result + (jndiParams != null ? jndiParams.hashCode() : 0);

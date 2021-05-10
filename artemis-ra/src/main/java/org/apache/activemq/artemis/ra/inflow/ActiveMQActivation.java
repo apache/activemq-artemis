@@ -306,19 +306,28 @@ public class ActiveMQActivation {
 
       Exception firstException = null;
 
+      ClientSessionFactory cf = null;
+
       for (int i = 0; i < spec.getMaxSession(); i++) {
-         ClientSessionFactory cf = null;
+         //if we are sharing the ceonnection only create 1
+         if (!spec.isSingleConnection()) {
+            cf = null;
+         }
          ClientSession session = null;
 
          try {
-            cf = factory.getServerLocator().createSessionFactory();
+            if (cf == null) {
+               cf = factory.getServerLocator().createSessionFactory();
+            }
             session = setupSession(cf);
             ActiveMQMessageHandler handler = new ActiveMQMessageHandler(factory, this, ra.getTM(), (ClientSessionInternal) session, cf, i);
             handler.setup();
             handlers.add(handler);
          } catch (Exception e) {
             if (cf != null) {
-               cf.close();
+               if (!spec.isSingleConnection()) {
+                  cf.close();
+               }
             }
             if (session != null) {
                session.close();
