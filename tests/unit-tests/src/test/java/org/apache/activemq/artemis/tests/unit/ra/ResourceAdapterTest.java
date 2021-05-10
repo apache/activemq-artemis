@@ -463,12 +463,69 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          spec.setDestinationType("javax.jms.Topic");
          spec.setDestination("test");
 
-         spec.setMinSession(1);
-         spec.setMaxSession(1);
+         spec.setMinSession(10);
+         spec.setMaxSession(10);
 
          ActiveMQActivation activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
 
          activation.start();
+         Assert.assertEquals("wrong connection count ", server.getConnectionCount(), 11);
+         activation.stop();
+
+         ra.stop();
+
+         locator.close();
+
+      } finally {
+         server.stop();
+      }
+   }
+
+   @Test
+   public void testStartActivationSingleConnection() throws Exception {
+      ActiveMQServer server = createServer(false);
+
+      try {
+
+         server.start();
+         ServerLocator locator = createInVMNonHALocator();
+         ClientSessionFactory factory = createSessionFactory(locator);
+         ClientSession session = factory.createSession(false, false, false);
+         ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
+         session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
+         session.close();
+
+         ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+
+         ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+         ra.setUserName("userGlobal");
+         ra.setPassword("passwordGlobal");
+         ra.start(new BootstrapContext());
+
+         Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
+
+         conn.close();
+
+         ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
+
+         spec.setResourceAdapter(ra);
+
+         spec.setUseJNDI(false);
+
+         spec.setUser("user");
+         spec.setPassword("password");
+
+         spec.setDestinationType("javax.jms.Topic");
+         spec.setDestination("test");
+
+         spec.setMinSession(1);
+         spec.setMaxSession(10);
+         spec.setSingleConnection(true);
+
+         ActiveMQActivation activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
+
+         activation.start();
+         Assert.assertEquals("wrong connection count ", server.getConnectionCount(), 2);
          activation.stop();
 
          ra.stop();
