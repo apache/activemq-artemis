@@ -16,17 +16,16 @@
  */
 package org.apache.activemq.artemis.junit;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.RoutingType;
+import org.junit.rules.ExternalResource;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis ClientConsumer into a test.
- *
+ * <p>
  * This JUnit Rule is designed to simplify using ActiveMQ Artemis clients in unit tests.  Adding the rule to a test will startup
  * a ClientConsumer, which can then be used to consume messages from an ActiveMQ Artemis server.
  *
@@ -43,130 +42,90 @@ import org.apache.activemq.artemis.api.core.RoutingType;
  * }
  * </code></pre>
  */
-public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
+public class ActiveMQConsumerResource extends ExternalResource {
 
-   long defaultReceiveTimeout = 50;
-
-   SimpleString queueName;
-   ClientConsumer consumer;
+   private ActiveMQConsumerDelegate activeMQConsumer;
 
    public ActiveMQConsumerResource(String url, String queueName) {
-      this(url, SimpleString.toSimpleString(queueName), null, null);
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName);
    }
 
    public ActiveMQConsumerResource(String url, String queueName, String username, String password) {
-      this(url, SimpleString.toSimpleString(queueName), username, password);
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName, username, password);
    }
 
    public ActiveMQConsumerResource(String url, SimpleString queueName, String username, String password) {
-      super(url, username, password);
-      this.queueName = queueName;
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName, username, password);
    }
 
    public ActiveMQConsumerResource(String url, SimpleString queueName) {
-      this(url, queueName, null, null);
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(url, queueName);
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName, String username, String password) {
-      this(serverLocator, SimpleString.toSimpleString(queueName), username, password);
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName, username, password);
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName) {
-      this(serverLocator, SimpleString.toSimpleString(queueName), null, null);
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName);
    }
 
-   public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName, String username, String password) {
-      super(serverLocator, username, password);
-      this.queueName = queueName;
+   public ActiveMQConsumerResource(ServerLocator serverLocator,
+                                   SimpleString queueName,
+                                   String username,
+                                   String password) {
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName, username, password);
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName) {
-      this(serverLocator, queueName, null, null);
-   }
-
-   public long getDefaultReceiveTimeout() {
-      return defaultReceiveTimeout;
-   }
-
-   /**
-    * Sets the default timeout in milliseconds used when receiving messages.  Defaults to 50 milliseconds
-    *
-    * @param defaultReceiveTimeout received timeout in milliseconds
-    */
-   public void setDefaultReceiveTimeout(long defaultReceiveTimeout) {
-      this.defaultReceiveTimeout = defaultReceiveTimeout;
+      this.activeMQConsumer = new ActiveMQConsumerDelegate(serverLocator, queueName);
    }
 
    @Override
+   protected void before() throws Throwable {
+      super.before();
+      activeMQConsumer.start();
+   }
+
+   @Override
+   protected void after() {
+      activeMQConsumer.stop();
+      super.after();
+   }
+
    protected void createClient() {
-      boolean browseOnly = false;
-      try {
-         if (!session.queueQuery(queueName).isExists() && autoCreateQueue) {
-            log.warn("{}: queue does not exist - creating queue: address = {}, name = {}", this.getClass().getSimpleName(), queueName.toString(), queueName.toString());
-            session.createAddress(queueName, RoutingType.MULTICAST, true);
-            session.createQueue(new QueueConfiguration(queueName));
-         }
-         consumer = session.createConsumer(queueName, browseOnly);
-      } catch (ActiveMQException amqEx) {
-         throw new ActiveMQClientResourceException(String.format("Error creating consumer for queueName %s", queueName.toString()), amqEx);
-      }
+      activeMQConsumer.createClient();
    }
 
-   @Override
    protected void stopClient() {
-      if (consumer != null) {
-         try {
-            consumer.close();
-         } catch (ActiveMQException amqEx) {
-            log.warn("Exception encountered closing consumer - ignoring", amqEx);
-         } finally {
-            consumer = null;
-         }
-      }
+      activeMQConsumer.stopClient();
    }
 
-   @Override
    public boolean isAutoCreateQueue() {
-      return autoCreateQueue;
+      return activeMQConsumer.isAutoCreateQueue();
    }
 
-   /**
-    * Enable/Disable the automatic creation of non-existent queues.  The default is to automatically create non-existent queues
-    *
-    * @param autoCreateQueue
-    */
-   @Override
    public void setAutoCreateQueue(boolean autoCreateQueue) {
-      this.autoCreateQueue = autoCreateQueue;
+      activeMQConsumer.setAutoCreateQueue(autoCreateQueue);
    }
 
    public ClientMessage receiveMessage() {
-      return receiveMessage(defaultReceiveTimeout);
+      return activeMQConsumer.receiveMessage();
    }
 
    public ClientMessage receiveMessage(long timeout) {
-      ClientMessage message = null;
-      if (timeout > 0) {
-         try {
-            message = consumer.receive(timeout);
-         } catch (ActiveMQException amqEx) {
-            throw new EmbeddedActiveMQResource.EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive( timeout = %d ) for %s failed", timeout, queueName.toString()), amqEx);
-         }
-      } else if (timeout == 0) {
-         try {
-            message = consumer.receiveImmediate();
-         } catch (ActiveMQException amqEx) {
-            throw new EmbeddedActiveMQResource.EmbeddedActiveMQResourceException(String.format("ClientConsumer.receiveImmediate() for %s failed", queueName.toString()), amqEx);
-         }
-      } else {
-         try {
-            message = consumer.receive();
-         } catch (ActiveMQException amqEx) {
-            throw new EmbeddedActiveMQResource.EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive() for %s failed", queueName.toString()), amqEx);
-         }
-      }
-
-      return message;
+      return activeMQConsumer.receiveMessage(timeout);
    }
 
+   public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
+      AbstractActiveMQClientDelegate.addMessageProperties(message, properties);
+   }
+
+   public long getDefaultReceiveTimeout() {
+      return activeMQConsumer.getDefaultReceiveTimeout();
+   }
+
+   public void setDefaultReceiveTimeout(long defaultReceiveTimeout) {
+      activeMQConsumer.setDefaultReceiveTimeout(defaultReceiveTimeout);
+   }
 }

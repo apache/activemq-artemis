@@ -24,7 +24,9 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * }
  * </code></pre>
  */
-public class EmbeddedActiveMQResource extends ExternalResource {
+public class EmbeddedActiveMQExtension implements BeforeAllCallback, AfterAllCallback {
 
    Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -55,7 +57,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
    /**
     * Create a default EmbeddedActiveMQResource
     */
-   public EmbeddedActiveMQResource() {
+   public EmbeddedActiveMQExtension() {
       this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate();
    }
 
@@ -64,7 +66,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
     *
     * @param serverId server id
     */
-   public EmbeddedActiveMQResource(int serverId) {
+   public EmbeddedActiveMQExtension(int serverId) {
       this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(serverId);
    }
 
@@ -73,7 +75,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
     *
     * @param configuration ActiveMQServer configuration
     */
-   public EmbeddedActiveMQResource(Configuration configuration) {
+   public EmbeddedActiveMQExtension(Configuration configuration) {
       this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(configuration);
    }
 
@@ -82,7 +84,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
     *
     * @param filename ActiveMQServer configuration file name
     */
-   public EmbeddedActiveMQResource(String filename) {
+   public EmbeddedActiveMQExtension(String filename) {
       this.embeddedActiveMQDelegate = new EmbeddedActiveMQDelegate(filename);
    }
 
@@ -90,36 +92,26 @@ public class EmbeddedActiveMQResource extends ExternalResource {
     * Invoked by JUnit to setup the resource - start the embedded ActiveMQ Artemis server
     */
    @Override
-   protected void before() throws Throwable {
+   public void beforeAll(ExtensionContext context) throws Exception {
       log.info("Starting {}: {}", this.getClass().getSimpleName(), embeddedActiveMQDelegate.getServerName());
 
       embeddedActiveMQDelegate.start();
 
-      super.before();
    }
 
    /**
     * Invoked by JUnit to tear down the resource - stops the embedded ActiveMQ Artemis server
     */
    @Override
-   protected void after() {
+   public void afterAll(ExtensionContext context) throws Exception {
       log.info("Stopping {}: {}", this.getClass().getSimpleName(), embeddedActiveMQDelegate.getServerName());
 
       embeddedActiveMQDelegate.stop();
 
-      super.after();
    }
 
    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
       EmbeddedActiveMQDelegate.addMessageProperties(message, properties);
-   }
-
-   public void start() {
-      embeddedActiveMQDelegate.start();
-   }
-
-   public void stop() {
-      embeddedActiveMQDelegate.stop();
    }
 
    public boolean isUseDurableMessage() {

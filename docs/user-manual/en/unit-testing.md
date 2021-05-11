@@ -22,7 +22,7 @@ These are provided as JUnit "rules" and can make it easier to embed messaging fu
 ### Declare a rule on your JUnit Test
 
 ```java
-import org.apache.activemq.artemis.junit.EmbeddedActiveMQResource;
+import EmbeddedActiveMQResource;
 import org.junit.Rule;
 import org.junit.Test;
 

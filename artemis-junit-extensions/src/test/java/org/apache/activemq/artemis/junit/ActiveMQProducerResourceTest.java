@@ -21,13 +21,16 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.TestInstance.Lifecycle;
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class ActiveMQProducerResourceTest {
 
    static final SimpleString TEST_QUEUE = new SimpleString("test.queue");
@@ -37,7 +40,6 @@ public class ActiveMQProducerResourceTest {
 
    static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
    static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
-   static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
 
    static {
       TEST_PROPERTIES = new HashMap<String, Object>(2);
@@ -45,40 +47,41 @@ public class ActiveMQProducerResourceTest {
       TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
    }
 
-   EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
+   @RegisterExtension
+   @Order(1)
+   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
 
-   ActiveMQProducerResource producer = new ActiveMQProducerResource(server.getVmURL(), TEST_ADDRESS);
-
-   @Rule
-   public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
+   @RegisterExtension
+   @Order(2)
+   public ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerExtension(server.getVmURL(), TEST_ADDRESS);
 
    ClientMessage sent = null;
 
-   @After
-   public void checkResults() throws Exception {
-      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
+   @AfterAll
+   public void checkResults() {
+      assertNotNull(sent, String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS));
 
       ClientMessage received = server.receiveMessage(TEST_QUEUE);
-      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE), received);
+      assertNotNull(received, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE));
    }
 
    @Test
-   public void testSendBytes() throws Exception {
+   public void testSendBytes() {
       sent = producer.sendMessage(TEST_BODY.getBytes());
    }
 
    @Test
-   public void testSendString() throws Exception {
+   public void testSendString() {
       sent = producer.sendMessage(TEST_BODY);
    }
 
    @Test
-   public void testSendBytesAndProperties() throws Exception {
+   public void testSendBytesAndProperties() {
       sent = producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
    }
 
    @Test
-   public void testSendStringAndProperties() throws Exception {
+   public void testSendStringAndProperties() {
       sent = producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
    }
 

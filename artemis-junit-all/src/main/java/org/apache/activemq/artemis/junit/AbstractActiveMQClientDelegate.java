@@ -24,11 +24,10 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractActiveMQClientResource extends ExternalResource {
+public abstract class AbstractActiveMQClientDelegate {
 
    Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -40,13 +39,13 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
    String username;
    String password;
 
-   public AbstractActiveMQClientResource(String url, String username, String password) {
+   public AbstractActiveMQClientDelegate(String url, String username, String password) {
       this(url);
       this.username = username;
       this.password = password;
    }
 
-   public AbstractActiveMQClientResource(String url) {
+   public AbstractActiveMQClientDelegate(String url) {
       if (url == null) {
          throw new IllegalArgumentException(String.format("Error creating %s - url cannot be null", this.getClass().getSimpleName()));
       }
@@ -58,13 +57,13 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
       }
    }
 
-   public AbstractActiveMQClientResource(ServerLocator serverLocator, String username, String password) {
+   public AbstractActiveMQClientDelegate(ServerLocator serverLocator, String username, String password) {
       this(serverLocator);
       this.username = username;
       this.password = password;
    }
 
-   public AbstractActiveMQClientResource(ServerLocator serverLocator) {
+   public AbstractActiveMQClientDelegate(ServerLocator serverLocator) {
       if (serverLocator == null) {
          throw new IllegalArgumentException(String.format("Error creating %s - ServerLocator cannot be null", this.getClass().getSimpleName()));
       }
@@ -84,18 +83,6 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
             message.putObjectProperty(property.getKey(), property.getValue());
          }
       }
-   }
-
-   @Override
-   protected void before() throws Throwable {
-      super.before();
-      start();
-   }
-
-   @Override
-   protected void after() {
-      stop();
-      super.after();
    }
 
    void start() {
