@@ -323,11 +323,6 @@ public final class FileWrapperJournal extends JournalBase {
    }
 
    @Override
-   public void runDirectJournalBlast() throws Exception {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public JournalLoadInformation loadSyncOnly(JournalState state) throws Exception {
       throw new UnsupportedOperationException();
    }

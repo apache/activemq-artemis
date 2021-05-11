@@ -290,10 +290,6 @@ public class PostOfficeJournalLoader implements JournalLoader {
             queue.resume();
          }
       }
-
-      if (System.getProperty("org.apache.activemq.opt.directblast") != null) {
-         messageJournal.runDirectJournalBlast();
-      }
    }
 
    @Override

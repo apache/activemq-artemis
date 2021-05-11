@@ -402,65 +402,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    @Override
-   public void runDirectJournalBlast() throws Exception {
-      final int numIts = 100000000;
-
-      ActiveMQJournalLogger.LOGGER.runningJournalBlast(numIts);
-
-      final CountDownLatch latch = new CountDownLatch(numIts * 2);
-
-      class MyAIOCallback implements IOCompletion {
-
-         @Override
-         public void done() {
-            latch.countDown();
-         }
-
-         @Override
-         public void onError(final int errorCode, final String errorMessage) {
-
-         }
-
-         @Override
-         public void storeLineUp() {
-         }
-      }
-
-      final MyAIOCallback task = new MyAIOCallback();
-
-      final int recordSize = 1024;
-
-      final byte[] bytes = new byte[recordSize];
-
-      class MyRecord implements EncodingSupport {
-
-         @Override
-         public void decode(final ActiveMQBuffer buffer) {
-         }
-
-         @Override
-         public void encode(final ActiveMQBuffer buffer) {
-            buffer.writeBytes(bytes);
-         }
-
-         @Override
-         public int getEncodeSize() {
-            return recordSize;
-         }
-
-      }
-
-      MyRecord record = new MyRecord();
-
-      for (int i = 0; i < numIts; i++) {
-         appendAddRecord(i, (byte) 1, record, true, task);
-         appendDeleteRecord(i, true, task);
-      }
-
-      latch.await();
-   }
-
-   @Override
    public ConcurrentLongHashMap<JournalRecord> getRecords() {
       return records;
    }

@@ -969,10 +969,6 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public void runDirectJournalBlast() throws Exception {
-   }
-
-   @Override
    public Map<Long, JournalFile> createFilesForBackupSync(long[] fileIds) throws Exception {
       return null;
    }

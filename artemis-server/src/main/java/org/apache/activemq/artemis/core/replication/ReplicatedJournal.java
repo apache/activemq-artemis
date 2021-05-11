@@ -567,11 +567,6 @@ public class ReplicatedJournal implements Journal {
    }
 
    @Override
-   public void runDirectJournalBlast() throws Exception {
-      localJournal.runDirectJournalBlast();
-   }
-
-   @Override
    public int getUserVersion() {
       return localJournal.getUserVersion();
    }

@@ -970,10 +970,6 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void runDirectJournalBlast() throws Exception {
-      }
-
-      @Override
       public int getUserVersion() {
          return 0;
       }

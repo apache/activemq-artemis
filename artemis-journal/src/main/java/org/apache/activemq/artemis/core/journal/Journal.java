@@ -257,8 +257,6 @@ public interface Journal extends ActiveMQComponent {
 
    int getUserVersion();
 
-   void runDirectJournalBlast() throws Exception;
-
    /**
     * Reserves journal file IDs, creates the necessary files for synchronization, and places
     * references to these (reserved for sync) files in the map.
