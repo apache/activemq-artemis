@@ -192,7 +192,7 @@ public class JournalFilesRepository {
 
       for (JournalFile file : files) {
          final long fileIdFromFile = file.getFileID();
-         final long fileIdFromName = getFileNameID(file.getFile().getFileName());
+         final long fileIdFromName = getFileNameID(filePrefix, file.getFile().getFileName());
 
          // The compactor could create a fileName but use a previously assigned ID.
          // Because of that we need to take both parts into account
@@ -718,11 +718,15 @@ public class JournalFilesRepository {
    /**
     * Get the ID part of the name
     */
-   private long getFileNameID(final String fileName) {
+   public static long getFileNameID(String filePrefix, final String fileName) {
       try {
          return Long.parseLong(fileName.substring(filePrefix.length() + 1, fileName.indexOf('.')));
       } catch (Throwable e) {
-         ActiveMQJournalLogger.LOGGER.errorRetrievingID(e, fileName);
+         try {
+            return Long.parseLong(fileName.substring(fileName.lastIndexOf("-") + 1, fileName.indexOf('.')));
+         } catch (Throwable e2) {
+            ActiveMQJournalLogger.LOGGER.errorRetrievingID(e, fileName);
+         }
          return 0;
       }
    }

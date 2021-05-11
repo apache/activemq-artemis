@@ -1,0 +1,52 @@
+/*
+ * Copyright The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.activemq.artemis.core.persistence.impl.journal;
+
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.utils.DataConstants;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class BufferSplitterTest {
+
+   @Test
+   public void testSplitting() {
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(1000 * DataConstants.SIZE_INT);
+
+      for (int i = 0; i < 1000; i++) {
+         buffer.writeInt(i);
+      }
+
+      ActiveMQBuffer outputBuffer = ActiveMQBuffers.fixedBuffer(1000 * DataConstants.SIZE_INT);
+
+      BufferSplitter.split(buffer, 77, (c) -> {
+         Assert.assertTrue(c.getEncodeSize() <= 77);
+         c.encode(outputBuffer);
+      });
+
+      outputBuffer.resetReaderIndex();
+      buffer.resetReaderIndex();
+
+      byte[] sourceBytes = new byte[1000 * DataConstants.SIZE_INT];
+      buffer.readBytes(sourceBytes);
+      byte[] targetBytes = new byte[1000 * DataConstants.SIZE_INT];
+      outputBuffer.readBytes(targetBytes);
+
+      Assert.assertArrayEquals(sourceBytes, targetBytes);
+   }
+
+}

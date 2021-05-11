@@ -9,6 +9,7 @@ Name | Description
 exp | Export the message data using a special and independent XML format
 imp | Imports the journal to a running broker using the output from expt
 data | Prints a report about journal records and summary of existent records, as well a report on paging
+recover | Revive data from the journal. It can be used in conjunction with historic journaling.
 encode | shows an internal format of the journal encoded to String
 decode | imports the internal journal format from encode
 

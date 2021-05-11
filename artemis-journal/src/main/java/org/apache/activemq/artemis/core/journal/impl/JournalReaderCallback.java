@@ -20,6 +20,12 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 
 public interface JournalReaderCallback {
 
+   default void onReadEventRecord(RecordInfo info) throws Exception {
+   }
+
+   default void done() {
+   }
+
    void onReadAddRecord(RecordInfo info) throws Exception;
 
    /**

@@ -46,6 +46,8 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.EncoderPersister;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
@@ -55,6 +57,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessagePersister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PendingLargeMessageEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.RefEncoding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
 import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
@@ -405,6 +408,23 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    @Override
    public void pageWrite(final PagedMessage message, final int pageNumber) {
+      if (messageJournal.isHistory()) {
+         try (ArtemisCloseable lock = closeableReadLock()) {
+
+            Message theMessage = message.getMessage();
+
+            if (theMessage.isLargeMessage() && theMessage instanceof LargeServerMessageImpl) {
+               messageJournal.appendAddEvent(theMessage.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), theMessage, false, getContext(false));
+            } else {
+               messageJournal.appendAddEvent(theMessage.getMessageID(), JournalRecordIds.ADD_MESSAGE_PROTOCOL, theMessage.getPersister(), theMessage, false, getContext(false));
+            }
+            for (long queueID : message.getQueueIDs()) {
+               messageJournal.appendAddEvent(message.getMessage().getMessageID(), JournalRecordIds.ADD_REF, EncoderPersister.getInstance(), new RefEncoding(queueID), false, getContext(false));
+            }
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+      }
       if (isReplicated()) {
          // Note: (https://issues.jboss.org/browse/HORNETQ-1059)
          // We have to replicate durable and non-durable messages on paging
@@ -840,6 +860,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                                             final long messageId,
                                             final ActiveMQBuffer bytes) throws Exception {
       try (ArtemisCloseable lock = closeableReadLock()) {
+         if (messageJournal.isHistory()) {
+            BufferSplitter.split(bytes, 10 * 1024, (c) -> historyBody(messageId, c));
+         }
          file.position(file.size());
          if (bytes.byteBuf() != null && bytes.byteBuf().nioBufferCount() == 1) {
             final ByteBuffer nioBytes = bytes.byteBuf().internalNioBuffer(bytes.readerIndex(), bytes.readableBytes());
@@ -859,11 +882,24 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
    }
 
+   private void historyBody(long messageId, EncodingSupport partialBuffer) {
+
+      try {
+         messageJournal.appendAddEvent(messageId, JournalRecordIds.ADD_MESSAGE_BODY, EncoderPersister.getInstance(), partialBuffer, true, null);
+      } catch (Exception e) {
+         logger.warn("Error processing history large message body for " + messageId + " - " + e.getMessage(), e);
+      }
+
+   }
+
    @Override
    public final void addBytesToLargeMessage(final SequentialFile file,
                                             final long messageId,
                                             final byte[] bytes) throws Exception {
       try (ArtemisCloseable lock = closeableReadLock()) {
+         if (messageJournal.isHistory()) {
+            BufferSplitter.split(bytes, 10 * 1024, (c) -> historyBody(messageId, c));
+         }
          file.position(file.size());
          //that's an additional precaution to avoid ByteBuffer to be pooled:
          //NIOSequentialFileFactory doesn't pool heap ByteBuffer, but better to make evident

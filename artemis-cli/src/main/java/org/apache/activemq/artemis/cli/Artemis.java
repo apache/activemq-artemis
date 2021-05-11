@@ -178,7 +178,7 @@ public class Artemis {
          builder = builder.withCommands(Run.class, Stop.class, Kill.class, PerfJournal.class);
       } else {
          builder.withGroup("data").withDescription("data tools group (print) (example ./artemis data print)").
-            withDefaultCommand(HelpData.class).withCommands(PrintData.class);
+            withDefaultCommand(HelpData.class).withCommands(RecoverMessages.class, PrintData.class);
          builder = builder.withCommand(Create.class);
       }
 

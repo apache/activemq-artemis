@@ -30,6 +30,8 @@ under the License.
 
       <paging-directory>./data/paging</paging-directory>
 
+      <journal-retention-directory storage-limit="20M">./data/retention</journal-retention-directory>
+
       <cluster-user>exampleUser</cluster-user>
 
       <cluster-password>secret</cluster-password>

@@ -43,6 +43,46 @@ The majority of the journal is written in Java, however we abstract out
 the interaction with the actual file system to allow different pluggable
 implementations. Apache ActiveMQ Artemis ships with two implementations:
 
+### Journal Retention
+
+If you enable ``journal-retention`` on broker.xml, ActiveMQ Artemis will keep copy of every data that has passed through the broker on this folder.
+
+```xml
+    ...
+      <journal-retention unit="DAYS" directory="history" period="365" storage-limit="10G"/>
+    ...
+      
+```
+
+ActiveMQ Artemis will keep a copy of each generated journal file, up to the configured retention period, at the unit chose. On the example above the system would keep all the journal files up to 365 days.
+
+It is also possible to limit the number of files kept on the retention directory. You can keep a storage-limit, and the system will start removing older files when you have more files than the configured storage limit.
+
+Notice the storage limit is optional however you need to be careful to not run out of disk space at the retention folder or the broker might be shutdown because of a critical IO failure.
+
+
+You can use the CLI tools to inspect and recover data from the history, by just passing the journal folder being the retention directory.
+
+Example:
+
+```shell
+./artemis data print --journal ../data/history
+```
+
+To recover the messages from the history:
+
+```shell
+./artemis data recovery --journal ../data/history --target ../data/recovered --large-messages ../data/large-messages
+```
+
+It is important that you don't call recover into a the journal while the broker is alive. As a matter of fact the current recommendations is to do that on a new journal directory. Perhaps on a new broker so you can inspect and transfer these messages.
+
+The retention feature is in its current form very simple and intended for emergency situations. If you think it is useful new options to recover the data could be added, perhaps thorugh the admin console and other possibilities. Please share your feedback on this area, and as always Pull Requests are welcomed!
+
+Also the recovery CLI tool will recover every data on the selected folder. It is important that you do some maintenance and copy the files and interval you need to a new location before you call recover.
+
+
+
 ### Java [NIO](https://en.wikipedia.org/wiki/New_I/O)
 
 The first implementation uses standard Java NIO to interface with

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +63,10 @@ public interface Journal extends ActiveMQComponent {
 
    boolean isRemoveExtraFilesOnLoad();
 
+   default boolean isHistory() {
+      return false;
+   }
+
    // Non transactional operations
 
    void appendAddRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception;
@@ -70,9 +75,22 @@ public interface Journal extends ActiveMQComponent {
       appendAddRecord(id, recordType, EncoderPersister.getInstance(), record, sync);
    }
 
+   default Journal setHistoryFolder(File historyFolder, long maxBytes, long period) throws Exception {
+      return this;
+   }
+
    void appendAddRecord(long id, byte recordType, Persister persister, Object record, boolean sync) throws Exception;
 
    void appendAddRecord(long id,
+                        byte recordType,
+                        Persister persister,
+                        Object record,
+                        boolean sync,
+                        IOCompletion completionCallback) throws Exception;
+
+   /** An event is data recorded on the journal, but it won't have any weight or deletes. It's always ready to be removed.
+    *  It is useful on recovery data while in use with backup history journal. */
+   void appendAddEvent(long id,
                         byte recordType,
                         Persister persister,
                         Object record,
@@ -284,6 +302,17 @@ public interface Journal extends ActiveMQComponent {
     */
    void synchronizationUnlock();
 
+   /**
+    * It will rename temporary files and place them on the copy folder, by resotring the original file name.
+    */
+   default void processBackup() {
+   }
+
+   /**
+    * It will check max files and max days on files and remove extra files.
+    */
+   default void processBackupCleanup() {
+   }
    /**
     * Force the usage of a new {@link JournalFile}.
     *

@@ -44,15 +44,16 @@ public final class CompactJournal extends LockAbstract {
    }
 
    public static void compactJournals(Configuration configuration) throws Exception {
-      compactJournal(configuration.getJournalLocation(), "activemq-data", "amq", configuration.getJournalMinFiles(),
+      compactJournal(configuration.getJournalLocation(), configuration.getJournalRetentionLocation(), "activemq-data", "amq", configuration.getJournalMinFiles(),
                      configuration.getJournalPoolFiles(), configuration.getJournalFileSize(), null, JournalRecordIds.UPDATE_DELIVERY_COUNT,
                      JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME);
       System.out.println("Compactation succeeded for " + configuration.getJournalLocation().getAbsolutePath());
-      compactJournal(configuration.getBindingsLocation(), "activemq-bindings", "bindings", 2, 2, 1048576, null);
+      compactJournal(configuration.getBindingsLocation(), null, "activemq-bindings", "bindings", 2, 2, 1048576, null);
       System.out.println("Compactation succeeded for " + configuration.getBindingsLocation());
    }
 
    public static void compactJournal(final File directory,
+                               final File historyFolder,
                                final String journalPrefix,
                                final String journalSuffix,
                                final int minFiles,
@@ -63,6 +64,9 @@ public final class CompactJournal extends LockAbstract {
       NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, listener, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, poolFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
+      if (historyFolder != null) {
+         journal.setHistoryFolder(historyFolder, -1, -1);
+      }
       for (int i : replaceableRecords) {
          journal.replaceableRecord(i);
       }

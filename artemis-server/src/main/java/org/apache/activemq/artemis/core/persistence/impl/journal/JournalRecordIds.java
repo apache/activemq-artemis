@@ -96,4 +96,7 @@ public final class JournalRecordIds {
 
    public static final byte ROLE_RECORD = 48;
 
+   // Used to record the large message body on the journal when history is on
+   public static final byte ADD_MESSAGE_BODY = 49;
+
 }

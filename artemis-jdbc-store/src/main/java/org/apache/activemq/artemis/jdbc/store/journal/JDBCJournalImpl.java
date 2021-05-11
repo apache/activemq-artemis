@@ -121,6 +121,16 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
+   public void appendAddEvent(long id,
+                              byte recordType,
+                              Persister persister,
+                              Object record,
+                              boolean sync,
+                              IOCompletion completionCallback) throws Exception {
+      // Nothing to be done
+   }
+
+   @Override
    public void start() throws SQLException {
       super.start();
       syncTimer = new JDBCJournalSync(scheduledExecutorService, completeExecutor, syncDelay, TimeUnit.MILLISECONDS, this);

@@ -675,6 +675,53 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="journal-retention-directory" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the directory to store journal-retention message in and rention configuraion.
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:simpleContent>
+                  <xsd:extension base="xsd:string">
+                     <xsd:attribute name="unit" use="optional">
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              This configures the period type to use on limit. By default it is DAYS.
+                           </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:simpleType>
+                           <xsd:restriction base="xsd:string">
+                              <xsd:enumeration value="DAYS"/>
+                              <xsd:enumeration value="HOURS"/>
+                              <xsd:enumeration value="MINUTES"/>
+                              <xsd:enumeration value="SECONDS"/>
+                           </xsd:restriction>
+                        </xsd:simpleType>
+                     </xsd:attribute>
+                     <xsd:attribute name="period" type="xsd:integer" use="optional">
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              The amount of time used to keep files.
+                           </xsd:documentation>
+                        </xsd:annotation>
+                     </xsd:attribute>
+                     <xsd:attribute name="storage-limit" type="xsd:string" use="optional">
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              Size (in bytes) before we starting removing files from the retention area.
+                              this is an extra protection on top of the period.
+                              Notice we first remove files based on period and if you're using more storage then you
+                              configured we start removing older files.
+                              By default this is unlimited (not filled).
+                              Supports byte notation like "K", "Mb", "GB", etc.
+                           </xsd:documentation>
+                        </xsd:annotation>
+                     </xsd:attribute>
+                  </xsd:extension>
+               </xsd:simpleContent>
+            </xsd:complexType>
+         </xsd:element>
          <xsd:element name="node-manager-lock-directory" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

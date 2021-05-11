@@ -83,7 +83,7 @@ public class ReplicationAddTXMessage extends PacketImpl {
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
-      buffer.writeBoolean(operation.toBoolean());
+      buffer.writeByte(operation.toRecord());
       buffer.writeLong(txId);
       buffer.writeLong(id);
       buffer.writeByte(recordType);
@@ -94,7 +94,7 @@ public class ReplicationAddTXMessage extends PacketImpl {
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
-      operation = ADD_OPERATION_TYPE.toOperation(buffer.readBoolean());
+      operation = ADD_OPERATION_TYPE.toOperation(buffer.readByte());
       txId = buffer.readLong();
       id = buffer.readLong();
       recordType = buffer.readByte();

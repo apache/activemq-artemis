@@ -23,16 +23,85 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
-
+import javax.jms.TextMessage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.activemq.artemis.cli.commands.tools.RecoverMessages;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class RecoverTest extends JMSTestBase {
+
+   boolean useTX;
+   String protocol;
+   boolean paging;
+   boolean large;
+   String journalType;
+
+   public RecoverTest(boolean useTX, String protocol, boolean paging, boolean large, String journalType) {
+      this.useTX = useTX;
+      this.protocol = protocol;
+      this.paging = paging;
+      this.large = large;
+      this.journalType = journalType;
+   }
+
+   @Parameterized.Parameters(name = "useTX={0}, protocol={1}, paging={2}, largeMessage={3}, journal-type={4}")
+   public static Collection<Object[]> data() {
+      Object[] journalType;
+      if (LibaioContext.isLoaded()) {
+         journalType = new Object[]{"AIO", "NIO", "MAPPED"};
+      } else {
+         journalType = new Object[]{"NIO", "MAPPED"};
+      }
+      return combine(new Object[]{true, false}, new Object[]{"AMQP", "CORE", "OPENWIRE"}, new Object[]{true, false}, new Object[]{true, false}, journalType);
+   }
+
+   protected static Collection<Object[]> combine(Object[] one, Object[] two, Object[] three, Object[] four, Object[] five) {
+      ArrayList<Object[]> combinations = new ArrayList<>();
+      for (Object o1 : one) {
+         for (Object o2 : two) {
+            for (Object o3 : three) {
+               for (Object o4 : four) {
+                  for (Object o5 : five) {
+                     combinations.add(new Object[]{o1, o2, o3, o4, o5});
+                  }
+               }
+            }
+         }
+      }
+
+      return combinations;
+   }
+
+   @Override
+   protected Configuration createDefaultConfig(boolean netty) throws Exception {
+      Configuration configuration = super.createDefaultConfig(netty).setJMXManagementEnabled(true);
+      configuration.setJournalRetentionDirectory(getTestDir() + "/historyJournal");
+      switch (journalType) {
+         case "NIO":
+            configuration.setJournalType(JournalType.NIO);
+            break;
+         case "MAPPED":
+            configuration.setJournalType(JournalType.MAPPED);
+            break;
+         case "AIO":
+            configuration.setJournalType(JournalType.ASYNCIO);
+            break;
+      }
+      return configuration;
+   }
 
    @Override
    protected boolean usePersistence() {
@@ -40,47 +109,35 @@ public class RecoverTest extends JMSTestBase {
    }
 
    @Test
-   public void testRecoverCoreNoTx() throws Exception {
-      testRecover(false, "CORE");
-   }
-
-   @Test
-   public void testRecoverCORETx() throws Exception {
-      testRecover(true, "CORE");
-   }
-
-
-   @Test
-   public void testRecoverAMQPNoTx() throws Exception {
-      testRecover(false, "AMQP");
-   }
-
-   @Test
-   public void testRecoverAMQPTx() throws Exception {
-      testRecover(true, "AMQP");
-   }
-
-   @Test
-   public void testRecoverOpenWireNoTx() throws Exception {
-      testRecover(false, "OPENWIRE");
-   }
-
-   @Test
-   public void testRecoverOpenWireTx() throws Exception {
-      testRecover(true, "OPENWIRE");
-   }
-
-
-   public void testRecover(boolean useTX, String protocol) throws Exception {
+   public void testRecover() throws Exception {
 
       createQueue(true, "TestQueue");
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue("TestQueue");
+      if (paging) {
+         serverQueue.getPagingStore().startPaging();
+      }
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       Connection connection = factory.createConnection();
       Session session = connection.createSession(useTX, useTX ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
       Queue queue = session.createQueue("TestQueue");
-      MessageProducer producer =  session.createProducer(queue);
-      for (int i = 0; i < 1000; i++) {
-         producer.send(session.createTextMessage("test1"));
+      MessageProducer producer = session.createProducer(queue);
+      String messageBody;
+      {
+         StringBuffer stringBuffer = new StringBuffer();
+         if (large) {
+            int i = 0;
+            while (stringBuffer.length() < 110 * 1024) {
+               //stringBuffer.append("this is " + (i++));
+               stringBuffer.append(" ");
+            }
+         } else {
+            stringBuffer.append("hello");
+         }
+         messageBody = stringBuffer.toString();
+      }
+      int maxMessage = large ? 10 : 1000;
+      for (int i = 0; i < maxMessage; i++) {
+         producer.send(session.createTextMessage(i + messageBody));
       }
 
       if (useTX) {
@@ -94,8 +151,13 @@ public class RecoverTest extends JMSTestBase {
       MessageConsumer consumer = session.createConsumer(queue);
       connection.start();
 
-      for (int i = 0; i < 1000; i++) {
-         Assert.assertNotNull(consumer.receive(5000));
+      for (int i = 0; i < maxMessage; i++) {
+         TextMessage message = (TextMessage) consumer.receive(5000);
+         Assert.assertNotNull(message);
+         if (!protocol.equals("OPENWIRE")) {
+            // openwire won't support large message or its conversions
+            Assert.assertEquals(i + messageBody, message.getText());
+         }
       }
 
       if (useTX) {
@@ -104,11 +166,22 @@ public class RecoverTest extends JMSTestBase {
 
       connection.close();
 
+      // need to wait no paging, otherwise an eventual page cleanup would remove large message bodies from the recovery
+      Wait.assertFalse(serverQueue.getPagingStore()::isPaging);
+
       server.stop();
 
       File newJournalLocation = new File(server.getConfiguration().getJournalLocation().getParentFile(), "recovered");
 
-      RecoverMessages.recover(server.getConfiguration(), newJournalLocation, true);
+      RecoverMessages.recover(server.getConfiguration(), server.getConfiguration().getJournalRetentionDirectory(), newJournalLocation, server.getConfiguration().getLargeMessagesLocation(), false);
+
+      if (large) {
+         File[] largeMessageFiles = server.getConfiguration().getLargeMessagesLocation().listFiles();
+         Assert.assertEquals(maxMessage, largeMessageFiles.length);
+         for (File f : largeMessageFiles) {
+            Assert.assertTrue("File length was " + f.length(), f.length() > 0);
+         }
+      }
 
       server.getConfiguration().setJournalDirectory(newJournalLocation.getAbsolutePath());
 
@@ -122,8 +195,13 @@ public class RecoverTest extends JMSTestBase {
 
       consumer = session.createConsumer(queue);
 
-      for (int i = 0; i < 1000; i++) {
-         Assert.assertNotNull(consumer.receive(5000));
+      for (int i = 0; i < maxMessage; i++) {
+         TextMessage message = (TextMessage) consumer.receive(5000);
+         Assert.assertNotNull(message);
+         if (!protocol.equals("OPENWIRE")) {
+            // openwire won't support large message or its conversions
+            Assert.assertEquals(i + messageBody, message.getText());
+         }
       }
 
       Assert.assertNull(consumer.receiveNoWait());
