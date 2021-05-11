@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.core.paging.impl;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -32,48 +33,23 @@ import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
  */
 final class PageSyncTimer extends ActiveMQScheduledComponent {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
    private final PagingStore store;
 
-   private final ScheduledExecutorService scheduledExecutor;
+   private final Queue<OperationContext> pendingSyncOperations;
 
-   private boolean pendingSync;
-
-   private final long timeSync;
-
-   private final Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-         tick();
-      }
-   };
-
-   private final List<OperationContext> syncOperations = new LinkedList<>();
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
+   private final Queue<OperationContext> syncedOperations;
 
    PageSyncTimer(PagingStore store, ScheduledExecutorService scheduledExecutor, Executor executor, long timeSync) {
       super(scheduledExecutor, executor, timeSync, TimeUnit.NANOSECONDS, true);
       this.store = store;
-      this.scheduledExecutor = scheduledExecutor;
-      this.timeSync = timeSync;
+      this.pendingSyncOperations = PlatformDependent.newMpscQueue();
+      this.syncedOperations = new ArrayDeque<>();
    }
 
-   // Public --------------------------------------------------------
-
-   synchronized void addSync(OperationContext ctx) {
+   void addSync(OperationContext ctx) {
       ctx.pageSyncLineUp();
-      if (!pendingSync) {
-         pendingSync = true;
-
-         delay();
-      }
-      syncOperations.add(ctx);
+      pendingSyncOperations.add(ctx);
+      delay();
    }
 
    @Override
@@ -81,31 +57,38 @@ final class PageSyncTimer extends ActiveMQScheduledComponent {
       tick();
    }
 
-   private void tick() {
-      OperationContext[] pendingSyncsArray;
-      synchronized (this) {
-
-         pendingSync = false;
-         pendingSyncsArray = new OperationContext[syncOperations.size()];
-         pendingSyncsArray = syncOperations.toArray(pendingSyncsArray);
-         syncOperations.clear();
-      }
-
-      try {
-         if (pendingSyncsArray.length != 0) {
-            store.ioSync();
+   private boolean prepareSyncOperations() {
+      assert syncedOperations.isEmpty();
+      boolean ioSync = false;
+      while (true) {
+         final OperationContext ctx = pendingSyncOperations.poll();
+         if (ctx == null) {
+            return ioSync;
          }
+         ioSync = true;
+         syncedOperations.add(ctx);
+      }
+   }
+
+   private synchronized void tick() {
+      if (!prepareSyncOperations()) {
+         return;
+      }
+      assert !syncedOperations.isEmpty();
+      try {
+         store.ioSync();
       } catch (Exception e) {
-         for (OperationContext ctx : pendingSyncsArray) {
-            ctx.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+         for (int i = 0, size = syncedOperations.size(); i < size; i++) {
+            syncedOperations.poll().onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
          }
       } finally {
          // In case of failure, The context should propagate an exception to the client
          // We send an exception to the client even on the case of a failure
          // to avoid possible locks and the client not getting the exception back
-         for (OperationContext ctx : pendingSyncsArray) {
-            ctx.pageSyncDone();
+         for (int i = 0, size = syncedOperations.size(); i < size; i++) {
+            syncedOperations.poll().pageSyncDone();
          }
+         assert syncedOperations.isEmpty();
       }
    }
 }
