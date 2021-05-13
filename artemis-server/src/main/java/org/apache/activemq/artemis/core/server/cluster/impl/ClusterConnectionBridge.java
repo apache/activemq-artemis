@@ -75,6 +75,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
    private final SimpleString managementNotificationAddress;
 
+
    private ClientConsumer notifConsumer;
 
    private final SimpleString idsHeaderName;
@@ -86,6 +87,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
    private final ServerLocatorInternal discoveryLocator;
 
    private final String storeAndForwardPrefix;
+
    private TopologyMemberImpl member;
 
    public ClusterConnectionBridge(final ClusterConnection clusterConnection,
@@ -362,6 +364,10 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
       filterString += "!" + storeAndForwardPrefix;
       filterString += ",!" + managementAddress;
+      //add any protocol specific ignored addresses
+      for (String ignoreAddress : clusterManager.getProtocolIgnoredAddresses()) {
+         filterString += ",!" + ignoreAddress;
+      }
       return filterString;
    }
 
