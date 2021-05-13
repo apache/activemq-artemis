@@ -101,6 +101,8 @@ public final class ClusterManager implements ActiveMQComponent {
 
    private final Configuration configuration;
 
+   private Set<String> protocolIgnoredAddresses = new HashSet<>();
+
    public QuorumManager getQuorumManager() {
       return clusterController.getQuorumManager();
    }
@@ -112,6 +114,7 @@ public final class ClusterManager implements ActiveMQComponent {
    public HAManager getHAManager() {
       return haManager;
    }
+
 
    public void addClusterChannelHandler(Channel channel,
                                         Acceptor acceptorUsed,
@@ -337,6 +340,8 @@ public final class ClusterManager implements ActiveMQComponent {
       state = State.STOPPED;
 
       clearClusterConnections();
+
+      protocolIgnoredAddresses.clear();
    }
 
    public void flushExecutor() {
@@ -572,6 +577,15 @@ public final class ClusterManager implements ActiveMQComponent {
       if (clusterConnection != null) {
          clusterConnection.informClusterOfBackup();
       }
+   }
+
+   public ClusterManager addProtocolIgnoredAddress(String ignoredAddress) {
+      protocolIgnoredAddresses.add(ignoredAddress);
+      return this;
+   }
+
+   public Collection<String> getProtocolIgnoredAddresses() {
+      return protocolIgnoredAddresses;
    }
 
    // Private methods ----------------------------------------------------------------------------------------------------
