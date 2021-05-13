@@ -293,8 +293,8 @@ public final class OpenTypeSupport {
             if (m.containsProperty(Message.HDR_LARGE_COMPRESSED)) {
                rc.put(CompositeDataConstants.TEXT_BODY, "[compressed]");
             } else {
-               final String text = m.getReadOnlyBodyBuffer().readString();
-               rc.put(CompositeDataConstants.TEXT_BODY, text != null ? JsonUtil.truncate(text, valueSizeLimit) : "");
+               SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
+               rc.put(CompositeDataConstants.TEXT_BODY, text != null ? JsonUtil.truncate(text.toString(), valueSizeLimit) : "");
             }
          } else {
             rc.put(CompositeDataConstants.TEXT_BODY, "[large message]");
