@@ -16,23 +16,36 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import javax.jms.Connection;
-import javax.jms.JMSSecurityException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.jms.Connection;
+import javax.jms.JMSSecurityException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -47,20 +60,24 @@ import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASLFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.tests.util.JavaVersionUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.hadoop.minikdc.MiniKdc;
+import org.apache.kerby.kerberos.kerb.keytab.Keytab;
+import org.apache.kerby.kerberos.kerb.keytab.KeytabEntry;
+import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.sasl.GssapiMechanism;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMSSaslGssapiTest extends JMSClientTestSupport {
+
+   private static final Logger LOG = LoggerFactory.getLogger(JMSSaslGssapiTest.class);
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
@@ -72,25 +89,48 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
          }
       }
    }
-   MiniKdc kdc = null;
-   private final boolean debug = false;
+
+   private static final String KRB5_TCP_PORT_TEMPLATE = "MINI_KDC_PORT";
+   private static final String KRB5_CONFIG_TEMPLATE = "minikdc-krb5-template.conf";
+   private static final String KRB5_DEFAULT_KEYTAB = "target/test.krb5.keytab";
+
+   private static MiniKdc kdc;
+   private static final boolean debug = false;
 
    @BeforeClass
-   public static void checkAssumptions() throws Exception {
-      Assume.assumeTrue("Test only runs on JDK 8", JavaVersionUtil.isJava8());
-   }
+   public static void setUpKerberos() throws Exception {
+      Properties kdcConf = MiniKdc.createConf();
+      kdcConf.setProperty("debug", Boolean.toString(debug));
 
-   @Before
-   public void setUpKerberos() throws Exception {
-      kdc = new MiniKdc(MiniKdc.createConf(), temporaryFolder.newFolder("kdc"));
+      // Creates a single server for the tests as there were failures when spawning and killing one per unit test.
+      kdc = new MiniKdc(kdcConf, new File("target/"));
       kdc.start();
 
       // hard coded match, default_keytab_name in minikdc-krb5.conf template
-      File userKeyTab = new File("target/test.krb5.keytab");
+      File userKeyTab = new File(KRB5_DEFAULT_KEYTAB);
       kdc.createPrincipal(userKeyTab, "client", "amqp/localhost");
 
+      // We need to hard code the default keyTab into the Krb5 configuration file which is not possible
+      // with this version of MiniKDC so we use a template file and replace the port with the value from
+      // the MiniKDC instance we just started.
+      rewriteKrbConfFile(kdc);
+
       if (debug) {
-         for (java.util.logging.Logger logger : new java.util.logging.Logger[] {java.util.logging.Logger.getLogger("javax.security.sasl"), java.util.logging.Logger.getLogger("org.apache.qpid.proton")}) {
+         LOG.debug("java.security.krb5.conf='{}'", System.getProperty("java.security.krb5.conf"));
+         try (BufferedReader br = new BufferedReader(new FileReader(System.getProperty("java.security.krb5.conf")))) {
+            br.lines().forEach(line -> LOG.debug(line));
+         }
+
+         Keytab kt = Keytab.loadKeytab(userKeyTab);
+         for (PrincipalName name : kt.getPrincipals()) {
+            for (KeytabEntry entry : kt.getKeytabEntries(name)) {
+               LOG.info("KeyTab Entry: PrincipalName:" + entry.getPrincipal() + " ; KeyInfo:" + entry.getKey().getKeyType());
+            }
+         }
+
+         for (java.util.logging.Logger logger : new java.util.logging.Logger[] {java.util.logging.Logger.getLogger("logincontext"),
+                                                                                java.util.logging.Logger.getLogger("javax.security.sasl"),
+                                                                                java.util.logging.Logger.getLogger("org.apache.qpid.proton")}) {
             logger.setLevel(java.util.logging.Level.FINEST);
             logger.addHandler(new java.util.logging.ConsoleHandler());
             for (java.util.logging.Handler handler : logger.getHandlers()) {
@@ -100,8 +140,8 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       }
    }
 
-   @After
-   public void stopKerberos() throws Exception {
+   @AfterClass
+   public static void stopKerberos() throws Exception {
       if (kdc != null) {
          kdc.stop();
       }
@@ -125,6 +165,10 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       roles.add(role);
       server.getSecurityRepository().addMatch(getQueueName().toString(), roles);
 
+      if (debug) {
+         // The default produces so much log spam that debugging the exchanges becomes impossible.
+         server.getConfiguration().setMessageExpiryScanPeriod(30_000);
+      }
    }
 
    @Override
@@ -134,7 +178,6 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
 
    @Override
    protected URI getBrokerQpidJMSConnectionURI() {
-
       try {
          int port = AMQP_PORT;
 
@@ -164,7 +207,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
 
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         javax.jms.Queue queue = session.createQueue(getQueueName());
+         Queue queue = session.createQueue(getQueueName());
          MessageConsumer consumer = session.createConsumer(queue);
          MessageProducer producer = session.createProducer(queue);
 
@@ -174,7 +217,6 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
          TextMessage m = (TextMessage) consumer.receive(1000);
          assertNotNull(m);
          assertEquals(text, m.getText());
-
       } finally {
          connection.close();
       }
@@ -182,7 +224,6 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
 
    @Test(timeout = 600000)
    public void testSaslPlainConnectionDenied() throws Exception {
-
       JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqp://localhost:" + AMQP_PORT + "?amqp.saslMechanisms=PLAIN"));
       try {
          factory.createConnection("plain", "secret");
@@ -192,7 +233,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       }
    }
 
-   @Test
+   @Test(timeout = 900000)
    public void testOutboundWithSlowMech() throws Exception {
       final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
       config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(AMQP_PORT));
@@ -268,6 +309,21 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
          Wait.assertEquals(0, server::getConnectionCount);
       } finally {
          lifeCycleListener.stop();
+      }
+   }
+
+   private static void rewriteKrbConfFile(MiniKdc server) throws Exception {
+      final Path template = Paths.get(JMSSaslGssapiTest.class.getClassLoader().getResource(KRB5_CONFIG_TEMPLATE).toURI());
+      final String krb5confTemplate = new String(Files.readAllBytes(template), StandardCharsets.UTF_8);
+      final String replacementPort = Integer.toString(server.getPort());
+
+      // Replace the port template with the current actual port of the MiniKDC Server instance.
+      final String krb5confUpdated = krb5confTemplate.replaceAll(KRB5_TCP_PORT_TEMPLATE, replacementPort);
+
+      try (OutputStream outputStream = Files.newOutputStream(server.getKrb5conf().toPath());
+           WritableByteChannel channel = Channels.newChannel(outputStream)) {
+
+         channel.write(ByteBuffer.wrap(krb5confUpdated.getBytes(StandardCharsets.UTF_8)));
       }
    }
 }
