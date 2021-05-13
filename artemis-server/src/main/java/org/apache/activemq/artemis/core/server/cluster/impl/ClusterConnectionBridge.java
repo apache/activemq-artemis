@@ -75,6 +75,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
    private final SimpleString managementNotificationAddress;
 
+
    private ClientConsumer notifConsumer;
 
    private final SimpleString idsHeaderName;
@@ -86,6 +87,9 @@ public class ClusterConnectionBridge extends BridgeImpl {
    private final ServerLocatorInternal discoveryLocator;
 
    private final String storeAndForwardPrefix;
+
+   private final List<String> protocolIgnoredAddresses;
+
    private TopologyMemberImpl member;
 
    public ClusterConnectionBridge(final ClusterConnection clusterConnection,
@@ -116,7 +120,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                   final MessageFlowRecord flowRecord,
                                   final TransportConfiguration connector,
                                   final String storeAndForwardPrefix,
-                                  final StorageManager storageManager) {
+                                  final StorageManager storageManager,
+                                  List<String> protocolIgnoredAddresses) {
       super(targetLocator, initialConnectAttempts, reconnectAttempts, 0, // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
             retryInterval, retryMultiplier, maxRetryInterval, nodeUUID, name, queue, executor, filterString, forwardingAddress, scheduledExecutor, transformer, useDuplicateDetection, user, password, server, ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType()));
 
@@ -141,6 +146,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
       this.storeAndForwardPrefix = storeAndForwardPrefix;
 
       this.storageManager = storageManager;
+
+      this.protocolIgnoredAddresses = protocolIgnoredAddresses;
    }
 
    @Override
@@ -362,6 +369,10 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
       filterString += "!" + storeAndForwardPrefix;
       filterString += ",!" + managementAddress;
+      //add any protocol specific ignored addresses
+      for (String ignoreAddress : protocolIgnoredAddresses) {
+         filterString += ",!" + ignoreAddress;
+      }
       return filterString;
    }
 

@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -175,6 +176,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private final String storeAndForwardPrefix;
 
+   private final List<String> protocolIgnoredAddresses;
+
    private boolean splitBrainDetection;
 
    public ClusterConnectionImpl(final ClusterManager manager,
@@ -207,7 +210,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final String clusterPassword,
                                 final boolean allowDirectConnectionsOnly,
                                 final long clusterNotificationInterval,
-                                final int clusterNotificationAttempts) throws Exception {
+                                final int clusterNotificationAttempts,
+                                List<String> protocolIgnoredAddresses) throws Exception {
       this.nodeManager = nodeManager;
 
       this.connector = connector;
@@ -285,6 +289,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
+
+      this.protocolIgnoredAddresses = protocolIgnoredAddresses;
    }
 
    public ClusterConnectionImpl(final ClusterManager manager,
@@ -317,7 +323,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final String clusterPassword,
                                 final boolean allowDirectConnectionsOnly,
                                 final long clusterNotificationInterval,
-                                final int clusterNotificationAttempts) throws Exception {
+                                final int clusterNotificationAttempts,
+                                List<String> protocolIgnoredAddresses) throws Exception {
       this.nodeManager = nodeManager;
 
       this.connector = connector;
@@ -385,6 +392,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.manager = manager;
 
       this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
+
+      this.protocolIgnoredAddresses = protocolIgnoredAddresses;
    }
 
    @Override
@@ -882,7 +891,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       targetLocator.addIncomingInterceptor(new IncomingInterceptorLookingForExceptionMessage(manager, executorFactory.getExecutor()));
       MessageFlowRecordImpl record = new MessageFlowRecordImpl(targetLocator, eventUID, targetNodeID, connector, queueName, queue);
 
-      ClusterConnectionBridge bridge = new ClusterConnectionBridge(this, manager, targetLocator, serverLocator, initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier, maxRetryInterval, nodeManager.getUUID(), record.getEventUID(), record.getTargetNodeID(), record.getQueueName(), record.getQueue(), executorFactory.getExecutor(), null, null, scheduledExecutor, null, useDuplicateDetection, clusterUser, clusterPassword, server, managementService.getManagementAddress(), managementService.getManagementNotificationAddress(), record, record.getConnector(), storeAndForwardPrefix, server.getStorageManager());
+      ClusterConnectionBridge bridge = new ClusterConnectionBridge(this, manager, targetLocator, serverLocator, initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier, maxRetryInterval, nodeManager.getUUID(), record.getEventUID(), record.getTargetNodeID(), record.getQueueName(), record.getQueue(), executorFactory.getExecutor(), null, null, scheduledExecutor, null, useDuplicateDetection, clusterUser, clusterPassword, server, managementService.getManagementAddress(), managementService.getManagementNotificationAddress(), record, record.getConnector(), storeAndForwardPrefix, server.getStorageManager(), protocolIgnoredAddresses);
 
       targetLocator.setIdentity("(Cluster-connection-bridge::" + bridge.toString() + "::" + this.toString() + ")");
 

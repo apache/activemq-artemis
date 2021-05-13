@@ -28,11 +28,16 @@ import org.apache.activemq.artemis.tests.integration.cluster.distribution.Cluste
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.util.ConsumerThread;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.jms.Topic;
+import javax.jms.TopicSubscriber;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +73,57 @@ public class MessageRedistributionTest extends ClusterTestBase {
          int target = i % 2;
          int remote = (i + 1) % 2;
          closeConsumerAndConnectionConcurrently(target, remote);
+      }
+   }
+
+   @Test
+   public void testAdvisoriesNotClustered() throws Exception {
+
+      setupServer(0, true, true);
+      setupServer(1, true, true);
+
+      setupClusterConnection("cluster0", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 0, 1);
+      setupClusterConnection("cluster1", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 1, 0);
+
+      startServers(0, 1);
+
+      waitForTopology(servers[0], 2);
+      waitForTopology(servers[1], 2);
+
+      setupSessionFactory(0, true);
+      setupSessionFactory(1, true);
+
+      createAddressInfo(0, "testAddress", RoutingType.MULTICAST, -1, false);
+      createAddressInfo(1, "testAddress", RoutingType.MULTICAST, -1, false);
+
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+      ActiveMQConnectionFactory factory2 = new ActiveMQConnectionFactory(getServerUri(1));
+      Connection conn = null;
+      Connection conn2 = null;
+      CountDownLatch active = new CountDownLatch(1);
+      try {
+         conn = factory.createConnection();
+         conn2 = factory2.createConnection();
+         conn2.setClientID("id");
+         conn2.start();
+         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic dest = (Topic) ActiveMQDestination.createDestination("testAddress", ActiveMQDestination.TOPIC_TYPE);
+         TopicSubscriber mySubscriber = session2.createDurableSubscriber(dest, "mySubscriber");
+         MessageProducer producer = session.createProducer(dest);
+         producer.send(session.createTextMessage("test message"));
+         Message message = mySubscriber.receive(5000);
+         SimpleString  advQueue = new SimpleString("ActiveMQ.Advisory.TempQueue");
+         SimpleString  advTopic = new SimpleString("ActiveMQ.Advisory.TempTopic");
+         //we create a consumer on node 2 and assert that the advisory subscription queue is not clustered
+         Assert.assertEquals("", 1, servers[0].getPostOffice().getBindingsForAddress(advQueue).getBindings().size());
+         Assert.assertEquals("", 1, servers[0].getPostOffice().getBindingsForAddress(advTopic).getBindings().size());
+         Assert.assertEquals("", 1, servers[1].getPostOffice().getBindingsForAddress(advQueue).getBindings().size());
+         Assert.assertEquals("", 1, servers[1].getPostOffice().getBindingsForAddress(advTopic).getBindings().size());
+
+      } finally {
+         conn.close();
+         conn2.close();
       }
    }
 
