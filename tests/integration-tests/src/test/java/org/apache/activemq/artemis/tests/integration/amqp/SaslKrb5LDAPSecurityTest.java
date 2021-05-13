@@ -30,6 +30,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -58,10 +59,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.JavaVersionUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -95,9 +94,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -122,9 +119,8 @@ import static org.apache.activemq.artemis.tests.util.ActiveMQTestBase.NETTY_ACCE
 @CreateKdcServer(transports = {@CreateTransport(protocol = "TCP", port = 0)})
 @ApplyLdifFiles("SaslKrb5LDAPSecurityTest.ldif")
 public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
-   private static final org.jboss.logging.Logger log = org.jboss.logging.Logger.getLogger(SaslKrb5LDAPSecurityTest.class);
-
    protected static final Logger LOG = LoggerFactory.getLogger(SaslKrb5LDAPSecurityTest.class);
+
    public static final String QUEUE_NAME = "some_queue";
 
    static {
@@ -155,14 +151,8 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
    public TemporaryFolder temporaryFolder;
    private String testDir;
 
-   @BeforeClass
-   public static void checkAssumptions() throws Exception {
-      Assume.assumeTrue("Test only runs on JDK 8", JavaVersionUtil.isJava8());
-   }
-
    @Before
    public void setUp() throws Exception {
-
       if (debug) {
          initLogging();
       }
@@ -196,27 +186,24 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
 
    private void rewriteKerb5Conf() throws Exception {
       StringBuilder sb = new StringBuilder();
-      InputStream is2 = this.getClass().getClassLoader().getResourceAsStream("minikdc-krb5.conf");
 
-      BufferedReader r = null;
-      try {
-         r = new BufferedReader(new InputStreamReader(is2, StandardCharsets.UTF_8));
-         String line = r.readLine();
+      try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("minikdc-krb5.conf");
+           BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+
+         String line = reader.readLine();
 
          while (line != null) {
             sb.append(line).append("{3}");
-            line = r.readLine();
+            line = reader.readLine();
          }
-      } finally {
-         IOUtils.closeQuietly(r);
-         IOUtils.closeQuietly(is2);
       }
 
       InetSocketAddress addr =
          (InetSocketAddress)kdcServer.getTransports()[0].getAcceptor().getLocalAddress();
       int port = addr.getPort();
       File krb5conf = new File(testDir, "krb5.conf").getAbsoluteFile();
-      FileUtils.writeStringToFile(krb5conf, MessageFormat.format(sb.toString(), getRealm(), "localhost", Integer.toString(port), System.getProperty("line.separator")));
+      String krb5confBody = MessageFormat.format(sb.toString(), getRealm(), "localhost", Integer.toString(port), System.getProperty("line.separator"));
+      FileUtils.writeStringToFile(krb5conf, krb5confBody, StandardCharsets.UTF_8);
       System.setProperty("java.security.krb5.conf", krb5conf.getAbsolutePath());
 
       System.setProperty("sun.security.krb5.debug", "true");
@@ -232,10 +219,16 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
       refreshMethod.invoke(classRef, new Object[0]);
 
       LOG.debug("krb5.conf to: {}", krb5conf.getAbsolutePath());
+      if (debug) {
+         LOG.debug("java.security.krb5.conf='{}'", System.getProperty("java.security.krb5.conf"));
+         try (BufferedReader br = new BufferedReader(new FileReader(System.getProperty("java.security.krb5.conf")))) {
+            br.lines().forEach(line -> LOG.debug(line));
+         }
+      }
    }
 
    private void dumpLdapContents() throws Exception {
-      EntryFilteringCursor cursor = getService().getAdminSession().search(new Dn("ou=system"), SearchScope.SUBTREE, new PresenceNode("ObjectClass"), AliasDerefMode.DEREF_ALWAYS);
+      EntryFilteringCursor cursor = (EntryFilteringCursor) getService().getAdminSession().search(new Dn("ou=system"), SearchScope.SUBTREE, new PresenceNode("ObjectClass"), AliasDerefMode.DEREF_ALWAYS);
       String st = "";
 
       while (cursor.next()) {
@@ -243,9 +236,9 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          String ss = LdifUtils.convertToLdif(entry);
          st += ss + "\n";
       }
-      log.debug(st);
+      LOG.debug(st);
 
-      cursor = getService().getAdminSession().search(new Dn("dc=example,dc=com"), SearchScope.SUBTREE, new PresenceNode("ObjectClass"), AliasDerefMode.DEREF_ALWAYS);
+      cursor = (EntryFilteringCursor) getService().getAdminSession().search(new Dn("dc=example,dc=com"), SearchScope.SUBTREE, new PresenceNode("ObjectClass"), AliasDerefMode.DEREF_ALWAYS);
       st = "";
 
       while (cursor.next()) {
@@ -253,15 +246,18 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          String ss = LdifUtils.convertToLdif(entry);
          st += ss + "\n";
       }
-      log.debug(st);
+      LOG.debug(st);
    }
 
    private void initLogging() {
-      java.util.logging.Logger logger = java.util.logging.Logger.getLogger("javax.security.sasl");
-      logger.setLevel(java.util.logging.Level.FINEST);
-      logger.addHandler(new java.util.logging.ConsoleHandler());
-      for (java.util.logging.Handler handler: logger.getHandlers()) {
-         handler.setLevel(java.util.logging.Level.FINEST);
+      for (java.util.logging.Logger logger : new java.util.logging.Logger[] {java.util.logging.Logger.getLogger("logincontext"),
+                                                                             java.util.logging.Logger.getLogger("javax.security.sasl"),
+                                                                             java.util.logging.Logger.getLogger("org.apache.qpid.proton")}) {
+         logger.setLevel(java.util.logging.Level.FINEST);
+         logger.addHandler(new java.util.logging.ConsoleHandler());
+         for (java.util.logging.Handler handler : logger.getHandlers()) {
+            handler.setLevel(java.util.logging.Level.FINEST);
+         }
       }
    }
 
@@ -276,8 +272,10 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          + "krb5PrincipalName: " + principal + "@" + getRealm() + "\n"
          + "krb5KeyVersionNumber: 0";
 
-      for (LdifEntry ldifEntry : new LdifReader(new StringReader(content))) {
-         service.getAdminSession().add(new DefaultEntry(service.getSchemaManager(), ldifEntry.getEntry()));
+      try (LdifReader ldifReader = new LdifReader(new StringReader(content))) {
+         for (LdifEntry ldifEntry : ldifReader) {
+            service.getAdminSession().add(new DefaultEntry(service.getSchemaManager(), ldifEntry.getEntry()));
+         }
       }
    }
 
@@ -292,7 +290,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          for (Map.Entry<EncryptionType, EncryptionKey> entry : KerberosKeyFactory.getKerberosKeys(principal, generatedPassword).entrySet()) {
             EncryptionKey ekey = entry.getValue();
             byte keyVersion = (byte) ekey.getKeyVersion();
-            entries.add(new KeytabEntry(principal, 1L, timestamp, keyVersion, ekey));
+            entries.add(new KeytabEntry(principal, 1, timestamp, keyVersion, ekey));
          }
       }
       keytab.setEntries(entries);
