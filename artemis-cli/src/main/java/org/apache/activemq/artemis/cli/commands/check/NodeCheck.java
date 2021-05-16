@@ -182,28 +182,31 @@ public class NodeCheck extends CheckAbstract {
    }
 
    private void checkNodeDiskUsage(final CheckContext context) throws Exception {
-      int thresholdValue;
+      long maxDiskUsage;
 
       if (diskUsage == -1) {
-         thresholdValue = (int)context.getManagementProxy().
+         maxDiskUsage = (long)context.getManagementProxy().
             getAttribute("broker", "MaxDiskUsage", 0);
       } else {
-         thresholdValue = diskUsage;
+         maxDiskUsage = diskUsage;
       }
 
-      checkNodeUsage(context, "DiskStoreUsage", thresholdValue);
+      double diskStoreUsage = (double)context.getManagementProxy().
+         getAttribute("broker", "DiskStoreUsage", 0);
+
+      checkNodeResourceUsage("DiskStoreUsage", (long)(diskStoreUsage *  100), maxDiskUsage);
    }
 
    private void checkNodeMemoryUsage(final CheckContext context) throws Exception {
-      checkNodeUsage(context, "AddressMemoryUsagePercentage", memoryUsage);
+      long addressMemoryUsagePercentage = (long)context.getManagementProxy().
+         getAttribute("broker", "AddressMemoryUsagePercentage", 0);
+
+      checkNodeResourceUsage("MemoryUsage", addressMemoryUsagePercentage, memoryUsage);
    }
 
-   private void checkNodeUsage(final CheckContext context, final String name, final int thresholdValue) throws Exception {
-      int usageValue = (int)context.getManagementProxy().getAttribute("broker", name, 0);
-
+   private void checkNodeResourceUsage(final String resourceName, final long usageValue, final long thresholdValue) throws Exception {
       if (usageValue > thresholdValue) {
-         throw new CheckException("The " + (name.startsWith("get") ? name.substring(3) : name) +
-                                     " " + usageValue + " is less than " + thresholdValue);
+         throw new CheckException("The " + resourceName + " " + usageValue + " is less than " + thresholdValue);
       }
    }
 }

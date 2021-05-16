@@ -285,6 +285,8 @@ public class PacketImpl implements Packet {
 
    public static final byte CREATESESSION_V2 = -18;
 
+   public static final byte DISCONNECT_V3 = -19;
+
    // Static --------------------------------------------------------
 
    public PacketImpl(final byte type) {

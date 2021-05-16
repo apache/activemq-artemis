@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import java.util.EnumSet;
 
+import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -269,6 +270,16 @@ public final class Validators {
          int val = (Integer) value;
          if (val < -1) {
             throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumers(name, val);
+         }
+      }
+   };
+
+   public static final Validator TARGET_KEY = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         String val = (String) value;
+         if (val == null || !EnumSet.allOf(TargetKey.class).contains(TargetKey.valueOf(val))) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidTargetKey(val);
          }
       }
    };

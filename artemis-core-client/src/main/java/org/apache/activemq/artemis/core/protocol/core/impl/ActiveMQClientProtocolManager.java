@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.DisconnectReason;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -51,6 +52,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSess
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
@@ -306,7 +308,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                if (!isAlive())
                   throw cause;
 
-               if (cause.getType() == ActiveMQExceptionType.UNBLOCKED) {
+               if (cause.getType() == ActiveMQExceptionType.UNBLOCKED ||
+                       cause.getType() == ActiveMQExceptionType.REDIRECTED) {
                   // This means the thread was blocked on create session and failover unblocked it
                   // so failover could occur
 
@@ -468,19 +471,15 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       public void handlePacket(final Packet packet) {
          final byte type = packet.getType();
 
-         if (type == PacketImpl.DISCONNECT || type == PacketImpl.DISCONNECT_V2) {
-            final DisconnectMessage msg = (DisconnectMessage) packet;
-            String scaleDownTargetNodeID = null;
-
-            SimpleString nodeID = msg.getNodeID();
-
-            if (packet instanceof DisconnectMessage_V2) {
-               final DisconnectMessage_V2 msg_v2 = (DisconnectMessage_V2) packet;
-               scaleDownTargetNodeID = msg_v2.getScaleDownNodeID() == null ? null : msg_v2.getScaleDownNodeID().toString();
-            }
-
-            if (topologyResponseHandler != null)
-               topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), scaleDownTargetNodeID);
+         if (type == PacketImpl.DISCONNECT) {
+            final DisconnectMessage disMessage = (DisconnectMessage) packet;
+            handleDisconnect(disMessage.getNodeID(), null, null, null);
+         } else if (type == PacketImpl.DISCONNECT_V2) {
+            final DisconnectMessage_V2 disMessage = (DisconnectMessage_V2) packet;
+            handleDisconnect(disMessage.getNodeID(), DisconnectReason.SCALE_DOWN, disMessage.getScaleDownNodeID(), null);
+         } else if (type == PacketImpl.DISCONNECT_V3) {
+            final DisconnectMessage_V3 disMessage = (DisconnectMessage_V3) packet;
+            handleDisconnect(disMessage.getNodeID(), disMessage.getReason(), disMessage.getTargetNodeID(), disMessage.getTargetConnector());
          } else if (type == PacketImpl.CLUSTER_TOPOLOGY) {
             ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
             notifyTopologyChange(updateTransportConfiguration(topMessage));
@@ -496,6 +495,13 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             connection.setChannelVersion(topMessage.getServerVersion());
          } else if (type == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
             System.out.println("Channel0Handler.handlePacket");
+         }
+      }
+
+      private void handleDisconnect(SimpleString nodeID, DisconnectReason reason, SimpleString targetNodeID, TransportConfiguration tagetConnector) {
+         if (topologyResponseHandler != null) {
+            topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), reason,
+                    targetNodeID == null ? null : targetNodeID.toString(), tagetConnector);
          }
       }
 

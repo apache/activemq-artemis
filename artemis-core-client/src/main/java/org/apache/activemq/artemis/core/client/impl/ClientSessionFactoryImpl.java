@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.DisconnectReason;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -1067,11 +1068,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    public class CloseRunnable implements Runnable {
 
       private final RemotingConnection conn;
-      private final String scaleDownTargetNodeID;
+      private final DisconnectReason reason;
+      private final String targetNodeID;
 
-      public CloseRunnable(RemotingConnection conn, String scaleDownTargetNodeID) {
+      public CloseRunnable(RemotingConnection conn, DisconnectReason reason, String targetNodeID) {
          this.conn = conn;
-         this.scaleDownTargetNodeID = scaleDownTargetNodeID;
+         this.reason = reason;
+         this.targetNodeID = targetNodeID;
       }
 
       // Must be executed on new thread since cannot block the Netty thread for a long time and fail
@@ -1080,10 +1083,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       public void run() {
          try {
             CLOSE_RUNNABLES.add(this);
-            if (scaleDownTargetNodeID == null) {
-               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected());
+            if (reason.isRedirect()) {
+               conn.fail(ActiveMQClientMessageBundle.BUNDLE.redirected());
+            } else if (reason.isScaleDown()) {
+               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected(), targetNodeID);
             } else {
-               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected(), scaleDownTargetNodeID);
+               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected());
             }
          } finally {
             CLOSE_RUNNABLES.remove(this);
@@ -1439,20 +1444,39 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    class SessionFactoryTopologyHandler implements TopologyResponseHandler {
 
       @Override
-      public void nodeDisconnected(RemotingConnection conn, String nodeID, String scaleDownTargetNodeID) {
+      public void nodeDisconnected(RemotingConnection conn, String nodeID, DisconnectReason reason, String targetNodeID, TransportConfiguration tagetConnector) {
 
          if (logger.isTraceEnabled()) {
             logger.trace("Disconnect being called on client:" +
-                            " server locator = " +
-                            serverLocator +
-                            " notifying node " +
-                            nodeID +
-                            " as down", new Exception("trace"));
+                    " server locator = " +
+                    serverLocator +
+                    " notifying node " +
+                    nodeID +
+                    " as down with reason " +
+                    reason, new Exception("trace"));
          }
 
          serverLocator.notifyNodeDown(System.currentTimeMillis(), nodeID);
 
-         closeExecutor.execute(new CloseRunnable(conn, scaleDownTargetNodeID));
+         if (reason.isRedirect()) {
+            if (serverLocator.isHA()) {
+               TopologyMemberImpl topologyMember = serverLocator.getTopology().getMember(nodeID);
+
+               if (topologyMember != null) {
+                  if (topologyMember.getConnector().getB() != null) {
+                     backupConnectorConfig = topologyMember.getConnector().getB();
+                  } else if (logger.isDebugEnabled()) {
+                     logger.debug("The topology member " + nodeID + " with connector " + tagetConnector + " has no backup");
+                  }
+               } else if (logger.isDebugEnabled()) {
+                  logger.debug("The topology member " + nodeID + " with connector " + tagetConnector + " not found");
+               }
+            }
+
+            currentConnectorConfig = tagetConnector;
+         }
+
+         closeExecutor.execute(new CloseRunnable(conn, reason, targetNodeID));
 
       }
 

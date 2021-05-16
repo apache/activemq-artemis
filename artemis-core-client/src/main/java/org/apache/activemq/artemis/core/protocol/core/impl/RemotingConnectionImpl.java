@@ -26,9 +26,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQRedirectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
+import org.apache.activemq.artemis.api.core.DisconnectReason;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
@@ -38,6 +41,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl.CHANNEL_I
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V3;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -206,7 +210,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          destroyed = true;
       }
 
-      if (!(me instanceof ActiveMQRemoteDisconnectException)) {
+      if (!(me instanceof ActiveMQRemoteDisconnectException) && !(me instanceof ActiveMQRedirectedException)) {
          ActiveMQClientLogger.LOGGER.connectionFailureDetected(transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
       }
 
@@ -250,11 +254,16 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    @Override
    public void disconnect(final boolean criticalError) {
-      disconnect(null, criticalError);
+      disconnect(criticalError ? DisconnectReason.SHOUT_DOWN_ON_CRITICAL_ERROR : DisconnectReason.SHOUT_DOWN, null, null);
    }
 
    @Override
    public void disconnect(String scaleDownNodeID, final boolean criticalError) {
+      disconnect(criticalError ? DisconnectReason.SCALE_DOWN_ON_CRITICAL_ERROR : DisconnectReason.SCALE_DOWN, scaleDownNodeID, null);
+   }
+
+   @Override
+   public void disconnect(DisconnectReason reason, String targetNodeID, TransportConfiguration targetConnector) {
       Channel channel0 = getChannel(ChannelImpl.CHANNEL_ID.PING.id, -1);
 
       // And we remove all channels from the connection, this ensures no more packets will be processed after this
@@ -263,7 +272,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       Set<Channel> allChannels = new HashSet<>(channels.values());
 
-      if (!criticalError) {
+      if (!reason.isCriticalError()) {
          removeAllChannels();
       } else {
          // We can't hold a lock if a critical error is happening...
@@ -273,15 +282,17 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       // Now we are 100% sure that no more packets will be processed we can flush then send the disconnect
 
-      if (!criticalError) {
+      if (!reason.isCriticalError()) {
          for (Channel channel : allChannels) {
             channel.flushConfirmations();
          }
       }
       Packet disconnect;
 
-      if (channel0.supports(PacketImpl.DISCONNECT_V2)) {
-         disconnect = new DisconnectMessage_V2(nodeID, scaleDownNodeID);
+      if (channel0.supports(PacketImpl.DISCONNECT_V3)) {
+         disconnect = new DisconnectMessage_V3(nodeID, reason, SimpleString.toSimpleString(targetNodeID), targetConnector);
+      } else if (channel0.supports(PacketImpl.DISCONNECT_V2)) {
+         disconnect = new DisconnectMessage_V2(nodeID, reason.isScaleDown() ? targetNodeID : null);
       } else {
          disconnect = new DisconnectMessage(nodeID);
       }

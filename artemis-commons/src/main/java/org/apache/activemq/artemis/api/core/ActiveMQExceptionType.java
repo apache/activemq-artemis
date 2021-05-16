@@ -267,6 +267,12 @@ public enum ActiveMQExceptionType {
       public ActiveMQException createException(String msg) {
          return new ActiveMQDivertDoesNotExistException(msg);
       }
+   },
+   REDIRECTED(222) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQRedirectedException(msg);
+      }
    };
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
 

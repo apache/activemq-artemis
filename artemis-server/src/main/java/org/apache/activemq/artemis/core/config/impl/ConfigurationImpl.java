@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
@@ -165,6 +166,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected List<BridgeConfiguration> bridgeConfigurations = new ArrayList<>();
 
    protected List<DivertConfiguration> divertConfigurations = new ArrayList<>();
+
+   protected List<BrokerBalancerConfiguration> brokerBalancerConfigurations = new ArrayList<>();
 
    protected List<ClusterConnectionConfiguration> clusterConfigurations = new ArrayList<>();
 
@@ -817,6 +820,23 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl addDivertConfiguration(final DivertConfiguration config) {
       divertConfigurations.add(config);
+      return this;
+   }
+
+   @Override
+   public List<BrokerBalancerConfiguration> getBalancerConfigurations() {
+      return brokerBalancerConfigurations;
+   }
+
+   @Override
+   public ConfigurationImpl setBalancerConfigurations(final List<BrokerBalancerConfiguration> configs) {
+      brokerBalancerConfigurations = configs;
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl addBalancerConfiguration(final BrokerBalancerConfiguration config) {
+      brokerBalancerConfigurations.add(config);
       return this;
    }
 

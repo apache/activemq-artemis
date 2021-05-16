@@ -155,6 +155,8 @@
          </broker-balancer>
          <broker-balancer name="consistent-hash-balancer">
             <target-key>SNI_HOST</target-key>
+            <target-key-filter>^[^.]+</target-key-filter>
+            <local-target-filter>DEFAULT</local-target-filter>
             <policy name="CONSISTENT_HASH"/>
             <pool>
                <check-period>1000</check-period>

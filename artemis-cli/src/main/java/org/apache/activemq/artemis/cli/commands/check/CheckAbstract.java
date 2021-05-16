@@ -77,7 +77,7 @@ public abstract class CheckAbstract extends AbstractAction {
          try (ActiveMQConnectionFactory factory = createCoreConnectionFactory();
               ServerLocator serverLocator = factory.getServerLocator();
               ClientSessionFactory sessionFactory = serverLocator.createSessionFactory();
-              ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
+              ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE).start();
               ActiveMQManagementProxy managementProxy = new ActiveMQManagementProxy(session)) {
 
             StopWatch watch = new StopWatch();

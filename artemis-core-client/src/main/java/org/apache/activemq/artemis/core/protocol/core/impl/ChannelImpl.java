@@ -186,6 +186,7 @@ public final class ChannelImpl implements Channel {
             return version >= 129;
          case PacketImpl.CLUSTER_TOPOLOGY_V4:
          case PacketImpl.CREATESESSION_V2:
+         case PacketImpl.DISCONNECT_V3:
             return version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
          default:
             return true;
@@ -869,5 +870,9 @@ public final class ChannelImpl implements Channel {
    @Override
    public String toString() {
       return "Channel[id=" + CHANNEL_ID.idToString(id) + ", RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + ", handler=" + handler + "]";
+   }
+
+   public boolean isFailingOver() {
+      return failingOver;
    }
 }
