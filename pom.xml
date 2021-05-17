@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.apache</groupId>
       <artifactId>apache</artifactId>
-      <version>18</version>
+      <version>23</version>
       <relativePath>org.apache:apache</relativePath>
    </parent>
 
@@ -95,8 +95,10 @@
       <jboss.logging.version>3.4.0.Final</jboss.logging.version>
       <jetty.version>9.4.40.v20210413</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
-      <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
-      <mockito.version>3.3.3</mockito.version>
+      <errorprone.version>2.6.0</errorprone.version>
+      <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
+      <maven.bundle.plugin.version>5.1.2</maven.bundle.plugin.version>
+      <mockito.version>3.9.0</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.63.Final</netty.version>
 
@@ -130,11 +132,11 @@
       <owb.version>1.7.0</owb.version>
       <arquillian.version>1.1.11.Final</arquillian.version>
       <servicemix.json-1.1.spec.version>2.9.0</servicemix.json-1.1.spec.version>
-      <version.org.jacoco>0.7.9</version.org.jacoco>
-      <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
-      <version.maven.jar.plugin>2.4</version.maven.jar.plugin>
+      <version.org.jacoco>0.8.6</version.org.jacoco>
+      <version.org.jacoco.plugin>0.8.6</version.org.jacoco.plugin>
       <version.micrometer>1.6.3</version.micrometer>
       <hamcrest.version>2.1</hamcrest.version>
+      <junit.version>4.13.2</junit.version>
       <surefire.version>2.22.2</surefire.version>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqttv3.version>1.2.5</paho.client.mqttv3.version>
@@ -199,7 +201,7 @@
       <skipStyleCheck>true</skipStyleCheck>
       <skipOWASP>true</skipOWASP>
 
-      <directory-version>2.0.0.AM26</directory-version>
+      <directory-version>2.0.0.AM25</directory-version>
       <directory-jdbm2-version>2.0.0-M1</directory-jdbm2-version>
 
       <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
@@ -267,10 +269,9 @@
          <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
             <!-- License: CPL 1.0 -->
-            <!-- There are newer versions of the JUnit but they break our tests -->
          </dependency>
          <dependency>
             <groupId>org.easymock</groupId>
@@ -280,7 +281,7 @@
          </dependency>
 
          <!-- ### For MQTT Tests && Examples -->
-    <dependency>
+         <dependency>
            <groupId>org.eclipse.paho</groupId>
            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
            <version>${paho.client.mqttv3.version}</version>
@@ -351,7 +352,7 @@
          <dependency>
              <groupId>com.google.errorprone</groupId>
              <artifactId>error_prone_core</artifactId>
-             <version>2.4.0</version>
+             <version>${errorprone.version}</version>
              <scope>provided</scope>
             <optional>true</optional>
          </dependency>
@@ -907,7 +908,7 @@
           <activation>
               <jdk>1.8</jdk>
               <property>
-                  <name>jdk8-errorprone</name>
+                  <name>errorprone</name>
               </property>
           </activation>
           <build>
@@ -937,6 +938,12 @@
               <maven.compiler.target>11</maven.compiler.target>
               <modular.jdk.surefire.arg>--add-modules java.sql,jdk.unsupported </modular.jdk.surefire.arg>
           </properties>
+      </profile>
+      <profile>
+          <id>jdk11to15-errorprone</id>
+          <activation>
+              <jdk>[11,16)</jdk>
+          </activation>
           <build>
               <plugins>
                   <plugin>
@@ -948,6 +955,44 @@
                               <arg>--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
                               <arg>-XDcompilePolicy=simple</arg>
                               <arg>-Xplugin:ErrorProne -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -XepExcludedPaths:.*/generated-sources/.*</arg>
+                          </compilerArgs>
+                      </configuration>
+                  </plugin>
+              </plugins>
+          </build>
+      </profile>
+      <profile>
+          <id>jdk16-errorprone</id>
+          <!-- This is very slow due to all the compiler forking required, so made it opt-in with -Derrorprone -->
+          <!-- TODO: MissingOverride check only warns in this profile for now, as JDK15+ added a toString method to CharSequence -->
+          <activation>
+              <jdk>16</jdk>
+              <property>
+                  <name>errorprone</name>
+              </property>
+          </activation>
+          <build>
+              <plugins>
+                  <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <configuration>
+                          <fork>true</fork>
+                          <compilerArgs>
+                              <arg>-Xdiags:verbose</arg>
+                              <arg>--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
+                              <arg>-XDcompilePolicy=simple</arg>
+                              <arg>-Xplugin:ErrorProne -Xep:MissingOverride:WARN -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -XepExcludedPaths:.*/generated-sources/.*</arg>
+                              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                           </compilerArgs>
                       </configuration>
                   </plugin>
@@ -1029,7 +1074,6 @@
                <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-enforcer-plugin</artifactId>
-                  <version>1.4</version>
                   <executions>
                      <execution>
                         <id>enforce-java</id>
@@ -1391,7 +1435,7 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-enforcer-plugin</artifactId>
-              <version>1.4.1</version>
+              <version>${maven.enforcer.plugin.version}</version>
               <executions>
                 <execution>
                   <id>enforce-maven</id>
@@ -1424,20 +1468,9 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-compiler-plugin</artifactId>
-               <version>3.8.1</version>
                <configuration>
                    <showWarnings>true</showWarnings>
                </configuration>
-            </plugin>
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-clean-plugin</artifactId>
-               <version>2.5</version>
-            </plugin>
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-javadoc-plugin</artifactId>
-               <version>3.0.1</version>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
@@ -1445,19 +1478,9 @@
                <version>2.3</version>
             </plugin>
             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-jar-plugin</artifactId>
-               <version>${version.maven.jar.plugin}</version>
-            </plugin>
-            <plugin>
                <groupId>net.sf.maven-sar</groupId>
                <artifactId>maven-sar-plugin</artifactId>
                <version>1.0</version>
-            </plugin>
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-site-plugin</artifactId>
-               <version>3.3</version>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
@@ -1470,11 +1493,6 @@
                <version>${jetty.version}</version>
             </plugin>
             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-deploy-plugin</artifactId>
-               <version>2.7</version>
-            </plugin>
-            <plugin>
               <groupId>org.wildfly.extras.batavia</groupId>
               <artifactId>transformer-tools-mvn</artifactId>
               <version>${version.batavia}</version>
@@ -1484,7 +1502,6 @@
                <inherited>true</inherited>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-source-plugin</artifactId>
-               <version>2.2.1</version>
                <executions>
                   <execution>
                      <id>attach-sources</id>
@@ -1513,7 +1530,6 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-install-plugin</artifactId>
-               <version>2.4</version>
                <configuration>
                   <createChecksum>true</createChecksum>
                </configuration>
@@ -1549,11 +1565,6 @@
                   </execution>
                </executions>
             </plugin>
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-resources-plugin</artifactId>
-               <version>2.6</version>
-            </plugin>
             <!-- Many examples use it -->
             <plugin>
                <groupId>org.apache.activemq</groupId>
@@ -1572,7 +1583,6 @@
          <plugin>
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-enforcer-plugin</artifactId>
-           <version>1.4</version>
            <executions>
              <execution>
                <id>enforce-java</id>
@@ -1659,7 +1669,6 @@
          <plugin>
             <groupId>org.apache.rat</groupId>
             <artifactId>apache-rat-plugin</artifactId>
-            <version>0.12</version>
             <configuration>
                <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
                <skip>${skipLicenseCheck}</skip>
@@ -1700,6 +1709,7 @@
                   <exclude>**/*.data</exclude>
                   <exclude>**/*.bin</exclude>
                   <exclude>**/src/test/resources/keystore</exclude>
+                  <exclude>**/src/test/java/org/apache/activemq/security/*.ts</exclude>
                   <exclude>**/*.log</exclude>
                   <exclude>**/*.redo</exclude>
 
@@ -1741,7 +1751,7 @@
          <plugin>
             <groupId>org.apache.felix</groupId>
             <artifactId>maven-bundle-plugin</artifactId>
-            <version>4.2.1</version>
+            <version>${maven.bundle.plugin.version}</version>
             <extensions>true</extensions>
          </plugin>
          <plugin>
@@ -1768,7 +1778,6 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
-            <version>3.1.1</version>
             <executions>
                <execution>
                   <id>copy</id>
