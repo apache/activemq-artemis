@@ -263,12 +263,13 @@
          </plugin>
          <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>${maven.assembly.plugin.version}</version>
             <executions>
               <execution>
                   <id>source</id>
                   <configuration>
-                     <descriptor>src/main/assembly/source-assembly.xml</descriptor>
+                     <descriptors>
+                       <descriptor>src/main/assembly/source-assembly.xml</descriptor>
+                     </descriptors>
                      <tarLongFileMode>gnu</tarLongFileMode>
                   </configuration>
                   <phase>package</phase>
@@ -279,7 +280,9 @@
                <execution>
                   <id>bin</id>
                   <configuration>
-                     <descriptor>src/main/assembly/dep.xml</descriptor>
+                     <descriptors>
+                       <descriptor>src/main/assembly/dep.xml</descriptor>
+                     </descriptors>
                      <tarLongFileMode>gnu</tarLongFileMode>
                   </configuration>
                   <phase>package</phase>

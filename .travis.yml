@@ -11,7 +11,7 @@ matrix:
       env:
         - EXAMPLES_PROFILE="noRun"
     - os: linux
-      jdk: openjdk14
+      jdk: openjdk16
       env:
         - EXAMPLES_PROFILE="noRun"
 
@@ -24,7 +24,7 @@ before_install:
 # By setting anything to org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED we are disabling libaio loading on the testsuite
 script: 
 - set -e
-- mvn -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Djdk8-errorprone -Pfast-tests -Pextra-tests -Ptests-CI -Pjmh -B install -q
+- mvn -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Derrorprone -Pfast-tests -Pextra-tests -Ptests-CI -Pjmh -B install -q
 - cd examples
 - mvn install -P${EXAMPLES_PROFILE} -B -q
 
