@@ -114,7 +114,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
             regexp.append(".*?"); // Do a non-greedy match
          } else if (c == '_') {
             regexp.append("."); // match one
-         } else if (REGEXP_CONTROL_CHARS.contains(new Character(c))) {
+         } else if (REGEXP_CONTROL_CHARS.contains(Character.valueOf(c))) {
             regexp.append("\\x");
             regexp.append(Integer.toHexString(0xFFFF & c));
          } else {

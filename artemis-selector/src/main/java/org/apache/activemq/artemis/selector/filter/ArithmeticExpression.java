@@ -179,9 +179,9 @@ public abstract class ArithmeticExpression extends BinaryExpression {
             String v = (String) value;
             try {
                if (v.contains(".")) {
-                  return new Double(v);
+                  return Double.valueOf(v);
                } else {
-                  return new Long(v);
+                  return Long.valueOf(v);
                }
             } catch (NumberFormatException e) {
                throw new RuntimeException("Cannot convert value: " + value + " into a number");
