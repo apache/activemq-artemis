@@ -263,6 +263,8 @@
          </plugin>
          <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
+            <!-- if I don't specify version 2.4, the deploy is not setting the executables as expected -->
+            <version>2.4</version>
             <executions>
               <execution>
                   <id>source</id>
