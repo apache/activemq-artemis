@@ -404,8 +404,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       } else {
 
          if (remotingThreads == -1) {
-            // Default to number of cores * 3
-            remotingThreads = Runtime.getRuntime().availableProcessors() * 3;
+            // Default to half of cores
+            remotingThreads = Math.max(1, Runtime.getRuntime().availableProcessors() / 2);
          }
 
          if (useEpoll && CheckDependencies.isEpollAvailable()) {

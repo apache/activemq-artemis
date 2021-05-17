@@ -224,12 +224,12 @@ simple TCP:
   if you are using this please update your configuration
 
 - `remotingThreads`. Apache ActiveMQ Artemis will, by default, use a number of
-  threads equal to three times the number of cores (or hyper-threads) as
+  threads equal to half the number of cores (or hyper-threads) as
   reported by `Runtime.getRuntime().availableProcessors()` for processing
   incoming packets. If you want to override this value, you can set the number of
   threads by specifying this parameter. The default value for this parameter is
-  `-1` which means use the value from
-  `Runtime.getRuntime().availableProcessors()` \* 3.
+  `-1` which means use half the value from
+  `Runtime.getRuntime().availableProcessors()`.
 
 - `localAddress`. When configured a Netty Connector it is possible to specify
   which local address the client will use when connecting to the remote
