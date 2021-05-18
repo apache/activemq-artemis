@@ -96,6 +96,10 @@
       <jetty.version>9.4.40.v20210413</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
       <errorprone.version>2.6.0</errorprone.version>
+      <!-- Overrides the parent pom to downgrade to assembly plugin to < 3.2.0, and
+        keep the old file permission copying behaviour until such time as the assembly
+        descriptor properly defines them. See also MASSEMBLY-941. -->
+      <maven.assembly.plugin.version>3.1.1</maven.assembly.plugin.version>
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
       <maven.bundle.plugin.version>5.1.2</maven.bundle.plugin.version>
       <mockito.version>3.9.0</mockito.version>
@@ -1471,6 +1475,11 @@
                <configuration>
                    <showWarnings>true</showWarnings>
                </configuration>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-assembly-plugin</artifactId>
+               <version>${maven.assembly.plugin.version}</version>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
