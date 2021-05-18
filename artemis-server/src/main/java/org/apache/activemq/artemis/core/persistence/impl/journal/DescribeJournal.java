@@ -213,6 +213,10 @@ public final class DescribeJournal {
          recordsPrintStream.println("#" + file + " (size=" + file.getFile().size() + ")");
 
          JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallback() {
+            @Override
+            public void onReadEventRecord(RecordInfo recordInfo) throws Exception {
+               recordsPrintStream.println("operation@Event;" + describeRecord(recordInfo, safe));
+            }
 
             @Override
             public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {

@@ -34,6 +34,8 @@ under the License.
 
       <cluster-password>secret</cluster-password>
 
+      <journal-retention-directory storage-limit="20M">./data/retention</journal-retention-directory>
+
       <ha-policy>
          <replication>
             <slave>

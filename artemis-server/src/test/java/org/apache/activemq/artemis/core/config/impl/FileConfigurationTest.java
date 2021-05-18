@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -131,6 +132,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals("max concurrent io", 17, conf.getPageMaxConcurrentIO());
       Assert.assertEquals(true, conf.isReadWholePage());
       Assert.assertEquals("somedir2", conf.getJournalDirectory());
+      Assert.assertEquals("history", conf.getJournalRetentionDirectory());
+      Assert.assertEquals(10L * 1024L * 1024L * 1024L, conf.getJournalRetentionMaxBytes());
+      Assert.assertEquals(TimeUnit.DAYS.toMillis(365), conf.getJournalRetentionPeriod());
       Assert.assertEquals(false, conf.isCreateJournalDir());
       Assert.assertEquals(JournalType.NIO, conf.getJournalType());
       Assert.assertEquals(10000, conf.getJournalBufferSize_NIO());

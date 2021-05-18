@@ -206,6 +206,9 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
       liveServer = createTestableServer(liveConfig);
+
+      liveServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, false) + "_retention");
+      backupServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, true) + "_retention");
    }
 
    protected void setupHAPolicyConfiguration() {

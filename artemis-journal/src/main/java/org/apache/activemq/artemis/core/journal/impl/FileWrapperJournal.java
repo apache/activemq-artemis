@@ -101,7 +101,18 @@ public final class FileWrapperJournal extends JournalBase {
                                boolean sync,
                                IOCompletion callback) throws Exception {
       JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
+      writeRecord(addRecord, false, -1, false, callback);
+   }
 
+   @Override
+   public void appendAddEvent(long id,
+                              byte recordType,
+                              Persister persister,
+                              Object record,
+                              boolean sync,
+                              IOCompletion callback) throws Exception {
+
+      JournalInternalRecord addRecord = new JournalAddRecord(JournalImpl.EVENT_RECORD, id, recordType, persister, record);
       writeRecord(addRecord, false, -1, false, callback);
    }
 

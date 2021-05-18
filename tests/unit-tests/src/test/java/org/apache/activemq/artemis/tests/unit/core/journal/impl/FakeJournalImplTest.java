@@ -27,6 +27,11 @@ public class FakeJournalImplTest extends JournalImplTestUnit {
    }
 
    @Override
+   protected boolean suportsRetention() {
+      return false;
+   }
+
+   @Override
    protected int getAlignment() {
       return 1;
    }

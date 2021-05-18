@@ -406,6 +406,7 @@
       <page-max-concurrent-io>17</page-max-concurrent-io>
       <read-whole-page>true</read-whole-page>
       <journal-directory>somedir2</journal-directory>
+      <journal-retention-directory unit="DAYS" period="365" storage-limit="10G">history</journal-retention-directory>
       <create-journal-dir>false</create-journal-dir>
       <journal-type>NIO</journal-type>
       <journal-buffer-timeout>1000</journal-buffer-timeout>

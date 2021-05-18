@@ -159,6 +159,10 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
       maxAIO = 50;
    }
 
+   protected boolean suportsRetention() {
+      return true;
+   }
+
    public void createJournal() throws Exception {
       journal = new JournalImpl(fileSize, minFiles, poolSize, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO) {
          @Override
@@ -171,6 +175,13 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
             }
          }
       };
+
+      if (suportsRetention()) {
+         // FakeSequentialFile won't support retention
+         File fileBackup = new File(getTestDir(), "backupFoler");
+         fileBackup.mkdirs();
+         ((JournalImpl) journal).setHistoryFolder(fileBackup, -1, -1);
+      }
 
       journal.setAutoReclaim(false);
       addActiveMQComponent(journal);

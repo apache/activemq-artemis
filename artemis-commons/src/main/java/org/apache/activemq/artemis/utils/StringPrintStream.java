@@ -28,6 +28,10 @@ public class StringPrintStream {
       return new PrintStream(byteOuptut, true, StandardCharsets.UTF_8.name());
    }
 
+   public byte[] getBytes() {
+      return byteOuptut.toByteArray();
+   }
+
    @Override
    public String toString() {
       try {

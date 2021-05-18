@@ -35,6 +35,13 @@ public class JournalFileImpl implements JournalFile {
 
    private long offset;
 
+   boolean reclaimable = true;
+
+   @Override
+   public void setReclaimable(boolean reclaimable) {
+      this.reclaimable = reclaimable;
+   }
+
    private static final AtomicIntegerFieldUpdater<JournalFileImpl> posCountUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "posCountField");
    private static final AtomicIntegerFieldUpdater<JournalFileImpl> addRecordUpdate = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "addRecordField");
    private static final AtomicIntegerFieldUpdater<JournalFileImpl> liveBytesUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "liveBytesField");
@@ -92,7 +99,7 @@ public class JournalFileImpl implements JournalFile {
 
    @Override
    public boolean isCanReclaim() {
-      return posReclaimCriteria && negReclaimCriteria && !file.isPending();
+      return reclaimable && posReclaimCriteria && negReclaimCriteria && !file.isPending();
    }
 
    @Override

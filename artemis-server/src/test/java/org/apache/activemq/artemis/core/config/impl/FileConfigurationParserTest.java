@@ -17,10 +17,12 @@
 package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.ByteArrayInputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -38,6 +40,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.StringPrintStream;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -389,6 +392,126 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       Configuration config = parser.parseMainConfig(input);
       assertEquals(expected, config.getPageSyncTimeout());
    }
+
+
+   @Test
+   public void testMinimalXML() throws Exception {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
+
+      stream.println("<configuration><core>");
+      stream.println("</core></configuration>");
+
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      FileConfigurationParser parser = new FileConfigurationParser();
+      Configuration configuration = parser.parseMainConfig(inputStream);
+   }
+
+   @Test
+   public void testRetentionJournalOptionsDays() throws Exception {
+      testStreamDatesOption("DAYS", TimeUnit.DAYS);
+   }
+
+   @Test
+   public void testRetentionJournalOptionsHours() throws Exception {
+      testStreamDatesOption("HOURS", TimeUnit.HOURS);
+   }
+
+   @Test
+   public void testRetentionJournalOptionsMinutes() throws Exception {
+      testStreamDatesOption("MINUTES", TimeUnit.MINUTES);
+   }
+
+   @Test
+   public void testRetentionJournalOptionsSeconds() throws Exception {
+      testStreamDatesOption("SECONDS", TimeUnit.SECONDS);
+   }
+
+   private void testStreamDatesOption(String option, TimeUnit expected) throws Exception {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
+
+      stream.println("<configuration><core>");
+      stream.println("<journal-retention-directory unit=\"" + option + "\" period=\"365\" storage-limit=\"10G\">history</journal-retention-directory>");
+      stream.println("</core></configuration>");
+
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      FileConfigurationParser parser = new FileConfigurationParser();
+      Configuration configuration = parser.parseMainConfig(inputStream);
+
+      Assert.assertEquals("history", configuration.getJournalRetentionDirectory());
+
+      Assert.assertEquals(expected.toMillis(365), configuration.getJournalRetentionPeriod());
+   }
+
+
+   @Test
+   public void unlimitedJustHistory() throws Throwable {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
+
+      stream.println("<configuration><core>");
+      stream.println("<journal-retention-directory>directory</journal-retention-directory>");
+      stream.println("</core></configuration>");
+
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      FileConfigurationParser parser = new FileConfigurationParser();
+      Configuration configuration = null;
+      boolean exceptionHappened = false;
+      try {
+         configuration = parser.parseMainConfig(inputStream);
+      } catch (Exception e) {
+         exceptionHappened = true;
+      }
+
+      Assert.assertTrue(exceptionHappened);
+   }
+
+
+
+   @Test
+   public void noRetention() throws Throwable {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
+
+      stream.println("<configuration><core>");
+      stream.println("<journal-directory>journal</journal-directory>");
+      stream.println("</core></configuration>");
+
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      FileConfigurationParser parser = new FileConfigurationParser();
+      Configuration configuration = null;
+      configuration = parser.parseMainConfig(inputStream);
+      Assert.assertNull(configuration.getJournalRetentionLocation());
+      Assert.assertNull(configuration.getJournalRetentionDirectory());
+      Assert.assertEquals("journal", configuration.getJournalDirectory());
+   }
+
+
+   @Test
+   public void noFolderOnRetention() throws Throwable {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
+
+      stream.println("<configuration><core>");
+      stream.println("<journal-retention-directory period=\"3\"></journal-retention-directory>");
+      stream.println("</core></configuration>");
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      boolean exception = false;
+      try {
+         Configuration configuration = parser.parseMainConfig(inputStream);
+      } catch (Exception e) {
+         exception = true;
+      }
+
+      Assert.assertTrue(exception);
+
+
+
+   }
+
+
 
    private static String firstPart = "<core xmlns=\"urn:activemq:core\">" + "\n" +
       "<name>ActiveMQ.main.config</name>" + "\n" +

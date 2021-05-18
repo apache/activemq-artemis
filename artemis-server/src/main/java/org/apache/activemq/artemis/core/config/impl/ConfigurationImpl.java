@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -198,6 +199,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected boolean createBindingsDir = ActiveMQDefaultConfiguration.isDefaultCreateBindingsDir();
 
    protected String journalDirectory = ActiveMQDefaultConfiguration.getDefaultJournalDir();
+
+   protected String journalRetentionDirectory = null;
+
+   protected long journalRetentionMaxBytes = 0;
+
+   protected long journalRetentionPeriod;
 
    protected String nodeManagerLockDirectory = null;
 
@@ -366,6 +373,52 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private File artemisInstance;
 
    // Public -------------------------------------------------------------------------
+
+   @Override
+   public String getJournalRetentionDirectory() {
+      return journalRetentionDirectory;
+   }
+
+   @Override
+   public ConfigurationImpl setJournalRetentionDirectory(String dir) {
+      this.journalRetentionDirectory = dir;
+      return this;
+   }
+
+   @Override
+   public File getJournalRetentionLocation() {
+      if (journalRetentionDirectory == null) {
+         return null;
+      } else {
+         return subFolder(getJournalRetentionDirectory());
+      }
+   }
+
+   @Override
+   public long getJournalRetentionPeriod() {
+      return this.journalRetentionPeriod;
+   }
+
+   @Override
+   public Configuration setJournalRetentionPeriod(TimeUnit unit, long period) {
+      if (period <= 0) {
+         this.journalRetentionPeriod = -1;
+      } else {
+         this.journalRetentionPeriod = unit.toMillis(period);
+      }
+      return this;
+   }
+
+   @Override
+   public long getJournalRetentionMaxBytes() {
+      return journalRetentionMaxBytes;
+   }
+
+   @Override
+   public ConfigurationImpl setJournalRetentionMaxBytes(long bytes) {
+      this.journalRetentionMaxBytes = bytes;
+      return this;
+   }
 
    @Override
    public Configuration setSystemPropertyPrefix(String systemPropertyPrefix) {
@@ -2505,7 +2558,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    /**
     * It will find the right location of a subFolder, related to artemisInstance
     */
-   private File subFolder(String subFolder) {
+   public File subFolder(String subFolder) {
       try {
          return getBrokerInstance().toPath().resolve(subFolder).toFile();
       } catch (Exception e) {

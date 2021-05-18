@@ -653,6 +653,16 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void appendAddEvent(long id,
+                                 byte recordType,
+                                 Persister persister,
+                                 Object record,
+                                 boolean sync,
+                                 IOCompletion completionCallback) throws Exception {
+
+      }
+
+      @Override
       public boolean isRemoveExtraFilesOnLoad() {
          return false;
       }

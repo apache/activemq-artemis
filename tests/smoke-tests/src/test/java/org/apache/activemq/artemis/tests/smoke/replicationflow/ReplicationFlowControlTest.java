@@ -23,6 +23,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,6 +35,7 @@ import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -171,6 +173,17 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
             consumer.join();
          }
       }
+
+      assertRetentionFolder(getServerLocation(SERVER_NAME_0));
+      assertRetentionFolder(getServerLocation(SERVER_NAME_1));
+   }
+
+   private void assertRetentionFolder(String serverLocation) {
+      File retentionFolder = new File(serverLocation + "/data/retention");
+      System.out.println("retention folder = " + retentionFolder.getAbsolutePath());
+      File[] files = retentionFolder.listFiles();
+      // it should be max = 2, however I'm giving some extra due to async factors..
+      Assert.assertTrue(retentionFolder.getAbsolutePath() + " has " + (files == null ? "no files" : files.length + " elements"), files != null && files.length <= 10);
    }
 
    void startConsumers(boolean useAMQP) {

@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -626,6 +627,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setJournalDirectory(getString(e, "journal-directory", config.getJournalDirectory(), Validators.NOT_NULL_OR_EMPTY));
 
+
+      parseJournalRetention(e, config);
+
       config.setNodeManagerLockDirectory(getString(e, "node-manager-lock-directory", null, Validators.NO_CHECK));
 
       config.setPageMaxConcurrentIO(getInteger(e, "page-max-concurrent-io", config.getPageMaxConcurrentIO(), Validators.MINUS_ONE_OR_GT_ZERO));
@@ -765,6 +769,47 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       if (wildCardConfiguration.getLength() > 0) {
          parseWildcardConfiguration((Element) wildCardConfiguration.item(0), config);
+      }
+   }
+
+
+   private void parseJournalRetention(final Element e, final Configuration config) {
+      NodeList retention = e.getElementsByTagName("journal-retention-directory");
+
+      if (retention.getLength() != 0) {
+         Element node = (Element) retention.item(0);
+
+         String directory = node.getTextContent().trim();
+
+         String storageLimitStr = getAttributeValue(node, "storage-limit");
+         long storageLimit;
+
+         if (storageLimitStr == null) {
+            storageLimit = -1;
+         } else {
+            storageLimit = ByteUtil.convertTextBytes(storageLimitStr.trim());
+         }
+         int period = getAttributeInteger(node, "period", -1, Validators.GT_ZERO);
+         String unitStr = getAttributeValue(node, "unit");
+
+         if (unitStr == null) {
+            unitStr = "DAYS";
+         }
+
+         TimeUnit unit = TimeUnit.valueOf(unitStr.toUpperCase());
+
+         config.setJournalRetentionDirectory(directory);
+         config.setJournalRetentionMaxBytes(storageLimit);
+         config.setJournalRetentionPeriod(unit, period);
+
+         if (directory == null || directory.equals("")) {
+            throw new IllegalArgumentException("journal-retention-directory=null");
+         }
+
+         if (storageLimit == -1 && period == -1) {
+            throw new IllegalArgumentException("configure either storage-limit or period on journal-retention-directory");
+         }
+
       }
    }
 

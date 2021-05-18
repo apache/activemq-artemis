@@ -366,10 +366,6 @@ public class NIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public void writeDirect(final ByteBuffer bytes, final boolean sync, final IOCallback callback) {
-      if (callback == null) {
-         throw new NullPointerException("callback parameter need to be set");
-      }
-
       try {
          internalWrite(bytes, sync, callback, true);
       } catch (Exception e) {
@@ -393,7 +389,7 @@ public class NIOSequentialFile extends AbstractSequentialFile {
                               boolean releaseBuffer) throws IOException, ActiveMQIOErrorException, InterruptedException {
       if (!isOpen()) {
          if (callback != null) {
-            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "File not opened");
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "File not opened - " + getFileName());
          } else {
             throw ActiveMQJournalBundle.BUNDLE.fileNotOpened();
          }

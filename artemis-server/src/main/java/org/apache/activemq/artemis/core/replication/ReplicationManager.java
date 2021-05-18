@@ -103,20 +103,33 @@ public final class ReplicationManager implements ActiveMQComponent {
    public enum ADD_OPERATION_TYPE {
       UPDATE {
          @Override
-         public boolean toBoolean() {
-            return true;
+         public byte toRecord() {
+            return 0;
          }
       }, ADD {
          @Override
-         public boolean toBoolean() {
-            return false;
+         public byte toRecord() {
+            return 1;
+         }
+      }, EVENT {
+         @Override
+         public byte toRecord() {
+            return 2;
          }
       };
 
-      public abstract boolean toBoolean();
+      public abstract byte toRecord();
 
-      public static ADD_OPERATION_TYPE toOperation(boolean isUpdate) {
-         return isUpdate ? UPDATE : ADD;
+      public static ADD_OPERATION_TYPE toOperation(byte recordType) {
+         switch (recordType) {
+            case 0: // 0: it used to be false, we need to use 0 for compatibility reasons with writeBoolean on the channel
+               return UPDATE;
+            case 1: // 1: it used to be true, we need to use 1 for compatibility reasons with writeBoolean
+               return ADD;
+            case 2: // 2: this represents the new value
+               return EVENT;
+         }
+         return ADD;
       }
    }
 

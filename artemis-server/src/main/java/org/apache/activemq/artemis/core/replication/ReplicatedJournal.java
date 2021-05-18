@@ -129,6 +129,20 @@ public class ReplicatedJournal implements Journal {
       localJournal.appendAddRecord(id, recordType, persister, record, sync, completionCallback);
    }
 
+   @Override
+   public void appendAddEvent(long id,
+                       byte recordType,
+                       Persister persister,
+                       Object record,
+                       boolean sync,
+                       IOCompletion completionCallback) throws Exception {
+      if (log.isTraceEnabled()) {
+         log.trace("Append record id = " + id + " recordType = " + recordType);
+      }
+      replicationManager.appendUpdateRecord(journalID, ADD_OPERATION_TYPE.EVENT, id, recordType, persister, record);
+      localJournal.appendAddEvent(id, recordType, persister, record, sync, completionCallback);
+   }
+
    /**
     * @param txID
     * @param id

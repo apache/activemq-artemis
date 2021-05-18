@@ -449,6 +449,13 @@ public final class Page implements Comparable<Page> {
    }
 
    public synchronized void write(final PagedMessage message) throws Exception {
+      writeDirect(message);
+      storageManager.pageWrite(message, pageId);
+   }
+
+   /** This write will not interact back with the storage manager.
+    *  To avoid ping pongs with Journal retaining events and any other stuff. */
+   public void writeDirect(PagedMessage message) throws Exception {
       if (!file.isOpen()) {
          throw ActiveMQMessageBundle.BUNDLE.cannotWriteToClosedFile(file);
       }
@@ -471,7 +478,6 @@ public final class Page implements Comparable<Page> {
       //lighter than addAndGet when single writer
       numberOfMessages.lazySet(numberOfMessages.get() + 1);
       size.lazySet(size.get() + bufferSize);
-      storageManager.pageWrite(message, pageId);
    }
 
    public void sync() throws Exception {

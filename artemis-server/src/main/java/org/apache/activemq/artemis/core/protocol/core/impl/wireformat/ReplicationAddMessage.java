@@ -78,7 +78,7 @@ public final class ReplicationAddMessage extends PacketImpl {
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
-      buffer.writeBoolean(operation.toBoolean());
+      buffer.writeByte(operation.toRecord());
       buffer.writeLong(id);
       buffer.writeByte(journalRecordType);
       buffer.writeInt(persister.getEncodeSize(encodingData));
@@ -88,7 +88,7 @@ public final class ReplicationAddMessage extends PacketImpl {
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
-      operation = ADD_OPERATION_TYPE.toOperation(buffer.readBoolean());
+      operation = ADD_OPERATION_TYPE.toOperation(buffer.readByte());
       id = buffer.readLong();
       journalRecordType = buffer.readByte();
       final int recordDataSize = buffer.readInt();

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
@@ -667,6 +668,24 @@ public interface Configuration {
     * Sets the file system directory used to store journal log.
     */
    Configuration setJournalDirectory(String dir);
+
+   String getJournalRetentionDirectory();
+
+   /**
+    * Sets the file system directory used to store historical backup journal.
+    */
+   Configuration setJournalRetentionDirectory(String dir);
+
+   File getJournalRetentionLocation();
+
+   /** The retention period for the journal in milliseconds (always in milliseconds, a conversion is performed on set) */
+   long getJournalRetentionPeriod();
+
+   Configuration setJournalRetentionPeriod(TimeUnit unit, long limit);
+
+   long getJournalRetentionMaxBytes();
+
+   Configuration setJournalRetentionMaxBytes(long bytes);
 
    /**
     * Returns the type of journal used by this server ({@code NIO}, {@code ASYNCIO} or {@code MAPPED}).
@@ -1350,4 +1369,5 @@ public interface Configuration {
    String getTemporaryQueueNamespace();
 
    Configuration setTemporaryQueueNamespace(String temporaryQueueNamespace);
+
 }

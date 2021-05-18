@@ -30,7 +30,24 @@ public class JournalAddRecord extends JournalInternalRecord {
 
    protected final byte recordType;
 
-   protected final boolean add;
+   protected final byte journalType;
+
+   /**
+    * @param id
+    * @param recordType
+    * @param record
+    */
+   public JournalAddRecord(final byte journalType, final long id, final byte recordType, final Persister persister, Object record) {
+      this.id = id;
+
+      this.record = record;
+
+      this.recordType = recordType;
+
+      this.journalType = journalType;
+
+      this.persister = persister;
+   }
 
    /**
     * @param id
@@ -38,24 +55,12 @@ public class JournalAddRecord extends JournalInternalRecord {
     * @param record
     */
    public JournalAddRecord(final boolean add, final long id, final byte recordType, final Persister persister, Object record) {
-      this.id = id;
-
-      this.record = record;
-
-      this.recordType = recordType;
-
-      this.add = add;
-
-      this.persister = persister;
+      this(add ? JournalImpl.ADD_RECORD : JournalImpl.UPDATE_RECORD, id, recordType, persister, record);
    }
 
    @Override
    public void encode(final ActiveMQBuffer buffer) {
-      if (add) {
-         buffer.writeByte(JournalImpl.ADD_RECORD);
-      } else {
-         buffer.writeByte(JournalImpl.UPDATE_RECORD);
-      }
+      buffer.writeByte(journalType);
 
       buffer.writeInt(fileID);
 

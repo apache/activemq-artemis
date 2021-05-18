@@ -25,12 +25,14 @@ import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
@@ -63,7 +65,7 @@ public class RecoverMessages extends DBOption {
          if (configuration.isJDBC()) {
             throw new IllegalAccessException("JDBC Not supported on recover");
          } else {
-            recover(configuration, journalOutput, reclaimed);
+            recover(configuration, getJournal(), journalOutput, new File(getLargeMessages()), reclaimed);
          }
       } catch (Exception e) {
          treatError(e, "data", "print");
@@ -71,9 +73,9 @@ public class RecoverMessages extends DBOption {
       return null;
    }
 
-   public static void recover(Configuration configuration, File journalOutput, boolean reclaimed) throws Exception {
+   public static void recover(Configuration configuration, String journallocation, File journalOutput, File largeMessage, boolean reclaimed) throws Exception {
 
-      File journal = configuration.getJournalLocation();
+      File journal = new File(journallocation);
 
       if (!journalOutput.exists()) {
          if (!journalOutput.mkdirs()) {
@@ -87,12 +89,14 @@ public class RecoverMessages extends DBOption {
 
       SequentialFileFactory outputFF = new NIOSequentialFileFactory(journalOutput, null, 1);
       outputFF.setDatasync(false);
-      JournalImpl targetJournal = new JournalImpl(configuration.getJournalFileSize(), 2, 2, 0, 0, outputFF, "activemq-data", "amq", 1);
+      JournalImpl targetJournal = new JournalImpl(configuration.getJournalFileSize(), 2, 2, -1, 0, outputFF, "activemq-data", "amq", 1);
+      targetJournal.setAutoReclaim(false);
 
       targetJournal.start();
       targetJournal.loadInternalOnly();
 
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(journal, null, 1);
+      SequentialFileFactory largeMessagesFF = new NIOSequentialFileFactory(largeMessage, null, 1);
 
       // Will use only default values. The load function should adapt to anything different
       JournalImpl messagesJournal = new JournalImpl(configuration.getJournalFileSize(), configuration.getJournalMinFiles(), configuration.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
@@ -106,23 +110,66 @@ public class RecoverMessages extends DBOption {
       userRecordsOfInterest.add(JournalRecordIds.ADD_REF);
       userRecordsOfInterest.add(JournalRecordIds.PAGE_TRANSACTION);
 
+      HashSet<Pair<Long, Long>> routeBindigns = new HashSet<>();
+
       for (JournalFile file : files) {
+         // For reviewers and future maintainers: I really meant System.out.println here
+         // This is part of the CLI, hence this is like user's output
          System.out.println("Recovering messages from file " + file);
 
-         HashSet<Pair<Long, Long>> routeBindigns = new HashSet<>();
-
          JournalImpl.readJournalFile(messagesFF, file, new JournalReaderCallback() {
+            long lastlargeMessageId = -1;
+            SequentialFile largeMessageFile;
+            @Override
+            public void done() {
+               try {
+                  if (largeMessageFile != null) {
+                     largeMessageFile.close();
+                     largeMessageFile = null;
+                  }
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
+            }
+            @Override
+            public void onReadEventRecord(RecordInfo info) throws Exception {
+               switch (info.getUserRecordType()) {
+                  case JournalRecordIds.ADD_REF:
+                     onReadUpdateRecord(info);
+                     break;
+
+                  case JournalRecordIds.ADD_MESSAGE_BODY:
+                     if (lastlargeMessageId != info.id || largeMessageFile == null) {
+                        if (largeMessageFile != null) {
+                           largeMessageFile.close();
+                        }
+
+                        largeMessageFile = largeMessagesFF.createSequentialFile(info.id + ".msg");
+                        largeMessageFile.open();
+                        largeMessageFile.position(largeMessageFile.size());
+                        lastlargeMessageId = info.id;
+                     }
+                     largeMessageFile.write(new ByteArrayEncoding(info.data), false, null);
+                     break;
+
+                  default:
+                     onReadAddRecord(info);
+               }
+            }
+
             @Override
             public void onReadAddRecord(RecordInfo info) throws Exception {
                if (userRecordsOfInterest.contains(info.getUserRecordType())) {
 
                   if (targetJournal.getRecords().get(info.id) != null) {
+                     // Really meant System.out.. user's information on the CLI
                      System.out.println("RecordID " + info.id + " would been duplicated, ignoring it");
                      return;
                   }
                   try {
-                     targetJournal.appendAddRecord(info.id, info.userRecordType, info.data, true);
+                     targetJournal.appendAddRecord(info.id, info.userRecordType, info.data, false);
                   } catch (Exception e) {
+                     // Really meant System.out.. user's information on the CLI
                      System.out.println("Cannot append record for " + info.id + "->" + e.getMessage());
                   }
                }
@@ -135,7 +182,8 @@ public class RecoverMessages extends DBOption {
                      long queue = ByteUtil.bytesToLong(info.data);
                      Pair<Long, Long> pairQueue = new Pair<>(info.id, queue);
                      if (routeBindigns.contains(pairQueue)) {
-                        System.out.println("AddRef on " + info.id + " / queue=" + queue + " has already been recorded, ignoring it");
+                        // really meant system.out
+                        System.out.println("AddReference on " + info.id + " / queue=" + queue + " has already been recorded, ignoring it");
                         return;
                      }
 
@@ -145,6 +193,7 @@ public class RecoverMessages extends DBOption {
                      targetJournal.appendUpdateRecord(info.id, info.userRecordType, info.data, true);
                   } catch (Exception e) {
                      System.out.println("Cannot update record " + info.id + "-> " + e.getMessage());
+                     e.printStackTrace(System.out);
                   }
                }
             }

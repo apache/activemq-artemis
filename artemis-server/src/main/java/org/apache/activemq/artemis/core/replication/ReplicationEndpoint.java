@@ -39,11 +39,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.journal.EncoderPersister;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.Journal.JournalState;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.impl.FileWrapperJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.impl.Page;
@@ -750,16 +752,25 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     */
    private void handleAppendAddRecord(final ReplicationAddMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
-      if (packet.getRecord() == ADD_OPERATION_TYPE.UPDATE) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Endpoint appendUpdate id = " + packet.getId());
-         }
-         journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
-      } else {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Endpoint append id = " + packet.getId());
-         }
-         journalToUse.appendAddRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
+      switch (packet.getRecord()) {
+         case UPDATE:
+            if (logger.isTraceEnabled()) {
+               logger.trace("Endpoint appendUpdate id = " + packet.getId());
+            }
+            journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
+            break;
+         case ADD:
+            if (logger.isTraceEnabled()) {
+               logger.trace("Endpoint append id = " + packet.getId());
+            }
+            journalToUse.appendAddRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
+            break;
+         case EVENT:
+            if (logger.isTraceEnabled()) {
+               logger.trace("Endpoint append id = " + packet.getId());
+            }
+            journalToUse.appendAddEvent(packet.getId(), packet.getJournalRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(packet.getRecordData()), noSync, null);
+            break;
       }
    }
 
@@ -800,7 +811,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       pgdMessage.initMessage(storageManager);
       Message msg = pgdMessage.getMessage();
       Page page = getPage(msg.getAddressSimpleString(), packet.getPageNumber());
-      page.write(pgdMessage);
+      page.writeDirect(pgdMessage);
    }
 
    private ConcurrentMap<Integer, Page> getPageMap(final SimpleString storeName) {

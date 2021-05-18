@@ -16,16 +16,24 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -108,6 +116,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     *
     * */
    public static final double UPDATE_FACTOR;
+   private static final String BKP_EXTENSION = "bkp";
+   public static final String BKP = "." + BKP_EXTENSION;
+
 
    static {
       String UPDATE_FACTOR_STR = System.getProperty(JournalImpl.class.getName() + ".UPDATE_FACTOR");
@@ -145,6 +156,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       DataConstants.SIZE_INT /* + record.length */;
 
    // Record markers - they must be all unique
+
+
+   public static final byte EVENT_RECORD = 10;
 
    public static final byte ADD_RECORD = 11;
 
@@ -202,6 +216,75 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private final JournalFilesRepository filesRepository;
 
+   private File journalRetentionFolder;
+
+   private long journalRetentionPeriod = -1;
+
+   private int journalRetentionMaxFiles = -1;
+
+   private final List<JournalFile> historyPendingFiles = Collections.synchronizedList(new LinkedList<>());
+
+   // This is to guarantee only one thread is making a copy of a file
+   // the processBackup is pretty much single threaded happening at the compactorExecutor
+   // there are a few exceptions like startup, or during a replica-copy-catch-up in a small possibility
+   private final Object processBackupLock = new Object();
+
+   @Override
+   public boolean isHistory() {
+      return journalRetentionFolder != null;
+   }
+
+   @Override
+   public JournalImpl setHistoryFolder(File historyFolder, long maxBytes, long period) throws Exception {
+
+      if (this.state != JournalState.STOPPED) {
+         throw new IllegalStateException("State = " + state);
+      }
+      this.journalRetentionFolder = historyFolder;
+      this.journalRetentionFolder.mkdirs();
+
+      this.journalRetentionMaxFiles = (int) (maxBytes / this.fileSize);
+      this.journalRetentionPeriod = period;
+
+
+      try {
+         List<String> files = this.fileFactory.listFiles(BKP_EXTENSION);
+
+         for (String name : files) {
+            SequentialFile file = fileFactory.createSequentialFile(name);
+            JournalFileImpl journalFile;
+            try {
+               file.open();
+               journalFile = readFileHeader(file);
+            } finally {
+               file.close();
+            }
+            historyPendingFiles.add(journalFile);
+         }
+
+
+         for (JournalFile file : historyPendingFiles) {
+            File[] repeatFiles = historyFolder.listFiles((a, name) -> name.startsWith(getFilePrefix()) && name.endsWith(file.getFileID() + "." + filesRepository.getFileExtension()));
+
+            for (File f : repeatFiles) {
+               logger.warn("File " + f + " was partially copied before, removing the file");
+               f.delete();
+            }
+         }
+
+         processBackup();
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+         if (criticalErrorListener != null) {
+            criticalErrorListener.onIOException(e, e.getMessage(), null);
+         }
+      }
+
+      return this;
+   }
+
+
+
    // Compacting may replace this structure
    private final ConcurrentLongHashMap<JournalRecord> records = new ConcurrentLongHashMap<>();
 
@@ -229,6 +312,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    private final ExecutorFactory providedIOThreadPool;
    protected ExecutorFactory ioExecutorFactory;
    private ThreadPoolExecutor threadPool;
+
+   ThreadLocal<GregorianCalendar> calendarThreadLocal = ThreadLocal.withInitial(() -> new GregorianCalendar());
 
    /**
     * We don't lock the journal during the whole compacting operation. During compacting we only
@@ -339,7 +424,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                       final String fileExtension,
                       final int maxAIO,
                       final int userVersion) {
-      this(ioExecutors, fileSize, minFiles, poolSize, compactMinFiles, compactPercentage, journalFileOpenTimeout, fileFactory, filePrefix, fileExtension, maxAIO, userVersion, null, 0);
+      this(ioExecutors, fileSize, minFiles, poolSize, compactMinFiles, compactPercentage, journalFileOpenTimeout, fileFactory, filePrefix, fileExtension, maxAIO, userVersion, (a, b, c) -> logger.warn(a.getMessage(), a), 0);
    }
 
 
@@ -510,7 +595,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
             byte recordType = wholeFileBuffer.get();
 
-            if (recordType < JournalImpl.ADD_RECORD || recordType > JournalImpl.ROLLBACK_RECORD) {
+            if (recordType < JournalImpl.EVENT_RECORD || recordType > JournalImpl.ROLLBACK_RECORD) {
                // I - We scan for any valid record on the file. If a hole
                // happened on the middle of the file we keep looking until all
                // the possibilities are gone
@@ -711,6 +796,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             }
 
             switch (recordType) {
+               case EVENT_RECORD: {
+                  reader.onReadEventRecord(new RecordInfo(recordID, userRecordType, record, false, compactCount));
+                  break;
+               }
+
                case ADD_RECORD: {
                   reader.onReadAddRecord(new RecordInfo(recordID, userRecordType, record, false, compactCount));
                   break;
@@ -781,6 +871,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             lastDataPos = wholeFileBuffer.position();
 
          }
+         reader.done();
          return lastDataPos;
       } catch (Throwable e) {
          ActiveMQJournalLogger.LOGGER.errorReadingFile(e);
@@ -846,16 +937,16 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
                if (logger.isTraceEnabled()) {
                   logger.trace("appendAddRecord::id=" + id +
-                                             ", userRecordType=" +
-                                             recordType +
-                                             ", record = " + record +
-                                             ", usedFile = " +
-                                             usedFile);
+                                  ", userRecordType=" +
+                                  recordType +
+                                  ", record = " + record +
+                                  ", usedFile = " +
+                                  usedFile);
                }
                result.set(true);
             } catch (ActiveMQShutdownException e) {
                result.fail(e);
-               logger.error("appendPrepareRecord:" + e, e);
+               logger.error("appendAddRecord:" + e, e);
             } catch (Throwable e) {
                result.fail(e);
                setErrorCondition(callback, null, e);
@@ -864,6 +955,64 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                pendingRecords.remove(id);
                journalLock.readLock().unlock();
             }
+         }
+      });
+
+      result.get();
+   }
+
+
+   @Override
+   public void appendAddEvent(final long id,
+                              final byte recordType,
+                              final Persister persister,
+                              final Object record,
+                              final boolean sync,
+                              final IOCompletion callback) throws Exception {
+      checkJournalIsLoaded();
+      lineUpContext(callback);
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("scheduling appendAddEvent::id=" + id +
+                         ", userRecordType=" +
+                         recordType +
+                         ", record = " + record);
+      }
+
+      final long maxRecordSize = getMaxRecordSize();
+      final JournalInternalRecord addRecord = new JournalAddRecord(JournalImpl.EVENT_RECORD, id, recordType, persister, record);
+      final int addRecordEncodeSize = addRecord.getEncodeSize();
+
+      if (addRecordEncodeSize > maxRecordSize) {
+         //The record size should be larger than max record size only on the large messages case.
+         throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(addRecordEncodeSize, maxRecordSize);
+      }
+
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
+      appendExecutor.execute(() -> {
+         journalLock.readLock().lock();
+         try {
+            JournalFile usedFile = appendRecord(addRecord, false, sync, null, callback);
+
+            if (logger.isTraceEnabled()) {
+               logger.trace("appendAddEvent:id=" + id +
+                               ", userRecordType=" +
+                               recordType +
+                               ", record = " + record +
+                               ", usedFile = " +
+                               usedFile);
+            }
+            result.set(true);
+         } catch (ActiveMQShutdownException e) {
+            result.fail(e);
+            logger.error("appendAddEvent:" + e, e);
+         } catch (Throwable e) {
+            result.fail(e);
+            setErrorCondition(callback, null, e);
+            logger.error("appendAddEvent::"  + e, e);
+         } finally {
+            pendingRecords.remove(id);
+            journalLock.readLock().unlock();
          }
       });
 
@@ -1676,7 +1825,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
             onCompactStart();
 
-            dataFilesToProcess = getDataListToProcess();
+            dataFilesToProcess = getDataListToCompact();
 
             if (dataFilesToProcess == null)
                return;
@@ -1812,7 +1961,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    /** this private method will return a list of data files that need to be cleaned up.
     *  It will get the list, and replace it on the journal structure, while a separate thread would be able
     *  to read it, and append to a new list that will be replaced on the journal. */
-   private ArrayList<JournalFile> getDataListToProcess() throws Exception {
+   private ArrayList<JournalFile> getDataListToCompact() throws Exception {
       ArrayList<JournalFile> dataFilesToProcess = new ArrayList<>(filesRepository.getDataFilesCount());
       // We need to guarantee that the journal is frozen for this short time
       // We don't freeze the journal as we compact, only for the short time where we replace records
@@ -1857,6 +2006,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       } finally {
          journalLock.writeLock().unlock();
       }
+
+      processBackup();
 
       for (JournalFile file : dataFilesToProcess) {
          file.getFile().waitNotPending();
@@ -2216,7 +2367,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       }
 
-      checkReclaimStatus();
+      if (changeData) {
+         checkReclaimStatus();
+      }
 
       return new JournalLoadInformation(records.size(), maxID.longValue());
    }
@@ -2243,6 +2396,183 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             wholeFileBufferRef.lazySet(null);
          }
       }
+   }
+
+
+   @Override
+   public void processBackupCleanup() {
+      if (logger.isDebugEnabled()) {
+         logger.debug("processBackupCleanup with maxFiles = " + journalRetentionMaxFiles + " and period = " + journalRetentionPeriod);
+      }
+      if (journalRetentionFolder != null && (journalRetentionMaxFiles > 0 || journalRetentionPeriod > 0)) {
+
+         FilenameFilter fnf = (d, name) -> name.endsWith("." + filesRepository.getFileExtension());
+
+         if (journalRetentionPeriod > 0) {
+            String[] fileNames = journalRetentionFolder.list(fnf);
+            Arrays.sort(fileNames);
+
+            GregorianCalendar calendar = this.calendarThreadLocal.get();
+            calendar.setTimeInMillis(System.currentTimeMillis() - journalRetentionPeriod);
+            long timeCutOf = calendar.getTimeInMillis();
+
+            for (String fileName : fileNames) {
+               long timeOnFile = getDatePortionMillis(fileName);
+               if (timeOnFile < timeCutOf) {
+                  logger.debug("File " + fileName + " is too old and should go");
+                  File fileToRemove = new File(journalRetentionFolder, fileName);
+                  if (!fileToRemove.delete()) {
+                     logger.debug("Could not remove " + fileToRemove);
+                  }
+               } else {
+                  break;
+               }
+            }
+         }
+
+         if (journalRetentionMaxFiles > 0) {
+            String[] fileNames = journalRetentionFolder.list(fnf);
+            Arrays.sort(fileNames);
+
+            if (fileNames.length > journalRetentionMaxFiles) {
+               int toRemove = fileNames.length - journalRetentionMaxFiles;
+
+               for (String file : fileNames) {
+                  logger.debug("Removing " + file);
+                  File fileToRemove = new File(journalRetentionFolder, file);
+                  fileToRemove.delete();
+                  toRemove--;
+                  if (toRemove <= 0) {
+                     break;
+                  }
+               }
+            }
+         }
+
+
+      }
+   }
+
+   /** With the exception of initialization, this has to be always called within the compactorExecutor */
+   @Override
+   public void processBackup() {
+      if (this.journalRetentionFolder == null) {
+         return;
+      }
+
+      synchronized (processBackupLock) {
+         ArrayList<JournalFile> filesToMove;
+         filesToMove = new ArrayList<>(historyPendingFiles.size());
+         filesToMove.addAll(historyPendingFiles);
+         historyPendingFiles.clear();
+
+         for (JournalFile fileToCopy : filesToMove) {
+            copyFile(fileToCopy);
+         }
+      }
+
+      if (compactorExecutor != null) {
+         compactorExecutor.execute(this::processBackupCleanup);
+      } else {
+         processBackupCleanup();
+      }
+   }
+
+   // This exists to avoid a race with copying the files on initial replica
+   // we get the list, and check each individual file if they have the pending copy
+   private void checkRetentionFile(JournalFile file) {
+      if (this.journalRetentionFolder == null) {
+         return;
+      }
+
+      // It is cheaper to check without a lock
+      if (!file.getFile().getFileName().endsWith(BKP)) {
+         return;
+      }
+
+      copyFile(file);
+   }
+
+   // you need to synchronize processBackupLock before calling this
+   private void copyFile(JournalFile fileToCopy) {
+      synchronized (processBackupLock) {
+         if (fileToCopy == null || !fileToCopy.getFile().getFileName().endsWith(BKP)) {
+            return;
+         }
+
+         long fileId = fileToCopy.getFileID();
+
+         GregorianCalendar calendar = calendarThreadLocal.get();
+
+         calendar.setTimeInMillis(System.currentTimeMillis());
+         String fileName = getHistoryFileName(fileId, calendar);
+
+         File copyFrom = fileToCopy.getFile().getJavaFile();
+
+         File copyTo = new File(journalRetentionFolder, fileName);
+
+         if (logger.isDebugEnabled()) {
+            logger.debug("Copying journal retention from " + copyFrom + " to " + copyTo);
+         }
+
+         try {
+            Files.copy(copyFrom.toPath(), copyTo.toPath(), StandardCopyOption.REPLACE_EXISTING);
+         } catch (IOException e) {
+            logger.warn(e.getMessage(), e);
+            try {
+               criticalIO(e);
+            } catch (Exception ignored) {
+            }
+         }
+
+         try {
+            fileToCopy.getFile().renameTo(removeBackupExtension(fileToCopy.getFile().getFileName()));
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            if (criticalErrorListener != null) {
+               criticalErrorListener.onIOException(e, e.getMessage(), fileToCopy.getFile());
+            }
+         }
+
+         fileToCopy.setReclaimable(true);
+      }
+   }
+
+   public String getHistoryFileName(long sequence, Calendar calendar) {
+
+      String fileName = String.format("%s-%04d%02d%02d%02d%02d%02d-%d.%s", filesRepository.getFilePrefix(), calendar.get(Calendar.YEAR),
+                                      calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
+                                      calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND), sequence, filesRepository.getFileExtension());
+
+      return fileName;
+   }
+
+   public String removeBackupExtension(String name) {
+      int indexOfBKP = name.indexOf(BKP);
+      if (indexOfBKP >= 0) {
+         return name.substring(0, name.indexOf(BKP));
+      } else {
+         return name;
+      }
+   }
+
+   public long getDatePortionMillis(String name) {
+      String datePortion = getDatePortion(name);
+      GregorianCalendar calendar = calendarThreadLocal.get();
+
+      int year = Integer.parseInt(datePortion.substring(0, 4));
+      int month = Integer.parseInt(datePortion.substring(4, 6));
+      int day = Integer.parseInt(datePortion.substring(6, 8));
+      int hour = Integer.parseInt(datePortion.substring(8, 10));
+      int minutes = Integer.parseInt(datePortion.substring(10, 12));
+      int seconds = Integer.parseInt(datePortion.substring(12, 14));
+
+      calendar.set(year, month, day, hour, minutes, seconds);
+      return calendar.getTimeInMillis();
+
+   }
+   public String getDatePortion(String name) {
+      return name.substring(filesRepository.getFilePrefix().length() + 1, name.indexOf("-", filesRepository.getFilePrefix().length() + 1));
    }
 
    /**
@@ -2487,7 +2817,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    @Override
    public JournalFile[] getDataFiles() {
-      return filesRepository.getDataFilesArray();
+      JournalFile[] files = filesRepository.getDataFilesArray();
+      for (JournalFile file : files) {
+         checkRetentionFile(file);
+      }
+      return files;
    }
 
    @Override
@@ -2775,7 +3109,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    private static boolean isContainsBody(final byte recordType) {
-      return recordType >= JournalImpl.ADD_RECORD && recordType <= JournalImpl.DELETE_RECORD_TX;
+      return recordType >= JournalImpl.EVENT_RECORD && recordType <= JournalImpl.DELETE_RECORD_TX;
    }
 
    private static int getRecordSize(final byte recordType, final int journalVersion) {
@@ -2783,6 +3117,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       int recordSize = 0;
       switch (recordType) {
          case ADD_RECORD:
+         case EVENT_RECORD:
             recordSize = JournalImpl.SIZE_ADD_RECORD;
             break;
          case UPDATE_RECORD:
@@ -2827,7 +3162,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * @return
     * @throws Exception
     */
-   private JournalFileImpl readFileHeader(final SequentialFile file) throws Exception {
+   public JournalFileImpl readFileHeader(final SequentialFile file) throws Exception {
       ByteBuffer bb = fileFactory.newBuffer(JournalImpl.SIZE_HEADER);
 
       file.read(bb);
@@ -2973,6 +3308,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             @Override
             public void run() {
                try {
+                  processBackup();
                   if (!checkReclaimStatus()) {
                      checkCompact();
                   }
@@ -3256,6 +3592,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     */
    protected void moveNextFile(final boolean scheduleReclaim, boolean blockOnClose) throws Exception {
       filesRepository.closeFile(currentFile, blockOnClose);
+
+
+      if (this.journalRetentionFolder != null) {
+         currentFile.setReclaimable(false);
+         currentFile.getFile().renameTo(currentFile.getFile().getFileName() + BKP);
+         this.historyPendingFiles.add(currentFile);
+      }
 
       currentFile = filesRepository.openFile();
 
