@@ -28,6 +28,11 @@ public class ReplicatedWithDelayFailoverTest extends ReplicatedFailoverTest {
    private BackupSyncDelay syncDelay;
 
    @Override
+   protected boolean supportsRetention() {
+      return false;
+   }
+
+   @Override
    @Before
    public void setUp() throws Exception {
       startBackupServer = false;

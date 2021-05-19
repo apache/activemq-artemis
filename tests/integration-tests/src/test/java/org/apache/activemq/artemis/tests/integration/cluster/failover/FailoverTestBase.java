@@ -185,6 +185,9 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       return new InVMNodeManager(true, backupConfig.getJournalLocation());
    }
 
+   protected boolean supportsRetention() {
+      return true;
+   }
 
    protected void createReplicatedConfigs() throws Exception {
       final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
@@ -207,8 +210,10 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
       liveServer = createTestableServer(liveConfig);
 
-      liveServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, false) + "_retention");
-      backupServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, true) + "_retention");
+      if (supportsRetention()) {
+         liveServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, false) + "_retention");
+         backupServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, true) + "_retention");
+      }
    }
 
    protected void setupHAPolicyConfiguration() {
