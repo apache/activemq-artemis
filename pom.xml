@@ -1080,7 +1080,7 @@
                   <artifactId>maven-enforcer-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>enforce-java</id>
+                        <id>enforce-java-version</id>
                         <goals>
                            <goal>enforce</goal>
                         </goals>
@@ -1442,7 +1442,7 @@
               <version>${maven.enforcer.plugin.version}</version>
               <executions>
                 <execution>
-                  <id>enforce-maven</id>
+                  <id>enforce-maven-version</id>
                   <goals>
                     <goal>enforce</goal>
                   </goals>
@@ -1594,7 +1594,7 @@
            <artifactId>maven-enforcer-plugin</artifactId>
            <executions>
              <execution>
-               <id>enforce-java</id>
+               <id>enforce-java-version</id>
                <goals>
                  <goal>enforce</goal>
                </goals>
