@@ -579,7 +579,8 @@ public class QueueControlTest extends ManagementTestBase {
 
       final String twentyBytes = new String(new char[20]).replace("\0", "#");
 
-      ClientMessage clientMessage = createTextMessage(session, twentyBytes, true);
+      ClientMessage clientMessage = session.createMessage(Message.TEXT_TYPE, durable);
+      clientMessage.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(twentyBytes));
       clientMessage.putStringProperty("x", twentyBytes);
 
       QueueControl queueControl = createManagementControl(address, queue);
