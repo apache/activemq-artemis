@@ -236,6 +236,10 @@ under the License.
                   <filter string="(color='red' OR color='blue')" />
                   <durable>true</durable>
                </queue>
+               <queue name="MMDeadConsumer" group-buckets="64" group-rebalance="true">
+                  <filter string="(color='yellow' OR color='white')" />
+                  <durable>true</durable>
+               </queue>
             </multicast>
          </address>
       </addresses>

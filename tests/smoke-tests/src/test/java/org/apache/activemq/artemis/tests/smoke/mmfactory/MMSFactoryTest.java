@@ -193,6 +193,8 @@ public class MMSFactoryTest extends SmokeTestBase {
          consumers[i] = startConsumerProcess(theprotocol, timeForConsumers[i], "MMFactory::MMConsumer", 100, i);
       }
 
+      Process deadConsumer = startConsumerProcess(theprotocol, 0, "MMFactory::MMDeadConsumer", 100, 0);
+
       Process dlqProcess = startConsumerProcess(theprotocol, 0, "DLQ", 100, 1000);
 
       AtomicInteger retryNumber = new AtomicInteger(0);
@@ -290,6 +292,7 @@ public class MMSFactoryTest extends SmokeTestBase {
 
             Thread.sleep(1000);
          } finally {
+            deadConsumer.destroyForcibly();
             for (Process c : consumers) {
                c.destroyForcibly();
             }
