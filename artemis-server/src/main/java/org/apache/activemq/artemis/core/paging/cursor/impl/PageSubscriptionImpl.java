@@ -1423,10 +1423,11 @@ public final class PageSubscriptionImpl implements PageSubscription {
                }
 
                if (valid) {
-                  match = match(message.getMessage());
-
-                  if (!browsing && !match) {
-                     processACK(message.getPosition());
+                  if (browsing) {
+                     match = match(message.getMessage());
+                  } else {
+                     // if not browsing, we will just trust the routing on the queue
+                     match = true;
                   }
                } else if (!browsing && ignored) {
                   positionIgnored(message.getPosition());
