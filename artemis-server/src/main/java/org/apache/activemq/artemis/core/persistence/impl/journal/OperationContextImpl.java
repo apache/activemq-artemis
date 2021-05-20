@@ -130,63 +130,62 @@ public class OperationContextImpl implements OperationContext {
 
    @Override
    public void executeOnCompletion(final IOCallback completion, final boolean storeOnly) {
-      if (errorCode != -1) {
-         completion.onError(errorCode, errorMessage);
-         return;
-      }
-
       boolean executeNow = false;
 
       synchronized (this) {
-         final int UNDEFINED = Integer.MIN_VALUE;
-         int storeLined = UNDEFINED;
-         int pageLined = UNDEFINED;
-         int replicationLined = UNDEFINED;
-         if (storeOnly) {
-            if (storeOnlyTasks == null) {
-               storeOnlyTasks = new LinkedList<>();
-            }
-         } else {
-            if (tasks == null) {
-               tasks = new LinkedList<>();
-               minimalReplicated = (replicationLined = replicationLineUp.intValue());
-               minimalStore = (storeLined = storeLineUp.intValue());
-               minimalPage = (pageLined = pageLineUp.intValue());
-            }
-         }
-         //On the next branches each of them is been used
-         if (replicationLined == UNDEFINED) {
-            replicationLined = replicationLineUp.intValue();
-            storeLined = storeLineUp.intValue();
-            pageLined = pageLineUp.intValue();
-         }
-         // On this case, we can just execute the context directly
-
-         if (replicationLined == replicated && storeLined == stored && pageLined == paged) {
-            // We want to avoid the executor if everything is complete...
-            // However, we can't execute the context if there are executions pending
-            // We need to use the executor on this case
-            if (executorsPending.get() == 0) {
-               // No need to use an executor here or a context switch
-               // there are no actions pending.. hence we can just execute the task directly on the same thread
-               executeNow = true;
-            } else {
-               execute(completion);
-            }
-         } else {
+         if (errorCode == -1) {
+            final int UNDEFINED = Integer.MIN_VALUE;
+            int storeLined = UNDEFINED;
+            int pageLined = UNDEFINED;
+            int replicationLined = UNDEFINED;
             if (storeOnly) {
-               assert !storeOnlyTasks.isEmpty() ? storeOnlyTasks.peekLast().storeLined <= storeLined : true;
-               storeOnlyTasks.add(new StoreOnlyTaskHolder(completion, storeLined));
+               if (storeOnlyTasks == null) {
+                  storeOnlyTasks = new LinkedList<>();
+               }
             } else {
-               // ensure total ordering
-               assert validateTasksAdd(storeLined, replicationLined, pageLined);
-               tasks.add(new TaskHolder(completion, storeLined, replicationLined, pageLined));
+               if (tasks == null) {
+                  tasks = new LinkedList<>();
+                  minimalReplicated = (replicationLined = replicationLineUp.intValue());
+                  minimalStore = (storeLined = storeLineUp.intValue());
+                  minimalPage = (pageLined = pageLineUp.intValue());
+               }
+            }
+            //On the next branches each of them is been used
+            if (replicationLined == UNDEFINED) {
+               replicationLined = replicationLineUp.intValue();
+               storeLined = storeLineUp.intValue();
+               pageLined = pageLineUp.intValue();
+            }
+            // On this case, we can just execute the context directly
+
+            if (replicationLined == replicated && storeLined == stored && pageLined == paged) {
+               // We want to avoid the executor if everything is complete...
+               // However, we can't execute the context if there are executions pending
+               // We need to use the executor on this case
+               if (executorsPending.get() == 0) {
+                  // No need to use an executor here or a context switch
+                  // there are no actions pending.. hence we can just execute the task directly on the same thread
+                  executeNow = true;
+               } else {
+                  execute(completion);
+               }
+            } else {
+               if (storeOnly) {
+                  assert !storeOnlyTasks.isEmpty() ? storeOnlyTasks.peekLast().storeLined <= storeLined : true;
+                  storeOnlyTasks.add(new StoreOnlyTaskHolder(completion, storeLined));
+               } else {
+                  // ensure total ordering
+                  assert validateTasksAdd(storeLined, replicationLined, pageLined);
+                  tasks.add(new TaskHolder(completion, storeLined, replicationLined, pageLined));
+               }
             }
          }
       }
 
-      if (executeNow) {
-         // Executing outside of any locks
+      // Executing outside of any locks
+      if (errorCode != -1) {
+         completion.onError(errorCode, errorMessage);
+      } else if (executeNow) {
          completion.done();
       }
 

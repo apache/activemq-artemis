@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -97,6 +98,70 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
       } finally {
          executor.shutdown();
+      }
+   }
+
+   @Test
+   public void testErrorNotLostOnPageSyncError() throws Exception {
+
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService pageSyncTimer = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+
+      class PageWriteErrorJob implements Runnable {
+         final OperationContextImpl operationContext;
+         PageWriteErrorJob(OperationContextImpl impl) {
+            impl.pageSyncLineUp();
+            operationContext = impl;
+         }
+
+         @Override
+         public void run() {
+            try {
+               operationContext.onError(10, "bla");
+            } finally {
+               operationContext.pageSyncDone();
+            }
+         }
+      }
+
+      try {
+         final int numJobs = 10000;
+         final CountDownLatch errorsOnLateRegister = new CountDownLatch(numJobs);
+
+         for (int i = 0; i < numJobs; i++) {
+            final OperationContextImpl impl = new OperationContextImpl(executor);
+
+            final CountDownLatch done = new CountDownLatch(1);
+
+            pageSyncTimer.execute(new PageWriteErrorJob(impl));
+            impl.executeOnCompletion(new IOCallback() {
+
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+                  errorsOnLateRegister.countDown();
+                  done.countDown();
+               }
+
+               @Override
+               public void done() {
+                  done.countDown();
+               }
+            });
+
+            done.await();
+         }
+
+         assertTrue(Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+               return errorsOnLateRegister.await(1, TimeUnit.SECONDS);
+            }
+         }));
+
+
+      } finally {
+         executor.shutdown();
+         pageSyncTimer.shutdown();
       }
    }
 
