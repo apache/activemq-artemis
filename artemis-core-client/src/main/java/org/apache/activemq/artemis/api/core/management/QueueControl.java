@@ -523,6 +523,13 @@ public interface QueueControl {
                     @Parameter(name = "otherQueueName", desc = "The name of the queue to move the messages to") String otherQueueName,
                     @Parameter(name = "rejectDuplicates", desc = "Reject messages identified as duplicate by the duplicate message") boolean rejectDuplicates) throws Exception;
 
+   @Operation(desc = "Move the messages corresponding to the given filter (and returns the number of moved messages)", impact = MBeanOperationInfo.ACTION)
+   int moveMessages(@Parameter(name = "flushLimit", desc = "Limit to flush transactions during the operation to avoid OutOfMemory") int flushLimit,
+                    @Parameter(name = "filter", desc = "A message filter (can be empty)") String filter,
+                    @Parameter(name = "otherQueueName", desc = "The name of the queue to move the messages to") String otherQueueName,
+                    @Parameter(name = "rejectDuplicates", desc = "Reject messages identified as duplicate by the duplicate message") boolean rejectDuplicates,
+                    @Parameter(name = "messageCount", desc = "Number of messages to move.") int messageCount) throws Exception;
+
    /**
     * Sends the message corresponding to the specified message ID to this queue's dead letter address.
     *

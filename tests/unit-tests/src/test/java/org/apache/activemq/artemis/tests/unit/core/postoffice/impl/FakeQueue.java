@@ -918,6 +918,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public int moveReferences(int flushLimit, Filter filter, SimpleString toAddress, boolean rejectDuplicates, int messageCount, Binding binding) throws Exception {
+      return 0;
+   }
+
+   @Override
    public void forceDelivery() {
       // no-op
 

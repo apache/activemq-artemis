@@ -2544,9 +2544,25 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                                           final SimpleString toAddress,
                                           final boolean rejectDuplicates,
                                           final Binding binding) throws Exception {
+      return moveReferences(flushLimit, filter, toAddress, rejectDuplicates, -1, binding);
+   }
+
+   @Override
+   public int moveReferences(final int flushLimit,
+                             final Filter filter,
+                             final SimpleString toAddress,
+                             final boolean rejectDuplicates,
+                             final int messageCount,
+                             final Binding binding) throws Exception {
+      final Integer expectedHits = messageCount > 0 ? messageCount : null;
       final DuplicateIDCache targetDuplicateCache = postOffice.getDuplicateIDCache(toAddress);
 
       return iterQueue(flushLimit, filter, new QueueIterateAction() {
+         @Override
+         public Integer expectedHits() {
+            return expectedHits;
+         }
+
          @Override
          public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
             boolean ignored = false;

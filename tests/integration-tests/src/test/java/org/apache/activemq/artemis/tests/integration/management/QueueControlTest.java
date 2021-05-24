@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
@@ -1797,6 +1798,44 @@ public class QueueControlTest extends ManagementTestBase {
       consumer.close();
       session.deleteQueue(queue);
       otherConsumer.close();
+      session.deleteQueue(otherQueue);
+   }
+
+   @Test
+   public void testMoveMessagesWithMessageCount() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString otherAddress = RandomUtil.randomSimpleString();
+      SimpleString otherQueue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+      session.createQueue(new QueueConfiguration(otherQueue).setAddress(otherAddress).setDurable(durable));
+      ClientProducer producer = session.createProducer(address);
+
+      for (int i = 0; i < 10; i++) {
+         ClientMessage message = session.createMessage(durable);
+         SimpleString key = RandomUtil.randomSimpleString();
+         long value = RandomUtil.randomLong();
+         message.putLongProperty(key, value);
+         producer.send(message);
+      }
+
+      final LocalQueueBinding binding = (LocalQueueBinding) server.getPostOffice().getBinding(queue);
+      Assert.assertEquals(10, binding.getQueue().getMessageCount());
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(10, queueControl.getMessageCount());
+
+      // moved all messages to otherQueue
+      int movedMessagesCount = queueControl.moveMessages(QueueControlImpl.FLUSH_LIMIT, null, otherQueue.toString(), false, 5);
+      Assert.assertEquals(5, movedMessagesCount);
+      Assert.assertEquals(5, queueControl.getMessageCount());
+
+      consumeMessages(5, session, queue);
+
+      consumeMessages(5, session, otherQueue);
+
+      session.deleteQueue(queue);
       session.deleteQueue(otherQueue);
    }
 

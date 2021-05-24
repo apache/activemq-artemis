@@ -358,6 +358,13 @@ public interface Queue extends Bindable,CriticalComponent {
                       boolean rejectDuplicates,
                       Binding binding) throws Exception;
 
+   int moveReferences(int flushLimit,
+                      Filter filter,
+                      SimpleString toAddress,
+                      boolean rejectDuplicates,
+                      int messageCount,
+                      Binding binding) throws Exception;
+
    int retryMessages(Filter filter) throws Exception;
 
    default int retryMessages(Filter filter, Integer expectedHits) throws Exception {
