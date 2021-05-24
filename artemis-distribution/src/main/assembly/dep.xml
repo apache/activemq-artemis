@@ -103,7 +103,6 @@
             <include>org.apache.johnzon:johnzon-core</include>
             <include>jakarta.xml.bind:jakarta.xml.bind-api</include>
             <include>com.sun.xml.bind:jaxb-impl</include>
-            <include>com.sun.xml.bind:jaxb-core</include>
             <include>jakarta.activation:jakarta.activation-api</include>
             <include>jakarta.security.auth.message:jakarta.security.auth.message-api</include>
          </includes>
