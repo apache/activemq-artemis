@@ -46,6 +46,16 @@ ${jdbc}
 
       <large-messages-directory>${data.dir}/large-messages</large-messages-directory>
 
+      <!--
+      if you want to retain your journal uncomment this following configuration.
+
+      This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.
+
+      it is recommended to use a separate storage unit from the journal for performance considerations.
+
+      <journal-retention-directory period="7" unit="DAYS" storage-limit="10G">data/retention</journal-retention-directory>>
+      -->
+
       <journal-datasync>${fsync}</journal-datasync>
 
       <journal-min-files>2</journal-min-files>
@@ -63,16 +73,6 @@ ${jdbc}
       <!-- once the disk hits this limit the system will block, or close the connection in certain protocols
            that won't support flow control. -->
       <max-disk-usage>90</max-disk-usage>
-
-      <!--
-      if you want to retain your journal uncomment this following configuration.
-
-      This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.
-
-      it is recommended to use a separate storage unit from the journal for performance considerations.
-
-      <journal-retention-directory period="7" unit="DAYS" storage-limit="10G">data/retention</journal-retention-directory>>
-      -->
 
       <!-- should the broker detect dead locks and other issues -->
       <critical-analyzer>true</critical-analyzer>
