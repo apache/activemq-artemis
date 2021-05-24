@@ -2934,6 +2934,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             .add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute())
             .add("addressFullMessagePolicy", policy)
             .add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold())
+            .add("slowConsumerThresholdMeasurementUnit", addressSettings.getSlowConsumerThresholdMeasurementUnit().toString())
             .add("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod())
             .add("slowConsumerPolicy", consumerPolicy)
             .add("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues())
