@@ -49,6 +49,11 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
    }
 
    @Override
+   protected boolean supportsRetention() {
+      return false;
+   }
+
+   @Override
    protected void setBody(final int i, final ClientMessage message) {
       setLargeMessageBody(i, message);
    }
