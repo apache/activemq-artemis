@@ -105,8 +105,205 @@ public class Transfer extends InputAbstract {
    @Option(name = "--target-topic", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. (Default: queue://TEST)")
    String targetTopic;
 
-   boolean isCopy() {
+   @Option(name = "--message-count", description = "Number of messages to transfer.")
+   int messageCount = Integer.MAX_VALUE;
+
+   public String getSourceURL() {
+      return sourceURL;
+   }
+
+   public Transfer setSourceURL(String sourceURL) {
+      this.sourceURL = sourceURL;
+      return this;
+   }
+
+   public String getSourceUser() {
+      return sourceUser;
+   }
+
+   public Transfer setSourceUser(String sourceUser) {
+      this.sourceUser = sourceUser;
+      return this;
+   }
+
+   public String getSourcePassword() {
+      return sourcePassword;
+   }
+
+   public Transfer setSourcePassword(String sourcePassword) {
+      this.sourcePassword = sourcePassword;
+      return this;
+   }
+
+   public String getTargetURL() {
+      return targetURL;
+   }
+
+   public Transfer setTargetURL(String targetURL) {
+      this.targetURL = targetURL;
+      return this;
+   }
+
+   public String getTargetUser() {
+      return targetUser;
+   }
+
+   public Transfer setTargetUser(String targetUser) {
+      this.targetUser = targetUser;
+      return this;
+   }
+
+   public String getTargetPassword() {
+      return targetPassword;
+   }
+
+   public Transfer setTargetPassword(String targetPassword) {
+      this.targetPassword = targetPassword;
+      return this;
+   }
+
+   public int getReceiveTimeout() {
+      return receiveTimeout;
+   }
+
+   public Transfer setReceiveTimeout(int receiveTimeout) {
+      this.receiveTimeout = receiveTimeout;
+      return this;
+   }
+
+   public String getSourceClientID() {
+      return sourceClientID;
+   }
+
+   public Transfer setSourceClientID(String sourceClientID) {
+      this.sourceClientID = sourceClientID;
+      return this;
+   }
+
+   public String getSourceProtocol() {
+      return sourceProtocol;
+   }
+
+   public Transfer setSourceProtocol(String sourceProtocol) {
+      this.sourceProtocol = sourceProtocol;
+      return this;
+   }
+
+   public String getSourceQueue() {
+      return sourceQueue;
+   }
+
+   public Transfer setSourceQueue(String sourceQueue) {
+      this.sourceQueue = sourceQueue;
+      return this;
+   }
+
+   public String getSharedDurableSubscription() {
+      return sharedDurableSubscription;
+   }
+
+   public Transfer setSharedDurableSubscription(String sharedDurableSubscription) {
+      this.sharedDurableSubscription = sharedDurableSubscription;
+      return this;
+   }
+
+   public String getSharedSubscription() {
+      return sharedSubscription;
+   }
+
+   public Transfer setSharedSubscription(String sharedSubscription) {
+      this.sharedSubscription = sharedSubscription;
+      return this;
+   }
+
+   public String getDurableConsumer() {
+      return durableConsumer;
+   }
+
+   public Transfer setDurableConsumer(String durableConsumer) {
+      this.durableConsumer = durableConsumer;
+      return this;
+   }
+
+   public boolean isNoLocal() {
+      return noLocal;
+   }
+
+   public Transfer setNoLocal(boolean noLocal) {
+      this.noLocal = noLocal;
+      return this;
+   }
+
+   public String getSourceTopic() {
+      return sourceTopic;
+   }
+
+   public Transfer setSourceTopic(String sourceTopic) {
+      this.sourceTopic = sourceTopic;
+      return this;
+   }
+
+   public String getFilter() {
+      return filter;
+   }
+
+   public Transfer setFilter(String filter) {
+      this.filter = filter;
+      return this;
+   }
+
+   public String getTargetProtocol() {
+      return targetProtocol;
+   }
+
+   public Transfer setTargetProtocol(String targetProtocol) {
+      this.targetProtocol = targetProtocol;
+      return this;
+   }
+
+   public int getCommitInterval() {
+      return commitInterval;
+   }
+
+   public Transfer setCommitInterval(int commitInterval) {
+      this.commitInterval = commitInterval;
+      return this;
+   }
+
+   public boolean isCopy() {
       return copy;
+   }
+
+   public Transfer setCopy(boolean copy) {
+      this.copy = copy;
+      return this;
+   }
+
+   public String getTargetQueue() {
+      return targetQueue;
+   }
+
+   public Transfer setTargetQueue(String targetQueue) {
+      this.targetQueue = targetQueue;
+      return this;
+   }
+
+   public String getTargetTopic() {
+      return targetTopic;
+   }
+
+   public Transfer setTargetTopic(String targetTopic) {
+      this.targetTopic = targetTopic;
+      return this;
+   }
+
+   public int getMessageCount() {
+      return messageCount;
+   }
+
+   public Transfer setMessageCount(int messageCount) {
+      this.messageCount = messageCount;
+      return this;
    }
 
    @SuppressWarnings("StringEquality")
@@ -183,7 +380,7 @@ public class Transfer extends InputAbstract {
 
       sourceConnection.start();
       int pending = 0, total = 0;
-      while (true) {
+      while (total < messageCount) {
 
          Message receivedMessage;
          if (receiveTimeout < 0) {
@@ -231,7 +428,7 @@ public class Transfer extends InputAbstract {
       sourceConnection.close();
       targetConnection.close();
 
-      return null;
+      return total;
    }
 
    Destination createDestination(String role, Session session, String queue, String topic) throws Exception {

@@ -1460,6 +1460,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public int moveReferences(int flushLimit, Filter filter, SimpleString toAddress, boolean rejectDuplicates, int messageCount, Binding binding) throws Exception {
+         return 0;
+      }
+
+      @Override
       public void addRedistributor(long delay) {
 
       }
