@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.cluster;
 
-import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.RetryRule;
@@ -106,74 +105,5 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
          conn2.close();
       }
    }
-
-   @Test
-   public void testTemporaryQueue() throws Exception {
-
-      Connection conn1 = openWireCf1.createConnection();
-      Connection conn2 = openWireCf2.createConnection();
-
-      conn1.start();
-      conn2.start();
-
-      try {
-         Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Queue targetQueue1 = session1.createQueue(QUEUE_NAME);
-         Queue tempQueue = session1.createTemporaryQueue();
-         Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Queue targetQueue2 = session2.createQueue(QUEUE_NAME);
-
-         waitForBindings(0, QUEUE_NAME, 1, 0, true);
-         waitForBindings(0, tempQueue.getQueueName(), 1, 0, true);
-         waitForBindings(0, QUEUE_NAME, 1, 0, false);
-
-         waitForBindings(1, QUEUE_NAME, 1, 0, true);
-         waitForBindings(1, QUEUE_NAME, 1, 0, false);
-         waitForBindings(1, tempQueue.getQueueName(), 1, 0, false);
-
-         MessageProducer prod1 = session1.createProducer(targetQueue1);
-         MessageConsumer cons2 = session2.createConsumer(targetQueue2);
-         MessageConsumer tempCons1 = session1.createConsumer(tempQueue);
-
-         waitForBindings(0, tempQueue.getQueueName(), 1, 1, true);
-         waitForBindings(1, QUEUE_NAME, 1, 1, true);
-
-         for (int i = 0; i < 10; i++) {
-            TextMessage message = session1.createTextMessage("" + i);
-            message.setJMSReplyTo(tempQueue);
-            prod1.send(message);
-         }
-
-         // waiting the advisory to update the activeTempDestinations
-         Wait.assertTrue(() -> ((ActiveMQConnection) conn2).activeTempDestinations.containsValue(tempQueue));
-
-         for (int i = 0; i < 10; i++) {
-            if (i % 2 == 0) {
-               TextMessage received = (TextMessage) cons2.receive(5000);
-               MessageProducer tempProducer = session2.createProducer(received.getJMSReplyTo());
-               tempProducer.send(session2.createTextMessage(">>> " + received.getText()));
-               tempProducer.close();
-            }
-         }
-
-         for (int i = 0; i < 10; i++) {
-            if (i % 2 == 0) {
-               TextMessage received = (TextMessage) tempCons1.receive(5000);
-               assertNotNull(received);
-            }
-         }
-      } finally {
-         conn1.close();
-         conn2.close();
-      }
-   }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }
