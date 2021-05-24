@@ -37,6 +37,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.File;
 import java.util.ArrayList;
@@ -142,16 +143,28 @@ public class CliTestBase {
    }
 
    protected List<Message> consumeMessages(Session session, String address, int noMessages, boolean fqqn) throws Exception {
-      Destination destination = fqqn ? session.createQueue(address) : getDestination(address);
-      MessageConsumer consumer = session.createConsumer(destination);
-
       List<Message> messages = new ArrayList<>();
-      for (int i = 0; i < noMessages; i++) {
-         Message m = consumer.receive(1000);
-         assertNotNull(m);
-         messages.add(m);
+      Destination destination = fqqn ? session.createQueue(address) : getDestination(address);
+
+      try (MessageConsumer consumer = session.createConsumer(destination)) {
+         for (int i = 0; i < noMessages; i++) {
+            Message m = consumer.receive(1000);
+            assertNotNull(m);
+            messages.add(m);
+         }
       }
+
       return messages;
+   }
+
+   protected void produceMessages(Session session, String address, int noMessages, boolean fqqn) throws Exception {
+      Destination destination = fqqn ? session.createQueue(address) : getDestination(address);
+
+      try (MessageProducer producer = session.createProducer(destination)) {
+         for (int i = 0; i < noMessages; i++) {
+            producer.send(session.createTextMessage("test message: " + i));
+         }
+      }
    }
 
    Destination getDestination(String queueName) {

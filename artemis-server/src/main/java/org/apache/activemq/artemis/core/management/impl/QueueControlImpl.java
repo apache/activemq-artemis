@@ -1245,8 +1245,17 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                            final String filterStr,
                            final String otherQueueName,
                            final boolean rejectDuplicates) throws Exception {
+      return moveMessages(flushLimit, filterStr, otherQueueName, rejectDuplicates, -1);
+   }
+
+   @Override
+   public int moveMessages(final int flushLimit,
+                           final String filterStr,
+                           final String otherQueueName,
+                           final boolean rejectDuplicates,
+                           final int messageCount) throws Exception {
       if (AuditLogger.isEnabled()) {
-         AuditLogger.moveMessages(queue, flushLimit, filterStr, otherQueueName, rejectDuplicates);
+         AuditLogger.moveMessages(queue, flushLimit, filterStr, otherQueueName, rejectDuplicates, messageCount);
       }
       checkStarted();
 
@@ -1260,7 +1269,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
          }
 
-         int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates, binding);
+         int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates, messageCount, binding);
          return retValue;
       } finally {
          blockOnIO();
