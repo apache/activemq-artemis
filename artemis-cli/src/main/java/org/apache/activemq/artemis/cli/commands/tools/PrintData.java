@@ -125,8 +125,7 @@ public class PrintData extends DBOption {
    }
 
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out, boolean safe, boolean reclaimed) throws Exception {
-         // Having the version on the data report is an information very useful to understand what happened
-      // When debugging stuff
+      // printing the banner and version
       Artemis.printBanner(out);
 
       File serverLockFile = new File(messagesDirectory, "server.lock");
