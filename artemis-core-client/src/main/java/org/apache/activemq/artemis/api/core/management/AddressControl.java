@@ -185,4 +185,22 @@ public interface AddressControl {
    @Attribute(desc = "clear the duplicate ID cache for this address both from memory and from the journal")
    boolean clearDuplicateIdCache() throws Exception;
 
+   /**
+    * Returns whether this address was created automatically in response to client action.
+    */
+   @Attribute(desc = "whether this address was created automatically in response to client action")
+   boolean isAutoCreated();
+
+   /**
+    * Returns whether this address was created for the broker's internal use.
+    */
+   @Attribute(desc = "whether this address was created for the broker's internal use")
+   boolean isInternal();
+
+   /**
+    * Returns whether this address is temporary.
+    */
+   @Attribute(desc = "whether this address is temporary")
+   boolean isTemporary();
+
 }
