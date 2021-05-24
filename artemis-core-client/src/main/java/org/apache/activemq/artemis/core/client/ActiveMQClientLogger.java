@@ -574,4 +574,8 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @Message(id = 214033, value = "Cannot resolve host ",
            format = Message.Format.MESSAGE_FORMAT)
    void unableToResolveHost(@Cause UnknownHostException e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212079, value = "The upstream connector from the downstream federation will ignore url parameter {0}", format = Message.Format.MESSAGE_FORMAT)
+   void ignoredParameterForDownstreamFederation(String name);
 }
