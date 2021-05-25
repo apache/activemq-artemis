@@ -1167,7 +1167,7 @@ following reasons:
  - the bindings data which holds the user & role data cannot be modified
    manually 
  - the broker must be running to manage users
- - the broker often needs to be secured from first boot the
+ - the broker often needs to be secured from first boot
 
 If, for example, the broker was configured to use the 
 `ActiveMQBasicSecurityManager` and was started from scratch then no clients
