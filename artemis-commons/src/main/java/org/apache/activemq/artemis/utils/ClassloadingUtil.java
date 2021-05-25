@@ -122,6 +122,10 @@ public final class ClassloadingUtil {
       return (String)properties.get(name);
    }
 
+   public static Properties loadProperties(String propertiesFile) {
+      return loadProperties(ClassloadingUtil.class.getClassLoader(), propertiesFile);
+   }
+
    public static Properties loadProperties(ClassLoader loader, String propertiesFile) {
       Properties properties = new Properties();
 

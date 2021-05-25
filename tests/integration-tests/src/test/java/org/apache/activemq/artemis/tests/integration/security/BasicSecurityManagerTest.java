@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.security;
 
 import java.lang.management.ManagementFactory;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,10 +43,24 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
+   private boolean bootstrapProperties;
+
+   public BasicSecurityManagerTest(boolean bootstrapProperties) {
+      this.bootstrapProperties = bootstrapProperties;
+   }
+
+   @Parameterized.Parameters(name = "bootstrapProperties={0}")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][]{{false}, {true}};
+      return Arrays.asList(params);
+   }
 
    @Override
    @Before
@@ -56,9 +72,14 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
 
    public ActiveMQServer initializeServer() throws Exception {
       Map<String, String> initProperties = new HashMap<>();
-      initProperties.put(ActiveMQBasicSecurityManager.BOOTSTRAP_USER, "first");
-      initProperties.put(ActiveMQBasicSecurityManager.BOOTSTRAP_PASSWORD, "secret");
-      initProperties.put(ActiveMQBasicSecurityManager.BOOTSTRAP_ROLE, "programmers");
+      if (bootstrapProperties) {
+         initProperties.put(ActiveMQBasicSecurityManager.BOOTSTRAP_USER_FILE, "users.properties");
+         initProperties.put(ActiveMQBasicSecurityManager.BOOTSTRAP_ROLE_FILE, "roles.properties");
+      } else {
+         initProperties.put(ActiveMQBasicSecurityManager.BOOTSTRAP_USER, "first");
+         initProperties.put(ActiveMQBasicSecurityManager.BOOTSTRAP_PASSWORD, "secret");
+         initProperties.put(ActiveMQBasicSecurityManager.BOOTSTRAP_ROLE, "programmers");
+      }
       ActiveMQBasicSecurityManager securityManager = new ActiveMQBasicSecurityManager().init(initProperties);
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, true));
       return server;
