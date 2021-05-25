@@ -2,9 +2,7 @@
 
 Apache ActiveMQ Artemis ships with two persistence options.  The file journal which is 
 highly optimized for the messaging use case and gives great performance, and also the
-JDBC Store, which uses JDBC to connect to a database of your choice.  The JDBC Store is 
-still under development, but it is possible to use its journal features, (essentially
-everything except for paging and large messages).
+JDBC Store, which uses JDBC to connect to a database of your choice.
 
 ## File Journal (Default)
 
@@ -434,15 +432,14 @@ apt-get install libaio
 
 ## JDBC Persistence
 
-WARNING: The Apache ActiveMQ Artemis JDBC persistence store is under development and is included for evaluation purposes.
+The Apache ActiveMQ Artemis JDBC persistence layer offers the ability to store broker state (messages, address & queue 
+definitions, etc.) using a database.
 
-The Apache ActiveMQ Artemis JDBC persistence layer offers the ability to store broker state (Messages, Addresses and other
-application state) using a database.  N.B. Address full policy Paging (See: [The section on Paging](paging.md)) is currently not
-supported with the JDBC persistence layer.
-
-Using the ActiveMQ Artemis File Journal is the recommended configuration as it offers higher levels of performance and is
-more mature.  The JDBC persistence layer is targeted to those users who must use a database e.g. due to internal company
-policy.
+> **Note:**
+> 
+> Using the ActiveMQ Artemis File Journal is the **recommended** configuration as it offers higher levels of performance
+> and is more mature. Performance for both paging and large messages is especially diminished with JDBC. The JDBC 
+> persistence layer is targeted to those users who _must_ use a database e.g. due to internal company policy.
 
 ActiveMQ Artemis currently has support for a limited number of database vendors (older versions may work but mileage may
 vary):
