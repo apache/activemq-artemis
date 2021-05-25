@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.settings.impl;
 
+import java.util.concurrent.TimeUnit;
+
 public enum SlowConsumerThresholdMeasurementUnit {
    MESSAGES_PER_SECOND(1), MESSAGES_PER_MINUTE(60), MESSAGES_PER_HOUR(3600), MESSAGES_PER_DAY(3600 * 24);
 
@@ -35,6 +37,21 @@ public enum SlowConsumerThresholdMeasurementUnit {
             return MESSAGES_PER_HOUR;
          case 3600 * 24:
             return MESSAGES_PER_DAY;
+         default:
+            return null;
+      }
+   }
+
+   public static TimeUnit unitOf(int measurementUnitInSeconds) {
+      switch (measurementUnitInSeconds) {
+         case 1:
+            return TimeUnit.SECONDS;
+         case 60:
+            return TimeUnit.MINUTES;
+         case 3600:
+            return TimeUnit.HOURS;
+         case 3600 * 24:
+            return TimeUnit.DAYS;
          default:
             return null;
       }
