@@ -148,9 +148,9 @@ group:
 ```xml
 <broadcast-groups>
    <broadcast-group name="my-broadcast-group">
+      <broadcast-period>2000</broadcast-period>
       <jgroups-file>test-jgroups-file_ping.xml</jgroups-file>
       <jgroups-channel>activemq_broadcast_channel</jgroups-channel>
-      <broadcast-period>2000</broadcast-period>
       <connector-ref>netty-connector</connector-ref>
    </broadcast-group>
 </broadcast-groups>
