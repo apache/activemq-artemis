@@ -458,7 +458,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
 
          @Override
          public int moveMessages(int flushLimit, String filter, String otherQueueName, boolean rejectDuplicates, int messageCount) throws Exception {
-            return (Integer) proxy.invokeOperation("moveMessages", flushLimit, filter, otherQueueName, rejectDuplicates, messageCount);
+            return (Integer) proxy.invokeOperation(Integer.class, "moveMessages", flushLimit, filter, otherQueueName, rejectDuplicates, messageCount);
          }
 
          @Override
