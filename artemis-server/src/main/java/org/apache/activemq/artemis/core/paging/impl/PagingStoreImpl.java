@@ -571,7 +571,7 @@ public class PagingStoreImpl implements PagingStore {
       try {
          factory = checkFileFactory();
          SequentialFile file = factory.createSequentialFile(fileName);
-         return file.exists();
+         return file.exists() && file.size() > 0;
       } catch (Exception ignored) {
          logger.debug("PagingStoreFactory::checkPageFileExists never-throws assumption failed.", ignored);
          return false;
@@ -1141,7 +1141,7 @@ public class PagingStoreImpl implements PagingStore {
     * @param pageID
     * @return
     */
-   private String createFileName(final int pageID) {
+   public String createFileName(final int pageID) {
       /** {@link DecimalFormat} is not thread safe. */
       synchronized (format) {
          return format.format(pageID) + ".page";
