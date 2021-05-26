@@ -281,7 +281,21 @@
                   <id>bin</id>
                   <configuration>
                      <descriptors>
-                       <descriptor>src/main/assembly/dep.xml</descriptor>
+                       <descriptor>src/main/assembly/bin.xml</descriptor>
+                     </descriptors>
+                     <tarLongFileMode>posix</tarLongFileMode>
+                  </configuration>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+               </execution>
+               <execution>
+                  <id>dir</id>
+                  <configuration>
+                     <attach>false</attach>
+                     <descriptors>
+                       <descriptor>src/main/assembly/dir.xml</descriptor>
                      </descriptors>
                      <tarLongFileMode>posix</tarLongFileMode>
                   </configuration>
