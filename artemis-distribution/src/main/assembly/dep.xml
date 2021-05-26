@@ -208,7 +208,7 @@
       <!-- resources -->
       <fileSet>
          <directory>src/main/resources</directory>
-         <outputDirectory>/</outputDirectory>
+         <outputDirectory>${file.separator}</outputDirectory>
          <lineEnding>keep</lineEnding>
          <excludes>
             <exclude>bin/activemq</exclude>
@@ -224,7 +224,7 @@
       <!-- chmod to 755 on linux executables -->
       <fileSet>
          <directory>src/main/resources</directory>
-         <outputDirectory>/</outputDirectory>
+         <outputDirectory>${file.separator}</outputDirectory>
          <lineEnding>keep</lineEnding>
          <includes>
             <include>bin/activemq</include>
@@ -254,7 +254,7 @@
       <!-- Include license and notice files -->
       <fileSet>
          <directory>${activemq.basedir}/artemis-distribution/src/main/resources/licenses/bin</directory>
-         <outputDirectory>/</outputDirectory>
+         <outputDirectory>${file.separator}</outputDirectory>
          <useDefaultExcludes>true</useDefaultExcludes>
       </fileSet>
    </fileSets>
