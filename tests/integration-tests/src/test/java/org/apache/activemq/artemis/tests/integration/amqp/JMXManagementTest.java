@@ -29,6 +29,9 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.Decimal128;
+import org.apache.qpid.proton.amqp.Decimal32;
+import org.apache.qpid.proton.amqp.Decimal64;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,8 +42,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.UUID;
 
 public class JMXManagementTest extends JMSClientTestSupport {
 
@@ -132,6 +137,45 @@ public class JMXManagementTest extends JMSClientTestSupport {
          final Map<String, Object> msgMap = result[0];
          Assert.assertTrue(msgMap.get("TEST_STRING").toString().length() < 512);
 
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
+   public void testGetFirstMessageWithAMQPTypes() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+
+      try {
+         UUID uuid = UUID.randomUUID();
+         Character character = new Character('C');
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getQueueName());
+
+         session.begin();
+         AmqpMessage message = new AmqpMessage();
+         message.setApplicationProperty("TEST_UUID", uuid);
+         message.setApplicationProperty("TEST_CHAR", character);
+         message.setApplicationProperty("TEST_DECIMAL_32", new Decimal32(BigDecimal.ONE));
+         message.setApplicationProperty("TEST_DECIMAL_64", new Decimal64(BigDecimal.ONE));
+         message.setApplicationProperty("TEST_DECIMAL_128", new Decimal128(BigDecimal.ONE));
+
+         sender.send(message);
+         session.commit();
+
+         SimpleString queue = new SimpleString(getQueueName());
+         QueueControl queueControl = createManagementControl(queue, queue);
+         String firstMessageAsJSON = queueControl.getFirstMessageAsJSON();
+         Assert.assertNotNull(firstMessageAsJSON);
+
+         JsonObject firstMessageObject = JsonUtil.readJsonArray(firstMessageAsJSON).getJsonObject(0);
+
+         Assert.assertEquals(uuid.toString(), firstMessageObject.getString("TEST_UUID"));
+         Assert.assertEquals(character.toString(), firstMessageObject.getString("TEST_CHAR"));
+         Assert.assertNotNull(firstMessageObject.getJsonNumber("TEST_DECIMAL_32"));
+         Assert.assertNotNull(firstMessageObject.getJsonNumber("TEST_DECIMAL_64"));
+         Assert.assertNotNull(firstMessageObject.getJsonNumber("TEST_DECIMAL_128"));
       } finally {
          connection.close();
       }
