@@ -32,7 +32,7 @@
       <!--  main project directory structure  -->
       <fileSet>
          <directory>${activemq.basedir}</directory>
-         <outputDirectory>/</outputDirectory>
+         <outputDirectory>${file.separator}</outputDirectory>
          <useDefaultExcludes>true</useDefaultExcludes>
          <!-- TODO These excludes were lifted from maven-resources-apache-source-release-assembly-descriptor-1.0.4. We
          should use this descriptor directly in future -->
