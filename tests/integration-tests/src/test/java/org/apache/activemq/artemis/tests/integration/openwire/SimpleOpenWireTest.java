@@ -73,6 +73,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -1778,6 +1779,34 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       XidImpl xid1 = new XidImpl(xid);
       Transaction transaction = server.getResourceManager().getTransaction(xid1);
       assertNull(transaction);
+   }
+
+   @Test
+   public void testPropertyConversions() throws Exception {
+      final String BROKER_PATH = RandomUtil.randomString();
+      final String CLUSTER = RandomUtil.randomString();
+      final String USER_ID = RandomUtil.randomString();
+
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(queueName);         ///// PRODUCE MESSAGE
+
+         MessageProducer producer = session.createProducer(queue);
+         TextMessage message = session.createTextMessage("This is a text message");
+         message.setStringProperty("__HDR_BROKER_PATH", BROKER_PATH);
+         message.setStringProperty("__HDR_CLUSTER", CLUSTER);
+         message.setStringProperty("__HDR_USER_ID", USER_ID);
+
+         producer.send(message);
+
+         MessageConsumer messageConsumer = session.createConsumer(queue);
+         connection.start();
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+         assertNotNull(messageReceived);
+         assertEquals(BROKER_PATH, messageReceived.getStringProperty("__HDR_BROKER_PATH"));
+         assertEquals(CLUSTER, messageReceived.getStringProperty("__HDR_CLUSTER"));
+         assertEquals(USER_ID, messageReceived.getStringProperty("__HDR_USER_ID"));
+      }
    }
 
    private void checkQueueEmpty(String qName) {
