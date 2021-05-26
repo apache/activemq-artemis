@@ -753,8 +753,13 @@ public final class PageSubscriptionImpl implements PageSubscription {
          for (PagePosition pos : recoveredACK) {
             lastAckedPosition = pos;
             PageCursorInfo pageInfo = getPageInfo(pos);
+            PageCache cache = null;
 
-            if (pageInfo == null) {
+            if (pageInfo != null) {
+               cache = pageInfo.getValidCache();
+            }
+
+            if (cache == null || pos.getMessageNr() >= 0 && cache.getMessage(pos) == null) {
                ActiveMQServerLogger.LOGGER.pageNotFound(pos);
                if (txDeleteCursorOnReload == -1) {
                   txDeleteCursorOnReload = store.generateID();
@@ -1179,21 +1184,27 @@ public final class PageSubscriptionImpl implements PageSubscription {
       private int getNumberOfMessagesFromPageCache() {
          // if the page was live at any point, we need to
          // get the number of messages from the page-cache
-         PageCache localCache = this.cache.get();
-         if (localCache == null) {
-            localCache = cursorProvider.getPageCache(pageId);
-            // this could happen if the file does not exist any more, after cleanup
-            if (localCache == null) {
-               return 0;
-            }
-            this.cache = new WeakReference<>(localCache);
-         }
+         PageCache localCache = getValidCache();
+         if (localCache == null) return 0;
          int numberOfMessage = localCache.getNumberOfMessages();
          if (!localCache.isLive()) {
             //to avoid further "live" queries
             this.numberOfMessages = numberOfMessage;
          }
          return numberOfMessage;
+      }
+
+      public PageCache getValidCache() {
+         PageCache localCache = this.cache.get();
+         if (localCache == null) {
+            localCache = cursorProvider.getPageCache(pageId);
+            // this could happen if the file does not exist any more, after cleanup
+            if (localCache == null) {
+               return null;
+            }
+            this.cache = new WeakReference<>(localCache);
+         }
+         return localCache;
       }
 
       private int getNumberOfMessages() {
