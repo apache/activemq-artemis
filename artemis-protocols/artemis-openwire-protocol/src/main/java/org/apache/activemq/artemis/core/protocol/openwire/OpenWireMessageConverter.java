@@ -590,14 +590,14 @@ public final class OpenWireMessageConverter {
       }
       amqMsg.setArrival(arrival);
 
-      final String brokerPath = (String) coreMessage.getObjectProperty(AMQ_MSG_BROKER_PATH);
-      if (brokerPath != null && !brokerPath.isEmpty()) {
-         setAMQMsgBrokerPath(amqMsg, brokerPath);
+      final Object brokerPath = coreMessage.getObjectProperty(AMQ_MSG_BROKER_PATH);
+      if (brokerPath != null && brokerPath instanceof SimpleString && ((SimpleString)brokerPath).length() > 0) {
+         setAMQMsgBrokerPath(amqMsg, ((SimpleString)brokerPath).toString());
       }
 
-      final String clusterPath = (String) coreMessage.getObjectProperty(AMQ_MSG_CLUSTER);
-      if (clusterPath != null && !clusterPath.isEmpty()) {
-         setAMQMsgClusterPath(amqMsg, clusterPath);
+      final Object clusterPath = coreMessage.getObjectProperty(AMQ_MSG_CLUSTER);
+      if (clusterPath != null && clusterPath instanceof SimpleString && ((SimpleString)clusterPath).length() > 0) {
+         setAMQMsgClusterPath(amqMsg, ((SimpleString)clusterPath).toString());
       }
 
       Integer commandId = (Integer) coreMessage.getObjectProperty(AMQ_MSG_COMMAND_ID);
@@ -672,9 +672,9 @@ public final class OpenWireMessageConverter {
          setAMQMsgReplyTo(amqMsg, marshaller, replyToBytes);
       }
 
-      final String userId = (String) coreMessage.getObjectProperty(AMQ_MSG_USER_ID);
-      if (userId != null) {
-         amqMsg.setUserID(userId);
+      final Object userId = coreMessage.getObjectProperty(AMQ_MSG_USER_ID);
+      if (userId != null && userId instanceof SimpleString && ((SimpleString)userId).length() > 0) {
+         amqMsg.setUserID(((SimpleString)userId).toString());
       }
 
       final Boolean isDroppable = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_DROPPABLE);
