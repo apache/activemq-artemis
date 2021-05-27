@@ -573,8 +573,10 @@ public class PagingStoreImpl implements PagingStore {
          SequentialFile file = factory.createSequentialFile(fileName);
          return file.exists() && file.size() > 0;
       } catch (Exception ignored) {
-         logger.debug("PagingStoreFactory::checkPageFileExists never-throws assumption failed.", ignored);
-         return false;
+         // never supposed to happen, but just in case
+         logger.warn("PagingStoreFactory::checkPageFileExists never-throws assumption failed.", ignored);
+         return true; // returning false would make the acks to the page to go missing.
+                      // since we are not sure on the result for this case, we just return true
       }
    }
 
