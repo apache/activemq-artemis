@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
@@ -159,6 +158,8 @@ public final class JsonUtil {
          jsonObjectBuilder.add(key, (Short) param);
       } else if (param instanceof Byte) {
          jsonObjectBuilder.add(key, ((Byte) param).shortValue());
+      } else if (param instanceof Number) {
+         jsonObjectBuilder.add(key, ((Number)param).doubleValue());
       } else if (param instanceof SimpleString) {
          jsonObjectBuilder.add(key, param.toString());
       } else if (param == null) {
@@ -173,7 +174,7 @@ public final class JsonUtil {
          }
          jsonObjectBuilder.add(key, objectArrayBuilder);
       } else {
-         throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
+         jsonObjectBuilder.add(key, param.toString());
       }
    }
 
@@ -195,6 +196,8 @@ public final class JsonUtil {
          jsonArrayBuilder.add((Short) param);
       } else if (param instanceof Byte) {
          jsonArrayBuilder.add(((Byte) param).shortValue());
+      } else if (param instanceof Number) {
+         jsonArrayBuilder.add(((Number)param).doubleValue());
       } else if (param == null) {
          jsonArrayBuilder.addNull();
       } else if (param instanceof byte[]) {
@@ -216,7 +219,7 @@ public final class JsonUtil {
          }
          jsonArrayBuilder.add(objectArrayBuilder);
       } else {
-         throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
+         jsonArrayBuilder.add(param.toString());
       }
    }
 
