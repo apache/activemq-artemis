@@ -18,6 +18,8 @@
 package org.apache.activemq.cli.test;
 
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.cli.commands.messages.Transfer;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -69,14 +71,15 @@ public class TransferTest extends CliTestBase {
       String sourceQueueName = "SOURCE_QUEUE";
       String targetQueueName = "TARGET_QUEUE";
 
+      server.createQueue(new QueueConfiguration(sourceQueueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(targetQueueName).setRoutingType(RoutingType.ANYCAST));
+
       Session session = createSession(connection);
       produceMessages(session, sourceQueueName, messages, false);
-
 
       Queue sourceQueue = server.locateQueue(sourceQueueName);
 
       Wait.assertEquals(messages, sourceQueue::getMessageCount);
-      Assert.assertEquals(messages, sourceQueue.getMessageCount());
 
       Transfer transfer = new Transfer()
          .setSourceUser("admin")
@@ -84,7 +87,8 @@ public class TransferTest extends CliTestBase {
          .setSourceQueue(sourceQueueName)
          .setTargetUser("admin")
          .setTargetPassword("admin")
-         .setTargetQueue(targetQueueName).setReceiveTimeout(100);
+         .setTargetQueue(targetQueueName)
+         .setReceiveTimeout(100);
 
       if (limit > 0) {
          transfer.setMessageCount(limit);
