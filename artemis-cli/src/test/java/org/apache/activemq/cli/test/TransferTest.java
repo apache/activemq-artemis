@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -71,8 +72,10 @@ public class TransferTest extends CliTestBase {
       Session session = createSession(connection);
       produceMessages(session, sourceQueueName, messages, false);
 
+
       Queue sourceQueue = server.locateQueue(sourceQueueName);
 
+      Wait.assertEquals(messages, sourceQueue::getMessageCount);
       Assert.assertEquals(messages, sourceQueue.getMessageCount());
 
       Transfer transfer = new Transfer()
@@ -81,7 +84,7 @@ public class TransferTest extends CliTestBase {
          .setSourceQueue(sourceQueueName)
          .setTargetUser("admin")
          .setTargetPassword("admin")
-         .setTargetQueue(targetQueueName);
+         .setTargetQueue(targetQueueName).setReceiveTimeout(100);
 
       if (limit > 0) {
          transfer.setMessageCount(limit);
@@ -89,14 +92,14 @@ public class TransferTest extends CliTestBase {
          Assert.assertEquals(limit, transfer.execute(new TestActionContext()));
 
          Queue targetQueue = server.locateQueue(targetQueueName);
-         Assert.assertEquals(messages - limit, sourceQueue.getMessageCount());
-         Assert.assertEquals(limit, targetQueue.getMessageCount());
+         Wait.assertEquals(messages - limit, sourceQueue::getMessageCount);
+         Wait.assertEquals(limit, targetQueue::getMessageCount);
       } else {
          Assert.assertEquals(messages, transfer.execute(new TestActionContext()));
 
          Queue targetQueue = server.locateQueue(targetQueueName);
-         Assert.assertEquals(0, sourceQueue.getMessageCount());
-         Assert.assertEquals(messages, targetQueue.getMessageCount());
+         Wait.assertEquals(0, sourceQueue::getMessageCount);
+         Wait.assertEquals(messages, targetQueue::getMessageCount);
       }
    }
 }
