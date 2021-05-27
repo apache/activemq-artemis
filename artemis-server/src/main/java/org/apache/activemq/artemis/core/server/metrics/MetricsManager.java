@@ -31,6 +31,7 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -64,6 +65,9 @@ public class MetricsManager {
       }
       if (metricsConfiguration.isJvmThread()) {
          new JvmThreadMetrics().bindTo(meterRegistry);
+      }
+      if (metricsConfiguration.isNettyPool()) {
+         new NettyPooledAllocatorMetrics(PooledByteBufAllocator.DEFAULT.metric()).bindTo(meterRegistry);
       }
    }
 
