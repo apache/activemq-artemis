@@ -533,7 +533,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    public void configureInactivityParams(OpenWireConnection connection, WireFormatInfo command) throws IOException {
       long inactivityDurationToUse = command.getMaxInactivityDuration() > this.maxInactivityDuration ? this.maxInactivityDuration : command.getMaxInactivityDuration();
       long inactivityDurationInitialDelayToUse = command.getMaxInactivityDurationInitalDelay() > this.maxInactivityDurationInitalDelay ? this.maxInactivityDurationInitalDelay : command.getMaxInactivityDurationInitalDelay();
-      boolean useKeepAliveToUse = this.maxInactivityDuration == 0L ? false : this.useKeepAlive;
+      boolean useKeepAliveToUse = inactivityDurationToUse == 0L ? false : this.useKeepAlive;
       connection.setUpTtl(inactivityDurationToUse, inactivityDurationInitialDelayToUse, useKeepAliveToUse);
    }
 
