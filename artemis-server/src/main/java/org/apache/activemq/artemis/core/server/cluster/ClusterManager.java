@@ -75,7 +75,7 @@ import org.jboss.logging.Logger;
  * {@link ClusterConnectionImpl}. As a node is discovered a new {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge} is
  * deployed.
  */
-public final class ClusterManager implements ActiveMQComponent {
+public class ClusterManager implements ActiveMQComponent {
 
    private static final Logger logger = Logger.getLogger(ClusterManager.class);
 
