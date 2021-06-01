@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -60,10 +59,8 @@ import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.RemoveInfo;
 
 public class AMQConsumer {
-   private static final String AMQ_NOTIFICATIONS_DESTINATION = "activemq.notifications";
    private final AMQSession session;
    private final org.apache.activemq.command.ActiveMQDestination openwireDestination;
-   private final boolean hasNotificationDestination;
    private final ConsumerInfo info;
    private final ScheduledExecutorService scheduledPool;
    private ServerConsumer serverConsumer;
@@ -85,7 +82,6 @@ public class AMQConsumer {
                       boolean internalAddress) {
       this.session = amqSession;
       this.openwireDestination = d;
-      this.hasNotificationDestination = d.toString().contains(AMQ_NOTIFICATIONS_DESTINATION);
       this.info = info;
       this.scheduledPool = scheduledPool;
       this.prefetchSize = info.getPrefetchSize();
@@ -132,7 +128,7 @@ public class AMQConsumer {
             preAck = true;
          }
          String id = info.getClientId() != null ? info.getClientId() : this.getId().getConnectionId();
-         String noLocalSelector = MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + id + "'";
+         String noLocalSelector = MessageUtil.CONNECTION_ID_PROPERTY_NAME + "<>'" + id + "'";
          if (selector == null) {
             selector = new SimpleString(noLocalSelector);
          } else {
@@ -250,7 +246,7 @@ public class AMQConsumer {
       }
    }
 
-   public int handleDeliver(MessageReference reference, ICoreMessage message, int deliveryCount) {
+   public int handleDeliver(MessageReference reference, ICoreMessage message) {
       MessageDispatch dispatch;
       try {
          MessagePullHandler pullHandler = messagePullHandler.get();
@@ -264,15 +260,12 @@ public class AMQConsumer {
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
          //handleDeliver is performed by an executor (see JBPAPP-6030): any AMQConsumer can share the session.wireFormat()
-         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, session.wireFormat(), this);
+         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, session.wireFormat(), this, session.getCoreServer().getNodeManager().getUUID());
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);
          currentWindow.decrementAndGet();
          return size;
-      } catch (IOException e) {
-         ActiveMQServerLogger.LOGGER.warn("Error during message dispatch", e);
-         return 0;
       } catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.warn("Error during message dispatch", t);
          return 0;
@@ -399,9 +392,6 @@ public class AMQConsumer {
       serverConsumer.close(false);
    }
 
-   public boolean hasNotificationDestination() {
-      return hasNotificationDestination;
-   }
 
    public org.apache.activemq.command.ActiveMQDestination getOpenwireDestination() {
       return openwireDestination;
@@ -488,12 +478,11 @@ public class AMQConsumer {
       }
    }
 
-   public boolean removeRolledback(MessageReference messageReference) {
+   public void removeRolledback(MessageReference messageReference) {
       final Set<MessageReference> rolledbackMessageRefs = getRolledbackMessageRefs();
-      if (rolledbackMessageRefs == null) {
-         return false;
+      if (rolledbackMessageRefs != null) {
+         rolledbackMessageRefs.remove(messageReference);
       }
-      return rolledbackMessageRefs.remove(messageReference);
    }
 
    public void addRolledback(MessageReference messageReference) {

@@ -21,6 +21,8 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class UUIDGeneratorTest extends ActiveMQTestBase {
@@ -40,6 +42,20 @@ public class UUIDGeneratorTest extends ActiveMQTestBase {
       UUIDGenerator gen = UUIDGenerator.getInstance();
       org.apache.activemq.artemis.utils.UUID nativeId = gen.fromJavaUUID(javaId);
       assertEquals(javaId.toString(), nativeId.toString());
+   }
+
+
+   @Test
+   public void testDifferentInTightLoop() throws Exception {
+      UUIDGenerator gen = UUIDGenerator.getInstance();
+
+      final int numIterations = 10000;
+      Set<org.apache.activemq.artemis.utils.UUID> uuidSet = new HashSet<>();
+      for (int i = 0; i < numIterations; i++) {
+         org.apache.activemq.artemis.utils.UUID nativeId = gen.generateUUID();
+         uuidSet.add(nativeId);
+      }
+      assertEquals("All there", numIterations, uuidSet.size());
    }
 
    @Test
