@@ -96,13 +96,11 @@ public class JournalFilesRepository {
       @Override
       public void run() {
          // if there's already an opened file there is no need to push a new one
-         if (openedFiles.isEmpty()) {
-            try {
-               pushOpenedFile();
-            } catch (Exception e) {
-               ActiveMQJournalLogger.LOGGER.errorPushingFile(e);
-               fileFactory.onIOError(e, "unable to open ", null);
-            }
+         try {
+            pushOpenedFile();
+         } catch (Exception e) {
+            ActiveMQJournalLogger.LOGGER.errorPushingFile(e);
+            fileFactory.onIOError(e, "unable to open ", null);
          }
       }
    };
@@ -504,8 +502,7 @@ public class JournalFilesRepository {
       }
 
       if (nextFile == null) {
-
-         logger.debug("Could not get a file in " + journalFileOpenTimeout + " seconds, it will retry directly, without an executor");
+         ActiveMQJournalLogger.LOGGER.cantOpenFileTimeout(journalFileOpenTimeout);
          try {
             nextFile = takeFile(true, true, true, false);
          } catch (Exception e) {
