@@ -16,12 +16,10 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
@@ -30,7 +28,7 @@ import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.osgi.service.component.annotations.Component;
 
 @Component(service = ProtocolManagerFactory.class)
-public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
+public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFactory<OpenWireInterceptor> {
 
    public static final String OPENWIRE_PROTOCOL_NAME = "OPENWIRE";
 
@@ -44,12 +42,12 @@ public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFacto
                                                 final List<BaseInterceptor> incomingInterceptors,
                                                 List<BaseInterceptor> outgoingInterceptors) throws Exception {
       BeanSupport.stripPasswords(parameters);
-      return BeanSupport.setData(new OpenWireProtocolManager(this, server), parameters);
+      return BeanSupport.setData(new OpenWireProtocolManager(this, server, incomingInterceptors, outgoingInterceptors), parameters);
    }
 
    @Override
-   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
-      return Collections.emptyList();
+   public List<OpenWireInterceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
+      return internalFilterInterceptors(OpenWireInterceptor.class, interceptors);
    }
 
    @Override

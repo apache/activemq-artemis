@@ -293,40 +293,33 @@ public class AMQConsumer {
       }
 
       final int ackMessageCount = ack.getMessageCount();
-      acquireCredit(ackMessageCount);
-
       if (ack.isDeliveredAck()) {
+         acquireCredit(ackMessageCount);
          deliveredAcksCreditExtension += ackMessageCount;
          // our work is done
          return;
       }
 
-      // some sort of real ack, rebalance deliveredAcksCreditExtension
-      if (deliveredAcksCreditExtension > 0) {
-         deliveredAcksCreditExtension -= ackMessageCount;
-         if (deliveredAcksCreditExtension >= 0) {
-            currentWindow.addAndGet(-ackMessageCount);
-         }
-      }
+      final MessageId lastID = ack.getLastMessageId();
+      final MessageId startID = ack.getFirstMessageId() == null ? lastID : ack.getFirstMessageId();
 
-      final MessageId startID, lastID;
-
-      if (ack.getFirstMessageId() == null) {
-         startID = ack.getLastMessageId();
-         lastID = ack.getLastMessageId();
-      } else {
-         startID = ack.getFirstMessageId();
-         lastID = ack.getLastMessageId();
-      }
-
-      boolean removeReferences = !serverConsumer.isBrowseOnly(); // if it's browse only, nothing to be acked, we just remove the lists
-      if (serverConsumer.getQueue().isNonDestructive()) {
-         removeReferences = false;
-      }
-
+      // if it's browse only, nothing to be acked
+      final boolean removeReferences = !serverConsumer.isBrowseOnly() && !serverConsumer.getQueue().isNonDestructive();
       final List<MessageReference> ackList = serverConsumer.scanDeliveringReferences(removeReferences, reference -> startID.equals(reference.getProtocolData()), reference -> lastID.equals(reference.getProtocolData()));
 
-      if (!ackList.isEmpty()) {
+      if (!ackList.isEmpty() || !removeReferences || serverConsumer.getQueue().isTemporary()) {
+
+         // valid match in delivered or browsing or temp - deal with credit
+         acquireCredit(ackMessageCount);
+
+         // some sort of real ack, rebalance deliveredAcksCreditExtension
+         if (deliveredAcksCreditExtension > 0) {
+            deliveredAcksCreditExtension -= ackMessageCount;
+            if (deliveredAcksCreditExtension >= 0) {
+               currentWindow.addAndGet(-ackMessageCount);
+            }
+         }
+
          if (ack.isExpiredAck()) {
             for (MessageReference ref : ackList) {
                ref.getQueue().expire(ref, serverConsumer);

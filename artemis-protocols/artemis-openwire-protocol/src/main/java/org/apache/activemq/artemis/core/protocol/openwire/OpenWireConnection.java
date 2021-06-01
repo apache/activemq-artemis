@@ -131,7 +131,6 @@ import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.state.CommandVisitor;
 import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.state.ConsumerState;
-import org.apache.activemq.state.ProducerState;
 import org.apache.activemq.state.SessionState;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
@@ -257,11 +256,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       if (state == null) {
          return null;
       }
-      ConnectionInfo info = state.getInfo();
-      if (info == null) {
-         return null;
-      }
-      return info;
+      return state.getInfo();
    }
 
    //tells the connection that
@@ -309,6 +304,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
          if (AuditLogger.isAnyLoggingEnabled()) {
             AuditLogger.setRemoteAddress(getRemoteAddress());
+         }
+
+         if (this.protocolManager.invokeIncoming(command, this) != null) {
+            logger.debugf("Interceptor rejected OpenWire command: %s", command);
+            disconnect(true);
+            return;
          }
 
          boolean responseRequired = command.isResponseRequired();
@@ -496,6 +497,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public void physicalSend(Command command) throws IOException {
+      if (this.protocolManager.invokeOutgoing(command, this) != null) {
+         return;
+      }
 
       if (logger.isTraceEnabled()) {
          tracePhysicalSend(transportConnection, command);
@@ -595,10 +599,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             SessionState ss = state.getSessionState(id.getParentId());
             if (ss != null) {
                result.setProducerState(ss.getProducerState(id));
-               ProducerState producerState = ss.getProducerState(id);
-               if (producerState != null && producerState.getInfo() != null) {
-                  ProducerInfo info = producerState.getInfo();
-               }
             }
             producerExchanges.put(id, result);
          }
@@ -671,6 +671,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
+      }
+      if (fail) {
+         shutdown(fail);
       }
    }
 
@@ -808,8 +811,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       try {
          physicalSend(command);
-      } catch (Exception e) {
-         return false;
       } catch (Throwable t) {
          return false;
       }

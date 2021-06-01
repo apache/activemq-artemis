@@ -36,7 +36,7 @@ public class OpenWireProtocolManagerTest extends ActiveMQTestBase {
 
    @Test
    public void testVtAutoConversion() {
-      underTest = new OpenWireProtocolManager(null, new DummyServer()) {
+      underTest = new OpenWireProtocolManager(null, new DummyServer(), null, null) {
          @Override
          public ActiveMQDestination virtualTopicConsumerToFQQN(ActiveMQDestination destination) {
             if (lruCacheRef == null) {
