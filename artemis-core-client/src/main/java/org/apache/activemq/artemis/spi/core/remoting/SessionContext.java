@@ -70,6 +70,11 @@ public abstract class SessionContext {
    public abstract int getReconnectID();
 
    /**
+    * Transfers the session context to the given newConnection on the client-side
+    */
+   public abstract void transferConnection(RemotingConnection newConnection);
+
+   /**
     * it will either reattach or reconnect, preferably reattaching it.
     *
     * @param newConnection

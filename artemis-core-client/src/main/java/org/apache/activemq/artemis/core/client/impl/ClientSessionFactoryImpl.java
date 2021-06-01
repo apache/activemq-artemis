@@ -802,13 +802,20 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       // it needs to be done on the protocol
       ((CoreRemotingConnection) connection).syncIDGeneratorSequence(((CoreRemotingConnection) oldConnection).getIDGeneratorSequence());
 
+      boolean sessionFailoverError = false;
       for (ClientSessionInternal session : sessionsToFailover) {
-         if (!session.handleFailover(connection, cause)) {
-            return false;
+         if (sessionFailoverError) {
+            // If 1 session had a failover error, just detach the remaining sessions from the old connection so that
+            // they are not closed when the old connection is destroyed
+            session.getSessionContext().transferConnection(connection);
+         } else {
+            if (!session.handleFailover(connection, cause)) {
+               sessionFailoverError = true;
+            }
          }
       }
 
-      return true;
+      return !sessionFailoverError;
    }
 
    private void getConnectionWithRetry(final int reconnectAttempts, RemotingConnection oldConnection) {

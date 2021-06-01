@@ -823,11 +823,15 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
+   public void transferConnection(RemotingConnection newConnection) {
+      this.remotingConnection = newConnection;
+      sessionChannel.transferConnection((CoreRemotingConnection) newConnection);
+   }
+
+   @Override
    public boolean reattachOnNewConnection(RemotingConnection newConnection) throws ActiveMQException {
 
-      this.remotingConnection = newConnection;
-
-      sessionChannel.transferConnection((CoreRemotingConnection) newConnection);
+      transferConnection(newConnection);
 
       Packet request = new ReattachSessionMessage(name, sessionChannel.getLastConfirmedCommandID());
 
