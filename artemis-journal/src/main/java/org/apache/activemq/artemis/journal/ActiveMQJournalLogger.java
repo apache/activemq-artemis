@@ -284,4 +284,8 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 144008, value = "*******************************************************************************************************************************\nFile {0}: was moved under attic, please review it and remove it.\n*******************************************************************************************************************************", format = Message.Format.MESSAGE_FORMAT)
    void movingFileToAttic(String fileName);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 144009, value = "Could not get a file in {0} seconds, System will retry the open but you may see increased latency in your system", format = Message.Format.MESSAGE_FORMAT)
+   void cantOpenFileTimeout(long timeout);
 }

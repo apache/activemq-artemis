@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
@@ -47,6 +48,20 @@ import org.junit.Assert;
 import org.junit.Before;
 
 public abstract class JournalImplTestBase extends ActiveMQTestBase {
+
+   @Before
+   public void startLogger() {
+      AssertionLoggerHandler.startCapture();
+   }
+
+   @After
+   public void stopLogger() {
+      try {
+         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ144009"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+   }
 
    private static final Logger log = Logger.getLogger(JournalImplTestBase.class);
 
