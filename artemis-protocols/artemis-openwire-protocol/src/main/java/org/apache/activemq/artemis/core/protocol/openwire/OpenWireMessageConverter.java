@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.activemq.command.ActiveMQBytesMessage;
@@ -87,8 +88,6 @@ public final class OpenWireMessageConverter {
    private static final SimpleString AMQ_MSG_CLUSTER = new SimpleString(AMQ_PREFIX + "CLUSTER");
    private static final SimpleString AMQ_MSG_COMMAND_ID = new SimpleString(AMQ_PREFIX + "COMMAND_ID");
    private static final SimpleString AMQ_MSG_DATASTRUCTURE = new SimpleString(AMQ_PREFIX + "DATASTRUCTURE");
-   private static final SimpleString AMQ_MSG_GROUP_ID = org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID;
-   private static final SimpleString AMQ_MSG_GROUP_SEQUENCE = org.apache.activemq.artemis.api.core.Message.HDR_GROUP_SEQUENCE;
    private static final SimpleString AMQ_MSG_MESSAGE_ID = new SimpleString(AMQ_PREFIX + "MESSAGE_ID");
    private static final SimpleString AMQ_MSG_ORIG_DESTINATION =  new SimpleString(AMQ_PREFIX + "ORIG_DESTINATION");
    private static final SimpleString AMQ_MSG_ORIG_TXID = new SimpleString(AMQ_PREFIX + "ORIG_TXID");
@@ -131,7 +130,7 @@ public final class OpenWireMessageConverter {
       } else if (contents != null) {
          final boolean messageCompressed = messageSend.isCompressed();
          if (messageCompressed) {
-            coreMessage.putBooleanProperty(AMQ_MSG_COMPRESSED, messageCompressed);
+            coreMessage.putBooleanProperty(AMQ_MSG_COMPRESSED, true);
          }
 
          switch (coreType) {
@@ -468,7 +467,7 @@ public final class OpenWireMessageConverter {
          SimpleString key = new SimpleString(entry.getKey());
          Object value = entry.getValue();
          if (value instanceof UTF8Buffer) {
-            value = ((UTF8Buffer) value).toString();
+            value = value.toString();
          }
          TypedProperties.setObjectProperty(key, value, props);
       }
@@ -498,8 +497,8 @@ public final class OpenWireMessageConverter {
    public static MessageDispatch createMessageDispatch(MessageReference reference,
                                                        ICoreMessage message,
                                                        WireFormat marshaller,
-                                                       AMQConsumer consumer) throws IOException {
-      ActiveMQMessage amqMessage = toAMQMessage(reference, message, marshaller, consumer);
+                                                       AMQConsumer consumer, UUID serverNodeUUID) throws IOException {
+      ActiveMQMessage amqMessage = toAMQMessage(reference, message, marshaller, consumer, serverNodeUUID);
 
       //we can use core message id for sequenceId
       amqMessage.getMessageId().setBrokerSequenceId(message.getMessageID());
@@ -526,11 +525,11 @@ public final class OpenWireMessageConverter {
    private static ActiveMQMessage toAMQMessage(MessageReference reference,
                                                ICoreMessage coreMessage,
                                                WireFormat marshaller,
-                                               AMQConsumer consumer) throws IOException {
+                                               AMQConsumer consumer, UUID serverNodeUUID) throws IOException {
       final ActiveMQMessage amqMsg;
       final byte coreType = coreMessage.getType();
       final Boolean compressProp = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
-      final boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
+      final boolean isCompressed = compressProp != null && compressProp;
       final byte[] bytes;
       final ActiveMQBuffer buffer = coreMessage.getDataBuffer();
       buffer.resetReaderIndex();
@@ -591,12 +590,12 @@ public final class OpenWireMessageConverter {
       amqMsg.setArrival(arrival);
 
       final Object brokerPath = coreMessage.getObjectProperty(AMQ_MSG_BROKER_PATH);
-      if (brokerPath != null && brokerPath instanceof SimpleString && ((SimpleString)brokerPath).length() > 0) {
+      if (brokerPath instanceof SimpleString && ((SimpleString)brokerPath).length() > 0) {
          setAMQMsgBrokerPath(amqMsg, ((SimpleString)brokerPath).toString());
       }
 
       final Object clusterPath = coreMessage.getObjectProperty(AMQ_MSG_CLUSTER);
-      if (clusterPath != null && clusterPath instanceof SimpleString && ((SimpleString)clusterPath).length() > 0) {
+      if (clusterPath instanceof SimpleString && ((SimpleString)clusterPath).length() > 0) {
          setAMQMsgClusterPath(amqMsg, ((SimpleString)clusterPath).toString());
       }
 
@@ -626,20 +625,15 @@ public final class OpenWireMessageConverter {
 
       amqMsg.setGroupSequence(coreMessage.getGroupSequence());
 
+      final byte[] midBytes = coreMessage.getBytesProperty(AMQ_MSG_MESSAGE_ID);
       final MessageId mid;
-      final byte[] midBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_MESSAGE_ID);
       if (midBytes != null) {
          ByteSequence midSeq = new ByteSequence(midBytes);
          mid = (MessageId) marshaller.unmarshal(midSeq);
       } else {
-         final SimpleString connectionId = (SimpleString) coreMessage.getObjectProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
-         if (connectionId != null) {
-            mid = new MessageId("ID:" + connectionId.toString() + ":-1:-1:-1", coreMessage.getMessageID());
-         } else {
-            //JMSMessageID should be started with "ID:"
-            String midd = "ID:" + UUIDGenerator.getInstance().generateStringUUID() + ":-1:-1:-1:-1";
-            mid = new MessageId(midd);
-         }
+         //JMSMessageID should be started with "ID:" and needs to be globally unique (node + journal id)
+         String midd = "ID:" + serverNodeUUID + ":-1:-1:-1";
+         mid = new MessageId(midd, coreMessage.getMessageID());
       }
 
       amqMsg.setMessageId(mid);
@@ -673,7 +667,7 @@ public final class OpenWireMessageConverter {
       }
 
       final Object userId = coreMessage.getObjectProperty(AMQ_MSG_USER_ID);
-      if (userId != null && userId instanceof SimpleString && ((SimpleString)userId).length() > 0) {
+      if (userId instanceof SimpleString && ((SimpleString)userId).length() > 0) {
          amqMsg.setUserID(((SimpleString)userId).toString());
       }
 
@@ -694,7 +688,7 @@ public final class OpenWireMessageConverter {
 
       final Set<SimpleString> props = coreMessage.getPropertyNames();
       if (props != null) {
-         setAMQMsgObjectProperties(amqMsg, coreMessage, props, consumer);
+         setAMQMsgObjectProperties(amqMsg, coreMessage, props);
       }
 
       if (bytes != null) {
@@ -945,8 +939,7 @@ public final class OpenWireMessageConverter {
 
    private static void setAMQMsgObjectProperties(final ActiveMQMessage amqMsg,
                                                  final ICoreMessage coreMessage,
-                                                 final Set<SimpleString> props,
-                                                 final AMQConsumer consumer) throws IOException {
+                                                 final Set<SimpleString> props) throws IOException {
       for (SimpleString s : props) {
          final String keyStr = s.toString();
          if (!coreMessage.containsProperty(ManagementHelper.HDR_NOTIFICATION_TYPE) && (keyStr.startsWith("_AMQ") || keyStr.startsWith("__HDR_"))) {

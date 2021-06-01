@@ -311,7 +311,7 @@ public class AMQSession implements SessionCallback {
       AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
       //clear up possible rolledback ids.
       theConsumer.removeRolledback(reference);
-      return theConsumer.handleDeliver(reference, message.toCore(), deliveryCount);
+      return theConsumer.handleDeliver(reference, message.toCore());
    }
 
    @Override

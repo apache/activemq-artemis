@@ -130,6 +130,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    protected ServerLocator[] locators;
 
+   protected boolean isForceUniqueStorageManagerIds() {
+      return true;
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
@@ -1934,7 +1938,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          log.debug("started server " + servers[node]);
          waitForServerToStart(servers[node]);
 
-         if (servers[node].getStorageManager() != null) {
+         if (servers[node].getStorageManager() != null && isForceUniqueStorageManagerIds()) {
             for (int i = 0; i < node * 1000; i++) {
                // it is common to have messages landing with similar IDs on separate nodes, which could hide a few issues.
                // so we make them unequal

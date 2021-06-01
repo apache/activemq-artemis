@@ -25,9 +25,12 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
+import org.apache.activemq.artemis.utils.UUID;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.ConsumerInfo;
@@ -55,6 +58,12 @@ public class AMQConsumerTest {
    }
 
    private AMQConsumer getConsumer(int prefetchSize) throws Exception {
+      UUID nodeId = UUIDGenerator.getInstance().generateUUID();
+      ActiveMQServer coreServer = Mockito.mock(ActiveMQServer.class);
+      NodeManager nodeManager = Mockito.mock(NodeManager.class);
+      Mockito.when(coreServer.getNodeManager()).thenReturn(nodeManager);
+      Mockito.when(nodeManager.getUUID()).thenReturn(nodeId);
+
       ServerSession coreSession = Mockito.mock(ServerSession.class);
       Mockito.when(coreSession.createConsumer(ArgumentMatchers.anyLong(), ArgumentMatchers.nullable(SimpleString.class),
                                               ArgumentMatchers.nullable(SimpleString.class), ArgumentMatchers.anyInt(),
@@ -62,7 +71,7 @@ public class AMQConsumerTest {
                                               ArgumentMatchers.nullable(Integer.class))).thenReturn(Mockito.mock(ServerConsumerImpl.class));
       AMQSession session = Mockito.mock(AMQSession.class);
       Mockito.when(session.getConnection()).thenReturn(Mockito.mock(OpenWireConnection.class));
-      Mockito.when(session.getCoreServer()).thenReturn(Mockito.mock(ActiveMQServer.class));
+      Mockito.when(session.getCoreServer()).thenReturn(coreServer);
       Mockito.when(session.getCoreSession()).thenReturn(coreSession);
       Mockito.when(session.convertWildcard(ArgumentMatchers.any(ActiveMQDestination.class))).thenReturn("");
 
@@ -81,7 +90,7 @@ public class AMQConsumerTest {
 
       Assert.assertTrue(consumer.hasCredits());
 
-      consumer.handleDeliver(reference, message, 0);
+      consumer.handleDeliver(reference, message);
 
       Assert.assertFalse(consumer.hasCredits());
 

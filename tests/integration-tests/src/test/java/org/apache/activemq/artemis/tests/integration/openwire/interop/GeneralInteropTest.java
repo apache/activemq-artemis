@@ -250,10 +250,51 @@ public class GeneralInteropTest extends BasicOpenWireTest {
       }
    }
 
+
+   @Test
+   public void testReceiveTwiceTheSameCoreMessage() throws Exception {
+
+      final String text = "HelloAgain";
+      sendMultipleTextMessagesUsingCoreJms(queueName, text, 1);
+
+      String urlString = "failover:(tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.MaxInactivityDuration=5000)";
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(urlString);
+      Connection connection = connectionFactory.createConnection();
+      try {
+         connection.setClientID("clientId");
+         connection.start();
+
+         Message message = null;
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+         Queue queue = session.createQueue(queueName);
+         MessageConsumer consumer = session.createConsumer(queue);
+         message = consumer.receive(4000);
+         assertNotNull(message);
+
+         String id1 = message.getJMSMessageID();
+         consumer.close();
+
+         // consume again!
+         consumer = session.createConsumer(queue);
+         message = consumer.receive(4000);
+         assertNotNull(message);
+
+         String id2 = message.getJMSMessageID();
+
+         assertEquals(id1, id2);
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+
    private void sendMultipleTextMessagesUsingCoreJms(String queueName, String text, int num) throws Exception {
       Connection jmsConn = null;
       try {
          jmsConn = coreCf.createConnection();
+         jmsConn.setClientID("PROD");
          Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue(queueName);
          MessageProducer producer = session.createProducer(queue);
