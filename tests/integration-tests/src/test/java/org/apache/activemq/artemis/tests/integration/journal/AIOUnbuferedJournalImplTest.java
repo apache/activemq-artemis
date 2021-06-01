@@ -37,6 +37,11 @@ import org.junit.BeforeClass;
  */
 public class AIOUnbuferedJournalImplTest extends JournalImplTestUnit {
 
+   @Override
+   protected boolean suportsRetention() {
+      return false;
+   }
+
    @BeforeClass
    public static void hasAIO() {
       org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
