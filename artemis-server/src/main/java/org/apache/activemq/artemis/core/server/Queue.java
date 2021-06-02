@@ -73,8 +73,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void refDown(MessageReference messageReference);
 
-   /** Remove item with a supplied positivie (>= 0) ID.
-    *  if the idSupplier return <0 the ID is considered a non value (null) and it will be ignored
+   /** Remove item with a supplied non-negative {@literal (>= 0) } ID.
+    *  If the idSupplier returns {@literal < 0} the ID is considered a non value (null) and it will be ignored.
     *
     *  @see org.apache.activemq.artemis.utils.collections.LinkedList#setIDSupplier(ToLongFunction) */
    MessageReference removeWithSuppliedID(long id, ToLongFunction<MessageReference> idSupplier);

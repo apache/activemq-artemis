@@ -880,7 +880,7 @@ public interface ActiveMQServer extends ServiceComponent {
     * This atomicity is necessary to prevent {@link #stop()} to stop the component right after adding it, but before
     * starting it.
     *
-    * @throw IllegalStateException if the state is {@link SERVER_STATE#STOPPED} or {@link SERVER_STATE#STOPPING}
+    * @throws IllegalStateException if the state is {@link SERVER_STATE#STOPPED} or {@link SERVER_STATE#STOPPING}
     */
    void addExternalComponent(ActiveMQComponent externalComponent, boolean start) throws Exception;
 
