@@ -958,7 +958,9 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    @Override
    protected void finalize() throws Throwable {
       try {
-         serverLocator.close();
+         if (serverLocator != null) {
+            serverLocator.close();
+         }
       } catch (Exception e) {
          e.printStackTrace();
          //not much we can do here

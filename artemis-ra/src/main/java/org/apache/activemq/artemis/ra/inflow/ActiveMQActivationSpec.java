@@ -143,7 +143,8 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          logger.trace("constructor()");
       }
 
-      ra = null;
+      // we create an Adapter here but only for Application Servers that do introspection on loading to avoid an NPE
+      ra = new ActiveMQResourceAdapter();
       destination = null;
       destinationType = null;
       messageSelector = null;
