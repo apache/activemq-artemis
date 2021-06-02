@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,9 +69,9 @@ public class TransactionalSendTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));
       }
-      Assert.assertEquals(numMessages, getMessageCount(q));
+      Wait.assertEquals(numMessages, q::getMessageCount);
       session.commit();
-      Assert.assertEquals(numMessages * 2, getMessageCount(q));
+      Wait.assertEquals(numMessages * 2, q::getMessageCount);
       session.close();
    }
 
@@ -94,9 +95,9 @@ public class TransactionalSendTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));
       }
-      Assert.assertEquals(0, getMessageCount(q));
+      Wait.assertEquals(0, q::getMessageCount);
       session.commit();
-      Assert.assertEquals(numMessages, getMessageCount(q));
+      Wait.assertEquals(numMessages, q::getMessageCount);
       session.close();
    }
 
