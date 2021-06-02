@@ -39,7 +39,16 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
     * The topic type
     */
    private static final String TOPIC_TYPE = Topic.class.getName();
-   protected boolean allowLocalTransactions;
+   /**
+   * If true then for outbound connections a local tx will be used if no JTA is configured
+   */
+   private boolean allowLocalTransactions;
+
+   /**
+    * If true then for outbound connections will always assume that they are part of a transaction.
+    * This is helpful when running in containers where access to the Transaction manager can't be configured
+    */
+   private boolean inJtaTransaction;
 
    private String strConnectorClassName;
 
@@ -175,5 +184,13 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
 
    public void setAllowLocalTransactions(boolean allowLocalTransactions) {
       this.allowLocalTransactions = allowLocalTransactions;
+   }
+
+   public boolean isInJtaTransaction() {
+      return inJtaTransaction;
+   }
+
+   public void setInJtaTransaction(boolean inJtaTransaction) {
+      this.inJtaTransaction = inJtaTransaction;
    }
 }

@@ -63,10 +63,15 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     */
    private ActiveMQConnectionFactory recoveryConnectionFactory;
 
-   /*
-   * The resource recovery if there is one
-   * */
+   /**
+    * The resource recovery if there is one
+    */
    private XARecoveryConfig resourceRecovery;
+
+   /**
+    * Used to configure whether the connection should be part of the JTA TX. This is when the RA doesn not have access to the Transaction manager to deduct whether this is the case.
+    */
+   private boolean inJtaTransaction;
 
    /**
     * Constructor
@@ -508,12 +513,26 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setMinLargeMessageSize(minLargeMessageSize);
    }
 
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getBlockOnAcknowledge() {
+      return mcfProperties.isBlockOnAcknowledge();
+   }
+
    public Boolean isBlockOnAcknowledge() {
       return mcfProperties.isBlockOnAcknowledge();
    }
 
    public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge) {
       mcfProperties.setBlockOnAcknowledge(blockOnAcknowledge);
+   }
+
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getBlockOnNonDurableSend() {
+      return mcfProperties.isBlockOnNonDurableSend();
    }
 
    public Boolean isBlockOnNonDurableSend() {
@@ -524,6 +543,13 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setBlockOnNonDurableSend(blockOnNonDurableSend);
    }
 
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getBlockOnDurableSend() {
+      return mcfProperties.isBlockOnDurableSend();
+   }
+
    public Boolean isBlockOnDurableSend() {
       return mcfProperties.isBlockOnDurableSend();
    }
@@ -532,12 +558,26 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setBlockOnDurableSend(blockOnDurableSend);
    }
 
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getAutoGroup() {
+      return mcfProperties.isAutoGroup();
+   }
+
    public Boolean isAutoGroup() {
       return mcfProperties.isAutoGroup();
    }
 
    public void setAutoGroup(final Boolean autoGroup) {
       mcfProperties.setAutoGroup(autoGroup);
+   }
+
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getPreAcknowledge() {
+      return mcfProperties.isPreAcknowledge();
    }
 
    public Boolean isPreAcknowledge() {
@@ -572,6 +612,13 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setReconnectAttempts(reconnectAttempts);
    }
 
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getUseGlobalPools() {
+      return mcfProperties.isUseGlobalPools();
+   }
+
    public Boolean isUseGlobalPools() {
       return mcfProperties.isUseGlobalPools();
    }
@@ -580,12 +627,26 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setUseGlobalPools(useGlobalPools);
    }
 
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getCacheDestinations() {
+      return mcfProperties.isCacheDestinations();
+   }
+
    public Boolean isCacheDestinations() {
       return mcfProperties.isCacheDestinations();
    }
 
    public void setCacheDestinations(final Boolean cacheDestinations) {
       mcfProperties.setCacheDestinations(cacheDestinations);
+   }
+
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getEnable1xPrefixes() {
+      return mcfProperties.isEnable1xPrefixes();
    }
 
    public Boolean isEnable1xPrefixes() {
@@ -612,6 +673,13 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setThreadPoolMaxSize(threadPoolMaxSize);
    }
 
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getHA() {
+      return mcfProperties.isHA();
+   }
+
    public Boolean isHA() {
       return mcfProperties.isHA();
    }
@@ -620,8 +688,30 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setAllowLocalTransactions(allowLocalTransactions);
    }
 
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getAllowLocalTransactions() {
+      return mcfProperties.isAllowLocalTransactions();
+   }
+
    public Boolean isAllowLocalTransactions() {
       return mcfProperties.isAllowLocalTransactions();
+   }
+
+   /**
+    * A getter as well as a setter for those servers that use introspection
+    */
+   public Boolean getInJtaTransaction() {
+      return mcfProperties.isInJtaTransaction();
+   }
+
+   public Boolean isInJtaTransaction() {
+      return mcfProperties.isInJtaTransaction();
+   }
+
+   public void setInJtaTransaction(Boolean inJtaTransaction) {
+      mcfProperties.setInJtaTransaction(inJtaTransaction);
    }
 
    public void setHA(Boolean ha) {

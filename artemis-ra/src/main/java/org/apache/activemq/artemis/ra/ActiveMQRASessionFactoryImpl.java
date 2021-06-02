@@ -816,7 +816,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
             //Both arguments {@code transacted} and {@code acknowledgeMode} are ignored.
             // fix of ARTEMIS-1669 - when a JMSConnectionFactoryDefinition annotation with the transactional attribute set to false="false" is set
             // then it should not be included in any JTA transaction and behave like that there is no JTA transaction.
-            if (!mcf.isIgnoreJTA() && inJtaTransaction()) {
+            if (!mcf.isIgnoreJTA() && (inJtaTransaction() || mcf.isInJtaTransaction())) {
                transacted = true;
                //from getAcknowledgeMode
                // If the session is transacted, returns SESSION_TRANSACTED.

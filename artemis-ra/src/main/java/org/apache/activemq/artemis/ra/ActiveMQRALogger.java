@@ -47,9 +47,11 @@ import javax.jms.IllegalStateException;
 public interface ActiveMQRALogger extends BasicLogger {
 
    /**
-    * The default logger.
+    * The default logger. Note this uses ActiveMQRALogger.class.getName() instead of ActiveMQRALogger.class.getPackage().getName()
+    * like the other loggers, this is because some Application Servers use introspection to identify properties which can
+    * sometimes use a classloader when the rar is uploaded and its possible getpackage() can return null
     */
-   ActiveMQRALogger LOGGER = Logger.getMessageLogger(ActiveMQRALogger.class, ActiveMQRALogger.class.getPackage().getName());
+   ActiveMQRALogger LOGGER = Logger.getMessageLogger(ActiveMQRALogger.class, ActiveMQRALogger.class.getName());
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 151000, value = "awaiting topic/queue creation {0}", format = Message.Format.MESSAGE_FORMAT)

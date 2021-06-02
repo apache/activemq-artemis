@@ -750,12 +750,15 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       return hasBeenUpdated;
    }
 
+   /*
+    * This is here just for backward compatibility and not used
+  * */
    public void setEnableSharedClientID(boolean enable) {
       this.enableSharedClientID = enable;
    }
 
    public boolean isEnableSharedClientID() {
-      return enableSharedClientID;
+      return enableSharedClientID != null ? enableSharedClientID : false;
    }
 
    @Override
