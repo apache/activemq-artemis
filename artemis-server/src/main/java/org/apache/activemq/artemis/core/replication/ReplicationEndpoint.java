@@ -730,7 +730,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     */
    private void handleAppendDelete(final ReplicationDeleteMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
-      journalToUse.appendDeleteRecord(packet.getId(), noSync);
+      journalToUse.tryAppendDeleteRecord(packet.getId(), null, noSync);
    }
 
    /**

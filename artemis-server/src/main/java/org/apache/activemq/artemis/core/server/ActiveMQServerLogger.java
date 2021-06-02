@@ -1077,9 +1077,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorDecrementingRefCount(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222153, value = "Unable to remove message id = {0} please remove manually",
+   @Message(id = 222153, value = "Cannot locate record for message id = {0} on Journal",
       format = Message.Format.MESSAGE_FORMAT)
-   void errorRemovingMessage(@Cause Throwable e, Long messageID);
+   void cannotFindMessageOnJournal(@Cause Throwable e, Long messageID);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222154, value = "Error checking DLQ",

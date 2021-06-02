@@ -3278,9 +3278,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (!internalQueue && reference.isDurable() && isDurable() && !reference.isPaged()) {
-         if (!storageManager.updateDeliveryCount(reference)) {
-            return new Pair<>(false, false);
-         }
+         storageManager.updateDeliveryCount(reference);
       }
 
       AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
@@ -3920,11 +3918,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                // as we can't delete each messaging with sync=true while adding messages transactionally.
                // There is a startup check to remove non referenced messages case these deletes fail
                try {
-                  if (!storageManager.deleteMessage(message.getMessageID())) {
-                     ActiveMQServerLogger.LOGGER.errorRemovingMessage(new Exception(), message.getMessageID());
-                  }
+                  storageManager.deleteMessage(message.getMessageID());
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.errorRemovingMessage(e, message.getMessageID());
+                  ActiveMQServerLogger.LOGGER.cannotFindMessageOnJournal(e, message.getMessageID());
                }
             }
          }

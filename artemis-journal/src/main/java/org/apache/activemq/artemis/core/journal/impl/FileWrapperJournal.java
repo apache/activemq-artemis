@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
+import org.apache.activemq.artemis.core.journal.JournalUpdateCallback;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
@@ -190,9 +191,8 @@ public final class FileWrapperJournal extends JournalBase {
 
 
    @Override
-   public boolean tryAppendDeleteRecord(long id, boolean sync, IOCompletion callback) throws Exception {
+   public void tryAppendDeleteRecord(long id, boolean sync, JournalUpdateCallback updateCallback, IOCompletion callback) throws Exception {
       appendDeleteRecord(id, sync, callback);
-      return true;
    }
 
    @Override
@@ -223,15 +223,15 @@ public final class FileWrapperJournal extends JournalBase {
    }
 
    @Override
-   public boolean tryAppendUpdateRecord(long id,
+   public void tryAppendUpdateRecord(long id,
                                      byte recordType,
                                      Persister persister,
                                      Object record,
                                      boolean sync,
+                                     JournalUpdateCallback updateCallback,
                                      IOCompletion callback) throws Exception {
       JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
       writeRecord(updateRecord, false, -1, false, callback);
-      return true;
    }
 
    @Override

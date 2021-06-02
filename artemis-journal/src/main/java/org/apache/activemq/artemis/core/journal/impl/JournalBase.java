@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.core.io.DummyCallback;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.journal.JournalUpdateCallback;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 
@@ -89,11 +90,12 @@ abstract class JournalBase implements Journal {
    }
 
    @Override
-   public boolean tryAppendUpdateRecord(final long id,
+   public void tryAppendUpdateRecord(final long id,
                                      final byte recordType,
                                      final byte[] record,
+                                     JournalUpdateCallback updateCallback,
                                      final boolean sync) throws Exception {
-      return tryAppendUpdateRecord(id, recordType, new ByteArrayEncoding(record), sync);
+      tryAppendUpdateRecord(id, recordType, new ByteArrayEncoding(record), updateCallback, sync);
    }
 
    @Override
@@ -156,20 +158,19 @@ abstract class JournalBase implements Journal {
    }
 
    @Override
-   public boolean tryAppendUpdateRecord(final long id,
+   public void tryAppendUpdateRecord(final long id,
                                      final byte recordType,
                                      final Persister persister,
                                      final Object record,
+                                     final JournalUpdateCallback updateCallback,
                                      final boolean sync) throws Exception {
       SyncIOCompletion callback = getSyncCallback(sync);
 
-      boolean append = tryAppendUpdateRecord(id, recordType, persister, record, sync, callback);
+      tryAppendUpdateRecord(id, recordType, persister, record, sync, updateCallback, callback);
 
       if (callback != null) {
          callback.waitCompletion();
       }
-
-      return append;
    }
 
    @Override
@@ -196,16 +197,14 @@ abstract class JournalBase implements Journal {
    }
 
    @Override
-   public boolean tryAppendDeleteRecord(final long id, final boolean sync) throws Exception {
+   public void tryAppendDeleteRecord(final long id, JournalUpdateCallback updateCallback, final boolean sync) throws Exception {
       SyncIOCompletion callback = getSyncCallback(sync);
 
-      boolean result = tryAppendDeleteRecord(id, sync, callback);
+      tryAppendDeleteRecord(id, sync, updateCallback, callback);
 
       if (callback != null) {
          callback.waitCompletion();
       }
-
-      return result;
    }
    abstract void scheduleReclaim();
 
