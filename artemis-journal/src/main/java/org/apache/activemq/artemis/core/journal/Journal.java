@@ -110,19 +110,19 @@ public interface Journal extends ActiveMQComponent {
 
    void appendUpdateRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception;
 
-   boolean tryAppendUpdateRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception;
+   void tryAppendUpdateRecord(long id, byte recordType, byte[] record, JournalUpdateCallback updateCallback, boolean sync) throws Exception;
 
    default void appendUpdateRecord(long id, byte recordType, EncodingSupport record, boolean sync) throws Exception {
       appendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, sync);
    }
 
-   default boolean tryAppendUpdateRecord(long id, byte recordType, EncodingSupport record, boolean sync) throws Exception {
-      return tryAppendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, sync);
+   default void tryAppendUpdateRecord(long id, byte recordType, EncodingSupport record, JournalUpdateCallback updateCallback, boolean sync) throws Exception {
+      tryAppendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, updateCallback, sync);
    }
 
    void appendUpdateRecord(long id, byte recordType, Persister persister, Object record, boolean sync) throws Exception;
 
-   boolean tryAppendUpdateRecord(long id, byte recordType, Persister persister, Object record, boolean sync) throws Exception;
+   void tryAppendUpdateRecord(long id, byte recordType, Persister persister, Object record, JournalUpdateCallback updateCallback, boolean sync) throws Exception;
 
    default void appendUpdateRecord(long id,
                                    byte recordType,
@@ -132,12 +132,13 @@ public interface Journal extends ActiveMQComponent {
       appendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, sync, completionCallback);
    }
 
-   default boolean tryAppendUpdateRecord(long id,
+   default void tryAppendUpdateRecord(long id,
                                    byte recordType,
                                    EncodingSupport record,
                                    boolean sync,
+                                   JournalUpdateCallback updateCallback,
                                    IOCompletion completionCallback) throws Exception {
-      return tryAppendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, sync, completionCallback);
+      tryAppendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, sync, updateCallback, completionCallback);
    }
 
    void appendUpdateRecord(long id,
@@ -147,20 +148,21 @@ public interface Journal extends ActiveMQComponent {
                            boolean sync,
                            IOCompletion callback) throws Exception;
 
-   boolean tryAppendUpdateRecord(long id,
+   void tryAppendUpdateRecord(long id,
                            byte recordType,
                            Persister persister,
                            Object record,
                            boolean sync,
+                           JournalUpdateCallback updateCallback,
                            IOCompletion callback) throws Exception;
 
    void appendDeleteRecord(long id, boolean sync) throws Exception;
 
-   boolean tryAppendDeleteRecord(long id, boolean sync) throws Exception;
+   void tryAppendDeleteRecord(long id, JournalUpdateCallback updateCallback, boolean sync) throws Exception;
 
    void appendDeleteRecord(long id, boolean sync, IOCompletion completionCallback) throws Exception;
 
-   boolean tryAppendDeleteRecord(long id, boolean sync, IOCompletion completionCallback) throws Exception;
+   void tryAppendDeleteRecord(long id, boolean sync, JournalUpdateCallback updateCallback, IOCompletion completionCallback) throws Exception;
 
    // Transactional operations
 

@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
+import org.apache.activemq.artemis.core.journal.JournalUpdateCallback;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -87,7 +88,6 @@ import org.apache.activemq.artemis.utils.SimpleFutureImpl;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
-import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashSet;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.jboss.logging.Logger;
@@ -287,8 +287,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    // Compacting may replace this structure
    private final ConcurrentLongHashMap<JournalRecord> records = new ConcurrentLongHashMap<>();
-
-   private final ConcurrentLongHashSet pendingRecords = new ConcurrentLongHashSet();
 
    // Compacting may replace this structure
    private final ConcurrentLongHashMap<JournalTransaction> transactions = new ConcurrentLongHashMap<>();
@@ -908,7 +906,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
       lineUpContext(callback);
-      pendingRecords.add(id);
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendAddRecord::id=" + id +
@@ -952,7 +949,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                setErrorCondition(callback, null, e);
                logger.error("appendAddRecord::"  + e, e);
             } finally {
-               pendingRecords.remove(id);
                journalLock.readLock().unlock();
             }
          }
@@ -1011,7 +1007,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             setErrorCondition(callback, null, e);
             logger.error("appendAddEvent::"  + e, e);
          } finally {
-            pendingRecords.remove(id);
             journalLock.readLock().unlock();
          }
       });
@@ -1028,7 +1023,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                   final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
       lineUpContext(callback);
-      checkKnownRecordID(id, true);
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendUpdateRecord::id=" + id +
@@ -1036,26 +1030,26 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                          recordType);
       }
 
-      internalAppendUpdateRecord(id, recordType, persister, record, sync, callback);
+      SimpleFuture<Boolean> future = new SimpleFutureImpl<>();
+
+      internalAppendUpdateRecord(id, recordType, persister, record, sync, (t, v) -> future.set(v), callback);
+
+      if (!future.get()) {
+         throw new IllegalStateException("Cannot find add info " + id);
+      }
    }
 
 
    @Override
-   public boolean tryAppendUpdateRecord(final long id,
-                                  final byte recordType,
-                                  final Persister persister,
-                                  final Object record,
-                                  final boolean sync,
-                                  final IOCompletion callback) throws Exception {
+   public void tryAppendUpdateRecord(final long id,
+                                     final byte recordType,
+                                     final Persister persister,
+                                     final Object record,
+                                     final boolean sync,
+                                     JournalUpdateCallback updateCallback,
+                                     final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
       lineUpContext(callback);
-
-      if (!checkKnownRecordID(id, false)) {
-         if (callback != null) {
-            callback.done();
-         }
-         return false;
-      }
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendUpdateRecord::id=" + id +
@@ -1064,9 +1058,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
 
-      internalAppendUpdateRecord(id, recordType, persister, record, sync, callback);
-
-      return true;
+      internalAppendUpdateRecord(id, recordType, persister, record, sync, updateCallback, callback);
    }
 
 
@@ -1075,14 +1067,32 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                            Persister persister,
                                            Object record,
                                            boolean sync,
+                                           JournalUpdateCallback updateCallback,
                                            IOCompletion callback) throws InterruptedException, java.util.concurrent.ExecutionException {
-      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
             try {
+               // compactor will never change while readLock is acquired.
+               // but we are doing this since compactor is volatile, to avoid some extra work from JIT
+               JournalCompactor compactor = JournalImpl.this.compactor;
                JournalRecord jrnRecord = records.get(id);
+               if (jrnRecord == null) {
+                  if (compactor == null || (!compactor.containsRecord(id))) {
+                     if (updateCallback != null) {
+                        updateCallback.onUpdate(id, false);
+                     }
+                     if (logger.isDebugEnabled()) {
+                        logger.debug("Record " + id + " had not been found");
+                     }
+
+                     if (callback != null) {
+                        callback.done();
+                     }
+                     return;
+                  }
+               }
                JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
                JournalFile usedFile = appendRecord(updateRecord, false, sync, null, callback);
 
@@ -1097,17 +1107,25 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                // record==null here could only mean there is a compactor
                // computing the delete should be done after compacting is done
                if (jrnRecord == null) {
-                  compactor.addCommandUpdate(id, usedFile, updateRecord.getEncodeSize());
+                  if (compactor != null) {
+                     compactor.addCommandUpdate(id, usedFile, updateRecord.getEncodeSize());
+                  }
                } else {
                   jrnRecord.addUpdateFile(usedFile, updateRecord.getEncodeSize());
                }
 
-               result.set(true);
+               if (updateCallback != null) {
+                  updateCallback.onUpdate(id, true);
+               }
             } catch (ActiveMQShutdownException e) {
-               result.fail(e);
+               if (updateCallback != null) {
+                  updateCallback.onUpdate(id, false);
+               }
                logger.error("appendUpdateRecord:" + e, e);
             } catch (Throwable e) {
-               result.fail(e);
+               if (updateCallback != null) {
+                  updateCallback.onUpdate(id, false);
+               }
                setErrorCondition(callback, null, e);
                logger.error("appendUpdateRecord:" + e, e);
             } finally {
@@ -1115,8 +1133,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             }
          }
       });
-
-      result.get();
    }
 
    @Override
@@ -1129,15 +1145,17 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       checkJournalIsLoaded();
       lineUpContext(callback);
-      checkKnownRecordID(id, true);
-
-      internalAppendDeleteRecord(id, sync, callback);
+      SimpleFuture<Boolean> future = new SimpleFutureImpl<>();
+      internalAppendDeleteRecord(id, sync, (t, v) -> future.set(v), callback);
+      if (!future.get()) {
+         throw new IllegalStateException("Cannot find add info " + id);
+      }
       return;
    }
 
 
    @Override
-   public boolean tryAppendDeleteRecord(final long id, final boolean sync, final IOCompletion callback) throws Exception {
+   public void tryAppendDeleteRecord(final long id, final boolean sync, final JournalUpdateCallback updateCallback, final IOCompletion callback) throws Exception {
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendDeleteRecord::id=" + id);
@@ -1146,29 +1164,45 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       checkJournalIsLoaded();
       lineUpContext(callback);
-      if (!checkKnownRecordID(id, false)) {
-         if (callback != null) {
-            callback.done();
-         }
-         return false;
-      }
-
-      internalAppendDeleteRecord(id, sync, callback);
-      return true;
+      internalAppendDeleteRecord(id, sync, updateCallback, callback);
    }
 
    private void internalAppendDeleteRecord(long id,
                                            boolean sync,
-                                           IOCompletion callback) throws InterruptedException, java.util.concurrent.ExecutionException {
-      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
+                                           JournalUpdateCallback updateCallback,
+                                           IOCompletion callback)  {
+
       appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
             try {
+               // compactor will never change while readLock is acquired.
+               // but we are doing this since compactor is volatile, to avoid some extra work from JIT
+               JournalCompactor compactor = JournalImpl.this.compactor;
                JournalRecord record = null;
                if (compactor == null) {
                   record = records.remove(id);
+                  if (record == null) {
+                     if (updateCallback != null) {
+                        updateCallback.onUpdate(id, false);
+                     }
+
+                     if (callback != null) {
+                        callback.done();
+                     }
+                     return;
+                  }
+               } else {
+                  if (!records.containsKey(id) && !compactor.containsRecord(id)) {
+                     if (updateCallback != null) {
+                        updateCallback.onUpdate(id, false);
+                     }
+                     if (callback != null) {
+                        callback.done();
+                     }
+                     return;
+                  }
                }
 
                JournalInternalRecord deleteRecord = new JournalDeleteRecord(id);
@@ -1182,20 +1216,22 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                // computing the delete should be done after compacting is done
                if (record == null) {
                   // JournalImplTestUni::testDoubleDelete was written to validate this condition:
-                  if (compactor == null) {
-                     logger.debug("Record " + id + " had been deleted already from a different call");
-                  } else {
-                     compactor.addCommandDelete(id, usedFile);
-                  }
+                  compactor.addCommandDelete(id, usedFile);
                } else {
                   record.delete(usedFile);
                }
-               result.set(true);
+               if (updateCallback != null) {
+                  updateCallback.onUpdate(id, true);
+               }
             } catch (ActiveMQShutdownException e) {
-               result.fail(e);
+               if (updateCallback != null) {
+                  updateCallback.onUpdate(id, false);
+               }
                logger.error("appendDeleteRecord:" + e, e);
             } catch (Throwable e) {
-               result.fail(e);
+               if (updateCallback != null) {
+                  updateCallback.onUpdate(id, false);
+               }
                logger.error("appendDeleteRecord:" + e, e);
                setErrorCondition(callback, null, e);
             } finally {
@@ -1203,8 +1239,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             }
          }
       });
-
-      result.get();
    }
 
    private static SimpleFuture newSyncAndCallbackResult(boolean sync, IOCompletion callback) {
@@ -1266,45 +1300,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       });
    }
-
-   private boolean checkKnownRecordID(final long id, boolean strict) throws Exception {
-      if (records.containsKey(id) || pendingRecords.contains(id) || (compactor != null && compactor.containsRecord(id))) {
-         return true;
-      }
-
-      final SimpleFuture<Boolean> known = new SimpleFutureImpl<>();
-
-      // retry on the append thread. maybe the appender thread is not keeping up.
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               journalLock.readLock().lock();
-               try {
-
-                  known.set(records.containsKey(id)
-                          || pendingRecords.contains(id)
-                          || (compactor != null && compactor.containsRecord(id)));
-               } finally {
-                  journalLock.readLock().unlock();
-               }
-            } catch (Throwable t) {
-               known.fail(t);
-               throw t;
-            }
-         }
-      });
-
-      if (!known.get()) {
-         if (strict) {
-            throw new IllegalStateException("Cannot find add info " + id + " on compactor or current records");
-         }
-         return false;
-      } else {
-         return true;
-      }
-   }
-
    private void checkJournalIsLoaded() throws Exception {
       if (state != JournalState.LOADED && state != JournalState.SYNCING) {
          throw new ActiveMQShutdownException("Journal must be in state=" + JournalState.LOADED + ", was [" + state + "]");

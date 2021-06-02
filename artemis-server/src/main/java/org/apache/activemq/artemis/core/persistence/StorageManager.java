@@ -198,15 +198,15 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void storeReference(long queueID, long messageID, boolean last) throws Exception;
 
-   boolean deleteMessage(long messageID) throws Exception;
+   void deleteMessage(long messageID) throws Exception;
 
    void storeAcknowledge(long queueID, long messageID) throws Exception;
 
    void storeCursorAcknowledge(long queueID, PagePosition position) throws Exception;
 
-   boolean updateDeliveryCount(MessageReference ref) throws Exception;
+   void updateDeliveryCount(MessageReference ref) throws Exception;
 
-   boolean updateScheduledDeliveryTime(MessageReference ref) throws Exception;
+   void updateScheduledDeliveryTime(MessageReference ref) throws Exception;
 
    void storeDuplicateID(SimpleString address, byte[] duplID, long recordID) throws Exception;
 

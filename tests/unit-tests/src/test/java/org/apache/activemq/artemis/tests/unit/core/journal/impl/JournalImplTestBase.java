@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.cli.commands.tools.journal.DecodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.journal.EncodeJournal;
@@ -41,6 +42,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.SimpleFutureImpl;
 import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.jboss.logging.Logger;
 import org.junit.After;
@@ -418,13 +420,16 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
       beforeJournalOperation();
 
-      boolean result = journal.tryAppendUpdateRecord(argument, (byte) 0, updateRecord, sync);
+      SimpleFutureImpl<Boolean> future = new SimpleFutureImpl();
 
-      if (result) {
+      journal.tryAppendUpdateRecord(argument, (byte) 0, updateRecord, (r, b) -> future.set(b), sync);
+
+      if (future.get()) {
+         Assert.fail();
          records.add(new RecordInfo(argument, (byte) 0, updateRecord, true, (short) 0));
       }
 
-      return result;
+      return future.get();
    }
 
    protected void update(final long... arguments) throws Exception {
@@ -456,15 +461,16 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    protected boolean tryDelete(final long argument) throws Exception {
       beforeJournalOperation();
 
-      boolean result = journal.tryAppendDeleteRecord(argument, sync);
+      AtomicBoolean result = new AtomicBoolean(true);
+      journal.tryAppendDeleteRecord(argument, (t, b) -> result.set(b), sync);
 
-      if (result) {
+      if (result.get()) {
          removeRecordsForID(argument);
       }
 
       journal.debugWait();
 
-      return result;
+      return result.get();
    }
 
    protected void addTx(final long txID, final long... arguments) throws Exception {

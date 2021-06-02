@@ -441,8 +441,8 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public boolean deleteMessage(long messageID) throws Exception {
-         return manager.deleteMessage(messageID);
+      public void deleteMessage(long messageID) throws Exception {
+         manager.deleteMessage(messageID);
       }
 
       @Override
@@ -456,13 +456,13 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public boolean updateDeliveryCount(MessageReference ref) throws Exception {
-         return manager.updateDeliveryCount(ref);
+      public void updateDeliveryCount(MessageReference ref) throws Exception {
+         manager.updateDeliveryCount(ref);
       }
 
       @Override
-      public boolean updateScheduledDeliveryTime(MessageReference ref) throws Exception {
-         return manager.updateScheduledDeliveryTime(ref);
+      public void updateScheduledDeliveryTime(MessageReference ref) throws Exception {
+         manager.updateScheduledDeliveryTime(ref);
       }
 
       @Override

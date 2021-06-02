@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
+import org.apache.activemq.artemis.core.journal.JournalUpdateCallback;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -696,12 +697,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean tryAppendUpdateRecord(long id,
+      public void tryAppendUpdateRecord(long id,
                                            byte recordType,
                                            Persister persister,
-                                           Object record,
+                                           Object record, JournalUpdateCallback updateCallback,
                                            boolean sync) throws Exception {
-         return true;
       }
 
       @Override
@@ -715,13 +715,12 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean tryAppendUpdateRecord(long id,
+      public void tryAppendUpdateRecord(long id,
                                            byte recordType,
                                            Persister persister,
                                            Object record,
-                                           boolean sync,
+                                           boolean sync, JournalUpdateCallback updateCallback,
                                            IOCompletion callback) throws Exception {
-         return true;
       }
 
       @Override
@@ -795,8 +794,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean tryAppendDeleteRecord(long id, boolean sync) throws Exception {
-         return true;
+      public void tryAppendDeleteRecord(long id, JournalUpdateCallback updateConsumer, boolean sync) throws Exception {
       }
 
       @Override
@@ -846,8 +844,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean tryAppendUpdateRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception {
-         return true;
+      public void tryAppendUpdateRecord(long id, byte recordType, byte[] record, JournalUpdateCallback updateCallback, boolean sync) throws Exception {
       }
 
       @Override
@@ -951,8 +948,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean tryAppendDeleteRecord(long id, boolean sync, IOCompletion completionCallback) throws Exception {
-         return true;
+      public void tryAppendDeleteRecord(long id, boolean sync, JournalUpdateCallback updateCallback, IOCompletion completionCallback) throws Exception {
       }
 
       @Override
