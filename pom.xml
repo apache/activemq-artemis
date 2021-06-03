@@ -1100,6 +1100,26 @@
             </plugins>
          </build>
       </profile>
+      <!-- Override the apache-release profile from the parent to skip creating
+           a source-release archive here, it is done in artemis-distribution. -->
+      <profile>
+         <id>apache-release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-assembly-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>source-release-assembly</id>
+                        <configuration>
+                           <skipAssembly>true</skipAssembly>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
       <profile>
          <!-- this will activate the property required to play with tests retry -->
          <id>tests-retry</id>
