@@ -88,7 +88,8 @@ public class JDBCJournalTest extends ActiveMQTestBase {
          System.clearProperty("derby.connection.requireAuthentication");
          System.clearProperty("derby.user." + getJdbcUser());
       }
-      scheduledExecutorService.shutdown();
+      scheduledExecutorService.shutdownNow();
+      scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS);
       scheduledExecutorService = null;
       executorService.shutdown();
       executorService = null;
