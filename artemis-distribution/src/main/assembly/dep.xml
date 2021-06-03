@@ -21,8 +21,8 @@
 
    <dependencySets>
       <dependencySet>
-        <directoryMode>755</directoryMode>
-        <fileMode>644</fileMode>
+        <directoryMode>0755</directoryMode>
+        <fileMode>0644</fileMode>
         <outputDirectory>lib</outputDirectory>
         <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
         <unpack>false</unpack>
@@ -34,8 +34,8 @@
       </dependencySet>
 
       <dependencySet>
-         <directoryMode>755</directoryMode>
-         <fileMode>644</fileMode>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
          <includes>
 
             <!-- modules -->
@@ -106,8 +106,8 @@
          <useProjectArtifact>false</useProjectArtifact>
       </dependencySet>
       <dependencySet>
-         <directoryMode>755</directoryMode>
-         <fileMode>644</fileMode>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
          <includes>
             <include>org.apache.activemq:artemis-jms-client-all</include>
          </includes>
@@ -128,6 +128,8 @@
             </includes>
          </unpackOptions>
          <useProjectArtifact>false</useProjectArtifact>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </dependencySet>
       <dependencySet>
          <includes>
@@ -139,6 +141,8 @@
          <outputDirectory>web</outputDirectory>
          <unpack>true</unpack>
          <useProjectArtifact>false</useProjectArtifact>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </dependencySet>
       <dependencySet>
          <includes>
@@ -147,6 +151,8 @@
          <outputDirectory>web/api</outputDirectory>
          <unpack>true</unpack>
          <useProjectArtifact>false</useProjectArtifact>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </dependencySet>
       
       <!-- Management Console Dependencies -->
@@ -158,6 +164,8 @@
          <unpack>false</unpack>
          <outputFileNameMapping>console.war</outputFileNameMapping>
          <useProjectArtifact>false</useProjectArtifact>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </dependencySet>
       <dependencySet>
          <includes>
@@ -167,6 +175,8 @@
          <unpack>false</unpack>
          <outputFileNameMapping>activemq-branding.war</outputFileNameMapping>
          <useProjectArtifact>false</useProjectArtifact>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </dependencySet>
       <dependencySet>
          <includes>
@@ -176,6 +186,8 @@
          <unpack>false</unpack>
          <outputFileNameMapping>artemis-plugin.war</outputFileNameMapping>
          <useProjectArtifact>false</useProjectArtifact>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </dependencySet>
       
    </dependencySets>
@@ -185,16 +197,22 @@
          <directory>${activemq.basedir}/artemis-server/src/main/resources/schema/</directory>
          <outputDirectory>schema</outputDirectory>
          <lineEnding>keep</lineEnding>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </fileSet>
       <fileSet>
          <directory>${activemq.basedir}/artemis-jms-server/src/main/resources/schema/</directory>
          <outputDirectory>schema</outputDirectory>
          <lineEnding>keep</lineEnding>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </fileSet>
       <fileSet>
          <directory>${activemq.basedir}/artemis-dto/target/schema/org.apache.activemq/dto/</directory>
          <outputDirectory>schema</outputDirectory>
          <lineEnding>keep</lineEnding>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </fileSet>
       <!-- resources -->
       <fileSet>
@@ -202,25 +220,21 @@
          <outputDirectory>${file.separator}</outputDirectory>
          <lineEnding>keep</lineEnding>
          <excludes>
-            <exclude>bin/activemq</exclude>
-            <exclude>bin/run.sh</exclude>
-            <exclude>bin/stop.sh</exclude>
+            <exclude>bin/artemis</exclude>
             <exclude>**/target/**</exclude>
             <exclude>**/**/*.iml</exclude>
             <exclude>**/**/*.dat</exclude>
             <exclude>**/licenses/**</exclude>
-            <exclude>docker/**</exclude>
          </excludes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </fileSet>
-      <!-- chmod to 755 on linux executables -->
       <fileSet>
          <directory>src/main/resources</directory>
          <outputDirectory>${file.separator}</outputDirectory>
          <lineEnding>keep</lineEnding>
          <includes>
-            <include>bin/activemq</include>
-            <include>bin/run.sh</include>
-            <include>bin/stop.sh</include>
+            <include>bin/artemis</include>
          </includes>
          <directoryMode>0755</directoryMode>
          <fileMode>0755</fileMode>
@@ -235,18 +249,38 @@
             <exclude>**/**/*.iml</exclude>
             <exclude>**/**/*.dat</exclude>
             <exclude>**/**/*.md</exclude>
+            <exclude>**/**/*.sh</exclude>
          </excludes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
+      </fileSet>
+      <fileSet>
+         <directory>${activemq.basedir}/examples</directory>
+         <outputDirectory>examples</outputDirectory>
+         <lineEnding>keep</lineEnding>
+         <includes>
+            <include>**/**/*.sh</include>
+         </includes>
+         <excludes>
+            <exclude>**/target/**</exclude>
+         </excludes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0755</fileMode>
       </fileSet>
       <fileSet>
          <directory>${project.build.directory}/markdown-pages/examples</directory>
          <outputDirectory>examples</outputDirectory>
          <lineEnding>keep</lineEnding>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </fileSet>
       <!-- Include license and notice files -->
       <fileSet>
          <directory>${activemq.basedir}/artemis-distribution/src/main/resources/licenses/bin</directory>
          <outputDirectory>${file.separator}</outputDirectory>
          <useDefaultExcludes>true</useDefaultExcludes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
       </fileSet>
    </fileSets>
 </component>
