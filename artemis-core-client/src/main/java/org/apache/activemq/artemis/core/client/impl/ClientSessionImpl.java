@@ -1019,13 +1019,16 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          consumer.clear(waitConsumers);
       }
 
-      // Acks must be flushed here *after connection is stopped and all onmessages finished executing
-      flushAcks();
+      try {
+         // Acks must be flushed here *after connection is stopped and all onmessages finished executing
+         flushAcks();
 
-      sessionContext.simpleRollback(isLastMessageAsDelivered);
-
-      if (wasStarted) {
-         start();
+         sessionContext.simpleRollback(isLastMessageAsDelivered);
+      } finally {
+         if (wasStarted) {
+            // restore the original session state even if something fails
+            start();
+         }
       }
 
       rollbackOnly = false;
