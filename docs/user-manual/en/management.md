@@ -915,7 +915,7 @@ Message counters give additional information about the queues:
 
   The timestamp of the last time a message from the queue was acknowledged
 
-- `udpateTimestamp`
+- `updateTimestamp`
 
   The timestamp of the last message counter update
 

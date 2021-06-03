@@ -101,7 +101,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       Assert.assertEquals(originalID, server.locateQueue(ADDRESS).getID());
 
-      // stopping, restarting to make sure the system will not create an extra record without an udpate
+      // stopping, restarting to make sure the system will not create an extra record without an update
       server.stop();
       server.start();
       validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);
@@ -188,7 +188,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       Assert.assertEquals(originalID, server.locateQueue(ADDRESS).getID());
 
-      // stopping, restarting to make sure the system will not create an extra record without an udpate
+      // stopping, restarting to make sure the system will not create an extra record without an update
       server.stop();
       server.start();
       validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);

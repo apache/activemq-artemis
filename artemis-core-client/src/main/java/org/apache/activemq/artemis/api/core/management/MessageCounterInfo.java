@@ -77,7 +77,7 @@ public final class MessageCounterInfo {
                              final int depthDelta,
                              final String lastAddTimestamp,
                              final String lastAckTimestamp,
-                             final String udpateTimestamp) {
+                             final String updateTimestamp) {
       this.name = name;
       this.subscription = subscription;
       this.durable = durable;
@@ -87,7 +87,7 @@ public final class MessageCounterInfo {
       this.depthDelta = depthDelta;
       this.lastAddTimestamp = lastAddTimestamp;
       this.lastAckTimestamp = lastAckTimestamp;
-      this.updateTimestamp = udpateTimestamp;
+      this.updateTimestamp = updateTimestamp;
    }
 
    // Public --------------------------------------------------------
