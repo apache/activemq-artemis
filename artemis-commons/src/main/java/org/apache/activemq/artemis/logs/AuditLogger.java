@@ -2859,4 +2859,32 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601749, value = "User {0} is getting activation sequence on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getActivationSequence(String user, Object source, Object... args);
+
+   static void purge(Object source) {
+      RESOURCE_LOGGER.purge(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601750, value = "User {0} is purging target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void purge(String user, Object source, Object... args);
+
+
+   static void purgeAddressSuccess(String queueName) {
+      RESOURCE_LOGGER.purgeAddressSuccess(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601751, value = "User {0} has purged address {1}", format = Message.Format.MESSAGE_FORMAT)
+   void purgeAddressSuccess(String user, String queueName);
+
+
+   static void purgeAddressFailure(String queueName) {
+      RESOURCE_LOGGER.purgeAddressFailure(getCaller(), queueName);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601752, value = "User {0} failed to purge address {1}", format = Message.Format.MESSAGE_FORMAT)
+   void purgeAddressFailure(String user, String queueName);
+
+
 }
