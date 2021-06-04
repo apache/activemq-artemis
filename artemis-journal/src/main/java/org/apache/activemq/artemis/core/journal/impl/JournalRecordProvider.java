@@ -30,4 +30,6 @@ public interface JournalRecordProvider {
    JournalCompactor getCompactor();
 
    ConcurrentLongHashMap<JournalRecord> getRecords();
+
+   boolean isReplaceableRecord(byte recordType);
 }

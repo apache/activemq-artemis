@@ -202,7 +202,7 @@ public class JournalTransaction {
       }
    }
 
-   public void addPositive(final JournalFile file, final long id, final int size) {
+   public void addPositive(final JournalFile file, final long id, final int size, final byte userRecordType) {
       incCounter(file);
 
       addFile(file);
@@ -211,7 +211,7 @@ public class JournalTransaction {
          pos = new ArrayList<>();
       }
 
-      pos.add(new JournalUpdate(file, id, size));
+      pos.add(new JournalUpdate(file, id, size, userRecordType));
    }
 
    public void addNegative(final JournalFile file, final long id) {
@@ -223,7 +223,7 @@ public class JournalTransaction {
          neg = new ArrayList<>();
       }
 
-      neg.add(new JournalUpdate(file, id, 0));
+      neg.add(new JournalUpdate(file, id, 0, (byte)0));
    }
 
    /**
@@ -254,13 +254,13 @@ public class JournalTransaction {
                   // This is a case where the transaction was opened after compacting was started,
                   // but the commit arrived while compacting was working
                   // We need to cache the counter update, so compacting will take the correct files when it is done
-                  compactor.addCommandUpdate(trUpdate.id, trUpdate.file, trUpdate.size);
+                  compactor.addCommandUpdate(trUpdate.id, trUpdate.file, trUpdate.size, trUpdate.userRecordType);
                } else if (posFiles == null) {
                   posFiles = new JournalRecord(trUpdate.file, trUpdate.size);
 
                   journal.getRecords().put(trUpdate.id, posFiles);
                } else {
-                  posFiles.addUpdateFile(trUpdate.file, trUpdate.size);
+                  posFiles.addUpdateFile(trUpdate.file, trUpdate.size, journal.isReplaceableRecord(trUpdate.userRecordType));
                }
             }
          }
@@ -397,16 +397,19 @@ public class JournalTransaction {
 
       int size;
 
+      final byte userRecordType;
+
       /**
        * @param file
        * @param id
        * @param size
        */
-      private JournalUpdate(final JournalFile file, final long id, final int size) {
+      private JournalUpdate(final JournalFile file, final long id, final int size, final byte userRecordType) {
          super();
          this.file = file;
          this.id = id;
          this.size = size;
+         this.userRecordType = userRecordType;
       }
 
       /**
