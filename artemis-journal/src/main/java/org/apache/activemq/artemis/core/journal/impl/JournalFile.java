@@ -39,6 +39,10 @@ public interface JournalFile {
 
    void decPosCount();
 
+   int getReplaceableCount();
+
+   void incReplaceableCount();
+
    void incAddRecord();
 
    int getAddRecord();
