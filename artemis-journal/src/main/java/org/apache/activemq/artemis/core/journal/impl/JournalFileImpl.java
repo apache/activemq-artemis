@@ -42,10 +42,12 @@ public class JournalFileImpl implements JournalFile {
       this.reclaimable = reclaimable;
    }
 
+   private static final AtomicIntegerFieldUpdater<JournalFileImpl> replaceableCountUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "replaceableCountField");
    private static final AtomicIntegerFieldUpdater<JournalFileImpl> posCountUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "posCountField");
    private static final AtomicIntegerFieldUpdater<JournalFileImpl> addRecordUpdate = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "addRecordField");
    private static final AtomicIntegerFieldUpdater<JournalFileImpl> liveBytesUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalFileImpl.class, "liveBytesField");
 
+   private volatile int replaceableCountField = 0;
    private volatile int posCountField = 0;
    private volatile int addRecordField = 0;
    private volatile int liveBytesField = 0;
@@ -75,6 +77,16 @@ public class JournalFileImpl implements JournalFile {
    @Override
    public int getPosCount() {
       return posCountUpdater.get(this);
+   }
+
+   @Override
+   public int getReplaceableCount() {
+      return replaceableCountUpdater.get(this);
+   }
+
+   @Override
+   public void incReplaceableCount() {
+      replaceableCountUpdater.incrementAndGet(this);
    }
 
    @Override

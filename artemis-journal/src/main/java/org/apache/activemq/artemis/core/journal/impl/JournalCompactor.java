@@ -144,15 +144,20 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       pendingCommands.add(new DeleteCompactCommand(id, usedFile));
    }
 
+   @Override
+   public boolean isReplaceableRecord(byte recordType) {
+      return journal.isReplaceableRecord(recordType);
+   }
+
    /**
     * @param id
     * @param usedFile
     */
-   public void addCommandUpdate(final long id, final JournalFile usedFile, final int size) {
+   public void addCommandUpdate(final long id, final JournalFile usedFile, final int size, byte userRecordType) {
       if (logger.isTraceEnabled()) {
          logger.trace("addCommandUpdate id " + id + " usedFile " + usedFile + " size " + size);
       }
-      pendingCommands.add(new UpdateCompactCommand(id, usedFile, size));
+      pendingCommands.add(new UpdateCompactCommand(id, usedFile, size, userRecordType));
    }
 
    private void checkSize(final int size) throws Exception {
@@ -273,7 +278,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
       checkSize(record.getEncodeSize(), info.compactCount);
 
-      newTransaction.addPositive(currentFile, info.id, record.getEncodeSize());
+      newTransaction.addPositive(currentFile, info.id, record.getEncodeSize(), info.userRecordType);
 
       writeEncoder(record);
    }
@@ -433,7 +438,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       newTransaction.rollback(currentFile);
    }
 
-   public void replaceableRecord(int recordType) {
+   public void replaceableRecord(byte recordType) {
       LongObjectHashMap<RunnableEx> longmap = new LongObjectHashMap();
       pendingUpdates.put(recordType, longmap);
    }
@@ -467,7 +472,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (newRecord == null) {
          ActiveMQJournalLogger.LOGGER.compactingWithNoAddRecord(info.id);
       } else {
-         newRecord.addUpdateFile(currentFile, updateRecord.getEncodeSize());
+         newRecord.addUpdateFile(currentFile, updateRecord.getEncodeSize(), journal.isReplaceableRecord(info.userRecordType));
       }
 
       writeEncoder(updateRecord);
@@ -497,7 +502,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
       writeEncoder(updateRecordTX);
 
-      newTransaction.addPositive(currentFile, info.id, updateRecordTX.getEncodeSize());
+      newTransaction.addPositive(currentFile, info.id, updateRecordTX.getEncodeSize(), info.userRecordType);
    }
 
    /**
@@ -561,14 +566,17 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
       private final long id;
 
+      private final byte userRecordType;
+
       private final JournalFile usedFile;
 
       private final int size;
 
-      private UpdateCompactCommand(final long id, final JournalFile usedFile, final int size) {
+      private UpdateCompactCommand(final long id, final JournalFile usedFile, final int size, byte userRecordType) {
          this.id = id;
          this.usedFile = usedFile;
          this.size = size;
+         this.userRecordType = userRecordType;
       }
 
       @Override
@@ -577,7 +585,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          if (updateRecord == null) {
             ActiveMQJournalLogger.LOGGER.noRecordDuringCompactReplay(id);
          } else {
-            updateRecord.addUpdateFile(usedFile, size);
+            updateRecord.addUpdateFile(usedFile, size, journal.isReplaceableRecord(userRecordType));
          }
       }
 
