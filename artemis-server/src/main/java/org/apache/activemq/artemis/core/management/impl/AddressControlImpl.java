@@ -44,7 +44,9 @@ import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.logs.AuditLogger;
@@ -530,9 +532,36 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       return addressInfo.isTemporary();
    }
 
-   // Package protected ---------------------------------------------
+   @Override
+   public long purge() throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.purge(this.addressInfo);
+      }
+      clearIO();
+      long totalMsgs = 0;
+      try {
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
+         if (bindings != null) {
+            for (Binding binding : bindings.getBindings()) {
+               if (binding instanceof QueueBinding) {
+                  totalMsgs += ((QueueBinding) binding).getQueue().deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
+               }
+            }
+         }
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.purgeAddressSuccess(addressInfo.getName().toString());
+         }
+      } catch (Throwable t) {
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.purgeAddressFailure(addressInfo.getName().toString());
+         }
+         throw new IllegalStateException(t.getMessage());
+      } finally {
+         blockOnIO();
+      }
 
-   // Protected -----------------------------------------------------
+      return totalMsgs;
+   }
 
    // Private -------------------------------------------------------
 
