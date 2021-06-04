@@ -174,6 +174,11 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public long purge() throws Exception {
+            return (long) proxy.invokeOperation("purge");
+         }
+
+         @Override
          public String sendMessage(Map<String, String> headers,
                                    int type,
                                    String body,

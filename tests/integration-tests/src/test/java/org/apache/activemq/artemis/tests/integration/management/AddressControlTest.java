@@ -526,6 +526,31 @@ public class AddressControlTest extends ManagementTestBase {
       }
    }
 
+   @Test
+   public void testPurge() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      assertEquals(0, addressControl.getMessageCount());
+
+      ClientProducer producer = session.createProducer(address.toString());
+      producer.send(session.createMessage(false));
+      assertEquals(0, addressControl.getMessageCount());
+
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 1, 2000, 100));
+
+      session.createQueue(new QueueConfiguration(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 2, 2000, 100));
+
+      assertEquals(2L, addressControl.purge());
+
+      Wait.assertEquals(0L, () -> addressControl.getMessageCount(), 2000, 100);
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

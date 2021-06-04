@@ -203,4 +203,11 @@ public interface AddressControl {
    @Attribute(desc = "whether this address is temporary")
    boolean isTemporary();
 
+   /**
+    * Purge all the queues bound of this address. Returns the total number of messages purged.
+    * @throws java.lang.Exception
+    */
+   @Operation(desc = "Purges the queues bound to this address. Returns the total number of messages purged.", impact = MBeanOperationInfo.ACTION)
+   long purge() throws Exception;
+
 }
