@@ -264,19 +264,6 @@
          <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
             <executions>
-              <execution>
-                  <id>source</id>
-                  <configuration>
-                     <descriptors>
-                       <descriptor>src/main/assembly/source-assembly.xml</descriptor>
-                     </descriptors>
-                     <tarLongFileMode>posix</tarLongFileMode>
-                  </configuration>
-                  <phase>package</phase>
-                  <goals>
-                     <goal>single</goal>
-                  </goals>
-               </execution>
                <execution>
                   <id>bin</id>
                   <configuration>
@@ -329,4 +316,31 @@
       </plugins>
    </build>
 
+   <profiles>
+      <profile>
+         <id>apache-release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-assembly-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>source</id>
+                        <configuration>
+                           <descriptors>
+                              <descriptor>src/main/assembly/source-assembly.xml</descriptor>
+                           </descriptors>
+                           <tarLongFileMode>posix</tarLongFileMode>
+                        </configuration>
+                        <phase>package</phase>
+                        <goals>
+                           <goal>single</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
 </project>

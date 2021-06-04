@@ -34,11 +34,17 @@
          <directory>${activemq.basedir}</directory>
          <outputDirectory>${file.separator}</outputDirectory>
          <useDefaultExcludes>true</useDefaultExcludes>
-         <!-- TODO These excludes were lifted from maven-resources-apache-source-release-assembly-descriptor-1.0.4. We
-         should use this descriptor directly in future -->
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
          <excludes>
             <exclude>tests/extra-tests/</exclude>
             <exclude>tests/performance-jmh/</exclude>
+
+            <exclude>artemis-distribution/src/main/resources/bin/artemis</exclude>
+            <exclude>artemis-cli/src/main/resources/org/apache/activemq/artemis/cli/commands/bin/artemis</exclude>
+            <exclude>artemis-cli/src/main/resources/org/apache/activemq/artemis/cli/commands/bin/artemis-service</exclude>
+            <exclude>scripts/*.sh</exclude>
+            <exclude>**/**/*.sh</exclude>
 
             <!-- in case some of the build generates data, this needs to be ignored -->
             <exclude>data/</exclude>
@@ -128,6 +134,23 @@
                %regex[(?!((?!${project.build.directory}/)[^/]+/)*src/)(.*/)?release\.properties]
             </exclude>
 
+         </excludes>
+      </fileSet>
+      <fileSet>
+         <directory>${activemq.basedir}</directory>
+         <outputDirectory>${file.separator}</outputDirectory>
+         <useDefaultExcludes>true</useDefaultExcludes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0755</fileMode>
+         <includes>
+            <include>artemis-distribution/src/main/resources/bin/artemis</include>
+            <include>artemis-cli/src/main/resources/org/apache/activemq/artemis/cli/commands/bin/artemis</include>
+            <include>artemis-cli/src/main/resources/org/apache/activemq/artemis/cli/commands/bin/artemis-service</include>
+            <include>scripts/*.sh</include>
+            <include>**/**/*.sh</include>
+         </includes>
+         <excludes>
+            <exclude>**/target/**</exclude>
          </excludes>
       </fileSet>
    </fileSets>

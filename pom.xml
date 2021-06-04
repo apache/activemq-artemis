@@ -97,10 +97,6 @@
       <jetty.version>9.4.40.v20210413</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
       <errorprone.version>2.6.0</errorprone.version>
-      <!-- Overrides the parent pom to downgrade to assembly plugin to < 3.2.0, and
-        keep the old file permission copying behaviour until such time as the assembly
-        descriptor properly defines them. See also MASSEMBLY-941. -->
-      <maven.assembly.plugin.version>3.1.1</maven.assembly.plugin.version>
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
       <maven.bundle.plugin.version>5.1.2</maven.bundle.plugin.version>
       <mockito.version>3.9.0</mockito.version>
@@ -1017,63 +1013,15 @@
       </profile>
       <profile>
          <id>dev</id>
-         <modules>
-            <module>artemis-boot</module>
-            <module>artemis-dto</module>
-            <module>artemis-web</module>
-            <module>artemis-cli</module>
-            <module>artemis-commons</module>
-            <module>artemis-selector</module>
-            <module>artemis-core-client</module>
-            <module>artemis-server</module>
-            <module>artemis-jms-client</module>
-            <module>artemis-jms-server</module>
-            <module>artemis-protocols</module>
-            <module>artemis-journal</module>
-            <module>artemis-jdbc-store</module>
-            <module>artemis-ra</module>
-            <module>artemis-rest</module>
-            <module>artemis-service-extensions</module>
-            <module>artemis-maven-plugin</module>
-            <module>artemis-jdbc-store</module>
-            <module>integration/activemq-spring-integration</module>
-            <module>tests</module>
-         </modules>
          <properties>
             <skipStyleCheck>false</skipStyleCheck>
             <skipLicenseCheck>false</skipLicenseCheck>
          </properties>
       </profile>
       <profile>
-         <id>distro</id>
-         <activation>
-            <activeByDefault>true</activeByDefault>
-         </activation>
-      </profile>
-      <profile>
          <id>release</id>
          <modules>
-            <module>artemis-dto</module>
-            <module>artemis-web</module>
-            <module>artemis-website</module>
-            <module>artemis-cli</module>
-            <module>artemis-commons</module>
-            <module>artemis-selector</module>
-            <module>artemis-core-client</module>
-            <module>artemis-server</module>
-            <module>artemis-jms-client</module>
-            <module>artemis-jms-client-all</module>
-            <module>artemis-jms-server</module>
-            <module>artemis-journal</module>
-            <module>artemis-jdbc-store</module>
-            <module>artemis-ra</module>
-            <module>artemis-rest</module>
-            <module>artemis-service-extensions</module>
-            <module>artemis-maven-plugin</module>
-            <module>integration/activemq-spring-integration</module>
             <module>examples</module>
-            <module>tests</module>
-            <module>artemis-distribution</module>
          </modules>
          <properties>
             <skipStyleCheck>false</skipStyleCheck>
@@ -1104,6 +1052,26 @@
             </plugins>
          </build>
       </profile>
+      <!-- Override the apache-release profile from the parent to skip creating
+           a source-release archive here, it is done in artemis-distribution. -->
+      <profile>
+         <id>apache-release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-assembly-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>source-release-assembly</id>
+                        <configuration>
+                           <skipAssembly>true</skipAssembly>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
       <profile>
          <!-- this will activate the property required to play with tests retry -->
          <id>tests-retry</id>
@@ -1123,26 +1091,6 @@
          <!-- tests is the profile we use to run the entire testsuite
                Running this entire build could take up to 2 hours -->
          <id>tests</id>
-         <modules>
-            <module>artemis-dto</module>
-            <module>artemis-web</module>
-            <module>artemis-website</module>
-            <module>artemis-cli</module>
-            <module>artemis-commons</module>
-            <module>artemis-selector</module>
-            <module>artemis-core-client</module>
-            <module>artemis-server</module>
-            <module>artemis-jms-client</module>
-            <module>artemis-jms-server</module>
-            <module>artemis-journal</module>
-            <module>artemis-jdbc-store</module>
-            <module>artemis-ra</module>
-            <module>artemis-rest</module>
-            <module>artemis-service-extensions</module>
-            <module>artemis-maven-plugin</module>
-            <module>integration/activemq-spring-integration</module>
-            <module>tests</module>
-         </modules>
          <properties>
             <skipUnitTests>false</skipUnitTests>
             <skipJmsTests>false</skipJmsTests>
@@ -1165,23 +1113,6 @@
          <!-- This will represent a subset of the tests
               This is used on PR checks -->
          <id>fast-tests</id>
-         <modules>
-            <module>artemis-dto</module>
-            <module>artemis-cli</module>
-            <module>artemis-commons</module>
-            <module>artemis-selector</module>
-            <module>artemis-core-client</module>
-            <module>artemis-server</module>
-            <module>artemis-jms-client</module>
-            <module>artemis-jms-server</module>
-            <module>artemis-journal</module>
-            <module>artemis-jdbc-store</module>
-            <module>artemis-ra</module>
-            <module>artemis-service-extensions</module>
-            <module>artemis-maven-plugin</module>
-            <module>integration/activemq-spring-integration</module>
-            <module>tests</module>
-         </modules>
          <properties>
             <skipUnitTests>false</skipUnitTests>
             <skipJmsTests>false</skipJmsTests>
@@ -1196,23 +1127,6 @@
       <profile>
          <id>examples</id>
          <modules>
-            <module>artemis-dto</module>
-            <module>artemis-web</module>
-            <module>artemis-cli</module>
-            <module>artemis-commons</module>
-            <module>artemis-selector</module>
-            <module>artemis-core-client</module>
-            <module>artemis-server</module>
-            <module>artemis-jms-client</module>
-            <module>artemis-jms-server</module>
-            <module>artemis-journal</module>
-            <module>artemis-jdbc-store</module>
-            <module>artemis-ra</module>
-            <module>artemis-rest</module>
-            <module>artemis-service-extensions</module>
-            <module>artemis-maven-plugin</module>
-            <module>integration/activemq-spring-integration</module>
-            <module>tests</module>
             <module>examples</module>
          </modules>
          <properties>
@@ -1481,11 +1395,6 @@
                <configuration>
                    <showWarnings>true</showWarnings>
                </configuration>
-            </plugin>
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-assembly-plugin</artifactId>
-               <version>${maven.assembly.plugin.version}</version>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>

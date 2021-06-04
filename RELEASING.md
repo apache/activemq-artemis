@@ -140,18 +140,11 @@ scm.tag=1.4.0
 ```
 
 
-## Removing additional files
+## Closing the staging repository
 
-The last step before closing the staging repository is removing the `artemis-pom-&lt;version>-source-release.zip` file.  At 
-the moment this artifact is uploaded automatically by the Apache release plugin. In future versions the ActiveMQ Artemis
-pom will be updated to take this into account.
-
-The file will be located under ./artemis-pom/&lt;version>/
-
-Remove these files manually under Nexus (https://repository.apache.org/#stagingRepositories) while the repository is still open.
-
-Once the file is removed close the staging repo using the "Close" button on Nexus website.
-
+Give the staging repository contents a quick inspection using the content navigation area, then proceed to close the
+staging repo using the "Close" button on Nexus website, locking it from further modification and exposing its contents
+at a staging URL to allow testing. Set a description such as "ActiveMQ Artemis <version> (RC1)" while closing.
 
 ## Stage the release to the dist dev area
 
