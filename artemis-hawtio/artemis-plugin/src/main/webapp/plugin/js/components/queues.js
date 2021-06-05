@@ -127,7 +127,7 @@ var Artemis;
             fieldOptions: [
                 {id: 'id', name: 'ID'},
                 {id: 'name', name: 'Name'},
-                {id: 'consumerId', name: 'Consumer ID'},
+                {id: 'consumerCount', name: 'Consumer Count'},
                 {id: 'address', name: 'Address'},
                 {id: 'filter', name: 'Filter'},
                 {id: 'maxConsumers', name: 'Max Consumers'},
