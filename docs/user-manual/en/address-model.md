@@ -353,10 +353,15 @@ queues. The broker decides on behalf of the client which queues to send
 messages to or from which queue to receive messages. However, more advanced use
 cases might require that the client specify a queue directly. In these
 situations the client uses a fully qualified queue name, by specifying both
-the address name and the queue name, separated by a ::.
+the address name and the queue name, separated by `::`.
+
+> **Note**
+>
+> The string `::` should only be used for FQQN and not in any other context
+> in address or queue names.
 
 Currently Artemis supports fully qualified queue names on Core, AMQP, JMS,
-OpenWire, MQTT and STOMP protocols for receiving messages only.
+OpenWire, MQTT and STOMP protocols for both sending and receiving messages.
 
 ### Specifying a Fully Qualified Queue Name
 
