@@ -478,6 +478,7 @@ public class QueueControlTest extends ManagementTestBase {
       long beforeSend = System.currentTimeMillis();
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false).putStringProperty("x", "valueX").putStringProperty("y", "valueY"));
+      Wait.assertEquals(1, queueControl::getMessageCount);
 
       long firstMessageTimestamp = queueControl.getFirstMessageTimestamp();
       assertTrue(beforeSend <= firstMessageTimestamp);
