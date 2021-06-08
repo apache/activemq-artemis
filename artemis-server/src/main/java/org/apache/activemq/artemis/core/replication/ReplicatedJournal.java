@@ -401,9 +401,10 @@ public class ReplicatedJournal implements Journal {
                                      final byte recordType,
                                      final byte[] record,
                                      final JournalUpdateCallback updateCallback,
-                                     final boolean sync) throws Exception {
+                                     final boolean sync,
+                                     final boolean replaceableRecord) throws Exception {
 
-      this.tryAppendUpdateRecord(id, recordType, new ByteArrayEncoding(record), updateCallback, sync);
+      this.tryAppendUpdateRecord(id, recordType, new ByteArrayEncoding(record), updateCallback, sync, replaceableRecord);
    }
 
    /**
@@ -433,12 +434,12 @@ public class ReplicatedJournal implements Journal {
                                   final Persister persister,
                                   final Object record,
                                   final JournalUpdateCallback updateCallback,
-                                  final boolean sync) throws Exception {
+                                  final boolean sync, final boolean replaceable) throws Exception {
       if (log.isTraceEnabled()) {
          log.trace("AppendUpdateRecord id = " + id + " , recordType = " + recordType);
       }
       replicationManager.appendUpdateRecord(journalID, ADD_OPERATION_TYPE.UPDATE, id, recordType, persister, record);
-      localJournal.tryAppendUpdateRecord(id, recordType, persister, record, updateCallback, sync);
+      localJournal.tryAppendUpdateRecord(id, recordType, persister, record, updateCallback, sync, replaceable);
    }
 
    @Override
@@ -461,13 +462,14 @@ public class ReplicatedJournal implements Journal {
                                   final Persister persister,
                                   final Object record,
                                   final boolean sync,
+                                  final boolean replaceableUpdate,
                                   final JournalUpdateCallback updateCallback,
                                   final IOCompletion completionCallback) throws Exception {
       if (log.isTraceEnabled()) {
          log.trace("AppendUpdateRecord id = " + id + " , recordType = " + journalRecordType);
       }
       replicationManager.appendUpdateRecord(journalID, ADD_OPERATION_TYPE.UPDATE, id, journalRecordType, persister, record);
-      localJournal.tryAppendUpdateRecord(id, journalRecordType, persister, record, sync, updateCallback, completionCallback);
+      localJournal.tryAppendUpdateRecord(id, journalRecordType, persister, record, sync, replaceableUpdate, updateCallback, completionCallback);
    }
 
    /**

@@ -110,19 +110,19 @@ public interface Journal extends ActiveMQComponent {
 
    void appendUpdateRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception;
 
-   void tryAppendUpdateRecord(long id, byte recordType, byte[] record, JournalUpdateCallback updateCallback, boolean sync) throws Exception;
+   void tryAppendUpdateRecord(long id, byte recordType, byte[] record, JournalUpdateCallback updateCallback, boolean sync, boolean replaceableRecord) throws Exception;
 
    default void appendUpdateRecord(long id, byte recordType, EncodingSupport record, boolean sync) throws Exception {
       appendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, sync);
    }
 
-   default void tryAppendUpdateRecord(long id, byte recordType, EncodingSupport record, JournalUpdateCallback updateCallback, boolean sync) throws Exception {
-      tryAppendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, updateCallback, sync);
+   default void tryAppendUpdateRecord(long id, byte recordType, EncodingSupport record, JournalUpdateCallback updateCallback, boolean sync, boolean replaceableRecord) throws Exception {
+      tryAppendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, updateCallback, sync, replaceableRecord);
    }
 
    void appendUpdateRecord(long id, byte recordType, Persister persister, Object record, boolean sync) throws Exception;
 
-   void tryAppendUpdateRecord(long id, byte recordType, Persister persister, Object record, JournalUpdateCallback updateCallback, boolean sync) throws Exception;
+   void tryAppendUpdateRecord(long id, byte recordType, Persister persister, Object record, JournalUpdateCallback updateCallback, boolean sync, boolean replaceableUpdate) throws Exception;
 
    default void appendUpdateRecord(long id,
                                    byte recordType,
@@ -136,9 +136,10 @@ public interface Journal extends ActiveMQComponent {
                                    byte recordType,
                                    EncodingSupport record,
                                    boolean sync,
+                                   boolean replaceableUpdate,
                                    JournalUpdateCallback updateCallback,
                                    IOCompletion completionCallback) throws Exception {
-      tryAppendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, sync, updateCallback, completionCallback);
+      tryAppendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, sync, replaceableUpdate, updateCallback, completionCallback);
    }
 
    void appendUpdateRecord(long id,
@@ -153,6 +154,7 @@ public interface Journal extends ActiveMQComponent {
                            Persister persister,
                            Object record,
                            boolean sync,
+                           boolean replaceableUpdate,
                            JournalUpdateCallback updateCallback,
                            IOCompletion callback) throws Exception;
 

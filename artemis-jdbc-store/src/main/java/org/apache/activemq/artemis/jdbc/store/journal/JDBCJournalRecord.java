@@ -296,7 +296,7 @@ class JDBCJournalRecord {
    }
 
    RecordInfo toRecordInfo() throws IOException {
-      return new RecordInfo(getId(), getUserRecordType(), getRecordData(), isUpdate(), getCompactCount());
+      return new RecordInfo(getId(), getUserRecordType(), getRecordData(), isUpdate(), false, getCompactCount());
    }
 
    public boolean isTransactional() {

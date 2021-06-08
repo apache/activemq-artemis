@@ -412,7 +412,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
       // We actually only need the record ID in this instance.
       if (record.isTransactional()) {
-         RecordInfo info = new RecordInfo(record.getId(), record.getRecordType(), new byte[0], record.isUpdate(), record.getCompactCount());
+         RecordInfo info = new RecordInfo(record.getId(), record.getRecordType(), new byte[0], record.isUpdate(), false, record.getCompactCount());
          if (record.getRecordType() == JDBCJournalRecord.DELETE_RECORD_TX) {
             txHolder.recordsToDelete.add(info);
          } else {
@@ -498,7 +498,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public void tryAppendUpdateRecord(long id, byte recordType, byte[] record, JournalUpdateCallback updateCallback, boolean sync) throws Exception {
+   public void tryAppendUpdateRecord(long id, byte recordType, byte[] record, JournalUpdateCallback updateCallback, boolean sync, boolean replaceableRecord) throws Exception {
       appendUpdateRecord(id, recordType, record, sync);
    }
 
@@ -518,7 +518,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public void tryAppendUpdateRecord(long id, byte recordType, Persister persister, Object record, JournalUpdateCallback updateCallback, boolean sync) throws Exception {
+   public void tryAppendUpdateRecord(long id, byte recordType, Persister persister, Object record, JournalUpdateCallback updateCallback, boolean sync, boolean replaceableUpdate) throws Exception {
       appendUpdateRecord(id, recordType, persister, record, sync);
    }
 
@@ -552,6 +552,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
                                   Persister persister,
                                   Object record,
                                   boolean sync,
+                                  boolean replaceableUpdate,
                                   JournalUpdateCallback updateCallback,
                                   IOCompletion completionCallback) throws Exception {
       appendUpdateRecord(id, recordType, persister, record, sync, completionCallback);

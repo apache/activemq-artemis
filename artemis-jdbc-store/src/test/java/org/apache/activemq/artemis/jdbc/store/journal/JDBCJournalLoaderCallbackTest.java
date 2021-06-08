@@ -45,7 +45,7 @@ public class JDBCJournalLoaderCallbackTest {
 
       JDBCJournalLoaderCallback cb = new JDBCJournalLoaderCallback(committedRecords, preparedTransactions, failureCallback, fixBadTX);
 
-      RecordInfo record = new RecordInfo(42, (byte) 0, null, false, (short) 0);
+      RecordInfo record = new RecordInfo(42, (byte) 0, null, false, false, (short) 0);
       cb.addRecord(record);
       assertEquals(1, committedRecords.size());
       assertTrue(committedRecords.contains(record));

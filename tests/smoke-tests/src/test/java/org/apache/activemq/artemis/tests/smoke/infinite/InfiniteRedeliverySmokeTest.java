@@ -44,10 +44,12 @@ public class InfiniteRedeliverySmokeTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "infinite-redelivery";
 
+   Process serverProcess;
+
    @Before
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
-      startServer(SERVER_NAME_0, 0, 30000);
+      serverProcess = startServer(SERVER_NAME_0, 0, 30000);
    }
 
    @Test
@@ -88,6 +90,17 @@ public class InfiniteRedeliverySmokeTest extends SmokeTestBase {
          // it should be max 10 actually, I'm just leaving some space for future changes,
          // as the real test I'm after here is the broker should clean itself up
          Wait.assertTrue("there are too many files created", () -> fileFactory.listFiles("amq").size() <= 20);
+
+         if (i % 100 == 0 && i > 0) {
+            connection.close();
+            serverProcess.destroyForcibly();
+            Thread.sleep(1000);
+            serverProcess = startServer(SERVER_NAME_0, 0, 3000);
+            connection = factory.createConnection();
+            session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            consumer = session.createConsumer(queue);
+            connection.start();
+         }
 
       }
    }

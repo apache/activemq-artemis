@@ -94,8 +94,9 @@ abstract class JournalBase implements Journal {
                                      final byte recordType,
                                      final byte[] record,
                                      JournalUpdateCallback updateCallback,
-                                     final boolean sync) throws Exception {
-      tryAppendUpdateRecord(id, recordType, new ByteArrayEncoding(record), updateCallback, sync);
+                                     final boolean sync,
+                                     final boolean replaceableRecord) throws Exception {
+      tryAppendUpdateRecord(id, recordType, new ByteArrayEncoding(record), updateCallback, sync, replaceableRecord);
    }
 
    @Override
@@ -163,10 +164,11 @@ abstract class JournalBase implements Journal {
                                      final Persister persister,
                                      final Object record,
                                      final JournalUpdateCallback updateCallback,
-                                     final boolean sync) throws Exception {
+                                     final boolean sync,
+                                     final boolean replaceableUpdate) throws Exception {
       SyncIOCompletion callback = getSyncCallback(sync);
 
-      tryAppendUpdateRecord(id, recordType, persister, record, sync, updateCallback, callback);
+      tryAppendUpdateRecord(id, recordType, persister, record, sync, replaceableUpdate, updateCallback, callback);
 
       if (callback != null) {
          callback.waitCompletion();
