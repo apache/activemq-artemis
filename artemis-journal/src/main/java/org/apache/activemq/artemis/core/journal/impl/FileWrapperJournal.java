@@ -228,6 +228,7 @@ public final class FileWrapperJournal extends JournalBase {
                                      Persister persister,
                                      Object record,
                                      boolean sync,
+                                     boolean replaceableUpdate,
                                      JournalUpdateCallback updateCallback,
                                      IOCompletion callback) throws Exception {
       JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);

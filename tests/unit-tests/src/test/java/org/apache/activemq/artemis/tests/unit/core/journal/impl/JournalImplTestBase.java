@@ -409,7 +409,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
          journal.appendAddRecord(element, (byte) 0, record, sync);
 
-         records.add(new RecordInfo(element, (byte) 0, record, false, (short) 0));
+         records.add(new RecordInfo(element, (byte) 0, record, false, false, (short) 0));
       }
 
       journal.debugWait();
@@ -422,11 +422,11 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
       SimpleFutureImpl<Boolean> future = new SimpleFutureImpl();
 
-      journal.tryAppendUpdateRecord(argument, (byte) 0, updateRecord, (r, b) -> future.set(b), sync);
+      journal.tryAppendUpdateRecord(argument, (byte) 0, updateRecord, (r, b) -> future.set(b), sync, false);
 
       if (future.get()) {
          Assert.fail();
-         records.add(new RecordInfo(argument, (byte) 0, updateRecord, true, (short) 0));
+         records.add(new RecordInfo(argument, (byte) 0, updateRecord, true, false, (short) 0));
       }
 
       return future.get();
@@ -440,7 +440,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
          journal.appendUpdateRecord(element, (byte) 0, updateRecord, sync);
 
-         records.add(new RecordInfo(element, (byte) 0, updateRecord, true, (short) 0));
+         records.add(new RecordInfo(element, (byte) 0, updateRecord, true, false, (short) 0));
       }
 
       journal.debugWait();
@@ -485,7 +485,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
          journal.appendAddRecordTransactional(txID, element, (byte) 0, record);
 
-         tx.records.add(new RecordInfo(element, (byte) 0, record, false, (short) 0));
+         tx.records.add(new RecordInfo(element, (byte) 0, record, false, false, (short) 0));
 
       }
 
@@ -502,7 +502,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
          journal.appendUpdateRecordTransactional(txID, element, (byte) 0, updateRecord);
 
-         tx.records.add(new RecordInfo(element, (byte) 0, updateRecord, true, (short) 0));
+         tx.records.add(new RecordInfo(element, (byte) 0, updateRecord, true, false, (short) 0));
       }
       journal.debugWait();
    }
@@ -515,7 +515,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
          journal.appendDeleteRecordTransactional(txID, element);
 
-         tx.deletes.add(new RecordInfo(element, (byte) 0, null, true, (short) 0));
+         tx.deletes.add(new RecordInfo(element, (byte) 0, null, true, false, (short) 0));
       }
 
       journal.debugWait();

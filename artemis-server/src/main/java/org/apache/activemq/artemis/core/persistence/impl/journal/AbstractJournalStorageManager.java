@@ -385,7 +385,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    @Override
    public void storeReference(final long queueID, final long messageID, final boolean last) throws Exception {
       try (ArtemisCloseable lock = closeableReadLock()) {
-         messageJournal.tryAppendUpdateRecord(messageID, JournalRecordIds.ADD_REF, new RefEncoding(queueID), last && syncNonTransactional, this::messageUpdateCallback, getContext(last && syncNonTransactional));
+         messageJournal.tryAppendUpdateRecord(messageID, JournalRecordIds.ADD_REF, new RefEncoding(queueID), last && syncNonTransactional, false, this::messageUpdateCallback, getContext(last && syncNonTransactional));
       }
    }
 
@@ -428,7 +428,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    @Override
    public void storeAcknowledge(final long queueID, final long messageID) throws Exception {
       try (ArtemisCloseable lock = closeableReadLock()) {
-         messageJournal.tryAppendUpdateRecord(messageID, JournalRecordIds.ACKNOWLEDGE_REF, new RefEncoding(queueID), syncNonTransactional, this::messageUpdateCallback, getContext(syncNonTransactional));
+         messageJournal.tryAppendUpdateRecord(messageID, JournalRecordIds.ACKNOWLEDGE_REF, new RefEncoding(queueID), syncNonTransactional, false, this::messageUpdateCallback, getContext(syncNonTransactional));
       }
    }
 
@@ -470,7 +470,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    public void updateScheduledDeliveryTime(final MessageReference ref) throws Exception {
       ScheduledDeliveryEncoding encoding = new ScheduledDeliveryEncoding(ref.getScheduledDeliveryTime(), ref.getQueue().getID());
       try (ArtemisCloseable lock = closeableReadLock()) {
-         messageJournal.tryAppendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME, encoding, syncNonTransactional, this::recordNotFoundCallback, getContext(syncNonTransactional));
+         messageJournal.tryAppendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME, encoding, syncNonTransactional, true, this::recordNotFoundCallback, getContext(syncNonTransactional));
       }
    }
 
@@ -702,7 +702,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       DeliveryCountUpdateEncoding updateInfo = new DeliveryCountUpdateEncoding(ref.getQueue().getID(), ref.getDeliveryCount());
 
       try (ArtemisCloseable lock = closeableReadLock()) {
-         messageJournal.tryAppendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.UPDATE_DELIVERY_COUNT, updateInfo, syncNonTransactional, this::messageUpdateCallback, getContext(syncNonTransactional));
+         messageJournal.tryAppendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.UPDATE_DELIVERY_COUNT, updateInfo, syncNonTransactional, true, this::messageUpdateCallback, getContext(syncNonTransactional));
       }
    }
 

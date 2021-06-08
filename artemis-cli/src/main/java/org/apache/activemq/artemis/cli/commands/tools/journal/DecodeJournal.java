@@ -234,7 +234,7 @@ public class DecodeJournal extends LockAbstract {
       byte userRecordType = parseByte("userRecordType", properties);
       boolean isUpdate = parseBoolean("isUpdate", properties);
       byte[] data = parseEncoding("data", properties);
-      return new RecordInfo(id, userRecordType, data, isUpdate, (short) 0);
+      return new RecordInfo(id, userRecordType, data, isUpdate, false, (short) 0);
    }
 
    private static byte[] parseEncoding(final String name, final Properties properties) throws Exception {

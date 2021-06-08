@@ -701,7 +701,8 @@ public final class ReplicationTest extends ActiveMQTestBase {
                                            byte recordType,
                                            Persister persister,
                                            Object record, JournalUpdateCallback updateCallback,
-                                           boolean sync) throws Exception {
+                                           boolean sync,
+                                           boolean repalceableUpdate) throws Exception {
       }
 
       @Override
@@ -719,7 +720,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
                                            byte recordType,
                                            Persister persister,
                                            Object record,
-                                           boolean sync, JournalUpdateCallback updateCallback,
+                                           boolean sync, boolean replaceableUpdate, JournalUpdateCallback updateCallback,
                                            IOCompletion callback) throws Exception {
       }
 
@@ -844,7 +845,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void tryAppendUpdateRecord(long id, byte recordType, byte[] record, JournalUpdateCallback updateCallback, boolean sync) throws Exception {
+      public void tryAppendUpdateRecord(long id, byte recordType, byte[] record, JournalUpdateCallback updateCallback, boolean sync, boolean replaceable) throws Exception {
       }
 
       @Override

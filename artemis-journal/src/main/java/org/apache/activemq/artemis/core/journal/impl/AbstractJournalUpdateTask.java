@@ -170,7 +170,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
             public void onReadAddRecord(final RecordInfo info) throws Exception {
                records.add(info);
             }
-         }, wholeFileBufferRef);
+         }, wholeFileBufferRef, false, null);
 
          if (records.size() == 0) {
             // the record is damaged

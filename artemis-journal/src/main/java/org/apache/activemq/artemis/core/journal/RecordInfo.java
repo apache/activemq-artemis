@@ -22,6 +22,7 @@ public class RecordInfo {
                      final byte userRecordType,
                      final byte[] data,
                      final boolean isUpdate,
+                     final boolean replaceableUpdate,
                      final short compactCount) {
       this.id = id;
 
@@ -30,6 +31,8 @@ public class RecordInfo {
       this.data = data;
 
       this.isUpdate = isUpdate;
+
+      this.replaceableUpdate = replaceableUpdate;
 
       this.compactCount = compactCount;
    }
@@ -48,6 +51,8 @@ public class RecordInfo {
    public final byte[] data;
 
    public boolean isUpdate;
+
+   public boolean replaceableUpdate;
 
    public byte getUserRecordType() {
       return userRecordType;

@@ -309,7 +309,7 @@ public final class DescribeJournal {
                   recordsPrintStream.println();
                }
             }
-         }, null, reclaimed);
+         }, null, reclaimed, null);
       }
 
       recordsPrintStream.println();

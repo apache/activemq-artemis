@@ -239,7 +239,7 @@ public class RecoverMessages extends DBOption {
             public void markAsDataFile(JournalFile file) {
 
             }
-         }, null, reclaimed);
+         }, null, reclaimed, null);
       }
 
       targetJournal.flush();

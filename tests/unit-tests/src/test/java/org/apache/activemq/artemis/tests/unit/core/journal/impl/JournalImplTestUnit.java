@@ -2333,7 +2333,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
          journal.appendAddRecord(i, (byte) 0, record, false);
 
-         records.add(new RecordInfo(i, (byte) 0, record, false, (short) 0));
+         records.add(new RecordInfo(i, (byte) 0, record, false, false, (short) 0));
       }
 
       for (int i = 0; i < 100; i++) {
@@ -2341,7 +2341,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
          journal.appendUpdateRecord(i, (byte) 0, record, false);
 
-         records.add(new RecordInfo(i, (byte) 0, record, true, (short) 0));
+         records.add(new RecordInfo(i, (byte) 0, record, true, false, (short) 0));
       }
 
       for (int i = 0; i < 100; i++) {
