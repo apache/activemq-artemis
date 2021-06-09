@@ -163,6 +163,7 @@ following:
 - `jgroups-file` attribute. This is the name of JGroups configuration
   file. It will be used to initialize JGroups channels. Make sure the
   file is in the java resource path so that Apache ActiveMQ Artemis can load it.
+  The typical location for the file is the `etc` directory from the broker instance.
 
 - `jgroups-channel` attribute. The name that JGroups channels connect
   to for broadcasting.
