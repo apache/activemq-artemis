@@ -54,7 +54,7 @@ public interface Transaction {
    /** In a ServerSession failure scenario,\
     *  we may try to rollback, however only if it's not prepared.
     *  In case it's prepared, we will just let it be and let the transaction manager to deal with it */
-   void rollbackIfPossible();
+   boolean tryRollback();
 
    long getID();
 
