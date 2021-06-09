@@ -400,19 +400,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
             Transaction txToRollback = tx;
             if (txToRollback != null) {
-               if (txToRollback.getXid() != null) {
+               if (txToRollback.tryRollback() && txToRollback.getXid() != null) {
                   resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
                }
-               txToRollback.rollbackIfPossible();
             }
 
             txToRollback = pendingTX;
 
             if (txToRollback != null) {
-               if (txToRollback.getXid() != null) {
+               if (txToRollback.tryRollback() && txToRollback.getXid() != null) {
                   resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
                }
-               txToRollback.rollbackIfPossible();
             }
 
          } else {

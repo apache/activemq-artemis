@@ -140,8 +140,8 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void rollbackIfPossible() {
-
+      public boolean tryRollback() {
+         return true;
       }
 
       @Override
