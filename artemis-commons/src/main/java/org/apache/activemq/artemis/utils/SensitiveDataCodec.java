@@ -32,5 +32,5 @@ public interface SensitiveDataCodec<T> {
    T encode(Object secret) throws Exception;
 
    default void init(Map<String, String> params) throws Exception {
-   };
+   }
 }

@@ -69,7 +69,11 @@ under the License.
       <module name="RightCurly"/>
       <module name="RightCurly">
          <property name="option" value="alone"/>
-         <property name="tokens" value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, LITERAL_DO, STATIC_INIT, INSTANCE_INIT"/>
+         <property name="tokens" value="CLASS_DEF, LITERAL_FOR, LITERAL_WHILE, LITERAL_DO, STATIC_INIT, INSTANCE_INIT"/>
+      </module>
+      <module name="RightCurly">
+         <property name="option" value="alone_or_singleline"/>
+         <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
       </module>
       <!-- Checks that there is no whitespace after certain tokens; e.g. "." and "!". -->
       <module name="NoWhitespaceAfter"/>
