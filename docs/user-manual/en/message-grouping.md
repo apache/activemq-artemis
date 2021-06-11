@@ -255,9 +255,11 @@ increase message throughput by adding consumers which can process messages
 concurrently. But since the message groups are ordered the messages in each group
 cannot be consumed concurrently which defeats the purpose of horizontal scaling.
 
-If you've evaluated your overall use-case with these design caveats in mind and
-determined that clustered grouping is still viable read on for all the
-configuration details and best practices.
+**Clustered grouping is not recommended** for these reasons.
+
+However, if you've evaluated your overall use-case with these design caveats in 
+mind and have determined that clustered grouping is still viable then read on for
+all the configuration details and best practices.
 
 ### Clustered Grouping Configuration
 
