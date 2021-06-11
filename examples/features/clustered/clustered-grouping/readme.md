@@ -1,5 +1,7 @@
 # JMS Clustered Grouping Example
 
+Before continuing please **read the caveats about clustered grouping** in the "Message Grouping" chapter of ActiveMQ Artemis User Guide. In short, **clustered grouping is not recommended**.
+
 To run the example, simply type **mvn verify** from this directory, or **mvn -PnoServer verify** if you want to start and create the broker manually.
 
 This example demonstrates how to ensure strict ordering across a cluster using clustered message grouping
