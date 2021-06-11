@@ -149,8 +149,9 @@ public class PrintData extends DBOption {
 
       DescribeJournal describeJournal = null;
       describeJournal = printMessages(messagesDirectory, out, safe, true, true, reclaimed);
-      if (describeJournal == null)
+      if (describeJournal == null) {
          return;
+      }
 
       try {
          printBanner(out, "P A G I N G");
@@ -163,10 +164,10 @@ public class PrintData extends DBOption {
 
    }
 
-   public static DescribeJournal printMessages(File messagesDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurving, boolean reclaimed) {
+   public static DescribeJournal printMessages(File messagesDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed) {
       DescribeJournal describeJournal;
       try {
-         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory, out, safe, printRecords, printSurving, reclaimed);
+         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory, out, safe, printRecords, printSurviving, reclaimed);
       } catch (Exception e) {
          e.printStackTrace();
          return null;
