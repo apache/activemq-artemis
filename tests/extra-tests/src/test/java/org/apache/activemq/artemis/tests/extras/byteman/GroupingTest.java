@@ -61,12 +61,13 @@ public class GroupingTest extends JMSTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "trace clientsessionimpl commit",
-         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
-         targetMethod = "rollback",
-         targetLocation = "EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.GroupingTest.pause();")})
+      rules = {
+         @BMRule(
+            name = "trace clientsessionimpl commit",
+            targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
+            targetMethod = "rollback",
+            targetLocation = "EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.GroupingTest.pause();")})
    public void testGroupingRollbackOnClose() throws Exception {
       Connection sendConnection = null;
       Connection connection = null;

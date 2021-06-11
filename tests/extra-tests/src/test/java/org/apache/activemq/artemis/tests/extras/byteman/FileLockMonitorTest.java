@@ -50,7 +50,7 @@ public class FileLockMonitorTest {
 
    @Test
    @BMRules(rules = {
-         @BMRule(name = "lock is invalid", targetClass = "org.apache.activemq.artemis.core.server.impl.FileLockNodeManager", targetMethod = "isLiveLockLost", action = "return true;") })
+      @BMRule(name = "lock is invalid", targetClass = "org.apache.activemq.artemis.core.server.impl.FileLockNodeManager", targetMethod = "isLiveLockLost", action = "return true;") })
    public void testLockMonitorInvalid() throws Exception {
       lostLock = false;
       startServer();
@@ -66,7 +66,7 @@ public class FileLockMonitorTest {
 
    @Test
    @BMRules(rules = {
-         @BMRule(name = "lock is invalid", targetClass = "org.apache.activemq.artemis.core.server.impl.FileLockNodeManager",
+      @BMRule(name = "lock is invalid", targetClass = "org.apache.activemq.artemis.core.server.impl.FileLockNodeManager",
             targetMethod = "getState",
             action = "org.apache.activemq.artemis.tests.extras.byteman.FileLockMonitorTest.throwNodeManagerException(\"EFS is disconnected\");") })
    public void testLockMonitorIOException() throws Exception {
@@ -88,7 +88,7 @@ public class FileLockMonitorTest {
 
    @Test
    @BMRules(rules = {
-         @BMRule(name = "lock is invalid", targetClass = "org.apache.activemq.artemis.core.server.impl.FileLockNodeManager", targetMethod = "getState", action = "return 70;") })
+      @BMRule(name = "lock is invalid", targetClass = "org.apache.activemq.artemis.core.server.impl.FileLockNodeManager", targetMethod = "getState", action = "return 70;") })
    public void testLockMonitorHasLockWrongState() throws Exception {
       lostLock = false;
       startServer();

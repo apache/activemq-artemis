@@ -93,7 +93,7 @@ public class NoProcessFilesBehind extends TestWatcher {
             processInput.readLine();
             while ((outputLine = processInput.readLine()) != null) {
                if (!filtered || (!outputLine.endsWith(".jar") && !outputLine.endsWith(".so") && !outputLine.contains("type=STREAM")))
-               openFiles.add(outputLine);
+                  openFiles.add(outputLine);
             }
          }
       } catch (Exception ignore) {

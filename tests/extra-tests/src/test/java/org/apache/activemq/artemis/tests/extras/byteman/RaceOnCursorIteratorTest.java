@@ -143,12 +143,13 @@ public class RaceOnCursorIteratorTest extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "raceLiveCache",
-         targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionImpl",
-         targetMethod = "moveNextPage",
-         targetLocation = "EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnCursorIteratorTest.raceAddLivePageCache()")})
+      rules = {
+         @BMRule(
+            name = "raceLiveCache",
+            targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionImpl",
+            targetMethod = "moveNextPage",
+            targetLocation = "EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnCursorIteratorTest.raceAddLivePageCache()")})
    public void testSkipLivePageCache() {
       skipLivePageCache = true;
       // Simulate scenario #1 depicted in https://issues.apache.org/jira/browse/ARTEMIS-2418
@@ -159,12 +160,13 @@ public class RaceOnCursorIteratorTest extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "raceLiveCache",
-         targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionImpl",
-         targetMethod = "moveNextPage",
-         targetLocation = "EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnCursorIteratorTest.raceAddLivePageCache()"),
+      rules = {
+         @BMRule(
+            name = "raceLiveCache",
+            targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionImpl",
+            targetMethod = "moveNextPage",
+            targetLocation = "EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnCursorIteratorTest.raceAddLivePageCache()"),
          @BMRule(
             name = "raceNullCache",
             targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl",

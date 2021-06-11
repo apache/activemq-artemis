@@ -41,17 +41,19 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "blow-up",
-         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-         targetMethod = "removeGrouping",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause($1);"), @BMRule(
-         name = "blow-up2",
-         targetClass = "org.apache.activemq.artemis.core.server.group.impl.GroupHandlingAbstract",
-         targetMethod = "forceRemove",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
+      rules = {
+         @BMRule(
+            name = "blow-up",
+            targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+            targetMethod = "removeGrouping",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause($1);"),
+         @BMRule(
+            name = "blow-up2",
+            targetClass = "org.apache.activemq.artemis.core.server.group.impl.GroupHandlingAbstract",
+            targetMethod = "forceRemove",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
    public void test2serversLocalGoesDown() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
@@ -101,16 +103,18 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "blow-up",
-         targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
-         targetMethod = "onNotification",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"), @BMRule(name = "blow-up2",
-         targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
-         targetMethod = "remove",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
+      rules = {
+         @BMRule(
+            name = "blow-up",
+            targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
+            targetMethod = "onNotification",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"),
+         @BMRule(name = "blow-up2",
+            targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
+            targetMethod = "remove",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
    public void test3serversLocalGoesDown() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
@@ -171,16 +175,18 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "blow-up",
-         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-         targetMethod = "onNotification",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"), @BMRule(name = "blow-up2",
-         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-         targetMethod = "remove",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
+      rules = {
+         @BMRule(
+            name = "blow-up",
+            targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+            targetMethod = "onNotification",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"),
+         @BMRule(name = "blow-up2",
+            targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+            targetMethod = "remove",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
    public void testLocal3serversLocalGoesDown() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
@@ -241,16 +247,18 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "blow-up",
-         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-         targetMethod = "onNotification",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"), @BMRule(name = "blow-up2",
-         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-         targetMethod = "remove",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
+      rules = {
+         @BMRule(
+            name = "blow-up",
+            targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+            targetMethod = "onNotification",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"),
+         @BMRule(name = "blow-up2",
+            targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+            targetMethod = "remove",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
    public void testLocal4serversLocalGoesDown() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());

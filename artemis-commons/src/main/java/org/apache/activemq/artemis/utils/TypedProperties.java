@@ -23,7 +23,8 @@ package org.apache.activemq.artemis.utils;
 @Deprecated
 public class TypedProperties extends org.apache.activemq.artemis.utils.collections.TypedProperties {
 
-   public TypedProperties() { }
+   public TypedProperties() {
+   }
 
    public TypedProperties(final org.apache.activemq.artemis.utils.collections.TypedProperties other) {
       super(other);

@@ -52,23 +52,26 @@ public class StartStopDeadlockTest extends ActiveMQTestBase {
    @Test
    @BMRules(
 
-      rules = {@BMRule(
-         name = "Server.start wait-init",
-         targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl",
-         targetMethod = "initialisePart2",
-         targetLocation = "ENTRY",
-         condition = "incrementCounter(\"server-Init\") == 2",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.StartStopDeadlockTest.debugLog(\"server backup init\"), waitFor(\"start-init\")"), @BMRule(
-         name = "JMSServer.stop wait-init",
-         targetClass = "org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl",
-         targetMethod = "stop",
-         targetLocation = "ENTRY",
-         action = "signalWake(\"start-init\", true)"), @BMRule(
-         name = "StartStopDeadlockTest tearDown",
-         targetClass = "org.apache.activemq.artemis.tests.extras.byteman.StartStopDeadlockTest",
-         targetMethod = "tearDown",
-         targetLocation = "ENTRY",
-         action = "deleteCounter(\"server-Init\")")})
+      rules = {
+         @BMRule(
+            name = "Server.start wait-init",
+            targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl",
+            targetMethod = "initialisePart2",
+            targetLocation = "ENTRY",
+            condition = "incrementCounter(\"server-Init\") == 2",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.StartStopDeadlockTest.debugLog(\"server backup init\"), waitFor(\"start-init\")"),
+         @BMRule(
+            name = "JMSServer.stop wait-init",
+            targetClass = "org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl",
+            targetMethod = "stop",
+            targetLocation = "ENTRY",
+            action = "signalWake(\"start-init\", true)"),
+         @BMRule(
+            name = "StartStopDeadlockTest tearDown",
+            targetClass = "org.apache.activemq.artemis.tests.extras.byteman.StartStopDeadlockTest",
+            targetMethod = "tearDown",
+            targetLocation = "ENTRY",
+            action = "deleteCounter(\"server-Init\")")})
    public void testDeadlock() throws Exception {
 
       // A live server that will always be crashed

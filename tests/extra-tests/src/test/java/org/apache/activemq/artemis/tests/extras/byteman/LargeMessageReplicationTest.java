@@ -111,23 +111,26 @@ public class LargeMessageReplicationTest extends FailoverTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "record large message copy thread",
-         targetClass = "org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl",
-         targetMethod = "copy(long)",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageReplicationTest.copyThread()"), @BMRule(
-         name = "record byte array in addBytes",
-         targetClass = "org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl",
-         targetMethod = "addBytes(byte[])",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageReplicationTest.addBytesIn($1)"), @BMRule(
-         name = "record byte array used for reading large message",
-         targetClass = "^org.apache.activemq.artemis.core.io.SequentialFile",
-         isInterface = true,
-         targetMethod = "read(java.nio.ByteBuffer)",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageReplicationTest.originBuff($1)")})
+      rules = {
+         @BMRule(
+            name = "record large message copy thread",
+            targetClass = "org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl",
+            targetMethod = "copy(long)",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageReplicationTest.copyThread()"),
+         @BMRule(
+            name = "record byte array in addBytes",
+            targetClass = "org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl",
+            targetMethod = "addBytes(byte[])",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageReplicationTest.addBytesIn($1)"),
+         @BMRule(
+            name = "record byte array used for reading large message",
+            targetClass = "^org.apache.activemq.artemis.core.io.SequentialFile",
+            isInterface = true,
+            targetMethod = "read(java.nio.ByteBuffer)",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageReplicationTest.originBuff($1)")})
    //https://issues.apache.org/jira/browse/ARTEMIS-1220
    public void testDivertCopyMessageBuffer() throws Exception {
       Map<String, Object> params = new HashMap<>();

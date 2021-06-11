@@ -150,12 +150,13 @@ public class RaceOnSyncLargeMessageOverReplicationTest extends ActiveMQTestBase 
   */
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "InterruptSync",
-         targetClass = "org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager",
-         targetMethod = "createLargeMessage(long,org.apache.activemq.artemis.core.message.impl.MessageInternal)",
-         targetLocation = "EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnSyncLargeMessageOverReplicationTest.syncLargeMessage();")})
+      rules = {
+         @BMRule(
+            name = "InterruptSync",
+            targetClass = "org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager",
+            targetMethod = "createLargeMessage(long,org.apache.activemq.artemis.core.message.impl.MessageInternal)",
+            targetLocation = "EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnSyncLargeMessageOverReplicationTest.syncLargeMessage();")})
    public void testSendLargeMessage() throws Exception {
 
       final CountDownLatch failedOver = new CountDownLatch(1);

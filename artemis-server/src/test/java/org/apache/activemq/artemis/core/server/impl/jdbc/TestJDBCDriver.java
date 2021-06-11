@@ -48,7 +48,8 @@ public class TestJDBCDriver extends AbstractJDBCDriver {
    }
 
    @Override
-   protected void prepareStatements() { }
+   protected void prepareStatements() {
+   }
 
    @Override
    protected void createSchema() {

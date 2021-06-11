@@ -82,19 +82,21 @@ public class TimeoutXATest extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "removing TX",
-         targetClass = "org.apache.activemq.artemis.core.transaction.impl.ResourceManagerImpl",
-         targetMethod = "removeTransaction(javax.transaction.xa.Xid)",
-         targetLocation = "ENTRY",
-         helper = "org.apache.activemq.artemis.tests.extras.byteman.TimeoutXATest",
-         action = "removingTX()"), @BMRule(
-         name = "afterRollback TX",
-         targetClass = "org.apache.activemq.artemis.core.transaction.impl.TransactionImpl",
-         targetMethod = "afterRollback",
-         targetLocation = "ENTRY",
-         helper = "org.apache.activemq.artemis.tests.extras.byteman.TimeoutXATest",
-         action = "afterRollback()")})
+      rules = {
+         @BMRule(
+            name = "removing TX",
+            targetClass = "org.apache.activemq.artemis.core.transaction.impl.ResourceManagerImpl",
+            targetMethod = "removeTransaction(javax.transaction.xa.Xid)",
+            targetLocation = "ENTRY",
+            helper = "org.apache.activemq.artemis.tests.extras.byteman.TimeoutXATest",
+            action = "removingTX()"),
+         @BMRule(
+            name = "afterRollback TX",
+            targetClass = "org.apache.activemq.artemis.core.transaction.impl.TransactionImpl",
+            targetMethod = "afterRollback",
+            targetLocation = "ENTRY",
+            helper = "org.apache.activemq.artemis.tests.extras.byteman.TimeoutXATest",
+            action = "afterRollback()")})
    public void testTimeoutOnTX2() throws Exception {
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
       XAConnection connection = connectionFactory.createXAConnection();

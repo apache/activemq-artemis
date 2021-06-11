@@ -107,8 +107,8 @@ import static org.apache.activemq.artemis.tests.util.ActiveMQTestBase.NETTY_ACCE
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "Example",
    partitions = {@CreatePartition(name = "example", suffix = "dc=example,dc=com",
-      contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n" + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"),
-      indexes = {@CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou")})},
+         contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n" + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"),
+         indexes = {@CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou")})},
       additionalInterceptors = { KeyDerivationInterceptor.class })
 
 @CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)},

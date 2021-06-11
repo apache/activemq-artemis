@@ -40,17 +40,19 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "trace clientsessionimpl send",
-         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl",
-         targetMethod = "send",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause($1);"), @BMRule(
-         name = "trace sendRegularMessage",
-         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientProducerImpl",
-         targetMethod = "sendRegularMessage",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($2,$3,$4);")})
+      rules = {
+         @BMRule(
+            name = "trace clientsessionimpl send",
+            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl",
+            targetMethod = "send",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause($1);"),
+         @BMRule(
+            name = "trace sendRegularMessage",
+            targetClass = "org.apache.activemq.artemis.core.client.impl.ClientProducerImpl",
+            targetMethod = "sendRegularMessage",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($2,$3,$4);")})
    public void performCrashDestinationStopBridge() throws Exception {
       activeMQServer = server1;
       ConnectionFactoryFactory factInUse0 = cff0;

@@ -39,7 +39,8 @@ public abstract class AbstractJDBCDriver {
 
    protected JDBCConnectionProvider connectionProvider;
 
-   public AbstractJDBCDriver() { }
+   public AbstractJDBCDriver() {
+   }
 
    public AbstractJDBCDriver(JDBCConnectionProvider connectionProvider, SQLProvider provider) {
       this.connectionProvider = connectionProvider;

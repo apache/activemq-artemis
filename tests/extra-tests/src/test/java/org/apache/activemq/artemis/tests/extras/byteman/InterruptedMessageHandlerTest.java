@@ -63,17 +63,19 @@ public class InterruptedMessageHandlerTest extends ActiveMQRATestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "throw ActiveMQException(CONNETION_TIMEOUT) during rollback",
-         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-         targetMethod = "flushAcks",
-         targetLocation = "AFTER INVOKE flushAcks",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.InterruptedMessageHandlerTest.throwActiveMQQExceptionConnectionTimeout();"), @BMRule(
-         name = "check that outcome of XA transaction is TwoPhaseOutcome.FINISH_ERROR=8",
-         targetClass = "com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord",
-         targetMethod = "topLevelAbort",
-         targetLocation = "AT EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.InterruptedMessageHandlerTest.assertTxOutComeIsOfStatusFinishedError($!);")})
+      rules = {
+         @BMRule(
+            name = "throw ActiveMQException(CONNETION_TIMEOUT) during rollback",
+            targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+            targetMethod = "flushAcks",
+            targetLocation = "AFTER INVOKE flushAcks",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.InterruptedMessageHandlerTest.throwActiveMQQExceptionConnectionTimeout();"),
+         @BMRule(
+            name = "check that outcome of XA transaction is TwoPhaseOutcome.FINISH_ERROR=8",
+            targetClass = "com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord",
+            targetMethod = "topLevelAbort",
+            targetLocation = "AT EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.InterruptedMessageHandlerTest.assertTxOutComeIsOfStatusFinishedError($!);")})
    public void testSimpleMessageReceivedOnQueueTwoPhaseFailPrepareByConnectionTimout() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       resourceAdapter = qResourceAdapter;

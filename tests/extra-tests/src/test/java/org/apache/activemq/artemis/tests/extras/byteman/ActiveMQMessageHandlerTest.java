@@ -65,12 +65,13 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "interrupt",
-         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
-         targetMethod = "xaEnd",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();")})
+      rules = {
+         @BMRule(
+            name = "interrupt",
+            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
+            targetMethod = "xaEnd",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();")})
    public void testSimpleMessageReceivedOnQueue() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       resourceAdapter = qResourceAdapter;
@@ -134,12 +135,13 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "interrupt",
-         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
-         targetMethod = "xaEnd",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();")})
+      rules = {
+         @BMRule(
+            name = "interrupt",
+            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
+            targetMethod = "xaEnd",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();")})
    public void testSimpleMessageReceivedOnQueueTwoPhase() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       resourceAdapter = qResourceAdapter;

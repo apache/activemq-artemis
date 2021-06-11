@@ -109,19 +109,21 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
     */
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "closeExit",
-         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
-         targetMethod = "close",
-         targetLocation = "AT EXIT",
-         condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.debugLog(\"throwing stuff\");throw new InterruptedException()"), @BMRule(
-         name = "closeEnter",
-         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
-         targetMethod = "close",
-         targetLocation = "ENTRY",
-         condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")})
+      rules = {
+         @BMRule(
+            name = "closeExit",
+            targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
+            targetMethod = "close",
+            targetLocation = "AT EXIT",
+            condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.debugLog(\"throwing stuff\");throw new InterruptedException()"),
+         @BMRule(
+            name = "closeEnter",
+            targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
+            targetMethod = "close",
+            targetLocation = "ENTRY",
+            condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")})
    public void testOrphanedConsumers() throws Exception {
       internalTestOrphanedConsumers(false);
    }
@@ -136,19 +138,21 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
     */
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "closeExit",
-         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
-         targetMethod = "close",
-         targetLocation = "AT EXIT",
-         condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.debugLog(\"throwing stuff\");throw new InterruptedException()"), @BMRule(
-         name = "closeEnter",
-         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
-         targetMethod = "close",
-         targetLocation = "ENTRY",
-         condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")})
+      rules = {
+         @BMRule(
+            name = "closeExit",
+            targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
+            targetMethod = "close",
+            targetLocation = "AT EXIT",
+            condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.debugLog(\"throwing stuff\");throw new InterruptedException()"),
+         @BMRule(
+            name = "closeEnter",
+            targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
+            targetMethod = "close",
+            targetLocation = "ENTRY",
+            condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")})
    public void testOrphanedConsumersByManagement() throws Exception {
       internalTestOrphanedConsumers(true);
    }

@@ -64,11 +64,12 @@ public class ActiveMQServerControlMultiThreadTest extends ManagementTestBase {
     */
 
    @Test
-   @BMRules(rules = {@BMRule(name = "Delay listAddress() by 2 secs ",
-      targetClass = "org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl",
-      targetMethod = "getAddressInfo(org.apache.activemq.artemis.api.core.SimpleString)",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQServerControlMultiThreadTest.delay(2)")})
+   @BMRules(rules = {
+      @BMRule(name = "Delay listAddress() by 2 secs ",
+         targetClass = "org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl",
+         targetMethod = "getAddressInfo(org.apache.activemq.artemis.api.core.SimpleString)",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQServerControlMultiThreadTest.delay(2)")})
 
    public void listAddressDuringDeleteAddress() throws Exception {
 
@@ -125,11 +126,12 @@ public class ActiveMQServerControlMultiThreadTest extends ManagementTestBase {
     */
 
    @Test
-   @BMRules(rules = {@BMRule(name = "Delay listConsumers() by 2 secs ",
-      targetClass = "org.apache.activemq.artemis.core.management.impl.view.ConsumerView",
-      targetMethod = "toJson(org.apache.activemq.artemis.core.server.ServerConsumer)",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQServerControlMultiThreadTest.delay(2)")})
+   @BMRules(rules = {
+      @BMRule(name = "Delay listConsumers() by 2 secs ",
+         targetClass = "org.apache.activemq.artemis.core.management.impl.view.ConsumerView",
+         targetMethod = "toJson(org.apache.activemq.artemis.core.server.ServerConsumer)",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQServerControlMultiThreadTest.delay(2)")})
 
    public void listConsumersDuringSessionClose() throws Exception {
 

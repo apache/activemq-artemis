@@ -45,7 +45,8 @@ public class FileLockNodeManagerTest {
 
    @Test
    @BMRules(
-         rules = {@BMRule(
+         rules = {
+            @BMRule(
                name = "throw IOException during activation",
                targetClass = "org.apache.activemq.artemis.core.server.impl.FileLockNodeManager",
                targetMethod = "tryLock",
