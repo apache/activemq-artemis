@@ -133,12 +133,13 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
   */
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "InterruptSending",
-         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
-         targetMethod = "sendLargeMessageChunk",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageOverReplicationTest.messageChunkSent();")})
+      rules = {
+         @BMRule(
+            name = "InterruptSending",
+            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
+            targetMethod = "sendLargeMessageChunk",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageOverReplicationTest.messageChunkSent();")})
    public void testSendLargeMessage() throws Exception {
 
       MapMessage message = createLargeMessage();
@@ -168,12 +169,13 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "InterruptReceive",
-         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.CoreSessionCallback",
-         targetMethod = "sendLargeMessageContinuation",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageOverReplicationTest.messageChunkReceived();")})
+      rules = {
+         @BMRule(
+            name = "InterruptReceive",
+            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.CoreSessionCallback",
+            targetMethod = "sendLargeMessageContinuation",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageOverReplicationTest.messageChunkReceived();")})
    public void testReceiveLargeMessage() throws Exception {
 
       MapMessage message = createLargeMessage();

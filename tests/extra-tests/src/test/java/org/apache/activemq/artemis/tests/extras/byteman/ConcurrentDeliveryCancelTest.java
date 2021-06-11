@@ -83,12 +83,13 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "enterCancel-holdThere",
-         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
-         targetMethod = "close",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ConcurrentDeliveryCancelTest.enterCancel();")})
+      rules = {
+         @BMRule(
+            name = "enterCancel-holdThere",
+            targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
+            targetMethod = "close",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ConcurrentDeliveryCancelTest.enterCancel();")})
    public void testConcurrentCancels() throws Exception {
 
       log.debug(server.getConfiguration().getJournalLocation().toString());

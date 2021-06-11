@@ -43,12 +43,13 @@ public class ReplicationBackupTest extends ActiveMQTestBase {
    */
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "prevent backup annoucement",
-         targetClass = "org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation",
-         targetMethod = "run",
-         targetLocation = "AT EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ReplicationBackupTest.breakIt();")})
+      rules = {
+         @BMRule(
+            name = "prevent backup annoucement",
+            targetClass = "org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation",
+            targetMethod = "run",
+            targetLocation = "AT EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ReplicationBackupTest.breakIt();")})
    public void testReplicatedBackupAnnouncement() throws Exception {
       TransportConfiguration liveConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
       TransportConfiguration liveAcceptor = TransportConfigurationUtils.getNettyAcceptor(true, 0);

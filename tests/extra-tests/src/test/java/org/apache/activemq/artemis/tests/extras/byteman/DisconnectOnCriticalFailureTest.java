@@ -56,12 +56,13 @@ public class DisconnectOnCriticalFailureTest extends JMSTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "Corrupt Decoding",
-         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.PacketDecoder",
-         targetMethod = "decode(byte)",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.DisconnectOnCriticalFailureTest.doThrow();")})
+      rules = {
+         @BMRule(
+            name = "Corrupt Decoding",
+            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.PacketDecoder",
+            targetMethod = "decode(byte)",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.DisconnectOnCriticalFailureTest.doThrow();")})
    public void testSendDisconnect() throws Exception {
       createQueue("queue1");
       final Connection producerConnection = nettyCf.createConnection();
@@ -90,12 +91,13 @@ public class DisconnectOnCriticalFailureTest extends JMSTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "Corrupt Decoding",
-         targetClass = "org.apache.activemq.artemis.core.protocol.ClientPacketDecoder",
-         targetMethod = "decode(org.apache.activemq.artemis.api.core.ActiveMQBuffer)",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.DisconnectOnCriticalFailureTest.doThrow($1);")})
+      rules = {
+         @BMRule(
+            name = "Corrupt Decoding",
+            targetClass = "org.apache.activemq.artemis.core.protocol.ClientPacketDecoder",
+            targetMethod = "decode(org.apache.activemq.artemis.api.core.ActiveMQBuffer)",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.DisconnectOnCriticalFailureTest.doThrow($1);")})
    public void testClientDisconnect() throws Exception {
       Queue q1 = createQueue("queue1");
       final Connection connection = nettyCf.createConnection();
@@ -132,12 +134,13 @@ public class DisconnectOnCriticalFailureTest extends JMSTestBase {
 
    @Test(timeout = 60000)
    @BMRules(
-      rules = {@BMRule(
-         name = "Corrupt Decoding",
-         targetClass = "org.apache.activemq.artemis.core.protocol.ClientPacketDecoder",
-         targetMethod = "decode(org.apache.activemq.artemis.api.core.ActiveMQBuffer)",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.DisconnectOnCriticalFailureTest.doThrow($1);")})
+      rules = {
+         @BMRule(
+            name = "Corrupt Decoding",
+            targetClass = "org.apache.activemq.artemis.core.protocol.ClientPacketDecoder",
+            targetMethod = "decode(org.apache.activemq.artemis.api.core.ActiveMQBuffer)",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.DisconnectOnCriticalFailureTest.doThrow($1);")})
    public void testClientDisconnectLarge() throws Exception {
       Queue q1 = createQueue("queue1");
       final Connection connection = nettyCf.createConnection();

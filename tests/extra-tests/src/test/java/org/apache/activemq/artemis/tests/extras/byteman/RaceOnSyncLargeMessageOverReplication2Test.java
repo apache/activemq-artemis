@@ -160,17 +160,19 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "InterruptSending",
-         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
-         targetMethod = "sendLargeMessageChunk",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnSyncLargeMessageOverReplication2Test.messageChunkSent();"), @BMRule(
-         name = "InterruptSync",
-         targetClass = "org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager",
-         targetMethod = "sendLargeMessageFiles",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnSyncLargeMessageOverReplication2Test.syncLargeMessage();")})
+      rules = {
+         @BMRule(
+            name = "InterruptSending",
+            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
+            targetMethod = "sendLargeMessageChunk",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnSyncLargeMessageOverReplication2Test.messageChunkSent();"),
+         @BMRule(
+            name = "InterruptSync",
+            targetClass = "org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager",
+            targetMethod = "sendLargeMessageFiles",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnSyncLargeMessageOverReplication2Test.syncLargeMessage();")})
    public void testSendLargeMessage() throws Exception {
 
       final CountDownLatch failedOver = new CountDownLatch(1);

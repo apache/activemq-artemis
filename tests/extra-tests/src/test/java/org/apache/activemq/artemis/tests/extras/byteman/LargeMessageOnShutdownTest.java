@@ -74,15 +74,13 @@ public class LargeMessageOnShutdownTest extends ActiveMQTestBase {
             action =
                "org.apache.activemq.artemis.tests.extras.byteman.LargeMessageOnShutdownTest.stopServer();" +
                "waitFor(\"testLargeMessageOnShutdown\", 5000);" +
-               "flag(\"testLargeMessageOnShutdown\")"
-         ),
+               "flag(\"testLargeMessageOnShutdown\")"),
          @BMRule(
             name = "ReleaseBlockOnSessionCleanup",
             targetClass = "org.apache.activemq.artemis.core.protocol.core.ServerSessionPacketHandler",
             targetMethod = "clearLargeMessage()",
             targetLocation = "EXIT",
-            action = "signalWake(\"testLargeMessageOnShutdown\")"
-         )
+            action = "signalWake(\"testLargeMessageOnShutdown\")")
       }
    )
    public void testLargeMessageOnShutdown() throws Exception {

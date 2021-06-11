@@ -32,6 +32,7 @@ import org.junit.runner.RunWith;
 public class QueueDeploymentFailedTest extends ActiveMQTestBase {
 
    @Test
+
    @BMRule(name = "blow up queue deployment",
       targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl",
       targetMethod = "createQueue(SimpleString,RoutingType,SimpleString,SimpleString,SimpleString,boolean,boolean,boolean,boolean,boolean,int,boolean,boolean,boolean,int,long,boolean",

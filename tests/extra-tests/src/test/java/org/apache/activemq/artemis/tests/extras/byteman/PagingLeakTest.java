@@ -66,17 +66,19 @@ public class PagingLeakTest extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "newPosition",
-         targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
-         targetMethod = "<init>()",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.newPosition()"), @BMRule(
-         name = "finalPosition",
-         targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
-         targetMethod = "finalize",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.deletePosition()")})
+      rules = {
+         @BMRule(
+            name = "newPosition",
+            targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
+            targetMethod = "<init>()",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.newPosition()"),
+         @BMRule(
+            name = "finalPosition",
+            targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
+            targetMethod = "finalize",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.deletePosition()")})
    public void testValidateLeak() throws Throwable {
       log.debug("location::" + getBindingsDir());
 

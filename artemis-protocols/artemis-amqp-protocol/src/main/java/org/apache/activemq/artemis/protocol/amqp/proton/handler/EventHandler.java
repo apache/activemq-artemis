@@ -29,63 +29,92 @@ import org.apache.qpid.proton.engine.Transport;
  */
 public interface EventHandler {
 
-   default void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl) { }
+   default void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl) {
+   }
 
-   default void onSaslRemoteMechanismChosen(ProtonHandler handler, String mech) { }
+   default void onSaslRemoteMechanismChosen(ProtonHandler handler, String mech) {
+   }
 
-   default void onAuthFailed(ProtonHandler protonHandler, Connection connection) { }
+   default void onAuthFailed(ProtonHandler protonHandler, Connection connection) {
+   }
 
-   default void onAuthSuccess(ProtonHandler protonHandler, Connection connection) { }
+   default void onAuthSuccess(ProtonHandler protonHandler, Connection connection) {
+   }
 
-   default void onSaslMechanismsOffered(ProtonHandler handler, String[] mechanisms) { }
+   default void onSaslMechanismsOffered(ProtonHandler handler, String[] mechanisms) {
+   }
 
-   default void onInit(Connection connection) throws Exception { }
+   default void onInit(Connection connection) throws Exception {
+   }
 
-   default void onLocalOpen(Connection connection) throws Exception { }
+   default void onLocalOpen(Connection connection) throws Exception {
+   }
 
-   default void onRemoteOpen(Connection connection) throws Exception { }
+   default void onRemoteOpen(Connection connection) throws Exception {
+   }
 
-   default void onLocalClose(Connection connection) throws Exception { }
+   default void onLocalClose(Connection connection) throws Exception {
+   }
 
-   default void onRemoteClose(Connection connection) throws Exception { }
+   default void onRemoteClose(Connection connection) throws Exception {
+   }
 
-   default void onFinal(Connection connection) throws Exception { }
+   default void onFinal(Connection connection) throws Exception {
+   }
 
-   default void onInit(Session session) throws Exception { }
+   default void onInit(Session session) throws Exception {
+   }
 
-   default void onLocalOpen(Session session) throws Exception { }
+   default void onLocalOpen(Session session) throws Exception {
+   }
 
-   default void onRemoteOpen(Session session) throws Exception { }
+   default void onRemoteOpen(Session session) throws Exception {
+   }
 
-   default void onLocalClose(Session session) throws Exception { }
+   default void onLocalClose(Session session) throws Exception {
+   }
 
-   default void onRemoteClose(Session session) throws Exception { }
+   default void onRemoteClose(Session session) throws Exception {
+   }
 
-   default void onFinal(Session session) throws Exception { }
+   default void onFinal(Session session) throws Exception {
+   }
 
-   default void onInit(Link link) throws Exception { }
+   default void onInit(Link link) throws Exception {
+   }
 
-   default void onLocalOpen(Link link) throws Exception { }
+   default void onLocalOpen(Link link) throws Exception {
+   }
 
-   default void onRemoteOpen(Link link) throws Exception { }
+   default void onRemoteOpen(Link link) throws Exception {
+   }
 
-   default void onLocalClose(Link link) throws Exception { }
+   default void onLocalClose(Link link) throws Exception {
+   }
 
-   default void onRemoteClose(Link link) throws Exception { }
+   default void onRemoteClose(Link link) throws Exception {
+   }
 
-   default void onFlow(Link link) throws Exception { }
+   default void onFlow(Link link) throws Exception {
+   }
 
-   default void onFinal(Link link) throws Exception { }
+   default void onFinal(Link link) throws Exception {
+   }
 
-   default void onRemoteDetach(Link link) throws Exception { }
+   default void onRemoteDetach(Link link) throws Exception {
+   }
 
-   default void onLocalDetach(Link link) throws Exception { }
+   default void onLocalDetach(Link link) throws Exception {
+   }
 
-   default void onDelivery(Delivery delivery) throws Exception { }
+   default void onDelivery(Delivery delivery) throws Exception {
+   }
 
-   default void onTransport(Transport transport) throws Exception { }
+   default void onTransport(Transport transport) throws Exception {
+   }
 
-   default void pushBytes(ByteBuf bytes) { }
+   default void pushBytes(ByteBuf bytes) {
+   }
 
    default boolean flowControl(ReadyListener readyListener) {
       return true;

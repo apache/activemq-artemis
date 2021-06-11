@@ -77,12 +77,13 @@ public class PagingOMETest extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "fakeOME",
-         targetClass = "org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl",
-         targetMethod = "getPagedMessage",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.PagingOMETest.refCheck()")})
+      rules = {
+         @BMRule(
+            name = "fakeOME",
+            targetClass = "org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl",
+            targetMethod = "getPagedMessage",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.PagingOMETest.refCheck()")})
    public void testPageCleanup() throws Exception {
       clearDataRecreateServerDirs();
 

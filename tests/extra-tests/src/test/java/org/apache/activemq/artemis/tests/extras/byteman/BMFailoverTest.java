@@ -90,12 +90,13 @@ public class BMFailoverTest extends FailoverTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "trace ActiveMQSessionContext xaEnd",
-         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
-         targetMethod = "xaEnd",
-         targetLocation = "AT EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.stopAndThrow()")})
+      rules = {
+         @BMRule(
+            name = "trace ActiveMQSessionContext xaEnd",
+            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
+            targetMethod = "xaEnd",
+            targetLocation = "AT EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.stopAndThrow()")})
    //https://bugzilla.redhat.com/show_bug.cgi?id=1152410
    public void testFailOnEndAndRetry() throws Exception {
       serverToStop = liveServer;
@@ -161,12 +162,13 @@ public class BMFailoverTest extends FailoverTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "trace clientsessionimpl commit",
-         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-         targetMethod = "start(javax.transaction.xa.Xid, int)",
-         targetLocation = "AT EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
+      rules = {
+         @BMRule(
+            name = "trace clientsessionimpl commit",
+            targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+            targetMethod = "start(javax.transaction.xa.Xid, int)",
+            targetLocation = "AT EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
    public void testFailoverOnCommit2() throws Exception {
       serverToStop = liveServer;
       locator = getServerLocator();
@@ -248,12 +250,13 @@ public class BMFailoverTest extends FailoverTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "trace clientsessionimpl commit",
-         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-         targetMethod = "commit",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
+      rules = {
+         @BMRule(
+            name = "trace clientsessionimpl commit",
+            targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+            targetMethod = "commit",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
    public void testFailoverOnCommit() throws Exception {
       serverToStop = liveServer;
       locator = getServerLocator();
@@ -277,12 +280,13 @@ public class BMFailoverTest extends FailoverTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "trace clientsessionimpl commit",
-         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-         targetMethod = "commit",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
+      rules = {
+         @BMRule(
+            name = "trace clientsessionimpl commit",
+            targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+            targetMethod = "commit",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
    public void testFailoverOnReceiveCommit() throws Exception {
       serverToStop = liveServer;
       locator = getServerLocator();

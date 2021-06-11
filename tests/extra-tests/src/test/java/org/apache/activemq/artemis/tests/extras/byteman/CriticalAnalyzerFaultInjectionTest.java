@@ -76,12 +76,13 @@ public class CriticalAnalyzerFaultInjectionTest extends JMSTestBase {
    }
 
    @BMRules(
-      rules = {@BMRule(
-         name = "Sync file data hangs",
-         targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
-         targetMethod = "sync",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.CriticalAnalyzerFaultInjectionTest.methodHang();")})
+      rules = {
+         @BMRule(
+            name = "Sync file data hangs",
+            targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
+            targetMethod = "sync",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.CriticalAnalyzerFaultInjectionTest.methodHang();")})
    @Test(timeout = 60000)
    public void testSlowDiskSync() throws Exception {
       sendConsumeDurableMessage();

@@ -22,7 +22,8 @@ import org.apache.activemq.artemis.api.core.Message;
 
 public interface Transformer {
 
-   default void init(Map<String, String> properties) { }
+   default void init(Map<String, String> properties) {
+   }
 
    Message transform(Message message);
 }

@@ -71,24 +71,25 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "enter",
-         targetClass = "org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl",
-         targetMethod = "connect",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredBridgeReconnectTest.enterConnect();"), @BMRule(
-         name = "exit",
-         targetClass = "org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl",
-         targetMethod = "connect",
-         targetLocation = "EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredBridgeReconnectTest.exitConnect();"), @BMRule(
-         name = "send",
-         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl",
-         targetMethod = "send(org.apache.activemq.artemis.core.protocol.core.Packet)",
-         targetLocation = "EXIT",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredBridgeReconnectTest.send();")
-
-      })
+      rules = {
+         @BMRule(
+            name = "enter",
+            targetClass = "org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl",
+            targetMethod = "connect",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredBridgeReconnectTest.enterConnect();"),
+         @BMRule(
+            name = "exit",
+            targetClass = "org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl",
+            targetMethod = "connect",
+            targetLocation = "EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredBridgeReconnectTest.exitConnect();"),
+         @BMRule(
+            name = "send",
+            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl",
+            targetMethod = "send(org.apache.activemq.artemis.core.protocol.core.Packet)",
+            targetLocation = "EXIT",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredBridgeReconnectTest.send();")})
    public void testReconnectBridge() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());

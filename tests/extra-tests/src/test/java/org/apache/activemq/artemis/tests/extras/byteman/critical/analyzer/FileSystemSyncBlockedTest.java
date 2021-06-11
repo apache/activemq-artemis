@@ -33,11 +33,21 @@ import org.junit.runner.RunWith;
 public class FileSystemSyncBlockedTest extends CriticalAnalyzerFaultInjectionTestBase {
    private static final Logger log = Logger.getLogger(FileSystemSyncBlockedTest.class);
 
-   @BMRules(rules = {@BMRule(name = "Simulate Slow Disk Sync", targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile", targetMethod = "sync", targetLocation = "ENTRY", condition = "!flagged(\"testSlowDiskSync\")",  // Once the server shutdowns we stop applying this rule.
-      action = "waitFor(\"testSlowDiskSync\")"), @BMRule(
-      // We ensure that no more
-      name = "Release Suspended Thread during Server Shutdown", // Releases wakes up suspended threads to allow shutdown to complete
-      targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl", targetMethod = "stop", targetLocation = "ENTRY", action = "flag(\"testSlowDiskSync\"); signalWake(\"testSlowDiskSync\")")})
+   @BMRules(rules = {
+      @BMRule(
+         name = "Simulate Slow Disk Sync",
+         targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
+         targetMethod = "sync",
+         targetLocation = "ENTRY",
+         condition = "!flagged(\"testSlowDiskSync\")",  // Once the server shutdowns we stop applying this rule.
+         action = "waitFor(\"testSlowDiskSync\")"),
+      @BMRule(
+         // We ensure that no more
+         name = "Release Suspended Thread during Server Shutdown", // Releases wakes up suspended threads to allow shutdown to complete
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl",
+         targetMethod = "stop",
+         targetLocation = "ENTRY",
+         action = "flag(\"testSlowDiskSync\"); signalWake(\"testSlowDiskSync\")")})
    @Test(timeout = 60000)
    public void testSlowDiskSync() throws Exception {
       testSendDurableMessage();

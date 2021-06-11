@@ -78,11 +78,12 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
     */
 
    @Test
-   @BMRules(rules = {@BMRule(name = "test LOG_CONNECTION_EVENTS",
-      targetClass = "org.jboss.logging.Logger",
-      targetMethod = "logv",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
+   @BMRules(rules = {
+      @BMRule(name = "test LOG_CONNECTION_EVENTS",
+         targetClass = "org.jboss.logging.Logger",
+         targetMethod = "logv",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogConnectEvents() throws Exception {
 
       ActiveMQServer activeMQServer = createServerWithLoggingPlugin(LoggingActiveMQServerPlugin.LOG_CONNECTION_EVENTS);
@@ -129,11 +130,12 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
     * @throws Exception
     */
    @Test
-   @BMRules(rules = {@BMRule(name = "test LOG_SESSION_EVENTS",
-      targetClass = "org.jboss.logging.Logger",
-      targetMethod = "logv",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
+   @BMRules(rules = {
+      @BMRule(name = "test LOG_SESSION_EVENTS",
+         targetClass = "org.jboss.logging.Logger",
+         targetMethod = "logv",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogSessionEvents() throws Exception {
 
       ActiveMQServer activeMQServer = createServerWithLoggingPlugin(LoggingActiveMQServerPlugin.LOG_SESSION_EVENTS);
@@ -165,11 +167,12 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
     */
 
    @Test
-   @BMRules(rules = {@BMRule(name = "test LOG_CONSUMER_EVENTS",
-      targetClass = "org.jboss.logging.Logger",
-      targetMethod = "logv",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
+   @BMRules(rules = {
+      @BMRule(name = "test LOG_CONSUMER_EVENTS",
+         targetClass = "org.jboss.logging.Logger",
+         targetMethod = "logv",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogConsumerEvents() throws Exception {
 
       ActiveMQServer activeMQServer = createServerWithLoggingPlugin(LoggingActiveMQServerPlugin.LOG_CONSUMER_EVENTS);
@@ -207,11 +210,12 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
     * @throws Exception
     */
    @Test
-   @BMRules(rules = {@BMRule(name = "test LOG_DELIVERING_EVENTS",
-      targetClass = "org.jboss.logging.Logger",
-      targetMethod = "logv",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
+   @BMRules(rules = {
+      @BMRule(name = "test LOG_DELIVERING_EVENTS",
+         targetClass = "org.jboss.logging.Logger",
+         targetMethod = "logv",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogDeliveringEvents() throws Exception {
 
       ActiveMQServer activeMQServer = createServerWithLoggingPlugin(LoggingActiveMQServerPlugin.LOG_DELIVERING_EVENTS);
@@ -249,11 +253,12 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
     * @throws Exception
     */
    @Test
-   @BMRules(rules = {@BMRule(name = "test LOG_SENDING_EVENTS",
-      targetClass = "org.jboss.logging.Logger",
-      targetMethod = "logv",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
+   @BMRules(rules = {
+      @BMRule(name = "test LOG_SENDING_EVENTS",
+         targetClass = "org.jboss.logging.Logger",
+         targetMethod = "logv",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogSendingEvents() throws Exception {
 
       //initial plugin
@@ -293,11 +298,12 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
     * @throws Exception
     */
    @Test
-   @BMRules(rules = {@BMRule(name = "test queue creation log",
-      targetClass = "org.jboss.logging.Logger",
-      targetMethod = "logv",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
+   @BMRules(rules = {
+      @BMRule(name = "test queue creation log",
+         targetClass = "org.jboss.logging.Logger",
+         targetMethod = "logv",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testQueueCreationLog() throws Exception {
 
       //initial plugin
@@ -336,11 +342,12 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
     * @throws Exception
     */
    @Test
-   @BMRules(rules = {@BMRule(name = "test queue creation log",
-      targetClass = "org.jboss.logging.Logger",
-      targetMethod = "logv",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
+   @BMRules(rules = {
+      @BMRule(name = "test queue creation log",
+         targetClass = "org.jboss.logging.Logger",
+         targetMethod = "logv",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testExpireMessageLog() throws Exception {
 
       //initial plugin
@@ -381,11 +388,12 @@ public class LoggingActiveMQServerPluginTest extends ActiveMQTestBase {
     * @throws Exception
     */
    @Test
-   @BMRules(rules = {@BMRule(name = "test logAll EVENT",
-      targetClass = "org.jboss.logging.Logger",
-      targetMethod = "logv",
-      targetLocation = "ENTRY",
-      action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
+   @BMRules(rules = {
+      @BMRule(name = "test logAll EVENT",
+         targetClass = "org.jboss.logging.Logger",
+         targetMethod = "logv",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.LoggingActiveMQServerPluginTest.infoLog($2, $4, $0)")})
    public void testLogAll() throws Exception {
 
       //initial plugin

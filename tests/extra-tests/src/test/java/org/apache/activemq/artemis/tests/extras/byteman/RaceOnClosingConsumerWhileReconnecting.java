@@ -97,12 +97,13 @@ public class RaceOnClosingConsumerWhileReconnecting extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "session.removeConsumer wait",
-         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-         targetMethod = "removeConsumer(org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal)",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnClosingConsumerWhileReconnecting.waitForReconnection();")})
+      rules = {
+         @BMRule(
+            name = "session.removeConsumer wait",
+            targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+            targetMethod = "removeConsumer(org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal)",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnClosingConsumerWhileReconnecting.waitForReconnection();")})
    public void testClosingConsumerBeforeReconnecting() throws Exception {
       conn = session.getConnection();
 
@@ -119,12 +120,13 @@ public class RaceOnClosingConsumerWhileReconnecting extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "session.closeConsumer before recreating consumer",
-         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-         targetMethod = "handleFailover",
-         targetLocation = "AFTER WRITE $consumerInternal 1",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnClosingConsumerWhileReconnecting.closeConsumer();")})
+      rules = {
+         @BMRule(
+            name = "session.closeConsumer before recreating consumer",
+            targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+            targetMethod = "handleFailover",
+            targetLocation = "AFTER WRITE $consumerInternal 1",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnClosingConsumerWhileReconnecting.closeConsumer();")})
    public void testClosingConsumerBeforeRecreatingOneConsumer() throws Exception {
       RemotingConnection conn = session.getConnection();
 
@@ -139,12 +141,13 @@ public class RaceOnClosingConsumerWhileReconnecting extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "session.closeConsumer before recreating consumer",
-         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-         targetMethod = "handleFailover",
-         targetLocation = "AFTER WRITE $consumerInternal 1",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnClosingConsumerWhileReconnecting.closeConsumer();")})
+      rules = {
+         @BMRule(
+            name = "session.closeConsumer before recreating consumer",
+            targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+            targetMethod = "handleFailover",
+            targetLocation = "AFTER WRITE $consumerInternal 1",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.RaceOnClosingConsumerWhileReconnecting.closeConsumer();")})
    public void testClosingConsumerBeforeRecreatingTwoConsumers() throws Exception {
       RemotingConnection conn = session.getConnection();
 

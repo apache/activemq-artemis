@@ -41,17 +41,19 @@ public class LatencyTest extends ActiveMQTestBase {
    * */
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "trace ClientBootstrap.connect",
-         targetClass = "org.jboss.netty.bootstrap.ClientBootstrap",
-         targetMethod = "connect",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.LatencyTest.debugLog(\"netty connecting\")"), @BMRule(
-         name = "sleep OioWorker.run",
-         targetClass = "org.jboss.netty.channel.socket.oio.OioWorker",
-         targetMethod = "run",
-         targetLocation = "ENTRY",
-         action = "Thread.sleep(500)")})
+      rules = {
+         @BMRule(
+            name = "trace ClientBootstrap.connect",
+            targetClass = "org.jboss.netty.bootstrap.ClientBootstrap",
+            targetMethod = "connect",
+            targetLocation = "ENTRY",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.LatencyTest.debugLog(\"netty connecting\")"),
+         @BMRule(
+            name = "sleep OioWorker.run",
+            targetClass = "org.jboss.netty.channel.socket.oio.OioWorker",
+            targetMethod = "run",
+            targetLocation = "ENTRY",
+            action = "Thread.sleep(500)")})
    public void testLatency() throws Exception {
       ActiveMQServer server = createServer(createDefaultNettyConfig());
       server.start();

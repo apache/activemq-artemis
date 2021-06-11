@@ -43,15 +43,13 @@ public class JournalImplConcurrencyTest extends JournalImplTestBase {
     */
    @Test(timeout = 2000)
    @BMRules(rules = {
-         @BMRule(
-               name = "BlockOnFinalLargeMessagePacket",
-               targetClass = "java.util.concurrent.locks.ReentrantReadWriteLock",
-               targetMethod = "readLock()",
-               targetLocation = "EXIT",
-               condition = "Thread.currentThread().getName().contains(\"ArtemisIOThread\")",
-               action = "throw RuntimeException(\"Injected exception\");"
-         )
-   })
+      @BMRule(
+         name = "BlockOnFinalLargeMessagePacket",
+         targetClass = "java.util.concurrent.locks.ReentrantReadWriteLock",
+         targetMethod = "readLock()",
+         targetLocation = "EXIT",
+         condition = "Thread.currentThread().getName().contains(\"ArtemisIOThread\")",
+         action = "throw RuntimeException(\"Injected exception\");")})
    public void testTryDelete() throws Exception {
       setup(10, 10 * 1024, true);
       createJournal();

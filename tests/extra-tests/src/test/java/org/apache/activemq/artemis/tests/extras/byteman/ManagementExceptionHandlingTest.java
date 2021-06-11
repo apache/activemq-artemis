@@ -62,13 +62,13 @@ public class ManagementExceptionHandlingTest extends ActiveMQTestBase {
    }
 
    @Test
-   @BMRules(
-           rules = {@BMRule(
-                   name = "checking ActiveMQServerControl methods",
-                   targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl",
-                   targetMethod = "createQueue(org.apache.activemq.artemis.api.core.SimpleString, org.apache.activemq.artemis.api.core.RoutingType, org.apache.activemq.artemis.api.core.SimpleString, org.apache.activemq.artemis.api.core.SimpleString, boolean, boolean, int, boolean, boolean)",
-                   targetLocation = "EXIT",
-                   action = "throw new org.apache.activemq.artemis.api.core.ActiveMQException(\"gotcha\")")})
+   @BMRules(rules = {
+      @BMRule(
+         name = "checking ActiveMQServerControl methods",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl",
+         targetMethod = "createQueue(org.apache.activemq.artemis.api.core.SimpleString, org.apache.activemq.artemis.api.core.RoutingType, org.apache.activemq.artemis.api.core.SimpleString, org.apache.activemq.artemis.api.core.SimpleString, boolean, boolean, int, boolean, boolean)",
+         targetLocation = "EXIT",
+         action = "throw new org.apache.activemq.artemis.api.core.ActiveMQException(\"gotcha\")")})
    public void testActiveMQServerControl() throws Exception {
       try {
          server.getActiveMQServerControl().createQueue(new QueueConfiguration("some.queue").setAddress("some.address").setRoutingType(RoutingType.ANYCAST).toJSON());
@@ -81,13 +81,13 @@ public class ManagementExceptionHandlingTest extends ActiveMQTestBase {
    }
 
    @Test
-   @BMRules(
-           rules = {@BMRule(
-                   name = "checking ActiveMQServerControl methods",
-                   targetClass = "org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl",
-                   targetMethod = "route(org.apache.activemq.artemis.api.core.Message, boolean)",
-                   targetLocation = "ENTRY",
-                   action = "throw new org.apache.activemq.artemis.api.core.ActiveMQException(\"gotcha\")")})
+   @BMRules(rules = {
+      @BMRule(
+         name = "checking ActiveMQServerControl methods",
+         targetClass = "org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl",
+         targetMethod = "route(org.apache.activemq.artemis.api.core.Message, boolean)",
+         targetLocation = "ENTRY",
+         action = "throw new org.apache.activemq.artemis.api.core.ActiveMQException(\"gotcha\")")})
    public void testAddressControl() throws Exception {
       server.getActiveMQServerControl().createAddress("test.address", "ANYCAST");
       MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();

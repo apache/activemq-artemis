@@ -51,13 +51,14 @@ public class StompInternalStateTest extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-      rules = {@BMRule(
-         name = "StompProtocolManager Leak Server Rule",
-         targetClass = "org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManager",
-         targetMethod = "onNotification(org.apache.activemq.artemis.core.server.management.Notification)",
-         targetLocation = "EXIT",
-         helper = "org.apache.activemq.artemis.tests.extras.byteman.StompInternalStateTest",
-         action = "verifyBindingAddRemove($1, $0.destinations)")})
+      rules = {
+         @BMRule(
+            name = "StompProtocolManager Leak Server Rule",
+            targetClass = "org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManager",
+            targetMethod = "onNotification(org.apache.activemq.artemis.core.server.management.Notification)",
+            targetLocation = "EXIT",
+            helper = "org.apache.activemq.artemis.tests.extras.byteman.StompInternalStateTest",
+            action = "verifyBindingAddRemove($1, $0.destinations)")})
    public void testStompProtocolManagerLeak() throws Exception {
       ClientSession session = null;
       try {
