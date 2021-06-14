@@ -76,7 +76,11 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
          {"SunJSSE", "PKCS12", TransportConstants.OPENSSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER},
          {"SunJSSE", "PKCS12", TransportConstants.OPENSSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER},
          {"SunJSSE", "PKCS12", TransportConstants.DEFAULT_SSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER},
-         {"SunJSSE", "PKCS12", TransportConstants.DEFAULT_SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER}
+         {"SunJSSE", "PKCS12", TransportConstants.DEFAULT_SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER},
+         {TransportConstants.DEFAULT_KEYSTORE_TYPE, null, TransportConstants.DEFAULT_SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER},
+         {"JCEKS", null, TransportConstants.DEFAULT_SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER},
+         {"JKS", null, TransportConstants.DEFAULT_SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER},
+         {"PKCS12", null, TransportConstants.DEFAULT_SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER}
       });
    }
 
@@ -86,9 +90,9 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       this.clientSSLProvider = clientSSLProvider;
       this.serverSSLProvider = serverSSLProvider;
 
-      String suffix = storeType.toLowerCase();
+      String suffix = storeType == null || storeType.length() == 0 ? storeProvider.toLowerCase() : storeType.toLowerCase();
       // keytool expects PKCS12 stores to use the extension "p12"
-      if (storeType.equals("PKCS12")) {
+      if (suffix.equalsIgnoreCase("PKCS12")) {
          suffix = "p12";
       }
 
@@ -364,7 +368,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       if (storeProvider != null && !storeProvider.equals(TransportConstants.DEFAULT_KEYSTORE_PROVIDER)) {
          uri.append("&").append(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME).append("=").append(storeProvider);
       }
-      if (!storeType.equals(TransportConstants.DEFAULT_KEYSTORE_TYPE)) {
+      if (storeType != null && !storeType.equals(TransportConstants.DEFAULT_KEYSTORE_TYPE)) {
          uri.append("&").append(TransportConstants.KEYSTORE_TYPE_PROP_NAME).append("=").append(storeType);
       }
       uri.append("&").append(TransportConstants.KEYSTORE_PATH_PROP_NAME).append("=").append(CLIENT_SIDE_KEYSTORE);
