@@ -430,6 +430,14 @@ public interface ActiveMQClientLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void connectionFactoryParameterIgnored(String parameterName);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212079, value = "The upstream connector from the downstream federation will ignore url parameter {0}", format = Message.Format.MESSAGE_FORMAT)
+   void ignoredParameterForDownstreamFederation(String name);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212080, value = "Using legacy SSL store provider value: {0}. Please use either ''keyStoreType'' or ''trustStoreType'' instead as appropriate.", format = Message.Format.MESSAGE_FORMAT)
+   void oldStoreProvider(String value);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)
    void onMessageError(@Cause Throwable e);
@@ -574,8 +582,4 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @Message(id = 214033, value = "Cannot resolve host ",
            format = Message.Format.MESSAGE_FORMAT)
    void unableToResolveHost(@Cause UnknownHostException e);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212079, value = "The upstream connector from the downstream federation will ignore url parameter {0}", format = Message.Format.MESSAGE_FORMAT)
-   void ignoredParameterForDownstreamFederation(String name);
 }
