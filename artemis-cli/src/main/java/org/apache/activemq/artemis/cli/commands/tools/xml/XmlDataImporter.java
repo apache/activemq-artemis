@@ -31,6 +31,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -325,6 +326,20 @@ public final class XmlDataImporter extends ActionAbstract {
 
          logMessage.append(queue).append(", ");
          buffer.putLong(queueID);
+      }
+
+      //Overwriting routingType to be able to import messages originating from Anycast queues residing on auto-created DLA or Expiry queues
+      ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.toSimpleString(destination));
+      List<SimpleString> queuesOnAddress = addressQuery.getQueueNames();
+      List<RoutingType> rTypes = new ArrayList<>();
+
+      for (SimpleString queue : queuesOnAddress) {
+         ClientSession.QueueQuery queueQuery = session.queueQuery(queue);
+         rTypes.add(queueQuery.getRoutingType());
+      }
+
+      if (message.getRoutingType() != null && !rTypes.contains(message.getRoutingType())) {
+         message.putByteProperty(Message.HDR_ROUTING_TYPE, (byte) -1);
       }
 
       logMessage.delete(logMessage.length() - 2, logMessage.length()); // take off the trailing comma
