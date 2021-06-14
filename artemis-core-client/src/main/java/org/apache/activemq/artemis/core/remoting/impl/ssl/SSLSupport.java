@@ -44,7 +44,9 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TrustManagerFactoryPlugin;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
@@ -367,5 +369,24 @@ public class SSLSupport {
             return ClassloadingUtil.findResource(resourceName);
          }
       });
+   }
+
+   /**
+    * The changes ARTEMIS-3155 introduced an incompatibility with old clients using the keyStoreProvider and
+    * trustStoreProvider URL properties. These old clients use these properties to set the *type* of store
+    * (e.g. PKCS12, PKCS11, JKS, JCEKS, etc.), but new clients use these to set the *provider* (as the name
+    * implies). This method checks to see if the provider property matches what is expected from old clients
+    * and if so returns they proper provider and type properties to use with the new client implementation.
+    *
+    * @param storeProvider
+    * @param storeType
+    * @return a Pair<String, String> representing the provider and type to use (in that order)
+    */
+   public static Pair<String, String> getValidProviderAndType(String storeProvider, String storeType) {
+      if (storeProvider != null && (storeProvider.startsWith("PKCS") || storeProvider.equals("JKS") || storeProvider.equals("JCEKS"))) {
+         ActiveMQClientLogger.LOGGER.oldStoreProvider(storeProvider);
+         return new Pair<>(null, storeProvider);
+      }
+      return new Pair<>(storeProvider, storeType);
    }
 }
