@@ -332,6 +332,18 @@
             <scope>test</scope>
             <!-- License: MIT -->
          </dependency>
+
+         <dependency>
+            <groupId>org.apache.kerby</groupId>
+            <artifactId>token-provider</artifactId>
+            <scope>test</scope>
+            <exclusions>
+               <exclusion>
+                  <groupId>com.nimbusds</groupId>
+                  <artifactId>nimbus-jose-jwt</artifactId>
+               </exclusion>
+            </exclusions>
+         </dependency>
          <!-- ## End Test Dependencies ## -->
 
          <!-- ### Build Time Dependencies ### -->
