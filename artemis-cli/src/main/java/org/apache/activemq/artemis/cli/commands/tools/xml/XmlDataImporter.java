@@ -332,13 +332,15 @@ public final class XmlDataImporter extends ActionAbstract {
       ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.toSimpleString(destination));
       List<SimpleString> queuesOnAddress = addressQuery.getQueueNames();
       List<RoutingType> rTypes = new ArrayList<>();
+      RoutingType rType = message.getRoutingType();
 
       for (SimpleString queue : queuesOnAddress) {
          ClientSession.QueueQuery queueQuery = session.queueQuery(queue);
          rTypes.add(queueQuery.getRoutingType());
       }
 
-      if (message.getRoutingType() != null && !rTypes.contains(message.getRoutingType())) {
+      if (rType != null && !rTypes.contains(rType)) {
+         message.putByteProperty(Message.HDR_ORIG_ROUTING_TYPE, rType.getType());
          message.putByteProperty(Message.HDR_ROUTING_TYPE, (byte) -1);
       }
 

@@ -1189,7 +1189,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session, managementSession);
 
-      //Check that message is imported with no "routingType" and is intact
+      //Check that message is imported with no "routingType" and has ORIG_ROUTING_TYPE
       assertTrue(server.getTotalMessageCount() == 1);
       session.start();
       consumer = session.createConsumer(dlaPrefix.concat(myAddress));
@@ -1197,6 +1197,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       Assert.assertNotNull(m);
       Assert.assertEquals(m.getBodyBuffer().readString(), payload);
+      assertTrue(m.getByteProperty(Message.HDR_ORIG_ROUTING_TYPE) == RoutingType.ANYCAST.getType());
       Assert.assertEquals(m.getRoutingType(), null);
 
       consumer.close();

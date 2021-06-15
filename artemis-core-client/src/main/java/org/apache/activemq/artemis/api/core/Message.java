@@ -162,6 +162,11 @@ public interface Message {
    SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_ROUTING_TYPE");
 
    /**
+    * The original routing type, used when routingType gets removed from a message
+    */
+   SimpleString HDR_ORIG_ROUTING_TYPE = new SimpleString("_AMQ_ORIG_ROUTING_TYPE");
+
+   /**
     * The prefix used (if any) when sending this message.  For protocols (e.g. STOMP) that need to track this and restore
     * the prefix when the message is consumed.
     */
