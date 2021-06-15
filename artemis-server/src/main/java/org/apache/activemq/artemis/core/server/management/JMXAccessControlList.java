@@ -41,10 +41,11 @@ public class JMXAccessControlList {
          return +1;
       } else if (!key1ContainsWildCard && key2ContainsWildcard) {
          return -1;
-      } else if (key1ContainsWildCard && key2ContainsWildcard) {
-         return key2.length() - key1.length();
+      } else if (key1.length() == key2.length()) {
+         return key1.compareTo(key2);
       }
-      return key1.length() - key2.length();
+
+      return key2.length() - key1.length();
    };
 
    public void addToWhiteList(String domain, String key) {
