@@ -380,7 +380,7 @@ public class SSLSupport {
     *
     * @param storeProvider
     * @param storeType
-    * @return a Pair<String, String> representing the provider and type to use (in that order)
+    * @return a {@code Pair<String, String>} representing the provider and type to use (in that order)
     */
    public static Pair<String, String> getValidProviderAndType(String storeProvider, String storeType) {
       if (storeProvider != null && (storeProvider.startsWith("PKCS") || storeProvider.equals("JKS") || storeProvider.equals("JCEKS"))) {
