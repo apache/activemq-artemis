@@ -1362,21 +1362,6 @@
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-enforcer-plugin</artifactId>
               <version>${maven.enforcer.plugin.version}</version>
-              <executions>
-                <execution>
-                  <id>enforce-maven-version</id>
-                  <goals>
-                    <goal>enforce</goal>
-                  </goals>
-                  <configuration>
-                    <rules>
-                      <requireMavenVersion>
-                        <version>3.5.0</version>
-                      </requireMavenVersion>
-                    </rules>
-                  </configuration>
-                </execution>
-              </executions>
             </plugin>
             <plugin>
                <groupId>org.codehaus.mojo</groupId>
@@ -1526,6 +1511,20 @@
                      <version>[1.8, 9),[11,)</version>
                      <message>You must use either JDK 8 or JDK 11+ when building</message>
                    </requireJavaVersion>
+                 </rules>
+               </configuration>
+             </execution>
+             <execution>
+               <id>enforce-maven-version</id>
+               <goals>
+                 <goal>enforce</goal>
+               </goals>
+               <configuration>
+                 <rules>
+                   <requireMavenVersion>
+                     <version>3.5.0</version>
+                     <message>You must use Maven 3.5.0+ to build</message>
+                   </requireMavenVersion>
                  </rules>
                </configuration>
              </execution>
