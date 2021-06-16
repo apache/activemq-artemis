@@ -2643,21 +2643,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             String originalMessageAddress = ref.getMessage().getAnnotationString(Message.HDR_ORIGINAL_ADDRESS);
             String originalMessageQueue = ref.getMessage().getAnnotationString(Message.HDR_ORIGINAL_QUEUE);
+            Binding binding = null;
 
-            if (originalMessageAddress != null) {
+            if (originalMessageQueue != null) {
+               binding = postOffice.getBinding(SimpleString.toSimpleString(originalMessageQueue));
+            }
+
+            if (originalMessageAddress != null && binding != null) {
 
                incDelivering(ref);
 
                Long targetQueue = null;
                if (originalMessageQueue != null && !originalMessageQueue.equals(originalMessageAddress)) {
                   targetQueue = queues.get(originalMessageQueue);
-                  if (targetQueue == null) {
-                     Binding binding = postOffice.getBinding(SimpleString.toSimpleString(originalMessageQueue));
 
-                     if (binding != null && binding instanceof LocalQueueBinding) {
-                        targetQueue = ((LocalQueueBinding) binding).getID();
-                        queues.put(originalMessageQueue, targetQueue);
-                     }
+                  if (targetQueue == null && binding instanceof LocalQueueBinding) {
+                     targetQueue = ((LocalQueueBinding) binding).getID();
+                     queues.put(originalMessageQueue, targetQueue);
                   }
                }
 
@@ -2670,6 +2672,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                return true;
             }
 
+            ActiveMQServerLogger.LOGGER.unableToFindTargetQueue(originalMessageQueue);
             return false;
          }
       });
@@ -3342,6 +3345,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          copyMessage.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), buffer.array());
       }
 
+      //set routingType if retrying from DLA and HDR_ORIG_ROUTING_TYPE is set
+      SimpleString fromAddress = ref.getMessage().getAddressSimpleString();
+      SimpleString dla = addressSettingsRepository.getMatch(toAddress.toString()).getDeadLetterAddress();
+
+      if (fromAddress.equals(dla) && copyMessage.getAnnotationByte(Message.HDR_ORIG_ROUTING_TYPE) != null) {
+         copyMessage.putByteProperty(Message.HDR_ROUTING_TYPE, copyMessage.getAnnotationByte(Message.HDR_ORIG_ROUTING_TYPE));
+      }
+
       postOffice.route(copyMessage, tx, false, rejectDuplicate);
 
       if (expiry) {
@@ -3349,7 +3360,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       } else {
          acknowledge(tx, ref);
       }
-
    }
 
    @SuppressWarnings({"ArrayToString", "ArrayToStringConcatenation"})

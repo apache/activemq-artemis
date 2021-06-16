@@ -629,6 +629,15 @@ public interface Message {
       }
    }
 
+   default Byte getAnnotationByte(SimpleString key) {
+      Object value = getAnnotation(key);
+      if (value != null) {
+         return (byte) value;
+      } else {
+         return null;
+      }
+   }
+
    Object getAnnotation(SimpleString key);
 
    /** Callers must call {@link #reencode()} in order to be sent to clients */
