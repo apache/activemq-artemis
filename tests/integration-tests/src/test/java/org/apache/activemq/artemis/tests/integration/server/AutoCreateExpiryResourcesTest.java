@@ -205,8 +205,8 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
       triggerExpiration(false);
 
-      Wait.assertTrue(() -> server.locateQueue(expiryQueueName) != null, EXPIRY_DELAY * 2, 20);
-      Wait.assertEquals(COUNT, () -> server.locateQueue(expiryQueueName).getMessageCount(), EXPIRY_DELAY * 2, 20);
+      Wait.assertTrue(() -> server.locateQueue(expiryQueueName) != null, 2_000, 20);
+      Wait.assertEquals(COUNT, () -> server.locateQueue(expiryQueueName).getMessageCount(), 2000, 20);
    }
 
    private SimpleString getDefaultExpiryQueueName(SimpleString address) {
