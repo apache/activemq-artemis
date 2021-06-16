@@ -1464,18 +1464,6 @@
                <artifactId>xml-maven-plugin</artifactId>
                <version>1.0</version>
             </plugin>
-            <plugin>
-               <groupId>org.codehaus.mojo</groupId>
-               <artifactId>cobertura-maven-plugin</artifactId>
-               <configuration />
-               <executions>
-                  <execution>
-                     <goals>
-                        <goal>clean</goal>
-                     </goals>
-                  </execution>
-               </executions>
-            </plugin>
             <!-- Many examples use it -->
             <plugin>
                <groupId>org.apache.activemq</groupId>
@@ -1736,18 +1724,6 @@
 
    <reporting>
       <plugins>
-         <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>cobertura-maven-plugin</artifactId>
-            <version>2.5.2</version>
-            <configuration>
-               <check />
-               <formats>
-                  <format>html</format>
-                  <format>xml</format>
-               </formats>
-            </configuration>
-         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
