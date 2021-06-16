@@ -60,7 +60,7 @@ public class ProducerThread extends Thread {
    final ReusableLatch paused = new ReusableLatch(0);
 
    public ProducerThread(Session session, Destination destination, int threadNr) {
-      super("Producer " + destination.toString() + ", thread=" + threadNr);
+      super("Producer " + destination.toString() + "; thread=" + threadNr);
       this.destination = destination;
       this.session = session;
    }

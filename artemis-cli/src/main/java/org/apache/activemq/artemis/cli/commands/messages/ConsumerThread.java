@@ -54,7 +54,7 @@ public class ConsumerThread extends Thread {
    MessageListener listener;
 
    public ConsumerThread(Session session, Destination destination, int threadNr) {
-      super("Consumer " + destination.toString() + ", thread=" + threadNr);
+      super("Consumer " + destination.toString() + "; thread=" + threadNr);
       this.destination = destination;
       this.session = session;
    }
