@@ -112,7 +112,8 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final IOCriticalErrorListener listener,
                                    final CriticalAnalyzer analyzer) {
       super(journalDir, true, bufferSize, bufferTimeout, maxIO, logRates, listener, analyzer);
-      callbackPool = PlatformDependent.hasUnsafe() ? new MpmcArrayQueue<>(maxIO) : new MpmcAtomicArrayQueue<>(maxIO);
+      final int adjustedMaxIO = Math.max(2, maxIO);
+      callbackPool = PlatformDependent.hasUnsafe() ? new MpmcArrayQueue<>(adjustedMaxIO) : new MpmcAtomicArrayQueue<>(adjustedMaxIO);
       if (logger.isTraceEnabled()) {
          logger.trace("New AIO File Created");
       }
