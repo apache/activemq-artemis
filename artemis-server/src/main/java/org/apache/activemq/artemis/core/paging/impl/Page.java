@@ -253,8 +253,8 @@ public final class Page implements Comparable<Page> {
 
    public synchronized List<PagedMessage> read(StorageManager storage, boolean onlyLargeMessages) throws Exception {
       if (logger.isDebugEnabled()) {
-         logger.debugf("reading page %d on address = %s onlyLargeMessages = %b", storeName, pageId,
-                       storage, onlyLargeMessages);
+         logger.debugf("reading page %d on address = %s onlyLargeMessages = %b",
+            new Object[] {pageId, storeName, onlyLargeMessages});
       }
 
       if (!file.isOpen()) {
