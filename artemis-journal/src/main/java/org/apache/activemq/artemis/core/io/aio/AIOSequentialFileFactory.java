@@ -112,6 +112,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final IOCriticalErrorListener listener,
                                    final CriticalAnalyzer analyzer) {
       super(journalDir, true, bufferSize, bufferTimeout, maxIO, logRates, listener, analyzer);
+      if (maxIO == 1) {
+         ActiveMQJournalLogger.LOGGER.warn("Using journal-max-io 1 isn't a proper use of ASYNCIO journal: consider rise this value or use NIO.");
+      }
       final int adjustedMaxIO = Math.max(2, maxIO);
       callbackPool = PlatformDependent.hasUnsafe() ? new MpmcArrayQueue<>(adjustedMaxIO) : new MpmcAtomicArrayQueue<>(adjustedMaxIO);
       if (logger.isTraceEnabled()) {
