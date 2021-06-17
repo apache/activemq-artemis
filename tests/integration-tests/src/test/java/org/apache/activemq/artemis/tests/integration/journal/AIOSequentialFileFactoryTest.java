@@ -40,6 +40,11 @@ public class AIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
    }
 
    @Test
+   public void canCreateFactoryWithMaxIOLessThenTwo() {
+      AIOSequentialFileFactory factory = new AIOSequentialFileFactory(new File("ignore"), 1);
+   }
+
+   @Test
    public void testBuffer() throws Exception {
       SequentialFile file = factory.createSequentialFile("filtetmp.log");
       file.open();
