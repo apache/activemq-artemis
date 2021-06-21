@@ -17,27 +17,16 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CheckRetryIntervalBackupManagerTest extends FailoverTestBase {
-
-   private static final Logger log = Logger.getLogger(CheckRetryIntervalBackupManagerTest.class);
-
-   private volatile CountDownSessionFailureListener listener;
-
-   private volatile ClientSessionFactoryInternal sf;
-
-   private final Object lockFail = new Object();
+public class BackupManagerInheritedConfigTest extends FailoverTestBase {
 
    @Override
    protected void createConfigs() throws Exception {
@@ -45,7 +34,11 @@ public class CheckRetryIntervalBackupManagerTest extends FailoverTestBase {
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(createBasicClusterConfig(backupConnector.getName(), liveConnector.getName()).setRetryInterval(333));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector)
+         .addClusterConfiguration(createBasicClusterConfig(backupConnector.getName(), liveConnector.getName())
+                                     .setRetryInterval(333)
+                                     .setClientFailureCheckPeriod(1000)
+                                     .setConnectionTTL(5000));
 
       backupServer = createTestableServer(backupConfig);
 
@@ -55,13 +48,15 @@ public class CheckRetryIntervalBackupManagerTest extends FailoverTestBase {
    }
 
    @Test
-   public void testValidateRetryInterval() {
+   public void testValidateInheritedClusterConnectionConfig() {
       ActiveMQServerImpl server = (ActiveMQServerImpl) backupServer.getServer();
       for (BackupManager.BackupConnector backupConnector : server.getBackupManager().getBackupConnectors()) {
 
          Wait.assertTrue(() -> backupConnector.getBackupServerLocator() != null);
          Assert.assertEquals(333, backupConnector.getBackupServerLocator().getRetryInterval());
          Assert.assertEquals(-1, backupConnector.getBackupServerLocator().getReconnectAttempts());
+         Assert.assertEquals(1000, backupConnector.getBackupServerLocator().getClientFailureCheckPeriod());
+         Assert.assertEquals(5000, backupConnector.getBackupServerLocator().getConnectionTTL());
       }
    }
 
