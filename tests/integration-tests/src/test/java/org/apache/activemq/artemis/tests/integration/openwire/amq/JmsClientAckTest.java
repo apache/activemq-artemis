@@ -137,6 +137,30 @@ public class JmsClientAckTest extends BasicOpenWireTest {
       session.close();
    }
 
+   @Test
+   public void testUnAckedMessageAreNotConsumedOnConsumerClose() throws JMSException {
+      connection.start();
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      Queue queue = session.createQueue(getQueueName());
+      MessageProducer producer = session.createProducer(queue);
+      producer.send(session.createTextMessage("Hello"));
+
+      // Consume the message...
+      MessageConsumer consumer = session.createConsumer(queue);
+      Message msg = consumer.receive(1000);
+      assertNotNull(msg);
+      // Don't ack the message.
+      consumer.close();
+
+      // Attempt to Consume the message...
+      consumer = session.createConsumer(queue);
+      msg = consumer.receive(2000);
+      assertNotNull(msg);
+      msg.acknowledge();
+
+      session.close();
+   }
+
    /**
     * Tests if acknowledged messages are being consumed.
     *

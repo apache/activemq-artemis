@@ -391,6 +391,31 @@ public class JmsConsumerTest extends JMSTestBase {
    }
 
    @Test
+   public void testUnAckedClientAckMessageAreNotConsumedOnConsumerClose() throws JMSException {
+      conn = cf.createConnection();
+      conn.start();
+      Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      javax.jms.Queue queue = session.createQueue(JmsConsumerTest.Q_NAME);
+      MessageProducer producer = session.createProducer(queue);
+      producer.send(session.createTextMessage("Hello"));
+
+      // Consume the message...
+      MessageConsumer consumer = session.createConsumer(queue);
+      Message msg = consumer.receive(1000);
+      assertNotNull(msg);
+      // Don't ack the message.
+      consumer.close();
+
+      // Attempt to Consume the message...
+      consumer = session.createConsumer(queue);
+      msg = consumer.receive(2000);
+      assertNotNull(msg);
+      msg.acknowledge();
+
+      session.close();
+   }
+
+   @Test
    public void testBrowserAndConsumerSimultaneous() throws Exception {
       ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();

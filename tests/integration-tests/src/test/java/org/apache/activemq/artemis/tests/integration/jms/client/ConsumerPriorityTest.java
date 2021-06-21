@@ -99,6 +99,7 @@ public class ConsumerPriorityTest extends JMSTestBase {
             assertNotNull(tm);
 
             assertEquals("Message" + j, tm.getText());
+            tm.acknowledge();
 
             tm = (TextMessage) consumer2.receiveNoWait();
             assertNull(tm);
@@ -206,6 +207,7 @@ public class ConsumerPriorityTest extends JMSTestBase {
             assertNotNull(tm);
 
             assertEquals("Message" + j, tm.getText());
+            tm.acknowledge();
 
             tm = (TextMessage) consumer2.receiveNoWait();
             assertNull(tm);
@@ -271,7 +273,7 @@ public class ConsumerPriorityTest extends JMSTestBase {
             assertNotNull(tm);
 
             assertEquals("Message" + j, tm.getText());
-
+            tm.acknowledge();
             tm = (TextMessage) consumer2.receiveNoWait();
             assertNull(tm);
             tm = (TextMessage) consumer3.receiveNoWait();

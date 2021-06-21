@@ -232,6 +232,7 @@ public class ExclusiveTest extends JMSTestBase {
 
             assertEquals("Message" + j, tm.getText());
 
+            tm.acknowledge();
             tm = (TextMessage) consumer2.receiveNoWait();
             assertNull(tm);
             tm = (TextMessage) consumer3.receiveNoWait();
@@ -292,7 +293,7 @@ public class ExclusiveTest extends JMSTestBase {
             assertNotNull(tm);
 
             assertEquals("Message" + j, tm.getText());
-
+            tm.acknowledge();
             tm = (TextMessage) consumer2.receiveNoWait();
             assertNull(tm);
             tm = (TextMessage) consumer3.receiveNoWait();

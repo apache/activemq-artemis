@@ -710,6 +710,9 @@ public class ActiveMQMessage implements javax.jms.Message {
             if (individualAck) {
                message.individualAcknowledge();
             }
+            if (clientAck) {
+               message.acknowledge();
+            }
             if (clientAck || individualAck) {
                session.commit(session.isBlockOnAcknowledge());
             }
