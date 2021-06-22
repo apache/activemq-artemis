@@ -690,6 +690,11 @@ public final class ChannelImpl implements Channel {
    }
 
    @Override
+   public boolean isLocked() {
+      return failingOver;
+   }
+
+   @Override
    public void lock() {
       if (logger.isTraceEnabled()) {
          logger.trace("RemotingConnectionID=" + (connection == null ? "NULL" : connection.getID()) + " lock channel " + this);
