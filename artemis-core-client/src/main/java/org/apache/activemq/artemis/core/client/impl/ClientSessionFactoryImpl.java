@@ -632,10 +632,19 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                connector = null;
 
-               boolean allSessionReconnected;
+               HashSet<ClientSessionInternal> sessionsToFailover;
+               synchronized (sessions) {
+                  sessionsToFailover = new HashSet<>(sessions);
+               }
+
+               for (ClientSessionInternal session : sessionsToFailover) {
+                  session.preHandleFailover(connection);
+               }
+
+               boolean allSessionReconnected = false;
                int failedReconnectSessionsCounter = 0;
                do {
-                  allSessionReconnected = reconnectSessions(oldConnection, reconnectAttempts, me);
+                  allSessionReconnected = reconnectSessions(sessionsToFailover, oldConnection, reconnectAttempts, me);
                   if (oldConnection != null) {
                      oldConnection.destroy();
                   }
@@ -644,9 +653,18 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                      failedReconnectSessionsCounter++;
                      oldConnection = connection;
                      connection = null;
+
+                     // Wait for retry when the connection is established but not all session are reconnected.
+                     if ((reconnectAttempts == -1 || failedReconnectSessionsCounter < reconnectAttempts) && oldConnection != null) {
+                        waitForRetry(retryInterval);
+                     }
                   }
                }
                while ((reconnectAttempts == -1 || failedReconnectSessionsCounter < reconnectAttempts) && !allSessionReconnected);
+
+               for (ClientSessionInternal session : sessionsToFailover) {
+                  session.postHandleFailover(connection, allSessionReconnected);
+               }
 
                if (oldConnection != null) {
                   oldConnection.destroy();
@@ -764,18 +782,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    /*
     * Re-attach sessions all pre-existing sessions to the new remoting connection
     */
-   private boolean reconnectSessions(final RemotingConnection oldConnection,
-                                  final int reconnectAttempts,
-                                  final ActiveMQException cause) {
-      HashSet<ClientSessionInternal> sessionsToFailover;
-      synchronized (sessions) {
-         sessionsToFailover = new HashSet<>(sessions);
-      }
-
-      for (ClientSessionInternal session : sessionsToFailover) {
-         session.preHandleFailover(connection);
-      }
-
+   private boolean reconnectSessions(final Set<ClientSessionInternal> sessionsToFailover,
+                                     final RemotingConnection oldConnection,
+                                     final int reconnectAttempts,
+                                     final ActiveMQException cause) {
       getConnectionWithRetry(reconnectAttempts, oldConnection);
 
       if (connection == null) {
