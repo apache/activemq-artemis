@@ -78,6 +78,8 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
 
    private final Boolean enabled;
 
+   private final Boolean configurationManaged;
+
 
    private final Integer defaultConsumerWindowSize;
 
@@ -164,7 +166,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final Long autoDeleteDelay,
                          final Long autoDeleteMessageCount,
                          final Integer defaultConsumerWindowSize) {
-      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, maxConsumers, autoCreated, purgeOnNoConsumers, routingType, exclusive, groupRebalance, null, groupBuckets, null, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, defaultConsumerWindowSize, null, null);
+      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, maxConsumers, autoCreated, purgeOnNoConsumers, routingType, exclusive, groupRebalance, null, groupBuckets, null, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, defaultConsumerWindowSize, null, null, null);
    }
 
    public QueueQueryImpl(final boolean durable,
@@ -195,7 +197,8 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final Long autoDeleteMessageCount,
                          final Integer defaultConsumerWindowSize,
                          final Long ringSize,
-                         final Boolean enabled) {
+                         final Boolean enabled,
+                         final Boolean configurationManaged) {
       this.durable = durable;
       this.temporary = temporary;
       this.consumerCount = consumerCount;
@@ -225,6 +228,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
       this.defaultConsumerWindowSize = defaultConsumerWindowSize;
       this.ringSize = ringSize;
       this.enabled = enabled;
+      this.configurationManaged = configurationManaged;
    }
 
    @Override
@@ -370,6 +374,11 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
    @Override
    public Boolean isEnabled() {
       return enabled;
+   }
+
+   @Override
+   public Boolean isConfigurationManaged() {
+      return configurationManaged;
    }
 }
 

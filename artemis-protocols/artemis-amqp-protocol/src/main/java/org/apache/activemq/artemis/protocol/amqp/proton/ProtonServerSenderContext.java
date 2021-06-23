@@ -1098,9 +1098,12 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   queue = createQueueName(connection.isUseCoreSubscriptionNaming(), clientId, pubId, shared, global, false);
                   QueueQueryResult result = sessionSPI.queueQuery(queue, routingTypeToUse, false);
                   if (result.isExists()) {
-                     // If a client reattaches to a durable subscription with a different no-local
-                     // filter value, selector or address then we must recreate the queue (JMS semantics).
-                     if (!Objects.equals(result.getFilterString(), simpleStringSelector) || (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString()))) {
+                     /*
+                      * If a client reattaches to a durable subscription with a different filter or address then we must
+                      * recreate the queue (JMS semantics). However, if the corresponding queue is managed via the
+                      * configuration then we don't want to change it
+                      */
+                     if (!result.isConfigurationManaged() && (!Objects.equals(result.getFilterString(), simpleStringSelector) || (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString())))) {
 
                         if (result.getConsumerCount() == 0) {
                            sessionSPI.deleteQueue(queue);

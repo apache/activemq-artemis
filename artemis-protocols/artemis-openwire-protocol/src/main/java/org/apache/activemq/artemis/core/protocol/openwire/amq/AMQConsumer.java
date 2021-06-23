@@ -199,7 +199,7 @@ public class AMQConsumer {
 
             boolean topicChanged = !oldTopicName.equals(address);
 
-            if (selectorChanged || topicChanged) {
+            if ((selectorChanged || topicChanged) && !result.isConfigurationManaged()) {
                // Delete the old durable sub
                session.getCoreSession().deleteQueue(queueName);
 

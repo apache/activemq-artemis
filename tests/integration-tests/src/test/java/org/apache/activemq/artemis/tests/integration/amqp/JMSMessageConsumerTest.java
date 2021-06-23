@@ -40,9 +40,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.DestinationUtil;
 import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.policy.JmsDefaultPrefetchPolicy;
 import org.junit.Assert;
@@ -214,6 +217,47 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          assertEquals(m.getStringProperty("color"), "RED");
       } finally {
          connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testDurableSubscriptionWithConfigurationManagedQueueWithCore() throws Exception {
+      testDurableSubscriptionWithConfigurationManagedQueue(() -> createCoreConnection(false));
+
+   }
+
+   @Test(timeout = 60000)
+   public void testDurableSubscriptionWithConfigurationManagedQueueWithOpenWire() throws Exception {
+      testDurableSubscriptionWithConfigurationManagedQueue(() -> createOpenWireConnection(false));
+
+   }
+
+   @Test(timeout = 60000)
+   public void testDurableSubscriptionWithConfigurationManagedQueueWithAMQP() throws Exception {
+      testDurableSubscriptionWithConfigurationManagedQueue(() -> JMSMessageConsumerTest.super.createConnection(false));
+   }
+
+   private void testDurableSubscriptionWithConfigurationManagedQueue(ConnectionSupplier connectionSupplier) throws Exception {
+      final String clientId = "bar";
+      final String subName = "foo";
+      final String queueName = DestinationUtil.createQueueNameForSubscription(true, clientId, subName).toString();
+      server.stop();
+      server.getConfiguration().addQueueConfiguration(new QueueConfiguration(queueName).setAddress("myTopic").setFilterString("color = 'BLUE'").setRoutingType(RoutingType.MULTICAST));
+      server.getConfiguration().setAmqpUseCoreSubscriptionNaming(true);
+      server.start();
+
+      try (Connection connection = connectionSupplier.createConnection()) {
+         connection.setClientID(clientId);
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic destination = session.createTopic("myTopic");
+
+         MessageConsumer messageConsumer = session.createDurableSubscriber(destination, subName);
+         messageConsumer.close();
+
+         Queue queue = server.locateQueue(queueName);
+         assertNotNull(queue);
+         assertNotNull(queue.getFilter());
+         assertEquals("color = 'BLUE'", queue.getFilter().getFilterString().toString());
       }
    }
 
