@@ -66,12 +66,14 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    private Boolean enabled;
 
+   private Boolean configurationManaged;
+
    public SessionQueueQueryResponseMessage_V3(final QueueQueryResult result) {
-      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreated(), result.isPurgeOnNoConsumers(), result.getRoutingType(), result.getMaxConsumers(), result.isExclusive(), result.isGroupRebalance(), result.isGroupRebalancePauseDispatch(), result.getGroupBuckets(), result.getGroupFirstKey(), result.isLastValue(), result.getLastValueKey(), result.isNonDestructive(), result.getConsumersBeforeDispatch(), result.getDelayBeforeDispatch(), result.isAutoDelete(), result.getAutoDeleteDelay(), result.getAutoDeleteMessageCount(), result.getDefaultConsumerWindowSize(), result.getRingSize(), result.isEnabled());
+      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreated(), result.isPurgeOnNoConsumers(), result.getRoutingType(), result.getMaxConsumers(), result.isExclusive(), result.isGroupRebalance(), result.isGroupRebalancePauseDispatch(), result.getGroupBuckets(), result.getGroupFirstKey(), result.isLastValue(), result.getLastValueKey(), result.isNonDestructive(), result.getConsumersBeforeDispatch(), result.getDelayBeforeDispatch(), result.isAutoDelete(), result.getAutoDeleteDelay(), result.getAutoDeleteMessageCount(), result.getDefaultConsumerWindowSize(), result.getRingSize(), result.isEnabled(), result.isConfigurationManaged());
    }
 
    public SessionQueueQueryResponseMessage_V3() {
-      this(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, -1, null, null,null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+      this(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, -1, null, null,null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
    }
 
    private SessionQueueQueryResponseMessage_V3(final SimpleString name,
@@ -102,7 +104,8 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
                                                final Long autoDeleteMessageCount,
                                                final Integer defaultConsumerWindowSize,
                                                final Long ringSize,
-                                               final Boolean enabled) {
+                                               final Boolean enabled,
+                                               final Boolean configurationManaged) {
       super(SESS_QUEUEQUERY_RESP_V3);
 
       this.durable = durable;
@@ -162,6 +165,8 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       this.ringSize = ringSize;
 
       this.enabled = enabled;
+
+      this.configurationManaged = configurationManaged;
    }
 
    public boolean isAutoCreated() {
@@ -312,6 +317,14 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       this.enabled = enabled;
    }
 
+   public Boolean isConfigurationManaged() {
+      return configurationManaged;
+   }
+
+   public void setConfigurationManaged(Boolean configurationManaged) {
+      this.configurationManaged = configurationManaged;
+   }
+
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
@@ -335,6 +348,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       BufferHelper.writeNullableLong(buffer, ringSize);
       BufferHelper.writeNullableBoolean(buffer, enabled);
       BufferHelper.writeNullableBoolean(buffer, groupRebalancePauseDispatch);
+      BufferHelper.writeNullableBoolean(buffer, configurationManaged);
 
    }
 
@@ -375,6 +389,9 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       if (buffer.readableBytes() > 0) {
          groupRebalancePauseDispatch = BufferHelper.readNullableBoolean(buffer);
       }
+      if (buffer.readableBytes() > 0) {
+         configurationManaged = BufferHelper.readNullableBoolean(buffer);
+      }
    }
 
    @Override
@@ -401,6 +418,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       result = prime * result + ((defaultConsumerWindowSize == null) ? 0 : defaultConsumerWindowSize.hashCode());
       result = prime * result + (ringSize == null ? 0 : ringSize.hashCode());
       result = prime * result + (enabled == null ? 0 : enabled ? 1231 : 1237);
+      result = prime * result + (configurationManaged == null ? 0 : configurationManaged ? 1231 : 1237);
       return result;
    }
 
@@ -434,12 +452,13 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       buff.append(", defaultConsumerWindowSize=" + defaultConsumerWindowSize);
       buff.append(", ringSize=" + ringSize);
       buff.append(", enabled=" + enabled);
+      buff.append(", configurationManaged=" + configurationManaged);
       return buff.toString();
    }
 
    @Override
    public ClientSession.QueueQuery toQueueQuery() {
-      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), getMaxConsumers(), isAutoCreated(), isPurgeOnNoConsumers(), getRoutingType(), isExclusive(), isGroupRebalance(), isGroupRebalancePauseDispatch(), getGroupBuckets(), getGroupFirstKey(), isLastValue(), getLastValueKey(), isNonDestructive(), getConsumersBeforeDispatch(), getDelayBeforeDispatch(), isAutoDelete(), getAutoDeleteDelay(), getAutoDeleteMessageCount(), getDefaultConsumerWindowSize(), getRingSize(), isEnabled());
+      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), getMaxConsumers(), isAutoCreated(), isPurgeOnNoConsumers(), getRoutingType(), isExclusive(), isGroupRebalance(), isGroupRebalancePauseDispatch(), getGroupBuckets(), getGroupFirstKey(), isLastValue(), getLastValueKey(), isNonDestructive(), getConsumersBeforeDispatch(), getDelayBeforeDispatch(), isAutoDelete(), getAutoDeleteDelay(), getAutoDeleteMessageCount(), getDefaultConsumerWindowSize(), getRingSize(), isEnabled(), isConfigurationManaged());
    }
 
    @Override
@@ -541,6 +560,11 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       } else if (!routingType.equals(other.routingType))
          return false;
       if (maxConsumers != other.maxConsumers)
+         return false;
+      if (configurationManaged == null) {
+         if (other.configurationManaged != null)
+            return false;
+      } else if (!configurationManaged.equals(other.configurationManaged))
          return false;
       return true;
    }

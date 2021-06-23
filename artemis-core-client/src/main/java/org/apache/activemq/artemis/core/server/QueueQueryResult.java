@@ -79,6 +79,8 @@ public class QueueQueryResult {
 
    private Boolean enabled;
 
+   private Boolean configurationManaged;
+
    public QueueQueryResult(final SimpleString name,
                            final SimpleString address,
                            final boolean durable,
@@ -107,7 +109,8 @@ public class QueueQueryResult {
                            final Long autoDeleteMessageCount,
                            final Integer defaultConsumerWindowSize,
                            final Long ringSize,
-                           final Boolean enabled) {
+                           final Boolean enabled,
+                           final Boolean configurationManaged) {
       this.durable = durable;
 
       this.temporary = temporary;
@@ -165,6 +168,8 @@ public class QueueQueryResult {
       this.ringSize = ringSize;
 
       this.enabled = enabled;
+
+      this.configurationManaged = configurationManaged;
    }
 
    public boolean isExists() {
@@ -285,5 +290,9 @@ public class QueueQueryResult {
 
    public Boolean isEnabled() {
       return enabled;
+   }
+
+   public Boolean isConfigurationManaged() {
+      return configurationManaged;
    }
 }

@@ -177,6 +177,8 @@ public interface ClientSession extends XAResource, AutoCloseable {
       Long getRingSize();
 
       Boolean isEnabled();
+
+      Boolean isConfigurationManaged();
    }
 
    // Lifecycle operations ------------------------------------------
