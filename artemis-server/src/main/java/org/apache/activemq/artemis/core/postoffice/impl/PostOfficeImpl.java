@@ -79,6 +79,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -815,8 +816,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          final Collection<Binding> bindingsForAddress = getDirectBindings(address);
          if (force) {
             for (Binding binding : bindingsForAddress) {
-               if (binding instanceof QueueBinding) {
-                  ((QueueBinding)binding).getQueue().deleteQueue(true);
+               if (binding instanceof LocalQueueBinding) {
+                  ((LocalQueueBinding)binding).getQueue().deleteQueue(true);
+               } else if (binding instanceof RemoteQueueBinding) {
+                  removeBinding(binding.getUniqueName(), null, true);
                }
             }
 
