@@ -113,7 +113,6 @@ import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
-import org.apache.activemq.artemis.utils.collections.SingletonIterator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
@@ -188,6 +187,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private boolean mirrorController;
 
+   private volatile boolean hasUnMatchedPending = false;
+
    // Messages will first enter intermediateMessageReferences
    // Before they are added to messageReferences
    // This is to avoid locking the queue on the producer
@@ -260,7 +261,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final SimpleString address;
 
-   private ConsumerHolder<Redistributor> redistributor;
+   // redistributor goes in the consumers list, this signals its presence and allows for easy comparison/check
+   private volatile ConsumerHolder<Redistributor> redistributor;
 
    private ScheduledFuture<?> redistributorFuture;
 
@@ -1326,12 +1328,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       getExecutor().execute(new Runnable() {
          @Override
          public void run() {
-            try {
-               cancelRedistributor();
-            } catch (Exception e) {
-               // nothing that could be done anyway.. just logging
-               ActiveMQServerLogger.LOGGER.unableToCancelRedistributor(e);
-            }
+            cancelRedistributor();
          }
       });
 
@@ -1391,7 +1388,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return false;
          }
 
-         if (consumers.size() >= consumersBeforeDispatch) {
+         if (getConsumerCount() >= consumersBeforeDispatch) {
             if (dispatchingUpdater.compareAndSet(this, BooleanUtil.toInt(false), BooleanUtil.toInt(true))) {
                dispatchStartTimeUpdater.set(this, System.currentTimeMillis());
             }
@@ -1419,7 +1416,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       try (ArtemisCloseable metric = measureCritical(CRITICAL_CONSUMER)) {
          synchronized (this) {
-            if (maxConsumers != MAX_CONSUMERS_UNLIMITED && consumers.size() >= maxConsumers) {
+            if (maxConsumers != MAX_CONSUMERS_UNLIMITED && getConsumerCount() >= maxConsumers) {
                throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
             }
 
@@ -1488,7 +1485,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (consumerRemoved) {
                consumerRemovedTimestampUpdater.set(this, System.currentTimeMillis());
-               if (consumers.size() == 0) {
+               if (getConsumerCount() == 0) {
                   stopDispatch();
                }
             }
@@ -1525,11 +1522,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             supports = false;
          }
       }
-      if (redistributor != null) {
-         if (!redistributor.consumer.supportsDirectDelivery()) {
-            supports = false;
-         }
-      }
       return supports;
    }
 
@@ -1540,10 +1532,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (redistributor != null) {
          // Just prompt delivery
          deliverAsync();
+         return;
       }
 
       if (delay > 0) {
-         if (consumers.isEmpty()) {
+         if (consumers.isEmpty() || hasUnMatchedPending) {
             DelayedAddRedistributor dar = new DelayedAddRedistributor(executor);
 
             redistributorFuture = scheduledExecutor.schedule(dar, delay, TimeUnit.MILLISECONDS);
@@ -1562,17 +1555,34 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public synchronized void cancelRedistributor() throws Exception {
-      if (redistributor != null) {
-         redistributor.consumer.stop();
-         redistributor = null;
-      }
-
+   public synchronized void cancelRedistributor() {
       clearRedistributorFuture();
+
+      if (redistributor != null) {
+         try {
+            redistributor.consumer.stop();
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.unableToCancelRedistributor(e);
+         } finally {
+            consumers.remove(redistributor);
+            redistributor = null;
+         }
+      }
    }
 
    @Override
    public int getConsumerCount() {
+      // we don't want to count the redistributor, it is an internal transient entry in the consumer list
+      if (redistributor != null) {
+         synchronized (this) {
+            final int size = consumers.size();
+            if (size > 0 && redistributor != null) {
+               return size - 1;
+            } else {
+               return size;
+            }
+         }
+      }
       return consumers.size();
    }
 
@@ -1775,7 +1785,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public Map<String, List<MessageReference>> getDeliveringMessages() {
       final Iterator<ConsumerHolder<? extends Consumer>> consumerHolderIterator;
       synchronized (this) {
-         consumerHolderIterator = redistributor == null ? consumers.iterator() : SingletonIterator.newInstance(redistributor);
+         consumerHolderIterator = consumers.iterator();
       }
 
       Map<String, List<MessageReference>> mapReturn = new HashMap<>();
@@ -2767,9 +2777,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       for (ConsumerHolder holder : this.consumers) {
          holder.resetIterator();
       }
-      if (redistributor != null) {
-         redistributor.resetIterator();
-      }
    }
 
    @Override
@@ -2972,6 +2979,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       // Either the iterator is empty or the consumer is busy
       int noDelivery = 0;
 
+      // track filters not matching, used to track when all consumers can't match, redistribution is then an option
+      int numNoMatch = 0;
+      int numAttempts = 0;
+
       int handled = 0;
 
       long timeout = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(DELIVERY_TIMEOUT);
@@ -2998,9 +3009,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          MessageReference ref;
 
-         // filter evaluation or transformation may cause properties to be lazyDecoded, we need to reflect that
-         int existingMemoryEstimate = 0;
-
          Consumer handledconsumer = null;
 
          synchronized (this) {
@@ -3015,14 +3023,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             ConsumerHolder<? extends Consumer> holder;
-            if (redistributor == null) {
-               if (consumers.hasNext()) {
-                  holder = consumers.next();
-               } else {
-                  break;
-               }
+            if (consumers.hasNext()) {
+               holder = consumers.next();
             } else {
-               holder = redistributor;
+               break;
             }
 
             Consumer consumer = holder.consumer;
@@ -3032,6 +3036,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                holder.iter = messageReferences.iterator();
             }
 
+            // LVQ support
             ref = nextDelivery();
             boolean nextDelivery = false;
             if (ref != null) {
@@ -3059,7 +3064,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   logger.trace("Queue " + this.getName() + " is delivering reference " + ref);
                }
 
-               existingMemoryEstimate = ref.getMessageMemoryEstimate();
                final SimpleString groupID = extractGroupID(ref);
                groupConsumer = getGroupConsumer(groupID);
 
@@ -3067,15 +3071,18 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   consumer = groupConsumer;
                }
 
+               numAttempts++;
                HandleStatus status = handle(ref, consumer);
 
                if (status == HandleStatus.HANDLED) {
 
-                  // if a message was delivered, any previous negative attemps need to be cleared
+                  // if a message was delivered, any previous negative attempts need to be cleared
                   // this is to avoid breaks on the loop when checking for any other factors.
                   noDelivery = 0;
+                  numNoMatch = 0;
+                  numAttempts = 0;
 
-                  if (redistributor == null) {
+                  if (consumer != redistributor) {
                      ref = handleMessageGroup(ref, consumer, groupConsumer, groupID);
                   }
 
@@ -3104,13 +3111,21 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   }
 
                   noDelivery++;
+                  numNoMatch = 0;
+                  numAttempts = 0;
+                  // no consumers.reset() b/c we skip this consumer
                } else if (status == HandleStatus.NO_MATCH) {
-                  // nothing to be done on this case, the iterators will just jump next
                   consumers.reset();
+                  numNoMatch++;
+                  // every attempt resulted in noMatch for number of consumers means we tried all consumers for a single message
+                  if (numNoMatch == numAttempts && numAttempts == consumers.size()) {
+                     hasUnMatchedPending = true;
+                     // one hit of unmatched message is enough, no need to reset counters
+                  }
                }
             }
 
-            if (redistributor != null || groupConsumer != null) {
+            if (groupConsumer != null) {
                if (noDelivery > 0) {
                   break;
                }
@@ -3303,15 +3318,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private void internalAddRedistributor(final ArtemisExecutor executor) {
-      // create the redistributor only once if there are no local consumers
-      if (consumers.isEmpty() && redistributor == null) {
+      if (redistributor == null && (consumers.isEmpty() || hasUnMatchedPending)) {
          if (logger.isTraceEnabled()) {
             logger.trace("QueueImpl::Adding redistributor on queue " + this.toString());
          }
-
-         redistributor = (new ConsumerHolder(new Redistributor(this, storageManager, postOffice, executor, QueueImpl.REDISTRIBUTOR_BATCH_SIZE)));
-
+         redistributor = new ConsumerHolder(new Redistributor(this, storageManager, postOffice, executor, QueueImpl.REDISTRIBUTOR_BATCH_SIZE));
          redistributor.consumer.start();
+         consumers.add(redistributor);
+         hasUnMatchedPending = false;
 
          deliverAsync();
       }
@@ -3749,9 +3763,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          consumers.reset();
 
-         while (consumers.hasNext() || redistributor != null) {
+         while (consumers.hasNext()) {
 
-            ConsumerHolder<? extends Consumer> holder = redistributor == null ? consumers.next() : redistributor;
+            ConsumerHolder<? extends Consumer> holder = consumers.next();
             Consumer consumer = holder.consumer;
 
             final SimpleString groupID = extractGroupID(ref);
@@ -3764,7 +3778,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             HandleStatus status = handle(ref, consumer);
             if (status == HandleStatus.HANDLED) {
                final MessageReference reference;
-               if (redistributor == null) {
+               if (consumer != redistributor) {
                   reference = handleMessageGroup(ref, consumer, groupConsumer, groupID);
                } else {
                   reference = ref;
@@ -4527,12 +4541,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             logger.debug(getAddress() + ":" + getName() + " has " + queueMessages + " message(s) and " + getConsumerCount() + " consumer(s) and is receiving messages at a rate of " + queueRate + " msgs/second.");
          }
 
-
-         if (consumers.size() == 0) {
+         final int consumerCount = getConsumerCount();
+         if (consumerCount == 0) {
             logger.debug("There are no consumers, no need to check slow consumer's rate");
             return;
          } else {
-            float queueThreshold = thresholdInMsgPerSecond * consumers.size();
+            float queueThreshold = thresholdInMsgPerSecond * consumerCount;
 
             if (queueRate < queueThreshold && queueMessages < queueThreshold) {
                if (logger.isDebugEnabled()) {

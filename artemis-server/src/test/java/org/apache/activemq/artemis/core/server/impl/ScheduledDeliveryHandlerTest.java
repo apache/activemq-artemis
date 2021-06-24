@@ -1475,7 +1475,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void cancelRedistributor() throws Exception {
+      public void cancelRedistributor() {
 
       }
 

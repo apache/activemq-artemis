@@ -157,4 +157,11 @@ public class FakeConsumer implements Consumer {
       return Collections.emptyList();
    }
 
+   @Override
+   public String toString() {
+      if (filter != null) {
+         return filter + ", " + super.toString();
+      }
+      return super.toString();
+   }
 }

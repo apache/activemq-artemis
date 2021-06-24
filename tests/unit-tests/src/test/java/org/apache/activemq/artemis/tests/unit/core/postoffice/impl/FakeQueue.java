@@ -439,7 +439,7 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void cancelRedistributor() throws Exception {
+   public void cancelRedistributor() {
       // no-op
 
    }
