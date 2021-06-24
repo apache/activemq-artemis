@@ -211,8 +211,10 @@ public class MQTTSubscriptionManager {
          Set<Consumer> queueConsumers;
          if (queue != null && (queueConsumers = (Set<Consumer>) queue.getConsumers()) != null) {
             for (Consumer consumer : queueConsumers) {
-               ((ServerConsumer) consumer).close(false);
-               consumerQoSLevels.remove(((ServerConsumer) consumer).getID());
+               if (consumer instanceof ServerConsumer) {
+                  ((ServerConsumer) consumer).close(false);
+                  consumerQoSLevels.remove(((ServerConsumer) consumer).getID());
+               }
             }
          }
       }

@@ -967,6 +967,104 @@ public class QueueImplTest extends ActiveMQTestBase {
       Assert.assertEquals(20, queue.getDeliveringCount());
    }
 
+
+   @Test
+   public void testNoMatchConsumersAllowsRedistribution() throws Exception {
+      QueueImpl queue = getTemporaryQueue();
+
+      final int numMessages = 2;
+      List<MessageReference> refs = new ArrayList<>();
+
+      for (int i = 0; i < numMessages; i++) {
+         MessageReference ref = generateReference(queue, i);
+         ref.getMessage().putStringProperty("color", "red");
+         refs.add(ref);
+
+         queue.addTail(ref);
+      }
+
+      Assert.assertEquals(numMessages, getMessageCount(queue));
+      queue.deliverNow();
+
+      Assert.assertEquals(numMessages, getMessageCount(queue));
+
+      FakeConsumer consumer = new FakeConsumer(FilterImpl.createFilter("color = 'green'"));
+      queue.addConsumer(consumer);
+
+      FakeConsumer consumer2 = new FakeConsumer(FilterImpl.createFilter("color = 'orange'"));
+      queue.addConsumer(consumer2);
+
+      queue.deliverNow();
+      Assert.assertEquals(0, consumer.getReferences().size());
+      Assert.assertEquals(0, consumer2.getReferences().size());
+
+      // verify redistributor is doing some work....
+      try {
+         // should attempt to add due to unmatched
+         queue.addRedistributor(0);
+         fail("expect error on attempt to add addRedistributor - npe b/c no storage etc");
+      } catch (NullPointerException expected) {
+      }
+
+      // verify with odd number as check depends on order/reset/wrap of consumers
+      FakeConsumer consumer3 = new FakeConsumer(FilterImpl.createFilter("color = 'blue'"));
+      queue.addConsumer(consumer3);
+
+      queue.deliverNow();
+
+      Assert.assertEquals(0, consumer.getReferences().size());
+      Assert.assertEquals(0, consumer2.getReferences().size());
+      Assert.assertEquals(0, consumer3.getReferences().size());
+
+      // verify redistributor is doing some work....
+      try {
+         // should attempt to add due to unmatched
+         queue.addRedistributor(0);
+         fail("expect error on attempt to add addRedistributor - npe b/c no storage etc");
+      } catch (NullPointerException expected) {
+      }
+
+      Assert.assertEquals(numMessages, getMessageCount(queue));
+   }
+
+   @Test
+   public void testNoMatchOn3AllowsRedistribution() throws Exception {
+      QueueImpl queue = getTemporaryQueue();
+
+      int i = 0;
+      MessageReference ref = generateReference(queue, i++);
+      ref.getMessage().putStringProperty("color", "red");
+      queue.addTail(ref);
+
+      ref = generateReference(queue, i++);
+      ref.getMessage().putStringProperty("color", "red");
+      queue.addTail(ref);
+
+      ref = generateReference(queue, i++);
+      ref.getMessage().putStringProperty("color", "blue");
+      queue.addTail(ref);
+
+      Assert.assertEquals(3, getMessageCount(queue));
+
+      FakeConsumer consumerRed = new FakeConsumer(FilterImpl.createFilter("color = 'red'"));
+      queue.addConsumer(consumerRed);
+
+      FakeConsumer consumerOrange = new FakeConsumer(FilterImpl.createFilter("color = 'orange'"));
+      queue.addConsumer(consumerOrange);
+
+      queue.deliverNow();
+      Assert.assertEquals(2, consumerRed.getReferences().size());
+      Assert.assertEquals(0, consumerOrange.getReferences().size());
+
+      // verify redistributor is doing some work....
+      try {
+         // should attempt to add due to unmatched
+         queue.addRedistributor(0);
+         fail("expect error on attempt to add addRedistributor - npe b/c no storage etc");
+      } catch (NullPointerException expected) {
+      }
+   }
+
    // Private ------------------------------------------------------------------------------
 
    private void testConsumerWithFilters(final boolean direct) throws Exception {

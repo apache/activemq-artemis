@@ -1481,7 +1481,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void unableToFlushDeliveries(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222237, value = "Unable to flush deliveries", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222237, value = "Unable to stop redistributor", format = Message.Format.MESSAGE_FORMAT)
    void unableToCancelRedistributor(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)

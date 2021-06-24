@@ -380,7 +380,7 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void addRedistributor(long delay);
 
-   void cancelRedistributor() throws Exception;
+   void cancelRedistributor();
 
    boolean hasMatchingConsumer(Message message);
 
