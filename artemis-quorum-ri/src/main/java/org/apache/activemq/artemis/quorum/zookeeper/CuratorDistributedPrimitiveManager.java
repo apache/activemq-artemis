@@ -29,8 +29,10 @@ import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
+import org.apache.activemq.artemis.quorum.MutableLong;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.atomic.DistributedAtomicLong;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreV2;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -78,6 +80,7 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
 
    private volatile CuratorFramework client;
    private final Map<String, CuratorDistributedLock> locks;
+   private final Map<String, CuratorMutableLong> longs;
    private CopyOnWriteArrayList<UnavailableManagerListener> listeners;
    private boolean unavailable;
    private boolean handlingEvents;
@@ -112,6 +115,7 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
          .retryPolicy(retries >= 0 ? new RetryNTimes(retries, retriesMs) : new RetryForever(retriesMs))
          .simulatedSessionExpirationPercent(sessionPercent);
       this.locks = new HashMap<>();
+      this.longs = new HashMap<>();
       this.listeners = null;
       this.unavailable = false;
       this.handlingEvents = false;
@@ -203,6 +207,14 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
          }
       });
       locks.clear();
+      longs.forEach((id, mLong) -> {
+         try {
+            mLong.close(false);
+         } catch (Throwable t) {
+            // TODO log?
+         }
+      });
+      longs.clear();
       client.close();
    }
 
@@ -234,6 +246,36 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
          }
       }
       return newLock;
+   }
+
+   @Override
+   public MutableLong getMutableLong(String mutableLongId) {
+      checkHandlingEvents();
+      Objects.requireNonNull(mutableLongId);
+      if (client == null) {
+         throw new IllegalStateException("manager isn't started yet!");
+      }
+      final CuratorMutableLong mLong = longs.get(mutableLongId);
+      if (mLong != null) {
+         return mLong;
+      }
+      final Consumer<CuratorMutableLong> onClose = closedLong -> {
+         synchronized (this) {
+            final boolean alwaysTrue = longs.remove(closedLong.getMutableLongId(), closedLong);
+            assert alwaysTrue;
+         }
+      };
+      final CuratorMutableLong newLong = new CuratorMutableLong(this, mutableLongId, new DistributedAtomicLong(client, "/" + mutableLongId, new RetryNTimes(0, 0)), onClose);
+      longs.put(mutableLongId, newLong);
+      if (unavailable) {
+         handlingEvents = true;
+         try {
+            newLong.onLost();
+         } finally {
+            handlingEvents = false;
+         }
+      }
+      return newLong;
    }
 
    protected void startHandlingEvents() {
@@ -268,12 +310,15 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
                unavailable = true;
                listeners.forEach(listener -> listener.onUnavailableManagerEvent());
                locks.forEach((s, curatorDistributedLock) -> curatorDistributedLock.onLost());
+               longs.forEach((s, mutableLong) -> mutableLong.onLost());
                break;
             case RECONNECTED:
                locks.forEach((s, curatorDistributedLock) -> curatorDistributedLock.onReconnected());
+               longs.forEach((s, mutableLong) -> mutableLong.onReconnected());
                break;
             case SUSPENDED:
                locks.forEach((s, curatorDistributedLock) -> curatorDistributedLock.onSuspended());
+               longs.forEach((s, mutableLong) -> mutableLong.onSuspended());
                break;
          }
       } finally {

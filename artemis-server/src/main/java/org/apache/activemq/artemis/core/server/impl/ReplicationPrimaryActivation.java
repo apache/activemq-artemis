@@ -101,7 +101,12 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
    @Override
    public void run() {
       try {
-         final String nodeId = activeMQServer.getNodeManager().readNodeId().toString();
+
+         final NodeManager nodeManager = activeMQServer.getNodeManager();
+
+         final String nodeId = nodeManager.readNodeId().toString();
+
+         final long dataVersion = nodeManager.readDataVersion();
 
          final DistributedLock liveLock = searchLiveOrAcquireLiveLock(nodeId, BLOCKING_CALLS_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 

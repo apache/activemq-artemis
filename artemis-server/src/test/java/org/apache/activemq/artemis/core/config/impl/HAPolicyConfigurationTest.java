@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -49,6 +50,7 @@ import org.apache.activemq.artemis.core.server.impl.SharedStoreBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
 import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
+import org.apache.activemq.artemis.quorum.MutableLong;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.hamcrest.MatcherAssert;
@@ -240,6 +242,12 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
             throw new IllegalStateException("This shouldn't happen");
          }
          return lock;
+      }
+
+      @Override
+      public MutableLong getMutableLong(String mutableLongId) throws InterruptedException, ExecutionException, TimeoutException {
+         // TODO
+         return null;
       }
 
       @Override

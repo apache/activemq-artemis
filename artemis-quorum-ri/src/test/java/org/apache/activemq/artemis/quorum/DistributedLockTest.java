@@ -252,5 +252,17 @@ public abstract class DistributedLockTest {
       Assert.assertTrue(interrupted.get(4, TimeUnit.SECONDS));
    }
 
+   @Test
+   public void lockAndMutableLongWithSameIdCanExistsTogether() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+      DistributedPrimitiveManager manager = createManagedDistributeManager();
+      manager.start();
+      final String id = "a";
+      Assert.assertTrue(manager.getDistributedLock(id).tryLock());
+      Assert.assertEquals(0, manager.getMutableLong(id).get());
+      manager.getMutableLong(id).set(1);
+      Assert.assertTrue(manager.getDistributedLock(id).isHeldByCaller());
+      Assert.assertEquals(1, manager.getMutableLong(id).get());
+   }
+
 }
 

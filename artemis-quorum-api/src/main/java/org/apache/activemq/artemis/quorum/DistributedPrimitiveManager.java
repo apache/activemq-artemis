@@ -47,6 +47,8 @@ public interface DistributedPrimitiveManager extends AutoCloseable {
 
    DistributedLock getDistributedLock(String lockId) throws InterruptedException, ExecutionException, TimeoutException;
 
+   MutableLong getMutableLong(String mutableLongId) throws InterruptedException, ExecutionException, TimeoutException;
+
    @Override
    default void close() {
       stop();

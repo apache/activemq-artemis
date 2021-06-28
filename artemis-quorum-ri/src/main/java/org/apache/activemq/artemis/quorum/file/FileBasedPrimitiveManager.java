@@ -23,9 +23,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
+import org.apache.activemq.artemis.quorum.MutableLong;
 
 /**
  * This is an implementation suitable to be used just on unit tests and it won't attempt
@@ -122,5 +124,11 @@ public class FileBasedPrimitiveManager implements DistributedPrimitiveManager {
       } catch (IOException ioEx) {
          throw new ExecutionException(ioEx);
       }
+   }
+
+   @Override
+   public MutableLong getMutableLong(String mutableLongId) throws InterruptedException, ExecutionException, TimeoutException {
+      // TODO
+      return null;
    }
 }

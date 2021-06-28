@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -27,17 +28,64 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.READ;
+import static java.nio.file.StandardOpenOption.WRITE;
+
 public abstract class FileBasedNodeManager extends NodeManager {
 
    protected static final byte FIRST_TIME_START = '0';
    public static final String SERVER_LOCK_NAME = "server.lock";
+   public static final String DATA_VERSION_NAME = "server.data.version";
    private static final String ACCESS_MODE = "rw";
    private final File directory;
    protected FileChannel channel;
+   protected FileChannel dataVersionChannel;
 
    public FileBasedNodeManager(boolean replicatedBackup, File directory) {
       super(replicatedBackup);
       this.directory = directory;
+   }
+
+   protected void useDataVersionChannel() throws IOException {
+      if (dataVersionChannel != null) {
+         return;
+      }
+      dataVersionChannel = FileChannel.open(newFile(DATA_VERSION_NAME).toPath(), READ, WRITE, CREATE_NEW);
+   }
+
+   @Override
+   public long readDataVersion() throws NodeManagerException {
+      if (!isStarted()) {
+         throw new NodeManagerException(new IllegalStateException("node manager must be started first"));
+      }
+      try {
+         useDataVersionChannel();
+         ByteBuffer tmpBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
+         if (dataVersionChannel.read(tmpBuffer, 0) != Long.BYTES) {
+            return 0;
+         }
+         tmpBuffer.flip();
+         return tmpBuffer.getLong(0);
+      } catch (IOException ie) {
+         throw new NodeManagerException(ie);
+      }
+   }
+
+   @Override
+   public void writeDataVersion(long version) throws NodeManagerException {
+      if (!isStarted()) {
+         throw new NodeManagerException(new IllegalStateException("node manager must be started first"));
+      }
+      try {
+         useDataVersionChannel();
+         ByteBuffer tmpBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
+         tmpBuffer.putLong(0, version);
+         dataVersionChannel.write(tmpBuffer, 0);
+         dataVersionChannel.force(false);
+      } catch (IOException ie) {
+         throw new NodeManagerException(ie);
+      }
    }
 
    /**
@@ -137,9 +185,20 @@ public abstract class FileBasedNodeManager extends NodeManager {
    @Override
    public synchronized void stop() throws Exception {
       FileChannel channelCopy = channel;
-      if (channelCopy != null)
-         channelCopy.close();
-      super.stop();
+      try {
+         if (channelCopy != null)
+            channelCopy.close();
+      } finally {
+         try {
+            FileChannel dataVersionChannel = this.dataVersionChannel;
+            this.dataVersionChannel = null;
+            if (dataVersionChannel != null) {
+               dataVersionChannel.close();
+            }
+         } finally {
+            super.stop();
+         }
+      }
    }
 
    @Override
