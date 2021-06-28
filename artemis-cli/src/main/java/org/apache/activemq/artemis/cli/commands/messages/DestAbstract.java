@@ -68,7 +68,10 @@ public class DestAbstract extends ConnectionAbstract {
       if (destination.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
          return session.createTopic(stripPrefix(destination));
       }
-      return session.createQueue(stripPrefix(destination));
+      if (destination.startsWith(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX)) {
+         return session.createQueue(stripPrefix(destination));
+      }
+      return session.createQueue(destination);
    }
 
    private String stripPrefix(String destination) {
