@@ -118,6 +118,16 @@ for the classic *slave* one.
 
 If *replication* is configured using such new roles some additional element is required to complete configuration, detailed later.
 
+### IMPORTANT NOTE ON PLUGGABLE QUORUM VOTE FEATURE
+
+This feature is still **EXPERIMENTAL** and not meant to be run in production yet.
+
+It means:
+- its configuration can change until declared as **officially stable**
+- it has to solve yet an inherent data misalignment issue with replication (it can happen with `classic` replication as well)
+
+More info about this issue are on [ARTEMIS-3340](https://issues.apache.org/jira/browse/ARTEMIS-3340). 
+
 ### Data Replication
 
 When using replication, the live and the backup servers do not share the
