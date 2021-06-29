@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.cli.commands.Stop;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.junit.After;
@@ -71,6 +73,7 @@ public class SmokeTestBase extends ActiveMQTestBase {
    public static void cleanupData(String serverName) {
       String location = getServerLocation(serverName);
       deleteDirectory(new File(location, "data"));
+      deleteDirectory(new File(location, "log"));
    }
 
    public void addProcess(Process process) {
@@ -109,4 +112,28 @@ public class SmokeTestBase extends ActiveMQTestBase {
       }
       return jmxConnector;
    }
+
+   protected static final void recreateBrokerDirectory(final String homeInstance) {
+      recreateDirectory(homeInstance + "/data");
+      recreateDirectory(homeInstance + "/logs");
+   }
+
+
+   public boolean waitForServerToStart(String uri, String username, String password, long timeout) throws InterruptedException {
+      long realTimeout = System.currentTimeMillis() + timeout;
+      while (System.currentTimeMillis() < realTimeout) {
+         try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null)) {
+            cf.createConnection(username, password).close();
+            System.out.println("server " + uri + " started");
+         } catch (Exception e) {
+            System.out.println("awaiting server " + uri + " start at ");
+            Thread.sleep(500);
+            continue;
+         }
+         return true;
+      }
+
+      return false;
+   }
+
 }
