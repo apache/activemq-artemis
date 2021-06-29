@@ -26,10 +26,9 @@ under the License.
    <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="urn:activemq:core ">
 
-      <name>0.0.0.0</name>
+      <name>ServerA</name>
 
-
-      <persistence-enabled>false</persistence-enabled>
+      <persistence-enabled>true</persistence-enabled>
 
       <!-- this could be ASYNCIO, MAPPED, NIO
            ASYNCIO: Linux Libaio
@@ -100,7 +99,6 @@ under the License.
 
 
 
-
       <!-- how often we are looking for how many bytes are being used on the disk in ms -->
       <disk-scan-period>5000</disk-scan-period>
 
@@ -122,25 +120,37 @@ under the License.
 
 
       <acceptors>
-         <acceptor name="artemis">tcp://0.0.0.0:61617?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true</acceptor>
+         <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true</acceptor>
       </acceptors>
 
+
+      <broker-connections>
+         <amqp-connection uri="tcp://qdr:5672" name="another" retry-interval="100" reconnect-attempts="-1">
+            <peer address-match="queue.test0"/>
+            <peer address-match="queue.test1"/>
+            <peer address-match="queue.test2"/>
+            <peer address-match="queue.test3"/>
+            <peer address-match="queue.test4"/>
+            <peer address-match="queue.test5"/>
+            <peer queue-name="distinct.dist"/>
+         </amqp-connection>
+      </broker-connections>
+
+
       <security-settings>
-
          <security-setting match="#">
-            <permission type="createNonDurableQueue" roles="guest"/>
-            <permission type="deleteNonDurableQueue" roles="guest"/>
-            <permission type="createDurableQueue" roles="guest"/>
-            <permission type="deleteDurableQueue" roles="guest"/>
-            <permission type="createAddress" roles="guest"/>
-            <permission type="deleteAddress" roles="guest"/>
-            <permission type="consume" roles="guest"/>
-            <permission type="browse" roles="guest"/>
-            <permission type="send" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="amq"/>
+            <permission type="deleteNonDurableQueue" roles="amq"/>
+            <permission type="createDurableQueue" roles="amq"/>
+            <permission type="deleteDurableQueue" roles="amq"/>
+            <permission type="createAddress" roles="amq"/>
+            <permission type="deleteAddress" roles="amq"/>
+            <permission type="consume" roles="amq"/>
+            <permission type="browse" roles="amq"/>
+            <permission type="send" roles="amq"/>
             <!-- we need this otherwise ./artemis data imp wouldn't work -->
-            <permission type="manage" roles="guest"/>
+            <permission type="manage" roles="amq"/>
          </security-setting>
-
       </security-settings>
 
       <address-settings>
@@ -153,10 +163,10 @@ under the License.
             <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
-            <auto-create-queues>true</auto-create-queues>
-            <auto-create-addresses>true</auto-create-addresses>
-            <auto-create-jms-queues>true</auto-create-jms-queues>
-            <auto-create-jms-topics>true</auto-create-jms-topics>
+            <auto-create-queues>false</auto-create-queues>
+            <auto-create-addresses>false</auto-create-addresses>
+            <auto-create-jms-queues>false</auto-create-jms-queues>
+            <auto-create-jms-topics>false</auto-create-jms-topics>
          </address-setting>
          <!--default for catch all-->
          <address-setting match="#">
@@ -167,10 +177,10 @@ under the License.
             <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
-            <auto-create-queues>true</auto-create-queues>
-            <auto-create-addresses>true</auto-create-addresses>
-            <auto-create-jms-queues>true</auto-create-jms-queues>
-            <auto-create-jms-topics>true</auto-create-jms-topics>
+            <auto-create-queues>false</auto-create-queues>
+            <auto-create-addresses>false</auto-create-addresses>
+            <auto-create-jms-queues>false</auto-create-jms-queues>
+            <auto-create-jms-topics>false</auto-create-jms-topics>
          </address-setting>
       </address-settings>
 
@@ -185,17 +195,41 @@ under the License.
                <queue name="ExpiryQueue" />
             </anycast>
          </address>
-         <address name="toB">
+         <address name="queue.test0">
             <anycast>
-               <queue name="toB" />
+               <queue name="queue.test0" />
             </anycast>
          </address>
-         <address name="toA">
+         <address name="queue.test1">
             <anycast>
-               <queue name="toA" />
+               <queue name="queue.test1" />
             </anycast>
          </address>
-
+         <address name="queue.test2">
+            <anycast>
+               <queue name="queue.test2" />
+            </anycast>
+         </address>
+         <address name="queue.test3">
+            <anycast>
+               <queue name="queue.test3" />
+            </anycast>
+         </address>
+         <address name="queue.test4">
+            <anycast>
+               <queue name="queue.test4" />
+            </anycast>
+         </address>
+         <address name="queue.test5">
+            <anycast>
+               <queue name="queue.test5" />
+            </anycast>
+         </address>
+         <address name="queue.dist">
+            <anycast>
+               <queue name="distinct.dist" />
+            </anycast>
+         </address>
       </addresses>
 
 

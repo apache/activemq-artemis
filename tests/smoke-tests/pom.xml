@@ -149,8 +149,14 @@
       </dependency>
       <dependency>
          <groupId>org.testcontainers</groupId>
+         <artifactId>testcontainers</artifactId>
+         <version>1.15.3</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.testcontainers</groupId>
          <artifactId>selenium</artifactId>
-         <version>1.15.1</version>
+         <version>1.15.3</version>
          <scope>test</scope>
       </dependency>
       <!-- this dependency is needed for CFUtil and other tools from integration-tests -->
@@ -717,8 +723,8 @@
                      <user>A</user>
                      <password>A</password>
                      <noWeb>true</noWeb>
-                     <instance>${basedir}/target/brokerConnectBridgeSecurityA</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnectBridgeSecurityA</configuration>
+                     <instance>${basedir}/target/brokerConnect/bridgeSecurityA</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnect/bridgeSecurityA</configuration>
                   </configuration>
                </execution>
                <execution>
@@ -733,8 +739,8 @@
                      <password>B</password>
                      <noWeb>true</noWeb>
                      <portOffset>100</portOffset>
-                     <instance>${basedir}/target/brokerConnectBridgeSecurityB</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnectBridgeSecurityB</configuration>
+                     <instance>${basedir}/target/brokerConnect/bridgeSecurityB</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnect/bridgeSecurityB</configuration>
                   </configuration>
                </execution>
                <!-- used on BrokerConnectionBridgeSecurityTest  -->
@@ -749,8 +755,8 @@
                      <user>A</user>
                      <password>A</password>
                      <noWeb>true</noWeb>
-                     <instance>${basedir}/target/brokerConnectMirrorSecurityA</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnectMirrorSecurityA</configuration>
+                     <instance>${basedir}/target/brokerConnect/mirrorSecurityA</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnect/mirrorSecurityA</configuration>
                   </configuration>
                </execution>
                <execution>
@@ -765,8 +771,8 @@
                      <password>B</password>
                      <noWeb>true</noWeb>
                      <portOffset>1</portOffset>
-                     <instance>${basedir}/target/brokerConnectMirrorSecurityB</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnectMirrorSecurityB</configuration>
+                     <instance>${basedir}/target/brokerConnect/mirrorSecurityB</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnect/mirrorSecurityB</configuration>
                   </configuration>
                </execution>
 
@@ -824,6 +830,22 @@
                            -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
                         </arg>
                      </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-qdr</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/brokerConnect/qdr</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnect/qdr</configuration>
                   </configuration>
                </execution>
             </executions>

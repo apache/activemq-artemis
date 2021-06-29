@@ -34,8 +34,8 @@ import org.junit.Test;
 
 public class BrokerConnectionMirrorSecurityTest extends SmokeTestBase {
 
-   public static final String SERVER_NAME_A = "brokerConnectMirrorSecurityA";
-   public static final String SERVER_NAME_B = "brokerConnectMirrorSecurityB";
+   public static final String SERVER_NAME_A = "brokerConnect/mirrorSecurityA";
+   public static final String SERVER_NAME_B = "brokerConnect/mirrorSecurityB";
 
    @Before
    public void before() throws Exception {

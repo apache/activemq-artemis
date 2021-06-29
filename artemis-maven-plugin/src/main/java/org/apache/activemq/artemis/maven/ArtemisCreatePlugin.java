@@ -246,6 +246,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
       getLog().debug("***** Server created at " + instance + " with home=" + home + " *****");
 
+      instance.mkdirs();
       File commandLine = new File(instance.getParentFile(), "create-" + instance.getName() + ".sh");
       FileOutputStream outputStream;
       try {

@@ -34,8 +34,8 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 
 public class BrokerConnectionBridgeSecurityTest extends SmokeTestBase {
 
-   public static final String SERVER_NAME_A = "brokerConnectBridgeSecurityA";
-   public static final String SERVER_NAME_B = "brokerConnectBridgeSecurityB";
+   public static final String SERVER_NAME_A = "brokerConnect/bridgeSecurityA";
+   public static final String SERVER_NAME_B = "brokerConnect/bridgeSecurityB";
 
    @Before
    public void before() throws Exception {
