@@ -175,11 +175,12 @@ public class ClusterControl implements AutoCloseable {
    }
 
    public boolean requestSharedStoreBackup(int backupSize,
+                                           SimpleString nodeID,
                                            String journalDirectory,
                                            String bindingsDirectory,
                                            String largeMessagesDirectory,
                                            String pagingDirectory) {
-      BackupRequestMessage backupRequestMessage = new BackupRequestMessage(backupSize, journalDirectory, bindingsDirectory, largeMessagesDirectory, pagingDirectory);
+      BackupRequestMessage backupRequestMessage = new BackupRequestMessage(backupSize, nodeID, journalDirectory, bindingsDirectory, largeMessagesDirectory, pagingDirectory);
       return requestBackup(backupRequestMessage);
    }
 
