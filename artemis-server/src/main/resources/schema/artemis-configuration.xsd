@@ -99,7 +99,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="thread-pool-max-size" type="xsd:int" default="30" maxOccurs="1" minOccurs="0">
+         <xsd:element name="thread-pool-max-size" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   Maximum number of threads to use for the thread pool. -1 means 'no limits'.

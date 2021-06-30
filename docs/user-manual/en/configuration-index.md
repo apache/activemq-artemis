@@ -180,7 +180,7 @@ system-property-prefix | Prefix for replacing configuration settings using Bean 
 internal-naming-prefix | the prefix used when naming the internal queues and addresses required for implementing certain behaviours. | `$.activemq.internal`
 [populate-validated-user](security.md#tracking-the-validated-user)| whether or not to add the name of the validated user to the messages that user sends. | `false`
 [security-settings](security.md#role-based-security-for-addresses) | [a list of security-setting](#security-setting-type). | n/a
-[thread-pool-max-size](thread-pooling.md#thread-management) | Maximum number of threads to use for the thread pool. -1 means 'no limits'. | 30
+[thread-pool-max-size](thread-pooling.md#thread-management) | Maximum number of threads to use for the thread pool. -1 means 'no limits'. | `available cores/2`
 [transaction-timeout](transaction-config.md) | how long (in ms) before a transaction can be removed from the resource manager after create time. | 300000
 [transaction-timeout-scan-period](transaction-config.md) | how often (in ms) to scan for timeout transactions. | 1000
 [wild-card-routing-enabled](wildcard-routing.md) | true means that the server supports wild card routing. | `true`

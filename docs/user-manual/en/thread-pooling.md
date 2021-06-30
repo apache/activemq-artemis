@@ -57,7 +57,7 @@ then requests will block until a thread becomes available. It is
 recommended that a bounded thread pool is used with caution since it can
 lead to dead-lock situations if the upper bound is chosen to be too low.
 
-The default value for `thread-pool-max-size` is `30`.
+The default value for `thread-pool-max-size` is half of the machine's cores.
 
 See the [J2SE
 javadoc](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ThreadPoolExecutor.html)

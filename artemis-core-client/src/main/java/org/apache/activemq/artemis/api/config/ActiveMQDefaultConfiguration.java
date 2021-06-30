@@ -146,7 +146,7 @@ public final class ActiveMQDefaultConfiguration {
    private static int DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE = 5;
 
    // Maximum number of threads to use for the thread pool. -1 means 'no limits'.
-   private static int DEFAULT_THREAD_POOL_MAX_SIZE = 30;
+   private static int DEFAULT_THREAD_POOL_MAX_SIZE = Math.max(2, Runtime.getRuntime().availableProcessors() / 2);
 
    // true means that security is enabled
    private static boolean DEFAULT_SECURITY_ENABLED = true;
