@@ -93,6 +93,10 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       }
    }
 
+   protected void recoverContext() {
+      sessionSPI.recoverContext();
+   }
+
 
    protected void clearLargeMessage() {
       connection.runNow(() -> {

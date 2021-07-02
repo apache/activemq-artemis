@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.ToLongFunction;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -109,6 +108,7 @@ import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
@@ -195,12 +195,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // This is where messages are stored
    private final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES, MessageReferenceImpl.getIDComparator());
 
-   private ToLongFunction<MessageReference> idSupplier;
+   private NodeStore<MessageReference> nodeStore;
 
-   private void checkIDSupplier(ToLongFunction<MessageReference> idSupplier) {
-      if (this.idSupplier != idSupplier) {
-         this.idSupplier = idSupplier;
-         messageReferences.setIDSupplier(idSupplier);
+   private void checkIDSupplier(NodeStore<MessageReference> nodeStore) {
+      if (this.nodeStore != nodeStore) {
+         this.nodeStore = nodeStore;
+         messageReferences.setNodeStore(nodeStore);
       }
    }
 
@@ -1193,6 +1193,18 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public void flushOnIntermediate(Runnable runnable) {
+      intermediateMessageReferences.add(new MessageReferenceImpl() {
+         @Override
+         public boolean skipDelivery() {
+            runnable.run();
+            return true;
+         }
+      });
+      deliverAsync();
+   }
+
+   @Override
    public void addTail(final MessageReference ref, final boolean direct) {
       try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_TAIL)) {
          if (scheduleIfPossible(ref)) {
@@ -1825,6 +1837,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace(this + " acknowledge ref=" + ref + ", reason=" + reason + ", consumer=" + consumer);
+      }
       if (nonDestructive && reason == AckReason.NORMAL) {
          decDelivering(ref);
          if (logger.isDebugEnabled()) {
@@ -1860,6 +1875,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace(this + " acknowledge=tx=" + tx + ", ref=" + ref + ", reason=" + reason + ", consumer=" + consumer);
+      }
       RefsOperation refsOperation = getRefsOperation(tx, reason);
 
       if (nonDestructive && reason == AckReason.NORMAL) {
@@ -2890,6 +2908,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       MessageReference ref;
 
       while ((ref = intermediateMessageReferences.poll()) != null) {
+         if (ref.skipDelivery()) {
+            continue;
+         }
          internalAddTail(ref);
 
          if (!ref.isPaged()) {
@@ -2910,7 +2931,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     */
    private boolean deliver() {
       if (logger.isDebugEnabled()) {
-         logger.debug(this + " doing deliver. messageReferences=" + messageReferences.size());
+         logger.debug("Queue " + this.getName()  + " doing deliver. messageReferences=" + messageReferences.size() + " with consumers=" + getConsumerCount());
       }
 
       scheduledRunners.decrementAndGet();
@@ -3245,9 +3266,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public MessageReference removeWithSuppliedID(long id, ToLongFunction<MessageReference> idSupplier) {
-      checkIDSupplier(idSupplier);
-      return messageReferences.removeWithID(id);
+   public synchronized MessageReference removeWithSuppliedID(String serverID, long id, NodeStore<MessageReference> nodeStore) {
+      checkIDSupplier(nodeStore);
+      return messageReferences.removeWithID(serverID, id);
    }
 
    private void internalAddRedistributor(final ArtemisExecutor executor) {

@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.tests.smoke.common.ContainerService;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -57,35 +56,33 @@ public class QpidDispatchPeerTest extends SmokeTestBase {
    private static final String QDR_HOME = basedir + "/target/brokerConnect/qdr";
 
    @BeforeClass
-   public static void startServers() {
-      try {
-         Assert.assertNotNull(basedir);
+   public static void startServers() throws Exception {
+      ValidateContainer.assumeArtemisContainer();
 
-         network = service.newNetwork();
+      Assert.assertNotNull(basedir);
 
-         artemisServer = service.newBrokerImage();
-         service.setNetwork(artemisServer, network);
-         service.exposePorts(artemisServer, 61616);
-         service.prepareInstance(QDR_HOME);
-         service.exposeBrokerHome(artemisServer, QDR_HOME);
-         service.startLogging(artemisServer, "ArtemisServer:");
+      network = service.newNetwork();
 
-         qpidServer = service.newInterconnectImage();
-         service.setNetwork(qpidServer, network);
-         service.exposePorts(qpidServer, 5672);
-         service.exposeHosts(qpidServer, "qdr");
-         service.exposeFile(qpidServer, basedir + "/src/main/resources/servers/brokerConnect/qdr/qdrouterd.conf", "/tmp/qdrouterd.conf");
-         service.exposeFolder(qpidServer, basedir + "/target/brokerConnect/qdr", "/routerlog");
-         service.startLogging(qpidServer, "qpid-dispatch:");
-         service.start(qpidServer);
+      artemisServer = service.newBrokerImage();
+      service.setNetwork(artemisServer, network);
+      service.exposePorts(artemisServer, 61616);
+      service.prepareInstance(QDR_HOME);
+      service.exposeBrokerHome(artemisServer, QDR_HOME);
+      service.startLogging(artemisServer, "ArtemisServer:");
 
-         recreateBrokerDirectory(QDR_HOME);
+      qpidServer = service.newInterconnectImage();
+      service.setNetwork(qpidServer, network);
+      service.exposePorts(qpidServer, 5672);
+      service.exposeHosts(qpidServer, "qdr");
+      service.exposeFile(qpidServer, basedir + "/src/main/resources/servers/brokerConnect/qdr/qdrouterd.conf", "/tmp/qdrouterd.conf");
+      service.exposeFolder(qpidServer, basedir + "/target/brokerConnect/qdr", "/routerlog");
+      service.startLogging(qpidServer, "qpid-dispatch:");
+      service.start(qpidServer);
 
-         service.start(artemisServer);
-      } catch (Exception e) {
-         e.printStackTrace();
-         Assume.assumeNoException("Docker not available", e);
-      }
+      recreateBrokerDirectory(QDR_HOME);
+
+      service.start(artemisServer);
+
    }
 
    @AfterClass

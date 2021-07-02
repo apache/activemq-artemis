@@ -17,13 +17,16 @@
 package org.apache.activemq.artemis.tests.unit.util;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.Assert;
@@ -110,9 +113,11 @@ public class LinkedListTest extends ActiveMQTestBase {
 
    private static final class ObservableNode extends LinkedListImpl.Node<ObservableNode> {
 
+      public String serverID;
       public int id;
-      ObservableNode(int id) {
+      ObservableNode(String serverID, int id) {
          this.id = id;
+         this.serverID = serverID;
       }
 
       public LinkedListImpl.Node<ObservableNode> publicNext() {
@@ -125,6 +130,65 @@ public class LinkedListTest extends ActiveMQTestBase {
 
    }
 
+   static class ListNodeStore implements NodeStore<ObservableNode> {
+      // this is for serverID = null;
+      LongObjectHashMap<LinkedListImpl.Node<ObservableNode>> nodeLongObjectHashMap = new LongObjectHashMap<>();
+
+      HashMap<Object, LongObjectHashMap<LinkedListImpl.Node<ObservableNode>>> mapList = new HashMap<>();
+
+      @Override
+      public void storeNode(ObservableNode element, LinkedListImpl.Node<ObservableNode> node) {
+         LongObjectHashMap<LinkedListImpl.Node<ObservableNode>> map = getNodesMap(element.serverID);
+         map.put(element.id, node);
+      }
+
+      @Override
+      public LinkedListImpl.Node<ObservableNode> getNode(String listID, long id) {
+         LongObjectHashMap<LinkedListImpl.Node<ObservableNode>> map = getNodesMap(listID);
+         if (map == null) {
+            return null;
+         }
+         return map.get(id);
+      }
+
+      @Override
+      public void removeNode(ObservableNode element, LinkedListImpl.Node<ObservableNode> node) {
+         LongObjectHashMap<LinkedListImpl.Node<ObservableNode>> map = getNodesMap(element.serverID);
+         if (map != null) {
+            map.remove(element.id);
+         }
+      }
+
+      private LongObjectHashMap<LinkedListImpl.Node<ObservableNode>> getNodesMap(String listID) {
+         if (listID == null) {
+            return nodeLongObjectHashMap;
+         } else {
+            LongObjectHashMap<LinkedListImpl.Node<ObservableNode>> theMap = mapList.get(listID);
+
+            if (theMap == null) {
+               theMap = new LongObjectHashMap<>();
+               mapList.put(listID, theMap);
+            }
+            return theMap;
+         }
+      }
+
+      @Override
+      public void clear() {
+         nodeLongObjectHashMap.clear();
+         mapList.clear();
+      }
+
+      @Override
+      public int size() {
+         int size = 0;
+         for (LongObjectHashMap list : mapList.values()) {
+            size = +list.size();
+         }
+         return nodeLongObjectHashMap.size() + size;
+      }
+   }
+
 
    @Test
    public void testAddAndRemove() {
@@ -132,7 +196,7 @@ public class LinkedListTest extends ActiveMQTestBase {
 
       // Initial add
       for (int i = 0; i < 100; i++) {
-         final ObservableNode o = new ObservableNode(i);
+         final ObservableNode o = new ObservableNode(null, i);
          objs.addTail(o);
       }
 
@@ -141,7 +205,7 @@ public class LinkedListTest extends ActiveMQTestBase {
          for (int i = 0; i < 500; i++) {
 
             for (int add = 0; add < 1000; add++) {
-               final ObservableNode o = new ObservableNode(add);
+               final ObservableNode o = new ObservableNode(null, add);
                objs.addTail(o);
                assertNotNull("prev", o.publicPrev());
                assertNull("next", o.publicNext());
@@ -184,63 +248,69 @@ public class LinkedListTest extends ActiveMQTestBase {
    }
 
    private void internalAddWithID(boolean deferSupplier) {
-      LinkedListImpl<ObservableNode> objs = new LinkedListImpl<>();
 
-      if (!deferSupplier) {
-         objs.setIDSupplier(source -> source.id);
-      }
-
-      // Initial add
-      for (int i = 0; i < 1000; i++) {
-         final ObservableNode o = new ObservableNode(i);
-         objs.addTail(o);
-      }
-
-      Assert.assertEquals(1000, objs.size());
-
-
-      if (deferSupplier) {
-         Assert.assertEquals(0, objs.getSizeOfSuppliedIDs());
-         objs.setIDSupplier(source -> source.id);
-      } else {
-         // clear the ID supplier
+      for (int sid = 1; sid <= 2; sid++) {
+         LinkedListImpl<ObservableNode> objs = new LinkedListImpl<>();
          objs.clearID();
-         // and redo it
-         Assert.assertEquals(0, objs.getSizeOfSuppliedIDs());
-         objs.setIDSupplier(source -> source.id);
-         Assert.assertEquals(1000, objs.size());
-      }
 
-      Assert.assertEquals(1000, objs.getSizeOfSuppliedIDs());
+         String serverID = sid == 1 ? null : "" + sid;
 
+         ListNodeStore nodeStore = new ListNodeStore();
 
-      /** remove all even items */
-      for (int i = 0; i < 1000; i += 2) {
-         objs.removeWithID(i);
-      }
-
-      Assert.assertEquals(500, objs.size());
-      Assert.assertEquals(500, objs.getSizeOfSuppliedIDs());
-
-      Iterator<ObservableNode> iterator = objs.iterator();
-
-      {
-         int i = 1;
-         while (iterator.hasNext()) {
-            ObservableNode value = iterator.next();
-            Assert.assertEquals(i, value.id);
-            i += 2;
+         if (!deferSupplier) {
+            objs.setNodeStore(nodeStore);
          }
+
+         // Initial add
+         for (int i = 1; i <= 1000; i++) {
+            final ObservableNode o = new ObservableNode(serverID, i);
+            objs.addTail(o);
+         }
+
+         Assert.assertEquals(1000, objs.size());
+
+         if (deferSupplier) {
+            Assert.assertEquals(0, nodeStore.size());
+            objs.setNodeStore(nodeStore);
+         } else {
+            // clear the ID supplier
+            objs.clearID();
+            // and redo it
+            Assert.assertEquals(0, nodeStore.size());
+            nodeStore = new ListNodeStore();
+            objs.setNodeStore(nodeStore);
+            Assert.assertEquals(1000, objs.size());
+         }
+
+         Assert.assertEquals(1000, nodeStore.size());
+
+         /** remove all even items */
+         for (int i = 1; i <= 1000; i += 2) {
+            objs.removeWithID(serverID, i);
+         }
+
+         Assert.assertEquals(500, objs.size());
+         Assert.assertEquals(500, nodeStore.size());
+
+         Iterator<ObservableNode> iterator = objs.iterator();
+
+         {
+            int i = 2;
+            while (iterator.hasNext()) {
+               ObservableNode value = iterator.next();
+               Assert.assertEquals(i, value.id);
+               i += 2;
+            }
+         }
+
+         for (int i = 2; i <= 1000; i += 2) {
+            Assert.assertNotNull(objs.removeWithID(serverID, i));
+         }
+
+         Assert.assertEquals(0, nodeStore.size());
+         Assert.assertEquals(0, objs.size());
+
       }
-
-      for (int i = 1; i < 1000; i += 2) {
-         objs.removeWithID(i);
-      }
-
-      Assert.assertEquals(0, objs.getSizeOfSuppliedIDs());
-      Assert.assertEquals(0, objs.size());
-
-
    }
 
    @Test
@@ -249,7 +319,7 @@ public class LinkedListTest extends ActiveMQTestBase {
 
       // Initial add
       for (int i = 0; i < 1001; i++) {
-         final ObservableNode o = new ObservableNode(i);
+         final ObservableNode o = new ObservableNode(null, i);
          objs.addHead(o);
       }
       assertEquals(1001, objs.size());
@@ -884,7 +954,7 @@ public class LinkedListTest extends ActiveMQTestBase {
       final int count = 100;
       final LinkedListImpl<ObservableNode> list = new LinkedListImpl<>();
       for (int i = 0; i < count; i++) {
-         final ObservableNode node = new ObservableNode(i);
+         final ObservableNode node = new ObservableNode(null, i);
          assertNull(node.publicPrev());
          assertNull(node.publicNext());
          list.addTail(node);
@@ -907,7 +977,7 @@ public class LinkedListTest extends ActiveMQTestBase {
       final ObservableNode[] nodes = new ObservableNode[count];
       final LinkedListImpl<ObservableNode> list = new LinkedListImpl<>();
       for (int i = 0; i < count; i++) {
-         final ObservableNode node = new ObservableNode(i);
+         final ObservableNode node = new ObservableNode(null, i);
          assertNull(node.publicPrev());
          assertNull(node.publicNext());
          nodes[i] = node;

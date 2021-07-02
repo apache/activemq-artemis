@@ -1712,7 +1712,7 @@
          <xsd:element name="concurrency" type="xsd:int" default="1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Number of concurrent workers, more workers can help increase throughput on high latency networks. 
+                  Number of concurrent workers, more workers can help increase throughput on high latency networks.
                   Defaults to 1
                </xsd:documentation>
             </xsd:annotation>
@@ -2185,11 +2185,11 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
-      <xsd:attribute name="source-mirror-address" type="xsd:string" use="optional" default="">
+      <xsd:attribute name="durable" type="xsd:boolean" use="optional" default="true">
          <xsd:annotation>
             <xsd:documentation>
-               By default the replica will use a temporary store and forward queue to store events towards the mirror / replica.
-               However if this is set, we will use a defined durable queue.
+               This property will determine if the mirror will use a durable queue or not as a Store and Forward Queue.
+               This is true by default.
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>

@@ -20,9 +20,6 @@ import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.ToLongFunction;
-
-import io.netty.util.collection.LongObjectHashMap;
 
 /**
  * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see any
@@ -36,14 +33,13 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
    private final Node<E> head = new NodeHolder<>(null);
    private final Comparator<E> comparator;
-   LongObjectHashMap<Node<E>> nodeMap;
    private Node<E> tail = null;
    private int size;
    // We store in an array rather than a Map for the best performance
    private volatile Iterator[] iters;
    private int numIters;
    private int nextIndex;
-   private ToLongFunction<E> idSupplier;
+   private NodeStore<E> nodeStore;
 
    public LinkedListImpl() {
       this(null, null);
@@ -53,30 +49,23 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       this(comparator, null);
    }
 
-   public LinkedListImpl(Comparator<E> comparator, ToLongFunction<E> supplier) {
+   public LinkedListImpl(Comparator<E> comparator, NodeStore<E> supplier) {
       iters = createIteratorArray(INITIAL_ITERATOR_ARRAY_SIZE);
       this.comparator = comparator;
-      this.idSupplier = supplier;
-      if (idSupplier != null) {
-         this.nodeMap = newLongHashMap();
-      } else {
-         this.nodeMap = null;
-      }
+      this.nodeStore = supplier;
    }
 
    @Override
    public void clearID() {
-      idSupplier = null;
-      if (nodeMap != null) {
-         nodeMap.clear();
-         nodeMap = null;
+      if (nodeStore != null) {
+         nodeStore.clear();
       }
+      nodeStore = null;
    }
 
    @Override
-   public void setIDSupplier(ToLongFunction<E> supplier) {
-      this.idSupplier = supplier;
-      nodeMap = newLongHashMap();
+   public void setNodeStore(NodeStore<E> supplier) {
+      this.nodeStore = supplier;
 
       try (Iterator iterator = (Iterator) iterator()) {
          while (iterator.hasNext()) {
@@ -87,15 +76,8 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       }
    }
 
-   private LongObjectHashMap<Node<E>> newLongHashMap() {
-      return new LongObjectHashMap<>(Math.max(8, this.size));
-   }
-
-   private void putID(E value, Node<E> position) {
-      long id = idSupplier.applyAsLong(value);
-      if (id >= 0) {
-         nodeMap.put(id, position);
-      }
+   private void putID(E element, Node<E> node) {
+      nodeStore.storeNode(element, node);
    }
 
    @Override
@@ -121,12 +103,11 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    }
 
    @Override
-   public E removeWithID(long id) {
-      if (nodeMap == null) {
-         return null;
-      }
+   public E removeWithID(String listID, long id) {
+      assert nodeStore != null; // it is assumed the code will call setNodeStore before callin removeWithID
 
-      Node<E> node = nodeMap.get(id);
+      Node<E> node = nodeStore.getNode(listID, id);
+
       if (node == null) {
          return null;
       }
@@ -137,17 +118,14 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    }
 
    private void itemAdded(Node<E> node, E item) {
-      if (nodeMap != null) {
+      if (nodeStore != null) {
          putID(item, node);
       }
    }
 
    private void itemRemoved(Node<E> node) {
-      if (nodeMap != null) {
-         long id = idSupplier.applyAsLong(node.val());
-         if (id >= 0) {
-            nodeMap.remove(id);
-         }
+      if (nodeStore != null) {
+         nodeStore.removeNode(node.val(), node);
       }
    }
 
@@ -252,13 +230,6 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    @Override
    public int size() {
       return size;
-   }
-
-   /**
-    * Return the number of elements we have on suppliedIDs
-    */
-   public int getSizeOfSuppliedIDs() {
-      return nodeMap == null ? 0 : nodeMap.size();
    }
 
    @Override
