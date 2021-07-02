@@ -21,11 +21,11 @@ import java.util.Iterator;
 /**
  * Provides an Iterator that works over multiple underlying iterators.
  *
- * @param <T> type of the class of the iterator.
+ * @param <E> type of the class of the iterator.
  */
-public class MultiIterator<T> extends MultiIteratorBase<T, Iterator<T>> {
+public class MultiIterator<E> extends MultiIteratorBase<E, Iterator<E>> {
 
-   public MultiIterator(Iterator<T>[] iterators) {
+   public MultiIterator(Iterator<E>[] iterators) {
       super(iterators);
    }
 }

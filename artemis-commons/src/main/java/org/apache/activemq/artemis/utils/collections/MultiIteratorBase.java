@@ -21,10 +21,10 @@ import java.util.Iterator;
 /**
  * Provides an Abstract Iterator that works over multiple underlying iterators.
  *
- * @param <T> type of the class of the iterator.
+ * @param <E> type of the class of the iterator.
  * @param <I> type of the iterator
  */
-abstract class MultiIteratorBase<T, I extends Iterator<T>> implements Iterator<T> {
+abstract class MultiIteratorBase<E, I extends Iterator<E>> implements Iterator<E> {
 
    private final I[] iterators;
    private int index = -1;
@@ -52,7 +52,7 @@ abstract class MultiIteratorBase<T, I extends Iterator<T>> implements Iterator<T
    }
 
    @Override
-   public T next() {
+   public E next() {
       while (true) {
          if (index != -1) {
             I currentIterator = get(index);

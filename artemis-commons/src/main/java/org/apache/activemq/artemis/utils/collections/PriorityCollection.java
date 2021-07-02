@@ -38,30 +38,30 @@ import java.util.stream.Collectors;
  *
  * Methods getArray, setArray MUST never be exposed, and all array modifications must go through these.
  *
- * @param <T> The type this class may hold, this is generic as can be anything that extends PriorityAware.
+ * @param <E> The type this class may hold, this is generic as can be anything that extends PriorityAware.
  */
-public class PriorityCollection<T extends PriorityAware> extends AbstractCollection<T> {
+public class PriorityCollection<E extends PriorityAware> extends AbstractCollection<E> {
 
-   private final Supplier<Collection<T>> supplier;
-   private volatile PriorityHolder<T>[] priorityHolders = newPrioritySetArrayInstance(0);
+   private final Supplier<Collection<E>> supplier;
+   private volatile PriorityHolder<E>[] priorityHolders = newPrioritySetArrayInstance(0);
    private volatile int size;
 
-   private void setArray(PriorityHolder<T>[] priorityHolders) {
+   private void setArray(PriorityHolder<E>[] priorityHolders) {
       this.priorityHolders = priorityHolders;
    }
 
-   private PriorityHolder<T>[] getArray() {
+   private PriorityHolder<E>[] getArray() {
       return priorityHolders;
    }
 
 
-   public PriorityCollection(Supplier<Collection<T>> supplier) {
+   public PriorityCollection(Supplier<Collection<E>> supplier) {
       this.supplier = supplier;
    }
 
    @SuppressWarnings("unchecked")
-   private static <T> PriorityHolder<T>[] newPrioritySetArrayInstance(int length) {
-      return (PriorityHolder<T>[]) Array.newInstance(PriorityHolder.class, length);
+   private static <E> PriorityHolder<E>[] newPrioritySetArrayInstance(int length) {
+      return (PriorityHolder<E>[]) Array.newInstance(PriorityHolder.class, length);
    }
 
    @Override
@@ -75,20 +75,20 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
    }
 
    public Set<Integer> getPriorites() {
-      PriorityHolder<T>[] snapshot = getArray();
+      PriorityHolder<E>[] snapshot = getArray();
       return Arrays.stream(snapshot).map(PriorityAware::getPriority).collect(Collectors.toSet());
    }
 
    @Override
-   public Iterator<T> iterator() {
-      Iterator<T>[] iterators = getIterators();
+   public Iterator<E> iterator() {
+      Iterator<E>[] iterators = getIterators();
       return new MultiIterator<>(iterators);
    }
 
-   private Iterator<T>[] getIterators() {
-      PriorityHolder<T>[] snapshot = this.getArray();
+   private Iterator<E>[] getIterators() {
+      PriorityHolder<E>[] snapshot = this.getArray();
       int size = snapshot.length;
-      Iterator<T>[] iterators = newIteratorArrayInstance(size);
+      Iterator<E>[] iterators = newIteratorArrayInstance(size);
       for (int i = 0; i < size; i++) {
          iterators[i] = snapshot[i].getValues().iterator();
       }
@@ -96,18 +96,18 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
    }
 
    @SuppressWarnings("unchecked")
-   private static <T> Iterator<T>[] newIteratorArrayInstance(int length) {
-      return (Iterator<T>[]) Array.newInstance(Iterator.class, length);
+   private static <E> Iterator<E>[] newIteratorArrayInstance(int length) {
+      return (Iterator<E>[]) Array.newInstance(Iterator.class, length);
    }
 
-   public ResettableIterator<T> resettableIterator() {
-      return new MultiResettableIterator<T>(getResettableIterators());
+   public ResettableIterator<E> resettableIterator() {
+      return new MultiResettableIterator<E>(getResettableIterators());
    }
 
-   private ResettableIterator<T>[] getResettableIterators() {
-      PriorityHolder<T>[] snapshot = this.getArray();
+   private ResettableIterator<E>[] getResettableIterators() {
+      PriorityHolder<E>[] snapshot = this.getArray();
       int size = snapshot.length;
-      ResettableIterator<T>[] iterators = newResettableIteratorArrayInstance(size);
+      ResettableIterator<E>[] iterators = newResettableIteratorArrayInstance(size);
       for (int i = 0; i < size; i++) {
          iterators[i] = ArrayResettableIterator.iterator(snapshot[i].getValues());
       }
@@ -115,28 +115,28 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
    }
 
    @SuppressWarnings("unchecked")
-   private static <T> ResettableIterator<T>[] newResettableIteratorArrayInstance(int length) {
-      return (ResettableIterator<T>[]) Array.newInstance(ResettableIterator.class, length);
+   private static <E> ResettableIterator<E>[] newResettableIteratorArrayInstance(int length) {
+      return (ResettableIterator<E>[]) Array.newInstance(ResettableIterator.class, length);
    }
 
    @Override
-   public void forEach(Consumer<? super T> action) {
+   public void forEach(Consumer<? super E> action) {
       Objects.requireNonNull(action);
-      PriorityHolder<T>[] current = getArray();
+      PriorityHolder<E>[] current = getArray();
       int len = current.length;
       for (int i = 0; i < len; ++i) {
          current[i].getValues().forEach(action);
       }
    }
 
-   private Collection<T> getCollection(int priority, boolean createIfMissing) {
-      PriorityHolder<T>[] current = getArray();
+   private Collection<E> getCollection(int priority, boolean createIfMissing) {
+      PriorityHolder<E>[] current = getArray();
       int low = 0;
       int high = current.length - 1;
 
       while (low <= high) {
          int mid = (low + high) >>> 1;
-         PriorityHolder<T> midVal = current[mid];
+         PriorityHolder<E> midVal = current[mid];
 
          if (midVal.getPriority() > priority)
             low = mid + 1;
@@ -147,14 +147,14 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
       }
 
       if (createIfMissing) {
-         PriorityHolder<T>[] newArray = newPrioritySetArrayInstance(current.length + 1);
+         PriorityHolder<E>[] newArray = newPrioritySetArrayInstance(current.length + 1);
          if (low > 0) {
             System.arraycopy(current, 0, newArray, 0, low);
          }
          if (current.length - low > 0) {
             System.arraycopy(current, low, newArray, low + 1, current.length - low);
          }
-         newArray[low] = new PriorityHolder<T>(priority, supplier);
+         newArray[low] = new PriorityHolder<E>(priority, supplier);
          setArray(newArray);
          return newArray[low].getValues();
       }
@@ -162,17 +162,17 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
    }
 
    @Override
-   public synchronized boolean add(T t) {
+   public synchronized boolean add(E e) {
       if (size() == Integer.MAX_VALUE) return false;
-      boolean result = addInternal(t);
+      boolean result = addInternal(e);
       calcSize();
       return result;
    }
 
-   private boolean addInternal(T t) {
-      if (t == null) return false;
-      Collection<T> priority = getCollection(t.getPriority(), true);
-      return priority.add(t);
+   private boolean addInternal(E e) {
+      if (e == null) return false;
+      Collection<E> priority = getCollection(e.getPriority(), true);
+      return priority.add(e);
    }
 
    @Override
@@ -185,7 +185,7 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
    private boolean removeInternal(Object o) {
       if (o instanceof PriorityAware) {
          PriorityAware priorityAware = (PriorityAware) o;
-         Collection<T> priority = getCollection(priorityAware.getPriority(), false);
+         Collection<E> priority = getCollection(priorityAware.getPriority(), false);
          boolean result = priority != null && priority.remove(priorityAware);
          if (priority != null && priority.isEmpty()) {
             removeCollection(priorityAware.getPriority());
@@ -196,22 +196,22 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
       }
    }
 
-   private Collection<T> removeCollection(int priority) {
-      PriorityHolder<T>[] current = getArray();
+   private Collection<E> removeCollection(int priority) {
+      PriorityHolder<E>[] current = getArray();
       int len = current.length;
       int low = 0;
       int high = len - 1;
 
       while (low <= high) {
          int mid = (low + high) >>> 1;
-         PriorityHolder<T> midVal = current[mid];
+         PriorityHolder<E> midVal = current[mid];
 
          if (midVal.getPriority() > priority)
             low = mid + 1;
          else if (midVal.getPriority() < priority)
             high = mid - 1;
          else {
-            PriorityHolder<T>[] newArray = newPrioritySetArrayInstance(len - 1);
+            PriorityHolder<E>[] newArray = newPrioritySetArrayInstance(len - 1);
             System.arraycopy(current, 0, newArray, 0, mid);
             System.arraycopy(current, mid + 1, newArray, mid, len - mid - 1);
             setArray(newArray);
@@ -231,11 +231,11 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
    }
 
    @Override
-   public synchronized boolean addAll(Collection<? extends T> c) {
+   public synchronized boolean addAll(Collection<? extends E> c) {
       Objects.requireNonNull(c);
       if (size() >= Integer.MAX_VALUE - c.size()) return false;
       boolean modified = false;
-      for (T e : c)
+      for (E e : c)
          if (addInternal(e))
             modified = true;
       calcSize();
@@ -259,8 +259,8 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
    public synchronized boolean retainAll(Collection<?> c) {
       Objects.requireNonNull(c);
       boolean modified = false;
-      PriorityHolder<T>[] snapshot = getArray();
-      for (PriorityHolder<T> priorityHolder : snapshot) {
+      PriorityHolder<E>[] snapshot = getArray();
+      for (PriorityHolder<E> priorityHolder : snapshot) {
          if (priorityHolder.getValues().retainAll(c)) {
             modified = true;
             if (priorityHolder.getValues().isEmpty()) {
@@ -274,8 +274,8 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
 
    @Override
    public synchronized void clear() {
-      PriorityHolder<T>[] snapshot = getArray();
-      for (PriorityHolder<T> priorityHolder : snapshot) {
+      PriorityHolder<E>[] snapshot = getArray();
+      for (PriorityHolder<E> priorityHolder : snapshot) {
          priorityHolder.getValues().clear();
       }
       calcSize();
@@ -288,14 +288,14 @@ public class PriorityCollection<T extends PriorityAware> extends AbstractCollect
 
    public boolean contains(PriorityAware priorityAware) {
       if (priorityAware == null) return false;
-      Collection<T> prioritySet = getCollection(priorityAware.getPriority(), false);
+      Collection<E> prioritySet = getCollection(priorityAware.getPriority(), false);
       return prioritySet != null && prioritySet.contains(priorityAware);
    }
 
    private void calcSize() {
-      PriorityHolder<T>[] current = getArray();
+      PriorityHolder<E>[] current = getArray();
       int size = 0;
-      for (PriorityHolder<T> priorityHolder : current) {
+      for (PriorityHolder<E> priorityHolder : current) {
          size += priorityHolder.getValues().size();
       }
       this.size = size;

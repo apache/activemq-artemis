@@ -25,15 +25,15 @@ import java.util.function.IntFunction;
  * This collection is a concurrent append-only list that grows in chunks.<br>
  * It's safe to be used by many threads concurrently and has a max capacity of {@link Integer#MAX_VALUE}.
  */
-public final class ConcurrentAppendOnlyChunkedList<T> {
+public final class ConcurrentAppendOnlyChunkedList<E> {
 
-   private static final class AtomicChunk<T> extends AtomicReferenceArray<T> {
+   private static final class AtomicChunk<E> extends AtomicReferenceArray<E> {
 
-      AtomicChunk<T> next = null;
-      final AtomicChunk<T> prev;
+      AtomicChunk<E> next = null;
+      final AtomicChunk<E> prev;
       final int index;
 
-      AtomicChunk(int index, AtomicChunk<T> prev, int length) {
+      AtomicChunk(int index, AtomicChunk<E> prev, int length) {
          super(length);
          this.index = index;
          this.prev = prev;
@@ -48,9 +48,9 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
 
    private final int chunkSizeLog2;
 
-   private AtomicChunk<T> firstBuffer = null;
+   private AtomicChunk<E> firstBuffer = null;
 
-   private AtomicChunk<T> lastBuffer = null;
+   private AtomicChunk<E> lastBuffer = null;
 
    //it is both the current index of the next element to be claimed and the current size of the collection
    //it's using a parity bit to mark the rotation state ie size === lastIndex >> 1
@@ -86,8 +86,8 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
    /**
     * It appends {@code elements} to the collection.
     */
-   public void addAll(T[] elements) {
-      for (T e : elements) {
+   public void addAll(E[] elements) {
+      for (E e : elements) {
          add(e);
       }
    }
@@ -95,7 +95,7 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
    /**
     * Returns the element at the specified position in this collection or {@code null} if not found.
     */
-   public T get(int index) {
+   public E get(int index) {
       if (index < 0) {
          return null;
       }
@@ -104,7 +104,7 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
       if (index >= lastIndex) {
          return null;
       }
-      final AtomicChunk<T> buffer;
+      final AtomicChunk<E> buffer;
       final int offset;
       if (index >= chunkSize) {
          offset = index & chunkMask;
@@ -121,20 +121,20 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
     * Implements a lock-free version of the optimization used on {@link java.util.LinkedList#get(int)} to speed up queries
     * ie backward search of a node if needed.
     */
-   private AtomicChunk<T> getChunkOf(final int index, final long lastIndex) {
+   private AtomicChunk<E> getChunkOf(final int index, final long lastIndex) {
       final int chunkSizeLog2 = this.chunkSizeLog2;
       //fast division by a power of 2
       final int chunkIndex = index >> chunkSizeLog2;
       //size is never allowed to be > Integer.MAX_VALUE
       final int lastChunkIndex = (int) lastIndex >> chunkSizeLog2;
       int distance = chunkIndex;
-      AtomicChunk<T> buffer = null;
+      AtomicChunk<E> buffer = null;
       boolean forward = true;
       int distanceFromLast = lastChunkIndex - chunkIndex;
       //it's worth to go backward from lastChunkIndex?
       //trying first to check against the value we already have: if it won't worth, won't make sense to load the lastBuffer
       if (distanceFromLast < distance) {
-         final AtomicChunk<T> lastBuffer = this.lastBuffer;
+         final AtomicChunk<E> lastBuffer = this.lastBuffer;
          //lastBuffer is a potential moving, always increasing, target ie better to re-check the distance
          distanceFromLast = lastBuffer.index - chunkIndex;
          if (distanceFromLast < distance) {
@@ -161,7 +161,7 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
     *
     * @throws NullPointerException if {@code e} is {@code null}
     **/
-   public void add(T e) {
+   public void add(E e) {
       Objects.requireNonNull(e);
       while (true) {
          final long lastIndex = this.lastIndex;
@@ -174,7 +174,7 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
             throw new IllegalStateException("can't add more then " + Integer.MAX_VALUE + " elements");
          }
          //load acquire the current lastBuffer
-         final AtomicChunk<T> lastBuffer = this.lastBuffer;
+         final AtomicChunk<E> lastBuffer = this.lastBuffer;
          final int offset = (int) (validLastIndex & chunkMask);
          //only the first attempt to add an element to a chunk can attempt to resize
          if (offset == 0) {
@@ -190,12 +190,12 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
       }
    }
 
-   private boolean addChunkAndElement(AtomicChunk<T> lastBuffer, long lastIndex, long validLastIndex, T element) {
+   private boolean addChunkAndElement(AtomicChunk<E> lastBuffer, long lastIndex, long validLastIndex, E element) {
       // adding 1 will set the lower bit
       if (!LAST_INDEX_UPDATER.compareAndSet(this, lastIndex, lastIndex + 1)) {
          return false;
       }
-      final AtomicChunk<T> newChunk;
+      final AtomicChunk<E> newChunk;
       try {
          final int index = (int) (validLastIndex >> chunkSizeLog2);
          newChunk = new AtomicChunk<>(index, lastBuffer, chunkSize);
@@ -222,7 +222,7 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
       return true;
    }
 
-   public T[] toArray(IntFunction<T[]> arrayAllocator) {
+   public E[] toArray(IntFunction<E[]> arrayAllocator) {
       return toArray(arrayAllocator, 0);
    }
 
@@ -231,21 +231,21 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
     * sequence (from first to last element).<br>
     * {@code arrayAllocator} will be used to instantiate the array of the correct size with the right runtime type.
     */
-   public T[] toArray(IntFunction<T[]> arrayAllocator, int startIndex) {
+   public E[] toArray(IntFunction<E[]> arrayAllocator, int startIndex) {
       if (startIndex < 0) {
          throw new ArrayIndexOutOfBoundsException("startIndex must be >= 0");
       }
       final long lastIndex = getValidLastIndex();
       assert lastIndex <= Integer.MAX_VALUE;
       final int size = (int) lastIndex;
-      final T[] elements = arrayAllocator.apply(size);
+      final E[] elements = arrayAllocator.apply(size);
       if (startIndex + size > elements.length) {
          throw new ArrayIndexOutOfBoundsException();
       }
       //fast division by a power of 2
       final int chunkSize = this.chunkSize;
       final int chunks = size > chunkSize ? size >> chunkSizeLog2 : 0;
-      AtomicChunk<T> buffer = firstBuffer;
+      AtomicChunk<E> buffer = firstBuffer;
       int elementIndex = startIndex;
       for (int i = 0; i < chunks; i++) {
          drain(buffer, elements, elementIndex, chunkSize);
@@ -259,16 +259,16 @@ public final class ConcurrentAppendOnlyChunkedList<T> {
    }
 
    //NOTE: lastIndex is being updated BEFORE setting a new value ie on reader side need to spin until a not null value is set
-   private static <T> T pollElement(AtomicChunk<T> buffer, int i) {
-      T e;
+   private static <E> E pollElement(AtomicChunk<E> buffer, int i) {
+      E e;
       while ((e = buffer.get(i)) == null) {
       }
       return e;
    }
 
-   private static <T> void drain(AtomicChunk<T> buffer, T[] elements, int elementNumber, int length) {
+   private static <E> void drain(AtomicChunk<E> buffer, E[] elements, int elementNumber, int length) {
       for (int j = 0; j < length; j++) {
-         final T e = pollElement(buffer, j);
+         final E e = pollElement(buffer, j);
          assert e != null;
          elements[elementNumber] = e;
          elementNumber++;

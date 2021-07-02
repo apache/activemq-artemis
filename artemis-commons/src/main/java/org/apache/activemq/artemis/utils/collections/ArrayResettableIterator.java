@@ -22,9 +22,9 @@ import java.util.Collection;
  * Provides an Array Iterator that is able to reset, allowing you to iterate over the full array.
  * It achieves this though by moving end position mark to the the current cursors position,
  * so it round robins, even with reset.
- * @param <T>
+ * @param <E>
  */
-public class ArrayResettableIterator<T> implements ResettableIterator<T> {
+public class ArrayResettableIterator<E> implements ResettableIterator<E> {
 
    private final Object[] array;
    private int cursor = 0;
@@ -36,7 +36,7 @@ public class ArrayResettableIterator<T> implements ResettableIterator<T> {
       reset();
    }
 
-   public static <T> ResettableIterator<T> iterator(Collection<T> collection) {
+   public static <E> ResettableIterator<E> iterator(Collection<E> collection) {
       return new ArrayResettableIterator<>(collection.toArray());
    }
 
@@ -52,11 +52,12 @@ public class ArrayResettableIterator<T> implements ResettableIterator<T> {
    }
 
    @Override
-   public T next() {
+   public E next() {
       if (!hasNext) {
          throw new IllegalStateException();
       }
-      @SuppressWarnings("unchecked") T result = (T) array[cursor];
+      @SuppressWarnings("unchecked")
+      E result = (E) array[cursor];
       cursor++;
       if (cursor == array.length) {
          cursor = 0;
