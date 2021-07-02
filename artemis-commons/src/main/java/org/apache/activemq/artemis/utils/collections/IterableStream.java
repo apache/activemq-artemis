@@ -24,7 +24,7 @@ public final class IterableStream {
 
    }
 
-   public static <T> Iterable<T> iterableOf(Stream<T> stream) {
+   public static <E> Iterable<E> iterableOf(Stream<E> stream) {
       return stream::iterator;
    }
 

@@ -23,15 +23,15 @@ import java.util.function.ToLongFunction;
  * and allows adding and removing of elements at both ends, and peeking.<br>
  * Only {@link #size()} and {@link #isEmpty()} are safe to be called concurrently.
  */
-public interface PriorityLinkedList<T> {
+public interface PriorityLinkedList<E> {
 
-   void addHead(T t, int priority);
+   void addHead(E e, int priority);
 
-   void addTail(T t, int priority);
+   void addTail(E e, int priority);
 
-   void addSorted(T t, int priority);
+   void addSorted(E e, int priority);
 
-   T poll();
+   E poll();
 
    void clear();
 
@@ -39,9 +39,9 @@ public interface PriorityLinkedList<T> {
     * @see LinkedList#setIDSupplier(ToLongFunction)
     * @param supplier
     */
-   void setIDSupplier(ToLongFunction<T> supplier);
+   void setIDSupplier(ToLongFunction<E> supplier);
 
-   T removeWithID(long id);
+   E removeWithID(long id);
 
    /**
     * Returns the size of this list.<br>
@@ -49,7 +49,7 @@ public interface PriorityLinkedList<T> {
     */
    int size();
 
-   LinkedListIterator<T> iterator();
+   LinkedListIterator<E> iterator();
 
    /**
     * Returns {@code true} if empty, {@code false} otherwise.<br>

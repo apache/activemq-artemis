@@ -34,12 +34,12 @@ import java.util.function.Predicate;
  * From the memory footprint's point of view, this list won't remove the last remaining array although empty to optimize
  * the case where its capacity would be enough to hold incoming elements, hence saving a new array allocation.
  */
-public final class SparseArrayLinkedList<T> {
+public final class SparseArrayLinkedList<E> {
 
    // the whole chunk fit into 1 or 2 cache lines depending if JVM COOPS are used
    private static final int SPARSE_ARRAY_DEFAULT_CAPACITY = 16;
 
-   private static final class SparseArray<T> {
+   private static final class SparseArray<E> {
 
       private final Object[] elements;
       private int size;
@@ -52,18 +52,18 @@ public final class SparseArrayLinkedList<T> {
          tail = 0;
       }
 
-      private boolean add(T e) {
+      private boolean add(E e) {
          final int capacity = elements.length;
          if (tail == capacity) {
             return false;
          }
-         elements[tail] = (T) e;
+         elements[tail] = (E) e;
          tail++;
          size++;
          return true;
       }
 
-      private int remove(Predicate<? super T> filter) {
+      private int remove(Predicate<? super E> filter) {
          if (size == 0) {
             // this shouldn't happen: the chunk should be removed if empty
             return 0;
@@ -75,7 +75,7 @@ public final class SparseArrayLinkedList<T> {
          int visited = 0;
          final int originalSize = size;
          for (int i = 0, capacity = elements.length; i < capacity; i++) {
-            final T e = (T) elements[i];
+            final E e = (E) elements[i];
             if (e != null) {
                if (filter.test(e)) {
                   elements[i] = null;
@@ -100,7 +100,7 @@ public final class SparseArrayLinkedList<T> {
          return removed;
       }
 
-      public int clear(Consumer<? super T> consumer) {
+      public int clear(Consumer<? super E> consumer) {
          final int originalSize = size;
          if (originalSize == 0) {
             return 0;
@@ -108,7 +108,7 @@ public final class SparseArrayLinkedList<T> {
          int visited = 0;
          final Object[] elements = this.elements;
          for (int i = 0, capacity = elements.length; i < capacity; i++) {
-            final T e = (T) elements[i];
+            final E e = (E) elements[i];
             if (e != null) {
                if (consumer != null) {
                   consumer.accept(e);
@@ -131,14 +131,14 @@ public final class SparseArrayLinkedList<T> {
       }
    }
 
-   public static <T> long removeFromSparseArrayList(List<SparseArray<T>> sparseArrayList, Predicate<? super T> filter) {
+   public static <E> long removeFromSparseArrayList(List<SparseArray<E>> sparseArrayList, Predicate<? super E> filter) {
       if (filter == null) {
          return 0;
       }
       long removed = 0;
-      Iterator<SparseArray<T>> iter = sparseArrayList.iterator();
+      Iterator<SparseArray<E>> iter = sparseArrayList.iterator();
       while (iter.hasNext()) {
-         final SparseArray<T> sparseArray = iter.next();
+         final SparseArray<E> sparseArray = iter.next();
          final int justRemoved = sparseArray.remove(filter);
          removed += justRemoved;
          if (justRemoved > 0) {
@@ -153,23 +153,23 @@ public final class SparseArrayLinkedList<T> {
       return removed;
    }
 
-   public static <T> void addToSparseArrayList(List<SparseArray<T>> sparseArrayList, T e, int sparseArrayCapacity) {
+   public static <E> void addToSparseArrayList(List<SparseArray<E>> sparseArrayList, E e, int sparseArrayCapacity) {
       final int size = sparseArrayList.size();
       // LinkedList::get(size-1) is fast as LinkedList::getLast
       if (size == 0 || !sparseArrayList.get(size - 1).add(e)) {
-         final SparseArray<T> sparseArray = new SparseArray<>(sparseArrayCapacity);
+         final SparseArray<E> sparseArray = new SparseArray<>(sparseArrayCapacity);
          sparseArray.add(e);
          sparseArrayList.add(sparseArray);
       }
    }
 
-   public static <T> long clearSparseArrayList(List<SparseArray<T>> sparseArrayList, Consumer<? super T> consumer) {
+   public static <E> long clearSparseArrayList(List<SparseArray<E>> sparseArrayList, Consumer<? super E> consumer) {
       final int size = sparseArrayList.size();
       long count = 0;
       if (size > 0) {
          for (int i = 0; i < size - 1; i++) {
             // LinkedList::remove(0) is fast as LinkedList::getFirst
-            final SparseArray<T> removed = sparseArrayList.remove(0);
+            final SparseArray<E> removed = sparseArrayList.remove(0);
             count += removed.clear(consumer);
          }
          // LinkedList::get(0) is fast as LinkedList::getFirst
@@ -178,7 +178,7 @@ public final class SparseArrayLinkedList<T> {
       return count;
    }
 
-   private final LinkedList<SparseArray<T>> list;
+   private final LinkedList<SparseArray<E>> list;
    private final int sparseArrayCapacity;
    private long size;
 
@@ -198,7 +198,7 @@ public final class SparseArrayLinkedList<T> {
    /**
     * Appends {@code e} to the end of this list.
     */
-   public void add(T e) {
+   public void add(E e) {
       Objects.requireNonNull(e, "e cannot be null");
       addToSparseArrayList(list, e, sparseArrayCapacity);
       size++;
@@ -207,7 +207,7 @@ public final class SparseArrayLinkedList<T> {
    /**
     * Removes any element of the list matching the given predicate.
     */
-   public long remove(Predicate<? super T> filter) {
+   public long remove(Predicate<? super E> filter) {
       if (size == 0) {
          return 0;
       }
@@ -220,7 +220,7 @@ public final class SparseArrayLinkedList<T> {
    /**
     * Clear while consuming (using the given {@code consumer} all the elements of this list.
     */
-   public long clear(Consumer<? super T> consumer) {
+   public long clear(Consumer<? super E> consumer) {
       if (size == 0) {
          return 0;
       }

@@ -372,30 +372,30 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       throw new IllegalStateException("Cannot find iter to remove");
    }
 
-   private static final class NodeHolder<T> extends Node<T> {
+   private static final class NodeHolder<E> extends Node<E> {
 
-      private final T val;
+      private final E val;
 
       //only the head is allowed to hold a null
-      private NodeHolder(T e) {
+      private NodeHolder(E e) {
          val = e;
       }
 
       @Override
-      protected T val() {
+      protected E val() {
          return val;
       }
    }
 
-   public static class Node<T> {
+   public static class Node<E> {
 
-      private Node<T> next;
+      private Node<E> next;
 
-      private Node<T> prev;
+      private Node<E> prev;
 
       private int iterCount;
 
-      private static <T> Node<T> with(final T o) {
+      private static <E> Node<E> with(final E o) {
          Objects.requireNonNull(o, "Only HEAD nodes are allowed to hold null values");
          if (o instanceof Node) {
             final Node node = (Node) o;
@@ -410,15 +410,15 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       }
 
       @SuppressWarnings("unchecked")
-      protected T val() {
-         return (T) this;
+      protected E val() {
+         return (E) this;
       }
 
-      protected final LinkedListImpl.Node<T> next() {
+      protected final LinkedListImpl.Node<E> next() {
          return next;
       }
 
-      protected final LinkedListImpl.Node<T> prev() {
+      protected final LinkedListImpl.Node<E> prev() {
          return prev;
       }
 

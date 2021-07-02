@@ -405,14 +405,14 @@ public class LongHashSet extends AbstractSet<Long> implements Serializable {
     */
    @SuppressWarnings("unchecked")
    @Override
-   public <T> T[] toArray(final T[] a) {
+   public <E> E[] toArray(final E[] a) {
       final Class<?> componentType = a.getClass().getComponentType();
       if (!componentType.isAssignableFrom(Long.class)) {
          throw new ArrayStoreException("cannot store Longs in array of type " + componentType);
       }
 
       final int size = size();
-      final T[] arrayCopy = a.length >= size ? a : (T[]) Array.newInstance(componentType, size);
+      final E[] arrayCopy = a.length >= size ? a : (E[]) Array.newInstance(componentType, size);
       copyValues(arrayCopy);
 
       return arrayCopy;

@@ -27,11 +27,11 @@ import java.util.function.ToLongFunction;
  * <p>
  * It implements this by maintaining an individual LinkedBlockingDeque for each priority level.
  */
-public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
+public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
 
    private static final AtomicIntegerFieldUpdater<PriorityLinkedListImpl> SIZE_UPDATER = AtomicIntegerFieldUpdater.newUpdater(PriorityLinkedListImpl.class, "size");
 
-   protected LinkedListImpl<T>[] levels;
+   protected LinkedListImpl<E>[] levels;
 
    private volatile int size;
 
@@ -46,8 +46,8 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
    }
 
 
-   public PriorityLinkedListImpl(final int priorities, Comparator<T> comparator) {
-      levels = (LinkedListImpl<T>[]) Array.newInstance(LinkedListImpl.class, priorities);
+   public PriorityLinkedListImpl(final int priorities, Comparator<E> comparator) {
+      levels = (LinkedListImpl<E>[]) Array.newInstance(LinkedListImpl.class, priorities);
 
       for (int i = 0; i < priorities; i++) {
          levels[i] = new LinkedListImpl<>(comparator);
@@ -70,45 +70,45 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
    }
 
    @Override
-   public void addHead(final T t, final int priority) {
+   public void addHead(final E e, final int priority) {
       checkHighest(priority);
 
-      levels[priority].addHead(t);
+      levels[priority].addHead(e);
 
       exclusiveIncrementSize(1);
    }
 
    @Override
-   public void addTail(final T t, final int priority) {
+   public void addTail(final E e, final int priority) {
       checkHighest(priority);
 
-      levels[priority].addTail(t);
+      levels[priority].addTail(e);
 
       exclusiveIncrementSize(1);
    }
 
    @Override
-   public void addSorted(T t, int priority) {
+   public void addSorted(E e, int priority) {
       checkHighest(priority);
 
-      levels[priority].addSorted(t);
+      levels[priority].addSorted(e);
 
       exclusiveIncrementSize(1);
    }
 
    @Override
-   public void setIDSupplier(ToLongFunction<T> supplier) {
-      for (LinkedList<T> list : levels) {
+   public void setIDSupplier(ToLongFunction<E> supplier) {
+      for (LinkedList<E> list : levels) {
          list.setIDSupplier(supplier);
       }
    }
 
    @Override
-   public T removeWithID(long id) {
+   public E removeWithID(long id) {
       // we start at 4 just as an optimization, since most times we only use level 4 as the level on messages
       if (levels.length > 4) {
          for (int l = 4; l < levels.length; l++) {
-            T removed = levels[l].removeWithID(id);
+            E removed = levels[l].removeWithID(id);
             if (removed != null) {
                exclusiveIncrementSize(-1);
                return removed;
@@ -117,7 +117,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       }
 
       for (int l = Math.min(3, levels.length); l >= 0; l--) {
-         T removed = levels[l].removeWithID(id);
+         E removed = levels[l].removeWithID(id);
          if (removed != null) {
             exclusiveIncrementSize(-1);
             return removed;
@@ -129,8 +129,8 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
 
 
    @Override
-   public T poll() {
-      T t = null;
+   public E poll() {
+      E e = null;
 
       // We are just using a simple prioritization algorithm:
       // Highest priority refs always get returned first.
@@ -139,12 +139,12 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       // TODO - A better prioritization algorithm
 
       for (int i = highestPriority; i >= 0; i--) {
-         LinkedListImpl<T> ll = levels[i];
+         LinkedListImpl<E> ll = levels[i];
 
          if (ll.size() != 0) {
-            t = ll.poll();
+            e = ll.poll();
 
-            if (t != null) {
+            if (e != null) {
                exclusiveIncrementSize(-1);
 
                if (ll.size() == 0) {
@@ -158,12 +158,12 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
          }
       }
 
-      return t;
+      return e;
    }
 
    @Override
    public void clear() {
-      for (LinkedListImpl<T> list : levels) {
+      for (LinkedListImpl<E> list : levels) {
          list.clear();
       }
 
@@ -189,17 +189,17 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
    }
 
    @Override
-   public LinkedListIterator<T> iterator() {
+   public LinkedListIterator<E> iterator() {
       return new PriorityLinkedListIterator();
    }
 
-   private class PriorityLinkedListIterator implements LinkedListIterator<T> {
+   private class PriorityLinkedListIterator implements LinkedListIterator<E> {
 
       private int index;
 
-      private final LinkedListIterator<T>[] cachedIters = new LinkedListIterator[levels.length];
+      private final LinkedListIterator<E>[] cachedIters = new LinkedListIterator[levels.length];
 
-      private LinkedListIterator<T> lastIter;
+      private LinkedListIterator<E> lastIter;
 
       private int resetCount = lastReset;
 
@@ -229,7 +229,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
             closed = true;
             lastIter = null;
 
-            for (LinkedListIterator<T> iter : cachedIters) {
+            for (LinkedListIterator<E> iter : cachedIters) {
                if (iter != null) {
                   iter.close();
                }
@@ -274,7 +274,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       }
 
       @Override
-      public T next() {
+      public E next() {
          if (lastIter == null) {
             throw new NoSuchElementException();
          }

@@ -20,11 +20,11 @@ package org.apache.activemq.artemis.utils.collections;
  * Extends MultiIterator, adding the ability if the underlying iterators are resettable, then its self can reset.
  * It achieves this by going back to the first iterator, and as moves to another iterator it resets it.
  *
- * @param <T> type of the class of the iterator.
+ * @param <E> type of the class of the iterator.
  */
-public class MultiResettableIterator<T> extends MultiIteratorBase<T, ResettableIterator<T>> implements ResettableIterator<T> {
+public class MultiResettableIterator<E> extends MultiIteratorBase<E, ResettableIterator<E>> implements ResettableIterator<E> {
 
-   public MultiResettableIterator(ResettableIterator<T>[] iterators) {
+   public MultiResettableIterator(ResettableIterator<E>[] iterators) {
       super(iterators);
    }
 
