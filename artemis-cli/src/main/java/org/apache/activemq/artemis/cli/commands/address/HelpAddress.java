@@ -56,7 +56,7 @@ public class HelpAddress extends Help implements Action {
    @Override
    public Object execute(ActionContext context) throws Exception {
       List<String> commands = new ArrayList<>(1);
-      commands.add("queue");
+      commands.add("address");
       help(global, commands);
       return null;
    }
