@@ -147,13 +147,13 @@ public class BackupManager implements ActiveMQComponent {
          if (dg == null)
             return;
 
-         DiscoveryBackupConnector backupConnector = new DiscoveryBackupConnector(dg, config.getName(), connector, config.getRetryInterval(), clusterManager);
+         DiscoveryBackupConnector backupConnector = new DiscoveryBackupConnector(dg, config, connector, clusterManager);
 
          backupConnectors.add(backupConnector);
       } else {
          TransportConfiguration[] tcConfigs = config.getTransportConfigurations(configuration);
 
-         StaticBackupConnector backupConnector = new StaticBackupConnector(tcConfigs, config.getName(), connector, config.getRetryInterval(), clusterManager);
+         StaticBackupConnector backupConnector = new StaticBackupConnector(tcConfigs, config, connector, clusterManager);
 
          backupConnectors.add(backupConnector);
       }
@@ -188,9 +188,8 @@ public class BackupManager implements ActiveMQComponent {
    public abstract class BackupConnector {
 
       private volatile ServerLocatorInternal backupServerLocator;
-      private String name;
+      protected final ClusterConnectionConfiguration config;
       private TransportConfiguration connector;
-      protected long retryInterval;
       private ClusterManager clusterManager;
       private volatile boolean stopping = false;
       private volatile boolean announcingBackup;
@@ -198,16 +197,14 @@ public class BackupManager implements ActiveMQComponent {
 
       @Override
       public String toString() {
-         return "BackupConnector{" + "name='" + name + '\'' + ", connector=" + connector + '}';
+         return "BackupConnector{" + "name='" + config.getName() + '\'' + ", connector=" + connector + '}';
       }
 
-      private BackupConnector(String name,
+      private BackupConnector(ClusterConnectionConfiguration config,
                               TransportConfiguration connector,
-                              long retryInterval,
                               ClusterManager clusterManager) {
-         this.name = name;
+         this.config = config;
          this.connector = connector;
-         this.retryInterval = retryInterval;
          this.clusterManager = clusterManager;
       }
 
@@ -228,7 +225,7 @@ public class BackupManager implements ActiveMQComponent {
          stopping = false;
          backupAnnounced = false;
 
-         ClusterConnection clusterConnection = clusterManager.getClusterConnection(name);
+         ClusterConnection clusterConnection = clusterManager.getClusterConnection(config.getName());
          //NB we use the same topology as the sister cluster connection so it knows when started about all the nodes to bridge to
          backupServerLocator = createServerLocator(clusterConnection.getTopology());
 
@@ -298,14 +295,14 @@ public class BackupManager implements ActiveMQComponent {
                announceBackup();
             }
 
-         }, retryInterval, TimeUnit.MILLISECONDS);
+         }, config.getRetryInterval(), TimeUnit.MILLISECONDS);
       }
 
       /*
       * called to notify the cluster manager about the backup
       * */
       public void informTopology() {
-         clusterManager.informClusterOfBackup(name);
+         clusterManager.informClusterOfBackup(config.getName());
       }
 
       /*
@@ -351,11 +348,10 @@ public class BackupManager implements ActiveMQComponent {
       private final TransportConfiguration[] tcConfigs;
 
       private StaticBackupConnector(TransportConfiguration[] tcConfigs,
-                                    String name,
+                                    ClusterConnectionConfiguration config,
                                     TransportConfiguration connector,
-                                    long retryInterval,
                                     ClusterManager clusterManager) {
-         super(name, connector, retryInterval, clusterManager);
+         super(config, connector, clusterManager);
          this.tcConfigs = tcConfigs;
       }
 
@@ -367,7 +363,9 @@ public class BackupManager implements ActiveMQComponent {
             }
             ServerLocatorImpl locator = new ServerLocatorImpl(topology, true, tcConfigs);
             locator.setClusterConnection(true);
-            locator.setRetryInterval(retryInterval);
+            locator.setRetryInterval(config.getRetryInterval());
+            locator.setClientFailureCheckPeriod(config.getClientFailureCheckPeriod());
+            locator.setConnectionTTL(config.getConnectionTTL());
             locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator, server.getStorageManager()));
             return locator;
          }
@@ -389,17 +387,19 @@ public class BackupManager implements ActiveMQComponent {
       private final DiscoveryGroupConfiguration discoveryGroupConfiguration;
 
       private DiscoveryBackupConnector(DiscoveryGroupConfiguration discoveryGroupConfiguration,
-                                       String name,
+                                       ClusterConnectionConfiguration config,
                                        TransportConfiguration connector,
-                                       long retryInterval,
                                        ClusterManager clusterManager) {
-         super(name, connector, retryInterval, clusterManager);
+         super(config, connector, clusterManager);
          this.discoveryGroupConfiguration = discoveryGroupConfiguration;
       }
 
       @Override
       public ServerLocatorInternal createServerLocator(Topology topology) {
-         return new ServerLocatorImpl(topology, true, discoveryGroupConfiguration).setRetryInterval(retryInterval);
+         return new ServerLocatorImpl(topology, true, discoveryGroupConfiguration)
+            .setRetryInterval(config.getRetryInterval())
+            .setClientFailureCheckPeriod(config.getClientFailureCheckPeriod())
+            .setConnectionTTL(config.getConnectionTTL());
       }
 
       @Override
