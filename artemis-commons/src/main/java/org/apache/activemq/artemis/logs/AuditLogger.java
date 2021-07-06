@@ -2428,13 +2428,13 @@ public interface AuditLogger extends BasicLogger {
    void logCoreSendMessage(String user, String messageToString, Object context);
 
    //hot path log using a different logger
-   static void coreConsumeMessage(Subject user, String queue) {
-      MESSAGE_LOGGER.consumeMessage(getCaller(user), queue);
+   static void coreConsumeMessage(Subject user, String queue, String message) {
+      MESSAGE_LOGGER.consumeMessage(getCaller(user), queue, message);
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601501, value = "User {0} is consuming a message from {1}", format = Message.Format.MESSAGE_FORMAT)
-   void consumeMessage(String user, String address);
+   @Message(id = 601501, value = "User {0} is consuming a message from {1}: {2}", format = Message.Format.MESSAGE_FORMAT)
+   void consumeMessage(String user, String address, String message);
 
    /*
     * This logger is focused on user interaction from the console or thru resource specific functions in the management layer/JMX
