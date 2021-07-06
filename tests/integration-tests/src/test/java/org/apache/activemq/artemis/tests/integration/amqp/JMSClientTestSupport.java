@@ -205,6 +205,10 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
       return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, true);
    }
 
+   protected Connection createCoreConnection(boolean start) throws JMSException {
+      return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, start);
+   }
+
    private Connection createCoreConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
       ActiveMQJMSConnectionFactory factory = new ActiveMQJMSConnectionFactory(connectionString);
 
@@ -255,6 +259,10 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
    protected Connection createOpenWireConnection() throws JMSException {
       return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, true);
+   }
+
+   protected Connection createOpenWireConnection(boolean start) throws JMSException {
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, false);
    }
 
    private Connection createOpenWireConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
