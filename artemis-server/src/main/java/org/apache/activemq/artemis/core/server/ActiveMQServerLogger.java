@@ -1730,6 +1730,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void gettingSslHandlerFailed(String clientAddress, String cause);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222301, value = "Duplicate address-setting match found: {0}. These settings will be ignored! Please review your broker.xml and consolidate any duplicate address-setting elements.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void duplicateAddressSettingMatch(String match);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);

@@ -997,8 +997,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          Element node = (Element) elements.item(0);
          NodeList list = node.getElementsByTagName("address-setting");
          for (int i = 0; i < list.getLength(); i++) {
-            Pair<String, AddressSettings> addressSettings = parseAddressSettings(list.item(i));
-            config.getAddressesSettings().put(addressSettings.getA(), addressSettings.getB());
+            Pair<String, AddressSettings> newAddressSettings = parseAddressSettings(list.item(i));
+            Map<String, AddressSettings> addressSettings = config.getAddressesSettings();
+            if (addressSettings.containsKey(newAddressSettings.getA())) {
+               ActiveMQServerLogger.LOGGER.duplicateAddressSettingMatch(newAddressSettings.getA());
+            } else {
+               config.getAddressesSettings().put(newAddressSettings.getA(), newAddressSettings.getB());
+            }
          }
       }
    }

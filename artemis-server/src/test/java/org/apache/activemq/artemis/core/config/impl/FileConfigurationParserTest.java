@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.StringPrintStream;
@@ -93,6 +94,14 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer((ActiveMQServer) deploymentManager.buildService(null, null, null).get("core"));
       server.start();
       assertEquals(0, server.locateQueue(SimpleString.toSimpleString("q")).getMaxConsumers());
+   }
+
+   @Test
+   public void testDuplicateAddressSettings() throws Exception {
+      FileConfigurationParser parser = new FileConfigurationParser();
+      Configuration config = parser.parseMainConfig(ClassloadingUtil.findResource("FileConfigurationParser-duplicateAddressSettings.xml").openStream());
+
+      Assert.assertEquals(123, config.getAddressesSettings().get("foo").getRedistributionDelay());
    }
 
    @Test
