@@ -2181,6 +2181,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw ActiveMQMessageBundle.BUNDLE.rejectEmptyValidatedUser();
       }
 
+      if (server.getAddressSettingsRepository().getMatch(msg.getAddress()).isEnableIngressTimestamp()) {
+         msg.setIngressTimestamp();
+         msg.reencode();
+      }
+
       if (tx == null || autoCommitSends) {
          routingContext.setTransaction(null);
       } else {

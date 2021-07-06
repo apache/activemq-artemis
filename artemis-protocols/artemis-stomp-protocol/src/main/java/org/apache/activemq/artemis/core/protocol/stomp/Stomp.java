@@ -135,6 +135,8 @@ public interface Stomp {
          String PERSISTENT = "persistent";
 
          String VALIDATED_USER = "JMSXUserID";
+
+         String INGRESS_TIMESTAMP = "ingress-timestamp";
       }
 
       interface Subscribe {

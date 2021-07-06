@@ -101,6 +101,7 @@ public class MessagePropertyTest extends ActiveMQTestBase {
             assertEquals(floatValue(i), message.getFloatProperty("float").floatValue(), 0.001);
             assertEquals(new SimpleString(Integer.toString(i)), message.getSimpleStringProperty(SIMPLE_STRING_KEY.toString()));
             assertEqualsByteArrays(byteArray(i), message.getBytesProperty("byte[]"));
+            assertNull(message.getIngressTimestamp());
 
             assertTrue(message.containsProperty("null-value"));
             assertEquals(message.getObjectProperty("null-value"), null);

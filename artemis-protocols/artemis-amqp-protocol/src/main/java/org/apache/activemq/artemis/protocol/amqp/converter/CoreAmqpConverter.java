@@ -295,6 +295,9 @@ public class CoreAmqpConverter {
          } else if (key.endsWith(HDR_SCHEDULED_DELIVERY_TIME.toString())) {
             // skip..remove annotation from previous inbound transformation
             continue;
+         } else if (key.equals(Message.HDR_INGRESS_TIMESTAMP.toString())) {
+            maMap.put(AMQPMessageSupport.INGRESS_TIME_MSG_ANNOTATION, message.getLongProperty(key));
+            continue;
          }
 
          if (apMap == null) {
