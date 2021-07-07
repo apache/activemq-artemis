@@ -43,6 +43,9 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
 
    private final boolean supportsCallback;
 
+
+   private Runnable writeDirectCallback;
+
    private volatile boolean holdCallbacks;
 
    private ListenerHoldCallback holdCallbackListener;
@@ -79,6 +82,10 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
    @Override
    public int getMaxIO() {
       return 1;
+   }
+
+   public void setWriteDirectCallback(Runnable writeDirectCallback) {
+      this.writeDirectCallback = writeDirectCallback;
    }
 
    // Public --------------------------------------------------------
@@ -418,6 +425,10 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
             addCallback(bytes, action);
          } else {
             action.run();
+         }
+
+         if (writeDirectCallback != null) {
+            writeDirectCallback.run();
          }
 
       }

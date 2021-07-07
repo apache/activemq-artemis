@@ -935,6 +935,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(addRecordEncodeSize, maxRecordSize);
       }
 
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
@@ -951,9 +952,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                   ", usedFile = " +
                                   usedFile);
                }
+               result.set(true);
             } catch (ActiveMQShutdownException e) {
+               result.fail(e);
                logger.error("appendAddRecord:" + e, e);
             } catch (Throwable e) {
+               result.fail(e);
                setErrorCondition(callback, null, e);
                logger.error("appendAddRecord::"  + e, e);
             } finally {
@@ -961,6 +965,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             }
          }
       });
+
+      result.get();
    }
 
 
