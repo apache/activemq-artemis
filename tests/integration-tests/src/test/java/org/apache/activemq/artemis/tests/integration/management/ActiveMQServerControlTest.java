@@ -100,8 +100,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static org.apache.activemq.artemis.jms.client.ActiveMQConnection.JMS_SESSION_CLIENT_ID_PROPERTY;
-
 @RunWith(Parameterized.class)
 public class ActiveMQServerControlTest extends ManagementTestBase {
 
@@ -2757,7 +2755,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(1 + (usingCore() ? 1 : 0), array.size());
       JsonObject obj = lookupSession(array, ((ActiveMQConnection)con).getInitialSession());
-      Assert.assertEquals(obj.getJsonObject("metadata").getJsonString(ActiveMQConnection.JMS_SESSION_CLIENT_ID_PROPERTY).getString(), clientID);
+      Assert.assertEquals(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY).getString(), clientID);
       Assert.assertNotNull(obj.getJsonObject("metadata").getJsonString(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY));
    }
 
@@ -3783,7 +3781,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          ClientSession session1_c1 = csf.createSession();
          ClientSession session2_c1 = csf.createSession();
          session1_c1.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
-         session1_c1.addMetaData(JMS_SESSION_CLIENT_ID_PROPERTY, "MYClientID");
+         session1_c1.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, "MYClientID");
 
          String filterString = createJsonFilter("SESSION_COUNT", "GREATER_THAN", "1");
          String connectionsAsJsonString = serverControl.listConnections(filterString, 1, 50);

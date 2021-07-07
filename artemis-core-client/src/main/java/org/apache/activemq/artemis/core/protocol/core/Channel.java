@@ -185,6 +185,13 @@ public interface Channel {
    int getLastConfirmedCommandID();
 
    /**
+    * queries if this channel is locked. This method is designed for use in monitoring of the system state, not for synchronization control.
+    *
+    * @return true it the channel is locked and false otherwise
+    */
+   boolean isLocked();
+
+   /**
     * locks the channel.
     * <p>
     * While locked no packets can be sent or received

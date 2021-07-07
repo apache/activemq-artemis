@@ -255,7 +255,7 @@ public class TransportConfiguration implements Serializable {
    public String toString() {
       StringBuilder str = new StringBuilder(TransportConfiguration.class.getSimpleName());
       str.append("(name=" + name + ", ");
-      str.append("factory=" + replaceWildcardChars(factoryClassName));
+      str.append("factory=" + (factoryClassName == null ? "null" : replaceWildcardChars(factoryClassName)));
       str.append(") ");
       str.append(toStringParameters(params, extraProps));
       return str.toString();

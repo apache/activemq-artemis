@@ -29,10 +29,12 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailo
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V4;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateAddressMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage_V2;
@@ -40,6 +42,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Disconnect
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.FederationDownstreamConnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage_V2;
@@ -98,8 +101,10 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CHE
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_TOPOLOGY;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_TOPOLOGY_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_TOPOLOGY_V3;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_TOPOLOGY_V4;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATESESSION;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATESESSION_RESP;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATESESSION_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_ADDRESS;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE_V2;
@@ -109,6 +114,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DEL
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_V2;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_V3;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.EXCEPTION;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.FEDERATION_DOWNSTREAM_CONNECT;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.NULL_RESPONSE;
@@ -475,6 +481,18 @@ public abstract class PacketDecoder implements Serializable {
          }
          case FEDERATION_DOWNSTREAM_CONNECT: {
             packet = new FederationDownstreamConnectMessage();
+            break;
+         }
+         case CLUSTER_TOPOLOGY_V4: {
+            packet = new ClusterTopologyChangeMessage_V4();
+            break;
+         }
+         case CREATESESSION_V2: {
+            packet = new CreateSessionMessage_V2();
+            break;
+         }
+         case DISCONNECT_V3: {
+            packet = new DisconnectMessage_V3();
             break;
          }
          default: {

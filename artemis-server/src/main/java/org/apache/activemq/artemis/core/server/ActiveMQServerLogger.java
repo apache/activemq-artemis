@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.balancing.targets.Target;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
@@ -47,6 +48,7 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.ServerConnectVote;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
@@ -450,6 +452,14 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221084, value = "Requested {0} quorum votes", format = Message.Format.MESSAGE_FORMAT)
    void requestedQuorumVotes(int vote);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221085, value = "Redirect {0} to {1}", format = Message.Format.MESSAGE_FORMAT)
+   void redirectClientConnection(Connection connection, Target target);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221086, value = "Cannot redirect {0}", format = Message.Format.MESSAGE_FORMAT)
+   void cannotRedirectClientConnection(Connection connection);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",

@@ -55,7 +55,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
       String consumerClientID = consumer.getConnectionClientID();
       if (consumerClientID == null && session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
          //for the special case for JMS
-         consumerClientID = session.getMetaData("jms-client-id");
+         consumerClientID = session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY);
       }
 
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder()

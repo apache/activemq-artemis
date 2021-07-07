@@ -30,7 +30,17 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
                                           final String scaleDownGroupName,
                                           final Pair<TransportConfiguration, TransportConfiguration> pair,
                                           final boolean last) {
-      super(CLUSTER_TOPOLOGY_V3);
+      this(CLUSTER_TOPOLOGY_V3, uniqueEventID, nodeID, backupGroupName, scaleDownGroupName, pair, last);
+   }
+
+   protected ClusterTopologyChangeMessage_V3(final byte type,
+                                          final long uniqueEventID,
+                                          final String nodeID,
+                                          final String backupGroupName,
+                                          final String scaleDownGroupName,
+                                          final Pair<TransportConfiguration, TransportConfiguration> pair,
+                                          final boolean last) {
+      super(type);
 
       this.nodeID = nodeID;
 
@@ -49,6 +59,10 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
 
    public ClusterTopologyChangeMessage_V3() {
       super(CLUSTER_TOPOLOGY_V3);
+   }
+
+   public ClusterTopologyChangeMessage_V3(byte type) {
+      super(type);
    }
 
    public String getScaleDownGroupName() {
@@ -76,7 +90,16 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
    }
 
    @Override
+   protected String getParentString() {
+      return toString(false);
+   }
+
+   @Override
    public String toString() {
+      return toString(true);
+   }
+
+   private String toString(boolean closed) {
       StringBuffer buff = new StringBuffer(getParentString());
       buff.append(", exit=" + exit);
       buff.append(", last=" + last);
@@ -85,7 +108,9 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
       buff.append(", backupGroupName=" + backupGroupName);
       buff.append(", uniqueEventID=" + uniqueEventID);
       buff.append(", scaleDownGroupName=" + scaleDownGroupName);
-      buff.append("]");
+      if (closed) {
+         buff.append("]");
+      }
       return buff.toString();
    }
 

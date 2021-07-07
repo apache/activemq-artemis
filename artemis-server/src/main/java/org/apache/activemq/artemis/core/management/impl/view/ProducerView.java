@@ -54,7 +54,7 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
       String sessionClientID = session.getRemotingConnection().getClientID();
       //for the special case for JMS
       if (sessionClientID == null && session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
-         sessionClientID = session.getMetaData("jms-client-id");
+         sessionClientID = session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY);
       }
 
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder()

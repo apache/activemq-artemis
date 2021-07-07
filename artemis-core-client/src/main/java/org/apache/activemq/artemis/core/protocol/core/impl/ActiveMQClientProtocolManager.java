@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.DisconnectReason;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -45,10 +46,13 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailo
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V4;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
@@ -243,10 +247,11 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                                               boolean autoCommitAcks,
                                               boolean preAcknowledge,
                                               int minLargeMessageSize,
-                                              int confirmationWindowSize) throws ActiveMQException {
+                                              int confirmationWindowSize,
+                                              String clientID) throws ActiveMQException {
       for (Version clientVersion : VersionLoader.getClientVersions()) {
          try {
-            return createSessionContext(clientVersion, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, minLargeMessageSize, confirmationWindowSize);
+            return createSessionContext(clientVersion, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, minLargeMessageSize, confirmationWindowSize, clientID);
          } catch (ActiveMQException e) {
             if (e.getType() != ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {
                throw e;
@@ -266,7 +271,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                                               boolean autoCommitAcks,
                                               boolean preAcknowledge,
                                               int minLargeMessageSize,
-                                              int confirmationWindowSize) throws ActiveMQException {
+                                              int confirmationWindowSize,
+                                              String clientID) throws ActiveMQException {
       if (!isAlive())
          throw ActiveMQClientMessageBundle.BUNDLE.clientSessionClosed();
 
@@ -293,7 +299,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
             long sessionChannelID = connection.generateChannelID();
 
-            Packet request = newCreateSessionPacket(clientVersion, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, minLargeMessageSize, confirmationWindowSize, sessionChannelID);
+            Packet request = newCreateSessionPacket(clientVersion.getIncrementingVersion(), name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, minLargeMessageSize, confirmationWindowSize, sessionChannelID, clientID);
 
             try {
                // channel1 reference here has to go away
@@ -302,7 +308,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                if (!isAlive())
                   throw cause;
 
-               if (cause.getType() == ActiveMQExceptionType.UNBLOCKED) {
+               if (cause.getType() == ActiveMQExceptionType.UNBLOCKED ||
+                       cause.getType() == ActiveMQExceptionType.REDIRECTED) {
                   // This means the thread was blocked on create session and failover unblocked it
                   // so failover could occur
 
@@ -339,11 +346,11 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       }
       while (retry);
       sessionChannel.getConnection().setChannelVersion(response.getServerVersion());
-      return newSessionContext(name, confirmationWindowSize, sessionChannel, response);
 
+      return newSessionContext(name, confirmationWindowSize, sessionChannel, response);
    }
 
-   protected Packet newCreateSessionPacket(Version clientVersion,
+   protected Packet newCreateSessionPacket(int clientVersion,
                                            String name,
                                            String username,
                                            String password,
@@ -353,8 +360,13 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                                            boolean preAcknowledge,
                                            int minLargeMessageSize,
                                            int confirmationWindowSize,
-                                           long sessionChannelID) {
-      return new CreateSessionMessage(name, sessionChannelID, clientVersion.getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindowSize, null);
+                                           long sessionChannelID,
+                                           String clientID) {
+      if (connection.isVersionSupportClientID()) {
+         return new CreateSessionMessage_V2(name, sessionChannelID, clientVersion, username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindowSize, null, clientID);
+      } else {
+         return new CreateSessionMessage(name, sessionChannelID, clientVersion, username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindowSize, null);
+      }
    }
 
    protected SessionContext newSessionContext(String name,
@@ -459,19 +471,15 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       public void handlePacket(final Packet packet) {
          final byte type = packet.getType();
 
-         if (type == PacketImpl.DISCONNECT || type == PacketImpl.DISCONNECT_V2) {
-            final DisconnectMessage msg = (DisconnectMessage) packet;
-            String scaleDownTargetNodeID = null;
-
-            SimpleString nodeID = msg.getNodeID();
-
-            if (packet instanceof DisconnectMessage_V2) {
-               final DisconnectMessage_V2 msg_v2 = (DisconnectMessage_V2) packet;
-               scaleDownTargetNodeID = msg_v2.getScaleDownNodeID() == null ? null : msg_v2.getScaleDownNodeID().toString();
-            }
-
-            if (topologyResponseHandler != null)
-               topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), scaleDownTargetNodeID);
+         if (type == PacketImpl.DISCONNECT) {
+            final DisconnectMessage disMessage = (DisconnectMessage) packet;
+            handleDisconnect(disMessage.getNodeID(), null, null, null);
+         } else if (type == PacketImpl.DISCONNECT_V2) {
+            final DisconnectMessage_V2 disMessage = (DisconnectMessage_V2) packet;
+            handleDisconnect(disMessage.getNodeID(), DisconnectReason.SCALE_DOWN, disMessage.getScaleDownNodeID(), null);
+         } else if (type == PacketImpl.DISCONNECT_V3) {
+            final DisconnectMessage_V3 disMessage = (DisconnectMessage_V3) packet;
+            handleDisconnect(disMessage.getNodeID(), disMessage.getReason(), disMessage.getTargetNodeID(), disMessage.getTargetConnector());
          } else if (type == PacketImpl.CLUSTER_TOPOLOGY) {
             ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
             notifyTopologyChange(updateTransportConfiguration(topMessage));
@@ -481,8 +489,19 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
          } else if (type == PacketImpl.CLUSTER_TOPOLOGY_V3) {
             ClusterTopologyChangeMessage_V3 topMessage = (ClusterTopologyChangeMessage_V3) packet;
             notifyTopologyChange(updateTransportConfiguration(topMessage));
+         } else if (type == PacketImpl.CLUSTER_TOPOLOGY_V4) {
+            ClusterTopologyChangeMessage_V4 topMessage = (ClusterTopologyChangeMessage_V4) packet;
+            notifyTopologyChange(updateTransportConfiguration(topMessage));
+            connection.setChannelVersion(topMessage.getServerVersion());
          } else if (type == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
             System.out.println("Channel0Handler.handlePacket");
+         }
+      }
+
+      private void handleDisconnect(SimpleString nodeID, DisconnectReason reason, SimpleString targetNodeID, TransportConfiguration tagetConnector) {
+         if (topologyResponseHandler != null) {
+            topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), reason,
+                    targetNodeID == null ? null : targetNodeID.toString(), tagetConnector);
          }
       }
 
