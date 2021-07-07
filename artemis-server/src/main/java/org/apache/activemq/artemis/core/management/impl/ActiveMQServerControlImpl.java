@@ -4205,6 +4205,17 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public long getActivationSequence() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getActivationSequence(this.server);
+      }
+      if (server.getNodeManager() != null) {
+         return server.getNodeManager().getNodeActivationSequence();
+      }
+      return 0;
+   }
+
+   @Override
    public String getManagementNotificationAddress() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getManagementNotificationAddress(this.server);

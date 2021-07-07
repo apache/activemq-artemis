@@ -17,8 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.cluster.failover.quorum;
 
-import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.BackupSyncJournalTest;
 
 public class PluggableQuorumBackupSyncJournalTest extends BackupSyncJournalTest {
@@ -30,8 +29,6 @@ public class PluggableQuorumBackupSyncJournalTest extends BackupSyncJournalTest 
 
    @Override
    protected void setupHAPolicyConfiguration() {
-      ((ReplicationPrimaryPolicyConfiguration) liveConfig.getHAPolicyConfiguration())
-         .setCheckForLiveServer(true);
       ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration())
          .setMaxSavedReplicatedJournalsSize(2)
          .setAllowFailBack(true);

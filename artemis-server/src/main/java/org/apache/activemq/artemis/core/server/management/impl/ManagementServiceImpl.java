@@ -244,7 +244,9 @@ public class ManagementServiceImpl implements ManagementService {
       ObjectName objectName = objectNameBuilder.getActiveMQServerObjectName();
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.BROKER);
-      unregisterMeters(ResourceNames.BROKER + "." + messagingServer.getConfiguration().getName());
+      if (messagingServer != null) {
+         unregisterMeters(ResourceNames.BROKER + "." + messagingServer.getConfiguration().getName());
+      }
    }
 
    @Override

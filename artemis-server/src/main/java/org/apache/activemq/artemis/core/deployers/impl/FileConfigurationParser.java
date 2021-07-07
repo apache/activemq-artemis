@@ -1715,21 +1715,17 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private ReplicationPrimaryPolicyConfiguration createReplicationPrimaryHaPolicy(Element policyNode, Configuration config) {
       ReplicationPrimaryPolicyConfiguration configuration = ReplicationPrimaryPolicyConfiguration.withDefault();
 
-      configuration.setCheckForLiveServer(getBoolean(policyNode, "check-for-live-server", configuration.isCheckForLiveServer()));
-
       configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), Validators.NO_CHECK));
 
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
 
       configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), Validators.GT_ZERO));
 
-      configuration.setVoteRetries(getInteger(policyNode, "vote-retries", configuration.getVoteRetries(), Validators.MINUS_ONE_OR_GE_ZERO));
-
-      configuration.setVoteRetryWait(getLong(policyNode, "vote-retry-wait", configuration.getVoteRetryWait(), Validators.GT_ZERO));
-
-      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getVoteRetryWait(), Validators.GT_ZERO));
+      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), Validators.GT_ZERO));
 
       configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode, config));
+
+      configuration.setCoordinationId(getString(policyNode, "coordination-id", configuration.getCoordinationId(), Validators.NOT_NULL_OR_EMPTY));
 
       return configuration;
    }
@@ -1748,11 +1744,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
 
-      configuration.setVoteRetries(getInteger(policyNode, "vote-retries", configuration.getVoteRetries(), Validators.MINUS_ONE_OR_GE_ZERO));
-
-      configuration.setVoteRetryWait(getLong(policyNode, "vote-retry-wait", configuration.getVoteRetryWait(), Validators.GT_ZERO));
-
-      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getVoteRetryWait(), Validators.GT_ZERO));
+      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), Validators.GT_ZERO));
 
       configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode, config));
 

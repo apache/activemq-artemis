@@ -138,4 +138,8 @@ final class FileDistributedLock implements DistributedLock {
    public void close() {
       close(true);
    }
+
+   public FileChannel getChannel() {
+      return channel;
+   }
 }

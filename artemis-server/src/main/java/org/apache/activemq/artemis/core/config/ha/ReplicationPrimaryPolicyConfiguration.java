@@ -21,24 +21,17 @@ import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 
 public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfiguration {
 
-   private boolean checkForLiveServer = ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer();
-
    private String groupName = null;
 
    private String clusterName = null;
 
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
-   private int voteRetries = ActiveMQDefaultConfiguration.getDefaultVoteRetries();
-
-   /**
-    * TODO: move if into {@link ActiveMQDefaultConfiguration} when the configuration is stable.
-    */
-   private long voteRetryWait = 2000;
-
    private Long retryReplicationWait = ActiveMQDefaultConfiguration.getDefaultRetryReplicationWait();
 
    private DistributedPrimitiveManagerConfiguration distributedManagerConfiguration = null;
+
+   private String coordinationId = null;
 
    public static ReplicationPrimaryPolicyConfiguration withDefault() {
       return new ReplicationPrimaryPolicyConfiguration();
@@ -50,15 +43,6 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
    @Override
    public TYPE getType() {
       return TYPE.PRIMARY;
-   }
-
-   public boolean isCheckForLiveServer() {
-      return checkForLiveServer;
-   }
-
-   public ReplicationPrimaryPolicyConfiguration setCheckForLiveServer(boolean checkForLiveServer) {
-      this.checkForLiveServer = checkForLiveServer;
-      return this;
    }
 
    public String getGroupName() {
@@ -88,24 +72,6 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
       return this;
    }
 
-   public int getVoteRetries() {
-      return voteRetries;
-   }
-
-   public ReplicationPrimaryPolicyConfiguration setVoteRetries(int voteRetries) {
-      this.voteRetries = voteRetries;
-      return this;
-   }
-
-   public ReplicationPrimaryPolicyConfiguration setVoteRetryWait(long voteRetryWait) {
-      this.voteRetryWait = voteRetryWait;
-      return this;
-   }
-
-   public long getVoteRetryWait() {
-      return voteRetryWait;
-   }
-
    public void setRetryReplicationWait(Long retryReplicationWait) {
       this.retryReplicationWait = retryReplicationWait;
    }
@@ -121,5 +87,28 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
 
    public DistributedPrimitiveManagerConfiguration getDistributedManagerConfiguration() {
       return distributedManagerConfiguration;
+   }
+
+   public String getCoordinationId() {
+      return coordinationId;
+   }
+
+   public void setCoordinationId(String newCoordinationId) {
+      if (newCoordinationId == null) {
+         return;
+      }
+      final int len = newCoordinationId.length();
+      if (len >= 16) {
+         this.coordinationId = newCoordinationId.substring(0, 16);
+      } else if (len % 2 != 0) {
+         // must be even for conversion to uuid, extend to next even
+         this.coordinationId = newCoordinationId + "+";
+      } else if (len > 0 ) {
+         // run with it
+         this.coordinationId = newCoordinationId;
+      }
+      if (this.coordinationId != null) {
+         this.coordinationId = this.coordinationId.replace('-', '.');
+      }
    }
 }

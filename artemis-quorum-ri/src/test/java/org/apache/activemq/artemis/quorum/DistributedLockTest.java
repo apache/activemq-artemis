@@ -178,6 +178,7 @@ public abstract class DistributedLockTest {
       ownerManager.getDistributedLock("a").unlock();
       Assert.assertFalse(observerManager.getDistributedLock("a").isHeldByCaller());
       Assert.assertFalse(ownerManager.getDistributedLock("a").isHeldByCaller());
+      Assert.assertTrue(observerManager.getDistributedLock("a").tryLock());
    }
 
    @Test

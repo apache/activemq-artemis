@@ -19,9 +19,6 @@ package org.apache.activemq.artemis.core.server.impl;
 import javax.annotation.concurrent.GuardedBy;
 
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -35,7 +32,7 @@ import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
-import org.apache.activemq.artemis.core.server.NodeManager;;
+import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationBackupPolicy;
@@ -45,6 +42,8 @@ import org.apache.activemq.artemis.quorum.UnavailableStateException;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.server.impl.ReplicationObserver.ReplicationFailure;
+import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.ensureSequentialAccessToNodeData;
+import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.tryActivate;
 
 /**
  * This activation can be used by a primary while trying to fail-back ie {@code failback == true} or
@@ -54,7 +53,6 @@ public final class ReplicationBackupActivation extends Activation implements Dis
 
    private static final Logger LOGGER = Logger.getLogger(ReplicationBackupActivation.class);
 
-   private final boolean wasLive;
    private final ReplicationBackupPolicy policy;
    private final ActiveMQServerImpl activeMQServer;
    // This field is != null iff this node is a primary during a fail-back ie acting as a backup in order to become live again.
@@ -72,10 +70,8 @@ public final class ReplicationBackupActivation extends Activation implements Dis
    private final AtomicBoolean stopping;
 
    public ReplicationBackupActivation(final ActiveMQServerImpl activeMQServer,
-                                      final boolean wasLive,
                                       final DistributedPrimitiveManager distributedManager,
                                       final ReplicationBackupPolicy policy) {
-      this.wasLive = wasLive;
       this.activeMQServer = activeMQServer;
       if (policy.isTryFailback()) {
          final SimpleString serverNodeID = activeMQServer.getNodeID();
@@ -146,14 +142,35 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          }
       }
       try {
-         LOGGER.info("Trying to reach majority of quorum service nodes");
          distributedManager.start();
-         LOGGER.info("Quorum service available: starting broker");
+         final long nodeActivationSequence = activeMQServer.getNodeManager().readNodeActivationSequence();
+         // only a backup with positive local activation sequence could contain valuable data
+         if (nodeActivationSequence > 0) {
+            final String nodeId = activeMQServer.getNodeManager().getNodeId().toString();
+            DistributedLock liveLockWithInSyncReplica;
+            while (true) {
+               distributedManager.start();
+               try {
+                  liveLockWithInSyncReplica = tryActivate(nodeId, nodeActivationSequence, distributedManager, LOGGER);
+                  break;
+               } catch (UnavailableStateException canRecoverEx) {
+                  distributedManager.stop();
+               }
+            }
+            if (liveLockWithInSyncReplica != null) {
+               // retain state and start as live
+               if (!activeMQServer.initialisePart1(false)) {
+                  return;
+               }
+               activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
+               startAsLive(liveLockWithInSyncReplica);
+               return;
+            }
+         }
          distributedManager.addUnavailableManagerListener(this);
          // Stop the previous node manager and create a new one with NodeManager::replicatedBackup == true:
          // NodeManager::start skip setup lock file with NodeID, until NodeManager::stopBackup is called.
          activeMQServer.resetNodeManager();
-         activeMQServer.getNodeManager().stop();
          // A primary need to preserve NodeID across runs
          activeMQServer.moveServerData(policy.getMaxSavedReplicatedJournalsSize(), policy.isTryFailback());
          activeMQServer.getNodeManager().start();
@@ -164,11 +181,15 @@ public final class ReplicationBackupActivation extends Activation implements Dis
             if (closed)
                return;
          }
+
+
          final ClusterController clusterController = activeMQServer.getClusterManager().getClusterController();
+
+         LOGGER.infof("Apache ActiveMQ Artemis Backup Server version %s [%s] started, awaiting connection to a live cluster member to start replication", activeMQServer.getVersion().getFullVersion(),
+                      activeMQServer.toString());
+
          clusterController.awaitConnectionToReplicationCluster();
          activeMQServer.getBackupManager().start();
-         ActiveMQServerLogger.LOGGER.backupServerStarted(activeMQServer.getVersion().getFullVersion(),
-                                                         activeMQServer.getNodeManager().getNodeId());
          activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
          final DistributedLock liveLock = replicateAndFailover(clusterController);
          if (liveLock == null) {
@@ -191,6 +212,14 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          if (!activeMQServer.isStarted()) {
             liveLock.close();
             return;
+         }
+         try {
+            ensureSequentialAccessToNodeData(activeMQServer, distributedManager, LOGGER);
+         } catch (Throwable fatal) {
+            LOGGER.warn(fatal);
+            // policy is already live one, but there's no activation yet: we can just stop
+            asyncRestartServer(activeMQServer, false, false);
+            throw new ActiveMQIllegalStateException("This server cannot ensure sequential access to broker data: activation is failed");
          }
          ActiveMQServerLogger.LOGGER.becomingLive(activeMQServer);
          // stopBackup is going to write the NodeID previously set on the NodeManager,
@@ -260,28 +289,38 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                return null;
             }
             LOGGER.debugf("ReplicationFailure = %s", failure);
-            boolean voluntaryFailOver = false;
             switch (failure) {
                case VoluntaryFailOver:
-                  voluntaryFailOver = true;
                case NonVoluntaryFailover:
-                  final DistributedLock liveLock = tryAcquireLiveLock();
                   // from now on we're meant to stop:
                   // - due to failover
                   // - due to restart/stop
-                  assert stopping.get();
-                  if (liveLock != null) {
-                     return liveLock;
+                  if (!stopping.compareAndSet(false, true)) {
+                     return null;
                   }
-                  boolean restart = true;
-                  if (voluntaryFailOver && isFirstFailbackAttempt()) {
-                     restart = false;
-                     LOGGER.error("Failed to fail-back: stopping broker based on quorum results");
+                  // no more interested into these events: handling it manually from here
+                  distributedManager.removeUnavailableManagerListener(this);
+                  final long nodeActivationSequence = activeMQServer.getNodeManager().readNodeActivationSequence();
+                  final String nodeId = activeMQServer.getNodeManager().getNodeId().toString();
+                  DistributedLock liveLockWithInSyncReplica = null;
+                  if (nodeActivationSequence > 0) {
+                     try {
+                        liveLockWithInSyncReplica = tryActivate(nodeId, nodeActivationSequence, distributedManager, LOGGER);
+                     } catch (Throwable error) {
+                        // no need to retry here, can just restart as backup that will handle a more resilient tryActivate
+                        LOGGER.warn("Errored while attempting failover", error);
+                        liveLockWithInSyncReplica = null;
+                     }
                   } else {
-                     ActiveMQServerLogger.LOGGER.restartingAsBackupBasedOnQuorumVoteResults();
+                     LOGGER.warnf("We expect local activation sequence for NodeID = %s to be > 0 on a fail-over, while is %d", nodeId, nodeActivationSequence);
                   }
-                  // let's ignore the stopping flag here, we're in control of it
-                  asyncRestartServer(activeMQServer, restart, false);
+                  assert stopping.get();
+                  if (liveLockWithInSyncReplica != null) {
+                     return liveLockWithInSyncReplica;
+                  }
+                  ActiveMQServerLogger.LOGGER.restartingAsBackupBasedOnQuorumVoteResults();
+                  // let's ignore the stopping flag here, we're already in control of it
+                  asyncRestartServer(activeMQServer, true, false);
                   return null;
                case RegistrationError:
                   LOGGER.error("Stopping broker because of critical registration error");
@@ -307,73 +346,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
             }
          }
       } finally {
-         silentExecution("Errored on cluster topology listener for replication cleanup", () -> clusterController.removeClusterTopologyListenerForReplication(nodeLocator));
-      }
-   }
-
-   /**
-    * {@code wasLive} is {code true} only while transitioning from primary to backup.<br>
-    * If a natural born backup become live and allows failback, while transitioning to back again
-    * {@code wasLive} is still {@code false}.<br>
-    * The check on {@link ReplicationBackupPolicy#isTryFailback()} is redundant but still useful for correctness.
-    * <p>
-    * In case of fail-back, any event that's going to restart this broker as backup (eg quorum service unavailable
-    * or some replication failures) will cause {@code wasLive} to be {@code false}, because the HA policy set isn't
-    * a primary anymore.
-    */
-   private boolean isFirstFailbackAttempt() {
-      return wasLive && policy.isTryFailback();
-   }
-
-   private DistributedLock tryAcquireLiveLock() throws InterruptedException {
-      // disable quorum service unavailability handling and just treat this imperatively
-      if (!stopping.compareAndSet(false, true)) {
-         // already unavailable quorum service: fail fast
-         return null;
-      }
-      distributedManager.removeUnavailableManagerListener(this);
-      assert activeMQServer.getNodeManager().getNodeId() != null;
-      final String liveID = activeMQServer.getNodeManager().getNodeId().toString();
-      final int voteRetries = policy.getVoteRetries();
-      final long maxAttempts = voteRetries >= 0 ? (voteRetries + 1) : -1;
-      if (maxAttempts == -1) {
-         LOGGER.error("It's not safe to retry an infinite amount of time to acquire a live lock: please consider setting a vote-retries value");
-      }
-      final long voteRetryWait = policy.getVoteRetryWait();
-      final DistributedLock liveLock = getLock(distributedManager, liveID);
-      if (liveLock == null) {
-         return null;
-      }
-      for (long attempt = 0; maxAttempts >= 0 ? (attempt < maxAttempts) : true; attempt++) {
-         try {
-            if (liveLock.tryLock(voteRetryWait, TimeUnit.MILLISECONDS)) {
-               LOGGER.debugf("%s live lock acquired after %d attempts.", liveID, (attempt + 1));
-               return liveLock;
-            }
-         } catch (UnavailableStateException e) {
-            LOGGER.warnf(e, "Failed to acquire live lock %s because of unavailable quorum service: stop trying", liveID);
-            distributedManager.stop();
-            return null;
-         }
-      }
-      LOGGER.warnf("Failed to acquire live lock %s after %d tries", liveID, maxAttempts);
-      distributedManager.stop();
-      return null;
-   }
-
-   private DistributedLock getLock(final DistributedPrimitiveManager manager,
-                                   final String lockId) throws InterruptedException {
-      if (!manager.isStarted()) {
-         return null;
-      }
-      try {
-         return manager.getDistributedLock(lockId);
-      } catch (ExecutionException e) {
-         LOGGER.warnf(e, "Errored while getting lock %s", lockId);
-         return null;
-      } catch (TimeoutException te) {
-         LOGGER.warnf(te, "Timeout while getting lock %s", lockId);
-         return null;
+         silentExecution("Error on cluster topology listener for replication cleanup", () -> clusterController.removeClusterTopologyListenerForReplication(nodeLocator));
       }
    }
 
@@ -405,7 +378,6 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   return ReplicationFailure.RegistrationError;
                }
                this.replicationEndpoint = replicationEndpoint;
-               assert replicationEndpoint != null;
                try {
                   return replicationObserver.awaitReplicationFailure();
                } finally {
@@ -414,11 +386,11 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   closeChannelOf(replicationEndpoint);
                }
             } finally {
-               silentExecution("Errored on live control close", liveControl::close);
+               silentExecution("Error on live control close", liveControl::close);
             }
          } finally {
-            silentExecution("Errored on cluster topology listener cleanup", () -> clusterController.removeClusterTopologyListener(replicationObserver));
-            silentExecution("Errored while removing incoming interceptor for replication", () -> clusterController.removeIncomingInterceptorForReplication(replicationError));
+            silentExecution("Error on cluster topology listener cleanup", () -> clusterController.removeClusterTopologyListener(replicationObserver));
+            silentExecution("Error while removing incoming interceptor for replication", () -> clusterController.removeIncomingInterceptorForReplication(replicationError));
          }
       } finally {
          this.replicationObserver = null;
@@ -438,7 +410,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          return;
       }
       if (replicationEndpoint.getChannel() != null) {
-         silentExecution("Errored while closing replication endpoint channel", () -> replicationEndpoint.getChannel().close());
+         silentExecution("Error while closing replication endpoint channel", () -> replicationEndpoint.getChannel().close());
          replicationEndpoint.setChannel(null);
       }
    }

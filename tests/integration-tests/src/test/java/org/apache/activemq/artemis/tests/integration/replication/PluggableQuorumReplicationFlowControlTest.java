@@ -45,8 +45,6 @@ public class PluggableQuorumReplicationFlowControlTest extends SharedNothingRepl
       ReplicationBackupPolicyConfiguration haPolicy = ReplicationBackupPolicyConfiguration.withDefault();
       haPolicy.setDistributedManagerConfiguration(managerConfiguration);
       haPolicy.setClusterName("cluster");
-      // fail-fast in order to let the backup to quickly retry syncing with primary
-      haPolicy.setVoteRetries(0);
       return haPolicy;
    }
 
@@ -54,7 +52,6 @@ public class PluggableQuorumReplicationFlowControlTest extends SharedNothingRepl
    protected HAPolicyConfiguration createReplicationLiveConfiguration() {
       ReplicationPrimaryPolicyConfiguration haPolicy = ReplicationPrimaryPolicyConfiguration.withDefault();
       haPolicy.setDistributedManagerConfiguration(managerConfiguration);
-      haPolicy.setCheckForLiveServer(false);
       return haPolicy;
    }
 }

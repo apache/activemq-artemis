@@ -30,8 +30,6 @@
                <cluster-name>33rrrrr</cluster-name>
                <initial-replication-sync-timeout>9876</initial-replication-sync-timeout>
                <retry-replication-wait>12345</retry-replication-wait>
-               <vote-retries>1</vote-retries>
-               <vote-retry-wait>1000</vote-retry-wait>
                <allow-failback>false</allow-failback>
                <manager>
                   <class-name>

@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover.quorum;
 
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.PageCleanupWhileReplicaCatchupTest;
 
 public class PluggableQuorumPageCleanupWhileReplicaCatchupTest extends PageCleanupWhileReplicaCatchupTest {
@@ -29,7 +28,6 @@ public class PluggableQuorumPageCleanupWhileReplicaCatchupTest extends PageClean
 
    @Override
    protected void setupHAPolicyConfiguration() {
-      ((ReplicationPrimaryPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
       ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
    }
 
