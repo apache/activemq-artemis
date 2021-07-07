@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
@@ -114,6 +115,133 @@ public class JournalAsyncTest extends ActiveMQTestBase {
 
       if (t.e != null) {
          throw t.e;
+      }
+   }
+
+   @Test
+   public void testAsyncAppendRecord1() throws Exception {
+      final int JOURNAL_SIZE = 20000;
+
+      setupJournal(JOURNAL_SIZE, 100, 5);
+
+      final CountDownLatch latch = new CountDownLatch(1);
+
+      final CountDownLatch latchHoldDirect = new CountDownLatch(1);
+
+      try {
+         factory.setWriteDirectCallback(() -> {
+            try {
+               latchHoldDirect.await(10, TimeUnit.MINUTES);
+            } catch (Throwable ignored) {
+            }
+         });
+
+         class LocalThread extends Thread {
+
+            Exception e;
+
+            @Override
+            public void run() {
+               try {
+                  journalImpl.appendAddRecord(1, (byte) 1, new SimpleEncoding(1, (byte) 0), true, null);
+                  latch.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
+                  this.e = e;
+               }
+            }
+         }
+
+         LocalThread t = new LocalThread();
+         t.start();
+
+         Assert.assertFalse("journal.append with sync true should hold until the write is done", latch.await(100, TimeUnit.MILLISECONDS));
+
+         Thread.yield();
+
+         Assert.assertTrue(t.isAlive());
+
+         latchHoldDirect.countDown();
+
+         Assert.assertTrue(latch.await(30, TimeUnit.SECONDS));
+
+         t.join();
+
+         Assert.assertFalse(t.isAlive());
+
+         if (t.e != null) {
+            throw t.e;
+         }
+      } finally {
+         latchHoldDirect.countDown();
+      }
+   }
+
+
+   @Test
+   public void testAsyncAppendRecord2() throws Exception {
+      final int JOURNAL_SIZE = 20000;
+
+      setupJournal(JOURNAL_SIZE, 100, 5);
+
+      final CountDownLatch latch = new CountDownLatch(1);
+
+      final CountDownLatch latchHoldDirect = new CountDownLatch(1);
+
+      try {
+         factory.setWriteDirectCallback(() -> {
+            try {
+               latchHoldDirect.await(10, TimeUnit.MINUTES);
+            } catch (Throwable ignored) {
+            }
+         });
+
+         class LocalThread extends Thread {
+
+            Exception e;
+
+            @Override
+            public void run() {
+               try {
+                  journalImpl.appendAddRecord(1, (byte) 1, new SimpleEncoding(1, (byte) 0), true, new IOCompletion() {
+                     @Override
+                     public void storeLineUp() {
+                     }
+
+                     @Override
+                     public void done() {
+                     }
+
+                     @Override
+                     public void onError(int errorCode, String errorMessage) {
+                     }
+                  });
+                  latch.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
+                  this.e = e;
+               }
+            }
+         }
+
+         LocalThread t = new LocalThread();
+         t.start();
+
+         Assert.assertTrue("journal.append with sync true and IOContext should not hold thread", latch.await(10, TimeUnit.SECONDS));
+
+         latchHoldDirect.countDown();
+
+         Assert.assertTrue(latch.await(30, TimeUnit.SECONDS));
+
+         t.join();
+
+         Assert.assertFalse(t.isAlive());
+
+         if (t.e != null) {
+            throw t.e;
+         }
+      } finally {
+         latchHoldDirect.countDown();
       }
    }
 
