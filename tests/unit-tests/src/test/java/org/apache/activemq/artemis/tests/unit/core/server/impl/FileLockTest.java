@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.server.impl;
 
 import java.io.File;
 
+import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
@@ -31,6 +32,25 @@ public class FileLockTest extends ActiveMQTestBase {
       super.setUp();
       File file = new File(getTestDir());
       file.mkdirs();
+   }
+
+   @Test
+   public void testSetNodeID() throws Exception {
+      FileLockNodeManager underTest = new FileLockNodeManager(getTestDirfile(), false);
+      ReplicationPrimaryPolicyConfiguration replicationPrimaryPolicyConfiguration = ReplicationPrimaryPolicyConfiguration.withDefault();
+      String seed = "";
+      for (int i = 0; i < 20; i++) {
+         replicationPrimaryPolicyConfiguration.setCoordinationId(seed);
+         if (replicationPrimaryPolicyConfiguration.getCoordinationId() != null) {
+            underTest.setNodeID(replicationPrimaryPolicyConfiguration.getCoordinationId());
+         }
+         seed += String.valueOf(i);
+      }
+
+      replicationPrimaryPolicyConfiguration.setCoordinationId("somme-dash-and-odd");
+      if (replicationPrimaryPolicyConfiguration.getCoordinationId() != null) {
+         underTest.setNodeID(replicationPrimaryPolicyConfiguration.getCoordinationId());
+      }
    }
 
    @Test

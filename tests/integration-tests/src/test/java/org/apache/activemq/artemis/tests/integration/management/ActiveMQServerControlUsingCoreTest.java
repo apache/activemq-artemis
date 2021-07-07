@@ -521,6 +521,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public long getActivationSequence() {
+            return (Long) proxy.retrieveAttributeValue("activationSequence");
+         }
+
+         @Override
          public String getManagementAddress() {
             return (String) proxy.retrieveAttributeValue("managementAddress");
          }

@@ -34,13 +34,6 @@ public class ReplicationBackupPolicyConfiguration implements HAPolicyConfigurati
 
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
-   private int voteRetries = ActiveMQDefaultConfiguration.getDefaultVoteRetries();
-
-   /**
-    * TODO: move if into {@link ActiveMQDefaultConfiguration} when the configuration is stable.
-    */
-   private long voteRetryWait = 2000;
-
    private long retryReplicationWait = ActiveMQDefaultConfiguration.getDefaultRetryReplicationWait();
 
    private DistributedPrimitiveManagerConfiguration distributedManagerConfiguration = null;
@@ -100,24 +93,6 @@ public class ReplicationBackupPolicyConfiguration implements HAPolicyConfigurati
    public ReplicationBackupPolicyConfiguration setInitialReplicationSyncTimeout(long initialReplicationSyncTimeout) {
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       return this;
-   }
-
-   public int getVoteRetries() {
-      return voteRetries;
-   }
-
-   public ReplicationBackupPolicyConfiguration setVoteRetries(int voteRetries) {
-      this.voteRetries = voteRetries;
-      return this;
-   }
-
-   public ReplicationBackupPolicyConfiguration setVoteRetryWait(long voteRetryWait) {
-      this.voteRetryWait = voteRetryWait;
-      return this;
-   }
-
-   public long getVoteRetryWait() {
-      return voteRetryWait;
    }
 
    public long getRetryReplicationWait() {

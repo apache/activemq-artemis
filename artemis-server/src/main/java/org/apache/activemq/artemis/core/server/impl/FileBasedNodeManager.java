@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.READ;
 import static java.nio.file.StandardOpenOption.WRITE;
 
@@ -36,33 +36,36 @@ public abstract class FileBasedNodeManager extends NodeManager {
 
    protected static final byte FIRST_TIME_START = '0';
    public static final String SERVER_LOCK_NAME = "server.lock";
-   public static final String DATA_VERSION_NAME = "server.data.version";
+   public static final String SERVER_ACTIVATION_SEQUENCE_NAME = "server.activation.sequence";
    private static final String ACCESS_MODE = "rw";
    private final File directory;
    protected FileChannel channel;
-   protected FileChannel dataVersionChannel;
+   protected FileChannel activationSequenceChannel;
 
    public FileBasedNodeManager(boolean replicatedBackup, File directory) {
       super(replicatedBackup);
       this.directory = directory;
+      if (directory != null) {
+         directory.mkdirs();
+      }
    }
 
-   protected void useDataVersionChannel() throws IOException {
-      if (dataVersionChannel != null) {
+   protected void useActivationSequenceChannel() throws IOException {
+      if (activationSequenceChannel != null) {
          return;
       }
-      dataVersionChannel = FileChannel.open(newFile(DATA_VERSION_NAME).toPath(), READ, WRITE, CREATE_NEW);
+      activationSequenceChannel = FileChannel.open(newFile(SERVER_ACTIVATION_SEQUENCE_NAME).toPath(), READ, WRITE, CREATE);
    }
 
    @Override
-   public long readDataVersion() throws NodeManagerException {
+   public long readNodeActivationSequence() throws NodeManagerException {
       if (!isStarted()) {
          throw new NodeManagerException(new IllegalStateException("node manager must be started first"));
       }
       try {
-         useDataVersionChannel();
+         useActivationSequenceChannel();
          ByteBuffer tmpBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
-         if (dataVersionChannel.read(tmpBuffer, 0) != Long.BYTES) {
+         if (activationSequenceChannel.read(tmpBuffer, 0) != Long.BYTES) {
             return 0;
          }
          tmpBuffer.flip();
@@ -73,16 +76,17 @@ public abstract class FileBasedNodeManager extends NodeManager {
    }
 
    @Override
-   public void writeDataVersion(long version) throws NodeManagerException {
+   public void writeNodeActivationSequence(long version) throws NodeManagerException {
       if (!isStarted()) {
          throw new NodeManagerException(new IllegalStateException("node manager must be started first"));
       }
       try {
-         useDataVersionChannel();
+         useActivationSequenceChannel();
          ByteBuffer tmpBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
          tmpBuffer.putLong(0, version);
-         dataVersionChannel.write(tmpBuffer, 0);
-         dataVersionChannel.force(false);
+         activationSequenceChannel.write(tmpBuffer, 0);
+         activationSequenceChannel.force(false);
+         setNodeActivationSequence(version);
       } catch (IOException ie) {
          throw new NodeManagerException(ie);
       }
@@ -149,12 +153,8 @@ public abstract class FileBasedNodeManager extends NodeManager {
       createNodeId();
    }
 
-   /**
-    * @return
-    */
    protected final File newFile(final String fileName) {
-      File file = new File(directory, fileName);
-      return file;
+      return new File(directory, fileName);
    }
 
    protected final synchronized void createNodeId() throws IOException {
@@ -190,8 +190,8 @@ public abstract class FileBasedNodeManager extends NodeManager {
             channelCopy.close();
       } finally {
          try {
-            FileChannel dataVersionChannel = this.dataVersionChannel;
-            this.dataVersionChannel = null;
+            FileChannel dataVersionChannel = this.activationSequenceChannel;
+            this.activationSequenceChannel = null;
             if (dataVersionChannel != null) {
                dataVersionChannel.close();
             }

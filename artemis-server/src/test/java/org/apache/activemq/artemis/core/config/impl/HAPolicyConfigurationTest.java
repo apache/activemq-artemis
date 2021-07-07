@@ -283,7 +283,6 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertFalse(policy.canScaleDown());
          assertFalse(policy.isBackup());
          assertFalse(policy.isSharedStore());
-         assertTrue(policy.isCheckForLiveServer());
          assertTrue(policy.isWaitForActivation());
          assertEquals("purple", policy.getGroupName());
          assertEquals("purple", policy.getBackupGroupName());
@@ -297,8 +296,6 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(policy.getBackupGroupName(), failbackPolicy.getBackupGroupName());
          assertEquals(policy.getClusterName(), failbackPolicy.getClusterName());
          assertEquals(failbackPolicy.getMaxSavedReplicatedJournalsSize(), ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize());
-         assertEquals(1, failbackPolicy.getVoteRetries());
-         assertEquals(1000, failbackPolicy.getVoteRetryWait());
          assertTrue(failbackPolicy.isTryFailback());
          assertTrue(failbackPolicy.isBackup());
          assertFalse(failbackPolicy.isSharedStore());
@@ -337,8 +334,6 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals("tiddles", policy.getBackupGroupName());
          assertEquals("33rrrrr", policy.getClusterName());
          assertEquals(22, policy.getMaxSavedReplicatedJournalsSize());
-         assertEquals(1, policy.getVoteRetries());
-         assertEquals(1000, policy.getVoteRetryWait());
          assertFalse(policy.isTryFailback());
          assertTrue(policy.isBackup());
          assertFalse(policy.isSharedStore());
@@ -358,7 +353,6 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertFalse(failoverLivePolicy.canScaleDown());
          assertFalse(failoverLivePolicy.isBackup());
          assertFalse(failoverLivePolicy.isSharedStore());
-         assertFalse(failoverLivePolicy.isCheckForLiveServer());
          assertTrue(failoverLivePolicy.isWaitForActivation());
          assertEquals(policy.getGroupName(), failoverLivePolicy.getGroupName());
          assertEquals(policy.getClusterName(), failoverLivePolicy.getClusterName());

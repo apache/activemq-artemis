@@ -19,12 +19,14 @@ package org.apache.activemq.artemis.core.server.impl;
 import javax.annotation.concurrent.GuardedBy;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAlreadyReplicatingException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
@@ -46,7 +48,10 @@ import org.apache.activemq.artemis.quorum.UnavailableStateException;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.jboss.logging.Logger;
 
-import static org.apache.activemq.artemis.core.server.impl.ClusterTopologySearch.searchActiveLiveNodeId;
+import static org.apache.activemq.artemis.core.server.ActiveMQServer.SERVER_STATE.STARTED;
+import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.awaitNextCommittedActivationSequence;
+import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.ensureSequentialAccessToNodeData;
+import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.tryActivate;
 
 /**
  * This is going to be {@link #run()} just by natural born primary, at the first start.
@@ -55,8 +60,9 @@ import static org.apache.activemq.artemis.core.server.impl.ClusterTopologySearch
 public class ReplicationPrimaryActivation extends LiveActivation implements DistributedLock.UnavailableLockListener {
 
    private static final Logger LOGGER = Logger.getLogger(ReplicationPrimaryActivation.class);
-   private static final long DISTRIBUTED_MANAGER_START_TIMEOUT_MILLIS = 20_000;
-   private static final long BLOCKING_CALLS_TIMEOUT_MILLIS = 5_000;
+   // This is the time we expect a replica to become a live from the quorum pov
+   // ie time to execute tryActivate and ensureSequentialAccessToNodeData
+   private static final long FAILBACK_TIMEOUT_MILLIS = 4_000;
 
    private final ReplicationPrimaryPolicy policy;
 
@@ -69,7 +75,7 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
 
    private final DistributedPrimitiveManager distributedManager;
 
-   private volatile boolean stoppingServer;
+   private final AtomicBoolean stoppingServer;
 
    public ReplicationPrimaryActivation(final ActiveMQServerImpl activeMQServer,
                                        final DistributedPrimitiveManager distributedManager,
@@ -78,6 +84,7 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
       this.policy = policy;
       this.replicationLock = new Object();
       this.distributedManager = distributedManager;
+      this.stoppingServer = new AtomicBoolean();
    }
 
    /**
@@ -101,18 +108,35 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
    @Override
    public void run() {
       try {
-
-         final NodeManager nodeManager = activeMQServer.getNodeManager();
-
-         final String nodeId = nodeManager.readNodeId().toString();
-
-         final long dataVersion = nodeManager.readDataVersion();
-
-         final DistributedLock liveLock = searchLiveOrAcquireLiveLock(nodeId, BLOCKING_CALLS_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-
+         // we have a common nodeId that we can share and coordinate with between peers
+         if (policy.getCoordinationId() != null) {
+            LOGGER.infof("Applying shared peer NodeID=%s to enable coordinated live activation", policy.getCoordinationId());
+            // REVISIT: this is quite clunky, also in backup activation, we just need new nodeID persisted!
+            activeMQServer.resetNodeManager();
+            activeMQServer.getNodeManager().start();
+            activeMQServer.getNodeManager().setNodeID(policy.getCoordinationId());
+            activeMQServer.getNodeManager().stopBackup();
+         }
+         final long nodeActivationSequence = activeMQServer.getNodeManager().readNodeActivationSequence();
+         final String nodeId = activeMQServer.getNodeManager().readNodeId().toString();
+         DistributedLock liveLock;
+         while (true) {
+            distributedManager.start();
+            try {
+               liveLock = tryActivate(nodeId, nodeActivationSequence, distributedManager, LOGGER);
+               break;
+            } catch (UnavailableStateException canRecoverEx) {
+               distributedManager.stop();
+            }
+         }
          if (liveLock == null) {
+            distributedManager.stop();
+            LOGGER.infof("This broker cannot become a live server with NodeID = %s: restarting as backup", nodeId);
+            activeMQServer.setHAPolicy(policy.getBackupPolicy());
             return;
          }
+
+         ensureSequentialAccessToNodeData(activeMQServer, distributedManager, LOGGER);
 
          activeMQServer.initialisePart1(false);
 
@@ -142,73 +166,9 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
       }
    }
 
-   private DistributedLock searchLiveOrAcquireLiveLock(final String nodeId,
-                                                       final long blockingCallTimeout,
-                                                       final TimeUnit unit) throws ActiveMQException, InterruptedException {
-      if (policy.isCheckForLiveServer()) {
-         LOGGER.infof("Searching a live server with NodeID = %s", nodeId);
-         if (searchActiveLiveNodeId(policy.getClusterName(), nodeId, blockingCallTimeout, unit, activeMQServer.getConfiguration())) {
-            LOGGER.infof("Found a live server with  NodeID = %s: restarting as backup", nodeId);
-            activeMQServer.setHAPolicy(policy.getBackupPolicy());
-            return null;
-         }
-      }
-      startDistributedPrimitiveManager();
-      return acquireDistributeLock(getDistributeLock(nodeId), blockingCallTimeout, unit);
-   }
-
-   private void startDistributedPrimitiveManager() throws InterruptedException, ActiveMQException {
-      LOGGER.infof("Trying to reach the majority of quorum nodes in %d ms.", DISTRIBUTED_MANAGER_START_TIMEOUT_MILLIS);
-      try {
-         if (distributedManager.start(DISTRIBUTED_MANAGER_START_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
-            return;
-         }
-      } catch (InterruptedException ie) {
-         throw ie;
-      } catch (Throwable t) {
-         LOGGER.debug(t);
-      }
-      assert !distributedManager.isStarted();
-      throw new ActiveMQException("Cannot reach the majority of quorum nodes");
-   }
-
-   private DistributedLock getDistributeLock(final String nodeId) throws InterruptedException, ActiveMQException {
-      try {
-         return distributedManager.getDistributedLock(nodeId);
-      } catch (Throwable t) {
-         try {
-            distributedManager.stop();
-         } catch (Throwable ignore) {
-            // don't care
-         }
-         if (t instanceof InterruptedException) {
-            throw (InterruptedException) t;
-         }
-         throw new ActiveMQException("Cannot obtain a live lock instance");
-      }
-   }
-
-   private DistributedLock acquireDistributeLock(final DistributedLock liveLock,
-                                                 final long acquireLockTimeout,
-                                                 final TimeUnit unit) throws InterruptedException, ActiveMQException {
-      try {
-         if (liveLock.tryLock(acquireLockTimeout, unit)) {
-            return liveLock;
-         }
-      } catch (UnavailableStateException e) {
-         LOGGER.debug(e);
-      }
-      try {
-         distributedManager.stop();
-      } catch (Throwable ignore) {
-         // don't care
-      }
-      throw new ActiveMQException("Failed to become live");
-   }
-
    @Override
    public ChannelHandler getActivationChannelHandler(final Channel channel, final Acceptor acceptorUsed) {
-      if (stoppingServer) {
+      if (stoppingServer.get()) {
          return null;
       }
       return packet -> {
@@ -268,7 +228,7 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
             awaitBackupAnnouncementOnFailbackRequest(clusterConnection);
          }
       } catch (Exception e) {
-         if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STARTED) {
+         if (activeMQServer.getState() == STARTED) {
             /*
              * The reasoning here is that the exception was either caused by (1) the
              * (interaction with) the backup, or (2) by an IO Error at the storage. If (1), we
@@ -283,7 +243,9 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
             ActiveMQServerLogger.LOGGER.errorStoppingReplication(amqe);
          } finally {
             synchronized (replicationLock) {
-               this.replicationManager = null;
+               if (this.replicationManager == replicationManager) {
+                  this.replicationManager = null;
+               }
             }
          }
       }
@@ -308,35 +270,55 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
       }
    }
 
-   /**
-    * If {@link #asyncStopServer()} happens before this call, the restart just won't happen.
-    * If {@link #asyncStopServer()} happens after this call, will make the server to stop right after being restarted.
-    */
    private void restartAsBackupAfterFailback() throws Exception {
-      if (stoppingServer) {
+      if (stoppingServer.get()) {
          return;
       }
-      synchronized (this) {
-         if (stoppingServer) {
+      final String coordinatedLockAndNodeId;
+      final long inSyncReplicaActivation;
+      synchronized (replicationLock) {
+         if (stoppingServer.get()) {
             return;
          }
-         distributedManager.stop();
+         final ReplicationManager replicationManager = this.replicationManager;
+         if (replicationManager == null) {
+            LOGGER.warnf("Failback interrupted");
+            // we got a disconnection from the replica *before* stopping acceptors: better not failback!
+            return;
+         }
+         // IMPORTANT: this is going to save server::fail to issue a replica connection failure (with failed == false)
+         // because onReplicationConnectionClose fail-fast on stopping == true.
+         if (!stoppingServer.compareAndSet(false, true)) {
+            LOGGER.infof("Failback interrupted: server is already stopping");
+            return;
+         }
+         coordinatedLockAndNodeId = activeMQServer.getNodeManager().getNodeId().toString();
+         inSyncReplicaActivation = activeMQServer.getNodeManager().getNodeActivationSequence();
+         // none can notice a concurrent drop of replica connection here: awaitNextCommittedActivationSequence defensively
+         // wait FAILBACK_TIMEOUT_MILLIS, proceed as backup and compete to become live again
          activeMQServer.fail(true);
-         ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
-         activeMQServer.setHAPolicy(policy.getBackupPolicy());
-         activeMQServer.start();
       }
+      try {
+         distributedManager.start();
+         if (!awaitNextCommittedActivationSequence(distributedManager, coordinatedLockAndNodeId, inSyncReplicaActivation, FAILBACK_TIMEOUT_MILLIS, LOGGER)) {
+            LOGGER.warnf("Timed out waiting for failback server activation with NodeID = %s: and sequence > %d: after %dms",
+                         coordinatedLockAndNodeId, inSyncReplicaActivation, FAILBACK_TIMEOUT_MILLIS);
+         }
+      } catch (UnavailableStateException ignored) {
+         LOGGER.debug("Unavailable distributed manager while awaiting failback activation sequence: ignored", ignored);
+      } finally {
+         distributedManager.stop();
+      }
+      ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
+      activeMQServer.setHAPolicy(policy.getBackupPolicy());
+      activeMQServer.start();
    }
 
    private void asyncStopServer() {
-      if (stoppingServer) {
+      if (stoppingServer.get()) {
          return;
       }
-      synchronized (this) {
-         if (stoppingServer) {
-            return;
-         }
-         stoppingServer = true;
+      if (stoppingServer.compareAndSet(false, true)) {
          new Thread(() -> {
             try {
                activeMQServer.stop();
@@ -374,19 +356,28 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
    private void onReplicationConnectionClose() {
       ExecutorService executorService = activeMQServer.getThreadPool();
       if (executorService != null) {
-         synchronized (replicationLock) {
-            if (replicationManager == null) {
-               return;
-            }
+         if (stoppingServer.get()) {
+            return;
          }
          executorService.execute(() -> {
             synchronized (replicationLock) {
                if (replicationManager == null) {
                   return;
                }
+               // we increment only if we are staying alive
+               if (!stoppingServer.get() && STARTED.equals(activeMQServer.getState())) {
+                  try {
+                     ensureSequentialAccessToNodeData(activeMQServer, distributedManager, LOGGER);
+                  } catch (Throwable fatal) {
+                     LOGGER.errorf(fatal, "Unexpected exception: %s on attempted activation sequence increment; stopping server async", fatal.getLocalizedMessage());
+                     asyncStopServer();
+                  }
+               }
                // this is going to stop the replication manager
-               activeMQServer.getStorageManager().stopReplication();
-               assert !replicationManager.isStarted();
+               final StorageManager storageManager = activeMQServer.getStorageManager();
+               if (storageManager != null) {
+                  storageManager.stopReplication();
+               }
                replicationManager = null;
             }
          });

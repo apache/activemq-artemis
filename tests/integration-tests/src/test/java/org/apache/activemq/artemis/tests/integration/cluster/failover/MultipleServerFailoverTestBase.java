@@ -182,8 +182,6 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
                break;
             case PluggableQuorumReplication:
                haPolicyConfiguration = ReplicationBackupPolicyConfiguration.withDefault()
-                  .setVoteRetries(1)
-                  .setVoteRetryWait(1000)
                   .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration())
                   .setGroupName(getNodeGroupName() != null ? (getNodeGroupName() + "-" + i) : null);
                break;
@@ -278,12 +276,14 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
       return addClientSession(sf.createSession(xa, autoCommitSends, autoCommitAcks));
    }
 
-   protected void waitForDistribution(SimpleString address, ActiveMQServer server, int messageCount) throws Exception {
+   protected boolean waitForDistribution(SimpleString address, ActiveMQServer server, int messageCount) throws Exception {
       ActiveMQServerLogger.LOGGER.debug("waiting for distribution of messages on server " + server);
 
       Queue q = (Queue) server.getPostOffice().getBinding(address).getBindable();
 
-      Wait.waitFor(() -> getMessageCount(q) >= messageCount);
+      return Wait.waitFor(() -> {
+         return getMessageCount(q) >= messageCount;
+      });
 
    }
 }

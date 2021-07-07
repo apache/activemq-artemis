@@ -1,13 +1,13 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.tests.smoke.quorum;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingCluster;
 import org.apache.curator.test.TestingZooKeeperServer;
@@ -38,7 +40,7 @@ public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSingl
 
    @Rule
    public TemporaryFolder tmpFolder = new TemporaryFolder();
-   private TestingCluster testingServer;
+   protected TestingCluster testingServer;
    private InstanceSpec[] clusterSpecs;
    private int nodes;
 
@@ -60,6 +62,8 @@ public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSingl
    @Override
    @After
    public void after() throws Exception {
+      // zk bits that leak from servers
+      ThreadLeakCheckRule.addKownThread("ListenerHandler-");
       try {
          super.after();
       } finally {
@@ -74,6 +78,16 @@ public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSingl
    @Override
    protected boolean awaitAsyncSetupCompleted(long timeout, TimeUnit unit) {
       return true;
+   }
+
+   protected boolean ensembleHasLeader() {
+      return testingServer.getServers().stream().filter(ZookeeperPluggableQuorumSinglePairTest::isLeader).count() != 0;
+   }
+
+   private static boolean isLeader(TestingZooKeeperServer server) {
+      long leaderId = server.getQuorumPeer().getLeaderId();
+      long id = server.getQuorumPeer().getId();
+      return id == leaderId;
    }
 
    @Override

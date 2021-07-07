@@ -62,6 +62,7 @@ under the License.
             <module>scale-down</module>
             <module>stop-server-failover</module>
             <module>transaction-failover</module>
+            <module>zookeeper-single-pair-failback</module>
          </modules>
       </profile>
       <profile>
@@ -81,6 +82,7 @@ under the License.
             <module>replicated-transaction-failover</module>
             <module>scale-down</module>
             <module>transaction-failover</module>
+            <module>zookeeper-single-pair-failback</module>
          </modules>
       </profile>
    </profiles>

@@ -75,7 +75,10 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
       sendCrashReceive();
       Wait.assertTrue(backupServers.get(0)::isActive, 5000, 10);
+      Wait.assertTrue(backupServers.get(1)::isActive, 5000, 10);
       waitForTopology(backupServers.get(0).getServer(), liveServers.size(), 2);
+      waitForTopology(backupServers.get(1).getServer(), liveServers.size(), 2);
+
       sendCrashBackupReceive();
    }
 
@@ -115,6 +118,14 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    }
 
    protected void sendCrashBackupReceive() throws Exception {
+
+      //make sure bindings are ready before sending messages b/c we verify strict load balancing in waitForDistribution
+      this.waitForBindings( backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings( backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+
+      this.waitForBindings( backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings( backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+
       ServerLocator locator0 = getBackupServerLocator(0);
       ServerLocator locator1 = getBackupServerLocator(1);
 
@@ -138,8 +149,8 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
       producer.close();
 
-      waitForDistribution(ADDRESS, backupServers.get(0).getServer(), 100);
-      waitForDistribution(ADDRESS, backupServers.get(1).getServer(), 100);
+      assertTrue(waitForDistribution(ADDRESS, backupServers.get(0).getServer(), 100));
+      assertTrue(waitForDistribution(ADDRESS, backupServers.get(1).getServer(), 100));
 
       List<TestableServer> toCrash = new ArrayList<>();
       for (TestableServer backupServer : backupServers) {

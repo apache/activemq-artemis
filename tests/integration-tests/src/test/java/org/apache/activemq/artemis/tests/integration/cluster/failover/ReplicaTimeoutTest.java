@@ -156,12 +156,13 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
             liveConfig.setBindingsDirectory(getBindingsDir(0, false)).setJournalDirectory(getJournalDir(0, false)).
                setPagingDirectory(getPageDir(0, false)).setLargeMessagesDirectory(getLargeMessagesDir(0, false)).setSecurityEnabled(false);
 
-            NodeManager nodeManager = createReplicatedBackupNodeManager(backupConfig);
+            NodeManager replicatedBackupNodeManager = createReplicatedBackupNodeManager(backupConfig);
 
-            backupServer = createTestableServer(backupConfig, nodeManager);
+            backupServer = createTestableServer(backupConfig, replicatedBackupNodeManager);
 
             liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
+            NodeManager nodeManager = createReplicatedBackupNodeManager(liveConfig);
             liveServer = createTestableServer(liveConfig, nodeManager);
 
             final TestableServer theBackup = backupServer;

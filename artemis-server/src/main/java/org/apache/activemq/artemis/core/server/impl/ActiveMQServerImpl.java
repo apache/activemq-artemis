@@ -659,7 +659,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                   afterActivationCreated.run();
                } catch (Throwable e) {
                   logger.warn(e.getMessage(), e); // just debug, this is not supposed to happend, and if it does
-                  // it will be embedeed code from tests
+                  // it will be embedded code from tests
                }
                afterActivationCreated = null;
             }
@@ -2877,6 +2877,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public String toString() {
       if (identity != null) {
          return "ActiveMQServerImpl::" + identity;
+      } else if (configuration != null && configuration.getName() != null) {
+         return "ActiveMQServerImpl::" + "name=" + configuration.getName();
       }
       return "ActiveMQServerImpl::" + (nodeManager != null ? "serverUUID=" + nodeManager.getUUID() : "");
    }

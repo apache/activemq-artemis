@@ -43,7 +43,8 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    public enum SyncDataType {
       JournalBindings(AbstractJournalStorageManager.JournalContent.BINDINGS.typeByte),
       JournalMessages(AbstractJournalStorageManager.JournalContent.MESSAGES.typeByte),
-      LargeMessages((byte) 2);
+      LargeMessages((byte) 2),
+      ActivationSequence((byte) 3);
 
       private byte code;
 
@@ -62,6 +63,9 @@ public class ReplicationStartSyncMessage extends PacketImpl {
             return JournalMessages;
          if (code == LargeMessages.code)
             return LargeMessages;
+         if (code == ActivationSequence.code)
+            return ActivationSequence;
+
          throw new InvalidParameterException("invalid byte: " + code);
       }
    }
@@ -78,6 +82,14 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       }
       dataType = SyncDataType.LargeMessages;
       nodeID = ""; // this value will be ignored
+   }
+
+
+   public ReplicationStartSyncMessage(String nodeID, long nodeDataVersion) {
+      this(nodeID);
+      ids = new long[1];
+      ids[0] = nodeDataVersion;
+      dataType = SyncDataType.ActivationSequence;
    }
 
    public ReplicationStartSyncMessage(String nodeID) {
@@ -118,10 +130,6 @@ public class ReplicationStartSyncMessage extends PacketImpl {
              DataConstants.SIZE_BOOLEAN + // buffer.writeBoolean(allowsAutoFailBack);
              nodeID.length() * 3; //  buffer.writeString(nodeID); -- an estimate
 
-
-      if (synchronizationIsFinished) {
-         return size;
-      }
       size += DataConstants.SIZE_BYTE + // buffer.writeByte(dataType.code);
               DataConstants.SIZE_INT +  // buffer.writeInt(ids.length);
               DataConstants.SIZE_LONG * ids.length; // the write loop
@@ -135,8 +143,6 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       buffer.writeBoolean(synchronizationIsFinished);
       buffer.writeBoolean(allowsAutoFailBack);
       buffer.writeString(nodeID);
-      if (synchronizationIsFinished)
-         return;
       buffer.writeByte(dataType.code);
       buffer.writeInt(ids.length);
       for (long id : ids) {
@@ -149,9 +155,6 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       synchronizationIsFinished = buffer.readBoolean();
       allowsAutoFailBack = buffer.readBoolean();
       nodeID = buffer.readString();
-      if (synchronizationIsFinished) {
-         return;
-      }
       dataType = SyncDataType.getDataType(buffer.readByte());
       int length = buffer.readInt();
       ids = new long[length];
