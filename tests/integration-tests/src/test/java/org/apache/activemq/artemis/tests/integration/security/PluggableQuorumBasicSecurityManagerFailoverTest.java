@@ -66,9 +66,9 @@ public class PluggableQuorumBasicSecurityManagerFailoverTest extends FailoverTes
          .setLargeMessagesDirectory(getLargeMessagesDir(0, true));
 
       setupHAPolicyConfiguration();
-      nodeManager = createReplicatedBackupNodeManager(backupConfig);
+      backupNodeManager = createReplicatedBackupNodeManager(backupConfig);
 
-      backupServer = createTestableServer(backupConfig);
+      backupServer = createTestableServer(backupConfig, backupNodeManager);
 
       backupServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
 
@@ -77,7 +77,8 @@ public class PluggableQuorumBasicSecurityManagerFailoverTest extends FailoverTes
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
-      liveServer = createTestableServer(liveConfig);
+      nodeManager = createNodeManager(liveConfig);
+      liveServer = createTestableServer(liveConfig, nodeManager);
 
       liveServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
    }

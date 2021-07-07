@@ -29,18 +29,25 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.component.WebServerComponent;
+import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.apache.activemq.artemis.quorum.MutableLong;
+import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTest;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends FailoverTest {
+   private static final Logger log = Logger.getLogger(PluggableQuorumReplicatedLargeMessageFailoverTest.class);
 
    protected void beforeWaitForRemoteBackupSynchronization() {
    }
@@ -210,4 +217,30 @@ public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends Failo
       }
       super.crash(sessions);
    }
+
+   @Override
+   protected void decrementActivationSequenceForForceRestartOf(TestableServer testableServer) throws Exception {
+      doDecrementActivationSequenceForForceRestartOf(log, nodeManager, managerConfiguration);
+   }
+
+   public static void doDecrementActivationSequenceForForceRestartOf(Logger log, NodeManager nodeManager, DistributedPrimitiveManagerConfiguration distributedPrimitiveManagerConfiguration) throws Exception {
+      nodeManager.start();
+      long localActivation = nodeManager.readNodeActivationSequence();
+      // file based
+      FileBasedPrimitiveManager fileBasedPrimitiveManager = new FileBasedPrimitiveManager(distributedPrimitiveManagerConfiguration.getProperties());
+      fileBasedPrimitiveManager.start();
+      try {
+         MutableLong mutableLong = fileBasedPrimitiveManager.getMutableLong(nodeManager.getNodeId().toString());
+
+         if (!mutableLong.compareAndSet(localActivation + 1, localActivation)) {
+            throw new Exception("Failed to decrement coordinated activation sequence to:" + localActivation + ", not +1 : " + mutableLong.get());
+         }
+         log.warn("Intentionally decrementing coordinated activation sequence for test, may result is lost data");
+
+      } finally {
+         fileBasedPrimitiveManager.stop();
+         nodeManager.stop();
+      }
+   }
+
 }

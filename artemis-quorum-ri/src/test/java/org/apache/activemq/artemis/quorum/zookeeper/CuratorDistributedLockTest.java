@@ -81,6 +81,8 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       }
       testingServer = new TestingCluster(clusterSpecs);
       testingServer.start();
+      // start waits for quorumPeer!=null but not that it has started...
+      Wait.waitFor(this::ensembleHasLeader);
       connectString = testingServer.getConnectString();
       super.setupEnv();
    }
@@ -305,6 +307,10 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       Wait.waitFor(() -> unavailableLock.get() > 0, SERVER_TICK_MS);
       Assert.assertEquals(1, unavailableManager.get());
       Assert.assertEquals(TRUE, unavailableTimedLock.get());
+   }
+
+   private boolean ensembleHasLeader() {
+      return testingServer.getServers().stream().filter(CuratorDistributedLockTest::isLeader).count() != 0;
    }
 
    private static boolean isLeader(TestingZooKeeperServer server) {

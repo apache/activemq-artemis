@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.quorum.zookeeper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -54,7 +55,7 @@ final class CuratorDistributedLock implements DistributedLock {
       this.leaseVersion = null;
    }
 
-   protected void onReconnected() {
+   void onReconnected() {
       synchronized (manager) {
          if (closed || unavailable) {
             return;
@@ -73,7 +74,7 @@ final class CuratorDistributedLock implements DistributedLock {
       }
    }
 
-   protected void onLost() {
+   void onLost() {
       synchronized (manager) {
          if (closed || unavailable) {
             return;
@@ -87,12 +88,7 @@ final class CuratorDistributedLock implements DistributedLock {
       }
    }
 
-   protected void onSuspended() {
-      synchronized (manager) {
-         if (closed || unavailable) {
-            return;
-         }
-      }
+   void onSuspended() {
    }
 
    @Override
@@ -138,7 +134,7 @@ final class CuratorDistributedLock implements DistributedLock {
             throw new UnavailableStateException(lockId + " lock state isn't available");
          }
          try {
-            final byte[] leaseVersion = UUID.randomUUID().toString().getBytes();
+            final byte[] leaseVersion = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
             ipcSem.setNodeData(leaseVersion);
             lease = ipcSem.acquire(0, TimeUnit.NANOSECONDS);
             if (lease == null) {

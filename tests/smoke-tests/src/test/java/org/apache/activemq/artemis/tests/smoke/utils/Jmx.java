@@ -77,6 +77,11 @@ public class Jmx {
       return queryControl(serviceURI, builder.getActiveMQServerObjectName(), ActiveMQServerControl::getNodeID, ActiveMQServerControl.class, throwable -> null);
    }
 
+   public static Optional<Long> getActivationSequence(JMXServiceURL serviceURI, ObjectNameBuilder builder) throws Exception {
+      return queryControl(serviceURI, builder.getActiveMQServerObjectName(), ActiveMQServerControl::getActivationSequence, ActiveMQServerControl.class, throwable -> null);
+
+   }
+
    public static Optional<String> listNetworkTopology(JMXServiceURL serviceURI,
                                                        ObjectNameBuilder builder) throws Exception {
       return queryControl(serviceURI, builder.getActiveMQServerObjectName(), ActiveMQServerControl::listNetworkTopology, ActiveMQServerControl.class, throwable -> null);

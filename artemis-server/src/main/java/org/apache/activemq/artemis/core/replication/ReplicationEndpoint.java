@@ -560,6 +560,11 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          return replicationResponseMessage;
 
       if (packet.isSynchronizationFinished()) {
+         if (packet.getFileIds() != null && packet.getFileIds().length == 1) {
+            // this is the version sequence of the data we are replicating
+            // verified if we activate with this data
+            server.getNodeManager().writeNodeActivationSequence(packet.getFileIds()[0]);
+         }
          finishSynchronization(packet.getNodeID());
          replicationResponseMessage.setSynchronizationIsFinishedAcknowledgement(true);
          return replicationResponseMessage;

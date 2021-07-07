@@ -659,7 +659,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                   afterActivationCreated.run();
                } catch (Throwable e) {
                   logger.warn(e.getMessage(), e); // just debug, this is not supposed to happend, and if it does
-                  // it will be embedeed code from tests
+                  // it will be embedded code from tests
                }
                afterActivationCreated = null;
             }

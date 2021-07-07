@@ -59,7 +59,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
    private static final int JMX_PORT_PRIMARY = 10099;
    private static final int JMX_PORT_BACKUP = 10199;
 
-   private static final String PRIMARY_DATA_FOLDER = "ReplicationPrimary";;
+   private static final String PRIMARY_DATA_FOLDER = "ReplicationPrimary";
    private static final String BACKUP_DATA_FOLDER = "ReplicationBackup";
 
    private static final int PRIMARY_PORT_OFFSET = 0;
@@ -108,6 +108,10 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       public Optional<String> listNetworkTopology() throws Exception {
          return Jmx.listNetworkTopology(jmxServiceURL, objectNameBuilder);
       }
+
+      public Optional<Long> getActivationSequence() throws Exception {
+         return Jmx.getActivationSequence(jmxServiceURL, objectNameBuilder);
+      }
    }
 
    @Parameterized.Parameter
@@ -150,6 +154,10 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       Process primaryInstance = primary.startServer(this, timeout);
       Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
       Wait.assertTrue(() -> !primary.isBackup().orElse(true), timeout);
+
+      // primary UN REPLICATED
+      Assert.assertEquals(1L, primary.getActivationSequence().get().longValue());
+
       LOGGER.info("started primary");
       LOGGER.info("starting backup");
       Process backupInstance = backup.startServer(this, 0);
@@ -176,6 +184,11 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       Assert.assertNotNull(urlPrimary);
       LOGGER.infof("primary: %s", urlPrimary);
       Assert.assertNotEquals(urlPrimary, urlBackup);
+
+      // primary REPLICATED, backup matches (has replicated) activation sequence
+      Assert.assertEquals(1L, primary.getActivationSequence().get().longValue());
+      Assert.assertEquals(1L, backup.getActivationSequence().get().longValue());
+
       LOGGER.info("killing primary");
       ServerUtil.killServer(primaryInstance, forceKill);
       LOGGER.info("killed primary");
@@ -188,11 +201,15 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
                                                        .and(withNodes(1))), timeout);
       LOGGER.infof("backup topology is: %s", backup.listNetworkTopology().get());
       Assert.assertEquals(nodeID, backup.getNodeID().get());
+
+      // backup UN REPLICATED (new version)
+      Assert.assertEquals(2L, backup.getActivationSequence().get().longValue());
+
       // wait a bit before restarting primary
       LOGGER.info("waiting before starting primary");
       TimeUnit.SECONDS.sleep(4);
       LOGGER.info("starting primary");
-      primary.startServer(this, 0);
+      primaryInstance = primary.startServer(this, 0);
       LOGGER.info("started primary");
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
       Assert.assertTrue(!primary.isBackup().get());
@@ -209,6 +226,14 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       Assert.assertTrue(backup.isReplicaSync().get());
       LOGGER.infof("backup is synchronized with live");
       Assert.assertEquals(nodeID, primary.getNodeID().get());
+
+      // primary ran un replicated for a short while after failback, before backup was in sync
+      Assert.assertEquals(3L, primary.getActivationSequence().get().longValue());
+      Assert.assertEquals(3L, backup.getActivationSequence().get().longValue());
+
+      LOGGER.infof("Done, killing both");
+      ServerUtil.killServer(primaryInstance);
+      ServerUtil.killServer(backupInstance);
    }
 
    @Test
@@ -272,5 +297,89 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       Wait.waitFor(()-> !backupInstance.isAlive(), timeout);
    }
 
+
+   @Test
+   public void testOnlyLastUnreplicatedCanStart() throws Exception {
+      final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
+      LOGGER.info("starting primary");
+      Process primaryInstance = primary.startServer(this, timeout);
+      Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
+      Wait.assertTrue(() -> !primary.isBackup().orElse(true), timeout);
+      LOGGER.info("started primary");
+      LOGGER.info("starting backup");
+      Process backupInstance = backup.startServer(this, 0);
+      Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
+      final String nodeID = primary.getNodeID().get();
+      Assert.assertNotNull(nodeID);
+      LOGGER.infof("NodeID: %s", nodeID);
+      for (BrokerControl broker : brokers) {
+         Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
+                                                       containsExactNodeIds(nodeID)
+                                                          .and(withLive(nodeID, Objects::nonNull))
+                                                          .and(withBackup(nodeID, Objects::nonNull))
+                                                          .and(withMembers(1))
+                                                          .and(withNodes(2))), timeout);
+      }
+      LOGGER.infof("primary topology is: %s", primary.listNetworkTopology().get());
+      LOGGER.infof("backup topology is: %s", backup.listNetworkTopology().get());
+      Assert.assertTrue(backup.isReplicaSync().get());
+      LOGGER.infof("backup is synchronized with live");
+      final String urlBackup = backupOf(nodeID, decodeNetworkTopologyJson(backup.listNetworkTopology().get()));
+      Assert.assertNotNull(urlBackup);
+      LOGGER.infof("backup: %s", urlBackup);
+      final String urlPrimary = liveOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
+      Assert.assertNotNull(urlPrimary);
+      LOGGER.infof("primary: %s", urlPrimary);
+      Assert.assertNotEquals(urlPrimary, urlBackup);
+
+
+      // verify sequence id's in sync
+      Assert.assertEquals(1L, primary.getActivationSequence().get().longValue());
+      Assert.assertEquals(1L, backup.getActivationSequence().get().longValue());
+
+      LOGGER.info("killing primary");
+      ServerUtil.killServer(primaryInstance, forceKill);
+      LOGGER.info("killed primary");
+      Wait.assertTrue(() -> !backup.isBackup().orElse(true), timeout);
+      Wait.assertTrue(() -> validateNetworkTopology(backup.listNetworkTopology().orElse(""),
+                                                    containsExactNodeIds(nodeID)
+                                                       .and(withLive(nodeID, urlBackup::equals))
+                                                       .and(withBackup(nodeID, Objects::isNull))
+                                                       .and(withMembers(1))
+                                                       .and(withNodes(1))), timeout);
+      LOGGER.infof("backup topology is: %s", backup.listNetworkTopology().get());
+      Assert.assertEquals(nodeID, backup.getNodeID().get());
+
+
+      // backup now UNREPLICATED, it is the only node that can continue
+      Assert.assertEquals(2L, backup.getActivationSequence().get().longValue());
+
+      LOGGER.info("killing backup");
+      ServerUtil.killServer(backupInstance, forceKill);
+
+      // wait a bit before restarting primary
+      LOGGER.info("waiting before starting primary");
+      TimeUnit.SECONDS.sleep(4);
+      LOGGER.info("restarting primary");
+
+      Process restartedPrimary = primary.startServer(this, 0);
+      LOGGER.info("restarted primary, " + restartedPrimary);
+
+      // primary should fail to start
+      assertTrue(restartedPrimary.waitFor(5, TimeUnit.SECONDS));
+      assertNotEquals(0, restartedPrimary.exitValue());
+
+      LOGGER.info("restarting backup");
+
+      // backup can resume with data seq 3
+      final Process restartedBackupInstance = backup.startServer(this, 5000);
+      Wait.waitFor(restartedBackupInstance::isAlive, 5000);
+      assertTrue(Wait.waitFor(() -> nodeID.equals(backup.getNodeID().orElse("not set yet"))));
+      LOGGER.info("restarted backup");
+
+      Assert.assertEquals(3L, backup.getActivationSequence().get().longValue());
+
+      killServer(restartedBackupInstance);
+   }
 }
 

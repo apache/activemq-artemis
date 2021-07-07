@@ -321,6 +321,15 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "Node ID of this server")
    String getNodeID();
 
+
+   /**
+    * Returns the current activation sequence number of this server.
+    * <br>
+    * When replicated, peers may coordinate activation with this monotonic sequence
+    */
+   @Attribute(desc = "Activation sequence of this server instance")
+   long getActivationSequence();
+
    /**
     * Returns the management notification address of this server.
     * <br>

@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.quorum.UnavailableStateException;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.core.server.ActiveMQServer.SERVER_STATE.STARTED;
 import static org.apache.activemq.artemis.core.server.impl.ClusterTopologySearch.searchActiveLiveNodeId;
 
 /**
@@ -106,13 +107,13 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
 
          final String nodeId = nodeManager.readNodeId().toString();
 
-         final long dataVersion = nodeManager.readDataVersion();
-
          final DistributedLock liveLock = searchLiveOrAcquireLiveLock(nodeId, BLOCKING_CALLS_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
          if (liveLock == null) {
             return;
          }
+
+         ReplicationBackupActivation.ensureSequentialAccessToNodeData(activeMQServer, distributedManager, LOGGER);
 
          activeMQServer.initialisePart1(false);
 
@@ -268,7 +269,7 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
             awaitBackupAnnouncementOnFailbackRequest(clusterConnection);
          }
       } catch (Exception e) {
-         if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STARTED) {
+         if (activeMQServer.getState() == STARTED) {
             /*
              * The reasoning here is that the exception was either caused by (1) the
              * (interaction with) the backup, or (2) by an IO Error at the storage. If (1), we
@@ -324,6 +325,14 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
          activeMQServer.fail(true);
          ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
          activeMQServer.setHAPolicy(policy.getBackupPolicy());
+
+         // we have matching activation sequence with the failback server so we
+         // can compete to get the lock that we have just released.
+         // we need to delay to give it a chance to get the lock, it is waiting on
+         // the server shutdown command on the cluster connection that has just been delivered
+         // by fail(..)
+         //
+         Thread.sleep(policy.getBackupPolicy().getVoteRetryWait());
          activeMQServer.start();
       }
    }
@@ -381,6 +390,15 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
          }
          executorService.execute(() -> {
             synchronized (replicationLock) {
+               // we increment only if we are staying alive
+               if (STARTED.equals(activeMQServer.getState())) {
+                  try {
+                     ReplicationBackupActivation.ensureSequentialAccessToNodeData(activeMQServer, distributedManager, LOGGER);
+                  } catch (Throwable fatal) {
+                     LOGGER.errorf(fatal, "Unexpected exception: %s on attempted activation sequence increment; stopping server async", fatal.getLocalizedMessage());
+                     asyncStopServer();
+                  }
+               }
                if (replicationManager == null) {
                   return;
                }

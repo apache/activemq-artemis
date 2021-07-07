@@ -30,7 +30,7 @@ public class PluggableQuorumReplicationOrderTest extends ReplicationOrderTest {
    @Parameterized.Parameter
    public boolean useNetty;
 
-   @Parameterized.Parameters(name = "useNetty={1}")
+   @Parameterized.Parameters(name = "useNetty={0}")
    public static Iterable<Object[]> getParams() {
       return asList(new Object[][]{{false}, {true}});
    }

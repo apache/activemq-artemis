@@ -20,9 +20,14 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.LargeMessageFailoverTest;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.tests.integration.cluster.failover.quorum.PluggableQuorumNettyNoGroupNameReplicatedFailoverTest.doDecrementActivationSequenceForForceRestartOf;
 
 public class PluggableQuorumReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest {
 
+   private static final Logger log = Logger.getLogger(PluggableQuorumReplicatedLargeMessageFailoverTest.class);
    @Override
    protected void createConfigs() throws Exception {
       createPluggableReplicatedConfigs();
@@ -58,4 +63,8 @@ public class PluggableQuorumReplicatedLargeMessageFailoverTest extends LargeMess
       super.crash(sessions);
    }
 
+   @Override
+   protected void decrementActivationSequenceForForceRestartOf(TestableServer liveServer) throws Exception {
+      doDecrementActivationSequenceForForceRestartOf(log, nodeManager, managerConfiguration);
+   }
 }

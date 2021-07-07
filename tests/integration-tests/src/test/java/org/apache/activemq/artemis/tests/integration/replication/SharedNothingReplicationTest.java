@@ -244,7 +244,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
          .setCheckForLiveServer(false);
    }
 
-   private Configuration createLiveConfiguration() throws Exception {
+   protected Configuration createLiveConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
       conf.setName("localhost::live");
 
@@ -275,7 +275,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
       return new ReplicaPolicyConfiguration().setClusterName("cluster");
    }
 
-   private Configuration createBackupConfiguration() throws Exception {
+   protected Configuration createBackupConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
       conf.setName("localhost::backup");
 

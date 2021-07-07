@@ -659,6 +659,8 @@ public class FailoverTest extends FailoverTestBase {
 
       backupServer.getServer().fail(true);
 
+      decrementActivationSequenceForForceRestartOf(liveServer);
+
       liveServer.start();
 
       consumer.close();
@@ -823,6 +825,7 @@ public class FailoverTest extends FailoverTestBase {
       Assert.assertFalse("must NOT be a backup", isBackup);
       adaptLiveConfigForReplicatedFailBack(liveServer);
       beforeRestart(liveServer);
+      decrementActivationSequenceForForceRestartOf(liveServer);
       liveServer.start();
       Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
 
@@ -931,12 +934,13 @@ public class FailoverTest extends FailoverTestBase {
          while (!backupServer.isStarted() && i++ < 100) {
             Thread.sleep(100);
          }
-         liveServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
+         backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
          Assert.assertTrue(backupServer.isStarted());
 
          if (isReplicated) {
             FileMoveManager moveManager = new FileMoveManager(backupServer.getServer().getConfiguration().getJournalLocation(), 0);
-            Assert.assertEquals(1, moveManager.getNumberOfFolders());
+            // backup has not had a chance to restart as a backup and cleanup
+            Wait.assertTrue(() -> moveManager.getNumberOfFolders() <= 2);
          }
       } else {
          backupServer.stop();
@@ -2424,6 +2428,10 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    protected void beforeRestart(TestableServer liveServer1) {
+      // no-op
+   }
+
+   protected void decrementActivationSequenceForForceRestartOf(TestableServer liveServer) throws Exception {
       // no-op
    }
 

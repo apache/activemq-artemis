@@ -18,16 +18,18 @@ package org.apache.activemq.artemis.quorum.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 import org.apache.activemq.artemis.quorum.MutableLong;
+import org.apache.activemq.artemis.quorum.UnavailableStateException;
 
 /**
  * This is an implementation suitable to be used just on unit tests and it won't attempt
@@ -127,8 +129,55 @@ public class FileBasedPrimitiveManager implements DistributedPrimitiveManager {
    }
 
    @Override
-   public MutableLong getMutableLong(String mutableLongId) throws InterruptedException, ExecutionException, TimeoutException {
-      // TODO
-      return null;
+   public MutableLong getMutableLong(final String mutableLongId) throws ExecutionException {
+      // use a lock file - but with a prefix
+      final FileDistributedLock fileDistributedLock = (FileDistributedLock) getDistributedLock("ML:" + mutableLongId);
+      return new MutableLong() {
+         @Override
+         public String getMutableLongId() {
+            return mutableLongId;
+         }
+
+         @Override
+         public long get() throws UnavailableStateException {
+            try {
+               return readLong(fileDistributedLock);
+            } catch (IOException e) {
+               throw new UnavailableStateException(e);
+            }
+         }
+
+         @Override
+         public void set(long value) throws UnavailableStateException {
+            try {
+               writeLong(fileDistributedLock, value);
+            } catch (IOException e) {
+               throw new UnavailableStateException(e);
+            }
+         }
+
+         @Override
+         public void close() {
+            fileDistributedLock.close();
+         }
+      };
+   }
+
+   private void writeLong(FileDistributedLock fileDistributedLock, long value) throws IOException {
+      ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
+      buffer.putLong(value);
+      buffer.flip();
+      if (fileDistributedLock.getChannel().position(0).write(buffer) == Long.BYTES) {
+         fileDistributedLock.getChannel().force(false);
+      }
+   }
+
+   private long readLong(FileDistributedLock fileDistributedLock) throws IOException {
+      ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
+      if (fileDistributedLock.getChannel().position(0).read(buffer, 0) != Long.BYTES) {
+         return 0;
+      }
+      buffer.flip();
+      return buffer.getLong();
    }
 }

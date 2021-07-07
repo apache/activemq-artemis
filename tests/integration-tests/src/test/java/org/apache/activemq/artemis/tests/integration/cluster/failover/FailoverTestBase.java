@@ -88,6 +88,10 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
    protected NodeManager nodeManager;
 
+   protected NodeManager backupNodeManager;
+
+   protected DistributedPrimitiveManagerConfiguration managerConfiguration;
+
    protected boolean startBackupServer = true;
 
    @Override
@@ -173,6 +177,10 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       return new InVMNodeManager(false);
    }
 
+   protected NodeManager createNodeManager(Configuration configuration) throws Exception {
+      return new InVMNodeManager(false, configuration.getNodeManagerLockLocation());
+   }
+
    protected void createConfigs() throws Exception {
       nodeManager = createNodeManager();
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
@@ -211,13 +219,14 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
 
       setupHAPolicyConfiguration();
-      nodeManager = createReplicatedBackupNodeManager(backupConfig);
+      backupNodeManager = createReplicatedBackupNodeManager(backupConfig);
 
-      backupServer = createTestableServer(backupConfig);
+      backupServer = createTestableServer(backupConfig, backupNodeManager);
 
       liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
-      liveServer = createTestableServer(liveConfig);
+      nodeManager = createNodeManager(liveConfig);
+      liveServer = createTestableServer(liveConfig, nodeManager);
 
       if (supportsRetention()) {
          liveServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, false) + "_retention");
@@ -233,7 +242,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       backupConfig = createDefaultInVMConfig();
       liveConfig = createDefaultInVMConfig();
 
-      DistributedPrimitiveManagerConfiguration managerConfiguration =
+      managerConfiguration =
          new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
                                                       Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
 
@@ -242,13 +251,14 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
 
       setupHAPolicyConfiguration();
-      nodeManager = createReplicatedBackupNodeManager(backupConfig);
+      backupNodeManager = createReplicatedBackupNodeManager(backupConfig);
 
-      backupServer = createTestableServer(backupConfig);
+      backupServer = createTestableServer(backupConfig, backupNodeManager);
 
       liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
-      liveServer = createTestableServer(liveConfig);
+      nodeManager = createNodeManager(liveConfig);
+      liveServer = createTestableServer(liveConfig, nodeManager);
    }
 
    protected void setupHAPolicyConfiguration() {
@@ -294,6 +304,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
       nodeManager = null;
 
+      backupNodeManager = null;
       try {
          ServerSocket serverSocket = new ServerSocket(61616);
          serverSocket.close();

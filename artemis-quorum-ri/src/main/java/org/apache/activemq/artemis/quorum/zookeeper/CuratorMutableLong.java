@@ -25,7 +25,6 @@ import org.apache.curator.framework.recipes.atomic.DistributedAtomicLong;
 
 final class CuratorMutableLong implements MutableLong {
 
-   // this is used to prevent deadlocks on close
    private final CuratorDistributedPrimitiveManager manager;
    private final String id;
    private final DistributedAtomicLong atomicLong;
@@ -45,15 +44,16 @@ final class CuratorMutableLong implements MutableLong {
       this.unavailable = false;
    }
 
-   protected void onReconnected() {
+   void onReconnected() {
       synchronized (manager) {
-         if (closed || unavailable) {
+         if (closed) {
             return;
          }
+         unavailable = false;
       }
    }
 
-   protected void onLost() {
+   void onLost() {
       synchronized (manager) {
          if (closed || unavailable) {
             return;
@@ -62,12 +62,7 @@ final class CuratorMutableLong implements MutableLong {
       }
    }
 
-   protected void onSuspended() {
-      synchronized (manager) {
-         if (closed || unavailable) {
-            return;
-         }
-      }
+   void onSuspended() {
    }
 
    private void checkNotClosed() {
@@ -130,9 +125,6 @@ final class CuratorMutableLong implements MutableLong {
          closed = true;
          if (useCallback) {
             onClose.accept(this);
-         }
-         if (unavailable) {
-            return;
          }
       }
    }

@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.tests.smoke.quorum;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingCluster;
 import org.apache.curator.test.TestingZooKeeperServer;
@@ -60,6 +62,8 @@ public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSingl
    @Override
    @After
    public void after() throws Exception {
+      // zk bits that leak from servers
+      ThreadLeakCheckRule.addKownThread("ListenerHandler-");
       try {
          super.after();
       } finally {
