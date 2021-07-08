@@ -276,12 +276,17 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
                break;
             }
 
-            // We allocated a Pooled Direct Buffer, that will be sent down the stream
             ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(pending);
-            buffer.writeBytes(head);
+            try {
+               // We allocated a Pooled Direct Buffer, that will be sent down the stream
+               buffer.writeBytes(head);
 
-            for (EventHandler handler : handlers) {
-               handler.pushBytes(buffer);
+               for (EventHandler handler : handlers) {
+                  handler.pushBytes(buffer);
+               }
+            } finally {
+               // We need to release the buffer when it has been sent downstream
+               buffer.release();
             }
 
             transport.pop(pending);
