@@ -743,13 +743,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          QueueQuery subResponse = session.queueQuery(queueName);
 
-         if (!(subResponse.isExists() && Objects.equals(subResponse.getAddress(), dest.getSimpleAddress()) && Objects.equals(subResponse.getFilterString(), coreFilterString))) {
+         if ((!subResponse.isExists() || !Objects.equals(subResponse.getAddress(), dest.getSimpleAddress()) || !Objects.equals(subResponse.getFilterString(), coreFilterString)) && !subResponse.isConfigurationManaged()) {
             try {
-               if (durability == ConsumerDurability.DURABLE) {
-                  createSharedQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, true, response);
-               } else {
-                  createSharedQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, false, response);
-               }
+               createSharedQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, durability == ConsumerDurability.DURABLE, response);
             } catch (ActiveMQQueueExistsException ignored) {
                // We ignore this because querying and then creating the queue wouldn't be idempotent
                // we could also add a parameter to ignore existence what would require a bigger work around to avoid

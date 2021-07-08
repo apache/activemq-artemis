@@ -1110,7 +1110,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                       * recreate the queue (JMS semantics). However, if the corresponding queue is managed via the
                       * configuration then we don't want to change it
                       */
-                     if (!result.isConfigurationManaged() && (!Objects.equals(result.getFilterString(), simpleStringSelector) || (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString())))) {
+                     if (!result.isConfigurationManaged() && (!Objects.equals(result.getAddress(), addressToUse) || !Objects.equals(result.getFilterString(), simpleStringSelector))) {
 
                         if (result.getConsumerCount() == 0) {
                            sessionSPI.deleteQueue(queue);
@@ -1132,7 +1132,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   if (shared && sender.getName() != null) {
                      queue = createQueueName(connection.isUseCoreSubscriptionNaming(), getClientId(), sender.getName(), shared, global, isVolatile);
                      QueueQueryResult result = sessionSPI.queueQuery(queue, routingTypeToUse, false);
-                     if (!(result.isExists() && Objects.equals(result.getAddress(), addressToUse) && Objects.equals(result.getFilterString(), simpleStringSelector))) {
+                     if ((!result.isExists() || !Objects.equals(result.getAddress(), addressToUse) || !Objects.equals(result.getFilterString(), simpleStringSelector)) && !result.isConfigurationManaged()) {
                         sessionSPI.createSharedVolatileQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
                      }
                   } else {
