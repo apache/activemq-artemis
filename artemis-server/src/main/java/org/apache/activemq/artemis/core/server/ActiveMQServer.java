@@ -40,7 +40,6 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
-import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -165,11 +164,6 @@ public interface ActiveMQServer extends ServiceComponent {
    NodeManager getNodeManager();
 
    CriticalAnalyzer getCriticalAnalyzer();
-
-   /**
-    * @return
-    */
-   ReplicationEndpoint getReplicationEndpoint();
 
    /**
     * it will release hold a lock for the activation.

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.cli.commands;
 import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
@@ -71,6 +71,7 @@ public class Run extends LockAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
+      AtomicReference<Throwable> serverActivationFailed = new AtomicReference<>();
       try {
          BrokerDTO broker = getBrokerDTO();
          ActiveMQSecurityManager securityManager = SecurityManagerFactory.create(broker.security);
@@ -110,8 +111,7 @@ public class Run extends LockAbstract {
          server = BrokerFactory.createServer(broker.server, securityManager, activateCallback);
 
          server.createComponents();
-         AtomicBoolean serverActivationFailed = new AtomicBoolean(false);
-         server.getServer().registerActivationFailureListener(exception -> serverActivationFailed.set(true));
+         server.getServer().registerActivationFailureListener(exception -> serverActivationFailed.set(exception));
          server.start();
          server.getServer().addExternalComponent(managementContext, false);
 
@@ -126,14 +126,16 @@ public class Run extends LockAbstract {
             server.getServer().addExternalComponent(component, true);
             assert component.isStarted();
          }
-
-         if (serverActivationFailed.get()) {
-            stop();
-         }
       } catch (Throwable t) {
          t.printStackTrace();
-         stop();
+         serverActivationFailed.set(t);
       }
+
+      if (serverActivationFailed.get() != null) {
+         stop();
+         return serverActivationFailed.get();
+      }
+
       return new Pair<>(managementContext, server.getServer());
    }
 

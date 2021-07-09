@@ -462,4 +462,13 @@ public class SharedNothingLiveActivation extends LiveActivation {
    private TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames) {
       return activeMQServer.getConfiguration().getTransportConfigurations(connectorNames);
    }
+
+   @Override
+   public boolean isReplicaSync() {
+      final ReplicationManager replicationManager = getReplicationManager();
+      if (replicationManager == null) {
+         return false;
+      }
+      return !replicationManager.isSynchronizing();
+   }
 }

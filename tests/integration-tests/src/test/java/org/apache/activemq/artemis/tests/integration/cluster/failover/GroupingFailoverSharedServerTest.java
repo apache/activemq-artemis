@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 public class GroupingFailoverSharedServerTest extends GroupingFailoverTestBase {
 
    @Override
-   protected boolean isSharedStore() {
-      return true;
+   protected HAType haType() {
+      return HAType.SharedStore;
    }
 }

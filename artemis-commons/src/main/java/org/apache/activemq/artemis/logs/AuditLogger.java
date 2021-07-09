@@ -2833,4 +2833,12 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601747, value = "User {0} is getting auto-created property on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void isAutoCreated(String user, Object source, Object... args);
+
+   static void getActivationSequence(Object source) {
+      LOGGER.getActivationSequence(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601748, value = "User {0} is getting activation sequence on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getActivationSequence(String user, Object source, Object... args);
 }

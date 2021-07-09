@@ -80,10 +80,16 @@ public class ClusterController implements ActiveMQComponent {
    private boolean started;
    private SimpleString replicatedClusterName;
 
-   public ClusterController(ActiveMQServer server, ScheduledExecutorService scheduledExecutor) {
+   public ClusterController(ActiveMQServer server,
+                            ScheduledExecutorService scheduledExecutor,
+                            boolean useQuorumManager) {
       this.server = server;
       executor = server.getExecutorFactory().getExecutor();
-      quorumManager = new QuorumManager(scheduledExecutor, this);
+      quorumManager = useQuorumManager ? new QuorumManager(scheduledExecutor, this) : null;
+   }
+
+   public ClusterController(ActiveMQServer server, ScheduledExecutorService scheduledExecutor) {
+      this(server, scheduledExecutor, true);
    }
 
    @Override
@@ -108,11 +114,11 @@ public class ClusterController implements ActiveMQComponent {
       //latch so we know once we are connected
       replicationClusterConnectedLatch = new CountDownLatch(1);
       //and add the quorum manager as a topology listener
-      if (defaultLocator != null) {
-         defaultLocator.addClusterTopologyListener(quorumManager);
-      }
-
       if (quorumManager != null) {
+         if (defaultLocator != null) {
+            defaultLocator.addClusterTopologyListener(quorumManager);
+         }
+
          //start the quorum manager
          quorumManager.start();
       }
@@ -124,6 +130,26 @@ public class ClusterController implements ActiveMQComponent {
             executor.execute(new ConnectRunnable(serverLocatorInternal));
          }
       }
+   }
+
+   /**
+    * It adds {@code clusterTopologyListener} to {@code defaultLocator}.
+    */
+   public void addClusterTopologyListener(ClusterTopologyListener clusterTopologyListener) {
+      if (!this.started || defaultLocator == null) {
+         throw new IllegalStateException("the controller must be started and with a locator initialized");
+      }
+      this.defaultLocator.addClusterTopologyListener(clusterTopologyListener);
+   }
+
+   /**
+    * It remove {@code clusterTopologyListener} from {@code defaultLocator}.
+    */
+   public void removeClusterTopologyListener(ClusterTopologyListener clusterTopologyListener) {
+      if (!this.started || defaultLocator == null) {
+         throw new IllegalStateException("the controller must be started and with a locator initialized");
+      }
+      this.defaultLocator.removeClusterTopologyListener(clusterTopologyListener);
    }
 
    @Override
@@ -138,7 +164,9 @@ public class ClusterController implements ActiveMQComponent {
          serverLocatorInternal.close();
       }
       //stop the quorum manager
-      quorumManager.stop();
+      if (quorumManager != null) {
+         quorumManager.stop();
+      }
    }
 
    @Override
@@ -224,12 +252,32 @@ public class ClusterController implements ActiveMQComponent {
    }
 
    /**
+    * add a cluster listener
+    *
+    * @param listener
+    */
+   public void removeClusterTopologyListenerForReplication(ClusterTopologyListener listener) {
+      if (replicationLocator != null) {
+         replicationLocator.removeClusterTopologyListener(listener);
+      }
+   }
+
+   /**
     * add an interceptor
     *
     * @param interceptor
     */
    public void addIncomingInterceptorForReplication(Interceptor interceptor) {
       replicationLocator.addIncomingInterceptor(interceptor);
+   }
+
+   /**
+    * remove an interceptor
+    *
+    * @param interceptor
+    */
+   public void removeIncomingInterceptorForReplication(Interceptor interceptor) {
+      replicationLocator.removeIncomingInterceptor(interceptor);
    }
 
    /**
@@ -406,7 +454,11 @@ public class ClusterController implements ActiveMQComponent {
                   logger.debug("there is no acceptor used configured at the CoreProtocolManager " + this);
                }
             } else if (packet.getType() == PacketImpl.QUORUM_VOTE) {
-               quorumManager.handleQuorumVote(clusterChannel, packet);
+               if (quorumManager != null) {
+                  quorumManager.handleQuorumVote(clusterChannel, packet);
+               } else {
+                  logger.warnf("Received %s on a cluster connection that's using the new quorum vote algorithm.", packet);
+               }
             } else if (packet.getType() == PacketImpl.SCALEDOWN_ANNOUNCEMENT) {
                ScaleDownAnnounceMessage message = (ScaleDownAnnounceMessage) packet;
                //we don't really need to check as it should always be true

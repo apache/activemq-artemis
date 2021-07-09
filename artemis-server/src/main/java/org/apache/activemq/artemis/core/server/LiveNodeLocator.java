@@ -21,7 +21,6 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 
 /**
  * A class that will locate a particular live server running in a cluster. How this live is chosen
@@ -31,16 +30,23 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBacku
  */
 public abstract class LiveNodeLocator implements ClusterTopologyListener {
 
-   private SharedNothingBackupQuorum backupQuorum;
+   @FunctionalInterface
+   public interface BackupRegistrationListener {
 
-   public LiveNodeLocator(SharedNothingBackupQuorum backupQuorum) {
-      this.backupQuorum = backupQuorum;
+      void onBackupRegistrationFailed(boolean alreadyReplicating);
+   }
+
+   private final BackupRegistrationListener backupRegistrationListener;
+
+   public LiveNodeLocator(BackupRegistrationListener backupRegistrationListener) {
+      this.backupRegistrationListener = backupRegistrationListener;
    }
 
    /**
     * Use this constructor when the LiveNodeLocator is used for scaling down rather than replicating
     */
    public LiveNodeLocator() {
+      this(null);
    }
 
    /**
@@ -67,12 +73,8 @@ public abstract class LiveNodeLocator implements ClusterTopologyListener {
     * tells the locator the the current connector has failed.
     */
    public void notifyRegistrationFailed(boolean alreadyReplicating) {
-      if (backupQuorum != null) {
-         if (alreadyReplicating) {
-            backupQuorum.notifyAlreadyReplicating();
-         } else {
-            backupQuorum.notifyRegistrationFailed();
-         }
+      if (backupRegistrationListener != null) {
+         backupRegistrationListener.onBackupRegistrationFailed(alreadyReplicating);
       }
    }
 

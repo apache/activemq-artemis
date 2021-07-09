@@ -48,11 +48,11 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      setupLiveServer(0, isFileStorage(), false, isNetty(), true);
+      setupLiveServer(0, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       servers[0].getConfiguration().setSecurityEnabled(true);
-      setupLiveServer(1, isFileStorage(), false, isNetty(), true);
+      setupLiveServer(1, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       servers[1].getConfiguration().setSecurityEnabled(true);
-      setupLiveServer(2, isFileStorage(), false, isNetty(), true);
+      setupLiveServer(2, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       servers[2].getConfiguration().setSecurityEnabled(true);
       LiveOnlyPolicyConfiguration haPolicyConfiguration0 = (LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
       ScaleDownConfiguration scaleDownConfiguration0 = new ScaleDownConfiguration();

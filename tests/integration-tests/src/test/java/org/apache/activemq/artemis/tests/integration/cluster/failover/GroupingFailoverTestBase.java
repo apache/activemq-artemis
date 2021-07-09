@@ -26,22 +26,26 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Test;
 
 public abstract class GroupingFailoverTestBase extends ClusterTestBase {
 
    @Test
    public void testGroupingLocalHandlerFails() throws Exception {
-      setupBackupServer(2, 0, isFileStorage(), isSharedStore(), isNetty());
+      setupBackupServer(2, 0, isFileStorage(), haType(), isNetty());
 
-      setupLiveServer(0, isFileStorage(), isSharedStore(), isNetty(), false);
+      setupLiveServer(0, isFileStorage(), haType(), isNetty(), false);
 
-      setupLiveServer(1, isFileStorage(), isSharedStore(), isNetty(), false);
+      setupLiveServer(1, isFileStorage(), haType(), isNetty(), false);
 
       setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
 
@@ -54,10 +58,18 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase {
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 2);
-      if (!isSharedStore()) {
-         ((ReplicatedPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
-         ((ReplicatedPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
-         ((ReplicaPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+      switch (haType()) {
+
+         case SharedNothingReplication:
+            ((ReplicatedPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+            ((ReplicatedPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
+            ((ReplicaPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+            break;
+         case PluggableQuorumReplication:
+            ((ReplicationPrimaryPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+            ((ReplicationPrimaryPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
+            ((ReplicationBackupPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+            break;
       }
 
       startServers(0, 1, 2);
@@ -129,11 +141,11 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase {
 
    @Test
    public void testGroupingLocalHandlerFailsMultipleGroups() throws Exception {
-      setupBackupServer(2, 0, isFileStorage(), isSharedStore(), isNetty());
+      setupBackupServer(2, 0, isFileStorage(), haType(), isNetty());
 
-      setupLiveServer(0, isFileStorage(), isSharedStore(), isNetty(), false);
+      setupLiveServer(0, isFileStorage(), haType(), isNetty(), false);
 
-      setupLiveServer(1, isFileStorage(), isSharedStore(), isNetty(), false);
+      setupLiveServer(1, isFileStorage(), haType(), isNetty(), false);
 
       setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
 
@@ -147,10 +159,18 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase {
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 2);
 
-      if (!isSharedStore()) {
-         ((ReplicatedPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
-         ((ReplicatedPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
-         ((ReplicaPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+      switch (haType()) {
+
+         case SharedNothingReplication:
+            ((ReplicatedPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+            ((ReplicatedPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
+            ((ReplicaPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+            break;
+         case PluggableQuorumReplication:
+            ((ReplicationPrimaryPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+            ((ReplicationPrimaryPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
+            ((ReplicationBackupPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+            break;
       }
 
       startServers(0, 1, 2);
@@ -187,9 +207,17 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase {
 
       verifyReceiveAllWithGroupIDRoundRobin(0, 30, 0, 1);
 
-      if (!isSharedStore()) {
-         SharedNothingBackupActivation backupActivation = (SharedNothingBackupActivation) servers[2].getActivation();
-         assertTrue(backupActivation.waitForBackupSync(10, TimeUnit.SECONDS));
+      switch (haType()) {
+         case SharedNothingReplication: {
+            SharedNothingBackupActivation backupActivation = (SharedNothingBackupActivation) servers[2].getActivation();
+            assertTrue(backupActivation.waitForBackupSync(10, TimeUnit.SECONDS));
+         }
+         break;
+         case PluggableQuorumReplication: {
+            ReplicationBackupActivation backupActivation = (ReplicationBackupActivation) servers[2].getActivation();
+            Wait.assertTrue(backupActivation::isReplicaSync, TimeUnit.SECONDS.toMillis(10));
+         }
+         break;
       }
 
       closeSessionFactory(0);

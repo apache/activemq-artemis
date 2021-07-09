@@ -821,7 +821,7 @@ public final class ReplicationManager implements ActiveMQComponent {
          }
 
          synchronizationIsFinishedAcknowledgement.countUp();
-         sendReplicatePacket(new ReplicationStartSyncMessage(nodeID));
+         sendReplicatePacket(new ReplicationStartSyncMessage(nodeID, server.getNodeManager().getNodeActivationSequence()));
          try {
             if (!synchronizationIsFinishedAcknowledgement.await(initialReplicationSyncTimeout)) {
                ActiveMQReplicationTimeooutException exception = ActiveMQMessageBundle.BUNDLE.replicationSynchronizationTimeout(initialReplicationSyncTimeout);
