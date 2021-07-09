@@ -139,7 +139,7 @@ public class ActiveMQSessionContext extends SessionContext {
    private String name;
    private boolean killed;
 
-   protected Channel getSessionChannel() {
+   public Channel getSessionChannel() {
       return sessionChannel;
    }
 
