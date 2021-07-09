@@ -46,52 +46,59 @@ public class InflaterWriter extends OutputStream {
       this.output = output;
    }
 
+   private void checkClosed() {
+      if (writePointer < 0) {
+         throw new IllegalStateException("The writer is already closed");
+      }
+   }
+
    /*
     * Write a compressed byte.
     */
    @Override
    public void write(final int b) throws IOException {
+      checkClosed();
       writeBuffer[writePointer] = (byte) (b & 0xFF);
       writePointer++;
 
       if (writePointer == writeBuffer.length) {
          writePointer = 0;
-         try {
-            doWrite();
-         } catch (DataFormatException e) {
-            IOException ie = new IOException("Error decompressing data");
-            ie.initCause(e);
-            throw ie;
-         }
+         doWrite(writeBuffer.length);
       }
    }
 
    @Override
    public void close() throws IOException {
-      if (writePointer > 0) {
-         inflater.setInput(writeBuffer, 0, writePointer);
-         try {
-            int n = inflater.inflate(outputBuffer);
-            while (n > 0) {
-               output.write(outputBuffer, 0, n);
-               n = inflater.inflate(outputBuffer);
-            }
-            output.close();
-         } catch (DataFormatException e) {
-            IOException io = new IOException(e.getMessage());
-            io.initCause(e);
-            throw io;
+      if (writePointer < 0) {
+         // ignore if already closed
+         return;
+      }
+      try {
+         if (writePointer > 0) {
+            doWrite(writePointer);
          }
+         output.close();
+      } finally {
+         // close it
+         writePointer = -1;
+         // release native Inflater resources
+         inflater.end();
       }
    }
 
-   private void doWrite() throws DataFormatException, IOException {
-      inflater.setInput(writeBuffer);
-      int n = inflater.inflate(outputBuffer);
+   private void doWrite(int length) throws IOException {
+      try {
+         inflater.setInput(writeBuffer, 0, length);
+         int n = inflater.inflate(outputBuffer);
 
-      while (n > 0) {
-         output.write(outputBuffer, 0, n);
-         n = inflater.inflate(outputBuffer);
+         while (n > 0) {
+            output.write(outputBuffer, 0, n);
+            n = inflater.inflate(outputBuffer);
+         }
+      } catch (DataFormatException e) {
+         IOException ie = new IOException("Error decompressing data");
+         ie.initCause(e);
+         throw ie;
       }
    }
 

@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.Deflater;
 
 /**
@@ -31,14 +30,12 @@ public class DeflaterReader extends InputStream {
    private final Deflater deflater = new Deflater();
    private boolean isFinished = false;
    private boolean compressDone = false;
+   private final InputStream input;
+   private long bytesRead;
 
-   private InputStream input;
-
-   private final AtomicLong bytesRead;
-
-   public DeflaterReader(final InputStream inData, final AtomicLong bytesRead) {
+   public DeflaterReader(final InputStream inData) {
       input = inData;
-      this.bytesRead = bytesRead;
+      this.bytesRead = 0;
    }
 
    @Override
@@ -89,9 +86,7 @@ public class DeflaterReader extends InputStream {
                   deflater.finish();
                   isFinished = true;
                } else {
-                  if (bytesRead != null) {
-                     bytesRead.addAndGet(m);
-                  }
+                  bytesRead += m;
                   deflater.setInput(readBuffer, 0, m);
                }
             } else {
@@ -107,13 +102,18 @@ public class DeflaterReader extends InputStream {
       return read;
    }
 
-   public void closeStream() throws IOException {
-      super.close();
+   @Override
+   public void close() throws IOException {
+      if (!compressDone) {
+         // it would release Deflater memory
+         compressDone = true;
+         deflater.end();
+      }
       input.close();
    }
 
    public long getTotalSize() {
-      return bytesRead.get();
+      return bytesRead;
    }
 
 }

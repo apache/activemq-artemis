@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.Deflater;
 
 import org.apache.activemq.artemis.utils.DeflaterReader;
@@ -38,19 +37,20 @@ public class CompressionUtilTest extends Assert {
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
 
-      AtomicLong counter = new AtomicLong(0);
+      final long counter;
       ArrayList<Integer> zipHolder = new ArrayList<>();
 
-      try (DeflaterReader reader = new DeflaterReader(inputStream, counter)) {
+      try (DeflaterReader reader = new DeflaterReader(inputStream)) {
          int b = reader.read();
 
          while (b != -1) {
             zipHolder.add(b);
             b = reader.read();
          }
+         counter = reader.getTotalSize();
       }
 
-      assertEquals(input.length, counter.get());
+      assertEquals(input.length, counter);
 
       byte[] allCompressed = new byte[zipHolder.size()];
       for (int i = 0; i < allCompressed.length; i++) {
@@ -72,12 +72,12 @@ public class CompressionUtilTest extends Assert {
       byte[] input = inputString.getBytes(StandardCharsets.UTF_8);
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
-      AtomicLong counter = new AtomicLong(0);
+      final long counter;
 
       byte[] buffer = new byte[7];
       ArrayList<Integer> zipHolder = new ArrayList<>();
 
-      try (DeflaterReader reader = new DeflaterReader(inputStream, counter)) {
+      try (DeflaterReader reader = new DeflaterReader(inputStream)) {
          int n = reader.read(buffer);
          while (n != -1) {
             for (int i = 0; i < n; i++) {
@@ -85,9 +85,10 @@ public class CompressionUtilTest extends Assert {
             }
             n = reader.read(buffer);
          }
+         counter = reader.getTotalSize();
       }
 
-      assertEquals(input.length, counter.get());
+      assertEquals(input.length, counter);
 
       byte[] allCompressed = new byte[zipHolder.size()];
       for (int i = 0; i < allCompressed.length; i++) {
