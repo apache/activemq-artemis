@@ -160,7 +160,7 @@ public class StompSession implements SessionCallback {
                   @Override
                   public void run() throws Exception {
                      //we ack and commit only if the send is successful
-                     session.acknowledge(consumerID, messageID);
+                     session.acknowledgeUpTo(consumerID, messageID);
                      session.commit();
                   }
                });

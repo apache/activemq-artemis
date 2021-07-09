@@ -884,6 +884,61 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
+   public synchronized void acknowledgeUpTo(final Transaction tx, final long messageID) throws Exception {
+      if (browseOnly) {
+         return;
+      }
+      if (tx == null) {
+         ackTxUpTo(new TransactionImpl(storageManager), messageID, true);
+      } else {
+         ackTxUpTo(tx, messageID, false);
+      }
+   }
+
+   private void ackTxUpTo(final Transaction tx, final long messageID, final boolean newTx) throws Exception {
+      assert Thread.holdsLock(this);
+      assert tx != null;
+      assert !browseOnly;
+      try {
+         MessageReference ref;
+         do {
+            synchronized (lock) {
+               ref = deliveringRefs.poll();
+            }
+            if (logger.isTraceEnabled()) {
+               logger.tracef("ACKing ref %s on tx= %s, consumer= %s", ref, tx, this);
+            }
+            if (ref == null) {
+               ActiveMQIllegalStateException ils = ActiveMQMessageBundle.BUNDLE.consumerNoReference(id, messageID, messageQueue.getName());
+               tx.markAsRollbackOnly(ils);
+               throw ils;
+            }
+            ref.acknowledge(tx, this);
+            acks++;
+         } while (ref.getMessageID() != messageID);
+         if (newTx) {
+            tx.commit();
+         }
+      } catch (ActiveMQException e) {
+         if (newTx) {
+            tx.rollback();
+         } else {
+            tx.markAsRollbackOnly(e);
+         }
+         throw e;
+      } catch (Throwable e) {
+         ActiveMQServerLogger.LOGGER.errorAckingMessage((Exception) e);
+         ActiveMQException activeMQIllegalStateException = new ActiveMQIllegalStateException(e.getMessage());
+         if (newTx) {
+            tx.rollback();
+         } else {
+            tx.markAsRollbackOnly(activeMQIllegalStateException);
+         }
+         throw activeMQIllegalStateException;
+      }
+   }
+
+   @Override
    public synchronized List<Long> acknowledge(Transaction tx, final long messageID) throws Exception {
       if (browseOnly) {
          return null;

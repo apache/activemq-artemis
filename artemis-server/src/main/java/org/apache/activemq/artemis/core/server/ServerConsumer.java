@@ -93,6 +93,8 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
                                                    Function<MessageReference, Boolean> startFunction,
                                                    Function<MessageReference, Boolean> endFunction);
 
+   void acknowledgeUpTo(Transaction tx, long messageID) throws Exception;
+
    List<Long> acknowledge(Transaction tx, long messageID) throws Exception;
 
    void individualAcknowledge(Transaction tx, long messageID) throws Exception;

@@ -141,6 +141,11 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public void acknowledgeUpTo(Transaction tx, long messageID) {
+
+   }
+
+   @Override
    public List<Long> acknowledge(Transaction tx, long messageID) throws Exception {
       return null;
    }
