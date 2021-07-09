@@ -75,10 +75,17 @@ public class OsgiBroker {
          security.setRolePrincipalClass(rolePrincipalClass);
       }
       String brokerInstance = null;
-      String karafDataDir = System.getProperty("karaf.data");
-      if (karafDataDir != null) {
-         brokerInstance = karafDataDir + "/artemis/" + name;
-      }
+
+      String artemisDataDir = System.getProperty("artemis.data");
+      if (artemisDataDir != null) {
+         brokerInstance = artemisDataDir + "/artemis/" + name;
+      } else {
+         String karafDataDir = System.getProperty("karaf.data");
+         if (karafDataDir != null) {
+            brokerInstance = karafDataDir + "/artemis/" + name;
+         }
+      }     
+
 
       // todo if we start to pullout more configs from the main config then we
       // should pull out the configuration objects from factories if available
