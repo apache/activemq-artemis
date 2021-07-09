@@ -120,7 +120,7 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testSecureDurableSubscriber() throws Exception {
+   public void testCreateSecureDurableSubscriber() throws Exception {
       ConnectionFactory connectionFactory = getConnectionFactory("b", "b");
       String message = "blah";
 
@@ -131,6 +131,23 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
       try {
          sendAndReceiveTextUsingTopic(connectionFactory, "clientId", message, "secured_topic_durable", (t, s) -> s.createDurableSubscriber(t, "secured_topic_durable/non-existant-queue"));
          Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically create queue");
+      } catch (JMSSecurityException j) {
+         //Expected exception
+      }
+   }
+
+   @Test
+   public void testDeleteSecureDurableSubscriber() throws Exception {
+      ConnectionFactory connectionFactory = getConnectionFactory("c", "c");
+      String message = "blah";
+
+      //Expect to be able to create durable queue for subscription
+      String messageRecieved = sendAndReceiveTextUsingTopic(connectionFactory, "clientId", message, "secured_topic_durable", (t, s) -> s.createDurableSubscriber(t, "secured_topic_durable/non-existant-queue"));
+      Assert.assertEquals(message, messageRecieved);
+
+      try {
+         sendAndReceiveTextUsingTopic(connectionFactory, "clientId", message, "secured_topic_durable", (t, s) -> s.createDurableSubscriber(t, "secured_topic_durable/non-existant-queue", "age > 10", false));
+         Assert.fail("Security exception expected, but did not occur, excepetion expected as not permissioned to dynamically delete queue");
       } catch (JMSSecurityException j) {
          //Expected exception
       }

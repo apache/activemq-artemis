@@ -642,7 +642,7 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    public void deleteQueue(SimpleString queueName) throws Exception {
-      manager.getServer().destroyQueue(queueName);
+      serverSession.deleteQueue(queueName);
    }
 
    public void resetContext(OperationContext oldContext) {

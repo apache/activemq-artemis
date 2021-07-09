@@ -127,11 +127,11 @@ under the License.
          <security-setting match="secured_topic_durable">
             <permission type="createNonDurableQueue" roles="a"/>
             <permission type="deleteNonDurableQueue" roles="a"/>
-            <permission type="createDurableQueue" roles="a"/>
+            <permission type="createDurableQueue" roles="a,c"/>
             <permission type="deleteDurableQueue" roles="a"/>
             <permission type="browse" roles="a"/>
-            <permission type="send" roles="a,b"/>
-            <permission type="consume" roles="a,b" />
+            <permission type="send" roles="a,b,c"/>
+            <permission type="consume" roles="a,b,c" />
             <!-- we need this otherwise ./artemis data imp wouldn't work -->
             <permission type="manage" roles="a"/>
          </security-setting>
