@@ -37,19 +37,23 @@ import org.jboss.logging.Logger;
 
 public class LargeBody {
 
+   static final int MEMORY_OFFSET = 56;
+
    private static final Logger logger = Logger.getLogger(LargeBody.class);
 
    private long bodySize = -1;
 
-   long NO_PENDING_ID = -1;
+   private static final long NO_PENDING_ID = -1;
+
+   private static final long NO_MESSAGE_ID = -1;
 
    private long pendingRecordID = NO_PENDING_ID;
 
-   StorageManager storageManager;
+   private StorageManager storageManager;
 
-   private long messageID = -1;
+   private final long messageID;
 
-   private LargeServerMessage message;
+   private final LargeServerMessage message;
 
    private boolean paged;
 
@@ -59,6 +63,7 @@ public class LargeBody {
    public LargeBody(LargeServerMessage message, StorageManager storageManager) {
       this.storageManager = storageManager;
       this.message = message;
+      this.messageID = NO_MESSAGE_ID;
    }
 
    public LargeBody(LargeServerMessage message, StorageManager storageManager, SequentialFile file) {
@@ -80,16 +85,6 @@ public class LargeBody {
          file.open();
       }
       return file.map(0, file.size());
-   }
-
-   public LargeBody(long messageID, JournalStorageManager storageManager) {
-      this(null, storageManager);
-      this.messageID = messageID;
-   }
-
-   public void setMessage(LargeServerMessage message) {
-      this.message = message;
-
    }
 
    public void setPaged() {

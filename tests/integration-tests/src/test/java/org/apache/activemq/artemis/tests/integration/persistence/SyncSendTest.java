@@ -36,18 +36,24 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import static org.hamcrest.CoreMatchers.not;
 
 @RunWith(Parameterized.class)
 public class SyncSendTest extends ActiveMQTestBase {
@@ -159,6 +165,45 @@ public class SyncSendTest extends ActiveMQTestBase {
       }
       return totalRecordTime;
 
+   }
+
+   @Test
+   public void testDurableMessagePresenceAfterRestart() throws Exception {
+      Assume.assumeThat(storage, not("null"));
+      server.createQueue(new QueueConfiguration("queue").setRoutingType(RoutingType.ANYCAST).setAutoCreateAddress(true));
+      ConnectionFactory factory = newCF();
+
+      try (Connection connection = factory.createConnection(); Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+         connection.start();
+         final Queue queue = session.createQueue("queue");
+         try (MessageProducer producer = session.createProducer(queue)) {
+            producer.send(session.createMessage());
+         }
+         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString("queue"));
+         Wait.assertEquals(1, serverQueue::getMessageCount);
+         try (LinkedListIterator<MessageReference> iterator = serverQueue.iterator()) {
+            Assert.assertTrue(iterator.hasNext());
+            if (protocol.equals("core")) {
+               // check encoding status
+               MessageReference messageReference = iterator.next();
+               CoreMessage coreMessage = (CoreMessage) messageReference.getMessage();
+               Assert.assertTrue(coreMessage.hasDecodedProperties());
+            }
+         }
+      }
+      server.stop();
+      server.start();
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString("queue"));
+      Assert.assertEquals(1, serverQueue.getMessageCount());
+      try (LinkedListIterator<MessageReference> iterator = serverQueue.iterator()) {
+         Assert.assertTrue(iterator.hasNext());
+         if (protocol.equals("core")) {
+            // check encoding status
+            MessageReference messageReference = iterator.next();
+            CoreMessage coreMessage = (CoreMessage) messageReference.getMessage();
+            Assert.assertFalse(coreMessage.hasDecodedProperties());
+         }
+      }
    }
 
    @Test
