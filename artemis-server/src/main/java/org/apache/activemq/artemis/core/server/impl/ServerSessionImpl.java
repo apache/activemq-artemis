@@ -305,6 +305,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       this.closeables.add(closeable);
    }
 
+   // for testing
+   public final Set<Closeable> getCloseables() {
+      return closeables;
+   }
+
    public Map<SimpleString, TempQueueCleanerUpper> getTempQueueCleanUppers() {
       return tempQueueCleannerUppers;
    }

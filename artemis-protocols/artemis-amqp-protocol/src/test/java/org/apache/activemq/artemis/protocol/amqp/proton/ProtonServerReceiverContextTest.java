@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
@@ -88,6 +89,49 @@ public class ProtonServerReceiverContextTest {
       // violates AMQP specification - see explanation ProtonServerReceiverContext.determineDeliveryState
       doOnMessageWithDeliveryException(singletonList(Accepted.DESCRIPTOR_SYMBOL), null, new ActiveMQException(), Rejected.class);
    }
+
+   @Test
+   public void testClearLargeOnClose() throws Exception {
+      Receiver mockReceiver = mock(Receiver.class);
+      AMQPConnectionContext mockConnContext = mock(AMQPConnectionContext.class);
+
+      when(mockConnContext.getAmqpCredits()).thenReturn(100);
+      when(mockConnContext.getAmqpLowCredits()).thenReturn(30);
+
+      when(mockConnContext.getProtocolManager()).thenReturn(mock(ProtonProtocolManager.class));
+
+      AMQPSessionCallback mockSessionSpi = mock(AMQPSessionCallback.class);
+      when(mockSessionSpi.getStorageManager()).thenReturn(new NullStorageManager());
+
+      AMQPSessionContext mockProtonContext = mock(AMQPSessionContext.class);
+
+      AtomicInteger clearLargeMessage = new AtomicInteger(0);
+      ProtonServerReceiverContext rc = new ProtonServerReceiverContext(mockSessionSpi, mockConnContext, mockProtonContext, mockReceiver) {
+         @Override
+         protected void clearLargeMessage() {
+            super.clearLargeMessage();
+            clearLargeMessage.incrementAndGet();
+         }
+      };
+
+      Delivery mockDelivery = mock(Delivery.class);
+      when(mockDelivery.isAborted()).thenReturn(false);
+      when(mockDelivery.isPartial()).thenReturn(false);
+      when(mockDelivery.getLink()).thenReturn(mockReceiver);
+
+      when(mockReceiver.current()).thenReturn(mockDelivery);
+
+      rc.onMessage(mockDelivery);
+
+      rc.close(true);
+
+      verify(mockReceiver, times(1)).current();
+      verify(mockReceiver, times(1)).advance();
+
+      Assert.assertTrue(clearLargeMessage.get() > 0);
+
+   }
+
 
    private void doOnMessageWithAbortedDeliveryTestImpl(boolean drain) throws ActiveMQAMQPException {
       Receiver mockReceiver = mock(Receiver.class);
