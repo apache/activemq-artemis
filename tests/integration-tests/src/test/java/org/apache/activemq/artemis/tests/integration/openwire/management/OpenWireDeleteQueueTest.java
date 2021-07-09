@@ -24,11 +24,13 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -39,6 +41,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.integration.openwire.OpenWireTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.transport.TransportListener;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -109,6 +112,29 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
             return bindings.contains(queueName1);
          }));
 
+         // expect a failover event
+         final CountDownLatch failoverStart = new CountDownLatch(1);
+         final CountDownLatch failoverEnd = new CountDownLatch(1);
+         ((ActiveMQConnection)connection).addTransportListener(new TransportListener() {
+            @Override
+            public void onCommand(Object command) {
+            }
+
+            @Override
+            public void onException(IOException error) {
+            }
+
+            @Override
+            public void transportInterupted() {
+               failoverStart.countDown();
+            }
+
+            @Override
+            public void transportResumed() {
+               failoverEnd.countDown();
+            }
+         });
+
          // the test op, will force a disconnect, failover will kick in..
          serverControl.destroyQueue(queueName1.toString(), true);
 
@@ -118,7 +144,10 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
          }));
 
 
-         // expect a failover event
+         assertTrue(failoverStart.await(5, TimeUnit.SECONDS));
+         assertTrue(failoverEnd.await(5, TimeUnit.SECONDS));
+
+         // failover complete, no chance of this message getting resent and detected as duplicate
          producer.send(session.createTextMessage("two"));
          assertTrue(two.await(5, TimeUnit.SECONDS));
 
