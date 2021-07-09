@@ -23,10 +23,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
@@ -169,16 +171,22 @@ public class TypedProperties {
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
-   public Byte getByteProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
+   public Byte getByteProperty(final SimpleString key,
+                               final Supplier<Byte> defaultValue) throws ActiveMQPropertyConversionException {
+      Objects.requireNonNull(defaultValue);
       Object value = doGetProperty(key);
       if (value == null) {
-         return Byte.valueOf(null);
+         return defaultValue.get();
       } else if (value instanceof Byte) {
          return (Byte) value;
       } else if (value instanceof SimpleString) {
          return Byte.parseByte(((SimpleString) value).toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
+   }
+
+   public Byte getByteProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
+      return getByteProperty(key, () -> Byte.valueOf(null));
    }
 
    public Character getCharProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
