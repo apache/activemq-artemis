@@ -152,6 +152,34 @@ final class CopyOnWriteBindings {
    public interface BindingsConsumer<T extends Throwable> {
 
       /**
+       * {@code bindings} cannot be {@code null} or empty.
+       * {@code nextPosition} cannot be null.
+       */
+      void accept(Binding[] bindings, BindingIndex nextPosition) throws T;
+   }
+
+   /**
+    * Iterates through the bindings and its related indexes.<br>
+    */
+   public <T extends Throwable> void forEachBindings(BindingsConsumer<T> bindingsConsumer) throws T {
+      Objects.requireNonNull(bindingsConsumer);
+      if (map.isEmpty()) {
+         return;
+      }
+      for (BindingsAndPosition bindingsAndPosition : map.values()) {
+         final Binding[] bindings = bindingsAndPosition.get();
+         if (bindings == TOMBSTONE_BINDINGS) {
+            continue;
+         }
+         assert bindings != null && bindings.length > 0;
+         bindingsConsumer.accept(bindings, bindingsAndPosition);
+      }
+   }
+
+   @FunctionalInterface
+   public interface RoutingNameBindingsConsumer<T extends Throwable> {
+
+      /**
        * {@code routingName} cannot be {@code null}.
        * {@code bindings} cannot be {@code null} or empty.
        * {@code nextPosition} cannot be null.
@@ -162,7 +190,7 @@ final class CopyOnWriteBindings {
    /**
     * Iterates through the bindings and its related indexes.<br>
     */
-   public <T extends Throwable> void forEach(BindingsConsumer<T> bindingsConsumer) throws T {
+   public <T extends Throwable> void forEach(RoutingNameBindingsConsumer<T> bindingsConsumer) throws T {
       Objects.requireNonNull(bindingsConsumer);
       if (map.isEmpty()) {
          return;
