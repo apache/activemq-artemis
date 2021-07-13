@@ -36,6 +36,7 @@ import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.ADDRESS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.BROKER_ID;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.EVENT_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.QUEUE;
 
@@ -48,7 +49,7 @@ public class AMQPMirrorMessageFactory {
     * This method is open to make it testable,
     * do not use on your applications.
     */
-   public static Message createMessage(String to, SimpleString address, SimpleString queue, Object event, Object body) {
+   public static Message createMessage(String to, SimpleString address, SimpleString queue, Object event, String brokerID, Object body) {
       Header header = new Header();
       header.setDurable(true);
 
@@ -56,6 +57,9 @@ public class AMQPMirrorMessageFactory {
       annotations.put(EVENT_TYPE, event);
       if (address != null) {
          annotations.put(ADDRESS, address.toString());
+      }
+      if (brokerID != null) {
+         annotations.put(BROKER_ID, brokerID);
       }
       if (queue != null) {
          annotations.put(QUEUE, queue.toString());

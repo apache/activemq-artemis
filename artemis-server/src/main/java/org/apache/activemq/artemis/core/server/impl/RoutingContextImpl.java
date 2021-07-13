@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.jboss.logging.Logger;
 
@@ -50,6 +51,9 @@ public class RoutingContextImpl implements RoutingContext {
    private SimpleString previousAddress;
 
    private RoutingType previousRoutingType;
+
+   /* To be set by the Mirror target on the server, to avoid ping pongs or reflections of messages between mirrors */
+   private MirrorController mirrorControllerSource;
 
    private RoutingType routingType;
 
@@ -134,6 +138,17 @@ public class RoutingContextImpl implements RoutingContext {
 
       this.reusable = null;
 
+      return this;
+   }
+
+   @Override
+   public MirrorController getMirrorSource() {
+      return mirrorControllerSource;
+   }
+
+   @Override
+   public RoutingContext setMirrorSource(MirrorController mirrorController) {
+      this.mirrorControllerSource = mirrorController;
       return this;
    }
 

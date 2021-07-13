@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
-import java.util.function.ToLongFunction;
-
 public interface LinkedList<E> {
 
    void addHead(E e);
@@ -34,10 +32,9 @@ public interface LinkedList<E> {
 
    void clearID();
 
-   /** The ID Supplier function needs to return positive IDs (greater or equal to 0)
-    *  If you spply a negative ID, it will be considered a null value, and
-    *  the value will just be ignored. */
-   void setIDSupplier(ToLongFunction<E> supplier);
+   /** this makes possibl to use {@link #removeWithID(String, long)} */
+   void setNodeStore(NodeStore<E> store);
 
-   E removeWithID(long id);
+   /** you need to call {@link #setNodeStore(NodeStore)} before you are able to call this method. */
+   E removeWithID(String listID, long id);
 }

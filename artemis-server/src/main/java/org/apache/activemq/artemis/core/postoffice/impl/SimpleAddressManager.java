@@ -376,19 +376,21 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public void scanAddresses(MirrorController mirrorController) throws Exception {
-      mirrorController.startAddressScan();
       for (AddressInfo info : addressInfoMap.values()) {
-         mirrorController.addAddress(info);
+         if (!info.isInternal()) {
+            mirrorController.addAddress(info);
+         }
          Bindings bindings = mappings.get(info.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
                if (binding instanceof LocalQueueBinding) {
                   LocalQueueBinding localQueueBinding = (LocalQueueBinding)binding;
-                  mirrorController.createQueue(localQueueBinding.getQueue().getQueueConfiguration());
+                  if (!localQueueBinding.getQueue().isMirrorController() && !localQueueBinding.getQueue().isInternalQueue()) {
+                     mirrorController.createQueue(localQueueBinding.getQueue().getQueueConfiguration());
+                  }
                }
             }
          }
       }
-      mirrorController.endAddressScan();
    }
 }

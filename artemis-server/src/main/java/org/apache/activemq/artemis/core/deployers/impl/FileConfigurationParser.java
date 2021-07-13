@@ -1982,11 +1982,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             if (nodeType == AMQPBrokerConnectionAddressType.MIRROR) {
                boolean messageAcks = getBooleanAttribute(e2, "message-acknowledgements", true);
                boolean queueCreation = getBooleanAttribute(e2,"queue-creation", true);
+               boolean durable = getBooleanAttribute(e2, "durable", true);
                boolean queueRemoval = getBooleanAttribute(e2, "queue-removal", true);
-               String sourceMirrorAddress = getAttributeValue(e2, "source-mirror-address");
                AMQPMirrorBrokerConnectionElement amqpMirrorConnectionElement = new AMQPMirrorBrokerConnectionElement();
-               amqpMirrorConnectionElement.setMessageAcknowledgements(messageAcks).setQueueCreation(queueCreation).setQueueRemoval(queueRemoval).
-                  setSourceMirrorAddress(sourceMirrorAddress);
+               amqpMirrorConnectionElement.setMessageAcknowledgements(messageAcks).setQueueCreation(queueCreation).setQueueRemoval(queueRemoval).setDurable(durable);
                connectionElement = amqpMirrorConnectionElement;
                connectionElement.setType(AMQPBrokerConnectionAddressType.MIRROR);
             } else {
