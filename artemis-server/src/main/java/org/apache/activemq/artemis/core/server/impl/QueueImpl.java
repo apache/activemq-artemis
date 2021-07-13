@@ -187,6 +187,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private boolean mirrorController;
 
+   private volatile boolean hasUnMatchedPending = false;
+
    // Messages will first enter intermediateMessageReferences
    // Before they are added to messageReferences
    // This is to avoid locking the queue on the producer
@@ -1530,7 +1532,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (delay > 0) {
-         if (consumers.isEmpty()) {
+         if (consumers.isEmpty() || hasUnMatchedPending) {
             DelayedAddRedistributor dar = new DelayedAddRedistributor(executor);
 
             redistributorFuture = scheduledExecutor.schedule(dar, delay, TimeUnit.MILLISECONDS);
@@ -2920,6 +2922,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       // Either the iterator is empty or the consumer is busy
       int noDelivery = 0;
 
+      // track filters not matching, used to track when all consumers can't match, redistribution is then an option
+      int numNoMatch = 0;
+      final int consumerCount = this.consumers.size();
+
       int handled = 0;
 
       long timeout = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(DELIVERY_TIMEOUT);
@@ -2945,9 +2951,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          MessageReference ref;
-
-         // filter evaluation or transformation may cause properties to be lazyDecoded, we need to reflect that
-         int existingMemoryEstimate = 0;
 
          Consumer handledconsumer = null;
 
@@ -3007,7 +3010,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   logger.trace("Queue " + this.getName() + " is delivering reference " + ref);
                }
 
-               existingMemoryEstimate = ref.getMessageMemoryEstimate();
                final SimpleString groupID = extractGroupID(ref);
                groupConsumer = getGroupConsumer(groupID);
 
@@ -3022,6 +3024,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   // if a message was delivered, any previous negative attemps need to be cleared
                   // this is to avoid breaks on the loop when checking for any other factors.
                   noDelivery = 0;
+                  numNoMatch = 0;
 
                   if (redistributor == null) {
                      ref = handleMessageGroup(ref, consumer, groupConsumer, groupID);
@@ -3055,6 +3058,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                } else if (status == HandleStatus.NO_MATCH) {
                   // nothing to be done on this case, the iterators will just jump next
                   consumers.reset();
+                  numNoMatch++;
+                  if (numNoMatch == consumerCount) {
+                     hasUnMatchedPending = true;
+                  }
                }
             }
 
@@ -3066,7 +3073,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             } else if (!consumers.hasNext()) {
                // Round robin'd all
 
-               if (noDelivery == this.consumers.size()) {
+               if (noDelivery == consumerCount) {
                   if (handledconsumer != null) {
                      // this shouldn't really happen,
                      // however I'm keeping this as an assertion case future developers ever change the logic here on this class
@@ -3251,8 +3258,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private void internalAddRedistributor(final ArtemisExecutor executor) {
-      // create the redistributor only once if there are no local consumers
-      if (consumers.isEmpty() && redistributor == null) {
+      if ((consumers.isEmpty() || hasUnMatchedPending) && redistributor == null) {
          if (logger.isTraceEnabled()) {
             logger.trace("QueueImpl::Adding redistributor on queue " + this.toString());
          }
@@ -3260,6 +3266,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          redistributor = (new ConsumerHolder(new Redistributor(this, storageManager, postOffice, executor, QueueImpl.REDISTRIBUTOR_BATCH_SIZE)));
 
          redistributor.consumer.start();
+         hasUnMatchedPending = false;
 
          deliverAsync();
       }

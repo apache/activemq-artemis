@@ -634,9 +634,7 @@ specified. The following shows all the available configuration options
   
   Keep in mind that this message forwarding/balancing is what we call
   "initial distribution." It is different than *redistribution* which
-  is [discussed below](#message-redistribution). This distinction is 
-  important because redistribution is configured differently and has 
-  unique semantics (e.g. it *does not* support filters (selectors)).
+  is [discussed below](#message-redistribution).
 
   Default is `ON_DEMAND`.
 
@@ -823,14 +821,14 @@ consumers on the queue the message won't get consumed and we have a
 
 This is where message redistribution comes in. With message
 redistribution Apache ActiveMQ Artemis can be configured to automatically
-*redistribute* messages from queues which have no consumers back to
+*redistribute* messages from queues which have no consumers or consumers
+with filters that don't match messages. The messages are re-routed to
 other nodes in the cluster which do have matching consumers. To enable
 this functionality `message-load-balancing` must be `ON_DEMAND`.
 
 Message redistribution can be configured to kick in immediately after
-the last consumer on a queue is closed, or to wait a configurable delay
-after the last consumer on a queue is closed before redistributing. By
-default message redistribution is disabled.
+the need to redistribute is detected, or to wait a configurable delay before redistributing.
+By default, message redistribution is disabled.
 
 Message redistribution can be configured on a per address basis, by
 specifying the redistribution delay in the address settings. For more
@@ -855,68 +853,15 @@ The attribute `match` can be an exact match or it can be a string that
 conforms to the Apache ActiveMQ Artemis wildcard syntax (described in [Wildcard Syntax](wildcard-syntax.md)).
 
 The element `redistribution-delay` defines the delay in milliseconds
-after the last consumer is closed on a queue before redistributing
-messages from that queue to other nodes of the cluster which do have
-matching consumers. A delay of zero means the messages will be
-immediately redistributed. A value of `-1` signifies that messages will
-never be redistributed. The default value is `-1`.
+between detecting the need for redistribution and actually attempting redistribution.
+A delay of zero means the messages will be immediately redistributed. 
+A value of `-1` signifies that messages will never be redistributed. The default value is `-1`.
 
 It often makes sense to introduce a delay before redistributing as it's
 a common case that a consumer closes but another one quickly is created
 on the same queue, in such a case you probably don't want to
 redistribute immediately since the new consumer will arrive shortly.
 
-#### Redistribution and filters (selectors) 
-
-Although "initial distribution" (described above) does support filters
-(selectors), redistribution does *not* support filters. Consider this
-scenario:
-
- 1. A cluster of 2 nodes - `A` and `B` - using a `redistribution-delay` of
-   `0` and a `message-load-balancing` of `ON_DEMAND`.
- 1. `A` and `B` each has the queue `foo`.
- 1. A producer sends a message which is routed to queue `foo` on node `A`. 
-   The message has property named `myProperty` with a value of `10`.
- 1. A consumer connects to queue `foo` on node `A` with the filter 
-   `myProperty=5`. This filter doesn't match the message.
- 1. A consumer connects to queue `foo` on node `B` with the filter 
-   `myProperty=10`. This filter *does* match the message .
-
-Despite the fact that the filter of the consumer on queue `foo` on node `B`
-matches the message, the message will *not* be redistributed from node `A` to
-node `B` because a consumer for the queue exists on node `A`.
-
-Not supporting redistribution based on filters was an explicit design decision
-in order to avoid two main problems - queue scanning and unnecessary 
-redistribution.
-
-From a performance perspective a consumer with a filter on a queue is already
-costly due to the scanning that the broker must do on the queue to find 
-matching messages. In general, this is a bit of an anti-pattern as it turns
-the broker into something akin to a database where you can "select" the data 
-you want using a filter. If brokers are configured in a cluster and a consumer 
-with a filter connects and no matches are found after scanning the local queue
-then potentially every instance of that queue in the cluster would need to be 
-scanned. This turns into a bit of a scalability nightmare with lots of consumers 
-(especially short-lived consumers) with filters connecting & disconnecting 
-frequently. The time & computing resources used for queue scanning would go 
-through the roof.
-
-It is also possible to get into a pathological situation where short-lived 
-consumers with filters connect to nodes around the cluster and messages get 
-redistributed back and forth between nodes without ever actually being consumed.
-
-One common use-case for consumers with filters (selectors) on queues is
-request/reply using a correlation ID. Following the standard pattern can be
-problematic in a cluster due to the lack of redistribution based on filters
-already described. However, there is a simple way to ensure an application
-using this request/reply pattern gets its reply even when using a correlation
-ID filter in a cluster - create the consumer before the request is sent. This
-will ensure that when the reply is sent it will be routed the proper cluster
-node since "*initial* distribution" (described above) does support filters.
-For example, in the scenario outlined above if steps 3 and 5 were switched
-(i.e. if the consumers were created before the message was sent) then the 
-consumer on node `B` would in fact receive the message.
 
 ## Cluster topologies
 
