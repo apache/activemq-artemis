@@ -1073,7 +1073,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       if (header != null && header .getDurable() != null) {
          return header.getDurable();
       } else {
-         // if header == null and scanninStatus=RELOAD_PERSISTENCE, it means the message can only be durable
+         // if header == null and scanningStatus=RELOAD_PERSISTENCE, it means the message can only be durable
          // even though the parsing hasn't happened yet
          return getDataScanningStatus() == MessageDataScanningStatus.RELOAD_PERSISTENCE;
       }
@@ -1706,6 +1706,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          ", address=" + getAddress() +
          ", size=" + getEncodeSize() +
          ", applicationProperties=" + getApplicationPropertiesMap(false) +
+         ", messageAnnotations=" + getMessageAnnotationsMap(false) +
          ", properties=" + properties +
          ", extraProperties = " + getExtraProperties() +
          "]";
