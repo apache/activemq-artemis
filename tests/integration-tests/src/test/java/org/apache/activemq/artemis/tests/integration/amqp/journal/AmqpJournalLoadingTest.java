@@ -60,6 +60,7 @@ public class AmqpJournalLoadingTest extends AmqpClientTestSupport {
          Assert.assertThat(message, Matchers.instanceOf(AMQPMessage.class));
          amqpMessage = (AMQPMessage) message;
          Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, amqpMessage.getDataScanningStatus());
+         Assert.assertTrue(amqpMessage.isDurable());
       }
 
       AmqpClient client = createAmqpClient();
