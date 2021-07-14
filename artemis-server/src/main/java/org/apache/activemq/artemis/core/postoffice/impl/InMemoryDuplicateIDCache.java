@@ -158,7 +158,7 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
          }
 
          if (instantAdd) {
-            tx.addOperation(new AddDuplicateIDOperation(holder, false));
+            addToCacheInMemory(holder);
          } else {
             // For a tx, it's important that the entry is not added to the cache until commit
             // since if the client fails then resends them tx we don't want it to get rejected
