@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -33,8 +35,11 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +57,9 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
    private SimpleString expiryQueue;
 
    private SimpleString expiryAddress;
+
+   Queue artemisExpiryQueue;
+
    private ServerLocator locator;
 
    @Test
@@ -212,30 +220,57 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       thr.join();
    }
 
-   //
-   //   public static void main(final String[] args) throws Exception
-   //   {
-   //      for (int i = 0; i < 1000; i++)
-   //      {
-   //         TestSuite suite = new TestSuite();
-   //         ExpiryRunnerTest expiryRunnerTest = new ExpiryRunnerTest();
-   //         expiryRunnerTest.setName("testExpireWhilstConsuming");
-   //         suite.addTest(expiryRunnerTest);
-   //
-   //         TestResult result = TestRunner.run(suite);
-   //         if (result.errorCount() > 0 || result.failureCount() > 0)
-   //         {
-   //            System.exit(1);
-   //         }
-   //      }
-   //   }
+
+   @Test
+   public void testManyQueuesExpire() throws Exception {
+
+      AtomicInteger currentExpiryHappening = new AtomicInteger();
+      AtomicInteger maxExpiryHappening = new AtomicInteger(0);
+
+      server.registerBrokerPlugin(new ActiveMQServerQueuePlugin() {
+         @Override
+         public void beforeExpiryScan(Queue queue) {
+            currentExpiryHappening.incrementAndGet();
+            while (!maxExpiryHappening.compareAndSet(maxExpiryHappening.get(), Math.max(maxExpiryHappening.get(), currentExpiryHappening.get()))) {
+               Thread.yield();
+            }
+         }
+
+         @Override
+         public void afterExpiryScan(Queue queue) {
+            currentExpiryHappening.decrementAndGet();
+         }
+      });
+
+      Assert.assertTrue(server.hasBrokerQueuePlugins());
+
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setExpiryAddress(expiryAddress));
+      for (int ad = 0; ad < 1000; ad++) {
+         server.addAddressInfo(new AddressInfo("test" + ad));
+         server.createQueue(new QueueConfiguration("test" + ad).setAddress("test" + ad).setRoutingType(RoutingType.ANYCAST));
+      }
+
+      ClientProducer producer = clientSession.createProducer();
+
+      for (int i = 0; i < 1000; i++) {
+         ClientMessage message = clientSession.createMessage(true);
+         message.setExpiration(System.currentTimeMillis());
+         producer.send("test" + i, message);
+      }
+
+      Wait.assertEquals(1000, artemisExpiryQueue::getMessageCount);
+
+      // The system should not burst itself looking for expiration, that would use too many resources from the broker itself
+      Assert.assertTrue("The System had " + maxExpiryHappening + " threads in parallel scanning for expiration", maxExpiryHappening.get() == 1);
+
+   }
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
 
-      ConfigurationImpl configuration = (ConfigurationImpl) createDefaultInVMConfig().setMessageExpiryScanPeriod(1000);
+      ConfigurationImpl configuration = (ConfigurationImpl) createDefaultInVMConfig().setMessageExpiryScanPeriod(100);
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       // start the server
       server.start();
@@ -251,7 +286,9 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(expiryQueue).setAddress(expiryAddress).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(expiryQueue).setAddress(expiryAddress).setDurable(true));
+      artemisExpiryQueue = server.locateQueue(expiryQueue);
+      Assert.assertNotNull(artemisExpiryQueue);
    }
 
    private static class DummyMessageHandler implements Runnable {
