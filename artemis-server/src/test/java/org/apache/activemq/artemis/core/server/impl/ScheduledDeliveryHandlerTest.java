@@ -864,6 +864,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void expireReferences(Runnable done) {
+
+      }
+
+      @Override
       public void refDown(MessageReference messageReference) {
 
       }
@@ -1401,7 +1406,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void expireReferences() throws Exception {
+      public void expireReferences() {
 
       }
 

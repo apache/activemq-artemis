@@ -2380,14 +2380,25 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void expireReferences() {
+   public void expireReferences(Runnable done) {
       if (isExpirationRedundant()) {
+         if (done != null) {
+            done.run();
+         }
          return;
       }
 
+
       if (!queueDestroyed && expiryScanner.scannerRunning.get() == 0) {
-         expiryScanner.scannerRunning.incrementAndGet();
+         if (expiryScanner.scannerRunning.incrementAndGet() == 1) {
+            expiryScanner.doneCallback = done;
+         }
          getExecutor().execute(expiryScanner);
+      } else {
+         // expire is already happening on this queue, move on!
+         if (done != null) {
+            done.run();
+         }
       }
    }
 
@@ -2405,13 +2416,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    class ExpiryScanner implements Runnable {
 
+      public Runnable doneCallback;
       public AtomicInteger scannerRunning = new AtomicInteger(0);
+      LinkedListIterator<MessageReference> iter = null;
 
       @Override
       public void run() {
 
          boolean expired = false;
          boolean hasElements = false;
+         int elementsIterated = 0;
          int elementsExpired = 0;
 
          LinkedList<MessageReference> expiredMessages = new LinkedList<>();
@@ -2424,32 +2438,54 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                logger.debug("Scanning for expires on " + QueueImpl.this.getName());
             }
 
-            LinkedListIterator<MessageReference> iter = iterator();
+            if (iter == null) {
+               if (server.hasBrokerQueuePlugins()) {
+                  try {
+                     server.callBrokerQueuePlugins((p) -> p.beforeExpiryScan(QueueImpl.this));
+                  } catch (Exception e) {
+                     logger.warn(e.getMessage(), e);
+                  }
+               }
+               iter = iterator();
+            }
 
             try {
                while (postOffice.isStarted() && iter.hasNext()) {
                   hasElements = true;
                   MessageReference ref = iter.next();
                   if (ref.getMessage().isExpired()) {
+                     elementsExpired++;
                      incDelivering(ref);
                      expired = true;
                      expiredMessages.add(ref);
                      iter.remove();
-
-                     if (++elementsExpired >= MAX_DELIVERIES_IN_LOOP) {
-                        logger.debug("Breaking loop of expiring");
-                        scannerRunning.incrementAndGet();
-                        getExecutor().execute(this);
-                        break;
-                     }
+                  }
+                  if (++elementsIterated >= MAX_DELIVERIES_IN_LOOP) {
+                     logger.debug("Breaking loop of expiring");
+                     scannerRunning.incrementAndGet();
+                     getExecutor().execute(this);
+                     break;
                   }
                }
             } finally {
-               try {
+               if (scannerRunning.decrementAndGet() == 0) {
+                  if (server.hasBrokerQueuePlugins()) {
+                     try {
+                        server.callBrokerQueuePlugins((p) -> p.afterExpiryScan(QueueImpl.this));
+                     } catch (Exception e) {
+                        logger.warn(e.getMessage(), e);
+                     }
+                  }
+
                   iter.close();
-               } catch (Throwable ignored) {
+                  iter = null;
+
+                  if (doneCallback != null) {
+                     doneCallback.run();
+                     doneCallback = null;
+                  }
                }
-               scannerRunning.decrementAndGet();
+
                logger.debug("Scanning for expires on " + QueueImpl.this.getName() + " done");
 
             }
@@ -2472,7 +2508,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                ActiveMQServerLogger.LOGGER.unableToCommitTransaction(e);
             }
             logger.debug("Expired " + elementsExpired + " references");
-
 
          }
 

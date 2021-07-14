@@ -109,4 +109,18 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
                                   boolean removeConsumers, boolean autoDeleteAddress) throws ActiveMQException {
 
    }
+
+   /**
+    * To be called before starting expiry scan on the queue
+    * @param queue
+    */
+   default void beforeExpiryScan(Queue queue) {
+   }
+
+   /**
+    * To be called before starting expiry scan on the queue
+    * @param queue
+    */
+   default void afterExpiryScan(Queue queue) {
+   }
 }

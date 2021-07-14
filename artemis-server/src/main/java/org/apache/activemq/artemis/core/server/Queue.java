@@ -325,7 +325,11 @@ public interface Queue extends Bindable,CriticalComponent {
     */
    int expireReferences(Filter filter) throws Exception;
 
-   void expireReferences() throws Exception;
+   default void expireReferences() {
+      expireReferences((Runnable)null);
+   }
+
+   void expireReferences(Runnable done);
 
    void expire(MessageReference ref) throws Exception;
 

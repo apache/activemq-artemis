@@ -66,7 +66,7 @@ public class Wait {
    }
 
    public static void assertEquals(Long size, LongCondition condition, long timeout, long sleepMillis) throws Exception {
-      assertEquals(size, condition, timeout, sleepMillis, true);
+      assertEquals(size, condition, timeout, sleepMillis, false);
    }
 
    public static void assertEquals(Long size, LongCondition condition, long timeout, long sleepMillis, boolean printThreadDump) throws Exception {

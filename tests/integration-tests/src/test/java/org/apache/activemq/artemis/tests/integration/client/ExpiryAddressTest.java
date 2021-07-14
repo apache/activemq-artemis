@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -27,6 +30,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -66,6 +71,52 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientConsumer.close();
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
+      Assert.assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+      Assert.assertNotNull(m);
+      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      m.acknowledge();
+   }
+
+
+   @Test
+   public void testExpireSingleMessage() throws Exception {
+      SimpleString ea = new SimpleString("EA");
+      SimpleString adSend = new SimpleString("a1");
+      SimpleString qName = new SimpleString("q1");
+      SimpleString eq = new SimpleString("EA1");
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
+      server.getAddressSettingsRepository().addMatch("#", addressSettings);
+      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(new QueueConfiguration(qName).setAddress(adSend).setDurable(false));
+
+
+      ClientProducer producer = clientSession.createProducer(adSend);
+
+      for (int i = 0; i < QueueImpl.MAX_DELIVERIES_IN_LOOP * 2 + 100; i++) {
+         ClientMessage clientMessage = createTextMessage(clientSession, "notExpired!");
+         clientMessage.putIntProperty("i", i);
+         producer.send(clientMessage);
+      }
+
+      ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
+      clientMessage.setExpiration(System.currentTimeMillis());
+      producer.send(clientMessage);
+
+      Queue queueQ1 = server.locateQueue("q1");
+
+      CountDownLatch latch = new CountDownLatch(10);
+      for (int i = 0; i < 10; i++) {
+         // done should be called even for the ones that are ignored because the expiry is already running
+         queueQ1.expireReferences(latch::countDown);
+      }
+
+      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+      clientSession.start();
+      ClientConsumer clientConsumer = clientSession.createConsumer(eq);
+      ClientMessage m = clientConsumer.receive(5000);
       Assert.assertNotNull(m);
       Assert.assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
       Assert.assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
