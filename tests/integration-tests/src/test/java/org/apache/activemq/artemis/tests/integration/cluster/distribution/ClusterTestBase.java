@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
@@ -56,9 +57,12 @@ import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -85,6 +89,7 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.jboss.logging.Logger;
@@ -92,8 +97,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 public abstract class ClusterTestBase extends ActiveMQTestBase {
+
+   @Rule
+   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    private static final Logger log = Logger.getLogger(ClusterTestBase.class);
 
@@ -134,6 +144,21 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       return true;
    }
 
+   private DistributedPrimitiveManagerConfiguration pluggableQuorumConfiguration = null;
+
+   private DistributedPrimitiveManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
+      if (pluggableQuorumConfiguration != null) {
+         return pluggableQuorumConfiguration;
+      }
+      try {
+         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+      } catch (IOException ioException) {
+         log.error(ioException);
+         return null;
+      }
+      return pluggableQuorumConfiguration;
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
@@ -159,11 +184,19 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    }
 
+   public enum HAType {
+      SharedStore, SharedNothingReplication, PluggableQuorumReplication
+   }
+
+   protected HAType haType() {
+      return HAType.SharedNothingReplication;
+   }
+
    /**
     * Whether the servers share the storage or not.
     */
-   protected boolean isSharedStore() {
-      return false;
+   protected final boolean isSharedStore() {
+      return HAType.SharedStore.equals(haType());
    }
 
    @Override
@@ -1481,14 +1514,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    protected void setupServer(final int node, final boolean fileStorage, final boolean netty) throws Exception {
-      setupLiveServer(node, fileStorage, false, netty, false);
+      setupLiveServer(node, fileStorage, HAType.SharedNothingReplication, netty, false);
    }
 
    protected void setupLiveServer(final int node,
                                   final boolean fileStorage,
                                   final boolean netty,
                                   boolean isLive) throws Exception {
-      setupLiveServer(node, fileStorage, false, netty, isLive);
+      setupLiveServer(node, fileStorage, HAType.SharedNothingReplication, netty, isLive);
    }
 
    protected boolean isResolveProtocols() {
@@ -1497,26 +1530,25 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    protected void setupLiveServer(final int node,
                                   final boolean fileStorage,
-                                  final boolean sharedStorage,
+                                  final HAType haType,
                                   final boolean netty,
                                   boolean liveOnly) throws Exception {
       if (servers[node] != null) {
          throw new IllegalArgumentException("Already a server at node " + node);
       }
 
-      HAPolicyConfiguration haPolicyConfiguration = null;
+      final HAPolicyConfiguration haPolicyConfiguration;
       if (liveOnly) {
          haPolicyConfiguration = new LiveOnlyPolicyConfiguration();
       } else {
-         if (sharedStorage)
-            haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
-         else
-            haPolicyConfiguration = new ReplicatedPolicyConfiguration();
+         haPolicyConfiguration = haPolicyLiveConfiguration(haType);
       }
 
       Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, generateParams(node, netty))).setHAPolicyConfiguration(haPolicyConfiguration).setResolveProtocols(isResolveProtocols());
 
       ActiveMQServer server;
+
+      final boolean sharedStorage = HAType.SharedStore.equals(haType);
 
       if (fileStorage) {
          if (sharedStorage) {
@@ -1538,6 +1570,20 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       servers[node] = addServer(server);
    }
 
+   private HAPolicyConfiguration haPolicyLiveConfiguration(HAType haType) {
+      switch (haType) {
+         case SharedStore:
+            return new SharedStoreMasterPolicyConfiguration();
+         case SharedNothingReplication:
+            return new ReplicatedPolicyConfiguration();
+         case PluggableQuorumReplication:
+            return ReplicationPrimaryPolicyConfiguration.withDefault()
+               .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
+         default:
+            throw new AssertionError("Unsupported haType = " + haType);
+      }
+   }
+
    /**
     * Server lacks a {@link ClusterConnectionConfiguration} necessary for the remote (replicating)
     * backup case.
@@ -1549,14 +1595,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
     * @param node
     * @param liveNode
     * @param fileStorage
-    * @param sharedStorage
+    * @param haType
     * @param netty
     * @throws Exception
     */
    protected void setupBackupServer(final int node,
                                     final int liveNode,
                                     final boolean fileStorage,
-                                    final boolean sharedStorage,
+                                    final HAType haType,
                                     final boolean netty) throws Exception {
       if (servers[node] != null) {
          throw new IllegalArgumentException("Already a server at node " + node);
@@ -1566,7 +1612,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       TransportConfiguration backupConfig = createTransportConfiguration(netty, false, generateParams(node, netty));
       TransportConfiguration acceptorConfig = createTransportConfiguration(netty, true, generateParams(node, netty));
 
-      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(acceptorConfig).addConnectorConfiguration(liveConfig.getName(), liveConfig).addConnectorConfiguration(backupConfig.getName(), backupConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration());
+      final boolean sharedStorage = HAType.SharedStore.equals(haType);
+
+      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(acceptorConfig).addConnectorConfiguration(liveConfig.getName(), liveConfig).addConnectorConfiguration(backupConfig.getName(), backupConfig).setHAPolicyConfiguration(haPolicyBackupConfiguration(haType));
 
       ActiveMQServer server;
 
@@ -1578,6 +1626,21 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
       server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of live " + liveNode + ")");
       servers[node] = addServer(server);
+   }
+
+   private HAPolicyConfiguration haPolicyBackupConfiguration(HAType haType) {
+      switch (haType) {
+
+         case SharedStore:
+            return new SharedStoreSlavePolicyConfiguration();
+         case SharedNothingReplication:
+            return new ReplicaPolicyConfiguration();
+         case PluggableQuorumReplication:
+            return ReplicationBackupPolicyConfiguration.withDefault()
+               .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
+         default:
+            throw new AssertionError("Unsupported ha type = " + haType);
+      }
    }
 
    protected void setupLiveServerWithDiscovery(final int node,

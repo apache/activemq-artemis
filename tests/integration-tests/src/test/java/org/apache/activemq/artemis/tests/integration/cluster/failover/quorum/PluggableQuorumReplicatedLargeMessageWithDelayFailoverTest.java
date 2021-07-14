@@ -14,17 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover.quorum;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * See {@link BackupSyncDelay} for the rationale about these 'WithDelay' tests.
- */
-public class ReplicatedLargeMessageWithDelayFailoverTest extends ReplicatedLargeMessageFailoverTest {
+public class PluggableQuorumReplicatedLargeMessageWithDelayFailoverTest extends PluggableQuorumReplicatedLargeMessageFailoverTest {
 
    private BackupSyncDelay syncDelay;
 
@@ -61,9 +60,22 @@ public class ReplicatedLargeMessageWithDelayFailoverTest extends ReplicatedLarge
    }
 
    @Override
+   protected void createConfigs() throws Exception {
+      createPluggableReplicatedConfigs();
+   }
+
+   @Override
+   protected void setupHAPolicyConfiguration() {
+      ((ReplicationPrimaryPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+      ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration())
+         .setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
+   }
+
+   @Override
    @After
    public void tearDown() throws Exception {
       syncDelay.deliverUpToDateMsg();
       super.tearDown();
    }
+
 }

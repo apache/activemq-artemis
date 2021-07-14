@@ -46,14 +46,14 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
    @Test
    public void testSimpleWithBackup() throws Exception {
       // The backups
-      setupBackupServer(0, 3, isFileStorage(), true, isNetty());
-      setupBackupServer(1, 4, isFileStorage(), true, isNetty());
-      setupBackupServer(2, 5, isFileStorage(), true, isNetty());
+      setupBackupServer(0, 3, isFileStorage(), HAType.SharedStore, isNetty());
+      setupBackupServer(1, 4, isFileStorage(), HAType.SharedStore, isNetty());
+      setupBackupServer(2, 5, isFileStorage(), HAType.SharedStore, isNetty());
 
       // The lives
-      setupLiveServer(3, isFileStorage(), true, isNetty(), false);
-      setupLiveServer(4, isFileStorage(), true, isNetty(), false);
-      setupLiveServer(5, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(3, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupLiveServer(4, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupLiveServer(5, isFileStorage(), HAType.SharedStore, isNetty(), false);
 
       setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 3, 4, 5);
 

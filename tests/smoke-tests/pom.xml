@@ -167,6 +167,38 @@
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
+      <!-- quorum tests -->
+      <dependency>
+         <groupId>org.apache.curator</groupId>
+         <artifactId>curator-recipes</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.curator</groupId>
+         <artifactId>curator-client</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.curator</groupId>
+         <artifactId>curator-framework</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.curator</groupId>
+         <artifactId>curator-test</artifactId>
+         <version>${curator.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.zookeeper</groupId>
+         <artifactId>zookeeper</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.zookeeper</groupId>
+         <artifactId>zookeeper-jute</artifactId>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>
@@ -598,6 +630,48 @@
                      </args>
                   </configuration>
                </execution>
+               <!-- START ZookeeperPluggableQuorumSinglePairTest -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-zk-replication-primary</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/zkReplicationPrimary</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/zkReplicationPrimary</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-zk-replication-backup</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/zkReplicationBackup</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/zkReplicationBackup</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <!-- END ZookeeperPluggableQuorumSinglePairTest -->
                <execution>
                   <phase>test-compile</phase>
                   <id>create-replicated-failback-master2</id>

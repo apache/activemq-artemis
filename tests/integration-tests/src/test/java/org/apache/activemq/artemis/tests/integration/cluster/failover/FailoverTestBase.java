@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -36,15 +37,19 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPolicy;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -52,9 +57,13 @@ import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 public abstract class FailoverTestBase extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
+   @Rule
+   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    protected static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
 
@@ -216,7 +225,34 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       }
    }
 
+   protected void createPluggableReplicatedConfigs() throws Exception {
+      final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
+      final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
+
+      backupConfig = createDefaultInVMConfig();
+      liveConfig = createDefaultInVMConfig();
+
+      DistributedPrimitiveManagerConfiguration managerConfiguration =
+         new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
+                                                      Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+
+      ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null, managerConfiguration, managerConfiguration);
+
+      backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
+
+      setupHAPolicyConfiguration();
+      nodeManager = createReplicatedBackupNodeManager(backupConfig);
+
+      backupServer = createTestableServer(backupConfig);
+
+      liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
+
+      liveServer = createTestableServer(liveConfig);
+   }
+
    protected void setupHAPolicyConfiguration() {
+      Assert.assertTrue(backupConfig.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(-1).setAllowFailBack(true);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
    }
@@ -233,8 +269,13 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
          configuration.getConnectorConfigurations().put(backupConnector.getName(), backupConnector);
          return;
       }
-      ReplicatedPolicy haPolicy = (ReplicatedPolicy) server.getServer().getHAPolicy();
-      haPolicy.setCheckForLiveServer(true);
+      HAPolicy policy = server.getServer().getHAPolicy();
+      if (policy instanceof ReplicatedPolicy) {
+         ((ReplicatedPolicy) policy).setCheckForLiveServer(true);
+      } else if (policy instanceof ReplicationPrimaryPolicy) {
+         Assert.assertTrue("Adapting won't work for the current configuration", ((ReplicationPrimaryPolicy) policy).isCheckForLiveServer());
+      }
+
    }
 
    @Override

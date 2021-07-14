@@ -32,6 +32,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.Activation;
+import org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
@@ -94,8 +96,18 @@ public class BackupSyncDelay implements Interceptor {
    public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
       if (packet.getType() == PacketImpl.BACKUP_REGISTRATION) {
          try {
-            SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backup.getActivation();
-            ReplicationEndpoint repEnd = activation.getReplicationEndpoint();
+            Activation backupActivation = backup.getActivation();
+            ReplicationEndpoint repEnd = null;
+            if (backupActivation instanceof SharedNothingBackupActivation) {
+               SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupActivation;
+               repEnd = activation.getReplicationEndpoint();
+            } else if (backupActivation instanceof ReplicationBackupActivation) {
+               ReplicationBackupActivation activation = (ReplicationBackupActivation) backupActivation;
+               repEnd = activation.getReplicationEndpoint();
+            }
+            if (repEnd == null) {
+               throw new NullPointerException("replication endpoint isn't supposed to be null");
+            }
             handler.addSubHandler(repEnd);
             Channel repChannel = repEnd.getChannel();
             repChannel.setHandler(handler);

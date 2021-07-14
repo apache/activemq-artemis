@@ -231,6 +231,17 @@
          <version>${project.version}</version>
          <classifier>javadoc</classifier>
       </dependency>
+      <!-- quorum -->
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-quorum-api</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-quorum-ri</artifactId>
+         <version>${project.version}</version>
+      </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-all</artifactId>

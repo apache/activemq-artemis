@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 public class SharedStoreDistributionTest extends ReplicatedDistributionTest {
 
    @Override
-   protected boolean isSharedStore() {
-      return true;
+   protected HAType haType() {
+      return HAType.SharedStore;
    }
 }

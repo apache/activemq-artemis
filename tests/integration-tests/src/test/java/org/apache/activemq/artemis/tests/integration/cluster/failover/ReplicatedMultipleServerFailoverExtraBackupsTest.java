@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
@@ -51,8 +52,16 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    @Override
    @Test
    public void testStartLiveFirst() throws Exception {
-      ((ReplicaPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
-      ((ReplicaPolicyConfiguration) backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
+      switch (haType()) {
+         case SharedNothingReplication:
+            ((ReplicaPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
+            ((ReplicaPolicyConfiguration) backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
+            break;
+         case PluggableQuorumReplication:
+            ((ReplicationBackupPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
+            ((ReplicationBackupPolicyConfiguration) backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
+            break;
+      }
 
       startServers(liveServers);
       backupServers.get(0).start();
@@ -85,8 +94,17 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    @Override
    @Test
    public void testStartBackupFirst() throws Exception {
-      ((ReplicaPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
-      ((ReplicaPolicyConfiguration) backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
+      switch (haType()) {
+         case SharedNothingReplication:
+            ((ReplicaPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
+            ((ReplicaPolicyConfiguration) backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
+            break;
+         case PluggableQuorumReplication:
+            ((ReplicationBackupPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
+            ((ReplicationBackupPolicyConfiguration) backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
+            break;
+      }
+
 
       startServers(backupServers);
       startServers(liveServers);

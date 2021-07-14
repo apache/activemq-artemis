@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -27,22 +29,47 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
+import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
+
+   @Rule
+   public TemporaryFolder tmpFolder = new TemporaryFolder();
+
+   private DistributedPrimitiveManagerConfiguration pluggableQuorumConfiguration = null;
+
+   private DistributedPrimitiveManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
+      if (pluggableQuorumConfiguration != null) {
+         return pluggableQuorumConfiguration;
+      }
+      try {
+         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+      } catch (IOException ioException) {
+         return null;
+      }
+      return pluggableQuorumConfiguration;
+   }
+
    // Constants -----------------------------------------------------
 
    // TODO: find a better solution for this
@@ -67,7 +94,15 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
    public abstract boolean isNetty();
 
-   public abstract boolean isSharedStore();
+   public enum HAType {
+      SharedStore, SharedNothingReplication, PluggableQuorumReplication
+   }
+
+   public abstract HAType haType();
+
+   protected final boolean isSharedStore() {
+      return ClusterTestBase.HAType.SharedStore.equals(haType());
+   }
 
    public abstract String getNodeGroupName();
 
@@ -82,14 +117,22 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < getLiveServerCount(); i++) {
          HAPolicyConfiguration haPolicyConfiguration = null;
+         switch (haType()) {
 
-         if (isSharedStore()) {
-            haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
-         } else {
-            haPolicyConfiguration = new ReplicatedPolicyConfiguration();
-            if (getNodeGroupName() != null) {
-               ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
-            }
+            case SharedStore:
+               haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
+               break;
+            case SharedNothingReplication:
+               haPolicyConfiguration = new ReplicatedPolicyConfiguration();
+               if (getNodeGroupName() != null) {
+                  ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
+               }
+               break;
+            case PluggableQuorumReplication:
+               haPolicyConfiguration = ReplicationPrimaryPolicyConfiguration.withDefault()
+                  .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration())
+                  .setGroupName(getNodeGroupName() != null ? (getNodeGroupName() + "-" + i) : null);
+               break;
          }
 
          Configuration configuration = createDefaultConfig(isNetty()).clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true, i)).setHAPolicyConfiguration(haPolicyConfiguration);
@@ -126,13 +169,24 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
       for (int i = 0; i < getBackupServerCount(); i++) {
          HAPolicyConfiguration haPolicyConfiguration = null;
 
-         if (isSharedStore()) {
-            haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
-         } else {
-            haPolicyConfiguration = new ReplicaPolicyConfiguration();
-            if (getNodeGroupName() != null) {
-               ((ReplicaPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
-            }
+         switch (haType()) {
+
+            case SharedStore:
+               haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
+               break;
+            case SharedNothingReplication:
+               haPolicyConfiguration = new ReplicaPolicyConfiguration();
+               if (getNodeGroupName() != null) {
+                  ((ReplicaPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
+               }
+               break;
+            case PluggableQuorumReplication:
+               haPolicyConfiguration = ReplicationBackupPolicyConfiguration.withDefault()
+                  .setVoteRetries(1)
+                  .setVoteRetryWait(1000)
+                  .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration())
+                  .setGroupName(getNodeGroupName() != null ? (getNodeGroupName() + "-" + i) : null);
+               break;
          }
 
          Configuration configuration = createDefaultConfig(isNetty()).clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false, i)).setHAPolicyConfiguration(haPolicyConfiguration);

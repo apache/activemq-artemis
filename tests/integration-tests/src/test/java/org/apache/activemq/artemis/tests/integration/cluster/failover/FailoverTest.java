@@ -60,6 +60,8 @@ import org.apache.activemq.artemis.core.server.cluster.ha.BackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationBackupPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.apache.activemq.artemis.core.server.files.FileMoveManager;
@@ -786,7 +788,7 @@ public class FailoverTest extends FailoverTestBase {
          ((ReplicaPolicy) haPolicy).setMaxSavedReplicatedJournalsSize(1);
       }
 
-      simpleFailover(haPolicy instanceof ReplicaPolicy, doFailBack);
+      simpleFailover(haPolicy instanceof ReplicaPolicy || haPolicy instanceof ReplicationBackupPolicy, doFailBack);
    }
 
    @Test(timeout = 120000)
@@ -816,7 +818,9 @@ public class FailoverTest extends FailoverTestBase {
       Thread.sleep(100);
       Assert.assertFalse("backup is not running", backupServer.isStarted());
 
-      Assert.assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy() instanceof BackupPolicy);
+      final boolean isBackup = liveServer.getServer().getHAPolicy() instanceof BackupPolicy ||
+         liveServer.getServer().getHAPolicy() instanceof ReplicationBackupPolicy;
+      Assert.assertFalse("must NOT be a backup", isBackup);
       adaptLiveConfigForReplicatedFailBack(liveServer);
       beforeRestart(liveServer);
       liveServer.start();
@@ -827,7 +831,8 @@ public class FailoverTest extends FailoverTestBase {
       ClientSession session2 = createSession(sf, false, false);
       session2.start();
       ClientConsumer consumer2 = session2.createConsumer(FailoverTestBase.ADDRESS);
-      boolean replication = liveServer.getServer().getHAPolicy() instanceof ReplicatedPolicy;
+      final boolean replication = liveServer.getServer().getHAPolicy() instanceof ReplicatedPolicy ||
+         liveServer.getServer().getHAPolicy() instanceof ReplicationPrimaryPolicy;
       if (replication)
          receiveMessages(consumer2, 0, NUM_MESSAGES, true);
       assertNoMoreMessages(consumer2);
@@ -838,7 +843,7 @@ public class FailoverTest extends FailoverTestBase {
    public void testSimpleFailover() throws Exception {
       HAPolicy haPolicy = backupServer.getServer().getHAPolicy();
 
-      simpleFailover(haPolicy instanceof ReplicaPolicy, false);
+      simpleFailover(haPolicy instanceof ReplicaPolicy || haPolicy instanceof ReplicationBackupPolicy, false);
    }
 
    @Test(timeout = 120000)

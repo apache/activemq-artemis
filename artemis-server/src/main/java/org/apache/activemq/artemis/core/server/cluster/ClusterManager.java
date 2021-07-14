@@ -157,7 +157,7 @@ public class ClusterManager implements ActiveMQComponent {
                          final ManagementService managementService,
                          final Configuration configuration,
                          final NodeManager nodeManager,
-                         final boolean backup) {
+                         final boolean useQuorumManager) {
       this.executorFactory = executorFactory;
 
       executor = executorFactory.getExecutor();
@@ -174,7 +174,7 @@ public class ClusterManager implements ActiveMQComponent {
 
       this.nodeManager = nodeManager;
 
-      clusterController = new ClusterController(server, scheduledExecutor);
+      clusterController = new ClusterController(server, scheduledExecutor, useQuorumManager);
 
       haManager = server.getActivation().getHAManager();
    }

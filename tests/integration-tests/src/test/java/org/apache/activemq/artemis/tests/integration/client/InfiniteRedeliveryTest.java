@@ -93,12 +93,11 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       backupConfig = createDefaultConfig(0, true);
       liveConfig = createDefaultConfig(0, true);
 
-      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
+      configureReplicationPair(backupConnector, backupAcceptor, liveConnector);
 
       backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
 
-      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(-1).setAllowFailBack(true);
-      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
+
 
       nodeManager = new InVMNodeManager(true, backupConfig.getJournalLocation());
 
@@ -107,6 +106,14 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(TransportConfigurationUtils.getNettyAcceptor(true, 0));
 
       liveServer = createTestableServer(liveConfig, nodeManager);
+   }
+
+   protected void configureReplicationPair(TransportConfiguration backupConnector,
+                                           TransportConfiguration backupAcceptor,
+                                           TransportConfiguration liveConnector) {
+      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(-1).setAllowFailBack(true);
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
    }
 
 

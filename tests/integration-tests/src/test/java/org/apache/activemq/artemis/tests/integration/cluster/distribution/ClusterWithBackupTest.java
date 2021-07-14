@@ -87,14 +87,14 @@ public class ClusterWithBackupTest extends ClusterTestBase {
 
    protected void setupServers() throws Exception {
       // The backups
-      setupBackupServer(0, 3, isFileStorage(), true, isNetty());
-      setupBackupServer(1, 4, isFileStorage(), true, isNetty());
-      setupBackupServer(2, 5, isFileStorage(), true, isNetty());
+      setupBackupServer(0, 3, isFileStorage(), HAType.SharedStore, isNetty());
+      setupBackupServer(1, 4, isFileStorage(), HAType.SharedStore, isNetty());
+      setupBackupServer(2, 5, isFileStorage(), HAType.SharedStore, isNetty());
 
       // The lives
-      setupLiveServer(3, isFileStorage(), true, isNetty(), false);
-      setupLiveServer(4, isFileStorage(), true, isNetty(), false);
-      setupLiveServer(5, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(3, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupLiveServer(4, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupLiveServer(5, isFileStorage(), HAType.SharedStore, isNetty(), false);
 
    }
 }

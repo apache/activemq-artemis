@@ -36,6 +36,7 @@ public class FileMoveManager {
    private static final Logger logger = Logger.getLogger(FileMoveManager.class);
 
    private final File folder;
+   private final String[] prefixesToPreserve;
    private int maxFolders;
    public static final String PREFIX = "oldreplica.";
 
@@ -70,9 +71,10 @@ public class FileMoveManager {
       this(folder, -1);
    }
 
-   public FileMoveManager(File folder, int maxFolders) {
+   public FileMoveManager(File folder, int maxFolders, String... prefixesToPreserve) {
       this.folder = folder;
       this.maxFolders = maxFolders;
+      this.prefixesToPreserve = prefixesToPreserve != null ? Arrays.copyOf(prefixesToPreserve, prefixesToPreserve.length) : null;
    }
 
    public int getMaxFolders() {
@@ -99,8 +101,23 @@ public class FileMoveManager {
          ActiveMQServerLogger.LOGGER.backupDeletingData(folder.getPath());
          for (String fileMove : files) {
             File fileFrom = new File(folder, fileMove);
-            logger.tracef("deleting %s", fileFrom);
-            deleteTree(fileFrom);
+            if (prefixesToPreserve != null) {
+               boolean skip = false;
+               for (String prefixToPreserve : prefixesToPreserve) {
+                  if (fileMove.startsWith(prefixToPreserve)) {
+                     logger.tracef("skipping %s", fileFrom);
+                     skip = true;
+                     break;
+                  }
+               }
+               if (!skip) {
+                  logger.tracef("deleting %s", fileFrom);
+                  deleteTree(fileFrom);
+               }
+            } else {
+               logger.tracef("deleting %s", fileFrom);
+               deleteTree(fileFrom);
+            }
          }
       } else {
          // Since we will create one folder, we are already taking that one into consideration
@@ -113,8 +130,26 @@ public class FileMoveManager {
          for (String fileMove : files) {
             File fileFrom = new File(folder, fileMove);
             File fileTo = new File(folderTo, fileMove);
-            logger.tracef("doMove:: moving %s as %s", fileFrom, fileTo);
-            Files.move(fileFrom.toPath(), fileTo.toPath());
+            if (prefixesToPreserve != null) {
+               boolean copy = false;
+               for (String prefixToPreserve : prefixesToPreserve) {
+                  if (fileMove.startsWith(prefixToPreserve)) {
+                     logger.tracef("skipping %s", fileFrom);
+                     copy = true;
+                     break;
+                  }
+               }
+               if (copy) {
+                  logger.tracef("copying %s to %s", fileFrom, fileTo);
+                  Files.copy(fileFrom.toPath(), fileTo.toPath());
+               } else {
+                  logger.tracef("doMove:: moving %s as %s", fileFrom, fileTo);
+                  Files.move(fileFrom.toPath(), fileTo.toPath());
+               }
+            } else {
+               logger.tracef("doMove:: moving %s as %s", fileFrom, fileTo);
+               Files.move(fileFrom.toPath(), fileTo.toPath());
+            }
          }
       }
 
