@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 public class ActiveMQFilterPredicate<T> implements Predicate<T> {
 
    enum Operation {
-      CONTAINS, EQUALS, GREATER_THAN, LESS_THAN;
+      CONTAINS, NOT_CONTAINS, EQUALS, GREATER_THAN, LESS_THAN;
    }
 
    protected String field;
@@ -77,6 +77,8 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
                return equals(field, value);
             case CONTAINS:
                return contains(field, value);
+            case NOT_CONTAINS:
+               return !contains(field, value);
             case GREATER_THAN:
                return false;
             case LESS_THAN:
@@ -110,6 +112,8 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
                return field == longValue;
             case CONTAINS:
                return false;
+            case NOT_CONTAINS:
+               return false;
             case LESS_THAN:
                return field < longValue;
             case GREATER_THAN:
@@ -135,6 +139,8 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
                return field == intValue;
             case CONTAINS:
                return false;
+            case NOT_CONTAINS:
+               return false;
             case LESS_THAN:
                return field < intValue;
             case GREATER_THAN:
@@ -159,6 +165,8 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
             case EQUALS:
                return field == floatValue;
             case CONTAINS:
+               return false;
+            case NOT_CONTAINS:
                return false;
             case LESS_THAN:
                return field < floatValue;

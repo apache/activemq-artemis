@@ -1384,6 +1384,19 @@ public class ArtemisTest extends CliTestBase {
          // Header line + 3 queues
          Assert.assertEquals("rows returned filtering by NAME ", 4, lines.size());
 
+         //check all queues NOT containing "management" are displayed using Filter field NAME
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("NAME");
+         statQueue.setOperationName("NOT_CONTAINS");
+         statQueue.setValue("management");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 6 queues (Test1/11/12/20+DLQ+ExpiryQueue, but not activemq.management.d6dbba78-d76f-43d6-a2c9-fc0575ed6f5d)
+         Assert.assertEquals("rows returned filtering by NAME operation NOT_CONTAINS", 7, lines.size());
+
          //check only queue named "Test1" is displayed using Filter field NAME and operation EQUALS
          context = new TestActionContext();
          statQueue = new StatQueue();

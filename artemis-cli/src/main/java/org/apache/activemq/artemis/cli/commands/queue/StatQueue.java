@@ -63,7 +63,7 @@ public class StatQueue extends AbstractAction {
    }
 
    public enum OPERATION {
-      CONTAINS, EQUALS, GREATER_THAN, LESS_THAN
+      CONTAINS, NOT_CONTAINS, EQUALS, GREATER_THAN, LESS_THAN
    }
 
    public static final int DEFAULT_MAX_ROWS = 50;
@@ -74,7 +74,7 @@ public class StatQueue extends AbstractAction {
    @Option(name = "--field", description = "field to use in filter. Possible values NAME, ADDRESS, MESSAGE_COUNT, MESSAGES_ADDED, DELIVERING_COUNT, MESSAGES_ACKED, SCHEDULED_COUNT, ROUTING_TYPE.")
    private String fieldName;
 
-   @Option(name = "--operation", description = "operation to use in filter. Possible values CONTAINS, EQUALS, GREATER_THAN, LESS_THAN.")
+   @Option(name = "--operation", description = "operation to use in filter. Possible values CONTAINS, NOT_CONTAINS, EQUALS, GREATER_THAN, LESS_THAN.")
    private String operationName;
 
    @Option(name = "--value", description = "value to use in the filter.")
