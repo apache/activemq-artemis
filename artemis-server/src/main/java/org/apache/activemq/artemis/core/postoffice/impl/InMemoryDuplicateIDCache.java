@@ -75,13 +75,15 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
    @Override
    public void deleteFromCache(byte[] duplicateID) {
+      deleteFromCache(new ByteArray(duplicateID));
+   }
+
+   private void deleteFromCache(final ByteArray duplicateID) {
       if (LOGGER.isTraceEnabled()) {
-         LOGGER.tracef("deleting id = %s", describeID(duplicateID));
+         LOGGER.tracef("deleting id = %s", describeID(duplicateID.bytes));
       }
 
-      ByteArray bah = new ByteArray(duplicateID);
-
-      Integer posUsed = cache.remove(bah);
+      Integer posUsed = cache.remove(duplicateID);
 
       if (posUsed != null) {
          ByteArray id;
@@ -90,10 +92,10 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
             final int index = posUsed.intValue();
             id = ids.get(index);
 
-            if (id.equals(bah)) {
+            if (id.equals(duplicateID)) {
                ids.set(index, null);
                if (LOGGER.isTraceEnabled()) {
-                  LOGGER.tracef("address = %s deleting id=", address, describeID(duplicateID));
+                  LOGGER.tracef("address = %s deleting id=", address, describeID(duplicateID.bytes));
                }
             }
          }
@@ -158,6 +160,7 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
          }
 
          if (instantAdd) {
+            addToCacheInMemory(holder);
             tx.addOperation(new AddDuplicateIDOperation(holder, false));
          } else {
             // For a tx, it's important that the entry is not added to the cache until commit
@@ -262,9 +265,9 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
       }
 
       @Override
-      public void beforeCommit(Transaction tx) throws Exception {
+      public void beforeRollback(Transaction tx) throws Exception {
          if (!afterCommit) {
-            process();
+            deleteFromCache(id);
          }
       }
 
