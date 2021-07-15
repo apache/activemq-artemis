@@ -38,7 +38,7 @@ public class URIParserTest {
    @Test
    public void testSchemaFruit() throws Throwable {
       FruitParser parser = new FruitParser();
-      Fruit fruit = (Fruit) parser.newObject(new URI("fruit://some:guy@fair-market:3030?color=green&fluentName=something"), null);
+      Fruit fruit = (Fruit) parser.newObject(new URI("fruit://some:guy@fair-market:3030?color=green&fluentName=something&foo=ENC%28ql6LSJ%252BYMxGN1yn1r%2FF0yw%3D%3D%29"), null);
 
       Assert.assertEquals("fruit", fruit.getName());
       Assert.assertEquals(3030, fruit.getPort());
@@ -46,6 +46,7 @@ public class URIParserTest {
       Assert.assertEquals("some:guy", fruit.getUserInfo());
       Assert.assertEquals("green", fruit.getColor());
       Assert.assertEquals("something", fruit.getFluentName());
+      Assert.assertEquals("ENC(ql6LSJ%2BYMxGN1yn1r/F0yw==)", fruit.getFoo());
 
    }
 
@@ -205,6 +206,7 @@ public class URIParserTest {
       String host;
       int port;
       String userInfo;
+      String foo;
 
       public void setHost(String host) {
          this.host = host;
@@ -228,6 +230,14 @@ public class URIParserTest {
 
       public String getUserInfo() {
          return userInfo;
+      }
+
+      public void setFoo(String foo) {
+         this.foo = foo;
+      }
+
+      public String getFoo() {
+         return foo;
       }
 
       @Override

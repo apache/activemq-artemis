@@ -105,6 +105,12 @@ public abstract class URISchema<T, P> {
 
    public static Map<String, String> parseQuery(String uri,
                                                 Map<String, String> propertyOverrides) throws URISyntaxException {
+      return parseQuery(uri, propertyOverrides, false);
+   }
+
+   public static Map<String, String> parseQuery(String uri,
+                                                Map<String, String> propertyOverrides,
+                                                boolean decode) throws URISyntaxException {
       try {
          Map<String, String> rc = new HashMap<>();
          if (uri != null && !uri.isEmpty()) {
@@ -112,8 +118,8 @@ public abstract class URISchema<T, P> {
             for (String parameter : parameters) {
                int p = parameter.indexOf("=");
                if (p >= 0) {
-                  String name = BeanSupport.decodeURI(parameter.substring(0, p));
-                  String value = BeanSupport.decodeURI(parameter.substring(p + 1));
+                  String name = decode ? BeanSupport.decodeURI(parameter.substring(0, p)) : parameter.substring(0, p);
+                  String value = decode ? BeanSupport.decodeURI(parameter.substring(p + 1)) : parameter.substring(p + 1);
                   rc.put(name, value);
                } else {
                   if (!parameter.trim().isEmpty()) {
