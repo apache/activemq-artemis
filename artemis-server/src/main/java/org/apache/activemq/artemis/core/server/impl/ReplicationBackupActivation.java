@@ -147,7 +147,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          }
       }
       try {
-         LOGGER.debug("Trying to reach majority of quorum service nodes");
+         LOGGER.infof("Trying to reach the majority of quorum nodes");
          distributedManager.start();
          LOGGER.debug("Quorum service available");
          distributedManager.addUnavailableManagerListener(this);
@@ -173,7 +173,6 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          // Stop the previous node manager and create a new one with NodeManager::replicatedBackup == true:
          // NodeManager::start skip setup lock file with NodeID, until NodeManager::stopBackup is called.
          activeMQServer.resetNodeManager();
-         activeMQServer.getNodeManager().stop();
          // A primary need to preserve NodeID across runs
          activeMQServer.moveServerData(policy.getMaxSavedReplicatedJournalsSize(), policy.isTryFailback());
          activeMQServer.getNodeManager().start();
@@ -184,12 +183,15 @@ public final class ReplicationBackupActivation extends Activation implements Dis
             if (closed)
                return;
          }
+
+
          final ClusterController clusterController = activeMQServer.getClusterManager().getClusterController();
+
+         LOGGER.infof("Apache ActiveMQ Artemis Backup Server version %s [%s] started, awaiting connection to a live cluster member to start replication", activeMQServer.getVersion().getFullVersion(),
+                      activeMQServer.toString());
+
          clusterController.awaitConnectionToReplicationCluster();
          activeMQServer.getBackupManager().start();
-
-         LOGGER.infof("Apache ActiveMQ Artemis Backup Server version %s [%s] started, waiting replication and failure, before it gets active", activeMQServer.getVersion().getFullVersion(),
-                                                         activeMQServer.getNodeManager().getNodeId());
          activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
          final DistributedLock liveLock = replicateAndFailover(clusterController);
          if (liveLock == null) {
@@ -239,17 +241,22 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       if (liveLock.isHeldByCaller()) {
          MutableLong coordinatedNodeActivationSequence = distributedPrimitiveManager.getMutableLong(lockAndLongId);
          if (nodeActivationSequence != coordinatedNodeActivationSequence.get()) {
-            final String message = String.format("Server [%s], cannot assume live role for NodeID = %s, local activation sequence %d does not match current coordinated sequence %d", activeMQServer.getIdentity(), lockAndLongId, nodeActivationSequence, coordinatedNodeActivationSequence.get());
+            final String message = String.format("Server [%s], cannot assume live role for NodeID = %s, local activation sequence %d does not match current coordinated sequence %d", activeMQServer, lockAndLongId, nodeActivationSequence, coordinatedNodeActivationSequence.get());
             logger.info(message);
             throw new ActiveMQException(message);
          }
 
          // UN_REPLICATED STATE ENTER
-         coordinatedNodeActivationSequence.compareAndSet(nodeActivationSequence, nodeActivationSequence + 1);
-         nodeManager.writeNodeActivationSequence(nodeActivationSequence + 1);
-         logger.infof("Server [%s], incremented coordinated activation sequence to: %d for NodeId = %s", activeMQServer.getIdentity(), nodeActivationSequence + 1, lockAndLongId);
+         if (coordinatedNodeActivationSequence.compareAndSet(nodeActivationSequence, nodeActivationSequence + 1)) {
+            nodeManager.writeNodeActivationSequence(nodeActivationSequence + 1);
+            logger.infof("Server [%s], incremented coordinated activation sequence to: %d for NodeId = %s", activeMQServer, nodeActivationSequence + 1, lockAndLongId);
+         } else {
+            final String message = String.format("Server [%s], cannot assume live role for NodeID = %s, compareAndSet failed, local activation sequence %d no longer matches current coordinated sequence %d", activeMQServer, lockAndLongId, nodeActivationSequence, coordinatedNodeActivationSequence.get());
+            logger.info(message);
+            throw new ActiveMQException(message);
+         }
       } else {
-         final String message = String.format("Server [%s], live lock for NodeID = %s, not held, activation sequence cannot be safely incremented to %d", activeMQServer.getIdentity(), lockAndLongId, nodeActivationSequence);
+         final String message = String.format("Server [%s], live lock for NodeID = %s, not held, activation sequence cannot be safely incremented to %d", activeMQServer, lockAndLongId, nodeActivationSequence);
          logger.info(message);
          throw new UnavailableStateException(message);
       }

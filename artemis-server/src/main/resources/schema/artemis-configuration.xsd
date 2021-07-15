@@ -3199,6 +3199,18 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="peer-node-id" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The pre configured nodeID (or server ID) for this primary and any 'peer' primary instances. When a
+                  nodeID is provided in configuration, the first start of a primary will not auto generated a nodeId.
+                  In this way, two primary instances can compete for the same lock and coordinate to activate
+                  a journal. Any primary instances in a cluster that set and share the same value of 'peer-node-id' will
+                  act as peers. To this end 'check-for-live-server' should be set to true.
+                  Note: any value specified will be transformed into a UUID and wont' be easily human readable.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
          <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1"
                       minOccurs="0">
             <xsd:annotation>

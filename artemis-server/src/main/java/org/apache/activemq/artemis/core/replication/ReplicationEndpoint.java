@@ -483,7 +483,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          logger.trace("Backup is synchronized / BACKUP-SYNC-DONE");
       }
 
-      ActiveMQServerLogger.LOGGER.backupServerSynched(server);
+      ActiveMQServerLogger.LOGGER.backupServerSynchronized(server, liveID);
       return;
    }
 

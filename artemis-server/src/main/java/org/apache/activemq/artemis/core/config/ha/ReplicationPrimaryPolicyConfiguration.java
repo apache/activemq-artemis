@@ -40,6 +40,8 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
 
    private DistributedPrimitiveManagerConfiguration distributedManagerConfiguration = null;
 
+   private String peerNodeID = null;
+
    public static ReplicationPrimaryPolicyConfiguration withDefault() {
       return new ReplicationPrimaryPolicyConfiguration();
    }
@@ -121,5 +123,28 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
 
    public DistributedPrimitiveManagerConfiguration getDistributedManagerConfiguration() {
       return distributedManagerConfiguration;
+   }
+
+   public String getPeerNodeID() {
+      return peerNodeID;
+   }
+
+   public void setPeerNodeID(String newPeerNodeValue) {
+      if (newPeerNodeValue == null) {
+         return;
+      }
+      final int len = newPeerNodeValue.length();
+      if (len >= 16) {
+         this.peerNodeID = newPeerNodeValue.substring(0, 16);
+      } else if (len % 2 != 0) {
+         // must be even for conversion to uuid, extend to next even
+         this.peerNodeID = newPeerNodeValue + "+";
+      } else if (len > 0 ) {
+         // run with it
+         this.peerNodeID = newPeerNodeValue;
+      }
+      if (this.peerNodeID != null) {
+         this.peerNodeID = this.peerNodeID.replace('-', '.');
+      }
    }
 }

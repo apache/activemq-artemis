@@ -35,6 +35,7 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    private final long initialReplicationSyncTimeout;
    private final DistributedPrimitiveManagerConfiguration distributedManagerConfiguration;
    private final boolean allowAutoFailBack;
+   private final String peerNodeId;
 
    private ReplicationPrimaryPolicy(ReplicationPrimaryPolicyConfiguration configuration,
                                     ReplicationBackupPolicy backupPolicy,
@@ -45,6 +46,7 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
       checkForLiveServer = configuration.isCheckForLiveServer();
       initialReplicationSyncTimeout = configuration.getInitialReplicationSyncTimeout();
       distributedManagerConfiguration = configuration.getDistributedManagerConfiguration();
+      peerNodeId = configuration.getPeerNodeID();
       this.allowAutoFailBack = allowAutoFailBack;
       this.backupPolicy = backupPolicy;
    }
@@ -52,6 +54,7 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    private ReplicationPrimaryPolicy(ReplicationPrimaryPolicyConfiguration config) {
       clusterName = config.getClusterName();
       groupName = config.getGroupName();
+      peerNodeId = config.getPeerNodeID();
       checkForLiveServer = config.isCheckForLiveServer();
       initialReplicationSyncTimeout = config.getInitialReplicationSyncTimeout();
       distributedManagerConfiguration = config.getDistributedManagerConfiguration();
@@ -162,5 +165,9 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    @Override
    public boolean useQuorumManager() {
       return false;
+   }
+
+   public String getPeerNodeId() {
+      return peerNodeId;
    }
 }

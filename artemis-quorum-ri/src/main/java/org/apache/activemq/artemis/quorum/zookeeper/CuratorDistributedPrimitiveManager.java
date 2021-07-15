@@ -135,11 +135,11 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
       }
       listeners.add(listener);
       if (unavailable) {
-         handlingEvents = true;
+         startHandlingEvents();
          try {
             listener.onUnavailableManagerEvent();
          } finally {
-            handlingEvents = true;
+            completeHandlingEvents();
          }
       }
    }
@@ -238,11 +238,11 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
       final CuratorDistributedLock newLock = new CuratorDistributedLock(this, lockId, new InterProcessSemaphoreV2(client, "/locks/" + lockId, 1), onCloseLock);
       locks.put(lockId, newLock);
       if (unavailable) {
-         handlingEvents = true;
+         startHandlingEvents();
          try {
             newLock.onLost();
          } finally {
-            handlingEvents = false;
+            completeHandlingEvents();
          }
       }
       return newLock;
@@ -265,14 +265,14 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
             assert alwaysTrue;
          }
       };
-      final CuratorMutableLong newLong = new CuratorMutableLong(this, mutableLongId, new DistributedAtomicLong(client, "/" + mutableLongId, new RetryNTimes(0, 0)), onClose);
+      final CuratorMutableLong newLong = new CuratorMutableLong(this, mutableLongId, new DistributedAtomicLong(client, "/activation-sequence/" + mutableLongId, new RetryNTimes(0, 0)), onClose);
       longs.put(mutableLongId, newLong);
       if (unavailable) {
-         handlingEvents = true;
+         startHandlingEvents();
          try {
             newLong.onLost();
          } finally {
-            handlingEvents = false;
+            completeHandlingEvents();
          }
       }
       return newLong;
@@ -303,7 +303,7 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
       if (unavailable) {
          return;
       }
-      handlingEvents = true;
+      startHandlingEvents();
       try {
          switch (newState) {
             case LOST:
@@ -322,7 +322,11 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
                break;
          }
       } finally {
-         handlingEvents = false;
+         completeHandlingEvents();
       }
+   }
+
+   public CuratorFramework getCurator() {
+      return client;
    }
 }

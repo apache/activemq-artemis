@@ -333,13 +333,14 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       org.apache.activemq.artemis.utils.Wait.assertTrue(() -> 2L == backupServer.getNodeManager().getNodeActivationSequence(), timeout);
 
       // just to let the console logging breath!
-      TimeUnit.SECONDS.sleep(1);
+      TimeUnit.MILLISECONDS.sleep(100);
 
-      // expect backup to restart on replication sync as primary requests failback
+      // restart primary that will request failback
       ActiveMQServer restartedPrimaryForFailBack = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
       restartedPrimaryForFailBack.setIdentity("PRIMARY");
       restartedPrimaryForFailBack.start();
 
+      // first step is backup getting replicated
       org.apache.activemq.artemis.utils.Wait.assertTrue(() -> backupServer.isReplicaSync(), timeout);
 
       // restarted primary will run un replicated (increment sequence) while backup restarts to revert to backup role.
@@ -352,19 +353,18 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       }, timeout);
 
       // the backup should then resume with an insync replica view of that version
-      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> 3L == backupServer.getNodeManager().getNodeActivationSequence(), timeout);
       org.apache.activemq.artemis.utils.Wait.assertTrue(() -> restartedPrimaryForFailBack.isReplicaSync(), timeout);
       org.apache.activemq.artemis.utils.Wait.assertTrue(() -> backupServer.isReplicaSync(), timeout);
+      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> 3L == backupServer.getNodeManager().getNodeActivationSequence(), timeout);
 
       // just to let the console logging breath!
-      TimeUnit.SECONDS.sleep(5);
-
+      TimeUnit.MILLISECONDS.sleep(100);
 
       // stop backup to verify primary goes on with new sequence as un replicated
       backupServer.stop();
 
       // just to let the console logging breath!
-      TimeUnit.SECONDS.sleep(5);
+      TimeUnit.MILLISECONDS.sleep(100);
 
       // live goes un replicated
       org.apache.activemq.artemis.utils.Wait.assertTrue(() -> {
@@ -373,7 +373,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
          } catch (NullPointerException ok) {
             return false;
          }
-      }, timeout * 10);
+      }, timeout);
 
       restartedPrimaryForFailBack.stop();
    }
@@ -417,4 +417,151 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       primaryInstance.stop();
    }
 
+
+   @Test
+   public void testBackupStartsFirst() throws Exception {
+
+      // start backup
+      Configuration backupConfiguration = createBackupConfiguration();
+      ActiveMQServer backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
+      backupServer.setIdentity("BACKUP");
+      backupServer.start();
+
+      // start live
+      final Configuration liveConfiguration = createLiveConfiguration();
+      ((ReplicationPrimaryPolicyConfiguration)liveConfiguration.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+
+      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      liveServer.setIdentity("LIVE");
+      liveServer.start();
+
+      Wait.waitFor(liveServer::isStarted);
+
+      assertTrue(Wait.waitFor(backupServer::isStarted));
+      assertTrue(Wait.waitFor(backupServer::isReplicaSync));
+      assertTrue(liveServer.isReplicaSync());
+   }
+
+   @Test
+   public void testPrimaryPeers() throws Exception {
+      final String PEER_NODE_ID = "some-shared-id-001";
+
+      final Configuration liveConfiguration = createLiveConfiguration();
+      ((ReplicationPrimaryPolicyConfiguration)liveConfiguration.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+      ((ReplicationPrimaryPolicyConfiguration)liveConfiguration.getHAPolicyConfiguration()).setPeerNodeID(PEER_NODE_ID);
+
+      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      liveServer.setIdentity("LIVE");
+      liveServer.start();
+
+      Wait.waitFor(liveServer::isStarted);
+
+      final CountDownLatch replicated = new CountDownLatch(1);
+      final CountDownLatch unReplicated = new CountDownLatch(1);
+
+      final String[] backUpNodeIdHolder = new String[1];
+      ServerLocator locator = ServerLocatorImpl.newLocator("(tcp://localhost:61616,tcp://localhost:61617)?ha=true");
+      locator.setCallTimeout(60_000L);
+      locator.setConnectionTTL(60_000L);
+      locator.addClusterTopologyListener(new ClusterTopologyListener() {
+         @Override
+         public void nodeUP(TopologyMember member, boolean last) {
+            if (member.getBackup() != null) {
+               replicated.countDown();
+               backUpNodeIdHolder[0] = member.getNodeId();
+            }
+         }
+
+         @Override
+         public void nodeDown(long eventUID, String nodeID) {
+            if (nodeID.equals(backUpNodeIdHolder[0])) {
+               unReplicated.countDown();
+               backUpNodeIdHolder[0] = "down";
+            }
+         }
+      });
+
+      ClientSessionFactory csf = locator.createSessionFactory();
+      ClientSession clientSession = csf.createSession();
+      clientSession.createQueue(new QueueConfiguration("slow").setRoutingType(RoutingType.ANYCAST));
+      clientSession.close();
+
+      // start peer, will backup
+      Configuration peerLiveConfiguration = createBackupConfiguration(); // to get acceptors and locators ports that won't clash
+      peerLiveConfiguration.setHAPolicyConfiguration(createReplicationLiveConfiguration());
+      ((ReplicationPrimaryPolicyConfiguration)peerLiveConfiguration.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+      ((ReplicationPrimaryPolicyConfiguration)peerLiveConfiguration.getHAPolicyConfiguration()).setPeerNodeID(PEER_NODE_ID);
+      peerLiveConfiguration.setName("localhost::live-peer");
+
+      ActiveMQServer livePeerServer = addServer(ActiveMQServers.newActiveMQServer(peerLiveConfiguration));
+      livePeerServer.setIdentity("LIVE-PEER");
+      livePeerServer.start();
+
+      Wait.waitFor(livePeerServer::isStarted);
+
+      Assert.assertTrue("can not replicate in 30 seconds", replicated.await(30, TimeUnit.SECONDS));
+
+      liveServer.stop();
+
+      // livePeerServer will take over and run un replicated
+
+      csf = locator.createSessionFactory();
+      clientSession = csf.createSession();
+      clientSession.createQueue(new QueueConfiguration("slow_un_replicated").setRoutingType(RoutingType.ANYCAST));
+      clientSession.close();
+
+      Assert.assertTrue("can not un replicate in 30 seconds", unReplicated.await(30, TimeUnit.SECONDS));
+      assertTrue(Wait.waitFor(() -> 2L == livePeerServer.getNodeManager().getNodeActivationSequence()));
+
+      livePeerServer.stop(false);
+
+      // now only backup should be able to start as it has run un_replicated
+
+      // live activation should fail as it is now stale!
+      final AtomicReference<Exception> failedActivation = new AtomicReference<>();
+      liveServer.registerActivationFailureListener(failedActivation::set);
+
+      liveServer.start();
+
+      assertTrue(Wait.waitFor(() -> failedActivation.get() != null && failedActivation.get().getMessage().contains("coordinated")));
+      liveServer.stop();
+
+      // restart backup but with a new instance, as going live has changed its policy and role
+      ActiveMQServer restartedPeerLiveServer = addServer(ActiveMQServers.newActiveMQServer(peerLiveConfiguration));
+      restartedPeerLiveServer.start();
+
+      Wait.waitFor(restartedPeerLiveServer::isStarted);
+      assertEquals(3L, restartedPeerLiveServer.getNodeManager().getNodeActivationSequence());
+
+      csf = locator.createSessionFactory();
+      clientSession = csf.createSession();
+      clientSession.createQueue(new QueueConfiguration("backup_as_un_replicated").setRoutingType(RoutingType.ANYCAST));
+      clientSession.close();
+
+      backUpNodeIdHolder[0] = ""; // reset to capture topology node up on in_sync_replication
+
+      // verify the live restart as a backup to the restartedPeerLiveServer that has taken on the live role
+      ActiveMQServer restartedLiveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      restartedLiveServer.setIdentity("LIVE");
+
+      restartedLiveServer.start();
+
+      csf = locator.createSessionFactory();
+      clientSession = csf.createSession();
+      clientSession.createQueue(new QueueConfiguration("backup_as_replicated").setRoutingType(RoutingType.ANYCAST));
+      clientSession.close();
+
+      assertTrue(Wait.waitFor(restartedLiveServer::isReplicaSync));
+      assertTrue(Wait.waitFor(() -> 3L == restartedLiveServer.getNodeManager().getNodeActivationSequence()));
+
+      restartedPeerLiveServer.stop(true);
+
+      assertTrue("original live is un_replicated live again", Wait.waitFor(() -> "down".equals(backUpNodeIdHolder[0])));
+
+      assertTrue(Wait.waitFor(() -> 4L == restartedLiveServer.getNodeManager().getNodeActivationSequence()));
+
+      restartedLiveServer.stop(true);
+      clientSession.close();
+      locator.close();
+   }
 }

@@ -1731,6 +1731,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode, config));
 
+      configuration.setPeerNodeID(getString(policyNode, "peer-node-id", configuration.getPeerNodeID(), Validators.NOT_NULL_OR_EMPTY));
+
       return configuration;
    }
 

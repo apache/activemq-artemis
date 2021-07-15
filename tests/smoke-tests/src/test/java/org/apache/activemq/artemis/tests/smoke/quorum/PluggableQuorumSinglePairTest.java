@@ -20,8 +20,7 @@ package org.apache.activemq.artemis.tests.smoke.quorum;
 import javax.management.remote.JMXServiceURL;
 import java.net.MalformedURLException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -55,15 +54,15 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
 
    private static final Logger LOGGER = Logger.getLogger(PluggableQuorumSinglePairTest.class);
 
-   private static final String JMX_SERVER_HOSTNAME = "localhost";
-   private static final int JMX_PORT_PRIMARY = 10099;
-   private static final int JMX_PORT_BACKUP = 10199;
+   static final String JMX_SERVER_HOSTNAME = "localhost";
+   static final int JMX_PORT_PRIMARY = 10099;
+   static final int JMX_PORT_BACKUP = 10199;
 
-   private static final String PRIMARY_DATA_FOLDER = "ReplicationPrimary";
-   private static final String BACKUP_DATA_FOLDER = "ReplicationBackup";
+   static final String PRIMARY_DATA_FOLDER = "ReplicationPrimary";
+   static final String BACKUP_DATA_FOLDER = "ReplicationBackup";
 
-   private static final int PRIMARY_PORT_OFFSET = 0;
-   private static final int BACKUP_PORT_OFFSET = PRIMARY_PORT_OFFSET + 100;
+   static final int PRIMARY_PORT_OFFSET = 0;
+   static final int BACKUP_PORT_OFFSET = PRIMARY_PORT_OFFSET + 100;
 
    public static class BrokerControl {
 
@@ -73,7 +72,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       final JMXServiceURL jmxServiceURL;
       final int portID;
 
-      private BrokerControl(final String name, int jmxPort, String dataFolder, int portID) {
+      BrokerControl(final String name, int jmxPort, String dataFolder, int portID) {
          this.portID = portID;
          this.dataFolder = dataFolder;
          try {
@@ -122,14 +121,14 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       return Arrays.asList(new Object[][]{{false}, {true}});
    }
 
-   private final BrokerControl primary;
-   private final BrokerControl backup;
-   private final Collection<BrokerControl> brokers;
+   protected BrokerControl primary;
+   protected BrokerControl backup;
+   protected LinkedList<BrokerControl> brokers;
 
    public PluggableQuorumSinglePairTest(String brokerFolderPrefix) {
       primary = new BrokerControl("primary", JMX_PORT_PRIMARY, brokerFolderPrefix + PRIMARY_DATA_FOLDER, PRIMARY_PORT_OFFSET);
       backup = new BrokerControl("backup", JMX_PORT_BACKUP, brokerFolderPrefix + BACKUP_DATA_FOLDER, BACKUP_PORT_OFFSET);
-      brokers = Collections.unmodifiableList(Arrays.asList(primary, backup));
+      brokers = new LinkedList(Arrays.asList(primary, backup));
    }
 
    protected abstract boolean awaitAsyncSetupCompleted(long timeout, TimeUnit unit) throws InterruptedException;

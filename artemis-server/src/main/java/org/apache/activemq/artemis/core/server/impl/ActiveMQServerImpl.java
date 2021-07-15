@@ -622,7 +622,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.serverStarting((haPolicy.isBackup() ? "backup" : "live"), configuration);
 
          final boolean wasLive = !haPolicy.isBackup();
-         if (!haPolicy.isBackup()) {
+         if (!haPolicy.isBackup()) {  // REVISIT: this could be wasLive, but seems it should be passed in as the wasLive param to create activation, which is currently not a match at false!
             activation = haPolicy.createActivation(this, false, activationParams, ioCriticalErrorListener);
 
             if (afterActivationCreated != null) {
@@ -2877,6 +2877,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public String toString() {
       if (identity != null) {
          return "ActiveMQServerImpl::" + identity;
+      } else if (configuration != null && configuration.getName() != null) {
+         return "ActiveMQServerImpl::" + "name=" + configuration.getName();
       }
       return "ActiveMQServerImpl::" + (nodeManager != null ? "serverUUID=" + nodeManager.getUUID() : "");
    }

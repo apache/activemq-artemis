@@ -103,9 +103,17 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
    public void run() {
       try {
 
-         final NodeManager nodeManager = activeMQServer.getNodeManager();
+         // we have a common nodeId that we can share and coordinate with between peers
+         if (policy.getPeerNodeId() != null) {
+            LOGGER.infof("Applying shared peer NodeID=%s to enable coordinated live activation", policy.getPeerNodeId());
 
-         final String nodeId = nodeManager.readNodeId().toString();
+            // REVISIT: this is quite clunky, also in backup activation, we just need new nodeID persisted!
+            activeMQServer.resetNodeManager();
+            activeMQServer.getNodeManager().start();
+            activeMQServer.getNodeManager().setNodeID(policy.getPeerNodeId());
+            activeMQServer.getNodeManager().stopBackup();
+         }
+         final String nodeId = activeMQServer.getNodeManager().readNodeId().toString();
 
          final DistributedLock liveLock = searchLiveOrAcquireLiveLock(nodeId, BLOCKING_CALLS_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
@@ -147,7 +155,7 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
                                                        final long blockingCallTimeout,
                                                        final TimeUnit unit) throws ActiveMQException, InterruptedException {
       if (policy.isCheckForLiveServer()) {
-         LOGGER.infof("Searching a live server with NodeID = %s", nodeId);
+         LOGGER.infof("Searching for a live server matching NodeID = %s", nodeId);
          if (searchActiveLiveNodeId(policy.getClusterName(), nodeId, blockingCallTimeout, unit, activeMQServer.getConfiguration())) {
             LOGGER.infof("Found a live server with  NodeID = %s: restarting as backup", nodeId);
             activeMQServer.setHAPolicy(policy.getBackupPolicy());

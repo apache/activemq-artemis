@@ -190,8 +190,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorStoppingConnectorService(@Cause Throwable e, String name);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221024, value = "Backup server {0} is synchronized with live-server.", format = Message.Format.MESSAGE_FORMAT)
-   void backupServerSynched(ActiveMQServerImpl server);
+   @Message(id = 221024, value = "Backup server {0} is synchronized with live server, nodeID={1}.", format = Message.Format.MESSAGE_FORMAT)
+   void backupServerSynchronized(ActiveMQServerImpl server, String liveID);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221025, value = "Replication: sending {0} (size={1}) to replica.", format = Message.Format.MESSAGE_FORMAT)
