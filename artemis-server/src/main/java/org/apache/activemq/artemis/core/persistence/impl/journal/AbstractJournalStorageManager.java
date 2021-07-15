@@ -1821,7 +1821,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                   DuplicateIDCache cache = postOffice.getDuplicateIDCache(encoding.address);
 
-                  cache.load(tx, encoding.duplID);
+                  cache.load(record.id, tx, encoding.duplID);
 
                   break;
                }

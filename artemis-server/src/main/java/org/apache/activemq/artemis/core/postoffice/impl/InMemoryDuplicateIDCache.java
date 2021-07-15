@@ -125,12 +125,7 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
    @Override
    public void addToCache(final byte[] duplID) throws Exception {
-      addToCache(duplID, null, false);
-   }
-
-   @Override
-   public void addToCache(final byte[] duplID, final Transaction tx) throws Exception {
-      addToCache(duplID, tx, false);
+      addToCache(duplID, null);
    }
 
    @Override
@@ -142,16 +137,16 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
          }
          return false;
       }
-      addToCache(holder, tx, true);
+      addToCache(holder, tx);
       return true;
    }
 
    @Override
-   public synchronized void addToCache(final byte[] duplID, final Transaction tx, boolean instantAdd) throws Exception {
-      addToCache(new ByteArray(duplID), tx, instantAdd);
+   public synchronized void addToCache(final byte[] duplID, final Transaction tx) throws Exception {
+      addToCache(new ByteArray(duplID), tx);
    }
 
-   private synchronized void addToCache(final ByteArray holder, final Transaction tx, boolean instantAdd) {
+   private synchronized void addToCache(final ByteArray holder, final Transaction tx) {
       if (tx == null) {
          addToCacheInMemory(holder);
       } else {
@@ -159,20 +154,15 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
             LOGGER.tracef("address = %s adding duplicateID TX operation for %s, tx = %s", address, describeID(holder.bytes), tx);
          }
 
-         if (instantAdd) {
-            addToCacheInMemory(holder);
-            tx.addOperation(new AddDuplicateIDOperation(holder, false));
-         } else {
-            // For a tx, it's important that the entry is not added to the cache until commit
-            // since if the client fails then resends them tx we don't want it to get rejected
-            tx.afterStore(new AddDuplicateIDOperation(holder, true));
-         }
+         addToCacheInMemory(holder);
+         tx.addOperation(new AddDuplicateIDOperation(holder));
       }
    }
 
    @Override
-   public void load(final Transaction tx, final byte[] duplID) {
-      tx.addOperation(new AddDuplicateIDOperation(new ByteArray(duplID), true));
+   public void load(long recordID, final Transaction tx, final byte[] duplID) {
+      addToCacheInMemory(new ByteArray(duplID));
+      tx.addOperation(new AddDuplicateIDOperation(new ByteArray(duplID)));
    }
 
    private synchronized void addToCacheInMemory(final ByteArray holder) {
@@ -242,11 +232,8 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
       volatile boolean done;
 
-      private final boolean afterCommit;
-
-      AddDuplicateIDOperation(final ByteArray id, boolean afterCommit) {
+      AddDuplicateIDOperation(final ByteArray id) {
          this.id = id;
-         this.afterCommit = afterCommit;
       }
 
       private void process() {
@@ -259,16 +246,12 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
       @Override
       public void afterCommit(final Transaction tx) {
-         if (afterCommit) {
-            process();
-         }
+         process();
       }
 
       @Override
       public void beforeRollback(Transaction tx) throws Exception {
-         if (!afterCommit) {
-            deleteFromCache(id);
-         }
+         deleteFromCache(id);
       }
 
       @Override

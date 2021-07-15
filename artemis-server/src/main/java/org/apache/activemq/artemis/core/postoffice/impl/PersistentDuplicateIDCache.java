@@ -197,12 +197,7 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
 
    @Override
    public void addToCache(final byte[] duplID) throws Exception {
-      addToCache(duplID, null, false);
-   }
-
-   @Override
-   public void addToCache(final byte[] duplID, final Transaction tx) throws Exception {
-      addToCache(duplID, tx, false);
+      addToCache(duplID, null);
    }
 
    @Override
@@ -214,18 +209,17 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
          }
          return false;
       }
-      addToCache(holder, tx, true);
+      addToCache(holder, tx);
       return true;
    }
 
    @Override
-   public synchronized void addToCache(final byte[] duplID, final Transaction tx, boolean instantAdd) throws Exception {
-      addToCache(new ByteArray(duplID), tx, instantAdd);
+   public synchronized void addToCache(final byte[] duplID, final Transaction tx) throws Exception {
+      addToCache(new ByteArray(duplID), tx);
    }
 
    private synchronized void addToCache(final ByteArray holder,
-                                        final Transaction tx,
-                                        boolean instantAdd) throws Exception {
+                                        final Transaction tx) throws Exception {
       final long recordID = storageManager.generateID();
       if (tx == null) {
          storageManager.storeDuplicateID(address, holder.bytes, recordID);
@@ -241,20 +235,17 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
                           describeID(holder.bytes, recordID), tx);
          }
 
-         if (instantAdd) {
-            addToCacheInMemory(holder, recordID);
-            tx.addOperation(new AddDuplicateIDOperation(holder, recordID, false));
-         } else {
-            // For a tx, it's important that the entry is not added to the cache until commit
-            // since if the client fails then resends them tx we don't want it to get rejected
-            tx.afterStore(new AddDuplicateIDOperation(holder, recordID, true));
-         }
+         // notice the addToCacheInMemory will be removed in case of a tx rollback
+         // But Adding this now will at least prevent a case when you have another pending TX on the same server for any reason.
+         addToCacheInMemory(holder, recordID);
+         tx.addOperation(new AddDuplicateIDOperation(holder, recordID));
       }
    }
 
    @Override
-   public void load(final Transaction tx, final byte[] duplID) {
-      tx.addOperation(new AddDuplicateIDOperation(new ByteArray(duplID), tx.getID(), true));
+   public void load(long recordID, final Transaction tx, final byte[] duplID) {
+      addToCacheInMemory(new ByteArray(duplID), recordID);
+      tx.addOperation(new AddDuplicateIDOperation(new ByteArray(duplID), tx.getID()));
    }
 
    private synchronized void addToCacheInMemory(final ByteArray holder, final long recordID) {
@@ -358,12 +349,9 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
 
       volatile boolean done;
 
-      private final boolean afterCommit;
-
-      AddDuplicateIDOperation(final ByteArray holder, final long recordID, boolean afterCommit) {
+      AddDuplicateIDOperation(final ByteArray holder, final long recordID) {
          this.holder = holder;
          this.recordID = recordID;
-         this.afterCommit = afterCommit;
       }
 
       private void process() {
@@ -376,16 +364,12 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
 
       @Override
       public void afterCommit(final Transaction tx) {
-         if (afterCommit) {
-            process();
-         }
+         process();
       }
 
       @Override
       public void beforeRollback(Transaction tx) throws Exception {
-         if (!afterCommit) {
-            deleteFromCache(holder);
-         }
+         deleteFromCache(holder);
       }
 
       @Override

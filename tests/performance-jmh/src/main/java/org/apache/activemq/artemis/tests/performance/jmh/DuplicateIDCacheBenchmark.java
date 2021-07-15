@@ -65,7 +65,7 @@ public class DuplicateIDCacheBenchmark {
       for (int i = 0; i < size; i++) {
          final byte[] id = RandomUtil.randomBytes();
          ids[i] = id;
-         cache.addToCache(id, null, true);
+         cache.addToCache(id, null);
       }
       // evict the first (idSize - size) elements on the ids array.
       // Given that being a FIFO cache isn't a stable contract it's going to validate it too.
@@ -73,7 +73,7 @@ public class DuplicateIDCacheBenchmark {
       for (int i = 0; i < evicted; i++) {
          final byte[] id = RandomUtil.randomBytes();
          ids[size + i] = id;
-         cache.addToCache(id, null, true);
+         cache.addToCache(id, null);
          // check correctness of eviction policy
          if (cache.contains(ids[i])) {
             throw new AssertionError("This cache isn't using anymore a FIFO eviction strategy or its real capacity is > " + size);

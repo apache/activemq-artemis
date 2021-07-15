@@ -1748,7 +1748,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       } else {
          startedTX = false;
       }
-      cache.addToCache(duplicateIDBytes, context.getTransaction(), startedTX);
+      cache.addToCache(duplicateIDBytes, context.getTransaction());
       return startedTX ? DuplicateCheckResult.NoDuplicateStartedTX : DuplicateCheckResult.NoDuplicateNotStartedTX;
    }
 

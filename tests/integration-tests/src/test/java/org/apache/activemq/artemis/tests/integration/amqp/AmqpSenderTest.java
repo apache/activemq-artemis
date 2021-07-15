@@ -19,9 +19,12 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,11 +48,29 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * Test broker behavior when creating AMQP senders
  */
+@RunWith(Parameterized.class)
 public class AmqpSenderTest extends AmqpClientTestSupport {
+
+   @Parameterized.Parameters(name = "persistentCache={0}")
+   public static Collection<Object[]> parameters() {
+      return Arrays.asList(new Object[][] {
+         {true}, {false}
+      });
+   }
+
+   @Override
+   protected void addConfiguration(ActiveMQServer server) {
+      server.getConfiguration().setPersistIDCache(persistCache);
+   }
+
+   @Parameterized.Parameter(0)
+   public boolean persistCache;
 
    @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
@@ -250,6 +271,69 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
 
       sender.close();
       connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testDuplicateDetectionRollback() throws Exception {
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
+      try (Connection connection = factory.createConnection(); Connection connection2 = factory.createConnection()) {
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         javax.jms.Queue producerQueue = session.createQueue(getQueueName());
+
+         MessageProducer producer = session.createProducer(producerQueue);
+         javax.jms.Message message = session.createTextMessage("test");
+         message.setStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "123");
+         producer.send(message);
+         Thread.sleep(500); // Duplicate detection is not about
+         //session.commit(); // Do not commit now, only later.. this is commented out on purpose to make a point!
+
+
+         Session session2 = connection2.createSession(true, Session.SESSION_TRANSACTED);
+         MessageProducer producer2 = session2.createProducer(producerQueue);
+         producer2.send(message);
+         //session2.commit(); // Do not commit now, only later.. this is commented out on purpose to make a point!
+
+         session.commit();
+         boolean errorThrown = false;
+         try {
+            session2.commit();
+         } catch (JMSException e) {
+            errorThrown = true;
+         }
+
+         Assert.assertTrue(errorThrown);
+
+         MessageConsumer consumer = session.createConsumer(producerQueue);
+         connection.start();
+         Assert.assertNotNull(consumer.receive(5000));
+         Assert.assertNull(consumer.receiveNoWait());
+         session.commit();
+
+         message = session.createTextMessage("test");
+         message.setStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "124");
+         producer.send(message);
+         producer2.send(message);
+         session.rollback();
+
+         errorThrown = false;
+         try {
+            session2.commit();
+         } catch (JMSException e) {
+            errorThrown = true;
+         }
+
+         Assert.assertTrue(errorThrown);
+
+         Assert.assertNull(consumer.receiveNoWait());
+
+         producer2.send(message);
+         session2.commit();
+
+         Assert.assertNotNull(consumer.receive(5000));
+         Assert.assertNull(consumer.receiveNoWait());
+         session.commit();
+      }
    }
 
    @Test(timeout = 60000)
