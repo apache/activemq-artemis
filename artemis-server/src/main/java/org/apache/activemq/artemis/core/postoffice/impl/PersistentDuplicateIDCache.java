@@ -143,24 +143,26 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
 
    @Override
    public void deleteFromCache(byte[] duplicateID) throws Exception {
+      deleteFromCache(new ByteArray(duplicateID));
+   }
+
+   private void deleteFromCache(final ByteArray duplicateID) throws Exception {
       if (LOGGER.isTraceEnabled()) {
-         LOGGER.tracef("deleting id = %s", describeID(duplicateID));
+         LOGGER.tracef("deleting id = %s", describeID(duplicateID.bytes));
       }
 
-      final ByteArray bah = new ByteArray(duplicateID);
-
-      final Integer posUsed = cache.remove(bah);
+      final Integer posUsed = cache.remove(duplicateID);
 
       if (posUsed != null) {
          synchronized (this) {
             final ObjLongPair<ByteArray> id = ids.get(posUsed.intValue());
 
-            if (id.getA().equals(bah)) {
+            if (id.getA().equals(duplicateID)) {
                final long recordID = id.getB();
                id.setA(null);
                id.setB(NIL);
                if (LOGGER.isTraceEnabled()) {
-                  LOGGER.tracef("address = %s deleting id = %s", address, describeID(duplicateID, id.getB()));
+                  LOGGER.tracef("address = %s deleting id = %s", address, describeID(duplicateID.bytes, id.getB()));
                }
                storageManager.deleteDuplicateID(recordID);
             }
@@ -240,6 +242,7 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
          }
 
          if (instantAdd) {
+            addToCacheInMemory(holder, recordID);
             tx.addOperation(new AddDuplicateIDOperation(holder, recordID, false));
          } else {
             // For a tx, it's important that the entry is not added to the cache until commit
@@ -379,9 +382,9 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
       }
 
       @Override
-      public void beforeCommit(Transaction tx) throws Exception {
+      public void beforeRollback(Transaction tx) throws Exception {
          if (!afterCommit) {
-            process();
+            deleteFromCache(holder);
          }
       }
 
