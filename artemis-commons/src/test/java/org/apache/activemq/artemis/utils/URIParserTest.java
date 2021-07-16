@@ -47,7 +47,6 @@ public class URIParserTest {
       Assert.assertEquals("green", fruit.getColor());
       Assert.assertEquals("something", fruit.getFluentName());
       Assert.assertEquals("ENC(ql6LSJ%2BYMxGN1yn1r/F0yw==)", fruit.getFoo());
-
    }
 
    /**
@@ -59,9 +58,9 @@ public class URIParserTest {
    public void testGenerateWithEncoding() throws Throwable {
       FruitParser parser = new FruitParser();
       Fruit myFruit = new Fruit("tomato&fruit");
-      myFruit.setHost("somehost&uui");
+      myFruit.setHost("somehost%26uui");
       // I'm trying to break things as you can see here with some weird encoding
-      myFruit.setFluentName("apples&bananas with &host=3344");
+      myFruit.setFluentName("apples%26bananas with %26foo=3344");
       URI uri = parser.createSchema("fruit", myFruit);
 
       Fruit newFruit = (Fruit) parser.newObject(uri, "something");

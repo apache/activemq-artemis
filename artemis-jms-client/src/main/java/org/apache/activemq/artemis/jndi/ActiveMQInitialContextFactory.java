@@ -187,7 +187,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
 
    public JMSFactoryType getFactoryType(String uri) throws Exception {
       ConnectionFactoryParser parser = new ConnectionFactoryParser();
-      Map<String, String> queryParams = URISchema.parseQuery(parser.expandURI(uri).getQuery(), null);
+      Map<String, String> queryParams = URISchema.parseQuery(parser.expandURI(uri).getRawQuery(), null);
       String type = queryParams.get("type");
       return type == null ? null : JMSConnectionOptions.convertCFType(type);
    }

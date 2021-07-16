@@ -77,7 +77,7 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
             HashMap<String, Object> newProps = new HashMap<>();
             extraProps = new HashMap<>();
             BeanSupport.setData(extraUri, newProps, allowableProperties, query, extraProps);
-            BeanSupport.setData(extraUri, newProps, allowableProperties, parseQuery(extraUri.getQuery(), null), extraProps);
+            BeanSupport.setData(extraUri, newProps, allowableProperties, parseQuery(extraUri.getRawQuery(), null), extraProps);
             transportConfigurations.add(new TransportConfiguration(factoryName, newProps, name + ":" + extraUri.toString(), extraProps));
          }
       }

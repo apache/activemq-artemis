@@ -148,7 +148,8 @@ public class BeanSupport {
                            sb.append("&");
                         }
                         empty = false;
-                        sb.append(descriptor.getName()).append("=").append(encodeURI(value));
+//                        sb.append(descriptor.getName()).append("=").append(encodeURI(value));
+                        sb.append(descriptor.getName()).append("=").append(value);
                      }
                   }
                }

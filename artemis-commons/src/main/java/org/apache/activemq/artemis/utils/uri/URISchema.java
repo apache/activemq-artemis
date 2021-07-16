@@ -31,7 +31,7 @@ public abstract class URISchema<T, P> {
    }
 
    public void populateObject(URI uri, T bean) throws Exception {
-      internalPopulateObject(uri, parseQuery(uri.getQuery(), null), bean);
+      internalPopulateObject(uri, parseQuery(uri.getRawQuery(), null), bean);
    }
 
    public URI newURI(T bean) throws Exception {
@@ -83,7 +83,7 @@ public abstract class URISchema<T, P> {
     * @throws Exception On error
     */
    public T newObject(URI uri, Map<String, String> propertyOverrides, P param) throws Exception {
-      return internalNewObject(uri, parseQuery(uri.getQuery(), propertyOverrides), param);
+      return internalNewObject(uri, parseQuery(uri.getRawQuery(), propertyOverrides), param);
    }
 
    protected abstract T internalNewObject(URI uri, Map<String, String> query, P param) throws Exception;
@@ -105,12 +105,6 @@ public abstract class URISchema<T, P> {
 
    public static Map<String, String> parseQuery(String uri,
                                                 Map<String, String> propertyOverrides) throws URISyntaxException {
-      return parseQuery(uri, propertyOverrides, false);
-   }
-
-   public static Map<String, String> parseQuery(String uri,
-                                                Map<String, String> propertyOverrides,
-                                                boolean decode) throws URISyntaxException {
       try {
          Map<String, String> rc = new HashMap<>();
          if (uri != null && !uri.isEmpty()) {
@@ -118,8 +112,8 @@ public abstract class URISchema<T, P> {
             for (String parameter : parameters) {
                int p = parameter.indexOf("=");
                if (p >= 0) {
-                  String name = decode ? BeanSupport.decodeURI(parameter.substring(0, p)) : parameter.substring(0, p);
-                  String value = decode ? BeanSupport.decodeURI(parameter.substring(p + 1)) : parameter.substring(p + 1);
+                  String name = BeanSupport.decodeURI(parameter.substring(0, p));
+                  String value = BeanSupport.decodeURI(parameter.substring(p + 1));
                   rc.put(name, value);
                } else {
                   if (!parameter.trim().isEmpty()) {

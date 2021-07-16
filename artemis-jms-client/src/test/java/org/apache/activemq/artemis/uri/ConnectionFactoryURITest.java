@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTopicConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQXAQueueConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQXATopicConnectionFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
@@ -103,7 +104,7 @@ public class ConnectionFactoryURITest {
 
       Assert.assertEquals(1, initialConnectors.length);
 
-      Assert.assertEquals(BROKEN_PROPERTY, initialConnectors[0].getParams().get(TransportConstants.LOCAL_ADDRESS_PROP_NAME).toString());
+      Assert.assertEquals(BROKEN_PROPERTY, BeanSupport.decodeURI(initialConnectors[0].getParams().get(TransportConstants.LOCAL_ADDRESS_PROP_NAME).toString()));
    }
 
    @Test
@@ -124,7 +125,7 @@ public class ConnectionFactoryURITest {
            ObjectInputStream in = new ObjectInputStream(bais)) {
          factory = (ActiveMQConnectionFactory) in.readObject();
       }
-      Assert.assertEquals("[" + ipv6 + "]", factory.getStaticConnectors()[0].getParams().get("host"));
+      Assert.assertEquals("[" + ipv6 + "]", BeanSupport.decodeURI((String)factory.getStaticConnectors()[0].getParams().get("host")));
    }
 
    @Test
