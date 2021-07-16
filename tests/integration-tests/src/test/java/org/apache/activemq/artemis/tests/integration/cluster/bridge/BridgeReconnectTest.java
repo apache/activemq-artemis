@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -43,6 +46,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.HandleStatus;
@@ -60,10 +64,25 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.jboss.logging.Logger;
+import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class BridgeReconnectTest extends BridgeTestBase {
+
+   @Parameterized.Parameters(name = "persistentCache={0}")
+   public static Collection<Object[]> parameters() {
+      return Arrays.asList(new Object[][] {
+         {true}, {false}
+      });
+   }
+
+   @Parameterized.Parameter(0)
+   public boolean persistCache;
 
    private static final Logger log = Logger.getLogger(BridgeReconnectTest.class);
 
@@ -412,8 +431,9 @@ public class BridgeReconnectTest extends BridgeTestBase {
    }
 
    // Fail bridge and reconnect same node, no backup specified
+   // It will keep a send blocking as if CPU was making it creep
    @Test
-   public void testReconnectSameNodeAfterDelivery() throws Exception {
+   public void testReconnectSameNodeAfterDeliveryWithBlocking() throws Exception {
       server0 = createActiveMQServer(0, isNetty(), server0Params);
 
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params, "server0tc");
@@ -530,6 +550,15 @@ public class BridgeReconnectTest extends BridgeTestBase {
       closeServers();
 
       assertNoMoreConnections();
+
+      HashMap<Integer, AtomicInteger> counts = countJournal(server1.getConfiguration());
+      if (persistCache) {
+         // There should be one record per message
+         Assert.assertEquals(numMessages, counts.get(new Integer(JournalRecordIds.DUPLICATE_ID)).intValue());
+      } else {
+         // no cache means there shouldn't be an id anywhere
+         Assert.assertNull(counts.get(new Integer(JournalRecordIds.DUPLICATE_ID)));
+      }
    }
 
    // We test that we can pause more than client failure check period (to prompt the pinger to failing)
@@ -545,6 +574,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
    }
 
    private void testShutdownServerCleanlyAndReconnectSameNode(final boolean sleep) throws Exception {
+      Assume.assumeTrue(persistCache);
       server0 = createActiveMQServer(0, isNetty(), server0Params);
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params, "server0tc");
 
@@ -840,6 +870,17 @@ public class BridgeReconnectTest extends BridgeTestBase {
       while (System.currentTimeMillis() - start < 50000);
 
       throw new IllegalStateException("Failed to get forwarding connection");
+   }
+
+
+   @Override
+   protected ActiveMQServer createActiveMQServer(final int id,
+                        final Map<String, Object> params,
+                        final boolean netty,
+                        final NodeManager nodeManager) throws Exception {
+      ActiveMQServer server = super.createActiveMQServer(id, params, netty, nodeManager);
+      server.getConfiguration().setPersistIDCache(persistCache);
+      return server;
    }
 
 }

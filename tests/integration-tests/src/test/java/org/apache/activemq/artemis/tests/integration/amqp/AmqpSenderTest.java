@@ -22,6 +22,8 @@ import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,11 +47,29 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * Test broker behavior when creating AMQP senders
  */
+@RunWith(Parameterized.class)
 public class AmqpSenderTest extends AmqpClientTestSupport {
+
+   @Parameterized.Parameters(name = "persistentCache={0}")
+   public static Collection<Object[]> parameters() {
+      return Arrays.asList(new Object[][] {
+         {true}, {false}
+      });
+   }
+
+   @Override
+   protected void addConfiguration(ActiveMQServer server) {
+      server.getConfiguration().setPersistIDCache(persistCache);
+   }
+
+   @Parameterized.Parameter(0)
+   public boolean persistCache;
 
    @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
@@ -250,6 +270,48 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
 
       sender.close();
       connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testDuplicateDetectionRollback() throws Exception {
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
+      try (Connection connection = factory.createConnection();
+           Session session = connection.createSession(true, Session.SESSION_TRANSACTED)) {
+         javax.jms.Queue producerQueue = session.createQueue(getQueueName());
+
+         MessageProducer producer = session.createProducer(producerQueue);
+         javax.jms.Message message = session.createTextMessage("test");
+         message.setStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "123");
+         producer.send(message);
+         session.rollback();
+
+         producer.send(message);
+         session.commit();
+
+         connection.start();
+
+         MessageConsumer consumer = session.createConsumer(producerQueue);
+         Assert.assertNotNull(consumer.receive(5000));
+         Assert.assertNull(consumer.receiveNoWait());
+         session.commit();
+
+         Queue serverQueue = server.locateQueue(getQueueName());
+         Wait.assertEquals(0, serverQueue::getMessageCount);
+
+         message = session.createTextMessage("test");
+         message.setStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "123");
+         producer.send(message);
+         boolean error = false;
+         try {
+            session.commit();
+         } catch (Exception e) {
+            error = true;
+         }
+         Assert.assertTrue(error);
+
+
+      }
    }
 
    @Test(timeout = 60000)

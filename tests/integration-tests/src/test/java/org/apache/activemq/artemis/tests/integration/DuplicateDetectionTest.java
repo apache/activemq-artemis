@@ -20,6 +20,9 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -42,10 +45,26 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class DuplicateDetectionTest extends ActiveMQTestBase {
+
+   @Parameterized.Parameters(name = "persistentCache={0}")
+   public static Collection<Object[]> parameters() {
+      return Arrays.asList(new Object[][] {
+         {true}, {false}
+      });
+   }
+
+   @Parameterized.Parameter(0)
+   public boolean persistCache;
+
+
 
    private final Logger log = Logger.getLogger(this.getClass());
 
@@ -217,6 +236,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
    // we would eventually have a higher number of caches while we couldn't have time to clear previous ones
    @Test
    public void testShrinkCache() throws Exception {
+      Assume.assumeTrue("This test would restart the server", persistCache);
       server.stop();
       server.getConfiguration().setIDCacheSize(150);
       server.start();
@@ -1454,6 +1474,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
    @Test
    public void testPersistTransactional() throws Exception {
+      Assume.assumeTrue("This test would restart the server", persistCache);
       ClientSession session = sf.createSession(false, false, false);
 
       session.start();
@@ -1709,6 +1730,8 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
    @Test
    public void testPersistXA1() throws Exception {
+      Assume.assumeTrue("This test would restart the server", persistCache);
+
       ClientSession session = addClientSession(sf.createSession(true, false, false));
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -1802,7 +1825,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      config = createDefaultInVMConfig().setIDCacheSize(cacheSize);
+      config = createDefaultInVMConfig().setIDCacheSize(cacheSize).setPersistIDCache(persistCache);
 
       server = createServer(true, config);
 

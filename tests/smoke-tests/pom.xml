@@ -848,6 +848,38 @@
                      <configuration>${basedir}/target/classes/servers/brokerConnect/qdr</configuration>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-bridge-transfer-A</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/bridgeTransfer/serverA</instance>
+                     <configuration>${basedir}/target/classes/servers/bridgeTransfer/serverA</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-bridge-transfer-B</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/bridgeTransfer/serverB</instance>
+                     <configuration>${basedir}/target/classes/servers/bridgeTransfer/serverB</configuration>
+                  </configuration>
+               </execution>
             </executions>
             <dependencies>
                <dependency>
