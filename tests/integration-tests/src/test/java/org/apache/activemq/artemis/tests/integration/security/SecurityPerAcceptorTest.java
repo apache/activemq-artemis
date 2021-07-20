@@ -18,7 +18,10 @@ package org.apache.activemq.artemis.tests.integration.security;
 
 import java.lang.management.ManagementFactory;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -39,7 +42,10 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class SecurityPerAcceptorTest extends ActiveMQTestBase {
 
    static {
@@ -54,19 +60,33 @@ public class SecurityPerAcceptorTest extends ActiveMQTestBase {
    }
 
    private ServerLocator locator;
+   private final boolean invm;
+   private final String acceptorUrl;
+
+   @Parameterized.Parameters(name = "invm={0}")
+   public static Collection<Object[]> data() {
+      List<Object[]> list = Arrays.asList(new Object[][]{{true}, {false}});
+      return list;
+   }
+
+   public SecurityPerAcceptorTest(boolean invm) {
+      super();
+      this.invm = invm;
+      acceptorUrl = invm ? "vm://1?securityDomain=PropertiesLogin" : "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin";
+   }
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
 
-      locator = createNettyNonHALocator();
+      locator = invm ? createInVMLocator(1) : createNettyNonHALocator();
    }
 
    @Test
    public void testJAASSecurityManagerAuthentication() throws Exception {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin"), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).addAcceptorConfiguration("acceptor", acceptorUrl), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
 
@@ -86,7 +106,7 @@ public class SecurityPerAcceptorTest extends ActiveMQTestBase {
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin").setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().addAcceptorConfiguration("acceptor", acceptorUrl).setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
@@ -172,7 +192,7 @@ public class SecurityPerAcceptorTest extends ActiveMQTestBase {
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin"), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).addAcceptorConfiguration("acceptor", acceptorUrl), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true));
       server.getConfiguration().putSecurityRoles("#", roles);
