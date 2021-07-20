@@ -29,6 +29,8 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.impl.ScaleDownHandler;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -292,6 +294,55 @@ public class ScaleDownDirectTest extends ClusterTestBase {
       Assert.assertNull(servers[1].getPostOffice().getBinding(new SimpleString(queueName1)));
       Assert.assertEquals(1, getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
       Assert.assertNull(servers[1].getPostOffice().getBinding(new SimpleString(queueName3)));
+   }
+
+   @Test
+   public void testScaleDownWithBigQueueID() throws Exception {
+      final int TEST_SIZE = 2;
+      final String addressName = "testAddress";
+      final String queueName1 = "testQueue1";
+
+      JournalStorageManager manager = (JournalStorageManager) servers[0].getStorageManager();
+      BatchingIDGenerator idGenerator = (BatchingIDGenerator) manager.getIDGenerator();
+      idGenerator.forceNextID((Integer.MAX_VALUE) + 100L);
+
+      long nextId = idGenerator.generateID();
+      assertTrue(nextId > Integer.MAX_VALUE);
+
+      manager = (JournalStorageManager) servers[1].getStorageManager();
+      idGenerator = (BatchingIDGenerator) manager.getIDGenerator();
+      idGenerator.forceNextID((Integer.MAX_VALUE) + 200L);
+
+      nextId = idGenerator.generateID();
+      assertTrue(nextId > Integer.MAX_VALUE);
+
+      // create 2 queues on each node mapped to the same address
+      createQueue(0, addressName, queueName1, null, true);
+      createQueue(1, addressName, queueName1, null, true);
+
+      // send messages to node 0
+      send(0, addressName, TEST_SIZE, true, null);
+
+      // at this point on node 0 there should be 2 messages in testQueue1
+      Wait.assertEquals(TEST_SIZE, () -> getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
+
+      assertEquals(TEST_SIZE, performScaledown());
+      // trigger scaleDown from node 0 to node 1
+      servers[0].stop();
+
+      // get the 2 messages from queue 1
+      addConsumer(0, 1, queueName1, null);
+      ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
+      Assert.assertNotNull(clientMessage);
+      clientMessage.acknowledge();
+      clientMessage = consumers[0].getConsumer().receive(250);
+      Assert.assertNotNull(clientMessage);
+      clientMessage.acknowledge();
+
+      // ensure there are no more messages on queue 1
+      clientMessage = consumers[0].getConsumer().receive(250);
+      Assert.assertNull(clientMessage);
+      removeConsumer(0);
    }
 
    private void checkBody(ClientMessage message, int bufferSize) {
