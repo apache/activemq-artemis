@@ -295,6 +295,36 @@ Let's give an explanation of each config option.
 - `url`. The URL the Apache ActiveMQ Artemis REST implementation should use
   to connect to the Apache ActiveMQ Artemis instance. Default to "vm://0".
 
+### Broker Configuration
+
+If you are _only_ dealing with REST clients (i.e. no other remote messaging 
+clients using JMS, AMQP, STOMP, etc.) the simplest broker configuration
+involves a single in-vm acceptor, e.g.:
+```xml
+<acceptor name="invm">vm://0</acceptor>
+```
+Then set `<security-enabled>false</security-enabled>`. Be sure to remove any
+other `acceptor` elements so no remote clients can connect insecurely.
+
+If you must support other remote clients then configure an in-vm `acceptor`
+with its own `securityDomain` that will allow unsecured access from the REST
+implementation's in-vm connector, e.g.:
+```xml
+<acceptor name="invm">vm://0?securityDomain=invm</acceptor>
+```
+Then configure a new entry in your `login.config` that will allow access with
+no credentials. The name of the entry should match the value of the `securityDomain`
+on your in-vm acceptor, e.g.:
+```
+invm {
+    org.apache.activemq.artemis.spi.core.security.jaas.GuestLoginModule required
+        debug=true
+        org.apache.activemq.jaas.guest.user="restUser"
+        org.apache.activemq.jaas.guest.role="activemq";
+};
+```
+See the [security](security.md) chapter for more details on the `GuestLoginModule`.
+
 ## Apache ActiveMQ Artemis REST Interface Basics
 
 The Apache ActiveMQ Artemis REST interface publishes a variety of REST resources to
