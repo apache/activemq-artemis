@@ -3742,12 +3742,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.invalidQueueName(queueConfiguration.getName());
       }
 
-      final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueConfiguration.getName());
-      if (binding != null) {
+      final Binding rawBinding = postOffice.getBinding(queueConfiguration.getName());
+      if (rawBinding != null) {
+         if (rawBinding.getType() != BindingType.LOCAL_QUEUE) {
+            throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(queueConfiguration.getName().toString(), rawBinding.toManagementString());
+         }
+         final QueueBinding queueBinding = (QueueBinding) rawBinding;
          if (ignoreIfExists) {
-            return binding.getQueue();
+            return queueBinding.getQueue();
          } else {
-            throw ActiveMQMessageBundle.BUNDLE.queueAlreadyExists(queueConfiguration.getName(), binding.getAddress());
+            throw ActiveMQMessageBundle.BUNDLE.queueAlreadyExists(queueConfiguration.getName(), queueBinding.getAddress());
          }
       }
 
