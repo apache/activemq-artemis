@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.server.impl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -210,7 +211,7 @@ public class QueueImplTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testRate() throws InterruptedException {
+   public void testRate() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 10;
@@ -223,7 +224,10 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       Thread.sleep(1000);
 
-      float rate = queue.getRate();
+      Method getRate = QueueImpl.class.getDeclaredMethod("getRate", null);
+      getRate.setAccessible(true);
+      float rate = (float) getRate.invoke(queue, null);
+
       Assert.assertTrue(rate <= 10.0f);
       log.debug("Rate: " + rate);
    }

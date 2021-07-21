@@ -4033,8 +4033,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       messagesKilled.set(0);
    }
 
-   @Override
-   public float getRate() {
+   private float getRate() {
       long locaMessageAdded = getMessagesAdded();
       float timeSlice = ((System.currentTimeMillis() - queueRateCheckTime.getAndSet(System.currentTimeMillis())) / 1000.0f);
       if (timeSlice == 0) {

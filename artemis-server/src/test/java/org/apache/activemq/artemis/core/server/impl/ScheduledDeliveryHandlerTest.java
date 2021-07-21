@@ -1632,11 +1632,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public float getRate() {
-         return 0.0f;
-      }
-
-      @Override
       public SimpleString getUser() {
          return null;
       }

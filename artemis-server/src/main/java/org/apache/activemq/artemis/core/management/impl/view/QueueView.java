@@ -49,7 +49,6 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add(QueueField.NAME.getName(), toString(queue.getName()))
          .add(QueueField.ADDRESS.getName(), toString(queue.getAddress()))
          .add(QueueField.FILTER.getName(), toString(queue.getFilter()))
-         .add(QueueField.RATE.getName(), toString(q.getRate()))
          .add(QueueField.DURABLE.getName(), toString(queue.isDurable()))
          .add(QueueField.PAUSED.getName(), toString(q.isPaused()))
          .add(QueueField.TEMPORARY.getName(), toString(queue.isTemporary()))
@@ -62,6 +61,7 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add(QueueField.MESSAGES_ADDED.getName(), toString(queue.getMessagesAdded()))
          .add(QueueField.MESSAGE_COUNT.getName(), toString(queue.getMessageCount()))
          .add(QueueField.MESSAGES_ACKED.getName(), toString(queue.getMessagesAcknowledged()))
+         .add(QueueField.MESSAGES_EXPIRED.getName(), toString(queue.getMessagesExpired()))
          .add(QueueField.DELIVERING_COUNT.getName(), toString(queue.getDeliveringCount()))
          .add(QueueField.MESSAGES_KILLED.getName(), toString(queue.getMessagesKilled()))
          .add(QueueField.DIRECT_DELIVER.getName(), toString(q.isDirectDeliver()))
@@ -95,8 +95,6 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
             return queue.getAddress();
          case FILTER:
             return queue.getFilter();
-         case RATE:
-            return q.getRate();
          case DURABLE:
             return queue.isDurable();
          case PAUSED:
@@ -121,6 +119,8 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
             return queue.getMessageCount();
          case MESSAGES_ACKED:
             return queue.getMessagesAcknowledged();
+         case MESSAGES_EXPIRED:
+            return queue.getMessagesExpired();
          case DELIVERING_COUNT:
             return queue.getDeliveringCount();
          case MESSAGES_KILLED:
