@@ -1777,10 +1777,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                           final boolean direct,
                                           boolean noAutoCreateQueue,
                                           RoutingContext routingContext) throws Exception {
-      if (AuditLogger.isMessageEnabled()) {
-         AuditLogger.coreSendMessage(getUsername(), messageParameter.toString(), routingContext);
-      }
-
       final Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);
 
       if (server.hasBrokerMessagePlugins()) {
@@ -1804,6 +1800,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             long id = storageManager.generateID();
             // This will re-encode the message
             message.setMessageID(id);
+         }
+
+         if (AuditLogger.isMessageEnabled()) {
+            AuditLogger.coreSendMessage(getUsername(), message.toString(), routingContext);
          }
 
          SimpleString address = message.getAddressSimpleString();
