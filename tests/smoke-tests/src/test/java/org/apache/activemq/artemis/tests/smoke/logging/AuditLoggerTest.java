@@ -207,6 +207,7 @@ public class AuditLoggerTest extends SmokeTestBase {
          Wait.waitFor(() -> addressControl.getMessageCount() == 2);
          Assert.assertEquals(2, addressControl.getMessageCount());
 
+         checkAuditLogRecord(false, "messageID=0");
          checkAuditLogRecord(true, "sending a message");
          checkAuditLogRecord(true, uniqueStr);
          checkAuditLogRecord(true, "Hello2");
