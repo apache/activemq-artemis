@@ -68,7 +68,7 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
                return matches(queue.getMessagesAdded());
             case MESSAGES_ACKED:
                return matches(queue.getMessagesAcknowledged());
-            case RATE:
+            case MESSAGES_EXPIRED:
                return matches(queue.getMessagesExpired());
             case ROUTING_TYPE:
                return matches(queue.getRoutingType());

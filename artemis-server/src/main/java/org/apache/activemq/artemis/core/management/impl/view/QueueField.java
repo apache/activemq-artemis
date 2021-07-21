@@ -31,7 +31,7 @@ public enum QueueField {
    DELIVERING_COUNT("deliveringCount"),
    MESSAGES_ADDED("messagesAdded"),
    MESSAGES_ACKED("messagesAcked"),
-   RATE("rate"),
+   MESSAGES_EXPIRED("messagesExpired"),
    ROUTING_TYPE("routingType"),
    USER("user"),
    AUTO_CREATED("autoCreated"),

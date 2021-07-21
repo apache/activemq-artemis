@@ -963,11 +963,6 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public float getRate() {
-      return 0.0f;
-   }
-
-   @Override
    public SimpleString getUser() {
       return null;
    }
