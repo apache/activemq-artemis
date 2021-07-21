@@ -257,12 +257,11 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       assertTrue(Wait.waitFor(() -> failedActivation.get() != null && failedActivation.get().getMessage().contains("coordinated")));
       liveServer.stop();
 
-      // restart backup but with a new instance, as going live has changed its policy and role
-      ActiveMQServer restartedBackupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
-      restartedBackupServer.start();
+      // restart backup
+      backupServer.start();
 
-      Wait.waitFor(restartedBackupServer::isStarted);
-      assertEquals(3L, restartedBackupServer.getNodeManager().getNodeActivationSequence());
+      Wait.waitFor(backupServer::isStarted);
+      assertEquals(3L, backupServer.getNodeManager().getNodeActivationSequence());
 
       csf = locator.createSessionFactory();
       clientSession = csf.createSession();
@@ -271,27 +270,24 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       backUpNodeIdHolder[0] = ""; // reset to capture topology node up on in_sync_replication
 
-      // verify the live restart as a backup to the restartedBackupServer that has taken on the live role, no failback
-      ActiveMQServer restartedLiveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      restartedLiveServer.setIdentity("LIVE");
-
-      restartedLiveServer.start();
+      // verify the live restart as a backup to the restarted backupServer that has taken on the live role, no failback
+      liveServer.start();
 
       csf = locator.createSessionFactory();
       clientSession = csf.createSession();
       clientSession.createQueue(new QueueConfiguration("backup_as_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
-      assertTrue(Wait.waitFor(restartedLiveServer::isReplicaSync));
-      assertTrue(Wait.waitFor(() -> 3L == restartedLiveServer.getNodeManager().getNodeActivationSequence()));
+      assertTrue(Wait.waitFor(liveServer::isReplicaSync));
+      assertTrue(Wait.waitFor(() -> 3L == liveServer.getNodeManager().getNodeActivationSequence()));
 
-      restartedBackupServer.stop(true);
+      backupServer.stop(true);
 
       assertTrue("original live is un_replicated live again", Wait.waitFor(() -> "down".equals(backUpNodeIdHolder[0])));
 
-      assertTrue(Wait.waitFor(() -> 4L == restartedLiveServer.getNodeManager().getNodeActivationSequence()));
+      assertTrue(Wait.waitFor(() -> 4L == liveServer.getNodeManager().getNodeActivationSequence()));
 
-      restartedLiveServer.stop(true);
+      liveServer.stop(true);
       clientSession.close();
       locator.close();
    }
@@ -336,8 +332,8 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       TimeUnit.MILLISECONDS.sleep(100);
 
       // restart primary that will request failback
-      ActiveMQServer restartedPrimaryForFailBack = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      restartedPrimaryForFailBack.setIdentity("PRIMARY");
+      ActiveMQServer restartedPrimaryForFailBack = primaryInstance; //addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+   //   restartedPrimaryForFailBack.setIdentity("PRIMARY");
       restartedPrimaryForFailBack.start();
 
       // first step is backup getting replicated
@@ -526,12 +522,11 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       assertTrue(Wait.waitFor(() -> failedActivation.get() != null && failedActivation.get().getMessage().contains("coordinated")));
       liveServer.stop();
 
-      // restart backup but with a new instance, as going live has changed its policy and role
-      ActiveMQServer restartedPeerLiveServer = addServer(ActiveMQServers.newActiveMQServer(peerLiveConfiguration));
-      restartedPeerLiveServer.start();
+      // restart backup
+      livePeerServer.start();
 
-      Wait.waitFor(restartedPeerLiveServer::isStarted);
-      assertEquals(3L, restartedPeerLiveServer.getNodeManager().getNodeActivationSequence());
+      Wait.waitFor(livePeerServer::isStarted);
+      assertEquals(3L, livePeerServer.getNodeManager().getNodeActivationSequence());
 
       csf = locator.createSessionFactory();
       clientSession = csf.createSession();
@@ -540,27 +535,24 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       backUpNodeIdHolder[0] = ""; // reset to capture topology node up on in_sync_replication
 
-      // verify the live restart as a backup to the restartedPeerLiveServer that has taken on the live role
-      ActiveMQServer restartedLiveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      restartedLiveServer.setIdentity("LIVE");
-
-      restartedLiveServer.start();
+      // verify the live restart as a backup to the restarted PeerLiveServer that has taken on the live role
+      liveServer.start();
 
       csf = locator.createSessionFactory();
       clientSession = csf.createSession();
       clientSession.createQueue(new QueueConfiguration("backup_as_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
-      assertTrue(Wait.waitFor(restartedLiveServer::isReplicaSync));
-      assertTrue(Wait.waitFor(() -> 3L == restartedLiveServer.getNodeManager().getNodeActivationSequence()));
+      assertTrue(Wait.waitFor(liveServer::isReplicaSync));
+      assertTrue(Wait.waitFor(() -> 3L == liveServer.getNodeManager().getNodeActivationSequence()));
 
-      restartedPeerLiveServer.stop(true);
+      livePeerServer.stop(true);
 
       assertTrue("original live is un_replicated live again", Wait.waitFor(() -> "down".equals(backUpNodeIdHolder[0])));
 
-      assertTrue(Wait.waitFor(() -> 4L == restartedLiveServer.getNodeManager().getNodeActivationSequence()));
+      assertTrue(Wait.waitFor(() -> 4L == liveServer.getNodeManager().getNodeActivationSequence()));
 
-      restartedLiveServer.stop(true);
+      liveServer.stop(true);
       clientSession.close();
       locator.close();
    }

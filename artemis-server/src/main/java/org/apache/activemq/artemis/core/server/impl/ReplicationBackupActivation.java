@@ -150,26 +150,24 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          LOGGER.infof("Trying to reach the majority of quorum nodes");
          distributedManager.start();
          LOGGER.debug("Quorum service available");
-         distributedManager.addUnavailableManagerListener(this);
 
-         // we may be a valid insync_replica (backup) if our activation sequence is largest for a nodeId
-         // verify that before removing data..
-
-         // however we may also be a backup activation ofter a failback request
-         // in this case, we don't want to take the lock to stop the the failback
-         // there is a delay in
-         // org.apache.activemq.artemis.core.server.impl.ReplicationPrimaryActivation.restartAsBackupAfterFailback
-         final DistributedLock liveLockWithInSyncReplica = checkForInSyncReplica();
-         if (liveLockWithInSyncReplica != null) {
-            // retain state and start as live
-            if (!activeMQServer.initialisePart1(false)) {
+         if (policy.isTryFailback()) {
+            // we are replicating to overwrite our data, transient backup state while trying to be the primary
+         } else {
+            // we may be a valid insync_replica (backup) if our activation sequence is largest for a nodeId
+            // verify that before removing data..
+            final DistributedLock liveLockWithInSyncReplica = checkForInSyncReplica();
+            if (liveLockWithInSyncReplica != null) {
+               // retain state and start as live
+               if (!activeMQServer.initialisePart1(false)) {
+                  return;
+               }
+               activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
+               startAsLive(liveLockWithInSyncReplica);
                return;
             }
-            activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
-            startAsLive(liveLockWithInSyncReplica);
-            return;
          }
-
+         distributedManager.addUnavailableManagerListener(this);
          // Stop the previous node manager and create a new one with NodeManager::replicatedBackup == true:
          // NodeManager::start skip setup lock file with NodeID, until NodeManager::stopBackup is called.
          activeMQServer.resetNodeManager();

@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPolicy;
 import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
+import org.apache.activemq.artemis.quorum.MutableLong;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.jboss.logging.Logger;
@@ -329,18 +330,41 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
          if (stoppingServer) {
             return;
          }
-         distributedManager.stop();
+         final String coordinatedLockAndNodeId = activeMQServer.getNodeManager().getNodeId().toString();
+         final long inSyncReplicaActivation = activeMQServer.getNodeManager().getNodeActivationSequence();
+         DistributedLock existingLiveLock = distributedManager.getDistributedLock(coordinatedLockAndNodeId);
+         // give up our role as 'live' asap, will also happen on server.fail
+         existingLiveLock.close();
+
          activeMQServer.fail(true);
+
+         // need to restart
+         distributedManager.start();
+         final MutableLong coordinatedActivationSequence = distributedManager.getMutableLong(coordinatedLockAndNodeId);
+         // wait for the live to activate and run un replicated with a sequence > inSyncReplicaActivation
+         // this read can be dirty b/c we are just looking for an increment, we don't care about the actual value
+         final long done = System.currentTimeMillis() + policy.getBackupPolicy().getVoteRetryWait();
+         do {
+            final long coordinatedValue = coordinatedActivationSequence.get();
+            if (coordinatedValue > inSyncReplicaActivation) {
+               // all good, activation has gone ahead
+               LOGGER.infof("Detected expected sequential server activation after failback, with NodeID = %s: and sequence: %d", coordinatedLockAndNodeId, coordinatedValue);
+               break;
+            }
+            try {
+               TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException ignored) {
+            }
+         }
+         while (done < System.currentTimeMillis());
+
+         if (coordinatedActivationSequence.get() == inSyncReplicaActivation) {
+            LOGGER.warnf("Timed out waiting for failback server activation with NodeID = %s: and sequence > %d: after %dms",
+                         coordinatedLockAndNodeId, inSyncReplicaActivation, policy.getBackupPolicy().getVoteRetryWait());
+         }
+         distributedManager.stop();
          ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
          activeMQServer.setHAPolicy(policy.getBackupPolicy());
-
-         // we have matching activation sequence with the failback server so we
-         // can compete to get the lock that we have just released.
-         // we need to delay to give it a chance to get the lock, it is waiting on
-         // the server shutdown command on the cluster connection that has just been delivered
-         // by fail(..)
-         //
-         Thread.sleep(policy.getBackupPolicy().getVoteRetryWait());
          activeMQServer.start();
       }
    }
