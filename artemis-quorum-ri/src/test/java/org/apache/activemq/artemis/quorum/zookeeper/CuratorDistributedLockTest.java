@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -307,6 +308,29 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
       Wait.waitFor(() -> unavailableLock.get() > 0, SERVER_TICK_MS);
       Assert.assertEquals(1, unavailableManager.get());
       Assert.assertEquals(TRUE, unavailableTimedLock.get());
+   }
+
+   @Test
+   public void beNotifiedOfAlreadyUnavailableManagerAfterAddingListener() throws Exception {
+      DistributedPrimitiveManager manager = createManagedDistributeManager();
+      manager.start();
+      final AtomicBoolean unavailable = new AtomicBoolean(false);
+      DistributedPrimitiveManager.UnavailableManagerListener managerListener = () -> {
+         unavailable.set(true);
+      };
+      manager.addUnavailableManagerListener(managerListener);
+      Assert.assertFalse(unavailable.get());
+      stopMajorityNotLeaderNodes(true);
+      Wait.waitFor(unavailable::get);
+      manager.removeUnavailableManagerListener(managerListener);
+      final AtomicInteger unavailableOnRegister = new AtomicInteger();
+      manager.addUnavailableManagerListener(unavailableOnRegister::incrementAndGet);
+      Assert.assertEquals(1, unavailableOnRegister.get());
+      unavailableOnRegister.set(0);
+      try (DistributedLock lock = manager.getDistributedLock("a")) {
+         lock.addListener(unavailableOnRegister::incrementAndGet);
+         Assert.assertEquals(1, unavailableOnRegister.get());
+      }
    }
 
    private boolean ensembleHasLeader() {
