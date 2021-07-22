@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,9 +39,70 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.RetryForever;
 import org.apache.curator.retry.RetryNTimes;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
 public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveManager, ConnectionStateListener {
+
+   enum PrimitiveType {
+      lock, mutableLong;
+
+      static <T extends CuratorDistributedPrimitive> T validatePrimitiveInstance(T primitive) {
+         if (primitive == null) {
+            return null;
+         }
+         boolean valid = false;
+         switch (primitive.getId().type) {
+
+            case lock:
+               valid = primitive instanceof CuratorDistributedLock;
+               break;
+            case mutableLong:
+               valid = primitive instanceof CuratorMutableLong;
+               break;
+         }
+         if (!valid) {
+            throw new AssertionError("Implementation error: " + primitive.getClass() + " is wrongly considered " + primitive.getId().type);
+         }
+         return primitive;
+      }
+   }
+
+   static final class PrimitiveId {
+
+      final String id;
+      final PrimitiveType type;
+
+      private PrimitiveId(String id, PrimitiveType type) {
+         this.id = requireNonNull(id);
+         this.type = requireNonNull(type);
+      }
+
+      static PrimitiveId of(String id, PrimitiveType type) {
+         return new PrimitiveId(id, type);
+      }
+
+      @Override
+      public boolean equals(Object o) {
+         if (this == o)
+            return true;
+         if (o == null || getClass() != o.getClass())
+            return false;
+
+         PrimitiveId that = (PrimitiveId) o;
+
+         if (!Objects.equals(id, that.id))
+            return false;
+         return type == that.type;
+      }
+
+      @Override
+      public int hashCode() {
+         int result = id != null ? id.hashCode() : 0;
+         result = 31 * result + (type != null ? type.hashCode() : 0);
+         return result;
+      }
+   }
 
    private static final String CONNECT_STRING_PARAM = "connect-string";
    private static final String NAMESPACE_PARAM = "namespace";
@@ -78,9 +139,8 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
       }
    }
 
-   private volatile CuratorFramework client;
-   private final Map<String, CuratorDistributedLock> locks;
-   private final Map<String, CuratorMutableLong> longs;
+   private CuratorFramework client;
+   private final Map<PrimitiveId, CuratorDistributedPrimitive> primitives;
    private CopyOnWriteArrayList<UnavailableManagerListener> listeners;
    private boolean unavailable;
    private boolean handlingEvents;
@@ -114,8 +174,7 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
          .connectionTimeoutMs(connectionMs)
          .retryPolicy(retries >= 0 ? new RetryNTimes(retries, retriesMs) : new RetryForever(retriesMs))
          .simulatedSessionExpirationPercent(sessionPercent);
-      this.locks = new HashMap<>();
-      this.longs = new HashMap<>();
+      this.primitives = new HashMap<>();
       this.listeners = null;
       this.unavailable = false;
       this.handlingEvents = false;
@@ -160,7 +219,7 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
          if (timeout > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("curator manager won't support too long timeout ie >" + Integer.MAX_VALUE);
          }
-         Objects.requireNonNull(unit);
+         requireNonNull(unit);
       }
       if (client != null) {
          return true;
@@ -199,83 +258,53 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
       listeners.clear();
       this.listeners = null;
       client.getConnectionStateListenable().removeListener(this);
-      locks.forEach((lockId, lock) -> {
+      primitives.forEach((id, primitive) -> {
          try {
-            lock.close(false);
+            primitive.onRemoved();
          } catch (Throwable t) {
             // TODO log?
          }
       });
-      locks.clear();
-      longs.forEach((id, mLong) -> {
-         try {
-            mLong.close(false);
-         } catch (Throwable t) {
-            // TODO log?
-         }
-      });
-      longs.clear();
+      primitives.clear();
       client.close();
    }
 
-   @Override()
-   public synchronized DistributedLock getDistributedLock(String lockId) {
+   private synchronized <T extends CuratorDistributedPrimitive> T getPrimitive(PrimitiveId id,
+                                                                               Function<PrimitiveId, ? extends T> primitiveFactory) {
       checkHandlingEvents();
-      Objects.requireNonNull(lockId);
+      requireNonNull(id);
       if (client == null) {
          throw new IllegalStateException("manager isn't started yet!");
       }
-      final CuratorDistributedLock lock = locks.get(lockId);
-      if (lock != null) {
-         return lock;
+      final CuratorDistributedPrimitive primitive = PrimitiveType.validatePrimitiveInstance(primitives.get(id));
+      if (primitive != null) {
+         return (T) primitive;
       }
-      final Consumer<CuratorDistributedLock> onCloseLock = closedLock -> {
-         synchronized (this) {
-            final boolean alwaysTrue = locks.remove(closedLock.getLockId(), closedLock);
-            assert alwaysTrue;
-         }
-      };
-      final CuratorDistributedLock newLock = new CuratorDistributedLock(this, lockId, new InterProcessSemaphoreV2(client, "/locks/" + lockId, 1), onCloseLock);
-      locks.put(lockId, newLock);
+      final T newPrimitive = PrimitiveType.validatePrimitiveInstance(primitiveFactory.apply(id));
+      primitives.put(id, newPrimitive);
       if (unavailable) {
          startHandlingEvents();
          try {
-            newLock.onLost();
+            newPrimitive.onLost();
          } finally {
             completeHandlingEvents();
          }
       }
-      return newLock;
+      return newPrimitive;
+   }
+
+   @Override
+   public DistributedLock getDistributedLock(String lockId) {
+      return getPrimitive(PrimitiveId.of(lockId, PrimitiveType.lock),
+                          id -> new CuratorDistributedLock(id, this,
+                                                           new InterProcessSemaphoreV2(client, "/locks/" + id.id, 1)));
    }
 
    @Override
    public MutableLong getMutableLong(String mutableLongId) {
-      checkHandlingEvents();
-      Objects.requireNonNull(mutableLongId);
-      if (client == null) {
-         throw new IllegalStateException("manager isn't started yet!");
-      }
-      final CuratorMutableLong mLong = longs.get(mutableLongId);
-      if (mLong != null) {
-         return mLong;
-      }
-      final Consumer<CuratorMutableLong> onClose = closedLong -> {
-         synchronized (this) {
-            final boolean alwaysTrue = longs.remove(closedLong.getMutableLongId(), closedLong);
-            assert alwaysTrue;
-         }
-      };
-      final CuratorMutableLong newLong = new CuratorMutableLong(this, mutableLongId, new DistributedAtomicLong(client, "/activation-sequence/" + mutableLongId, new RetryNTimes(0, 0)), onClose);
-      longs.put(mutableLongId, newLong);
-      if (unavailable) {
-         startHandlingEvents();
-         try {
-            newLong.onLost();
-         } finally {
-            completeHandlingEvents();
-         }
-      }
-      return newLong;
+      return getPrimitive(PrimitiveId.of(mutableLongId, PrimitiveType.mutableLong),
+                          id -> new CuratorMutableLong(id, this,
+                                                       new DistributedAtomicLong(client, "/activation-sequence/" + mutableLongId, new RetryNTimes(0, 0))));
    }
 
    protected void startHandlingEvents() {
@@ -309,16 +338,13 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
             case LOST:
                unavailable = true;
                listeners.forEach(listener -> listener.onUnavailableManagerEvent());
-               locks.forEach((s, curatorDistributedLock) -> curatorDistributedLock.onLost());
-               longs.forEach((s, mutableLong) -> mutableLong.onLost());
+               primitives.forEach((id, primitive) -> primitive.onLost());
                break;
             case RECONNECTED:
-               locks.forEach((s, curatorDistributedLock) -> curatorDistributedLock.onReconnected());
-               longs.forEach((s, mutableLong) -> mutableLong.onReconnected());
+               primitives.forEach((id, primitive) -> primitive.onReconnected());
                break;
             case SUSPENDED:
-               locks.forEach((s, curatorDistributedLock) -> curatorDistributedLock.onSuspended());
-               longs.forEach((s, mutableLong) -> mutableLong.onSuspended());
+               primitives.forEach((id, primitive) -> primitive.onSuspended());
                break;
          }
       } finally {
@@ -326,7 +352,16 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
       }
    }
 
-   public CuratorFramework getCurator() {
+   /**
+    * Used for testing purposes
+    */
+   public synchronized CuratorFramework getCurator() {
+      checkHandlingEvents();
       return client;
+   }
+
+   public synchronized void remove(CuratorDistributedPrimitive primitive) {
+      checkHandlingEvents();
+      primitives.remove(primitive.getId());
    }
 }

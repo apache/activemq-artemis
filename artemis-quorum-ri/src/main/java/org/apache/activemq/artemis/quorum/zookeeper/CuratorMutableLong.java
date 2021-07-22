@@ -16,78 +16,34 @@
  */
 package org.apache.activemq.artemis.quorum.zookeeper;
 
-import java.util.function.Consumer;
-
 import org.apache.activemq.artemis.quorum.MutableLong;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
+import org.apache.activemq.artemis.quorum.zookeeper.CuratorDistributedPrimitiveManager.PrimitiveId;
 import org.apache.curator.framework.recipes.atomic.AtomicValue;
 import org.apache.curator.framework.recipes.atomic.DistributedAtomicLong;
 
-final class CuratorMutableLong implements MutableLong {
+final class CuratorMutableLong extends CuratorDistributedPrimitive implements MutableLong {
 
-   private final CuratorDistributedPrimitiveManager manager;
-   private final String id;
    private final DistributedAtomicLong atomicLong;
-   private final Consumer<CuratorMutableLong> onClose;
-   private boolean unavailable;
-   private boolean closed;
 
-   CuratorMutableLong(CuratorDistributedPrimitiveManager manager,
-                      String id,
-                      DistributedAtomicLong atomicLong,
-                      Consumer<CuratorMutableLong> onClose) {
-      this.manager = manager;
-      this.id = id;
+   CuratorMutableLong(PrimitiveId id, CuratorDistributedPrimitiveManager manager, DistributedAtomicLong atomicLong) {
+      super(id, manager);
       this.atomicLong = atomicLong;
-      this.onClose = onClose;
-      this.closed = false;
-      this.unavailable = false;
-   }
-
-   void onReconnected() {
-      synchronized (manager) {
-         if (closed) {
-            return;
-         }
-         unavailable = false;
-      }
-   }
-
-   void onLost() {
-      synchronized (manager) {
-         if (closed || unavailable) {
-            return;
-         }
-         unavailable = true;
-      }
-   }
-
-   void onSuspended() {
-   }
-
-   private void checkNotClosed() {
-      if (closed) {
-         throw new IllegalStateException("This lock is closed");
-      }
    }
 
    @Override
    public String getMutableLongId() {
-      return id;
+      return getId().id;
    }
 
    @Override
    public long get() throws UnavailableStateException {
-      synchronized (manager) {
-         manager.checkHandlingEvents();
-         checkNotClosed();
-         if (unavailable) {
-            throw new UnavailableStateException(id + " lock state isn't available");
-         }
+      return run(() -> {
+         checkUnavailable();
          try {
             AtomicValue<Long> atomicValue = atomicLong.get();
             if (!atomicValue.succeeded()) {
-               throw new UnavailableStateException("cannot query long " + id);
+               throw new UnavailableStateException("cannot query long " + getId());
             }
             return atomicValue.postValue();
          } catch (UnavailableStateException rethrow) {
@@ -95,42 +51,21 @@ final class CuratorMutableLong implements MutableLong {
          } catch (Throwable e) {
             throw new UnavailableStateException(e);
          }
-      }
+      });
    }
 
    @Override
    public void set(long value) throws UnavailableStateException {
-      synchronized (manager) {
-         manager.checkHandlingEvents();
-         checkNotClosed();
-         if (unavailable) {
-            throw new UnavailableStateException(id + " lock state isn't available");
-         }
+      run(() -> {
+         checkUnavailable();
          try {
             atomicLong.forceSet(value);
+            return null;
          } catch (UnavailableStateException rethrow) {
             throw rethrow;
          } catch (Throwable e) {
             throw new UnavailableStateException(e);
          }
-      }
-   }
-
-   public void close(boolean useCallback) {
-      synchronized (manager) {
-         manager.checkHandlingEvents();
-         if (closed) {
-            return;
-         }
-         closed = true;
-         if (useCallback) {
-            onClose.accept(this);
-         }
-      }
-   }
-
-   @Override
-   public void close() {
-      close(true);
+      });
    }
 }

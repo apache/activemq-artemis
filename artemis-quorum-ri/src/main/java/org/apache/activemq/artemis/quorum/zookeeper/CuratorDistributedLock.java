@@ -21,95 +21,62 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
+import org.apache.activemq.artemis.quorum.zookeeper.CuratorDistributedPrimitiveManager.PrimitiveId;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreV2;
 import org.apache.curator.framework.recipes.locks.Lease;
 
-final class CuratorDistributedLock implements DistributedLock {
+final class CuratorDistributedLock extends CuratorDistributedPrimitive implements DistributedLock {
 
-   // this is used to prevent deadlocks on close
-   private final CuratorDistributedPrimitiveManager manager;
-   private final String lockId;
    private final InterProcessSemaphoreV2 ipcSem;
-   private final Consumer<CuratorDistributedLock> onClose;
    private final CopyOnWriteArrayList<UnavailableLockListener> listeners;
    private Lease lease;
-   private boolean unavailable;
-   private boolean closed;
    private byte[] leaseVersion;
 
-   CuratorDistributedLock(CuratorDistributedPrimitiveManager manager,
-                          String lockId,
-                          InterProcessSemaphoreV2 ipcSem,
-                          Consumer<CuratorDistributedLock> onClose) {
-      this.manager = manager;
-      this.lockId = lockId;
+   CuratorDistributedLock(PrimitiveId id, CuratorDistributedPrimitiveManager manager, InterProcessSemaphoreV2 ipcSem) {
+      super(id, manager);
       this.ipcSem = ipcSem;
-      this.onClose = onClose;
       this.listeners = new CopyOnWriteArrayList<>();
-      this.closed = false;
-      this.unavailable = false;
       this.leaseVersion = null;
    }
 
-   void onReconnected() {
-      synchronized (manager) {
-         if (closed || unavailable) {
-            return;
-         }
-         if (leaseVersion != null) {
-            assert lease != null;
-            try {
-               if (Arrays.equals(lease.getData(), leaseVersion)) {
-                  return;
-               }
-               onLost();
-            } catch (Exception e) {
-               onLost();
+   @Override
+   protected void handleReconnected() {
+      super.handleReconnected();
+      if (leaseVersion != null) {
+         assert lease != null;
+         try {
+            if (Arrays.equals(lease.getData(), leaseVersion)) {
+               return;
             }
+            onLost();
+         } catch (Exception e) {
+            onLost();
          }
       }
    }
 
-   void onLost() {
-      synchronized (manager) {
-         if (closed || unavailable) {
-            return;
-         }
-         lease = null;
-         leaseVersion = null;
-         unavailable = true;
-         for (UnavailableLockListener listener : listeners) {
-            listener.onUnavailableLockEvent();
-         }
+   @Override
+   protected void handleLost() {
+      super.handleLost();
+      lease = null;
+      leaseVersion = null;
+      for (UnavailableLockListener listener : listeners) {
+         listener.onUnavailableLockEvent();
       }
-   }
-
-   void onSuspended() {
    }
 
    @Override
    public String getLockId() {
-      return lockId;
-   }
-
-   private void checkNotClosed() {
-      if (closed) {
-         throw new IllegalStateException("This lock is closed");
-      }
+      return getId().id;
    }
 
    @Override
    public boolean isHeldByCaller() throws UnavailableStateException {
-      synchronized (manager) {
-         manager.checkHandlingEvents();
-         checkNotClosed();
-         if (unavailable) {
-            throw new UnavailableStateException(lockId + " lock state isn't available");
-         }
+      return run(() -> {
+         checkUnavailable();
          if (lease == null) {
             return false;
          }
@@ -119,20 +86,16 @@ final class CuratorDistributedLock implements DistributedLock {
          } catch (Throwable t) {
             throw new UnavailableStateException(t);
          }
-      }
+      });
    }
 
    @Override
    public boolean tryLock() throws UnavailableStateException, InterruptedException {
-      synchronized (manager) {
-         manager.checkHandlingEvents();
-         checkNotClosed();
+      return tryRun(() -> {
          if (lease != null) {
             throw new IllegalStateException("unlock first");
          }
-         if (unavailable) {
-            throw new UnavailableStateException(lockId + " lock state isn't available");
-         }
+         checkUnavailable();
          try {
             final byte[] leaseVersion = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
             ipcSem.setNodeData(leaseVersion);
@@ -149,17 +112,13 @@ final class CuratorDistributedLock implements DistributedLock {
          } catch (Throwable e) {
             throw new UnavailableStateException(e);
          }
-      }
+      });
    }
 
    @Override
    public void unlock() throws UnavailableStateException {
-      synchronized (manager) {
-         manager.checkHandlingEvents();
-         checkNotClosed();
-         if (unavailable) {
-            throw new UnavailableStateException(lockId + " lock state isn't available");
-         }
+      run(() -> {
+         checkUnavailable();
          final Lease lease = this.lease;
          if (lease != null) {
             this.lease = null;
@@ -170,64 +129,43 @@ final class CuratorDistributedLock implements DistributedLock {
                throw new UnavailableStateException(e);
             }
          }
-      }
+         return null;
+      });
    }
 
    @Override
    public void addListener(UnavailableLockListener listener) {
-      synchronized (manager) {
-         manager.checkHandlingEvents();
-         checkNotClosed();
+      run(() -> {
          listeners.add(listener);
-         if (unavailable) {
-            manager.startHandlingEvents();
-            try {
-               listener.onUnavailableLockEvent();
-            } finally {
-               manager.completeHandlingEvents();
-            }
-         }
-      }
+         fireUnavailableListener(listener::onUnavailableLockEvent);
+         return null;
+      });
    }
 
    @Override
    public void removeListener(UnavailableLockListener listener) {
-      synchronized (manager) {
-         manager.checkHandlingEvents();
-         checkNotClosed();
+      run(() -> {
          listeners.remove(listener);
-      }
-   }
-
-   public void close(boolean useCallback) {
-      synchronized (manager) {
-         manager.checkHandlingEvents();
-         if (closed) {
-            return;
-         }
-         closed = true;
-         listeners.clear();
-         if (useCallback) {
-            onClose.accept(this);
-         }
-         final Lease lease = this.lease;
-         if (lease == null) {
-            return;
-         }
-         this.lease = null;
-         if (unavailable) {
-            return;
-         }
-         try {
-            ipcSem.returnLease(lease);
-         } catch (Throwable t) {
-            // TODO silent, but debug ;)
-         }
-      }
+         return null;
+      });
    }
 
    @Override
-   public void close() {
-      close(true);
+   protected void handleClosed() {
+      super.handleClosed();
+      listeners.clear();
+      final Lease lease = this.lease;
+      if (lease == null) {
+         return;
+      }
+      this.lease = null;
+      if (isUnavailable()) {
+         return;
+      }
+      try {
+         ipcSem.returnLease(lease);
+      } catch (Throwable t) {
+         // TODO silent, but debug ;)
+      }
    }
 }
