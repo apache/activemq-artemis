@@ -56,7 +56,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getAddress() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getAddress(this.clusterConnection);
       }
       clearIO();
@@ -70,7 +70,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getDiscoveryGroupName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDiscoveryGroupName(this.clusterConnection);
       }
       clearIO();
@@ -84,7 +84,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public int getMaxHops() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMaxHops(this.clusterConnection);
       }
       clearIO();
@@ -98,7 +98,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getName(this.clusterConnection);
       }
       clearIO();
@@ -112,7 +112,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public long getRetryInterval() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRetryInterval(this.clusterConnection);
       }
       clearIO();
@@ -126,7 +126,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getNodeID() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNodeID(this.clusterConnection);
       }
       clearIO();
@@ -139,7 +139,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String[] getStaticConnectors() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getStaticConnectors(this.clusterConnection);
       }
       clearIO();
@@ -157,7 +157,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getStaticConnectorsAsJSON() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getStaticConnectorsAsJSON(this.clusterConnection);
       }
       clearIO();
@@ -170,7 +170,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public boolean isDuplicateDetection() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isDuplicateDetection(this.clusterConnection);
       }
       clearIO();
@@ -183,7 +183,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getMessageLoadBalancingType() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessageLoadBalancingType(this.clusterConnection);
       }
       clearIO();
@@ -196,7 +196,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public String getTopology() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getTopology(this.clusterConnection);
       }
       clearIO();
@@ -209,7 +209,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public Map<String, String> getNodes() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNodes(this.clusterConnection);
       }
       clearIO();
@@ -222,7 +222,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public boolean isStarted() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isStarted(this.clusterConnection);
       }
       clearIO();
@@ -235,7 +235,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public void start() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.startClusterConnection(this.clusterConnection);
       }
       clearIO();
@@ -249,7 +249,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public void stop() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.stopClusterConnection(this.clusterConnection);
       }
       clearIO();
@@ -273,7 +273,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public long getMessagesPendingAcknowledgement() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessagesPendingAcknowledgement(this.clusterConnection);
       }
       clearIO();
@@ -286,7 +286,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public long getMessagesAcknowledged() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessagesAcknowledged(this.clusterConnection);
       }
       clearIO();
@@ -299,7 +299,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public Map<String, Object> getMetrics()  {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMetrics(this.clusterConnection);
       }
       clearIO();
@@ -312,7 +312,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    @Override
    public Map<String, Object> getBridgeMetrics(String nodeId) {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getBridgeMetrics(this.clusterConnection, nodeId);
       }
       clearIO();

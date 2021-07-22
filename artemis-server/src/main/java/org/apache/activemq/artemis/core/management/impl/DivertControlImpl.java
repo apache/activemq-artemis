@@ -58,7 +58,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getAddress() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getAddress(this.divert);
       }
       clearIO();
@@ -71,7 +71,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getFilter() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFilter(this.divert);
       }
       clearIO();
@@ -85,7 +85,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getForwardingAddress() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getForwardingAddress(this.divert);
       }
       clearIO();
@@ -98,7 +98,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getRoutingName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRoutingName(this.divert);
       }
       clearIO();
@@ -111,7 +111,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getTransformerClassName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getTransformerClassName(this.divert);
       }
       clearIO();
@@ -126,7 +126,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getTransformerPropertiesAsJSON() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getTransformerPropertiesAsJSON(this.divert);
       }
       return JsonUtil.toJsonObject(getTransformerProperties()).toString();
@@ -134,7 +134,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public Map<String, String> getTransformerProperties() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getTransformerProperties(this.divert);
       }
       clearIO();
@@ -149,7 +149,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getRoutingType() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRoutingType(this.divert);
       }
       clearIO();
@@ -162,7 +162,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public String getUniqueName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getUniqueName(this.divert);
       }
       clearIO();
@@ -175,7 +175,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public boolean isExclusive() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isExclusive(this.divert);
       }
       clearIO();
@@ -188,7 +188,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
 
    @Override
    public boolean isRetroactiveResource() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isRetroactiveResource(this.divert);
       }
       return ResourceNames.isRetroactiveResource(internalNamingPrefix, divert.getUniqueName());

@@ -47,7 +47,7 @@ public class JGroupsPropertiesBroadcastGroupControlImpl extends BaseBroadcastGro
 
    @Override
    public String getChannelName() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getChannelName(this.endpointFactory.getChannelName());
       }
       return endpointFactory.getChannelName();

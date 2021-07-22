@@ -74,12 +74,12 @@ public class JaasAuthenticator implements JMXAuthenticator {
          });
          loginContext.login();
          if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.userSuccesfullyLoggedInAudit(subject);
+            AuditLogger.userSuccesfullyAuthenticatedInAudit(subject);
          }
          return subject;
       } catch (LoginException e) {
          if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.userFailedLoggedInAudit(subject, e.getMessage());
+            AuditLogger.userFailedAuthenticationInAudit(subject, e.getMessage());
          }
          throw new SecurityException("Authentication failed", e);
       }

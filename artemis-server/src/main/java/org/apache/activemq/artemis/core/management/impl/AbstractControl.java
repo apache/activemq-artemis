@@ -107,7 +107,7 @@ public abstract class AbstractControl extends StandardMBean {
 
    @Override
    public MBeanInfo getMBeanInfo() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMBeanInfo(this);
       }
       MBeanInfo info = super.getMBeanInfo();
