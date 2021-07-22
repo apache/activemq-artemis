@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class OpenWireMessageConverterTest {
 
@@ -90,5 +91,21 @@ public class OpenWireMessageConverterTest {
          assertFalse(mqMessageAuditNoSync.isDuplicate(messageId));
       }
 
+   }
+
+   @Test
+   public void testBytesPropertyConversionToString() throws Exception {
+      final String bytesPropertyKey = "bytesProperty";
+
+      ICoreMessage coreMessage = new CoreMessage().initBuffer(8);
+      coreMessage.putBytesProperty(bytesPropertyKey, "TEST".getBytes());
+
+      MessageReference messageReference = new MessageReferenceImpl(coreMessage, Mockito.mock(Queue.class));
+      AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
+      Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
+
+      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID);
+
+      assertTrue(messageDispatch.getMessage().getProperty(bytesPropertyKey) instanceof String);
    }
 }

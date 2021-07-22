@@ -25,6 +25,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -42,7 +43,9 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.junit.After;
 import org.junit.Before;
@@ -139,6 +142,40 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
          connection.start();
          Message receive = consumer.receive(5000);
          assertNotNull(receive);
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test
+   public void testBinaryPropertyConversionToString() throws Exception {
+      final String binaryPropertyName = "binaryProperty";
+
+      AmqpClient client = new AmqpClient(new URI("tcp://127.0.0.1:61616"), null, null);
+      AmqpConnection amqpconnection = client.connect();
+      try {
+         AmqpSession session = amqpconnection.createSession();
+         AmqpSender sender = session.createSender(queueName);
+         AmqpMessage message = new AmqpMessage();
+         message.getWrappedMessage().setHeader(new Header());
+         message.getWrappedMessage().setApplicationProperties(new ApplicationProperties(Collections.singletonMap(binaryPropertyName, new Binary("TEST".getBytes()))));
+         sender.send(message);
+      } finally {
+         amqpconnection.close();
+      }
+
+      Connection connection = null;
+      try {
+         connection = factory.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(queueName);
+         MessageConsumer consumer = session.createConsumer(queue);
+         connection.start();
+         Message receive = consumer.receive(5000);
+         assertNotNull(receive);
+         assertTrue(receive.getObjectProperty(binaryPropertyName) instanceof String);
       } finally {
          if (connection != null) {
             connection.close();
