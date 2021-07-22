@@ -16,6 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.smoke.logging;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.management.MBeanServerConnection;
+import javax.management.MBeanServerInvocationHandler;
+import javax.management.remote.JMXConnector;
+import java.util.UUID;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -27,54 +38,23 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.UUID;
-
-public class AuditLoggerTest extends SmokeTestBase {
-
-   private static final File auditLog = new File("target/audit-logging2/log/audit.log");
-
-   private static final String JMX_SERVER_HOSTNAME = "localhost";
-   private static final int JMX_SERVER_PORT = 10099;
-
-   public static final String SERVER_NAME = "audit-logging2";
+public class AuditLoggerTest extends AuditLoggerTestBase {
 
    protected ClientSession session;
    private ServerLocator locator;
    private ClientSessionFactory sf;
 
    @Before
+   @Override
    public void before() throws Exception {
-      cleanupData(SERVER_NAME);
-      disableCheckThread();
-      startServer(SERVER_NAME, 0, 30000);
-      emptyLogFile();
+      super.before();
       locator = createNonHALocator(true).setBlockOnNonDurableSend(true);
       sf = createSessionFactory(locator);
       session = sf.createSession("guest", "guest", false, true, false, false, 100);
@@ -82,12 +62,9 @@ public class AuditLoggerTest extends SmokeTestBase {
       addClientSession(session);
    }
 
-   private void emptyLogFile() throws Exception {
-      if (auditLog.exists()) {
-         try (PrintWriter writer = new PrintWriter(new FileWriter(auditLog))) {
-            writer.print("");
-         }
-      }
+   @Override
+   protected String getServerName() {
+      return "audit-logging2";
    }
 
    @Test
@@ -137,30 +114,6 @@ public class AuditLoggerTest extends SmokeTestBase {
       checkAuditLogRecord(true, "gets security check failure:", "guest does not have permission='DELETE_NON_DURABLE_QUEUE'");
       //hot patch not in log
       checkAuditLogRecord(true, "is sending a message");
-   }
-
-   protected JMXConnector getJmxConnector() throws MalformedURLException {
-      HashMap environment = new HashMap();
-      String[]  credentials = new String[] {"admin", "admin"};
-      environment.put(JMXConnector.CREDENTIALS, credentials);
-      // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
-      System.setProperty("java.rmi.server.hostname", JMX_SERVER_HOSTNAME);
-
-      // I don't specify both ports here manually on purpose. See actual RMI registry connection port extraction below.
-      String urlString = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT + "/jmxrmi";
-
-      JMXServiceURL url = new JMXServiceURL(urlString);
-      JMXConnector jmxConnector = null;
-
-      try {
-         jmxConnector = JMXConnectorFactory.connect(url, environment);
-         System.out.println("Successfully connected to: " + urlString);
-      } catch (Exception e) {
-         jmxConnector = null;
-         e.printStackTrace();
-         Assert.fail(e.getMessage());
-      }
-      return jmxConnector;
    }
 
    @Test
@@ -221,54 +174,6 @@ public class AuditLoggerTest extends SmokeTestBase {
          checkAuditLogRecord(true, "is consuming a message from");
       } finally {
          connection.close();
-      }
-   }
-
-   //check the audit log has a line that contains all the values
-   private void checkAuditLogRecord(boolean exist, String... values) throws Exception {
-      Assert.assertTrue(auditLog.exists());
-      boolean hasRecord = false;
-      try (BufferedReader reader = new BufferedReader(new FileReader(auditLog))) {
-         String line = reader.readLine();
-         while (line != null) {
-            if (line.contains(values[0])) {
-               boolean hasAll = true;
-               for (int i = 1; i < values.length; i++) {
-                  if (!line.contains(values[i])) {
-                     hasAll = false;
-                     break;
-                  }
-               }
-               if (hasAll) {
-                  hasRecord = true;
-                  System.out.println("audit has it: " + line);
-                  break;
-               }
-            }
-            line = reader.readLine();
-         }
-         if (exist) {
-            Assert.assertTrue(hasRecord);
-         } else {
-            Assert.assertFalse(hasRecord);
-         }
-      }
-   }
-
-   public static ConnectionFactory createConnectionFactory(String protocol, String uri) {
-      if (protocol.toUpperCase().equals("OPENWIRE")) {
-         return new org.apache.activemq.ActiveMQConnectionFactory(uri);
-      } else if (protocol.toUpperCase().equals("AMQP")) {
-
-         if (uri.startsWith("tcp://")) {
-            // replacing tcp:// by amqp://
-            uri = "amqp" + uri.substring(3);
-         }
-         return new JmsConnectionFactory(uri);
-      } else if (protocol.toUpperCase().equals("CORE") || protocol.toUpperCase().equals("ARTEMIS")) {
-         return new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(uri);
-      } else {
-         throw new IllegalStateException("Unkown:" + protocol);
       }
    }
 }

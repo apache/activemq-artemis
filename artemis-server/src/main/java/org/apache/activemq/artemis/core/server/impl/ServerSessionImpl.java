@@ -524,8 +524,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                         final boolean browseOnly,
                                         final boolean supportLargeMessage,
                                         final Integer credits) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.createCoreConsumer(this, getUsername(), consumerID, queueName, filterString, priority, browseOnly, supportLargeMessage, credits);
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.createCoreConsumer(this, remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), consumerID, queueName, filterString, priority, browseOnly, supportLargeMessage, credits);
       }
       final SimpleString unPrefixedQueueName = removePrefix(queueName);
 
@@ -714,8 +714,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public Queue createQueue(QueueConfiguration queueConfiguration) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.createQueue(this, getUsername(), queueConfiguration);
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.createQueue(this, remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), queueConfiguration);
       }
 
       queueConfiguration
@@ -924,8 +924,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public AddressInfo createAddress(final SimpleString address,
                                     EnumSet<RoutingType> routingTypes,
                                     final boolean autoCreated) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.serverSessionCreateAddress(this.getName(), getUsername(), address, routingTypes, autoCreated);
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.serverSessionCreateAddress(this.getName(), remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), address, routingTypes, autoCreated);
       }
 
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
@@ -944,8 +944,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public AddressInfo createAddress(AddressInfo addressInfo, boolean autoCreated) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.serverSessionCreateAddress(this.getName(), getUsername(), addressInfo, autoCreated);
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.serverSessionCreateAddress(this.getName(), remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), addressInfo, autoCreated);
       }
 
       AddressInfo art = getAddressAndRoutingType(addressInfo);
@@ -1034,8 +1034,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void createSharedQueue(QueueConfiguration queueConfiguration) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.createSharedQueue(this, getUsername(), queueConfiguration);
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.createSharedQueue(this, remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), queueConfiguration);
       }
       queueConfiguration.setAddress(removePrefix(queueConfiguration.getAddress()));
 
@@ -1161,8 +1161,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void deleteQueue(final SimpleString queueToDelete) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.destroyQueue(this, getUsername(), queueToDelete);
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.destroyQueue(this, remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), queueToDelete);
       }
       final SimpleString unPrefixedQueueName = removePrefix(queueToDelete);
 
@@ -1802,8 +1802,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             message.setMessageID(id);
          }
 
-         if (AuditLogger.isMessageEnabled()) {
-            AuditLogger.coreSendMessage(getUsername(), message.toString(), routingContext);
+         if (AuditLogger.isMessageLoggingEnabled()) {
+            AuditLogger.coreSendMessage(remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), message.toString(), routingContext);
          }
 
          SimpleString address = message.getAddressSimpleString();
@@ -2048,8 +2048,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    private RoutingStatus handleManagementMessage(final Transaction tx,
                                                  final Message message,
                                                  final boolean direct) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.handleManagementMessage(this.getName(), getUsername(), tx, message, direct);
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.handleManagementMessage(this.getName(), remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), tx, message, direct);
       }
       try {
          securityCheck(removePrefix(message.getAddressSimpleString()), CheckType.MANAGE, this);

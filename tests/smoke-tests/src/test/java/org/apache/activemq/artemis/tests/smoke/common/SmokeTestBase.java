@@ -22,6 +22,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,6 +36,8 @@ import org.junit.Assert;
 
 public class SmokeTestBase extends ActiveMQTestBase {
    Set<Process> processes = new HashSet<>();
+   private static final String JMX_SERVER_HOSTNAME = "localhost";
+   private static final int JMX_SERVER_PORT = 10099;
 
    public static final String basedir = System.getProperty("basedir");
 
@@ -92,7 +95,11 @@ public class SmokeTestBase extends ActiveMQTestBase {
       return process;
    }
 
-   protected static JMXConnector getJmxConnector(String hostname, int port) throws Exception {
+   protected JMXConnector getJmxConnector() throws MalformedURLException {
+      return getJmxConnector(JMX_SERVER_HOSTNAME, JMX_SERVER_PORT);
+   }
+
+   protected static JMXConnector getJmxConnector(String hostname, int port) throws MalformedURLException {
       // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
       System.setProperty("java.rmi.server.hostname", hostname);
 

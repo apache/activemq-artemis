@@ -48,7 +48,7 @@ public class BroadcastGroupControlImpl extends BaseBroadcastGroupControlImpl imp
    //todo ghoward we should deal with this properly
    @Override
    public String getGroupAddress() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getGroupAddress(this.getBroadcastGroup());
       }
       clearIO();
@@ -61,7 +61,7 @@ public class BroadcastGroupControlImpl extends BaseBroadcastGroupControlImpl imp
 
    @Override
    public int getGroupPort() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getGroupPort(this.getBroadcastGroup());
       }
       clearIO();
@@ -74,7 +74,7 @@ public class BroadcastGroupControlImpl extends BaseBroadcastGroupControlImpl imp
 
    @Override
    public int getLocalBindPort() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getLocalBindPort(this.getBroadcastGroup());
       }
       clearIO();

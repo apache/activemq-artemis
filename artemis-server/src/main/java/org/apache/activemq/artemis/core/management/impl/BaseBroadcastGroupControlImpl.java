@@ -62,7 +62,7 @@ public class BaseBroadcastGroupControlImpl extends AbstractControl implements Ba
 
    @Override
    public String getName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getName(this.broadcastGroup);
       }
       clearIO();
@@ -75,7 +75,7 @@ public class BaseBroadcastGroupControlImpl extends AbstractControl implements Ba
 
    @Override
    public long getBroadcastPeriod() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getBroadcastPeriod(this.broadcastGroup);
       }
       clearIO();
@@ -88,7 +88,7 @@ public class BaseBroadcastGroupControlImpl extends AbstractControl implements Ba
 
    @Override
    public Object[] getConnectorPairs() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getConnectorPairs(this.broadcastGroup);
       }
       clearIO();
@@ -107,7 +107,7 @@ public class BaseBroadcastGroupControlImpl extends AbstractControl implements Ba
 
    @Override
    public String getConnectorPairsAsJSON() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getConnectorPairsAsJSON(this.broadcastGroup);
       }
       clearIO();
@@ -122,7 +122,7 @@ public class BaseBroadcastGroupControlImpl extends AbstractControl implements Ba
 
    @Override
    public boolean isStarted() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isStarted(this.broadcastGroup);
       }
       clearIO();
@@ -135,7 +135,7 @@ public class BaseBroadcastGroupControlImpl extends AbstractControl implements Ba
 
    @Override
    public void start() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.startBroadcastGroup(this.broadcastGroup);
       }
       clearIO();
@@ -148,7 +148,7 @@ public class BaseBroadcastGroupControlImpl extends AbstractControl implements Ba
 
    @Override
    public void stop() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.stopBroadcastGroup(this.broadcastGroup);
       }
       clearIO();

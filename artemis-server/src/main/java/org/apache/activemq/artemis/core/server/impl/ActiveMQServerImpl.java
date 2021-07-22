@@ -1673,11 +1673,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                       final OperationContext context,
                                       final Map<SimpleString, RoutingType> prefixes,
                                       final String securityDomain) throws Exception {
-
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.createCoreSession(this, name, username, "****", minLargeMessageSize, connection, autoCommitSends,
-                  autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes);
-      }
       String validatedUser = "";
 
       if (securityStore != null) {
@@ -1685,6 +1680,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       checkSessionLimit(validatedUser);
+
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.createCoreSession(this, connection.getAuditSubject(), connection.getRemoteAddress(), name, username, "****", minLargeMessageSize, connection, autoCommitSends,
+                                       autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes);
+      }
 
       final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes, securityDomain);
 
