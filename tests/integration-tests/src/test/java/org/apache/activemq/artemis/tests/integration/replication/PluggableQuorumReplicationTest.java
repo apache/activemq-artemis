@@ -18,17 +18,18 @@ package org.apache.activemq.artemis.tests.integration.replication;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
@@ -81,32 +82,9 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       Wait.waitFor(liveServer::isStarted);
 
-      final CountDownLatch replicated = new CountDownLatch(1);
-
-      final CountDownLatch unReplicated = new CountDownLatch(1);
-
-      final String[] backUpNodeIdHolder = new String[1];
       ServerLocator locator = ServerLocatorImpl.newLocator("(tcp://localhost:61616,tcp://localhost:61617)?ha=true");
       locator.setCallTimeout(60_000L);
       locator.setConnectionTTL(60_000L);
-      locator.addClusterTopologyListener(new ClusterTopologyListener() {
-         @Override
-         public void nodeUP(TopologyMember member, boolean last) {
-            if (member.getBackup() != null) {
-               replicated.countDown();
-               backUpNodeIdHolder[0] = member.getNodeId();
-            }
-         }
-
-         @Override
-         public void nodeDown(long eventUID, String nodeID) {
-            if (nodeID.equals(backUpNodeIdHolder[0])) {
-               unReplicated.countDown();
-               backUpNodeIdHolder[0] = "down";
-            }
-         }
-      });
-
       ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession clientSession = csf.createSession();
       clientSession.createQueue(new QueueConfiguration("slow").setRoutingType(RoutingType.ANYCAST));
@@ -120,8 +98,8 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       Wait.waitFor(backupServer::isStarted);
 
-      Assert.assertTrue("can not replicate in 30 seconds", replicated.await(30, TimeUnit.SECONDS));
-
+      waitForTopology(liveServer, 1, 1, 30000);
+      waitForTopology(backupServer, 1, 1, 30000);
 
       liveServer.stop();
 
@@ -132,8 +110,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       clientSession.createQueue(new QueueConfiguration("slow_un_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
-
-      Assert.assertTrue("can not un replicate in 30 seconds", unReplicated.await(30, TimeUnit.SECONDS));
+      waitForTopology(backupServer, 1, 0, 30000);
 
       backupServer.stop(false);
 
@@ -148,8 +125,8 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       assertTrue(Wait.waitFor(() -> failedActivation.get() != null && failedActivation.get().getMessage().contains("coordinated")));
       liveServer.stop();
 
-      // restart backup but with a new instance, as going live has changed its policy and role
-      ActiveMQServer restartedBackupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
+      // restart backup
+      ActiveMQServer restartedBackupServer = backupServer;
       restartedBackupServer.start();
 
       Wait.waitFor(restartedBackupServer::isStarted);
@@ -161,8 +138,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       clientSession.close();
 
       // live restarted won't check for live by default so will fail to get lock and error out
-      ActiveMQServer restartedLiveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      restartedLiveServer.setIdentity("LIVE");
+      ActiveMQServer restartedLiveServer = liveServer;
 
       final AtomicReference<Exception> failedActivationNoLock = new AtomicReference<>();
       restartedLiveServer.registerActivationFailureListener(failedActivationNoLock::set);
@@ -191,31 +167,9 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       Wait.waitFor(liveServer::isStarted);
 
-      final CountDownLatch replicated = new CountDownLatch(1);
-
-      final CountDownLatch unReplicated = new CountDownLatch(1);
-
-      final String[] backUpNodeIdHolder = new String[1];
       ServerLocator locator = ServerLocatorImpl.newLocator("(tcp://localhost:61616,tcp://localhost:61617)?ha=true");
       locator.setCallTimeout(60_000L);
       locator.setConnectionTTL(60_000L);
-      locator.addClusterTopologyListener(new ClusterTopologyListener() {
-         @Override
-         public void nodeUP(TopologyMember member, boolean last) {
-            if (member.getBackup() != null) {
-               replicated.countDown();
-               backUpNodeIdHolder[0] = member.getNodeId();
-            }
-         }
-
-         @Override
-         public void nodeDown(long eventUID, String nodeID) {
-            if (nodeID.equals(backUpNodeIdHolder[0])) {
-               unReplicated.countDown();
-               backUpNodeIdHolder[0] = "down";
-            }
-         }
-      });
 
       ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession clientSession = csf.createSession();
@@ -230,7 +184,8 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       Wait.waitFor(backupServer::isStarted);
 
-      Assert.assertTrue("can not replicate in 30 seconds", replicated.await(30, TimeUnit.SECONDS));
+      waitForTopology(liveServer, 1, 1, 30000);
+      waitForTopology(backupServer, 1, 1, 30000);
 
       liveServer.stop();
 
@@ -241,7 +196,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       clientSession.createQueue(new QueueConfiguration("slow_un_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
-      Assert.assertTrue("can not un replicate in 30 seconds", unReplicated.await(30, TimeUnit.SECONDS));
+      waitForTopology(backupServer, 1, 0, 30000);
       assertTrue(Wait.waitFor(() -> 2L == backupServer.getNodeManager().getNodeActivationSequence()));
 
       backupServer.stop(false);
@@ -268,8 +223,6 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       clientSession.createQueue(new QueueConfiguration("backup_as_un_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
-      backUpNodeIdHolder[0] = ""; // reset to capture topology node up on in_sync_replication
-
       // verify the live restart as a backup to the restarted backupServer that has taken on the live role, no failback
       liveServer.start();
 
@@ -283,8 +236,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       backupServer.stop(true);
 
-      assertTrue("original live is un_replicated live again", Wait.waitFor(() -> "down".equals(backUpNodeIdHolder[0])));
-
+      waitForTopology(liveServer, 1, 0, 30000);
       assertTrue(Wait.waitFor(() -> 4L == liveServer.getNodeManager().getNodeActivationSequence()));
 
       liveServer.stop(true);
@@ -333,7 +285,6 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       // restart primary that will request failback
       ActiveMQServer restartedPrimaryForFailBack = primaryInstance; //addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-   //   restartedPrimaryForFailBack.setIdentity("PRIMARY");
       restartedPrimaryForFailBack.start();
 
       // first step is backup getting replicated
@@ -439,6 +390,47 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
    }
 
    @Test
+   public void testBackupOutOfSequenceReleasesLock() throws Exception {
+
+      // start backup
+      Configuration backupConfiguration = createBackupConfiguration();
+      ActiveMQServer backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
+      backupServer.setIdentity("BACKUP");
+      backupServer.start();
+
+      // start live
+      final Configuration liveConfiguration = createLiveConfiguration();
+      ((ReplicationPrimaryPolicyConfiguration)liveConfiguration.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+
+      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      liveServer.setIdentity("LIVE");
+      liveServer.start();
+
+      Wait.waitFor(liveServer::isStarted);
+
+      assertTrue(Wait.waitFor(backupServer::isStarted));
+      assertTrue(Wait.waitFor(backupServer::isReplicaSync));
+      assertTrue(liveServer.isReplicaSync());
+
+      backupServer.stop();
+
+      TimeUnit.SECONDS.sleep(1);
+
+      liveServer.stop();
+      // backup can get lock but does not have the sequence to start, will try and be a backup
+
+      backupServer.start();
+
+      // live server should be active
+      liveServer.start();
+      Wait.waitFor(liveServer::isStarted);
+
+      assertTrue(Wait.waitFor(backupServer::isStarted));
+      assertTrue(Wait.waitFor(backupServer::isReplicaSync));
+      assertTrue(liveServer.isReplicaSync());
+   }
+
+   @Test
    public void testPrimaryPeers() throws Exception {
       final String PEER_NODE_ID = "some-shared-id-001";
 
@@ -452,35 +444,14 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       Wait.waitFor(liveServer::isStarted);
 
-      final CountDownLatch replicated = new CountDownLatch(1);
-      final CountDownLatch unReplicated = new CountDownLatch(1);
-
-      final String[] backUpNodeIdHolder = new String[1];
       ServerLocator locator = ServerLocatorImpl.newLocator("(tcp://localhost:61616,tcp://localhost:61617)?ha=true");
       locator.setCallTimeout(60_000L);
       locator.setConnectionTTL(60_000L);
-      locator.addClusterTopologyListener(new ClusterTopologyListener() {
-         @Override
-         public void nodeUP(TopologyMember member, boolean last) {
-            if (member.getBackup() != null) {
-               replicated.countDown();
-               backUpNodeIdHolder[0] = member.getNodeId();
-            }
-         }
-
-         @Override
-         public void nodeDown(long eventUID, String nodeID) {
-            if (nodeID.equals(backUpNodeIdHolder[0])) {
-               unReplicated.countDown();
-               backUpNodeIdHolder[0] = "down";
-            }
-         }
-      });
+      final ClientSessionFactory keepLocatorAliveSLF = locator.createSessionFactory();
 
       ClientSessionFactory csf = locator.createSessionFactory();
-      ClientSession clientSession = csf.createSession();
-      clientSession.createQueue(new QueueConfiguration("slow").setRoutingType(RoutingType.ANYCAST));
-      clientSession.close();
+      sendTo(csf, "live_un_replicated");
+      csf.close();
 
       // start peer, will backup
       Configuration peerLiveConfiguration = createBackupConfiguration(); // to get acceptors and locators ports that won't clash
@@ -495,24 +466,25 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       Wait.waitFor(livePeerServer::isStarted);
 
-      Assert.assertTrue("can not replicate in 30 seconds", replicated.await(30, TimeUnit.SECONDS));
+      waitForTopology(liveServer, 1, 1, 30000);
+      waitForTopology(livePeerServer, 1, 1, 30000);
 
       liveServer.stop();
 
       // livePeerServer will take over and run un replicated
 
       csf = locator.createSessionFactory();
-      clientSession = csf.createSession();
-      clientSession.createQueue(new QueueConfiguration("slow_un_replicated").setRoutingType(RoutingType.ANYCAST));
-      clientSession.close();
+      receiveFrom(csf, "live_un_replicated");
+      sendTo(csf, "peer_un_replicated");
+      csf.close();
 
-      Assert.assertTrue("can not un replicate in 30 seconds", unReplicated.await(30, TimeUnit.SECONDS));
+      waitForTopology(livePeerServer, 1, 0, 30000);
+
       assertTrue(Wait.waitFor(() -> 2L == livePeerServer.getNodeManager().getNodeActivationSequence()));
 
       livePeerServer.stop(false);
 
-      // now only backup should be able to start as it has run un_replicated
-
+      // now only livePeerServer (backup) should be able to start as it has run un_replicated
       // live activation should fail as it is now stale!
       final AtomicReference<Exception> failedActivation = new AtomicReference<>();
       liveServer.registerActivationFailureListener(failedActivation::set);
@@ -529,31 +501,59 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       assertEquals(3L, livePeerServer.getNodeManager().getNodeActivationSequence());
 
       csf = locator.createSessionFactory();
-      clientSession = csf.createSession();
-      clientSession.createQueue(new QueueConfiguration("backup_as_un_replicated").setRoutingType(RoutingType.ANYCAST));
-      clientSession.close();
-
-      backUpNodeIdHolder[0] = ""; // reset to capture topology node up on in_sync_replication
+      receiveFrom(csf, "peer_un_replicated");
+      sendTo(csf, "backup_as_un_replicated");
+      csf.close();
 
       // verify the live restart as a backup to the restarted PeerLiveServer that has taken on the live role
       liveServer.start();
 
       csf = locator.createSessionFactory();
-      clientSession = csf.createSession();
-      clientSession.createQueue(new QueueConfiguration("backup_as_replicated").setRoutingType(RoutingType.ANYCAST));
-      clientSession.close();
+      receiveFrom(csf, "backup_as_un_replicated");
+      sendTo(csf, "backup_as_replicated");
+      csf.close();
 
       assertTrue(Wait.waitFor(liveServer::isReplicaSync));
       assertTrue(Wait.waitFor(() -> 3L == liveServer.getNodeManager().getNodeActivationSequence()));
 
-      livePeerServer.stop(true);
+      waitForTopology(liveServer, 1, 1, 30000);
+      waitForTopology(livePeerServer, 1, 1, 30000);
 
-      assertTrue("original live is un_replicated live again", Wait.waitFor(() -> "down".equals(backUpNodeIdHolder[0])));
+      livePeerServer.stop(true);
 
       assertTrue(Wait.waitFor(() -> 4L == liveServer.getNodeManager().getNodeActivationSequence()));
 
+      csf = locator.createSessionFactory();
+      receiveFrom(csf, "backup_as_replicated");
+      csf.close();
+
+      waitForTopology(liveServer, 1, 0, 30000);
+
       liveServer.stop(true);
-      clientSession.close();
+      keepLocatorAliveSLF.close();
       locator.close();
+   }
+
+   private void sendTo(ClientSessionFactory clientSessionFactory, String addr) throws Exception {
+      ClientSession clientSession = clientSessionFactory.createSession(true, true);
+      clientSession.createQueue(new QueueConfiguration(addr).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      ClientProducer producer = clientSession.createProducer(addr);
+      ClientMessage message = clientSession.createMessage(true);
+      message.putStringProperty("K", addr);
+      message.putLongProperty("delay", 0L); // so slow interceptor does not get us
+      producer.send(message);
+      producer.close();
+      clientSession.close();
+   }
+
+   private void receiveFrom(ClientSessionFactory clientSessionFactory, String addr) throws Exception {
+      ClientSession clientSession = clientSessionFactory.createSession(true, true);
+      clientSession.start();
+      ClientConsumer consumer = clientSession.createConsumer(addr);
+      Message message = consumer.receive(4000);
+      assertNotNull(message);
+      assertTrue(message.getStringProperty("K").equals(addr));
+      consumer.close();
+      clientSession.close();
    }
 }

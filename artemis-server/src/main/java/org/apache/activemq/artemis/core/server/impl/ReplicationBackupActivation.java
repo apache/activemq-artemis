@@ -218,6 +218,10 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                // we are an in_sync_replica, good to go live as UNREPLICATED
                LOGGER.infof("Assuming live role for NodeID = %s, local activation sequence %d matches current coordinated activation sequence %d", lockAndLongId, nodeActivationSequence, coordinatedNodeSequence.get());
                return liveLock;
+            } else {
+               // we need to release the lock!
+               LOGGER.infof("Not a candidate for NodeID = %s activation, local activation sequence %d does not match current coordinated activation sequence %d", lockAndLongId, nodeActivationSequence, coordinatedNodeSequence.get());
+               liveLock.close();
             }
          } else {
             LOGGER.debugf("Candidate for Node ID = %s, with local activation sequence: %d, cannot acquire live lock within %dms; can not coordinate activation", lockAndLongId, nodeActivationSequence, policy.getVoteRetryWait());
