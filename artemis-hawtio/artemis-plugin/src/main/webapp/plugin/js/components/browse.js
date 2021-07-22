@@ -507,12 +507,14 @@ var Artemis;
 
         ctrl.refresh = function() {
             Artemis.log.debug(ctrl.filter)
-            ctrl.pagination.load();
+            //if refreshing always return to the first page
+            ctrl.pagination.firstPage();
         }
 
         ctrl.reset = function() {
             ctrl.filter = '';
-            ctrl.pagination.load();
+            //if resetting always return to the first page
+            ctrl.pagination.firstPage();
         }
 
         function formatPersistentSize(bytes) {
@@ -832,7 +834,13 @@ var Artemis;
                 } else {
                     onDlq(false);
                 }
-                jolokia.request({ type: 'exec', mbean: objName, operation: 'countMessages()'}, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }));
+                //make sure to count only filtered messages
+                if (ctrl.filter) {
+                    jolokia.request({ type: 'exec', mbean: objName, operation: 'countMessages(java.lang.String)', arguments: [ctrl.filter] }, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }));
+                } else {
+                    jolokia.request({ type: 'exec', mbean: objName, operation: 'countMessages()'}, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }));
+                }
+
                 jolokia.request({ type: 'exec', mbean: objName, operation: 'browse(int, int, java.lang.String)', arguments: [ctrl.pagination.pageNumber, ctrl.pagination.pageSize, ctrl.filter] }, Core.onSuccess(populateTable));
             }
         }

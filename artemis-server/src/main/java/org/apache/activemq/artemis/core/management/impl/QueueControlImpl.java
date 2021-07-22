@@ -1574,8 +1574,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                      if (index >= start) {
                         c.add(OpenTypeSupport.convert(ref, attributeSizeLimit));
                      }
+                     //we only increase the index if we add a message, otherwise we could stop before we get to a filtered message
+                     index++;
                   }
-                  index++;
                }
             } catch (NoSuchElementException ignored) {
                // this could happen through paging browsing
