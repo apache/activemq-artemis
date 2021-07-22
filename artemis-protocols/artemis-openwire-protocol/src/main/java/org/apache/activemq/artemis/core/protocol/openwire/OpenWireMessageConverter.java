@@ -37,6 +37,7 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.InflaterOutputStream;
 
+import com.google.common.io.BaseEncoding;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -963,13 +964,13 @@ public final class OpenWireMessageConverter {
          try {
             if (prop instanceof SimpleString) {
                amqMsg.setObjectProperty(keyStr, prop.toString());
+            } else if (prop instanceof byte[]) {
+               amqMsg.setObjectProperty(keyStr,  BaseEncoding.base16().encode((byte[])prop));
+            } else if (keyStr.equals(MessageUtil.JMSXDELIVERYCOUNT) && prop instanceof Long) {
+               Long l = (Long) prop;
+               amqMsg.setObjectProperty(keyStr, l.intValue());
             } else {
-               if (keyStr.equals(MessageUtil.JMSXDELIVERYCOUNT) && prop instanceof Long) {
-                  Long l = (Long) prop;
-                  amqMsg.setObjectProperty(keyStr, l.intValue());
-               } else {
-                  amqMsg.setObjectProperty(keyStr, prop);
-               }
+               amqMsg.setObjectProperty(keyStr, prop);
             }
          } catch (JMSException e) {
             throw new IOException("exception setting property " + s + " : " + prop, e);
