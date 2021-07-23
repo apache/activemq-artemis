@@ -101,6 +101,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.BindingsTransactionImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.BooleanUtil;
@@ -1825,32 +1826,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
-      if (nonDestructive && reason == AckReason.NORMAL) {
-         decDelivering(ref);
-         if (logger.isDebugEnabled()) {
-            logger.debug("acknowledge ignored nonDestructive=true and reason=NORMAL");
-         }
-      } else {
-         if (ref.isPaged()) {
-            pageSubscription.ack((PagedReference) ref);
-            postAcknowledge(ref, reason);
-         } else {
-            Message message = ref.getMessage();
-
-            boolean durableRef = message.isDurable() && isDurable();
-
-            if (durableRef) {
-               storageManager.storeAcknowledge(id, message.getMessageID());
-            }
-            postAcknowledge(ref, reason);
-         }
-
-         ackAttempts.incrementAndGet();
-
-         if (server != null && server.hasBrokerMessagePlugins()) {
-            server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
-         }
-      }
+      acknowledge(null, ref, reason, consumer);
    }
 
    @Override
@@ -1860,34 +1836,59 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
-      RefsOperation refsOperation = getRefsOperation(tx, reason);
+      boolean transactional = tx != null;
+      RefsOperation refsOperation = null;
+      if (transactional) {
+         refsOperation = getRefsOperation(tx, reason);
+      }
 
       if (nonDestructive && reason == AckReason.NORMAL) {
-         refsOperation.addOnlyRefAck(ref);
+         if (transactional) {
+            refsOperation.addOnlyRefAck(ref);
+         } else {
+            decDelivering(ref);
+         }
          if (logger.isDebugEnabled()) {
             logger.debug("acknowledge tx ignored nonDestructive=true and reason=NORMAL");
          }
       } else {
          if (ref.isPaged()) {
-            pageSubscription.ackTx(tx, (PagedReference) ref);
-
-            refsOperation.addAck(ref);
+            if (transactional) {
+               pageSubscription.ackTx(tx, (PagedReference) ref);
+               refsOperation.addAck(ref);
+            } else {
+               pageSubscription.ack((PagedReference) ref);
+               postAcknowledge(ref, reason);
+            }
          } else {
             Message message = ref.getMessage();
 
             boolean durableRef = message.isDurable() && isDurable();
 
             if (durableRef) {
-               storageManager.storeAcknowledgeTransactional(tx.getID(), id, message.getMessageID());
-
-               tx.setContainsPersistent();
+               if (transactional) {
+                  storageManager.storeAcknowledgeTransactional(tx.getID(), id, message.getMessageID());
+                  tx.setContainsPersistent();
+               } else {
+                  storageManager.storeAcknowledge(id, message.getMessageID());
+               }
             }
-
-            ackAttempts.incrementAndGet();
-
-            refsOperation.addAck(ref);
+            if (transactional) {
+               ackAttempts.incrementAndGet();
+               refsOperation.addAck(ref);
+            } else {
+               postAcknowledge(ref, reason);
+            }
          }
 
+         if (!transactional) {
+            ackAttempts.incrementAndGet();
+         }
+
+         if (AuditLogger.isMessageLoggingEnabled()) {
+            ServerSession session = server.getSessionByID(consumer.getSessionID());
+            AuditLogger.coreAcknowledgeMessage(session.getRemotingConnection().getAuditSubject(), session.getRemotingConnection().getRemoteAddress(), getName().toString(), ref.getMessage().toString());
+         }
          if (server != null && server.hasBrokerMessagePlugins()) {
             server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
          }

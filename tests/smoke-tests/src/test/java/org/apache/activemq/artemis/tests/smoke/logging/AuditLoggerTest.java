@@ -171,9 +171,10 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
          Assert.assertNotNull(clientMessage);
          clientMessage = consumer.receive(5000);
          Assert.assertNotNull(clientMessage);
-         checkAuditLogRecord(true, "is consuming a message from");
       } finally {
          connection.close();
       }
+      checkAuditLogRecord(true, "is consuming a message from");
+      checkAuditLogRecord(true, "is acknowledging a message from");
    }
 }
