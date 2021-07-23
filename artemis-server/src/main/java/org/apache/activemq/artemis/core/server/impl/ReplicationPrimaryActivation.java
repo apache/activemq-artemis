@@ -105,13 +105,13 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
       try {
 
          // we have a common nodeId that we can share and coordinate with between peers
-         if (policy.getPeerNodeId() != null) {
-            LOGGER.infof("Applying shared peer NodeID=%s to enable coordinated live activation", policy.getPeerNodeId());
+         if (policy.getCoordinationId() != null) {
+            LOGGER.infof("Applying shared peer NodeID=%s to enable coordinated live activation", policy.getCoordinationId());
 
             // REVISIT: this is quite clunky, also in backup activation, we just need new nodeID persisted!
             activeMQServer.resetNodeManager();
             activeMQServer.getNodeManager().start();
-            activeMQServer.getNodeManager().setNodeID(policy.getPeerNodeId());
+            activeMQServer.getNodeManager().setNodeID(policy.getCoordinationId());
             activeMQServer.getNodeManager().stopBackup();
          }
          final String nodeId = activeMQServer.getNodeManager().readNodeId().toString();

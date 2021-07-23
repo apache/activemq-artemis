@@ -207,29 +207,41 @@ public final class ReplicationBackupActivation extends Activation implements Dis
 
    private DistributedLock checkForInSyncReplica() throws InterruptedException, ExecutionException, TimeoutException, UnavailableStateException {
       final long nodeActivationSequence = activeMQServer.getNodeManager().readNodeActivationSequence();
-      if ( nodeActivationSequence > 0 ) {
+      if (nodeActivationSequence > 0) {
          // not an empty backup (first start), let see if we can get the lock and verify our data activation sequence
          final String lockAndLongId = activeMQServer.getNodeManager().getNodeId().toString();
-         final DistributedLock liveLock = distributedManager.getDistributedLock(lockAndLongId);
-         if (liveLock.tryLock(policy.getVoteRetryWait(), TimeUnit.MILLISECONDS)) {
-            // we need the lock to ensure it is the most up to date increment
-            MutableLong coordinatedNodeSequence = distributedManager.getMutableLong(lockAndLongId);
-            if (nodeActivationSequence == coordinatedNodeSequence.get()) {
+         final DistributedLock activationLock = distributedManager.getDistributedLock(lockAndLongId);
+         try (MutableLong coordinatedNodeSequence = distributedManager.getMutableLong(lockAndLongId)) {
+            while (true) {
+               // dirty read is sufficient to know if we are *not* an in sync replica
+               // typically the lock owner will increment to signal our data is stale and we are happy without any
+               // further coordination at this point
+               final long currentCoordinatedNodeSequence = coordinatedNodeSequence.get();
+               if (nodeActivationSequence != currentCoordinatedNodeSequence) {
+                  LOGGER.infof("Not a candidate for NodeID = %s activation, local activation sequence %d does not match coordinated activation sequence %d", lockAndLongId, nodeActivationSequence, currentCoordinatedNodeSequence);
+                  activationLock.close();
+                  return null;
+               }
+               // our data may be current, start coordinating to verify
+               if (!activationLock.tryLock(policy.getVoteRetryWait(), TimeUnit.MILLISECONDS)) {
+                  LOGGER.debugf("Candidate for Node ID = %s, with local activation sequence: %d, cannot acquire live lock within %dms; retrying", lockAndLongId, nodeActivationSequence, policy.getVoteRetryWait());
+                  continue;
+               }
+               final long lockedCoordinatedNodeSequence = coordinatedNodeSequence.get();
+               if (nodeActivationSequence != lockedCoordinatedNodeSequence) {
+                  LOGGER.infof("Not a candidate for NodeID = %s activation, local activation sequence %d does not match current coordinated activation sequence %d", lockAndLongId, nodeActivationSequence, lockedCoordinatedNodeSequence);
+                  activationLock.close();
+                  return null;
+               }
                // we are an in_sync_replica, good to go live as UNREPLICATED
-               LOGGER.infof("Assuming live role for NodeID = %s, local activation sequence %d matches current coordinated activation sequence %d", lockAndLongId, nodeActivationSequence, coordinatedNodeSequence.get());
-               return liveLock;
-            } else {
-               // we need to release the lock!
-               LOGGER.infof("Not a candidate for NodeID = %s activation, local activation sequence %d does not match current coordinated activation sequence %d", lockAndLongId, nodeActivationSequence, coordinatedNodeSequence.get());
-               liveLock.close();
+               LOGGER.infof("Assuming live role for NodeID = %s, local activation sequence %d matches current coordinated activation sequence %d", lockAndLongId, nodeActivationSequence, lockedCoordinatedNodeSequence);
+               return activationLock;
             }
-         } else {
-            LOGGER.debugf("Candidate for Node ID = %s, with local activation sequence: %d, cannot acquire live lock within %dms; can not coordinate activation", lockAndLongId, nodeActivationSequence, policy.getVoteRetryWait());
          }
       } else {
-         LOGGER.debugf("Not a candidate for activation with local sequence: %d", nodeActivationSequence);
+         LOGGER.debugf("Activation sequence is 0");
+         return null;
       }
-      return null;
    }
 
    static void ensureSequentialAccessToNodeData(ActiveMQServer activeMQServer,

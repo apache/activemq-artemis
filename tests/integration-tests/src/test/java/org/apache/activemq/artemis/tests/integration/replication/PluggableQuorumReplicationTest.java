@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.replication;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,8 +37,11 @@ import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.quorum.DistributedLock;
+import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
@@ -426,6 +430,71 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       Wait.waitFor(liveServer::isStarted);
 
       assertTrue(Wait.waitFor(backupServer::isStarted));
+      assertTrue(Wait.waitFor(backupServer::isReplicaSync));
+      assertTrue(liveServer.isReplicaSync());
+   }
+
+
+   @Test
+   public void testBackupOutOfSequenceCheckActivationSequence() throws Exception {
+
+      // start backup
+      Configuration backupConfiguration = createBackupConfiguration();
+      ActiveMQServer backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
+      backupServer.setIdentity("BACKUP");
+      backupServer.start();
+
+      // start live
+      final Configuration liveConfiguration = createLiveConfiguration();
+      ((ReplicationPrimaryPolicyConfiguration)liveConfiguration.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+
+      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      liveServer.setIdentity("LIVE");
+      liveServer.start();
+
+      Wait.waitFor(liveServer::isStarted);
+
+      assertTrue(Wait.waitFor(backupServer::isStarted));
+      assertTrue(Wait.waitFor(backupServer::isReplicaSync));
+      assertTrue(liveServer.isReplicaSync());
+
+      final String coordinatedId = liveServer.getNodeID().toString();
+
+      System.err.println("coodr id: " + coordinatedId);
+      backupServer.stop();
+
+      TimeUnit.SECONDS.sleep(1);
+
+      liveServer.stop();
+
+      // backup can get lock but does not have the sequence to start, will try and be a backup
+      // to verify it can short circuit with a dirty read we grab the lock for a little while
+      DistributedPrimitiveManager distributedPrimitiveManager = DistributedPrimitiveManager.newInstanceOf(
+         managerConfiguration.getClassName(),
+         managerConfiguration.getProperties());
+      distributedPrimitiveManager.start();
+      final DistributedLock lock = distributedPrimitiveManager.getDistributedLock(coordinatedId);
+      assertTrue(lock.tryLock());
+      CountDownLatch preActivate = new CountDownLatch(1);
+      backupServer.registerActivateCallback(new ActivateCallback() {
+         @Override
+         public void preActivate() {
+            ActivateCallback.super.preActivate();
+            preActivate.countDown();
+         }
+      });
+      backupServer.start();
+
+      // it should be able to do a dirty read of the sequence id and not have to wait to get a lock
+      assertTrue(preActivate.await(1, TimeUnit.SECONDS));
+
+      // release the lock
+      distributedPrimitiveManager.stop();
+
+      // live server should be active
+      liveServer.start();
+      Wait.waitFor(liveServer::isStarted);
+
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
       assertTrue(liveServer.isReplicaSync());
    }
