@@ -40,7 +40,7 @@ under the License.
                   </properties>
                </manager>
                <check-for-live-server>true</check-for-live-server>
-               <peer-node-id>peer-journal-001</peer-node-id>
+               <coordination-id>peer-journal-001</coordination-id>
             </primary>
          </replication>
       </ha-policy>

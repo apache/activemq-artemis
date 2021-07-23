@@ -3199,15 +3199,12 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="peer-node-id" type="xsd:string" maxOccurs="1" minOccurs="0">
+         <xsd:element name="coordination-id" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  The pre configured nodeID (or server ID) for this primary and any 'peer' primary instances. When a
-                  nodeID is provided in configuration, the first start of a primary will not auto generated a nodeId.
-                  In this way, two primary instances can compete for the same lock and coordinate to activate
-                  a journal. Any primary instances in a cluster that set and share the same value of 'peer-node-id' will
-                  act as peers. To this end 'check-for-live-server' should be set to true.
-                  Note: any value specified will be transformed into a UUID and wont' be easily human readable.
+                  The common identity to use for coordination that is shared across instances that will replicate.
+                  The value will be used as the internal server nodeId and as the identity of entities in the
+                  distributed-primitive-manager.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

@@ -436,7 +436,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       final Configuration liveConfiguration = createLiveConfiguration();
       ((ReplicationPrimaryPolicyConfiguration)liveConfiguration.getHAPolicyConfiguration()).setCheckForLiveServer(true);
-      ((ReplicationPrimaryPolicyConfiguration)liveConfiguration.getHAPolicyConfiguration()).setPeerNodeID(PEER_NODE_ID);
+      ((ReplicationPrimaryPolicyConfiguration)liveConfiguration.getHAPolicyConfiguration()).setCoordinationId(PEER_NODE_ID);
 
       ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
       liveServer.setIdentity("LIVE");
@@ -457,7 +457,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       Configuration peerLiveConfiguration = createBackupConfiguration(); // to get acceptors and locators ports that won't clash
       peerLiveConfiguration.setHAPolicyConfiguration(createReplicationLiveConfiguration());
       ((ReplicationPrimaryPolicyConfiguration)peerLiveConfiguration.getHAPolicyConfiguration()).setCheckForLiveServer(true);
-      ((ReplicationPrimaryPolicyConfiguration)peerLiveConfiguration.getHAPolicyConfiguration()).setPeerNodeID(PEER_NODE_ID);
+      ((ReplicationPrimaryPolicyConfiguration)peerLiveConfiguration.getHAPolicyConfiguration()).setCoordinationId(PEER_NODE_ID);
       peerLiveConfiguration.setName("localhost::live-peer");
 
       ActiveMQServer livePeerServer = addServer(ActiveMQServers.newActiveMQServer(peerLiveConfiguration));

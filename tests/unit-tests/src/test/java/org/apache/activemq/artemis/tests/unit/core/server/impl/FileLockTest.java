@@ -40,16 +40,16 @@ public class FileLockTest extends ActiveMQTestBase {
       ReplicationPrimaryPolicyConfiguration replicationPrimaryPolicyConfiguration = ReplicationPrimaryPolicyConfiguration.withDefault();
       String seed = "";
       for (int i = 0; i < 20; i++) {
-         replicationPrimaryPolicyConfiguration.setPeerNodeID(seed);
-         if (replicationPrimaryPolicyConfiguration.getPeerNodeID() != null) {
-            underTest.setNodeID(replicationPrimaryPolicyConfiguration.getPeerNodeID());
+         replicationPrimaryPolicyConfiguration.setCoordinationId(seed);
+         if (replicationPrimaryPolicyConfiguration.getCoordinationId() != null) {
+            underTest.setNodeID(replicationPrimaryPolicyConfiguration.getCoordinationId());
          }
          seed += String.valueOf(i);
       }
 
-      replicationPrimaryPolicyConfiguration.setPeerNodeID("somme-dash-and-odd");
-      if (replicationPrimaryPolicyConfiguration.getPeerNodeID() != null) {
-         underTest.setNodeID(replicationPrimaryPolicyConfiguration.getPeerNodeID());
+      replicationPrimaryPolicyConfiguration.setCoordinationId("somme-dash-and-odd");
+      if (replicationPrimaryPolicyConfiguration.getCoordinationId() != null) {
+         underTest.setNodeID(replicationPrimaryPolicyConfiguration.getCoordinationId());
       }
    }
 

@@ -40,7 +40,7 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
 
    private DistributedPrimitiveManagerConfiguration distributedManagerConfiguration = null;
 
-   private String peerNodeID = null;
+   private String coordinationId = null;
 
    public static ReplicationPrimaryPolicyConfiguration withDefault() {
       return new ReplicationPrimaryPolicyConfiguration();
@@ -125,26 +125,26 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
       return distributedManagerConfiguration;
    }
 
-   public String getPeerNodeID() {
-      return peerNodeID;
+   public String getCoordinationId() {
+      return coordinationId;
    }
 
-   public void setPeerNodeID(String newPeerNodeValue) {
-      if (newPeerNodeValue == null) {
+   public void setCoordinationId(String newCoordinationId) {
+      if (newCoordinationId == null) {
          return;
       }
-      final int len = newPeerNodeValue.length();
+      final int len = newCoordinationId.length();
       if (len >= 16) {
-         this.peerNodeID = newPeerNodeValue.substring(0, 16);
+         this.coordinationId = newCoordinationId.substring(0, 16);
       } else if (len % 2 != 0) {
          // must be even for conversion to uuid, extend to next even
-         this.peerNodeID = newPeerNodeValue + "+";
+         this.coordinationId = newCoordinationId + "+";
       } else if (len > 0 ) {
          // run with it
-         this.peerNodeID = newPeerNodeValue;
+         this.coordinationId = newCoordinationId;
       }
-      if (this.peerNodeID != null) {
-         this.peerNodeID = this.peerNodeID.replace('-', '.');
+      if (this.coordinationId != null) {
+         this.coordinationId = this.coordinationId.replace('-', '.');
       }
    }
 }

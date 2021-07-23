@@ -46,7 +46,7 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
       checkForLiveServer = configuration.isCheckForLiveServer();
       initialReplicationSyncTimeout = configuration.getInitialReplicationSyncTimeout();
       distributedManagerConfiguration = configuration.getDistributedManagerConfiguration();
-      peerNodeId = configuration.getPeerNodeID();
+      peerNodeId = configuration.getCoordinationId();
       this.allowAutoFailBack = allowAutoFailBack;
       this.backupPolicy = backupPolicy;
    }
@@ -54,7 +54,7 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    private ReplicationPrimaryPolicy(ReplicationPrimaryPolicyConfiguration config) {
       clusterName = config.getClusterName();
       groupName = config.getGroupName();
-      peerNodeId = config.getPeerNodeID();
+      peerNodeId = config.getCoordinationId();
       checkForLiveServer = config.isCheckForLiveServer();
       initialReplicationSyncTimeout = config.getInitialReplicationSyncTimeout();
       distributedManagerConfiguration = config.getDistributedManagerConfiguration();

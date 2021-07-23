@@ -506,10 +506,10 @@ attempting to failover to early, losing its chance to become live.
 
 ##### Peer or Multi Primary
 With coordination delegated to the quorum service, roles are less important. It is possible to have two peer servers compete
-for activation of a nodeID; the winner activating as live, the looser taking up a backup role. On restart, 'any' peer server
+for activation; the winner activating as live, the looser taking up a backup role. On restart, 'any' peer server
 with the most up to date journal can activate. 
-The instances need to know in advance, what identity (nodeID) they will coordinate on. 
-In the replication 'primary' ha policy we can explicitly set the 'peer-node-id' to a common value for all peers in a cluster.
+The instances need to know in advance, what identity they will coordinate on. 
+In the replication 'primary' ha policy we can explicitly set the 'coordination-id' to a common value for all peers in a cluster.
 
 For `multi primary`:
 ```xml
@@ -523,7 +523,7 @@ For `multi primary`:
                   </properties>
                </manager>
                <check-for-live-server>true</check-for-live-server>
-               <peer-node-id>peer-journal-001</peer-node-id>
+               <coordination-id>peer-journal-001</coordination-id>
             </primary>
          </replication>
       </ha-policy>
