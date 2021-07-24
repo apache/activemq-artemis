@@ -218,13 +218,13 @@ var Artemis;
             var node = workspace.keyToNodeMap[key];
             objName = node.objectName;
         }
-        var artemisDLQ = localStorage['artemisDLQ'] || "DLQ";
-        var artemisExpiryQueue = localStorage['artemisExpiryQueue'] || "ExpiryQueue";
+        var artemisDLQ = localStorage['artemisDLQ'] || "^DLQ$";
+        var artemisExpiryQueue = localStorage['artemisExpiryQueue'] || "^ExpiryQueue$";
         Artemis.log.debug("loading table" + artemisExpiryQueue);
         if (objName) {
             ctrl.dlq = false;
             var addressName = jolokia.getAttribute(objName, "Address");
-            if (addressName == artemisDLQ || addressName == artemisExpiryQueue) {
+            if (addressName.match(artemisDLQ) != null || addressName.match(artemisExpiryQueue) != null) {
                 ctrl.dlq = true;
             }
         }
@@ -826,10 +826,10 @@ var Artemis;
             if (objName) {
                 ctrl.dlq = false;
                 var addressName = jolokia.getAttribute(objName, "Address");
-                var artemisDLQ = localStorage['artemisDLQ'] || "DLQ";
-                var artemisExpiryQueue = localStorage['artemisExpiryQueue'] || "ExpiryQueue";
+                var artemisDLQ = localStorage['artemisDLQ'] || "^DLQ$";
+                var artemisExpiryQueue = localStorage['artemisExpiryQueue'] || "^ExpiryQueue$";
                 Artemis.log.debug("loading table" + artemisExpiryQueue);
-                if (addressName == artemisDLQ || addressName == artemisExpiryQueue) {
+                if (addressName.match(artemisDLQ) != null || addressName.match(artemisExpiryQueue) != null) {
                     onDlq(true);
                 } else {
                     onDlq(false);
