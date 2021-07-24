@@ -26,10 +26,10 @@ var Artemis;
                 'value': userDetails.password ? userDetails.password : ""
              },
              'artemisDLQ': {
-                'value': "DLQ"
+                'value': "^DLQ$"
              },
              'artemisExpiryQueue': {
-                'value': "ExpiryQueue"
+                'value': "^ExpiryQueue$"
              },
              'ArtemisBrowseBytesMessages': {
                  'value': 99,
@@ -71,8 +71,8 @@ var Artemis;
 
                   <div class="form-group">
                     <label class="col-md-2 control-label" for="artemisDLQ">
-                      The DLQ of the Broker
-                      <span class="pficon pficon-info" data-toggle="tooltip" data-placement="top" title="The Dead Letter Queue of the Broker"></span>
+                      Dead-letter address regex
+                      <span class="pficon pficon-info" data-toggle="tooltip" data-placement="top" title="A regular expression to match one or more dead-letter addresses"></span>
                     </label>
                     <div class="col-md-6">
                       <input type="text" id="artemisDLQ" ng-model="artemisDLQ">
@@ -81,8 +81,8 @@ var Artemis;
 
                   <div class="form-group">
                     <label class="col-md-2 control-label" for="artemisExpiryQueue">
-                      The Expiry of the Broker
-                      <span class="pficon pficon-info" data-toggle="tooltip" data-placement="top" title="The Expiry Queue of the Broker"></span>
+                      Expiry address regex
+                      <span class="pficon pficon-info" data-toggle="tooltip" data-placement="top" title="A regular expression to match one or more expiry addresses"></span>
                     </label>
                     <div class="col-md-6">
                       <input type="text" id="artemisExpiryQueue" ng-model="artemisExpiryQueue">
