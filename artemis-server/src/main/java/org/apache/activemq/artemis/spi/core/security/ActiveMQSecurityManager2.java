@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.spi.core.security;
 
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;

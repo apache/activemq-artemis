@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.spi.core.security.jaas;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;

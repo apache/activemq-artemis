@@ -21,7 +21,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Arrays;

@@ -18,7 +18,7 @@
 package org.apache.activemq.artemis.utils;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -32,7 +32,7 @@ public class CertificateUtil {
       if (channelHandler != null && channelHandler instanceof SslHandler) {
          SslHandler sslHandler = (SslHandler) channelHandler;
          try {
-            certificates = sslHandler.engine().getSession().getPeerCertificateChain();
+            certificates = (X509Certificate[]) sslHandler.engine().getSession().getPeerCertificates();
          } catch (SSLPeerUnverifiedException e) {
             // ignore
          }

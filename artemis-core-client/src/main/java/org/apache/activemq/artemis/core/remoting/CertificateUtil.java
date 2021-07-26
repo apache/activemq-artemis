@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import java.security.Principal;
 
 public class CertificateUtil {
