@@ -136,8 +136,8 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
       bridgeNotificationsQueue = SimpleString.toSimpleString("BridgeNotifications");
       notificationsQueue = SimpleString.toSimpleString("Notifications");
 
-      setupClusterConnection("cluster0", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 1, 2);
-      setupClusterConnection("cluster1", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 2, 1);
+      setupClusterConnection("cluster-1->2", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 1, 2);
+      setupClusterConnection("cluster-2->1", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 2, 1);
 
       server0.start();
 
