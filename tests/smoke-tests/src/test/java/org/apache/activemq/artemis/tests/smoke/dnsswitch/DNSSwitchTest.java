@@ -43,8 +43,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
@@ -910,6 +914,104 @@ public class DNSSwitchTest extends SmokeTestBase {
       // and it should not cache anything if the right properties are in place
       saveConf(hostsFile, "192.0.0.3", "test");
       validateIP("test", "192.0.0.3");
+   }
+
+   @Test
+   public void testSplitBrainDetection() throws Throwable {
+      spawnRun(serverLocation, "testSplitBrainDetection", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
+   }
+
+   /**
+    * arg[0] = constant "testSplitBrainDetection" to be used on reflection through main(String arg[])
+    * arg[1] = serverlive
+    * arg[2] = server backup
+    */
+   public static void testSplitBrainDetection(String[] args) throws Throwable {
+      NetUtil.netUp(FIRST_IP, "lo:first");
+      NetUtil.netUp(SECOND_IP, "lo:second");
+
+      // notice there's no THIRD_IP anywhere
+      saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
+
+      Process serverLive = null;
+      Process serverBackup = null;
+
+      try {
+         serverLive = ServerUtil.startServer(args[1], "live", "tcp://FIRST:61616", 0);
+         ActiveMQServerControl liveControl = getServerControl(liveURI, liveNameBuilder, 20_000);
+
+         Wait.assertTrue(liveControl::isStarted);
+
+         // notice the first server does not know about this server at all
+         serverBackup = ServerUtil.startServer(args[2], "backup", "tcp://SECOND:61716", 0);
+         ActiveMQServerControl backupControl = getServerControl(backupURI, backupNameBuilder, 20_000);
+
+         Wait.assertTrue(backupControl::isStarted);
+         Wait.assertTrue(backupControl::isReplicaSync);
+
+         logger.debug("shutdown the Network now");
+
+         // this will remove all the DNS information
+         // I need the pingers to stop responding.
+         // That will only happen if I stop both devices on Linux.
+         // On mac that works regardless
+         NetUtil.netDown(FIRST_IP, "lo:first", false);
+         NetUtil.netDown(SECOND_IP, "lo:second", false);
+         saveConf(hostsFile);
+
+         Wait.assertTrue(backupControl::isActive);
+
+         logger.debug("Starting the network");
+
+         NetUtil.netUp(FIRST_IP, "lo:first");
+         NetUtil.netUp(SECOND_IP, "lo:second");
+         saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
+
+         logger.debug("Waiting until live is not replicated anymore");
+         Wait.assertTrue(() -> !liveControl.isReplicaSync());
+
+         logger.debug("Waiting enough to let live spread its topology around");
+         try (ActiveMQConnectionFactory firstCf = new ActiveMQConnectionFactory("tcp://FIRST:61616?ha=false");
+              Connection ignored = firstCf.createConnection()) {
+            waitForTopology(firstCf.getServerLocator().getTopology(), 60_000, 1, 1);
+            final Topology topology = firstCf.getServerLocator().getTopology();
+            final TopologyMemberImpl member = topology.getMember(liveControl.getNodeID());
+            Assert.assertNotNull(member.getBackup());
+            Assert.assertNotNull(member.getLive());
+            final TransportConfiguration live = member.getLive();
+            Assert.assertEquals("artemis", live.getName());
+            Assert.assertEquals(NettyConnectorFactory.class.getName(), live.getFactoryClassName());
+            Assert.assertEquals("FIRST", live.getParams().get("host"));
+            Assert.assertEquals("61616", live.getParams().get("port"));
+            final TransportConfiguration backup = member.getBackup();
+            Assert.assertEquals("artemis", backup.getName());
+            Assert.assertEquals(NettyConnectorFactory.class.getName(), backup.getFactoryClassName());
+            Assert.assertEquals("SECOND", backup.getParams().get("host"));
+            Assert.assertEquals("61716", backup.getParams().get("port"));
+         }
+         try (ActiveMQConnectionFactory secondCf = new ActiveMQConnectionFactory("tcp://SECOND:61716?ha=false");
+              Connection ignored = secondCf.createConnection()) {
+            logger.debug("Waiting until second broker topology has just a single live node");
+            waitForTopology(secondCf.getServerLocator().getTopology(), 60_000, 1, 0);
+            final Topology topology = secondCf.getServerLocator().getTopology();
+            final TopologyMemberImpl member = topology.getMember(liveControl.getNodeID());
+            Assert.assertNull(member.getBackup());
+            Assert.assertNotNull(member.getLive());
+            final TransportConfiguration live = member.getLive();
+            Assert.assertEquals("artemis", live.getName());
+            Assert.assertEquals(NettyConnectorFactory.class.getName(), live.getFactoryClassName());
+            Assert.assertEquals("SECOND", live.getParams().get("host"));
+            Assert.assertEquals("61716", live.getParams().get("port"));
+         }
+
+      } finally {
+         if (serverBackup != null) {
+            serverBackup.destroyForcibly();
+         }
+         if (serverLive != null) {
+            serverLive.destroyForcibly();
+         }
+      }
    }
 
    /**
