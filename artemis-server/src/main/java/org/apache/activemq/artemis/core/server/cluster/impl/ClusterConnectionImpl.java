@@ -521,10 +521,14 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public boolean updateMember(long uniqueEventID, String nodeId, TopologyMemberImpl memberInput) {
       if (splitBrainDetection && nodeId.equals(nodeManager.getNodeId().toString())) {
-         if (memberInput.getLive() != null && !memberInput.getLive().isSameParams(connector)) {
-            ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId, memberInput.toString());
+         if (memberInput.getLive() != null) {
+            if (!memberInput.getLive().isSameParams(connector)) {
+               ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId, memberInput.toString());
+               return false;
+            }
+         } else {
+            memberInput.setLive(connector);
          }
-         memberInput.setLive(connector);
       }
       return true;
    }
@@ -538,7 +542,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public boolean removeMember(final long uniqueEventID, final String nodeId) {
       if (splitBrainDetection && nodeId.equals(nodeManager.getNodeId().toString())) {
-         ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId, nodeId);
+         ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId);
          return false;
       }
       return true;
