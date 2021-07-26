@@ -205,7 +205,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
                   SslHandler sslHandler = (SslHandler) nettyConnection.getChannel().pipeline().get("ssl");
                   Assert.assertNotNull(sslHandler);
                   Assert.assertNotNull(sslHandler.engine().getSession());
-                  Assert.assertNotNull(sslHandler.engine().getSession().getPeerCertificateChain());
+                  Assert.assertNotNull(sslHandler.engine().getSession().getPeerCertificates());
                }
             } catch (SSLPeerUnverifiedException e) {
                Assert.fail(e.getMessage());

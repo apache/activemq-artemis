@@ -146,7 +146,7 @@ public class SslBrokerServiceTest extends TransportBrokerTestSupport {
       sslSocket.startHandshake();
       LOG.info("cyphersuite: " + session.getCipherSuite());
       LOG.info("peer port: " + session.getPeerPort());
-      LOG.info("peer cert: " + session.getPeerCertificateChain()[0].toString());
+      LOG.info("peer cert: " + session.getPeerCertificates()[0].toString());
    }
 
    public static TrustManager[] getTrustManager() throws Exception {

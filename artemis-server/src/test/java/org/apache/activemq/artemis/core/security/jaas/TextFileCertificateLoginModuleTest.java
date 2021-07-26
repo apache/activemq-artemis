@@ -21,7 +21,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
