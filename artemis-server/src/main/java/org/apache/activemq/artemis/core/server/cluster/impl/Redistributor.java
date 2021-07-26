@@ -178,6 +178,7 @@ public class Redistributor implements Consumer {
                      queue.deliverAsync();
                   }
                } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.errorRedistributing(e, toManagementString(), reference.getMessageID());
                   try {
                      tx.rollback();
                   } catch (Exception e2) {
