@@ -90,6 +90,12 @@ public interface BridgeControl extends ActiveMQComponentControl {
    double getRetryIntervalMultiplier();
 
    /**
+    * Returns the max retry interval used by this bridge.
+    */
+   @Attribute(desc = "max retry interval used by this bridge")
+   long getMaxRetryInterval();
+
+   /**
     * Returns the number of reconnection attempts used by this bridge.
     */
    @Attribute(desc = "number of reconnection attempts used by this bridge")
