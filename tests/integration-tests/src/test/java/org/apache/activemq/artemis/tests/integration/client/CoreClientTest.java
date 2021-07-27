@@ -258,6 +258,8 @@ public class CoreClientTest extends ActiveMQTestBase {
             for (int i = 0; i < numMessages / anycastPrefixes.size(); i++) {
                ClientMessage message = consumer.receive(1000);
                assertNotNull(message);
+               // this seems to be the only assert of this non requirement
+               assertFalse(message.getAddress().contains(queuePrefix));
                message.acknowledge();
             }
             assertNull(consumer.receiveImmediate());

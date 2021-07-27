@@ -2166,7 +2166,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
          } */
 
-      AddressInfo art = getAddressAndRoutingType(new AddressInfo(msg.getAddressSimpleString(), routingType));
+      final AddressInfo targetFromMessage = new AddressInfo(msg.getAddressSimpleString(), routingType);
+      AddressInfo art = getAddressAndRoutingType(targetFromMessage);
+      if (art != targetFromMessage) {
+         // remove the prefix from the message, with the address model change, only non prefixed addresses exist on the broker
+         msg.setAddress(art.getName());
+      }
 
       // check the user has write access to this address.
       try {
