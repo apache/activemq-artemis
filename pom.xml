@@ -180,6 +180,8 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+      <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
+
      <!--
 
        note for idea users:
@@ -1424,7 +1426,7 @@
                   <forkMode>once</forkMode>
                   <testFailureIgnore>${testFailureIgnore}</testFailureIgnore>
                   <runOrder>alphabetical</runOrder>
-                  <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                  <redirectTestOutputToFile>${maven.test.redirectTestOutputToFile}</redirectTestOutputToFile>
                   <argLine>${activemq-surefire-argline}</argLine>
                </configuration>
             </plugin>
