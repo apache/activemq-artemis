@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.commons.beanutils.Converter;
 
 public enum MessageLoadBalancingType {
-   OFF("OFF"), STRICT("STRICT"), ON_DEMAND("ON_DEMAND");
+   OFF("OFF"), STRICT("STRICT"), ON_DEMAND("ON_DEMAND"), OFF_WITH_REDISTRIBUTION("OFF_WITH_REDISTRIBUTION");
 
    static {
       // for URI support on ClusterConnection
@@ -52,6 +52,8 @@ public enum MessageLoadBalancingType {
          return MessageLoadBalancingType.STRICT;
       } else if (string.equals(ON_DEMAND.getType())) {
          return MessageLoadBalancingType.ON_DEMAND;
+      } else if (string.equals(OFF_WITH_REDISTRIBUTION.getType())) {
+         return MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION;
       } else {
          return null;
       }

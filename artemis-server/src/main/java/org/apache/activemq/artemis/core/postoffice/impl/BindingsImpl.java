@@ -174,7 +174,7 @@ public final class BindingsImpl implements Bindings {
 
    @Override
    public boolean allowRedistribute() {
-      return messageLoadBalancingType.equals(MessageLoadBalancingType.ON_DEMAND);
+      return messageLoadBalancingType.equals(MessageLoadBalancingType.ON_DEMAND) || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION);
    }
 
    @Override

@@ -233,6 +233,7 @@ public final class Validators {
       public void validate(final String name, final Object value) {
          String val = (String) value;
          if (val == null || !val.equals(MessageLoadBalancingType.OFF.toString()) &&
+            !val.equals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION.toString()) &&
             !val.equals(MessageLoadBalancingType.STRICT.toString()) &&
             !val.equals(MessageLoadBalancingType.ON_DEMAND.toString())) {
             throw ActiveMQMessageBundle.BUNDLE.invalidMessageLoadBalancingType(val);

@@ -337,7 +337,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
          }
       }
 
-      Assert.assertEquals(2, conf.getClusterConfigurations().size());
+      Assert.assertEquals(3, conf.getClusterConfigurations().size());
 
       HAPolicyConfiguration pc = conf.getHAPolicyConfiguration();
       assertNotNull(pc);
@@ -348,7 +348,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(lopc.getScaleDownConfiguration().getDiscoveryGroup(), "dg1");
 
       for (ClusterConnectionConfiguration ccc : conf.getClusterConfigurations()) {
-         if (ccc.getName().equals("cluster-connection1")) {
+         if (ccc.getName().equals("cluster-connection3")) {
+            Assert.assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, ccc.getMessageLoadBalancingType());
+         } else if (ccc.getName().equals("cluster-connection1")) {
             Assert.assertEquals("cluster-connection1", ccc.getName());
             Assert.assertEquals("clusterConnectionConf minLargeMessageSize", 321, ccc.getMinLargeMessageSize());
             assertEquals("check-period", 331, ccc.getClientFailureCheckPeriod());

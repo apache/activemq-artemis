@@ -609,7 +609,7 @@ specified. The following shows all the available configuration options
 
 - `message-load-balancing`. This parameter determines if/how
   messages will be distributed between other nodes of the cluster.
-  It can be one of three values - `OFF`, `STRICT`, or `ON_DEMAND` 
+  It can be one of four values - `OFF`, `STRICT`, `OFF_WITH_REDISTRIBUTION` or `ON_DEMAND` 
   (default). This parameter replaces the deprecated
   `forward-when-no-consumers` parameter.
   
@@ -631,7 +631,12 @@ specified. The following shows all the available configuration options
   consumers have message filters (selectors) at least one of those
   selectors must match the message. Using `ON_DEMAND` is like setting
   the legacy `forward-when-no-consumers` parameter to `false`.
-  
+
+  If this is set to `OFF_WITH_REDISTRIBUTION` then like with 'OFF' messages
+  won't be initially routed to other nodes in the cluster. However, if [redistribution](#message-redistribution)
+  is configured, it can forward messages in the normal way. In this way local consumers
+  will always have priority.
+
   Keep in mind that this message forwarding/balancing is what we call
   "initial distribution." It is different than *redistribution* which
   is [discussed below](#message-redistribution). This distinction is 
@@ -825,7 +830,7 @@ This is where message redistribution comes in. With message
 redistribution Apache ActiveMQ Artemis can be configured to automatically
 *redistribute* messages from queues which have no consumers back to
 other nodes in the cluster which do have matching consumers. To enable
-this functionality `message-load-balancing` must be `ON_DEMAND`.
+this functionality `message-load-balancing` must be `ON_DEMAND` or `OFF_WITH_REDISTRIBUTION`
 
 Message redistribution can be configured to kick in immediately after
 the last consumer on a queue is closed, or to wait a configurable delay
