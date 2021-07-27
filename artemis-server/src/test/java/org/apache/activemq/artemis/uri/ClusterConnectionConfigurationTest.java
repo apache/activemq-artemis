@@ -37,6 +37,13 @@ public class ClusterConnectionConfigurationTest {
    }
 
    @Test
+   public void testClusterConnectionStaticOffWithRedistribution() throws Exception {
+      ClusterConnectionConfigurationParser parser = new ClusterConnectionConfigurationParser();
+      ClusterConnectionConfiguration configuration = parser.newObject(new URI("static:(tcp://localhost:6556,tcp://localhost:6557)?minLargeMessageSize=132;s&messageLoadBalancingType=OFF_WITH_REDISTRIBUTION"), null);
+      Assert.assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getMessageLoadBalancingType());
+   }
+
+   @Test
    public void testClusterConnectionStatic2() throws Exception {
       ClusterConnectionConfigurationParser parser = new ClusterConnectionConfigurationParser();
       ClusterConnectionConfiguration configuration = parser.newObject(new URI("static://(tcp://localhost:6556,tcp://localhost:6557)?minLargeMessageSize=132;messageLoadBalancingType=OFF"), null);

@@ -2509,6 +2509,7 @@
                   <xsd:enumeration value="OFF"/>
                   <xsd:enumeration value="STRICT"/>
                   <xsd:enumeration value="ON_DEMAND"/>
+                  <xsd:enumeration value="OFF_WITH_REDISTRIBUTION"/>
                </xsd:restriction>
             </xsd:simpleType>
          </xsd:element>

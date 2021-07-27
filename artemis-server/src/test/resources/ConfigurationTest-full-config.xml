@@ -413,6 +413,10 @@
             <call-failover-timeout>456</call-failover-timeout>
             <discovery-group-ref discovery-group-name="dg1"/>
          </cluster-connection>
+         <cluster-connection name="cluster-connection3">
+            <connector-ref>connector2</connector-ref>
+            <message-load-balancing>OFF_WITH_REDISTRIBUTION</message-load-balancing>
+         </cluster-connection>
       </cluster-connections>
       <broker-connections>
          <amqp-connection uri="tcp://test1:111" name="test1" retry-interval="333" reconnect-attempts="33" user="testuser" password="testpassword">

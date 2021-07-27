@@ -731,6 +731,40 @@ public class MessageRedistributionTest extends ClusterTestBase {
    }
 
    @Test
+   public void testRedistributionWhenRemoteConsumerIsAddedLbOffWithRedistribution() throws Exception {
+      setupCluster(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION);
+
+      startServers(0, 1, 2);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+      setupSessionFactory(2, isNetty());
+
+      createQueue(0, "queues.testaddress", "queue0", null, false);
+      createQueue(1, "queues.testaddress", "queue0", null, false);
+      createQueue(2, "queues.testaddress", "queue0", null, false);
+
+      addConsumer(0, 0, "queue0", null);
+
+      waitForBindings(0, "queues.testaddress", 1, 1, true);
+      waitForBindings(1, "queues.testaddress", 1, 0, true);
+      waitForBindings(2, "queues.testaddress", 1, 0, true);
+
+      waitForBindings(0, "queues.testaddress", 2, 0, false);
+      waitForBindings(1, "queues.testaddress", 2, 1, false);
+      waitForBindings(2, "queues.testaddress", 2, 1, false);
+
+      send(0, "queues.testaddress", 20, false, null);
+
+      removeConsumer(0);
+
+      addConsumer(1, 1, "queue0", null);
+
+      verifyReceiveAll(20, 1);
+      verifyNotReceive(1);
+   }
+
+   @Test
    public void testBackAndForth() throws Exception {
       for (int i = 0; i < 10; i++) {
          setupCluster(MessageLoadBalancingType.ON_DEMAND);

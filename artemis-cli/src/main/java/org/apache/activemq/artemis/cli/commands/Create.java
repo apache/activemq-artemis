@@ -175,7 +175,7 @@ public class Create extends InputAbstract {
    @Option(name = "--max-hops", description = "Number of hops on the cluster configuration")
    private int maxHops = 0;
 
-   @Option(name = "--message-load-balancing", description = "Load balancing policy on cluster. [ON_DEMAND (default) | STRICT | OFF]")
+   @Option(name = "--message-load-balancing", description = "Load balancing policy on cluster. [ON_DEMAND (default) | STRICT | OFF | OFF_WITH_REDISTRIBUTION]")
    private MessageLoadBalancingType messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND;
 
    @Option(name = "--replicated", description = "Enable broker replication")
