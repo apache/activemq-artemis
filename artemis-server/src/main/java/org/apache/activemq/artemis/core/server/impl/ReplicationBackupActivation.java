@@ -339,7 +339,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       final MutableLong coordinatedNodeActivationSequence = distributedPrimitiveManager.getMutableLong(lockAndLongId);
       final long currentCoordinatedActivationSequence = coordinatedNodeActivationSequence.get();
       final long nextActivationSequence;
-      if (nodeActivationSequence == -currentCoordinatedActivationSequence) {
+      if (nodeActivationSequence > 0 && nodeActivationSequence == -currentCoordinatedActivationSequence) {
          // auto-repair: this is the same server that failed to commit its claimed sequence
          nextActivationSequence = nodeActivationSequence;
       } else {
