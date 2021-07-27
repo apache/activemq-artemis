@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersister;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
@@ -70,6 +71,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.apache.activemq.artemis.logs.AssertionLoggerHandler.findText;
 
 public class PagingStoreImplTest extends ActiveMQTestBase {
    private static final Logger log = Logger.getLogger(PagingStoreImplTest.class);
@@ -800,6 +803,53 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       }
 
       storeImpl.stop();
+   }
+
+   @Test
+   public void testLogStartPaging() throws Exception {
+      SequentialFileFactory factory = new FakeSequentialFileFactory();
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100,
+                                                  createMockManager(), createStorageManagerMock(), factory, storeFactory,
+                                                  PagingStoreImplTest.destinationTestName,
+                                                  new AddressSettings()
+                                                     .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE),
+                                                  getExecutorFactory().getExecutor(), true);
+
+      store.start();
+      AssertionLoggerHandler.startCapture();
+      try {
+         store.startPaging();
+         store.stopPaging();
+         Assert.assertTrue(findText("AMQ222038"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+   }
+
+   @Test
+   public void testLogStopPaging() throws Exception {
+      SequentialFileFactory factory = new FakeSequentialFileFactory();
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100,
+                                                  createMockManager(), createStorageManagerMock(), factory, storeFactory,
+                                                  PagingStoreImplTest.destinationTestName,
+                                                  new AddressSettings()
+                                                     .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE),
+                                                  getExecutorFactory().getExecutor(), true);
+      store.start();
+      AssertionLoggerHandler.startCapture();
+      try {
+         store.startPaging();
+         store.stopPaging();
+         Assert.assertTrue(findText("AMQ224108"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
    }
 
    /**

@@ -506,7 +506,11 @@ public class PagingStoreImpl implements PagingStore {
    public void stopPaging() {
       lock.writeLock().lock();
       try {
-         paging = false;
+         final boolean isPaging = this.paging;
+         if (isPaging) {
+            paging = false;
+            ActiveMQServerLogger.LOGGER.pageStoreStop(storeName, sizeInBytes.get(), maxSize, pagingManager.getGlobalSize());
+         }
          this.cursorProvider.onPageModeCleared();
       } finally {
          lock.writeLock().unlock();
@@ -549,8 +553,8 @@ public class PagingStoreImpl implements PagingStore {
                return false;
             }
          }
-
          paging = true;
+         ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, sizeInBytes.get(), maxSize, pagingManager.getGlobalSize());
 
          return true;
       } finally {
@@ -762,9 +766,7 @@ public class PagingStoreImpl implements PagingStore {
       } else if (addressFullMessagePolicy == AddressFullMessagePolicy.PAGE) {
          if (size > 0) {
             if (maxSize != -1 && newSize > maxSize || globalFull) {
-               if (startPaging()) {
-                  ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, newSize, maxSize, pagingManager.getGlobalSize());
-               }
+               startPaging();
             }
          }
 
