@@ -133,7 +133,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
             return true;
          }
       }
-      ActiveMQServerLogger.LOGGER.info(object + " " + operationName + " " + false);
+      ActiveMQServerLogger.LOGGER.debug(object + " " + operationName + " " + false);
       return false;
    }
 
