@@ -48,7 +48,6 @@ public class PluggableQuorumReplicaTimeoutTest extends ReplicaTimeoutTest {
                                                                     managerConfiguration, managerConfiguration);
       ReplicationPrimaryPolicyConfiguration primaryConfiguration = ((ReplicationPrimaryPolicyConfiguration) liveConfig.getHAPolicyConfiguration());
       primaryConfiguration.setInitialReplicationSyncTimeout(1000);
-      primaryConfiguration.setCheckForLiveServer(true);
       ReplicationBackupPolicyConfiguration backupConfiguration = ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration());
       backupConfiguration.setInitialReplicationSyncTimeout(1000);
       backupConfiguration.setMaxSavedReplicatedJournalsSize(2)

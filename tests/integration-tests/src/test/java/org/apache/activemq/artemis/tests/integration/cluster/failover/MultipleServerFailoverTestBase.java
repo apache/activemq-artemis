@@ -182,8 +182,6 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
                break;
             case PluggableQuorumReplication:
                haPolicyConfiguration = ReplicationBackupPolicyConfiguration.withDefault()
-                  .setVoteRetries(1)
-                  .setVoteRetryWait(1000)
                   .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration())
                   .setGroupName(getNodeGroupName() != null ? (getNodeGroupName() + "-" + i) : null);
                break;

@@ -3189,16 +3189,6 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="check-for-live-server" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Whether to check the cluster for a (live) server using our own server ID when starting
-                  up. This option is only necessary for performing 'fail-back' on replicating
-                  servers. Strictly speaking this setting only applies to live servers and not to
-                  backups.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
          <xsd:element name="coordination-id" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -3214,21 +3204,6 @@
                <xsd:documentation>
                   The amount of time to wait for the replica to acknowledge it has received all the necessary data from
                   the replicating server at the final step of the initial replication synchronization process.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="vote-retries" type="xsd:integer" default="12" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  If we start as a replica and lose connection to the master, how many times should we attempt to vote
-                  for quorum before restarting
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="vote-retry-wait" type="xsd:long" default="2000" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  How long to wait (in milliseconds) between each vote
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3294,20 +3269,6 @@
                   If we have to start as a replicated server this is the amount of time to wait for the replica to
                   acknowledge it has received all the necessary data from the replicating server at the final step
                   of the initial replication synchronization process.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="vote-retries" type="xsd:integer" default="12" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  If we lose connection to the master, how many times should we attempt to vote for quorum before restarting
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="vote-retry-wait" type="xsd:long" default="2000" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  How long to wait (in milliseconds) between each vote
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

@@ -21,20 +21,11 @@ import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 
 public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfiguration {
 
-   private boolean checkForLiveServer = ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer();
-
    private String groupName = null;
 
    private String clusterName = null;
 
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
-
-   private int voteRetries = ActiveMQDefaultConfiguration.getDefaultVoteRetries();
-
-   /**
-    * TODO: move if into {@link ActiveMQDefaultConfiguration} when the configuration is stable.
-    */
-   private long voteRetryWait = 2000;
 
    private Long retryReplicationWait = ActiveMQDefaultConfiguration.getDefaultRetryReplicationWait();
 
@@ -52,15 +43,6 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
    @Override
    public TYPE getType() {
       return TYPE.PRIMARY;
-   }
-
-   public boolean isCheckForLiveServer() {
-      return checkForLiveServer;
-   }
-
-   public ReplicationPrimaryPolicyConfiguration setCheckForLiveServer(boolean checkForLiveServer) {
-      this.checkForLiveServer = checkForLiveServer;
-      return this;
    }
 
    public String getGroupName() {
@@ -88,24 +70,6 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
    public ReplicationPrimaryPolicyConfiguration setInitialReplicationSyncTimeout(long initialReplicationSyncTimeout) {
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       return this;
-   }
-
-   public int getVoteRetries() {
-      return voteRetries;
-   }
-
-   public ReplicationPrimaryPolicyConfiguration setVoteRetries(int voteRetries) {
-      this.voteRetries = voteRetries;
-      return this;
-   }
-
-   public ReplicationPrimaryPolicyConfiguration setVoteRetryWait(long voteRetryWait) {
-      this.voteRetryWait = voteRetryWait;
-      return this;
-   }
-
-   public long getVoteRetryWait() {
-      return voteRetryWait;
    }
 
    public void setRetryReplicationWait(Long retryReplicationWait) {

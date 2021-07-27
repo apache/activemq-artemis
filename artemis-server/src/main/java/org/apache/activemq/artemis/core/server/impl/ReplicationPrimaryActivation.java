@@ -17,8 +17,10 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import javax.annotation.concurrent.GuardedBy;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAlreadyReplicatingException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -59,6 +61,8 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
    private static final Logger LOGGER = Logger.getLogger(ReplicationPrimaryActivation.class);
    private static final long DISTRIBUTED_MANAGER_START_TIMEOUT_MILLIS = 20_000;
    private static final long BLOCKING_CALLS_TIMEOUT_MILLIS = 5_000;
+   private static final long FAILBACK_WAIT_RETRY_MILLIS = 100;
+   private static final long FAILBACK_TIMEOUT_MILLIS = 2_000;
 
    private final ReplicationPrimaryPolicy policy;
 
@@ -155,13 +159,11 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
    private DistributedLock searchLiveOrAcquireLiveLock(final String nodeId,
                                                        final long blockingCallTimeout,
                                                        final TimeUnit unit) throws ActiveMQException, InterruptedException {
-      if (policy.isCheckForLiveServer()) {
-         LOGGER.infof("Searching for a live server matching NodeID = %s", nodeId);
-         if (searchActiveLiveNodeId(policy.getClusterName(), nodeId, blockingCallTimeout, unit, activeMQServer.getConfiguration())) {
-            LOGGER.infof("Found a live server with  NodeID = %s: restarting as backup", nodeId);
-            activeMQServer.setHAPolicy(policy.getBackupPolicy());
-            return null;
-         }
+      LOGGER.infof("Searching for a live server matching NodeID = %s", nodeId);
+      if (searchActiveLiveNodeId(policy.getClusterName(), nodeId, blockingCallTimeout, unit, activeMQServer.getConfiguration())) {
+         LOGGER.infof("Found a live server with  NodeID = %s: restarting as backup", nodeId);
+         activeMQServer.setHAPolicy(policy.getBackupPolicy());
+         return null;
       }
       startDistributedPrimitiveManager();
       return acquireDistributeLock(getDistributeLock(nodeId), blockingCallTimeout, unit);
@@ -332,41 +334,73 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
          }
          final String coordinatedLockAndNodeId = activeMQServer.getNodeManager().getNodeId().toString();
          final long inSyncReplicaActivation = activeMQServer.getNodeManager().getNodeActivationSequence();
-         DistributedLock existingLiveLock = distributedManager.getDistributedLock(coordinatedLockAndNodeId);
          // give up our role as 'live' asap, will also happen on server.fail
-         existingLiveLock.close();
-
+         distributedManager.getDistributedLock(coordinatedLockAndNodeId).close();
          activeMQServer.fail(true);
-
-         // need to restart
-         distributedManager.start();
-         final MutableLong coordinatedActivationSequence = distributedManager.getMutableLong(coordinatedLockAndNodeId);
-         // wait for the live to activate and run un replicated with a sequence > inSyncReplicaActivation
-         // this read can be dirty b/c we are just looking for an increment, we don't care about the actual value
-         final long done = System.currentTimeMillis() + policy.getBackupPolicy().getVoteRetryWait();
-         do {
-            final long coordinatedValue = coordinatedActivationSequence.get();
-            if (coordinatedValue > inSyncReplicaActivation) {
-               // all good, activation has gone ahead
-               LOGGER.infof("Detected expected sequential server activation after failback, with NodeID = %s: and sequence: %d", coordinatedLockAndNodeId, coordinatedValue);
-               break;
+         try {
+            if (!awaitFailbackActivationSequence(coordinatedLockAndNodeId, inSyncReplicaActivation, FAILBACK_TIMEOUT_MILLIS)) {
+               LOGGER.warnf("Timed out waiting for failback server activation with NodeID = %s: and sequence > %d: after %dms",
+                            coordinatedLockAndNodeId, inSyncReplicaActivation, FAILBACK_TIMEOUT_MILLIS);
             }
-            try {
-               TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException ignored) {
-            }
+         } catch (UnavailableStateException ignored) {
+            LOGGER.debug("Unavailable distributed manager while awaiting failback activation sequence: ignored", ignored);
          }
-         while (done < System.currentTimeMillis());
-
-         if (coordinatedActivationSequence.get() == inSyncReplicaActivation) {
-            LOGGER.warnf("Timed out waiting for failback server activation with NodeID = %s: and sequence > %d: after %dms",
-                         coordinatedLockAndNodeId, inSyncReplicaActivation, policy.getBackupPolicy().getVoteRetryWait());
-         }
-         distributedManager.stop();
          ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
          activeMQServer.setHAPolicy(policy.getBackupPolicy());
          activeMQServer.start();
       }
+   }
+
+   /**
+    * It await until {@code timeoutMillis ms} has passed or the coordinated activation sequence has progressed enough
+    * to quickly restart as a backup and be available again to replicate some live.
+    */
+   private boolean awaitFailbackActivationSequence(final String coordinatedLockAndNodeId,
+                                                   final long inSyncReplicaActivation,
+                                                   final long timeoutMills)
+                        throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+      distributedManager.start();
+      final MutableLong coordinatedActivationSequence = distributedManager.getMutableLong(coordinatedLockAndNodeId);
+      // wait for the live to activate and run un replicated with a sequence > inSyncReplicaActivation
+      // this read can be dirty b/c we are just looking for an increment.
+      boolean failbackCompleted = false;
+      final long failbackTimeoutNs = TimeUnit.MILLISECONDS.toNanos(timeoutMills);
+      final long started = System.nanoTime();
+      long elapsedNs;
+      do {
+         final long coordinatedValue = coordinatedActivationSequence.get();
+         if (coordinatedValue > inSyncReplicaActivation) {
+            // all good, some activation has gone ahead
+            LOGGER.infof("Detected expected sequential server activation after failback, with NodeID = %s: and sequence: %d", coordinatedLockAndNodeId, coordinatedValue);
+            failbackCompleted = true;
+            break;
+         }
+         if (coordinatedValue < 0) {
+            // commit claim
+            final long claimedSequence = -coordinatedValue;
+            final long activationsGap = claimedSequence - inSyncReplicaActivation;
+            if (activationsGap > 1) {
+               // all good, some activation has gone ahead
+               LOGGER.infof("Detected furthers sequential server activations after failback from sequence %d, with NodeID = %s: and claimed sequence: %d",
+                            inSyncReplicaActivation, coordinatedLockAndNodeId, claimedSequence);
+               failbackCompleted = true;
+               break;
+            }
+            // activation is still in progress
+            LOGGER.debugf("Detected claiming of activation sequence = %d for NodeID = %s",
+                          claimedSequence, coordinatedLockAndNodeId);
+         }
+         try {
+            TimeUnit.MILLISECONDS.sleep(FAILBACK_WAIT_RETRY_MILLIS);
+         } catch (InterruptedException ignored) {
+         }
+         elapsedNs = System.nanoTime() - started;
+      }
+      while (elapsedNs < failbackTimeoutNs);
+
+      distributedManager.stop();
+
+      return failbackCompleted;
    }
 
    private void asyncStopServer() {

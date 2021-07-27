@@ -32,8 +32,6 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
    private final String groupName;
    private final String clusterName;
    private final int maxSavedReplicatedJournalsSize;
-   private final int voteRetries;
-   private final long voteRetryWait;
    private final long retryReplicationWait;
    private final DistributedPrimitiveManagerConfiguration distributedManagerConfiguration;
    private final boolean tryFailback;
@@ -44,8 +42,6 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
       this.clusterName = configuration.getClusterName();
       this.maxSavedReplicatedJournalsSize = configuration.getMaxSavedReplicatedJournalsSize();
       this.groupName = configuration.getGroupName();
-      this.voteRetries = configuration.getVoteRetries();
-      this.voteRetryWait = configuration.getVoteRetryWait();
       this.retryReplicationWait = configuration.getRetryReplicationWait();
       this.distributedManagerConfiguration = configuration.getDistributedManagerConfiguration();
       this.tryFailback = true;
@@ -56,8 +52,6 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
       this.clusterName = configuration.getClusterName();
       this.maxSavedReplicatedJournalsSize = configuration.getMaxSavedReplicatedJournalsSize();
       this.groupName = configuration.getGroupName();
-      this.voteRetries = configuration.getVoteRetries();
-      this.voteRetryWait = configuration.getVoteRetryWait();
       this.retryReplicationWait = configuration.getRetryReplicationWait();
       this.distributedManagerConfiguration = configuration.getDistributedManagerConfiguration();
       this.tryFailback = false;
@@ -84,16 +78,12 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
    /**
     * It creates a companion backup policy for a natural-born primary: it would cause the broker to try failback.
     */
-   static ReplicationBackupPolicy failback(int voteRetries,
-                                           long voteRetryWait,
-                                           long retryReplicationWait,
+   static ReplicationBackupPolicy failback(long retryReplicationWait,
                                            String clusterName,
                                            String groupName,
                                            ReplicationPrimaryPolicy livePolicy,
                                            DistributedPrimitiveManagerConfiguration distributedManagerConfiguration) {
       return new ReplicationBackupPolicy(ReplicationBackupPolicyConfiguration.withDefault()
-                                            .setVoteRetries(voteRetries)
-                                            .setVoteRetryWait(voteRetryWait)
                                             .setRetryReplicationWait(retryReplicationWait)
                                             .setClusterName(clusterName)
                                             .setGroupName(groupName)
@@ -155,14 +145,6 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
 
    public int getMaxSavedReplicatedJournalsSize() {
       return maxSavedReplicatedJournalsSize;
-   }
-
-   public int getVoteRetries() {
-      return voteRetries;
-   }
-
-   public long getVoteRetryWait() {
-      return voteRetryWait;
    }
 
    public long getRetryReplicationWait() {

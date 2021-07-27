@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover.quorum;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.junit.After;
 import org.junit.Before;
@@ -66,7 +65,6 @@ public class PluggableQuorumReplicatedLargeMessageWithDelayFailoverTest extends 
 
    @Override
    protected void setupHAPolicyConfiguration() {
-      ((ReplicationPrimaryPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
       ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration())
          .setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
    }

@@ -31,7 +31,6 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    private final ReplicationBackupPolicy backupPolicy;
    private final String clusterName;
    private final String groupName;
-   private final boolean checkForLiveServer;
    private final long initialReplicationSyncTimeout;
    private final DistributedPrimitiveManagerConfiguration distributedManagerConfiguration;
    private final boolean allowAutoFailBack;
@@ -43,7 +42,6 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
       Objects.requireNonNull(backupPolicy);
       clusterName = configuration.getClusterName();
       groupName = configuration.getGroupName();
-      checkForLiveServer = configuration.isCheckForLiveServer();
       initialReplicationSyncTimeout = configuration.getInitialReplicationSyncTimeout();
       distributedManagerConfiguration = configuration.getDistributedManagerConfiguration();
       coordinationId = configuration.getCoordinationId();
@@ -55,12 +53,10 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
       clusterName = config.getClusterName();
       groupName = config.getGroupName();
       coordinationId = config.getCoordinationId();
-      checkForLiveServer = config.isCheckForLiveServer();
       initialReplicationSyncTimeout = config.getInitialReplicationSyncTimeout();
       distributedManagerConfiguration = config.getDistributedManagerConfiguration();
       this.allowAutoFailBack = false;
-      backupPolicy = ReplicationBackupPolicy.failback(config.getVoteRetries(), config.getVoteRetryWait(),
-                                                      config.getRetryReplicationWait(), config.getClusterName(),
+      backupPolicy = ReplicationBackupPolicy.failback(config.getRetryReplicationWait(), config.getClusterName(),
                                                       config.getGroupName(), this,
                                                       config.getDistributedManagerConfiguration());
    }
@@ -76,7 +72,6 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
                                                   boolean allowAutoFailback,
                                                   DistributedPrimitiveManagerConfiguration distributedManagerConfiguration) {
       return new ReplicationPrimaryPolicy(ReplicationPrimaryPolicyConfiguration.withDefault()
-                                             .setCheckForLiveServer(false)
                                              .setInitialReplicationSyncTimeout(initialReplicationSyncTimeout)
                                              .setGroupName(groupName)
                                              .setClusterName(clusterName)
@@ -140,10 +135,6 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    @Override
    public String getScaleDownClustername() {
       return null;
-   }
-
-   public boolean isCheckForLiveServer() {
-      return checkForLiveServer;
    }
 
    public boolean isAllowAutoFailBack() {

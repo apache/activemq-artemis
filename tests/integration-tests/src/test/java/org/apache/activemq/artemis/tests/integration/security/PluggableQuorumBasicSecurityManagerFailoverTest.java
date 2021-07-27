@@ -24,7 +24,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
@@ -95,7 +94,6 @@ public class PluggableQuorumBasicSecurityManagerFailoverTest extends FailoverTes
 
    @Override
    protected void setupHAPolicyConfiguration() {
-      ((ReplicationPrimaryPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
       ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
    }
 

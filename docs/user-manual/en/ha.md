@@ -388,7 +388,6 @@ For `primary`:
                      <property key="connect-string" value="127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668"/>
                   </properties>
                </manager>
-               <check-for-live-server>true</check-for-live-server>
             </primary>
          </replication>
       </ha-policy>
@@ -448,23 +447,16 @@ Configuration of the [Apache Zookeeper](https://zookeeper.apache.org/) ensemble 
 
 #### *Important*: Notes on pluggable quorum replication configuration 
  
-The first `classic` replication configuration that won't apply to the pluggable quorum replication
-is `vote-on-replication-failure` and configure it produces a startup error: pluggable quorum replication
-always behave like `vote-on-replication-failure` `true` ie shutting down a live broker (and its JVM) in case of quorum loss.
-
-The second deprecated `classic` replication configuration is `quorum-vote-wait`: given that the pluggable quorum vote replication
-requires backup to have an always-on reliable quorum service, there's no need to specify the timeout to reach
-the majority of quorum nodes. A backup remains inactive (ie JVM still up, console too, unable to sync with live, to failover etc etc)
-until the majority of quorum nodes is reachable again, re-activating if happens.
-
-The only exception is with primary failing-back to an existing live backup using `<allow-failback>true</allow-failback>`: 
-if the quorum service isn't immediately available the primary (and its JVM) just stop, allowing fail-fast failing-back.
+There are some no longer needed `classic` replication configurations:
+  - `vote-on-replication-failure`
+  - `quorum-vote-wait`
+  -  `vote-retries`
+  -  `vote-retries-wait`
+  -  `check-for-live-server`
 
 There are few *semantic differences* of other existing properties:
 - `vote-retry-wait`: in `classic` replication means how long to wait between each quorum vote try, while with pluggable quorum replication 
-  means how long request to failover for each attempt  
-- `vote-retries`: differently from `classic`, the amount of vote attempt is `1 + vote-retries` (with classic is just `vote-retries`). 
-  Setting `0` means no retries, leaving backup to still perform an initial attempt.   
+  means for how long attempt to vote until getting the quorum   
   
 **Notes on replication configuration with [Apache curator](https://curator.apache.org/) quorum provider**
 
@@ -476,33 +468,8 @@ For the former case (session expiration with live no longer present), the backup
 1. cluster connection PINGs (affected by [connection-ttl](connection-ttl.md) tuning)
 2. closed TCP connection notification (depends by TCP configuration and networking stack/topology)
 
-These two cases have two different failover durations depending on different factors:
-1. `connection-ttl` affect how much time of the expiring `session-ms` is used to just detect a missing live broker: the higher `connection-tt`, 
-   the slower it reacts; backup can attempt to failover for the remaining `session-ms - connection-ttl` 
-2. `session-ms` expiration is immediately detected: backup must try to failover for >=`session-ms` to be sure to catch 
-   the session expiration and complete failover  
-   
-The previous comments are meant to suggest to the careful reader that the minimum time to attempt to failover 
-cannot be below the full `session-ms` expires.
-In short, it means
-```
-  total failover attempt time > session-ms  
-```
-with 
-```
-  total failover attempt time = vote-retry-wait * (vote-retries + 1)
-```
-and by consequence:
-```
-  vote-retry-wait * (vote-retries + 1) > session-ms
-```
-For example with `session-ms = 18000 ms`, safe values for failover timeout are:
-```xml
- <vote-retries>11</vote-retries>
- <vote-retry-wait>2000</vote-retry-wait>
-```
-Because `11 * 2000 = 22000 ms` that's bigger then `18000 ms`, there is no risk that a backup broker will stop
-attempting to failover to early, losing its chance to become live.
+The suggestion is to tune `connection-ttl` low enough to attempt failover as soon as possible, while taking in consideration that 
+the whole fail-over duration cannot last less than the configured `session-ms`.
 
 ##### Peer or Multi Primary
 With coordination delegated to the quorum service, roles are less important. It is possible to have two peer servers compete
@@ -522,7 +489,6 @@ For `multi primary`:
                      <property key="connect-string" value="127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668"/>
                   </properties>
                </manager>
-               <check-for-live-server>true</check-for-live-server>
                <coordination-id>peer-journal-001</coordination-id>
             </primary>
          </replication>
@@ -686,7 +652,7 @@ And pluggable quorum replication:
         <!-- some meaningful configuration -->
       </manager>
       <primary>
-         <check-for-live-server>true</check-for-live-server>
+         <!-- no need to check-for-live-server anymore -->
       </primary>
    </replication>
 </ha-policy>
@@ -700,7 +666,7 @@ it knows that it has the most up to date version of the journal identified by it
 
 In short: a started `primary` cannot become live without consensus.
 
-> **Warning**
+> **Warning for classic replication**
 >
 > Be aware that if you restart a live server while after failover has
 > occurred then `check-for-live-server` must be set to `true`. If not the live server

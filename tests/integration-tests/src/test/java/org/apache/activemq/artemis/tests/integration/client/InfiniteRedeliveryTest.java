@@ -77,7 +77,6 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
    Configuration backupConfig;
    Configuration liveConfig;
-   NodeManager nodeManager;
 
    protected TestableServer createTestableServer(Configuration config, NodeManager nodeManager) throws Exception {
       boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
@@ -99,13 +98,11 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
 
 
-      nodeManager = new InVMNodeManager(true, backupConfig.getJournalLocation());
-
-      backupServer = createTestableServer(backupConfig, nodeManager);
+      backupServer = createTestableServer(backupConfig, new InVMNodeManager(true, backupConfig.getJournalLocation()));
 
       liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(TransportConfigurationUtils.getNettyAcceptor(true, 0));
 
-      liveServer = createTestableServer(liveConfig, nodeManager);
+      liveServer = createTestableServer(liveConfig, new InVMNodeManager(false, liveConfig.getJournalLocation()));
    }
 
    protected void configureReplicationPair(TransportConfiguration backupConnector,

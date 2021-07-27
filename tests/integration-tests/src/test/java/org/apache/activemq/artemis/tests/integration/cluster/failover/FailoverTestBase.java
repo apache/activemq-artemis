@@ -46,7 +46,6 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPolicy;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
@@ -282,8 +281,6 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       HAPolicy policy = server.getServer().getHAPolicy();
       if (policy instanceof ReplicatedPolicy) {
          ((ReplicatedPolicy) policy).setCheckForLiveServer(true);
-      } else if (policy instanceof ReplicationPrimaryPolicy) {
-         Assert.assertTrue("Adapting won't work for the current configuration", ((ReplicationPrimaryPolicy) policy).isCheckForLiveServer());
       }
 
    }
