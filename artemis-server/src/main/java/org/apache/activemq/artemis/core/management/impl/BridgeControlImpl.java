@@ -55,7 +55,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public String[] getStaticConnectors() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getStaticConnectors(this.bridge);
       }
       clearIO();
@@ -69,7 +69,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public String getForwardingAddress() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getForwardingAddress(this.bridge);
       }
       clearIO();
@@ -82,7 +82,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public String getQueueName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getQueueName(this.bridge);
       }
       clearIO();
@@ -95,7 +95,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public String getDiscoveryGroupName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDiscoveryGroupName(this.bridge);
       }
       clearIO();
@@ -108,7 +108,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public String getFilterString() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFilterString(this.bridge);
       }
       clearIO();
@@ -121,7 +121,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public int getReconnectAttempts() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getReconnectAttempts(this.bridge);
       }
       clearIO();
@@ -134,7 +134,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public String getName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getName(this.bridge);
       }
       clearIO();
@@ -147,7 +147,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public long getRetryInterval() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRetryInterval(this.bridge);
       }
       clearIO();
@@ -160,7 +160,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public double getRetryIntervalMultiplier() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRetryIntervalMultiplier(this.bridge);
       }
       clearIO();
@@ -173,7 +173,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public String getTransformerClassName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getTransformerClassName(this.bridge);
       }
       clearIO();
@@ -186,7 +186,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public String getTransformerPropertiesAsJSON() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getTransformerPropertiesAsJSON(this.bridge);
       }
       return JsonUtil.toJsonObject(getTransformerProperties()).toString();
@@ -194,7 +194,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public Map<String, String> getTransformerProperties() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getTransformerProperties(this.bridge);
       }
       clearIO();
@@ -207,7 +207,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public boolean isStarted() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isStartedBridge(this.bridge);
       }
       clearIO();
@@ -220,7 +220,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public boolean isUseDuplicateDetection() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isUseDuplicateDetection(this.bridge);
       }
       clearIO();
@@ -233,7 +233,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public boolean isHA() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isHA(this.bridge);
       }
       clearIO();
@@ -246,7 +246,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public void start() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.startBridge(this.bridge);
       }
       clearIO();
@@ -259,7 +259,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public void stop() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.stopBridge(this.bridge);
       }
       clearIO();
@@ -283,7 +283,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public long getMessagesPendingAcknowledgement() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessagesPendingAcknowledgement(this.bridge);
       }
       clearIO();
@@ -296,7 +296,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public long getMessagesAcknowledged() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessagesAcknowledged(this.bridge);
       }
       clearIO();
@@ -309,7 +309,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    @Override
    public Map<String, Object> getMetrics() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMetrics(this.bridge);
       }
       clearIO();

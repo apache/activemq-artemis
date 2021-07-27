@@ -99,7 +99,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getRoutingTypes() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRoutingTypes(this.addressInfo);
       }
       EnumSet<RoutingType> routingTypes = addressInfo.getRoutingTypes();
@@ -113,7 +113,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String getRoutingTypesAsJSON() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRoutingTypesAsJSON(this.addressInfo);
       }
 
@@ -151,7 +151,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    private String[] getQueueNames(SearchType searchType) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getQueueNames(this.addressInfo, searchType);
       }
       clearIO();
@@ -177,7 +177,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String[] getBindingNames() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getBindingNames(this.addressInfo);
       }
       try {
@@ -203,7 +203,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public Object[] getRoles() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRoles(this.addressInfo);
       }
       clearIO();
@@ -224,7 +224,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String getRolesAsJSON() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRolesAsJSON(this.addressInfo);
       }
       clearIO();
@@ -243,7 +243,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getNumberOfBytesPerPage() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNumberOfBytesPerPage(this.addressInfo);
       }
       clearIO();
@@ -264,7 +264,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getAddressSize() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getAddressSize(this.addressInfo);
       }
       clearIO();
@@ -284,7 +284,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getNumberOfMessages() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNumberOfMessages(this.addressInfo);
       }
       clearIO();
@@ -308,7 +308,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean isPaging() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isPaging(this.addressInfo);
       }
       clearIO();
@@ -325,7 +325,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public int getNumberOfPages() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNumberOfPages(this.addressInfo);
       }
       clearIO();
@@ -347,7 +347,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getMessageCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessageCount(this.addressInfo);
       }
       return getMessageCount(DurabilityType.ALL);
@@ -355,7 +355,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getRoutedMessageCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRoutedMessageCount(this.addressInfo);
       }
       return addressInfo.getRoutedMessageCount();
@@ -363,7 +363,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getUnRoutedMessageCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getUnRoutedMessageCount(this.addressInfo);
       }
       return addressInfo.getUnRoutedMessageCount();
@@ -377,8 +377,8 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.sendMessage(this, null, headers, type, body, durable, user, "****");
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.sendMessageThroughManagement(this, headers, type, body, durable, user, "****");
       }
       try {
          return sendMessage(addressInfo.getName(), server, headers, type, body, durable, user, password);
@@ -406,7 +406,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public void pause(boolean persist) {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.pause(addressInfo);
       }
       checkStarted();
@@ -432,7 +432,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public void resume() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resume(addressInfo);
       }
       checkStarted();
@@ -457,7 +457,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean isPaused() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isPaused(this.addressInfo);
       }
       return addressInfo.isPaused();
@@ -465,7 +465,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean isRetroactiveResource() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isRetroactiveResource(this.addressInfo);
       }
       return ResourceNames.isRetroactiveResource(server.getInternalNamingPrefix(), addressInfo.getName());
@@ -473,7 +473,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getCurrentDuplicateIdCacheSize() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getCurrentDuplicateIdCacheSize(this.addressInfo);
       }
       DuplicateIDCache cache = ((PostOfficeImpl)server.getPostOffice()).getDuplicateIDCaches().get(addressInfo.getName());
@@ -490,7 +490,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean clearDuplicateIdCache() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.clearDuplicateIdCache(this.addressInfo);
       }
       DuplicateIDCache cache = ((PostOfficeImpl)server.getPostOffice()).getDuplicateIDCaches().get(addressInfo.getName());
@@ -508,7 +508,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean isAutoCreated() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isAutoCreated(this.addressInfo);
       }
       return addressInfo.isAutoCreated();
@@ -516,7 +516,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean isInternal() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isInternal(this.addressInfo);
       }
       return addressInfo.isInternal();
@@ -524,7 +524,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean isTemporary() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isTemporary(this.addressInfo);
       }
       return addressInfo.isTemporary();

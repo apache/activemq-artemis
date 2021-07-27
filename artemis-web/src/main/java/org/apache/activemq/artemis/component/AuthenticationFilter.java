@@ -46,9 +46,9 @@ public class AuthenticationFilter implements Filter {
          //status 200 means that the user has been authenticated, anything else must be a failure
          if (status == 200) {
             HttpSession session = ((Request) servletRequest).getSession();
-            AuditLogger.userSuccesfullyLoggedInAudit(session != null ? (Subject) session.getAttribute("subject") : null);
+            AuditLogger.userSuccesfullyAuthenticatedInAudit(session != null ? (Subject) session.getAttribute("subject") : null);
          } else {
-            AuditLogger.userFailedLoggedInAudit("" + status);
+            AuditLogger.userFailedAuthenticationInAudit("" + status);
          }
       }
    }

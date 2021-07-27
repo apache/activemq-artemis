@@ -47,53 +47,50 @@ import java.util.Set;
 @MessageLogger(projectCode = "AMQ")
 public interface AuditLogger extends BasicLogger {
 
-   AuditLogger LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.base");
+   AuditLogger BASE_LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.base");
    AuditLogger RESOURCE_LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.resource");
    AuditLogger MESSAGE_LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.message");
 
-   ThreadLocal<String> remoteUrl = new ThreadLocal<>();
+   ThreadLocal<String> remoteAddress = new ThreadLocal<>();
 
    ThreadLocal<Subject> currentCaller = new ThreadLocal<>();
 
    static boolean isAnyLoggingEnabled() {
-      return isEnabled() || isMessageEnabled() || isResourceLoggingEnabled();
+      return isBaseLoggingEnabled() || isMessageLoggingEnabled() || isResourceLoggingEnabled();
    }
 
-   static boolean isEnabled() {
-      return LOGGER.isEnabled(Logger.Level.INFO);
+   static boolean isBaseLoggingEnabled() {
+      return BASE_LOGGER.isEnabled(Logger.Level.INFO);
    }
 
    static boolean isResourceLoggingEnabled() {
       return RESOURCE_LOGGER.isEnabled(Logger.Level.INFO);
    }
 
-   static boolean isMessageEnabled() {
+   static boolean isMessageLoggingEnabled() {
       return MESSAGE_LOGGER.isEnabled(Logger.Level.INFO);
    }
 
+   /**
+    * @return a String representing the "caller" in the format "user(role)@remoteAddress" using ThreadLocal values (if set)
+    */
    static String getCaller() {
       Subject subject = Subject.getSubject(AccessController.getContext());
       if (subject == null) {
          subject = currentCaller.get();
       }
-      return getCaller(subject);
+      return getCaller(subject, null);
    }
 
-   static String getCaller(String user) {
-      Subject subject = Subject.getSubject(AccessController.getContext());
-      if (subject == null) {
-         subject = currentCaller.get();
-      }
-      if (subject == null) {
-         return user + (remoteUrl.get() == null ? "@unknown" : remoteUrl.get());
-      }
-      return getCaller(subject);
-   }
-
-   static String getCaller(Subject subject) {
+   /**
+    * @param  subject       the Subject to be used instead of the corresponding ThreadLocal Subject
+    * @param  remoteAddress the remote address to use; if null use the corresponding ThreadLocal remote address (if set)
+    * @return               a String representing the "caller" in the format "user(role)@remoteAddress"
+    */
+   static String getCaller(Subject subject, String remoteAddress) {
       String user = "anonymous";
       String roles = "";
-      String url = remoteUrl.get() == null ? "@unknown" : remoteUrl.get();
+      String url = remoteAddress == null ? (AuditLogger.remoteAddress.get() == null ? "@unknown" : AuditLogger.remoteAddress.get()) : formatRemoteAddress(remoteAddress);
       if (subject != null) {
          Set<Principal> principals = subject.getPrincipals();
          for (Principal principal : principals) {
@@ -112,17 +109,21 @@ public interface AuditLogger extends BasicLogger {
    }
 
    static void setRemoteAddress(String remoteAddress) {
+      AuditLogger.remoteAddress.set(formatRemoteAddress(remoteAddress));
+   }
+
+   static String formatRemoteAddress(String remoteAddress) {
       String actualAddress;
       if (remoteAddress.startsWith("/")) {
          actualAddress = "@" + remoteAddress.substring(1);
       } else {
          actualAddress = "@" + remoteAddress;
       }
-      remoteUrl.set(actualAddress);
+      return actualAddress;
    }
 
    static String getRemoteAddress() {
-      return remoteUrl.get();
+      return remoteAddress.get();
    }
 
    static String arrayToString(Object value) {
@@ -154,7 +155,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    static void getRoutingTypes(Object source) {
-      LOGGER.getRoutingTypes(getCaller(), source);
+      BASE_LOGGER.getRoutingTypes(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -162,7 +163,7 @@ public interface AuditLogger extends BasicLogger {
    void getRoutingTypes(String user, Object source, Object... args);
 
    static void getRoutingTypesAsJSON(Object source) {
-      LOGGER.getRoutingTypesAsJSON(getCaller(), source);
+      BASE_LOGGER.getRoutingTypesAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -170,7 +171,7 @@ public interface AuditLogger extends BasicLogger {
    void getRoutingTypesAsJSON(String user, Object source, Object... args);
 
    static void getQueueNames(Object source, Object... args) {
-      LOGGER.getQueueNames(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getQueueNames(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -178,7 +179,7 @@ public interface AuditLogger extends BasicLogger {
    void getQueueNames(String user, Object source, Object... args);
 
    static void getBindingNames(Object source) {
-      LOGGER.getBindingNames(getCaller(), source);
+      BASE_LOGGER.getBindingNames(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -186,7 +187,7 @@ public interface AuditLogger extends BasicLogger {
    void getBindingNames(String user, Object source, Object... args);
 
    static void getRoles(Object source, Object... args) {
-      LOGGER.getRoles(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getRoles(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -194,7 +195,7 @@ public interface AuditLogger extends BasicLogger {
    void getRoles(String user, Object source, Object... args);
 
    static void getRolesAsJSON(Object source, Object... args) {
-      LOGGER.getRolesAsJSON(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getRolesAsJSON(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -202,7 +203,7 @@ public interface AuditLogger extends BasicLogger {
    void getRolesAsJSON(String user, Object source, Object... args);
 
    static void getNumberOfBytesPerPage(Object source) {
-      LOGGER.getNumberOfBytesPerPage(getCaller(), source);
+      BASE_LOGGER.getNumberOfBytesPerPage(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -210,7 +211,7 @@ public interface AuditLogger extends BasicLogger {
    void getNumberOfBytesPerPage(String user, Object source, Object... args);
 
    static void getAddressSize(Object source) {
-      LOGGER.getAddressSize(getCaller(), source);
+      BASE_LOGGER.getAddressSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -218,7 +219,7 @@ public interface AuditLogger extends BasicLogger {
    void getAddressSize(String user, Object source, Object... args);
 
    static void getNumberOfMessages(Object source) {
-      LOGGER.getNumberOfMessages(getCaller(), source);
+      BASE_LOGGER.getNumberOfMessages(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -226,7 +227,7 @@ public interface AuditLogger extends BasicLogger {
    void getNumberOfMessages(String user, Object source, Object... args);
 
    static void isPaging(Object source) {
-      LOGGER.isPaging(getCaller(), source);
+      BASE_LOGGER.isPaging(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -234,7 +235,7 @@ public interface AuditLogger extends BasicLogger {
    void isPaging(String user, Object source, Object... args);
 
    static void getNumberOfPages(Object source) {
-      LOGGER.getNumberOfPages(getCaller(), source);
+      BASE_LOGGER.getNumberOfPages(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -242,7 +243,7 @@ public interface AuditLogger extends BasicLogger {
    void getNumberOfPages(String user, Object source, Object... args);
 
    static void getRoutedMessageCount(Object source) {
-      LOGGER.getRoutedMessageCount(getCaller(), source);
+      BASE_LOGGER.getRoutedMessageCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -250,23 +251,23 @@ public interface AuditLogger extends BasicLogger {
    void getRoutedMessageCount(String user, Object source, Object... args);
 
    static void getUnRoutedMessageCount(Object source) {
-      LOGGER.getUnRoutedMessageCount(getCaller(), source);
+      BASE_LOGGER.getUnRoutedMessageCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601012, value = "User {0} is getting unrouted message count on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getUnRoutedMessageCount(String user, Object source, Object... args);
 
-   static void sendMessage(Object source, String user, Object... args) {
-      LOGGER.sendMessage(getCaller(user), source, arrayToString(args));
+   static void sendMessageThroughManagement(Object source, Object... args) {
+      BASE_LOGGER.sendMessageThroughManagement(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601013, value = "User {0} is sending a message on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
-   void sendMessage(String user, Object source, Object... args);
+   void sendMessageThroughManagement(String user, Object source, Object... args);
 
    static void getName(Object source) {
-      LOGGER.getName(getCaller(), source);
+      BASE_LOGGER.getName(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -274,7 +275,7 @@ public interface AuditLogger extends BasicLogger {
    void getName(String user, Object source, Object... args);
 
    static void getAddress(Object source) {
-      LOGGER.getAddress(getCaller(), source);
+      BASE_LOGGER.getAddress(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -282,7 +283,7 @@ public interface AuditLogger extends BasicLogger {
    void getAddress(String user, Object source, Object... args);
 
    static void getFilter(Object source) {
-      LOGGER.getFilter(getCaller(), source);
+      BASE_LOGGER.getFilter(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -290,7 +291,7 @@ public interface AuditLogger extends BasicLogger {
    void getFilter(String user, Object source, Object... args);
 
    static void isDurable(Object source) {
-      LOGGER.isDurable(getCaller(), source);
+      BASE_LOGGER.isDurable(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -298,7 +299,7 @@ public interface AuditLogger extends BasicLogger {
    void isDurable(String user, Object source, Object... args);
 
    static void getMessageCount(Object source) {
-      LOGGER.getMessageCount(getCaller(), source);
+      BASE_LOGGER.getMessageCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -306,7 +307,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessageCount(String user, Object source, Object... args);
 
    static void getMBeanInfo(Object source) {
-      LOGGER.getMBeanInfo(getCaller(), source);
+      BASE_LOGGER.getMBeanInfo(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -314,7 +315,7 @@ public interface AuditLogger extends BasicLogger {
    void getMBeanInfo(String user, Object source, Object... args);
 
    static void getFactoryClassName(Object source) {
-      LOGGER.getFactoryClassName(getCaller(), source);
+      BASE_LOGGER.getFactoryClassName(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -322,7 +323,7 @@ public interface AuditLogger extends BasicLogger {
    void getFactoryClassName(String user, Object source, Object... args);
 
    static void getParameters(Object source) {
-      LOGGER.getParameters(getCaller(), source);
+      BASE_LOGGER.getParameters(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -330,7 +331,7 @@ public interface AuditLogger extends BasicLogger {
    void getParameters(String user, Object source, Object... args);
 
    static void reload(Object source) {
-      LOGGER.reload(getCaller(), source);
+      BASE_LOGGER.reload(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -338,7 +339,7 @@ public interface AuditLogger extends BasicLogger {
    void reload(String user, Object source, Object... args);
 
    static void isStarted(Object source) {
-      LOGGER.isStarted(getCaller(), source);
+      BASE_LOGGER.isStarted(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -346,7 +347,7 @@ public interface AuditLogger extends BasicLogger {
    void isStarted(String user, Object source, Object... args);
 
    static void startAcceptor(Object source) {
-      LOGGER.startAcceptor(getCaller(), source);
+      BASE_LOGGER.startAcceptor(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -354,7 +355,7 @@ public interface AuditLogger extends BasicLogger {
    void startAcceptor(String user, Object source, Object... args);
 
    static void stopAcceptor(Object source) {
-      LOGGER.stopAcceptor(getCaller(), source);
+      BASE_LOGGER.stopAcceptor(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -362,7 +363,7 @@ public interface AuditLogger extends BasicLogger {
    void stopAcceptor(String user, Object source, Object... args);
 
    static void getVersion(Object source) {
-      LOGGER.getVersion(getCaller(), source);
+      BASE_LOGGER.getVersion(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -370,7 +371,7 @@ public interface AuditLogger extends BasicLogger {
    void getVersion(String user, Object source, Object... args);
 
    static void isBackup(Object source) {
-      LOGGER.isBackup(getCaller(), source);
+      BASE_LOGGER.isBackup(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -378,7 +379,7 @@ public interface AuditLogger extends BasicLogger {
    void isBackup(String user, Object source, Object... args);
 
    static void isSharedStore(Object source) {
-      LOGGER.isSharedStore(getCaller(), source);
+      BASE_LOGGER.isSharedStore(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -386,7 +387,7 @@ public interface AuditLogger extends BasicLogger {
    void isSharedStore(String user, Object source, Object... args);
 
    static void getBindingsDirectory(Object source) {
-      LOGGER.getBindingsDirectory(getCaller(), source);
+      BASE_LOGGER.getBindingsDirectory(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -394,7 +395,7 @@ public interface AuditLogger extends BasicLogger {
    void getBindingsDirectory(String user, Object source, Object... args);
 
    static void getIncomingInterceptorClassNames(Object source) {
-      LOGGER.getIncomingInterceptorClassNames(getCaller(), source);
+      BASE_LOGGER.getIncomingInterceptorClassNames(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -402,7 +403,7 @@ public interface AuditLogger extends BasicLogger {
    void getIncomingInterceptorClassNames(String user, Object source, Object... args);
 
    static void getOutgoingInterceptorClassNames(Object source) {
-      LOGGER.getOutgoingInterceptorClassNames(getCaller(), source);
+      BASE_LOGGER.getOutgoingInterceptorClassNames(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -410,7 +411,7 @@ public interface AuditLogger extends BasicLogger {
    void getOutgoingInterceptorClassNames(String user, Object source, Object... args);
 
    static void getJournalBufferSize(Object source) {
-      LOGGER.getJournalBufferSize(getCaller(), source);
+      BASE_LOGGER.getJournalBufferSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -418,7 +419,7 @@ public interface AuditLogger extends BasicLogger {
    void getJournalBufferSize(String user, Object source, Object... args);
 
    static void getJournalBufferTimeout(Object source) {
-      LOGGER.getJournalBufferTimeout(getCaller(), source);
+      BASE_LOGGER.getJournalBufferTimeout(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -426,7 +427,7 @@ public interface AuditLogger extends BasicLogger {
    void getJournalBufferTimeout(String user, Object source, Object... args);
 
    static void setFailoverOnServerShutdown(Object source, Object... args) {
-      LOGGER.setFailoverOnServerShutdown(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.setFailoverOnServerShutdown(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -434,7 +435,7 @@ public interface AuditLogger extends BasicLogger {
    void setFailoverOnServerShutdown(String user, Object source, Object... args);
 
    static void isFailoverOnServerShutdown(Object source) {
-      LOGGER.isFailoverOnServerShutdown(getCaller(), source);
+      BASE_LOGGER.isFailoverOnServerShutdown(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -442,7 +443,7 @@ public interface AuditLogger extends BasicLogger {
    void isFailoverOnServerShutdown(String user, Object source, Object... args);
 
    static void getJournalMaxIO(Object source) {
-      LOGGER.getJournalMaxIO(getCaller(), source);
+      BASE_LOGGER.getJournalMaxIO(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -450,7 +451,7 @@ public interface AuditLogger extends BasicLogger {
    void getJournalMaxIO(String user, Object source, Object... args);
 
    static void getJournalDirectory(Object source) {
-      LOGGER.getJournalDirectory(getCaller(), source);
+      BASE_LOGGER.getJournalDirectory(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -458,7 +459,7 @@ public interface AuditLogger extends BasicLogger {
    void getJournalDirectory(String user, Object source, Object... args);
 
    static void getJournalFileSize(Object source) {
-      LOGGER.getJournalFileSize(getCaller(), source);
+      BASE_LOGGER.getJournalFileSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -466,7 +467,7 @@ public interface AuditLogger extends BasicLogger {
    void getJournalFileSize(String user, Object source, Object... args);
 
    static void getJournalMinFiles(Object source) {
-      LOGGER.getJournalMinFiles(getCaller(), source);
+      BASE_LOGGER.getJournalMinFiles(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -474,7 +475,7 @@ public interface AuditLogger extends BasicLogger {
    void getJournalMinFiles(String user, Object source, Object... args);
 
    static void getJournalCompactMinFiles(Object source) {
-      LOGGER.getJournalCompactMinFiles(getCaller(), source);
+      BASE_LOGGER.getJournalCompactMinFiles(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -482,7 +483,7 @@ public interface AuditLogger extends BasicLogger {
    void getJournalCompactMinFiles(String user, Object source, Object... args);
 
    static void getJournalCompactPercentage(Object source) {
-      LOGGER.getJournalCompactPercentage(getCaller(), source);
+      BASE_LOGGER.getJournalCompactPercentage(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -490,7 +491,7 @@ public interface AuditLogger extends BasicLogger {
    void getJournalCompactPercentage(String user, Object source, Object... args);
 
    static void isPersistenceEnabled(Object source) {
-      LOGGER.isPersistenceEnabled(getCaller(), source);
+      BASE_LOGGER.isPersistenceEnabled(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -498,7 +499,7 @@ public interface AuditLogger extends BasicLogger {
    void isPersistenceEnabled(String user, Object source, Object... args);
 
    static void getJournalType(Object source) {
-      LOGGER.getJournalType(getCaller(), source);
+      BASE_LOGGER.getJournalType(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -506,7 +507,7 @@ public interface AuditLogger extends BasicLogger {
    void getJournalType(String user, Object source, Object... args);
 
    static void getPagingDirectory(Object source) {
-      LOGGER.getPagingDirectory(getCaller(), source);
+      BASE_LOGGER.getPagingDirectory(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -514,7 +515,7 @@ public interface AuditLogger extends BasicLogger {
    void getPagingDirectory(String user, Object source, Object... args);
 
    static void getScheduledThreadPoolMaxSize(Object source) {
-      LOGGER.getScheduledThreadPoolMaxSize(getCaller(), source);
+      BASE_LOGGER.getScheduledThreadPoolMaxSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -522,7 +523,7 @@ public interface AuditLogger extends BasicLogger {
    void getScheduledThreadPoolMaxSize(String user, Object source, Object... args);
 
    static void getThreadPoolMaxSize(Object source) {
-      LOGGER.getThreadPoolMaxSize(getCaller(), source);
+      BASE_LOGGER.getThreadPoolMaxSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -530,7 +531,7 @@ public interface AuditLogger extends BasicLogger {
    void getThreadPoolMaxSize(String user, Object source, Object... args);
 
    static void getSecurityInvalidationInterval(Object source) {
-      LOGGER.getSecurityInvalidationInterval(getCaller(), source);
+      BASE_LOGGER.getSecurityInvalidationInterval(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -538,7 +539,7 @@ public interface AuditLogger extends BasicLogger {
    void getSecurityInvalidationInterval(String user, Object source, Object... args);
 
    static void isClustered(Object source) {
-      LOGGER.isClustered(getCaller(), source);
+      BASE_LOGGER.isClustered(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -546,7 +547,7 @@ public interface AuditLogger extends BasicLogger {
    void isClustered(String user, Object source, Object... args);
 
    static void isCreateBindingsDir(Object source) {
-      LOGGER.isCreateBindingsDir(getCaller(), source);
+      BASE_LOGGER.isCreateBindingsDir(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -554,7 +555,7 @@ public interface AuditLogger extends BasicLogger {
    void isCreateBindingsDir(String user, Object source, Object... args);
 
    static void isCreateJournalDir(Object source) {
-      LOGGER.isCreateJournalDir(getCaller(), source);
+      BASE_LOGGER.isCreateJournalDir(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -562,7 +563,7 @@ public interface AuditLogger extends BasicLogger {
    void isCreateJournalDir(String user, Object source, Object... args);
 
    static void isJournalSyncNonTransactional(Object source) {
-      LOGGER.isJournalSyncNonTransactional(getCaller(), source);
+      BASE_LOGGER.isJournalSyncNonTransactional(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -570,7 +571,7 @@ public interface AuditLogger extends BasicLogger {
    void isJournalSyncNonTransactional(String user, Object source, Object... args);
 
    static void isJournalSyncTransactional(Object source) {
-      LOGGER.isJournalSyncTransactional(getCaller(), source);
+      BASE_LOGGER.isJournalSyncTransactional(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -578,7 +579,7 @@ public interface AuditLogger extends BasicLogger {
    void isJournalSyncTransactional(String user, Object source, Object... args);
 
    static void isSecurityEnabled(Object source) {
-      LOGGER.isSecurityEnabled(getCaller(), source);
+      BASE_LOGGER.isSecurityEnabled(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -586,7 +587,7 @@ public interface AuditLogger extends BasicLogger {
    void isSecurityEnabled(String user, Object source, Object... args);
 
    static void isAsyncConnectionExecutionEnabled(Object source) {
-      LOGGER.isAsyncConnectionExecutionEnabled(getCaller(), source);
+      BASE_LOGGER.isAsyncConnectionExecutionEnabled(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -594,7 +595,7 @@ public interface AuditLogger extends BasicLogger {
    void isAsyncConnectionExecutionEnabled(String user, Object source, Object... args);
 
    static void getDiskScanPeriod(Object source) {
-      LOGGER.getDiskScanPeriod(getCaller(), source);
+      BASE_LOGGER.getDiskScanPeriod(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -602,7 +603,7 @@ public interface AuditLogger extends BasicLogger {
    void getDiskScanPeriod(String user, Object source, Object... args);
 
    static void getMaxDiskUsage(Object source) {
-      LOGGER.getMaxDiskUsage(getCaller(), source);
+      BASE_LOGGER.getMaxDiskUsage(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -610,7 +611,7 @@ public interface AuditLogger extends BasicLogger {
    void getMaxDiskUsage(String user, Object source, Object... args);
 
    static void getGlobalMaxSize(Object source) {
-      LOGGER.getGlobalMaxSize(getCaller(), source);
+      BASE_LOGGER.getGlobalMaxSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -618,7 +619,7 @@ public interface AuditLogger extends BasicLogger {
    void getGlobalMaxSize(String user, Object source, Object... args);
 
    static void getAddressMemoryUsage(Object source) {
-      LOGGER.getAddressMemoryUsage(getCaller(), source);
+      BASE_LOGGER.getAddressMemoryUsage(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -626,7 +627,7 @@ public interface AuditLogger extends BasicLogger {
    void getAddressMemoryUsage(String user, Object source, Object... args);
 
    static void getAddressMemoryUsagePercentage(Object source) {
-      LOGGER.getAddressMemoryUsagePercentage(getCaller(), source);
+      BASE_LOGGER.getAddressMemoryUsagePercentage(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -634,7 +635,7 @@ public interface AuditLogger extends BasicLogger {
    void getAddressMemoryUsagePercentage(String user, Object source, Object... args);
 
    static void freezeReplication(Object source) {
-      LOGGER.freezeReplication(getCaller(), source);
+      BASE_LOGGER.freezeReplication(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -642,7 +643,7 @@ public interface AuditLogger extends BasicLogger {
    void freezeReplication(String user, Object source, Object... args);
 
    static void createAddress(Object source, Object... args) {
-      LOGGER.createAddress(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.createAddress(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -650,7 +651,7 @@ public interface AuditLogger extends BasicLogger {
    void createAddress(String user, Object source, Object... args);
 
    static void updateAddress(Object source, Object... args) {
-      LOGGER.updateAddress(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.updateAddress(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -658,7 +659,7 @@ public interface AuditLogger extends BasicLogger {
    void updateAddress(String user, Object source, Object... args);
 
    static void deleteAddress(Object source, Object... args) {
-      LOGGER.deleteAddress(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.deleteAddress(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -666,15 +667,15 @@ public interface AuditLogger extends BasicLogger {
    void deleteAddress(String user, Object source, Object... args);
 
    static void deployQueue(Object source, Object... args) {
-      LOGGER.deployQueue(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.deployQueue(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601064, value = "User {0} is creating a queue on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void deployQueue(String user, Object source, Object... args);
 
-   static void createQueue(Object source, String user, Object... args) {
-      RESOURCE_LOGGER.createQueue(getCaller(user), source, arrayToString(args));
+   static void createQueue(Object source, Subject user, String remoteAddress, Object... args) {
+      RESOURCE_LOGGER.createQueue(getCaller(user, remoteAddress), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -682,7 +683,7 @@ public interface AuditLogger extends BasicLogger {
    void createQueue(String user, Object source, Object... args);
 
    static void updateQueue(Object source, Object... args) {
-      LOGGER.updateQueue(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.updateQueue(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -690,7 +691,7 @@ public interface AuditLogger extends BasicLogger {
    void updateQueue(String user, Object source, Object... args);
 
    static void getClusterConnectionNames(Object source) {
-      LOGGER.getClusterConnectionNames(getCaller(), source);
+      BASE_LOGGER.getClusterConnectionNames(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -698,7 +699,7 @@ public interface AuditLogger extends BasicLogger {
    void getClusterConnectionNames(String user, Object source, Object... args);
 
    static void getUptime(Object source) {
-      LOGGER.getUptime(getCaller(), source);
+      BASE_LOGGER.getUptime(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -706,7 +707,7 @@ public interface AuditLogger extends BasicLogger {
    void getUptime(String user, Object source, Object... args);
 
    static void getUptimeMillis(Object source) {
-      LOGGER.getUptimeMillis(getCaller(), source);
+      BASE_LOGGER.getUptimeMillis(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -714,7 +715,7 @@ public interface AuditLogger extends BasicLogger {
    void getUptimeMillis(String user, Object source, Object... args);
 
    static void isReplicaSync(Object source) {
-      LOGGER.isReplicaSync(getCaller(), source);
+      BASE_LOGGER.isReplicaSync(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -722,15 +723,15 @@ public interface AuditLogger extends BasicLogger {
    void isReplicaSync(String user, Object source, Object... args);
 
    static void getAddressNames(Object source) {
-      LOGGER.getAddressNames(getCaller(), source);
+      BASE_LOGGER.getAddressNames(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601071, value = "User {0} is getting address names on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getAddressNames(String user, Object source, Object... args);
 
-   static void destroyQueue(Object source, String user, Object... args) {
-      LOGGER.destroyQueue(getCaller(user), source, arrayToString(args));
+   static void destroyQueue(Object source, Subject user, String remoteAddress, Object... args) {
+      BASE_LOGGER.destroyQueue(getCaller(user, remoteAddress), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -738,7 +739,7 @@ public interface AuditLogger extends BasicLogger {
    void destroyQueue(String user, Object source, Object... args);
 
    static void getAddressInfo(Object source, Object... args) {
-      LOGGER.getAddressInfo(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getAddressInfo(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -746,7 +747,7 @@ public interface AuditLogger extends BasicLogger {
    void getAddressInfo(String user, Object source, Object... args);
 
    static void listBindingsForAddress(Object source, Object... args) {
-      LOGGER.listBindingsForAddress(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listBindingsForAddress(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -754,7 +755,7 @@ public interface AuditLogger extends BasicLogger {
    void listBindingsForAddress(String user, Object source, Object... args);
 
    static void listAddresses(Object source, Object... args) {
-      LOGGER.listAddresses(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listAddresses(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -762,7 +763,7 @@ public interface AuditLogger extends BasicLogger {
    void listAddresses(String user, Object source, Object... args);
 
    static void getConnectionCount(Object source, Object... args) {
-      LOGGER.getConnectionCount(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getConnectionCount(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -770,7 +771,7 @@ public interface AuditLogger extends BasicLogger {
    void getConnectionCount(String user, Object source, Object... args);
 
    static void getTotalConnectionCount(Object source) {
-      LOGGER.getTotalConnectionCount(getCaller(), source);
+      BASE_LOGGER.getTotalConnectionCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -778,7 +779,7 @@ public interface AuditLogger extends BasicLogger {
    void getTotalConnectionCount(String user, Object source, Object... args);
 
    static void getTotalMessageCount(Object source) {
-      LOGGER.getTotalMessageCount(getCaller(), source);
+      BASE_LOGGER.getTotalMessageCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -786,7 +787,7 @@ public interface AuditLogger extends BasicLogger {
    void getTotalMessageCount(String user, Object source, Object... args);
 
    static void getTotalMessagesAdded(Object source) {
-      LOGGER.getTotalMessagesAdded(getCaller(), source);
+      BASE_LOGGER.getTotalMessagesAdded(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -794,7 +795,7 @@ public interface AuditLogger extends BasicLogger {
    void getTotalMessagesAdded(String user, Object source, Object... args);
 
    static void getTotalMessagesAcknowledged(Object source) {
-      LOGGER.getTotalMessagesAcknowledged(getCaller(), source);
+      BASE_LOGGER.getTotalMessagesAcknowledged(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -802,7 +803,7 @@ public interface AuditLogger extends BasicLogger {
    void getTotalMessagesAcknowledged(String user, Object source, Object... args);
 
    static void getTotalConsumerCount(Object source) {
-      LOGGER.getTotalConsumerCount(getCaller(), source);
+      BASE_LOGGER.getTotalConsumerCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -810,7 +811,7 @@ public interface AuditLogger extends BasicLogger {
    void getTotalConsumerCount(String user, Object source, Object... args);
 
    static void enableMessageCounters(Object source) {
-      LOGGER.enableMessageCounters(getCaller(), source);
+      BASE_LOGGER.enableMessageCounters(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -818,7 +819,7 @@ public interface AuditLogger extends BasicLogger {
    void enableMessageCounters(String user, Object source, Object... args);
 
    static void disableMessageCounters(Object source) {
-      LOGGER.disableMessageCounters(getCaller(), source);
+      BASE_LOGGER.disableMessageCounters(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -826,7 +827,7 @@ public interface AuditLogger extends BasicLogger {
    void disableMessageCounters(String user, Object source, Object... args);
 
    static void resetAllMessageCounters(Object source) {
-      LOGGER.resetAllMessageCounters(getCaller(), source);
+      BASE_LOGGER.resetAllMessageCounters(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -834,7 +835,7 @@ public interface AuditLogger extends BasicLogger {
    void resetAllMessageCounters(String user, Object source, Object... args);
 
    static void resetAllMessageCounterHistories(Object source) {
-      LOGGER.resetAllMessageCounterHistories(getCaller(), source);
+      BASE_LOGGER.resetAllMessageCounterHistories(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -842,7 +843,7 @@ public interface AuditLogger extends BasicLogger {
    void resetAllMessageCounterHistories(String user, Object source, Object... args);
 
    static void isMessageCounterEnabled(Object source) {
-      LOGGER.isMessageCounterEnabled(getCaller(), source);
+      BASE_LOGGER.isMessageCounterEnabled(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -850,7 +851,7 @@ public interface AuditLogger extends BasicLogger {
    void isMessageCounterEnabled(String user, Object source, Object... args);
 
    static void getMessageCounterSamplePeriod(Object source) {
-      LOGGER.getMessageCounterSamplePeriod(getCaller(), source);
+      BASE_LOGGER.getMessageCounterSamplePeriod(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -858,7 +859,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessageCounterSamplePeriod(String user, Object source, Object... args);
 
    static void setMessageCounterSamplePeriod(Object source, Object... args) {
-      LOGGER.setMessageCounterSamplePeriod(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.setMessageCounterSamplePeriod(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -866,7 +867,7 @@ public interface AuditLogger extends BasicLogger {
    void setMessageCounterSamplePeriod(String user, Object source, Object... args);
 
    static void getMessageCounterMaxDayCount(Object source) {
-      LOGGER.getMessageCounterMaxDayCount(getCaller(), source);
+      BASE_LOGGER.getMessageCounterMaxDayCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -874,7 +875,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessageCounterMaxDayCount(String user, Object source, Object... args);
 
    static void setMessageCounterMaxDayCount(Object source, Object... args) {
-      LOGGER.setMessageCounterMaxDayCount(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.setMessageCounterMaxDayCount(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -882,7 +883,7 @@ public interface AuditLogger extends BasicLogger {
    void setMessageCounterMaxDayCount(String user, Object source, Object... args);
 
    static void listPreparedTransactions(Object source) {
-      LOGGER.listPreparedTransactions(getCaller(), source);
+      BASE_LOGGER.listPreparedTransactions(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -890,7 +891,7 @@ public interface AuditLogger extends BasicLogger {
    void listPreparedTransactions(String user, Object source, Object... args);
 
    static void listPreparedTransactionDetailsAsJSON(Object source) {
-      LOGGER.listPreparedTransactionDetailsAsJSON(getCaller(), source);
+      BASE_LOGGER.listPreparedTransactionDetailsAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -898,7 +899,7 @@ public interface AuditLogger extends BasicLogger {
    void listPreparedTransactionDetailsAsJSON(String user, Object source, Object... args);
 
    static void listPreparedTransactionDetailsAsHTML(Object source, Object... args) {
-      LOGGER.listPreparedTransactionDetailsAsHTML(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listPreparedTransactionDetailsAsHTML(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -906,7 +907,7 @@ public interface AuditLogger extends BasicLogger {
    void listPreparedTransactionDetailsAsHTML(String user, Object source, Object... args);
 
    static void listHeuristicCommittedTransactions(Object source) {
-      LOGGER.listHeuristicCommittedTransactions(getCaller(), source);
+      BASE_LOGGER.listHeuristicCommittedTransactions(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -914,7 +915,7 @@ public interface AuditLogger extends BasicLogger {
    void listHeuristicCommittedTransactions(String user, Object source, Object... args);
 
    static void listHeuristicRolledBackTransactions(Object source) {
-      LOGGER.listHeuristicRolledBackTransactions(getCaller(), source);
+      BASE_LOGGER.listHeuristicRolledBackTransactions(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -922,7 +923,7 @@ public interface AuditLogger extends BasicLogger {
    void listHeuristicRolledBackTransactions(String user, Object source, Object... args);
 
    static void commitPreparedTransaction(Object source, Object... args) {
-      LOGGER.commitPreparedTransaction(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.commitPreparedTransaction(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -930,7 +931,7 @@ public interface AuditLogger extends BasicLogger {
    void commitPreparedTransaction(String user, Object source, Object... args);
 
    static void rollbackPreparedTransaction(Object source, Object... args) {
-      LOGGER.rollbackPreparedTransaction(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.rollbackPreparedTransaction(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -938,7 +939,7 @@ public interface AuditLogger extends BasicLogger {
    void rollbackPreparedTransaction(String user, Object source, Object... args);
 
    static void listRemoteAddresses(Object source, Object... args) {
-      LOGGER.listRemoteAddresses(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listRemoteAddresses(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -946,7 +947,7 @@ public interface AuditLogger extends BasicLogger {
    void listRemoteAddresses(String user, Object source, Object... args);
 
    static void closeConnectionsForAddress(Object source, Object... args) {
-      LOGGER.closeConnectionsForAddress(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.closeConnectionsForAddress(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -954,7 +955,7 @@ public interface AuditLogger extends BasicLogger {
    void closeConnectionsForAddress(String user, Object source, Object... args);
 
    static void closeConsumerConnectionsForAddress(Object source, Object... args) {
-      LOGGER.closeConsumerConnectionsForAddress(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.closeConsumerConnectionsForAddress(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -962,7 +963,7 @@ public interface AuditLogger extends BasicLogger {
    void closeConsumerConnectionsForAddress(String user, Object source, Object... args);
 
    static void closeConnectionsForUser(Object source, Object... args) {
-      LOGGER.closeConnectionsForUser(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.closeConnectionsForUser(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -970,7 +971,7 @@ public interface AuditLogger extends BasicLogger {
    void closeConnectionsForUser(String user, Object source, Object... args);
 
    static void closeConnectionWithID(Object source, Object... args) {
-      LOGGER.closeConnectionWithID(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.closeConnectionWithID(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -978,7 +979,7 @@ public interface AuditLogger extends BasicLogger {
    void closeConnectionWithID(String user, Object source, Object... args);
 
    static void closeSessionWithID(Object source, Object... args) {
-      LOGGER.closeSessionWithID(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.closeSessionWithID(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -986,7 +987,7 @@ public interface AuditLogger extends BasicLogger {
    void closeSessionWithID(String user, Object source, Object... args);
 
    static void closeConsumerWithID(Object source, Object... args) {
-      LOGGER.closeConsumerWithID(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.closeConsumerWithID(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -994,7 +995,7 @@ public interface AuditLogger extends BasicLogger {
    void closeConsumerWithID(String user, Object source, Object... args);
 
    static void listConnectionIDs(Object source) {
-      LOGGER.listConnectionIDs(getCaller(), source);
+      BASE_LOGGER.listConnectionIDs(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1002,7 +1003,7 @@ public interface AuditLogger extends BasicLogger {
    void listConnectionIDs(String user, Object source, Object... args);
 
    static void listSessions(Object source, Object... args) {
-      LOGGER.listSessions(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listSessions(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1010,7 +1011,7 @@ public interface AuditLogger extends BasicLogger {
    void listSessions(String user, Object source, Object... args);
 
    static void listProducersInfoAsJSON(Object source) {
-      LOGGER.listProducersInfoAsJSON(getCaller(), source);
+      BASE_LOGGER.listProducersInfoAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1018,7 +1019,7 @@ public interface AuditLogger extends BasicLogger {
    void listProducersInfoAsJSON(String user, Object source, Object... args);
 
    static void listConnections(Object source, Object... args) {
-      LOGGER.listConnections(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listConnections(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1026,7 +1027,7 @@ public interface AuditLogger extends BasicLogger {
    void listConnections(String user, Object source, Object... args);
 
    static void listConsumers(Object source, Object... args) {
-      LOGGER.listConsumers(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listConsumers(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1034,7 +1035,7 @@ public interface AuditLogger extends BasicLogger {
    void listConsumers(String user, Object source, Object... args);
 
    static void listQueues(Object source, Object... args) {
-      LOGGER.listQueues(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listQueues(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1042,7 +1043,7 @@ public interface AuditLogger extends BasicLogger {
    void listQueues(String user, Object source, Object... args);
 
    static void listProducers(Object source, Object... args) {
-      LOGGER.listProducers(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listProducers(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1050,7 +1051,7 @@ public interface AuditLogger extends BasicLogger {
    void listProducers(String user, Object source, Object... args);
 
    static void listConnectionsAsJSON(Object source) {
-      LOGGER.listConnectionsAsJSON(getCaller(), source);
+      BASE_LOGGER.listConnectionsAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1058,7 +1059,7 @@ public interface AuditLogger extends BasicLogger {
    void listConnectionsAsJSON(String user, Object source, Object... args);
 
    static void listSessionsAsJSON(Object source, Object... args) {
-      LOGGER.listSessionsAsJSON(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listSessionsAsJSON(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1066,7 +1067,7 @@ public interface AuditLogger extends BasicLogger {
    void listSessionsAsJSON(String user, Object source, Object... args);
 
    static void listAllSessionsAsJSON(Object source) {
-      LOGGER.listAllSessionsAsJSON(getCaller(), source);
+      BASE_LOGGER.listAllSessionsAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1074,7 +1075,7 @@ public interface AuditLogger extends BasicLogger {
    void listAllSessionsAsJSON(String user, Object source, Object... args);
 
    static void listConsumersAsJSON(Object source, Object... args) {
-      LOGGER.listConsumersAsJSON(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listConsumersAsJSON(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1082,7 +1083,7 @@ public interface AuditLogger extends BasicLogger {
    void listConsumersAsJSON(String user, Object source, Object... args);
 
    static void listAllConsumersAsJSON(Object source) {
-      LOGGER.listAllConsumersAsJSON(getCaller(), source);
+      BASE_LOGGER.listAllConsumersAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1090,7 +1091,7 @@ public interface AuditLogger extends BasicLogger {
    void listAllConsumersAsJSON(String user, Object source, Object... args);
 
    static void getConnectors(Object source) {
-      LOGGER.getConnectors(getCaller(), source);
+      BASE_LOGGER.getConnectors(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1098,7 +1099,7 @@ public interface AuditLogger extends BasicLogger {
    void getConnectors(String user, Object source, Object... args);
 
    static void getConnectorsAsJSON(Object source) {
-      LOGGER.getConnectorsAsJSON(getCaller(), source);
+      BASE_LOGGER.getConnectorsAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1106,7 +1107,7 @@ public interface AuditLogger extends BasicLogger {
    void getConnectorsAsJSON(String user, Object source, Object... args);
 
    static void addSecuritySettings(Object source, Object... args) {
-      LOGGER.addSecuritySettings(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.addSecuritySettings(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1114,7 +1115,7 @@ public interface AuditLogger extends BasicLogger {
    void addSecuritySettings(String user, Object source, Object... args);
 
    static void removeSecuritySettings(Object source, Object... args) {
-      LOGGER.removeSecuritySettings(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.removeSecuritySettings(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1122,7 +1123,7 @@ public interface AuditLogger extends BasicLogger {
    void removeSecuritySettings(String user, Object source, Object... args);
 
    static void getAddressSettingsAsJSON(Object source, Object... args) {
-      LOGGER.getAddressSettingsAsJSON(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getAddressSettingsAsJSON(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1130,7 +1131,7 @@ public interface AuditLogger extends BasicLogger {
    void getAddressSettingsAsJSON(String user, Object source, Object... args);
 
    static void addAddressSettings(Object source, Object... args) {
-      LOGGER.addAddressSettings(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.addAddressSettings(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1138,7 +1139,7 @@ public interface AuditLogger extends BasicLogger {
    void addAddressSettings(String user, Object source, Object... args);
 
    static void removeAddressSettings(Object source, Object... args) {
-      LOGGER.removeAddressSettings(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.removeAddressSettings(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1146,7 +1147,7 @@ public interface AuditLogger extends BasicLogger {
    void removeAddressSettings(String user, Object source, Object... args);
 
    static void getDivertNames(Object source) {
-      LOGGER.getDivertNames(getCaller(), source);
+      BASE_LOGGER.getDivertNames(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1154,7 +1155,7 @@ public interface AuditLogger extends BasicLogger {
    void getDivertNames(String user, Object source, Object... args);
 
    static void createDivert(Object source, Object... args) {
-      LOGGER.createDivert(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.createDivert(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1162,7 +1163,7 @@ public interface AuditLogger extends BasicLogger {
    void createDivert(String user, Object source, Object... args);
 
    static void destroyDivert(Object source, Object... args) {
-      LOGGER.destroyDivert(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.destroyDivert(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1170,7 +1171,7 @@ public interface AuditLogger extends BasicLogger {
    void destroyDivert(String user, Object source, Object... args);
 
    static void getBridgeNames(Object source) {
-      LOGGER.getBridgeNames(getCaller(), source);
+      BASE_LOGGER.getBridgeNames(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1178,7 +1179,7 @@ public interface AuditLogger extends BasicLogger {
    void getBridgeNames(String user, Object source, Object... args);
 
    static void createBridge(Object source, Object... args) {
-      LOGGER.createBridge(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.createBridge(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1186,7 +1187,7 @@ public interface AuditLogger extends BasicLogger {
    void createBridge(String user, Object source, Object... args);
 
    static void destroyBridge(Object source, Object... args) {
-      LOGGER.destroyBridge(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.destroyBridge(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1194,7 +1195,7 @@ public interface AuditLogger extends BasicLogger {
    void destroyBridge(String user, Object source, Object... args);
 
    static void createConnectorService(Object source, Object... args) {
-      LOGGER.createConnectorService(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.createConnectorService(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1202,7 +1203,7 @@ public interface AuditLogger extends BasicLogger {
    void createConnectorService(String user, Object source, Object... args);
 
    static void destroyConnectorService(Object source, Object... args) {
-      LOGGER.destroyConnectorService(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.destroyConnectorService(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1210,7 +1211,7 @@ public interface AuditLogger extends BasicLogger {
    void destroyConnectorService(String user, Object source, Object... args);
 
    static void getConnectorServices(Object source, Object... args) {
-      LOGGER.getConnectorServices(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getConnectorServices(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1218,7 +1219,7 @@ public interface AuditLogger extends BasicLogger {
    void getConnectorServices(String user, Object source, Object... args);
 
    static void forceFailover(Object source) {
-      LOGGER.forceFailover(getCaller(), source);
+      BASE_LOGGER.forceFailover(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1226,7 +1227,7 @@ public interface AuditLogger extends BasicLogger {
    void forceFailover(String user, Object source, Object... args);
 
    static void scaleDown(Object source, Object... args) {
-      LOGGER.scaleDown(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.scaleDown(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1234,7 +1235,7 @@ public interface AuditLogger extends BasicLogger {
    void scaleDown(String user, Object source, Object... args);
 
    static void listNetworkTopology(Object source) {
-      LOGGER.listNetworkTopology(getCaller(), source);
+      BASE_LOGGER.listNetworkTopology(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1242,7 +1243,7 @@ public interface AuditLogger extends BasicLogger {
    void listNetworkTopology(String user, Object source, Object... args);
 
    static void removeNotificationListener(Object source, Object... args) {
-      LOGGER.removeNotificationListener(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.removeNotificationListener(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1250,7 +1251,7 @@ public interface AuditLogger extends BasicLogger {
    void removeNotificationListener(String user, Object source, Object... args);
 
    static void addNotificationListener(Object source, Object... args) {
-      LOGGER.addNotificationListener(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.addNotificationListener(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1258,7 +1259,7 @@ public interface AuditLogger extends BasicLogger {
    void addNotificationListener(String user, Object source, Object... args);
 
    static void getNotificationInfo(Object source) {
-      LOGGER.getNotificationInfo(getCaller(), source);
+      BASE_LOGGER.getNotificationInfo(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1266,7 +1267,7 @@ public interface AuditLogger extends BasicLogger {
    void getNotificationInfo(String user, Object source, Object... args);
 
    static void getConnectionTTLOverride(Object source) {
-      LOGGER.getConnectionTTLOverride(getCaller(), source);
+      BASE_LOGGER.getConnectionTTLOverride(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1274,7 +1275,7 @@ public interface AuditLogger extends BasicLogger {
    void getConnectionTTLOverride(String user, Object source, Object... args);
 
    static void getIDCacheSize(Object source) {
-      LOGGER.getIDCacheSize(getCaller(), source);
+      BASE_LOGGER.getIDCacheSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1282,7 +1283,7 @@ public interface AuditLogger extends BasicLogger {
    void getIDCacheSize(String user, Object source, Object... args);
 
    static void getLargeMessagesDirectory(Object source) {
-      LOGGER.getLargeMessagesDirectory(getCaller(), source);
+      BASE_LOGGER.getLargeMessagesDirectory(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1290,7 +1291,7 @@ public interface AuditLogger extends BasicLogger {
    void getLargeMessagesDirectory(String user, Object source, Object... args);
 
    static void getManagementAddress(Object source) {
-      LOGGER.getManagementAddress(getCaller(), source);
+      BASE_LOGGER.getManagementAddress(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1298,7 +1299,7 @@ public interface AuditLogger extends BasicLogger {
    void getManagementAddress(String user, Object source, Object... args);
 
    static void getNodeID(Object source) {
-      LOGGER.getNodeID(getCaller(), source);
+      BASE_LOGGER.getNodeID(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1306,7 +1307,7 @@ public interface AuditLogger extends BasicLogger {
    void getNodeID(String user, Object source, Object... args);
 
    static void getManagementNotificationAddress(Object source) {
-      LOGGER.getManagementNotificationAddress(getCaller(), source);
+      BASE_LOGGER.getManagementNotificationAddress(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1314,7 +1315,7 @@ public interface AuditLogger extends BasicLogger {
    void getManagementNotificationAddress(String user, Object source, Object... args);
 
    static void getMessageExpiryScanPeriod(Object source) {
-      LOGGER.getMessageExpiryScanPeriod(getCaller(), source);
+      BASE_LOGGER.getMessageExpiryScanPeriod(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1322,7 +1323,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessageExpiryScanPeriod(String user, Object source, Object... args);
 
    static void getMessageExpiryThreadPriority(Object source) {
-      LOGGER.getMessageExpiryThreadPriority(getCaller(), source);
+      BASE_LOGGER.getMessageExpiryThreadPriority(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1330,7 +1331,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessageExpiryThreadPriority(String user, Object source, Object... args);
 
    static void getTransactionTimeout(Object source) {
-      LOGGER.getTransactionTimeout(getCaller(), source);
+      BASE_LOGGER.getTransactionTimeout(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1338,7 +1339,7 @@ public interface AuditLogger extends BasicLogger {
    void getTransactionTimeout(String user, Object source, Object... args);
 
    static void getTransactionTimeoutScanPeriod(Object source) {
-      LOGGER.getTransactionTimeoutScanPeriod(getCaller(), source);
+      BASE_LOGGER.getTransactionTimeoutScanPeriod(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1346,7 +1347,7 @@ public interface AuditLogger extends BasicLogger {
    void getTransactionTimeoutScanPeriod(String user, Object source, Object... args);
 
    static void isPersistDeliveryCountBeforeDelivery(Object source) {
-      LOGGER.isPersistDeliveryCountBeforeDelivery(getCaller(), source);
+      BASE_LOGGER.isPersistDeliveryCountBeforeDelivery(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1354,7 +1355,7 @@ public interface AuditLogger extends BasicLogger {
    void isPersistDeliveryCountBeforeDelivery(String user, Object source, Object... args);
 
    static void isPersistIDCache(Object source) {
-      LOGGER.isPersistIDCache(getCaller(), source);
+      BASE_LOGGER.isPersistIDCache(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1362,7 +1363,7 @@ public interface AuditLogger extends BasicLogger {
    void isPersistIDCache(String user, Object source, Object... args);
 
    static void isWildcardRoutingEnabled(Object source) {
-      LOGGER.isWildcardRoutingEnabled(getCaller(), source);
+      BASE_LOGGER.isWildcardRoutingEnabled(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1370,7 +1371,7 @@ public interface AuditLogger extends BasicLogger {
    void isWildcardRoutingEnabled(String user, Object source, Object... args);
 
    static void addUser(Object source, Object... args) {
-      LOGGER.addUser(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.addUser(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1378,7 +1379,7 @@ public interface AuditLogger extends BasicLogger {
    void addUser(String user, Object source, Object... args);
 
    static void listUser(Object source, Object... args) {
-      LOGGER.listUser(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listUser(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1386,7 +1387,7 @@ public interface AuditLogger extends BasicLogger {
    void listUser(String user, Object source, Object... args);
 
    static void removeUser(Object source, Object... args) {
-      LOGGER.removeUser(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.removeUser(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1394,7 +1395,7 @@ public interface AuditLogger extends BasicLogger {
    void removeUser(String user, Object source, Object... args);
 
    static void resetUser(Object source, Object... args) {
-      LOGGER.resetUser(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.resetUser(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1402,7 +1403,7 @@ public interface AuditLogger extends BasicLogger {
    void resetUser(String user, Object source, Object... args);
 
    static void getUser(Object source) {
-      LOGGER.getUser(getCaller(), source);
+      BASE_LOGGER.getUser(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1410,7 +1411,7 @@ public interface AuditLogger extends BasicLogger {
    void getUser(String user, Object source, Object... args);
 
    static void getRoutingType(Object source) {
-      LOGGER.getRoutingType(getCaller(), source);
+      BASE_LOGGER.getRoutingType(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1418,7 +1419,7 @@ public interface AuditLogger extends BasicLogger {
    void getRoutingType(String user, Object source, Object... args);
 
    static void isTemporary(Object source) {
-      LOGGER.isTemporary(getCaller(), source);
+      BASE_LOGGER.isTemporary(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1426,7 +1427,7 @@ public interface AuditLogger extends BasicLogger {
    void isTemporary(String user, Object source, Object... args);
 
    static void getPersistentSize(Object source) {
-      LOGGER.getPersistentSize(getCaller(), source);
+      BASE_LOGGER.getPersistentSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1434,7 +1435,7 @@ public interface AuditLogger extends BasicLogger {
    void getPersistentSize(String user, Object source, Object... args);
 
    static void getDurableMessageCount(Object source) {
-      LOGGER.getDurableMessageCount(getCaller(), source);
+      BASE_LOGGER.getDurableMessageCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1442,7 +1443,7 @@ public interface AuditLogger extends BasicLogger {
    void getDurableMessageCount(String user, Object source, Object... args);
 
    static void getDurablePersistSize(Object source) {
-      LOGGER.getDurablePersistSize(getCaller(), source);
+      BASE_LOGGER.getDurablePersistSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1450,7 +1451,7 @@ public interface AuditLogger extends BasicLogger {
    void getDurablePersistSize(String user, Object source, Object... args);
 
    static void getConsumerCount(Object source) {
-      LOGGER.getConsumerCount(getCaller(), source);
+      BASE_LOGGER.getConsumerCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1458,7 +1459,7 @@ public interface AuditLogger extends BasicLogger {
    void getConsumerCount(String user, Object source, Object... args);
 
    static void getDeliveringCount(Object source) {
-      LOGGER.getDeliveringCount(getCaller(), source);
+      BASE_LOGGER.getDeliveringCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1466,7 +1467,7 @@ public interface AuditLogger extends BasicLogger {
    void getDeliveringCount(String user, Object source, Object... args);
 
    static void getDeliveringSize(Object source) {
-      LOGGER.getDeliveringSize(getCaller(), source);
+      BASE_LOGGER.getDeliveringSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1474,7 +1475,7 @@ public interface AuditLogger extends BasicLogger {
    void getDeliveringSize(String user, Object source, Object... args);
 
    static void getDurableDeliveringCount(Object source) {
-      LOGGER.getDurableDeliveringCount(getCaller(), source);
+      BASE_LOGGER.getDurableDeliveringCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1482,7 +1483,7 @@ public interface AuditLogger extends BasicLogger {
    void getDurableDeliveringCount(String user, Object source, Object... args);
 
    static void getDurableDeliveringSize(Object source) {
-      LOGGER.getDurableDeliveringSize(getCaller(), source);
+      BASE_LOGGER.getDurableDeliveringSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1490,7 +1491,7 @@ public interface AuditLogger extends BasicLogger {
    void getDurableDeliveringSize(String user, Object source, Object... args);
 
    static void getMessagesAdded(Object source) {
-      LOGGER.getMessagesAdded(getCaller(), source);
+      BASE_LOGGER.getMessagesAdded(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1498,7 +1499,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessagesAdded(String user, Object source, Object... args);
 
    static void getMessagesAcknowledged(Object source) {
-      LOGGER.getMessagesAcknowledged(getCaller(), source);
+      BASE_LOGGER.getMessagesAcknowledged(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1506,7 +1507,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessagesAcknowledged(String user, Object source, Object... args);
 
    static void getMessagesExpired(Object source) {
-      LOGGER.getMessagesExpired(getCaller(), source);
+      BASE_LOGGER.getMessagesExpired(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1514,7 +1515,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessagesExpired(String user, Object source, Object... args);
 
    static void getMessagesKilled(Object source) {
-      LOGGER.getMessagesKilled(getCaller(), source);
+      BASE_LOGGER.getMessagesKilled(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1522,7 +1523,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessagesKilled(String user, Object source, Object... args);
 
    static void getID(Object source) {
-      LOGGER.getID(getCaller(), source);
+      BASE_LOGGER.getID(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1530,7 +1531,7 @@ public interface AuditLogger extends BasicLogger {
    void getID(String user, Object source, Object... args);
 
    static void getScheduledCount(Object source) {
-      LOGGER.getScheduledCount(getCaller(), source);
+      BASE_LOGGER.getScheduledCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1538,7 +1539,7 @@ public interface AuditLogger extends BasicLogger {
    void getScheduledCount(String user, Object source, Object... args);
 
    static void getScheduledSize(Object source) {
-      LOGGER.getScheduledSize(getCaller(), source);
+      BASE_LOGGER.getScheduledSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1546,7 +1547,7 @@ public interface AuditLogger extends BasicLogger {
    void getScheduledSize(String user, Object source, Object... args);
 
    static void getDurableScheduledCount(Object source) {
-      LOGGER.getDurableScheduledCount(getCaller(), source);
+      BASE_LOGGER.getDurableScheduledCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1554,7 +1555,7 @@ public interface AuditLogger extends BasicLogger {
    void getDurableScheduledCount(String user, Object source, Object... args);
 
    static void getDurableScheduledSize(Object source) {
-      LOGGER.getDurableScheduledSize(getCaller(), source);
+      BASE_LOGGER.getDurableScheduledSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1562,7 +1563,7 @@ public interface AuditLogger extends BasicLogger {
    void getDurableScheduledSize(String user, Object source, Object... args);
 
    static void getDeadLetterAddress(Object source) {
-      LOGGER.getDeadLetterAddress(getCaller(), source);
+      BASE_LOGGER.getDeadLetterAddress(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1570,7 +1571,7 @@ public interface AuditLogger extends BasicLogger {
    void getDeadLetterAddress(String user, Object source, Object... args);
 
    static void getExpiryAddress(Object source) {
-      LOGGER.getExpiryAddress(getCaller(), source);
+      BASE_LOGGER.getExpiryAddress(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1578,7 +1579,7 @@ public interface AuditLogger extends BasicLogger {
    void getExpiryAddress(String user, Object source, Object... args);
 
    static void getMaxConsumers(Object source) {
-      LOGGER.getMaxConsumers(getCaller(), source);
+      BASE_LOGGER.getMaxConsumers(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1586,7 +1587,7 @@ public interface AuditLogger extends BasicLogger {
    void getMaxConsumers(String user, Object source, Object... args);
 
    static void isPurgeOnNoConsumers(Object source) {
-      LOGGER.isPurgeOnNoConsumers(getCaller(), source);
+      BASE_LOGGER.isPurgeOnNoConsumers(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1594,7 +1595,7 @@ public interface AuditLogger extends BasicLogger {
    void isPurgeOnNoConsumers(String user, Object source, Object... args);
 
    static void isConfigurationManaged(Object source) {
-      LOGGER.isConfigurationManaged(getCaller(), source);
+      BASE_LOGGER.isConfigurationManaged(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1602,7 +1603,7 @@ public interface AuditLogger extends BasicLogger {
    void isConfigurationManaged(String user, Object source, Object... args);
 
    static void isExclusive(Object source) {
-      LOGGER.isExclusive(getCaller(), source);
+      BASE_LOGGER.isExclusive(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1610,7 +1611,7 @@ public interface AuditLogger extends BasicLogger {
    void isExclusive(String user, Object source, Object... args);
 
    static void isLastValue(Object source) {
-      LOGGER.isLastValue(getCaller(), source);
+      BASE_LOGGER.isLastValue(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1618,7 +1619,7 @@ public interface AuditLogger extends BasicLogger {
    void isLastValue(String user, Object source, Object... args);
 
    static void listScheduledMessages(Object source) {
-      LOGGER.listScheduledMessages(getCaller(), source);
+      BASE_LOGGER.listScheduledMessages(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1626,7 +1627,7 @@ public interface AuditLogger extends BasicLogger {
    void listScheduledMessages(String user, Object source, Object... args);
 
    static void listScheduledMessagesAsJSON(Object source) {
-      LOGGER.listScheduledMessagesAsJSON(getCaller(), source);
+      BASE_LOGGER.listScheduledMessagesAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1634,7 +1635,7 @@ public interface AuditLogger extends BasicLogger {
    void listScheduledMessagesAsJSON(String user, Object source, Object... args);
 
    static void listDeliveringMessages(Object source) {
-      LOGGER.listDeliveringMessages(getCaller(), source);
+      BASE_LOGGER.listDeliveringMessages(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1642,7 +1643,7 @@ public interface AuditLogger extends BasicLogger {
    void listDeliveringMessages(String user, Object source, Object... args);
 
    static void listDeliveringMessagesAsJSON(Object source) {
-      LOGGER.listDeliveringMessagesAsJSON(getCaller(), source);
+      BASE_LOGGER.listDeliveringMessagesAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1650,7 +1651,7 @@ public interface AuditLogger extends BasicLogger {
    void listDeliveringMessagesAsJSON(String user, Object source, Object... args);
 
    static void listMessages(Object source, Object... args) {
-      LOGGER.listMessages(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.listMessages(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1658,7 +1659,7 @@ public interface AuditLogger extends BasicLogger {
    void listMessages(String user, Object source, Object... args);
 
    static void listMessagesAsJSON(Object source) {
-      LOGGER.listMessagesAsJSON(getCaller(), source);
+      BASE_LOGGER.listMessagesAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1666,7 +1667,7 @@ public interface AuditLogger extends BasicLogger {
    void listMessagesAsJSON(String user, Object source, Object... args);
 
    static void getFirstMessage(Object source) {
-      LOGGER.getFirstMessage(getCaller(), source);
+      BASE_LOGGER.getFirstMessage(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1674,7 +1675,7 @@ public interface AuditLogger extends BasicLogger {
    void getFirstMessage(String user, Object source, Object... args);
 
    static void getFirstMessageAsJSON(Object source) {
-      LOGGER.getFirstMessageAsJSON(getCaller(), source);
+      BASE_LOGGER.getFirstMessageAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1682,7 +1683,7 @@ public interface AuditLogger extends BasicLogger {
    void getFirstMessageAsJSON(String user, Object source, Object... args);
 
    static void getFirstMessageTimestamp(Object source) {
-      LOGGER.getFirstMessageTimestamp(getCaller(), source);
+      BASE_LOGGER.getFirstMessageTimestamp(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1690,7 +1691,7 @@ public interface AuditLogger extends BasicLogger {
    void getFirstMessageTimestamp(String user, Object source, Object... args);
 
    static void getFirstMessageAge(Object source) {
-      LOGGER.getFirstMessageAge(getCaller(), source);
+      BASE_LOGGER.getFirstMessageAge(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1698,7 +1699,7 @@ public interface AuditLogger extends BasicLogger {
    void getFirstMessageAge(String user, Object source, Object... args);
 
    static void countMessages(Object source, Object... args) {
-      LOGGER.countMessages(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.countMessages(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1706,7 +1707,7 @@ public interface AuditLogger extends BasicLogger {
    void countMessages(String user, Object source, Object... args);
 
    static void countDeliveringMessages(Object source, Object... args) {
-      LOGGER.countDeliveringMessages(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.countDeliveringMessages(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1714,7 +1715,7 @@ public interface AuditLogger extends BasicLogger {
    void countDeliveringMessages(String user, Object source, Object... args);
 
    static void removeMessage(Object source, Object... args) {
-      LOGGER.removeMessage(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.removeMessage(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1722,7 +1723,7 @@ public interface AuditLogger extends BasicLogger {
    void removeMessage(String user, Object source, Object... args);
 
    static void removeMessages(Object source, Object... args) {
-      LOGGER.removeMessages(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.removeMessages(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1730,7 +1731,7 @@ public interface AuditLogger extends BasicLogger {
    void removeMessages(String user, Object source, Object... args);
 
    static void expireMessage(Object source, Object... args) {
-      LOGGER.expireMessage(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.expireMessage(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1738,7 +1739,7 @@ public interface AuditLogger extends BasicLogger {
    void expireMessage(String user, Object source, Object... args);
 
    static void expireMessages(Object source, Object... args) {
-      LOGGER.expireMessages(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.expireMessages(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1746,7 +1747,7 @@ public interface AuditLogger extends BasicLogger {
    void expireMessages(String user, Object source, Object... args);
 
    static void retryMessage(Object source, Object... args) {
-      LOGGER.retryMessage(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.retryMessage(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1754,7 +1755,7 @@ public interface AuditLogger extends BasicLogger {
    void retryMessage(String user, Object source, Object... args);
 
    static void retryMessages(Object source) {
-      LOGGER.retryMessages(getCaller(), source);
+      BASE_LOGGER.retryMessages(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1762,7 +1763,7 @@ public interface AuditLogger extends BasicLogger {
    void retryMessages(String user, Object source, Object... args);
 
    static void moveMessage(Object source, Object... args) {
-      LOGGER.moveMessage(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.moveMessage(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1770,7 +1771,7 @@ public interface AuditLogger extends BasicLogger {
    void moveMessage(String user, Object source, Object... args);
 
    static void moveMessages(Object source, Object... args) {
-      LOGGER.moveMessages(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.moveMessages(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1778,7 +1779,7 @@ public interface AuditLogger extends BasicLogger {
    void moveMessages(String user, Object source, Object... args);
 
    static void sendMessagesToDeadLetterAddress(Object source, Object... args) {
-      LOGGER.sendMessagesToDeadLetterAddress(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.sendMessagesToDeadLetterAddress(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1786,7 +1787,7 @@ public interface AuditLogger extends BasicLogger {
    void sendMessagesToDeadLetterAddress(String user, Object source, Object... args);
 
    static void sendMessageToDeadLetterAddress(Object source, Object... args) {
-      LOGGER.sendMessageToDeadLetterAddress(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.sendMessageToDeadLetterAddress(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1794,7 +1795,7 @@ public interface AuditLogger extends BasicLogger {
    void sendMessageToDeadLetterAddress(String user, Object source, Object... args);
 
    static void changeMessagesPriority(Object source, Object... args) {
-      LOGGER.changeMessagesPriority(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.changeMessagesPriority(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1802,7 +1803,7 @@ public interface AuditLogger extends BasicLogger {
    void changeMessagesPriority(String user, Object source, Object... args);
 
    static void changeMessagePriority(Object source, Object... args) {
-      LOGGER.changeMessagePriority(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.changeMessagePriority(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1810,7 +1811,7 @@ public interface AuditLogger extends BasicLogger {
    void changeMessagePriority(String user, Object source, Object... args);
 
    static void listMessageCounter(Object source) {
-      LOGGER.listMessageCounter(getCaller(), source);
+      BASE_LOGGER.listMessageCounter(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1818,7 +1819,7 @@ public interface AuditLogger extends BasicLogger {
    void listMessageCounter(String user, Object source, Object... args);
 
    static void resetMessageCounter(Object source) {
-      LOGGER.resetMessageCounter(getCaller(), source);
+      BASE_LOGGER.resetMessageCounter(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1826,7 +1827,7 @@ public interface AuditLogger extends BasicLogger {
    void resetMessageCounter(String user, Object source, Object... args);
 
    static void listMessageCounterAsHTML(Object source) {
-      LOGGER.listMessageCounterAsHTML(getCaller(), source);
+      BASE_LOGGER.listMessageCounterAsHTML(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1834,7 +1835,7 @@ public interface AuditLogger extends BasicLogger {
    void listMessageCounterAsHTML(String user, Object source, Object... args);
 
    static void listMessageCounterHistory(Object source) {
-      LOGGER.listMessageCounterHistory(getCaller(), source);
+      BASE_LOGGER.listMessageCounterHistory(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1842,7 +1843,7 @@ public interface AuditLogger extends BasicLogger {
    void listMessageCounterHistory(String user, Object source, Object... args);
 
    static void listMessageCounterHistoryAsHTML(Object source) {
-      LOGGER.listMessageCounterHistoryAsHTML(getCaller(), source);
+      BASE_LOGGER.listMessageCounterHistoryAsHTML(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1850,7 +1851,7 @@ public interface AuditLogger extends BasicLogger {
    void listMessageCounterHistoryAsHTML(String user, Object source, Object... args);
 
    static void pause(Object source, Object... args) {
-      LOGGER.pause(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.pause(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1858,7 +1859,7 @@ public interface AuditLogger extends BasicLogger {
    void pause(String user, Object source, Object... args);
 
    static void resume(Object source) {
-      LOGGER.resume(getCaller(), source);
+      BASE_LOGGER.resume(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1866,7 +1867,7 @@ public interface AuditLogger extends BasicLogger {
    void resume(String user, Object source, Object... args);
 
    static void isPaused(Object source) {
-      LOGGER.isPaused(getCaller(), source);
+      BASE_LOGGER.isPaused(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1874,7 +1875,7 @@ public interface AuditLogger extends BasicLogger {
    void isPaused(String user, Object source, Object... args);
 
    static void browse(Object source, Object... args) {
-      LOGGER.browse(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.browse(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1882,7 +1883,7 @@ public interface AuditLogger extends BasicLogger {
    void browse(String user, Object source, Object... args);
 
    static void flushExecutor(Object source) {
-      LOGGER.flushExecutor(getCaller(), source);
+      BASE_LOGGER.flushExecutor(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1890,7 +1891,7 @@ public interface AuditLogger extends BasicLogger {
    void flushExecutor(String user, Object source, Object... args);
 
    static void resetAllGroups(Object source) {
-      LOGGER.resetAllGroups(getCaller(), source);
+      BASE_LOGGER.resetAllGroups(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1898,7 +1899,7 @@ public interface AuditLogger extends BasicLogger {
    void resetAllGroups(String user, Object source, Object... args);
 
    static void resetGroup(Object source, Object... args) {
-      LOGGER.resetGroup(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.resetGroup(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1906,7 +1907,7 @@ public interface AuditLogger extends BasicLogger {
    void resetGroup(String user, Object source, Object... args);
 
    static void getGroupCount(Object source, Object... args) {
-      LOGGER.getGroupCount(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getGroupCount(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1914,7 +1915,7 @@ public interface AuditLogger extends BasicLogger {
    void getGroupCount(String user, Object source, Object... args);
 
    static void listGroupsAsJSON(Object source) {
-      LOGGER.listGroupsAsJSON(getCaller(), source);
+      BASE_LOGGER.listGroupsAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1922,7 +1923,7 @@ public interface AuditLogger extends BasicLogger {
    void listGroupsAsJSON(String user, Object source, Object... args);
 
    static void resetMessagesAdded(Object source) {
-      LOGGER.resetMessagesAdded(getCaller(), source);
+      BASE_LOGGER.resetMessagesAdded(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1930,7 +1931,7 @@ public interface AuditLogger extends BasicLogger {
    void resetMessagesAdded(String user, Object source, Object... args);
 
    static void resetMessagesAcknowledged(Object source) {
-      LOGGER.resetMessagesAcknowledged(getCaller(), source);
+      BASE_LOGGER.resetMessagesAcknowledged(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1938,7 +1939,7 @@ public interface AuditLogger extends BasicLogger {
    void resetMessagesAcknowledged(String user, Object source, Object... args);
 
    static void resetMessagesExpired(Object source) {
-      LOGGER.resetMessagesExpired(getCaller(), source);
+      BASE_LOGGER.resetMessagesExpired(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1946,7 +1947,7 @@ public interface AuditLogger extends BasicLogger {
    void resetMessagesExpired(String user, Object source, Object... args);
 
    static void resetMessagesKilled(Object source) {
-      LOGGER.resetMessagesKilled(getCaller(), source);
+      BASE_LOGGER.resetMessagesKilled(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1954,7 +1955,7 @@ public interface AuditLogger extends BasicLogger {
    void resetMessagesKilled(String user, Object source, Object... args);
 
    static void getStaticConnectors(Object source) {
-      LOGGER.getStaticConnectors(getCaller(), source);
+      BASE_LOGGER.getStaticConnectors(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1962,7 +1963,7 @@ public interface AuditLogger extends BasicLogger {
    void getStaticConnectors(String user, Object source, Object... args);
 
    static void getForwardingAddress(Object source) {
-      LOGGER.getForwardingAddress(getCaller(), source);
+      BASE_LOGGER.getForwardingAddress(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1970,7 +1971,7 @@ public interface AuditLogger extends BasicLogger {
    void getForwardingAddress(String user, Object source, Object... args);
 
    static void getQueueName(Object source) {
-      LOGGER.getQueueName(getCaller(), source);
+      BASE_LOGGER.getQueueName(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1978,7 +1979,7 @@ public interface AuditLogger extends BasicLogger {
    void getQueueName(String user, Object source, Object... args);
 
    static void getDiscoveryGroupName(Object source) {
-      LOGGER.getDiscoveryGroupName(getCaller(), source);
+      BASE_LOGGER.getDiscoveryGroupName(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1986,7 +1987,7 @@ public interface AuditLogger extends BasicLogger {
    void getDiscoveryGroupName(String user, Object source, Object... args);
 
    static void getFilterString(Object source) {
-      LOGGER.getFilterString(getCaller(), source);
+      BASE_LOGGER.getFilterString(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -1994,7 +1995,7 @@ public interface AuditLogger extends BasicLogger {
    void getFilterString(String user, Object source, Object... args);
 
    static void getReconnectAttempts(Object source) {
-      LOGGER.getReconnectAttempts(getCaller(), source);
+      BASE_LOGGER.getReconnectAttempts(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2002,7 +2003,7 @@ public interface AuditLogger extends BasicLogger {
    void getReconnectAttempts(String user, Object source, Object... args);
 
    static void getRetryInterval(Object source) {
-      LOGGER.getRetryInterval(getCaller(), source);
+      BASE_LOGGER.getRetryInterval(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2010,7 +2011,7 @@ public interface AuditLogger extends BasicLogger {
    void getRetryInterval(String user, Object source, Object... args);
 
    static void getRetryIntervalMultiplier(Object source) {
-      LOGGER.getRetryIntervalMultiplier(getCaller(), source);
+      BASE_LOGGER.getRetryIntervalMultiplier(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2018,7 +2019,7 @@ public interface AuditLogger extends BasicLogger {
    void getRetryIntervalMultiplier(String user, Object source, Object... args);
 
    static void getTransformerClassName(Object source) {
-      LOGGER.getTransformerClassName(getCaller(), source);
+      BASE_LOGGER.getTransformerClassName(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2026,7 +2027,7 @@ public interface AuditLogger extends BasicLogger {
    void getTransformerClassName(String user, Object source, Object... args);
 
    static void getTransformerPropertiesAsJSON(Object source) {
-      LOGGER.getTransformerPropertiesAsJSON(getCaller(), source);
+      BASE_LOGGER.getTransformerPropertiesAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2034,7 +2035,7 @@ public interface AuditLogger extends BasicLogger {
    void getTransformerPropertiesAsJSON(String user, Object source, Object... args);
 
    static void getTransformerProperties(Object source) {
-      LOGGER.getTransformerProperties(getCaller(), source);
+      BASE_LOGGER.getTransformerProperties(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2042,7 +2043,7 @@ public interface AuditLogger extends BasicLogger {
    void getTransformerProperties(String user, Object source, Object... args);
 
    static void isStartedBridge(Object source) {
-      LOGGER.isStartedBridge(getCaller(), source);
+      BASE_LOGGER.isStartedBridge(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2050,7 +2051,7 @@ public interface AuditLogger extends BasicLogger {
    void isStartedBridge(String user, Object source, Object... args);
 
    static void isUseDuplicateDetection(Object source) {
-      LOGGER.isUseDuplicateDetection(getCaller(), source);
+      BASE_LOGGER.isUseDuplicateDetection(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2058,7 +2059,7 @@ public interface AuditLogger extends BasicLogger {
    void isUseDuplicateDetection(String user, Object source, Object... args);
 
    static void isHA(Object source) {
-      LOGGER.isHA(getCaller(), source);
+      BASE_LOGGER.isHA(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2066,7 +2067,7 @@ public interface AuditLogger extends BasicLogger {
    void isHA(String user, Object source, Object... args);
 
    static void startBridge(Object source) {
-      LOGGER.startBridge(getCaller(), source);
+      BASE_LOGGER.startBridge(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2074,7 +2075,7 @@ public interface AuditLogger extends BasicLogger {
    void startBridge(String user, Object source, Object... args);
 
    static void stopBridge(Object source) {
-      LOGGER.stopBridge(getCaller(), source);
+      BASE_LOGGER.stopBridge(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2082,7 +2083,7 @@ public interface AuditLogger extends BasicLogger {
    void stopBridge(String user, Object source, Object... args);
 
    static void getMessagesPendingAcknowledgement(Object source) {
-      LOGGER.getMessagesPendingAcknowledgement(getCaller(), source);
+      BASE_LOGGER.getMessagesPendingAcknowledgement(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2090,7 +2091,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessagesPendingAcknowledgement(String user, Object source, Object... args);
 
    static void getMetrics(Object source) {
-      LOGGER.getMetrics(getCaller(), source);
+      BASE_LOGGER.getMetrics(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2098,7 +2099,7 @@ public interface AuditLogger extends BasicLogger {
    void getMetrics(String user, Object source, Object... args);
 
    static void getBroadcastPeriod(Object source) {
-      LOGGER.getBroadcastPeriod(getCaller(), source);
+      BASE_LOGGER.getBroadcastPeriod(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2106,7 +2107,7 @@ public interface AuditLogger extends BasicLogger {
    void getBroadcastPeriod(String user, Object source, Object... args);
 
    static void getConnectorPairs(Object source) {
-      LOGGER.getConnectorPairs(getCaller(), source);
+      BASE_LOGGER.getConnectorPairs(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2114,7 +2115,7 @@ public interface AuditLogger extends BasicLogger {
    void getConnectorPairs(String user, Object source, Object... args);
 
    static void getConnectorPairsAsJSON(Object source) {
-      LOGGER.getConnectorPairsAsJSON(getCaller(), source);
+      BASE_LOGGER.getConnectorPairsAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2122,7 +2123,7 @@ public interface AuditLogger extends BasicLogger {
    void getConnectorPairsAsJSON(String user, Object source, Object... args);
 
    static void getGroupAddress(Object source) {
-      LOGGER.getGroupAddress(getCaller(), source);
+      BASE_LOGGER.getGroupAddress(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2130,7 +2131,7 @@ public interface AuditLogger extends BasicLogger {
    void getGroupAddress(String user, Object source, Object... args);
 
    static void getGroupPort(Object source) {
-      LOGGER.getGroupPort(getCaller(), source);
+      BASE_LOGGER.getGroupPort(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2138,7 +2139,7 @@ public interface AuditLogger extends BasicLogger {
    void getGroupPort(String user, Object source, Object... args);
 
    static void getLocalBindPort(Object source) {
-      LOGGER.getLocalBindPort(getCaller(), source);
+      BASE_LOGGER.getLocalBindPort(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2146,7 +2147,7 @@ public interface AuditLogger extends BasicLogger {
    void getLocalBindPort(String user, Object source, Object... args);
 
    static void startBroadcastGroup(Object source) {
-      LOGGER.startBroadcastGroup(getCaller(), source);
+      BASE_LOGGER.startBroadcastGroup(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2154,7 +2155,7 @@ public interface AuditLogger extends BasicLogger {
    void startBroadcastGroup(String user, Object source, Object... args);
 
    static void stopBroadcastGroup(Object source) {
-      LOGGER.stopBroadcastGroup(getCaller(), source);
+      BASE_LOGGER.stopBroadcastGroup(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2162,7 +2163,7 @@ public interface AuditLogger extends BasicLogger {
    void stopBroadcastGroup(String user, Object source, Object... args);
 
    static void getMaxHops(Object source) {
-      LOGGER.getMaxHops(getCaller(), source);
+      BASE_LOGGER.getMaxHops(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2170,7 +2171,7 @@ public interface AuditLogger extends BasicLogger {
    void getMaxHops(String user, Object source, Object... args);
 
    static void getStaticConnectorsAsJSON(Object source) {
-      LOGGER.getStaticConnectorsAsJSON(getCaller(), source);
+      BASE_LOGGER.getStaticConnectorsAsJSON(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2178,7 +2179,7 @@ public interface AuditLogger extends BasicLogger {
    void getStaticConnectorsAsJSON(String user, Object source, Object... args);
 
    static void isDuplicateDetection(Object source) {
-      LOGGER.isDuplicateDetection(getCaller(), source);
+      BASE_LOGGER.isDuplicateDetection(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2186,7 +2187,7 @@ public interface AuditLogger extends BasicLogger {
    void isDuplicateDetection(String user, Object source, Object... args);
 
    static void getMessageLoadBalancingType(Object source) {
-      LOGGER.getMessageLoadBalancingType(getCaller(), source);
+      BASE_LOGGER.getMessageLoadBalancingType(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2194,7 +2195,7 @@ public interface AuditLogger extends BasicLogger {
    void getMessageLoadBalancingType(String user, Object source, Object... args);
 
    static void getTopology(Object source) {
-      LOGGER.getTopology(getCaller(), source);
+      BASE_LOGGER.getTopology(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2202,7 +2203,7 @@ public interface AuditLogger extends BasicLogger {
    void getTopology(String user, Object source, Object... args);
 
    static void getNodes(Object source) {
-      LOGGER.getNodes(getCaller(), source);
+      BASE_LOGGER.getNodes(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2210,7 +2211,7 @@ public interface AuditLogger extends BasicLogger {
    void getNodes(String user, Object source, Object... args);
 
    static void startClusterConnection(Object source) {
-      LOGGER.startClusterConnection(getCaller(), source);
+      BASE_LOGGER.startClusterConnection(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2218,7 +2219,7 @@ public interface AuditLogger extends BasicLogger {
    void startClusterConnection(String user, Object source, Object... args);
 
    static void stopClusterConnection(Object source) {
-      LOGGER.stopClusterConnection(getCaller(), source);
+      BASE_LOGGER.stopClusterConnection(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2226,7 +2227,7 @@ public interface AuditLogger extends BasicLogger {
    void stopClusterConnection(String user, Object source, Object... args);
 
    static void getBridgeMetrics(Object source, Object... args) {
-      LOGGER.getBridgeMetrics(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getBridgeMetrics(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2234,7 +2235,7 @@ public interface AuditLogger extends BasicLogger {
    void getBridgeMetrics(String user, Object source, Object... args);
 
    static void getRoutingName(Object source) {
-      LOGGER.getRoutingName(getCaller(), source);
+      BASE_LOGGER.getRoutingName(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2242,23 +2243,23 @@ public interface AuditLogger extends BasicLogger {
    void getRoutingName(String user, Object source, Object... args);
 
    static void getUniqueName(Object source) {
-      LOGGER.getUniqueName(getCaller(), source);
+      BASE_LOGGER.getUniqueName(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601261, value = "User {0} is getting unique name on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getUniqueName(String user, Object source, Object... args);
 
-   static void serverSessionCreateAddress(Object source, String user, Object... args) {
-      LOGGER.serverSessionCreateAddress2(getCaller(user), source, arrayToString(args));
+   static void serverSessionCreateAddress(Object source, Subject user, String remoteAddress, Object... args) {
+      BASE_LOGGER.serverSessionCreateAddress2(getCaller(user, remoteAddress), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601262, value = "User {0} is creating address on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void serverSessionCreateAddress2(String user, Object source, Object... args);
 
-   static void handleManagementMessage(Object source, String user, Object... args) {
-      LOGGER.handleManagementMessage2(getCaller(user), source, arrayToString(args));
+   static void handleManagementMessage(Object source, Subject user, String remoteAddress, Object... args) {
+      BASE_LOGGER.handleManagementMessage2(getCaller(user, remoteAddress), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2267,7 +2268,7 @@ public interface AuditLogger extends BasicLogger {
 
 
    static void securityFailure(Exception cause) {
-      LOGGER.securityFailure(getCaller(), cause);
+      BASE_LOGGER.securityFailure(getCaller(), cause);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2275,24 +2276,24 @@ public interface AuditLogger extends BasicLogger {
    void securityFailure(String user, @Cause Throwable cause);
 
 
-   static void createCoreConsumer(Object source, String user, Object... args) {
-      LOGGER.createCoreConsumer(getCaller(user), source, arrayToString(args));
+   static void createCoreConsumer(Object source, Subject user, String remoteAddress, Object... args) {
+      BASE_LOGGER.createCoreConsumer(getCaller(user, remoteAddress), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601265, value = "User {0} is creating a core consumer on target resource {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void createCoreConsumer(String user, Object source, Object... args);
 
-   static void createSharedQueue(Object source, String user, Object... args) {
-      LOGGER.createSharedQueue(getCaller(user), source, arrayToString(args));
+   static void createSharedQueue(Object source, Subject user, String remoteAddress, Object... args) {
+      BASE_LOGGER.createSharedQueue(getCaller(user, remoteAddress), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601266, value = "User {0} is creating a shared queue on target resource {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void createSharedQueue(String user, Object source, Object... args);
 
-   static void createCoreSession(Object source, Object... args) {
-      LOGGER.createCoreSession(getCaller(), source, arrayToString(args));
+   static void createCoreSession(Object source, Subject user, String remoteAddress, Object... args) {
+      BASE_LOGGER.createCoreSession(getCaller(user, remoteAddress), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2300,7 +2301,7 @@ public interface AuditLogger extends BasicLogger {
    void createCoreSession(String user, Object source, Object... args);
 
    static void getAcknowledgeAttempts(Object source) {
-      LOGGER.getMessagesAcknowledged(getCaller(), source);
+      BASE_LOGGER.getMessagesAcknowledged(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2308,7 +2309,7 @@ public interface AuditLogger extends BasicLogger {
    void getAcknowledgeAttempts(String user, Object source, Object... args);
 
    static void getRingSize(Object source, Object... args) {
-      LOGGER.getRingSize(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.getRingSize(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2317,7 +2318,7 @@ public interface AuditLogger extends BasicLogger {
 
 
    static void isRetroactiveResource(Object source) {
-      LOGGER.isRetroactiveResource(getCaller(), source);
+      BASE_LOGGER.isRetroactiveResource(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2325,7 +2326,7 @@ public interface AuditLogger extends BasicLogger {
    void isRetroactiveResource(String user, Object source, Object... args);
 
    static void getDiskStoreUsage(Object source) {
-      LOGGER.getDiskStoreUsage(getCaller(), source);
+      BASE_LOGGER.getDiskStoreUsage(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2333,7 +2334,7 @@ public interface AuditLogger extends BasicLogger {
    void getDiskStoreUsage(String user, Object source, Object... args);
 
    static void getDiskStoreUsagePercentage(Object source) {
-      LOGGER.getDiskStoreUsagePercentage(getCaller(), source);
+      BASE_LOGGER.getDiskStoreUsagePercentage(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2341,7 +2342,7 @@ public interface AuditLogger extends BasicLogger {
    void getDiskStoreUsagePercentage(String user, Object source, Object... args);
 
    static void isGroupRebalance(Object source) {
-      LOGGER.isGroupRebalance(getCaller(), source);
+      BASE_LOGGER.isGroupRebalance(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2349,7 +2350,7 @@ public interface AuditLogger extends BasicLogger {
    void isGroupRebalance(String user, Object source, Object... args);
 
    static void getGroupBuckets(Object source) {
-      LOGGER.getGroupBuckets(getCaller(), source);
+      BASE_LOGGER.getGroupBuckets(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2357,7 +2358,7 @@ public interface AuditLogger extends BasicLogger {
    void getGroupBuckets(String user, Object source, Object... args);
 
    static void getGroupFirstKey(Object source) {
-      LOGGER.getGroupFirstKey(getCaller(), source);
+      BASE_LOGGER.getGroupFirstKey(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2365,7 +2366,7 @@ public interface AuditLogger extends BasicLogger {
    void getGroupFirstKey(String user, Object source, Object... args);
 
    static void getCurrentDuplicateIdCacheSize(Object source) {
-      LOGGER.getCurrentDuplicateIdCacheSize(getCaller(), source);
+      BASE_LOGGER.getCurrentDuplicateIdCacheSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2374,7 +2375,7 @@ public interface AuditLogger extends BasicLogger {
 
 
    static void clearDuplicateIdCache(Object source) {
-      LOGGER.clearDuplicateIdCache(getCaller(), source);
+      BASE_LOGGER.clearDuplicateIdCache(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2383,7 +2384,7 @@ public interface AuditLogger extends BasicLogger {
 
 
    static void getChannelName(Object source) {
-      LOGGER.getChannelName(getCaller(), source);
+      BASE_LOGGER.getChannelName(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2391,7 +2392,7 @@ public interface AuditLogger extends BasicLogger {
    void getChannelName(String user, Object source, Object... args);
 
    static void getFileContents(Object source) {
-      LOGGER.getFileContents(getCaller(), source);
+      BASE_LOGGER.getFileContents(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2399,7 +2400,7 @@ public interface AuditLogger extends BasicLogger {
    void getFileContents(String user, Object source, Object... args);
 
    static void getFile(Object source) {
-      LOGGER.getFile(getCaller(), source);
+      BASE_LOGGER.getFile(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2407,7 +2408,7 @@ public interface AuditLogger extends BasicLogger {
    void getFile(String user, Object source, Object... args);
 
    static void getPreparedTransactionMessageCount(Object source) {
-      LOGGER.getPreparedTransactionMessageCount(getCaller(), source);
+      BASE_LOGGER.getPreparedTransactionMessageCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2419,8 +2420,8 @@ public interface AuditLogger extends BasicLogger {
     *
     * */
    //hot path log using a different logger
-   static void coreSendMessage(String user, String messageToString, Object context) {
-      MESSAGE_LOGGER.logCoreSendMessage(getCaller(user), messageToString, context);
+   static void coreSendMessage(Subject user, String remoteAddress, String messageToString, Object context) {
+      MESSAGE_LOGGER.logCoreSendMessage(getCaller(user, remoteAddress), messageToString, context);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2428,13 +2429,22 @@ public interface AuditLogger extends BasicLogger {
    void logCoreSendMessage(String user, String messageToString, Object context);
 
    //hot path log using a different logger
-   static void coreConsumeMessage(Subject user, String queue, String message) {
-      MESSAGE_LOGGER.consumeMessage(getCaller(user), queue, message);
+   static void coreConsumeMessage(Subject user, String remoteAddress, String queue, String message) {
+      MESSAGE_LOGGER.consumeMessage(getCaller(user, remoteAddress), queue, message);
    }
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601501, value = "User {0} is consuming a message from {1}: {2}", format = Message.Format.MESSAGE_FORMAT)
    void consumeMessage(String user, String address, String message);
+
+   //hot path log using a different logger
+   static void coreAcknowledgeMessage(Subject user, String remoteAddress, String queue, String message) {
+      MESSAGE_LOGGER.acknowledgeMessage(getCaller(user, remoteAddress), queue, message);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601502, value = "User {0} is acknowledging a message from {1}: {2}", format = Message.Format.MESSAGE_FORMAT)
+   void acknowledgeMessage(String user, String queue, String message);
 
    /*
     * This logger is focused on user interaction from the console or thru resource specific functions in the management layer/JMX
@@ -2554,30 +2564,30 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601714, value = "User {0} failed to remove messages from Queue: {1}", format = Message.Format.MESSAGE_FORMAT)
    void removeMessagesFailure(String user, String queue);
 
-   static void userSuccesfullyLoggedInAudit(Subject subject) {
-      RESOURCE_LOGGER.userSuccesfullyLoggedIn(getCaller(subject));
+   static void userSuccesfullyAuthenticatedInAudit(Subject subject, String remoteAddress) {
+      RESOURCE_LOGGER.userSuccesfullyAuthenticated(getCaller(subject, remoteAddress));
    }
 
-   static void userSuccesfullyLoggedInAudit() {
-      RESOURCE_LOGGER.userSuccesfullyLoggedIn(getCaller());
-   }
-
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601715, value = "User {0} successfully authorized", format = Message.Format.MESSAGE_FORMAT)
-   void userSuccesfullyLoggedIn(String caller);
-
-
-   static void userFailedLoggedInAudit(String reason) {
-      RESOURCE_LOGGER.userFailedLoggedIn(getCaller(), reason);
-   }
-
-   static void userFailedLoggedInAudit(Subject subject, String reason) {
-      RESOURCE_LOGGER.userFailedLoggedIn(getCaller(subject), reason);
+   static void userSuccesfullyAuthenticatedInAudit(Subject subject) {
+      userSuccesfullyAuthenticatedInAudit(subject, null);
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601716, value = "User {0} failed authorization, reason: {1}", format = Message.Format.MESSAGE_FORMAT)
-   void userFailedLoggedIn(String user, String reason);
+   @Message(id = 601715, value = "User {0} successfully authenticated", format = Message.Format.MESSAGE_FORMAT)
+   void userSuccesfullyAuthenticated(String caller);
+
+
+   static void userFailedAuthenticationInAudit(String reason) {
+      RESOURCE_LOGGER.userFailedAuthentication(getCaller(), reason);
+   }
+
+   static void userFailedAuthenticationInAudit(Subject subject, String reason) {
+      RESOURCE_LOGGER.userFailedAuthentication(getCaller(subject, null), reason);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601716, value = "User {0} failed authentication, reason: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void userFailedAuthentication(String user, String reason);
 
    static void objectInvokedSuccessfully(ObjectName objectName, String operationName) {
       RESOURCE_LOGGER.objectInvokedSuccessfully(getCaller(), objectName, operationName);
@@ -2664,7 +2674,7 @@ public interface AuditLogger extends BasicLogger {
    void browseMessagesFailure(String user, String queueName);
 
    static void updateDivert(Object source, Object... args) {
-      LOGGER.updateDivert(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.updateDivert(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2672,7 +2682,7 @@ public interface AuditLogger extends BasicLogger {
    void updateDivert(String user, Object source, Object... args);
 
    static void isEnabled(Object source) {
-      LOGGER.isEnabled(getCaller(), source);
+      BASE_LOGGER.isEnabled(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2680,7 +2690,7 @@ public interface AuditLogger extends BasicLogger {
    void isEnabled(String user, Object source, Object... args);
 
    static void disable(Object source, Object... args) {
-      LOGGER.disable(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.disable(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2688,7 +2698,7 @@ public interface AuditLogger extends BasicLogger {
    void disable(String user, Object source, Object... args);
 
    static void enable(Object source) {
-      LOGGER.resume(getCaller(), source);
+      BASE_LOGGER.resume(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2731,7 +2741,7 @@ public interface AuditLogger extends BasicLogger {
    void resumeAddressFailure(String user, String queueName);
 
    static void isGroupRebalancePauseDispatch(Object source) {
-      LOGGER.isGroupRebalancePauseDispatch(getCaller(), source);
+      BASE_LOGGER.isGroupRebalancePauseDispatch(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2739,7 +2749,7 @@ public interface AuditLogger extends BasicLogger {
    void isGroupRebalancePauseDispatch(String user, Object source, Object... args);
 
    static void getAuthenticationCacheSize(Object source) {
-      LOGGER.getAuthenticationCacheSize(getCaller(), source);
+      BASE_LOGGER.getAuthenticationCacheSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2747,7 +2757,7 @@ public interface AuditLogger extends BasicLogger {
    void getAuthenticationCacheSize(String user, Object source, Object... args);
 
    static void getAuthorizationCacheSize(Object source) {
-      LOGGER.getAuthorizationCacheSize(getCaller(), source);
+      BASE_LOGGER.getAuthorizationCacheSize(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2755,7 +2765,7 @@ public interface AuditLogger extends BasicLogger {
    void getAuthorizationCacheSize(String user, Object source, Object... args);
 
    static void listBrokerConnections() {
-      LOGGER.listBrokerConnections(getCaller());
+      BASE_LOGGER.listBrokerConnections(getCaller());
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2763,7 +2773,7 @@ public interface AuditLogger extends BasicLogger {
    void listBrokerConnections(String user);
 
    static void stopBrokerConnection(String name) {
-      LOGGER.stopBrokerConnection(getCaller(), name);
+      BASE_LOGGER.stopBrokerConnection(getCaller(), name);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2771,7 +2781,7 @@ public interface AuditLogger extends BasicLogger {
    void stopBrokerConnection(String user, String name);
 
    static void startBrokerConnection(String name) {
-      LOGGER.startBrokerConnection(getCaller(), name);
+      BASE_LOGGER.startBrokerConnection(getCaller(), name);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2779,7 +2789,7 @@ public interface AuditLogger extends BasicLogger {
    void startBrokerConnection(String user, String name);
 
    static void getAddressCount(Object source) {
-      LOGGER.getAddressCount(getCaller(), source);
+      BASE_LOGGER.getAddressCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2787,7 +2797,7 @@ public interface AuditLogger extends BasicLogger {
    void getAddressCount(String user, Object source, Object... args);
 
    static void getQueueCount(Object source) {
-      LOGGER.getQueueCount(getCaller(), source);
+      BASE_LOGGER.getQueueCount(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2795,7 +2805,7 @@ public interface AuditLogger extends BasicLogger {
    void getQueueCount(String user, Object source, Object... args);
 
    static void lastValueKey(Object source) {
-      LOGGER.lastValueKey(getCaller(), source);
+      BASE_LOGGER.lastValueKey(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2803,7 +2813,7 @@ public interface AuditLogger extends BasicLogger {
    void lastValueKey(String user, Object source, Object... args);
 
    static void consumersBeforeDispatch(Object source) {
-      LOGGER.consumersBeforeDispatch(getCaller(), source);
+      BASE_LOGGER.consumersBeforeDispatch(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2811,7 +2821,7 @@ public interface AuditLogger extends BasicLogger {
    void consumersBeforeDispatch(String user, Object source, Object... args);
 
    static void delayBeforeDispatch(Object source) {
-      LOGGER.delayBeforeDispatch(getCaller(), source);
+      BASE_LOGGER.delayBeforeDispatch(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2819,7 +2829,7 @@ public interface AuditLogger extends BasicLogger {
    void delayBeforeDispatch(String user, Object source, Object... args);
 
    static void isInternal(Object source) {
-      LOGGER.isInternal(getCaller(), source);
+      BASE_LOGGER.isInternal(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
@@ -2827,7 +2837,7 @@ public interface AuditLogger extends BasicLogger {
    void isInternal(String user, Object source, Object... args);
 
    static void isAutoCreated(Object source) {
-      LOGGER.isAutoCreated(getCaller(), source);
+      BASE_LOGGER.isAutoCreated(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)

@@ -43,12 +43,12 @@ public class BasicAuthenticator implements JMXAuthenticator {
       result = securityManager.authenticate(params[0], params[1], null, null);
       if (result != null) {
          if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.userSuccesfullyLoggedInAudit(result);
+            AuditLogger.userSuccesfullyAuthenticatedInAudit(result);
          }
          return result;
       } else {
          if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.userFailedLoggedInAudit(result, null);
+            AuditLogger.userFailedAuthenticationInAudit(result, null);
          }
          throw new SecurityException("Authentication failed");
       }

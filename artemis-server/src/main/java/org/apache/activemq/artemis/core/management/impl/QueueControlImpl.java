@@ -136,7 +136,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getName(queue);
       }
       clearIO();
@@ -149,7 +149,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getAddress() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getAddress(queue);
       }
 
@@ -160,7 +160,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getFilter() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFilter(queue);
       }
 
@@ -179,7 +179,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    @Override
    public boolean isDurable() {
 
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isDurable(queue);
       }
       checkStarted();
@@ -194,7 +194,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getUser() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getUser(queue);
       }
       checkStarted();
@@ -211,7 +211,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getRoutingType() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRoutingType(queue);
       }
       checkStarted();
@@ -227,7 +227,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isTemporary() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isTemporary(queue);
       }
       checkStarted();
@@ -242,7 +242,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isRetroactiveResource() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isRetroactiveResource(queue);
       }
       checkStarted();
@@ -257,7 +257,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessageCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessageCount(queue);
       }
       checkStarted();
@@ -272,7 +272,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getPersistentSize() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getPersistentSize(queue);
       }
 
@@ -288,7 +288,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurableMessageCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDurableMessageCount(queue);
       }
       checkStarted();
@@ -303,7 +303,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurablePersistentSize() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDurablePersistSize(queue);
       }
       checkStarted();
@@ -318,7 +318,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getConsumerCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getConsumerCount(queue);
       }
       checkStarted();
@@ -333,7 +333,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getDeliveringCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDeliveringCount(queue);
       }
       checkStarted();
@@ -348,7 +348,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDeliveringSize() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDeliveringSize(queue);
       }
       checkStarted();
@@ -363,7 +363,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getDurableDeliveringCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDurableDeliveringCount(queue);
       }
       checkStarted();
@@ -378,7 +378,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurableDeliveringSize() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDurableDeliveringSize(queue);
       }
       checkStarted();
@@ -393,7 +393,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesAdded() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessagesAdded(queue);
       }
       checkStarted();
@@ -408,7 +408,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesAcknowledged() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessagesAcknowledged(queue);
       }
       checkStarted();
@@ -423,7 +423,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getAcknowledgeAttempts() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessagesAcknowledged(queue);
       }
       checkStarted();
@@ -438,7 +438,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesExpired() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessagesExpired(queue);
       }
       checkStarted();
@@ -453,7 +453,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getMessagesKilled() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMessagesKilled(queue);
       }
       checkStarted();
@@ -468,7 +468,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getID() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getID(queue);
       }
       checkStarted();
@@ -483,7 +483,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getScheduledCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getScheduledCount(queue);
       }
       checkStarted();
@@ -498,7 +498,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getScheduledSize() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getScheduledSize(queue);
       }
       checkStarted();
@@ -513,7 +513,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurableScheduledCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDurableScheduledCount(queue);
       }
       checkStarted();
@@ -528,7 +528,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDurableScheduledSize() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDurableScheduledSize(queue);
       }
       checkStarted();
@@ -543,7 +543,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getDeadLetterAddress() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getDeadLetterAddress(queue);
       }
       checkStarted();
@@ -563,7 +563,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getExpiryAddress() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getExpiryAddress(queue);
       }
       checkStarted();
@@ -584,7 +584,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getMaxConsumers() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMaxConsumers(queue);
       }
       checkStarted();
@@ -599,7 +599,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isPurgeOnNoConsumers() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isPurgeOnNoConsumers(queue);
       }
       checkStarted();
@@ -614,7 +614,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void disable() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.disable(queue);
       }
       checkStarted();
@@ -629,7 +629,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void enable() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.enable(queue);
       }
       checkStarted();
@@ -644,7 +644,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isEnabled() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isEnabled(queue);
       }
       checkStarted();
@@ -660,7 +660,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isConfigurationManaged() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isConfigurationManaged(queue);
       }
       checkStarted();
@@ -675,7 +675,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isExclusive() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isExclusive(queue);
       }
       checkStarted();
@@ -690,7 +690,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isLastValue() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isLastValue(queue);
       }
       checkStarted();
@@ -705,7 +705,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getLastValueKey() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.lastValueKey(queue);
       }
       checkStarted();
@@ -724,7 +724,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getConsumersBeforeDispatch() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.consumersBeforeDispatch(queue);
       }
       checkStarted();
@@ -739,7 +739,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getDelayBeforeDispatch() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.delayBeforeDispatch(queue);
       }
       checkStarted();
@@ -754,7 +754,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Map<String, Object>[] listScheduledMessages() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listScheduledMessages(queue);
       }
       checkStarted();
@@ -770,7 +770,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listScheduledMessagesAsJSON() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listScheduledMessagesAsJSON(queue);
       }
       checkStarted();
@@ -800,7 +800,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Map<String, Map<String, Object>[]> listDeliveringMessages() throws ActiveMQException {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listDeliveringMessages(queue);
       }
       checkStarted();
@@ -823,7 +823,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listDeliveringMessagesAsJSON() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listDeliveringMessagesAsJSON(queue);
       }
       checkStarted();
@@ -838,7 +838,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Map<String, Object>[] listMessages(final String filterStr) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listMessages(queue, filterStr);
       }
       checkStarted();
@@ -875,7 +875,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessagesAsJSON(final String filter) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listMessagesAsJSON(queue);
       }
       checkStarted();
@@ -889,7 +889,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    protected Map<String, Object>[] getFirstMessage() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFirstMessage(queue);
       }
       checkStarted();
@@ -916,7 +916,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getFirstMessageAsJSON() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFirstMessageAsJSON(queue);
       }
       return toJSON(getFirstMessage());
@@ -924,7 +924,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Long getFirstMessageTimestamp() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFirstMessageTimestamp(queue);
       }
 
@@ -941,7 +941,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Long getFirstMessageAge() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFirstMessageAge(queue);
       }
 
@@ -960,7 +960,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long countMessages(final String filterStr) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.countMessages(queue, filterStr);
       }
 
@@ -970,7 +970,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String countMessages(final String filterStr, final String groupByProperty) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.countMessages(queue, filterStr, groupByProperty);
       }
 
@@ -1010,7 +1010,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long countDeliveringMessages(final String filterStr) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.countDeliveringMessages(queue, filterStr);
       }
 
@@ -1020,7 +1020,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String countDeliveringMessages(final String filterStr, final String groupByProperty) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.countDeliveringMessages(queue, filterStr, groupByProperty);
       }
 
@@ -1066,7 +1066,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean removeMessage(final long messageID) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.removeMessage(queue, messageID);
       }
       checkStarted();
@@ -1088,7 +1088,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int removeMessages(final int flushLimit, final String filterStr) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.removeMessages(queue, flushLimit, filterStr);
       }
       checkStarted();
@@ -1122,7 +1122,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean expireMessage(final long messageID) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.expireMessage(queue, messageID);
       }
       checkStarted();
@@ -1137,7 +1137,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int expireMessages(final String filterStr) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.expireMessages(queue, filterStr);
       }
       checkStarted();
@@ -1155,7 +1155,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean retryMessage(final long messageID) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.retryMessage(queue, messageID);
       }
 
@@ -1193,7 +1193,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int retryMessages() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.retryMessages(queue);
       }
       checkStarted();
@@ -1215,7 +1215,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    public boolean moveMessage(final long messageID,
                               final String otherQueueName,
                               final boolean rejectDuplicates) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.moveMessage(queue, messageID, otherQueueName, rejectDuplicates);
       }
       checkStarted();
@@ -1254,7 +1254,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                            final String otherQueueName,
                            final boolean rejectDuplicates,
                            final int messageCount) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.moveMessages(queue, flushLimit, filterStr, otherQueueName, rejectDuplicates, messageCount);
       }
       checkStarted();
@@ -1286,7 +1286,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.sendMessagesToDeadLetterAddress(queue, filterStr);
       }
       checkStarted();
@@ -1308,8 +1308,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.sendMessage(queue, null, headers, type, body, durable, user, "****");
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.sendMessageThroughManagement(queue, headers, type, body, durable, user, "****");
       }
       try {
          String s = sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, queue.getID());
@@ -1327,7 +1327,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.sendMessageToDeadLetterAddress(queue, messageID);
       }
       checkStarted();
@@ -1342,7 +1342,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int changeMessagesPriority(final String filterStr, final int newPriority) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.changeMessagesPriority(queue, filterStr, newPriority);
       }
       checkStarted();
@@ -1362,7 +1362,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.changeMessagePriority(queue, messageID, newPriority);
       }
       checkStarted();
@@ -1380,7 +1380,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounter() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listMessageCounter(queue);
       }
       checkStarted();
@@ -1397,7 +1397,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessageCounter() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resetMessageCounter(queue);
       }
       checkStarted();
@@ -1412,7 +1412,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounterAsHTML() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listMessageCounterAsHTML(queue);
       }
       checkStarted();
@@ -1427,7 +1427,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounterHistory() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listMessageCounterHistory(queue);
       }
       checkStarted();
@@ -1442,7 +1442,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listMessageCounterHistoryAsHTML() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listMessageCounterHistoryAsHTML(queue);
       }
       checkStarted();
@@ -1457,7 +1457,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void pause() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.pause(queue);
       }
       checkStarted();
@@ -1482,7 +1482,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void pause(boolean persist) {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.pause(queue, persist);
       }
       checkStarted();
@@ -1505,7 +1505,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
    @Override
    public void resume() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resume(queue);
       }
       checkStarted();
@@ -1530,7 +1530,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isPaused() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isPaused(queue);
       }
       checkStarted();
@@ -1550,7 +1550,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public CompositeData[] browse(int page, int pageSize, String filter) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.browse(queue, page, pageSize);
       }
       checkStarted();
@@ -1605,7 +1605,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
    @Override
    public CompositeData[] browse(String filter) throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.browse(queue, filter);
       }
       checkStarted();
@@ -1651,7 +1651,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void flushExecutor() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.flushExecutor(queue);
       }
       checkStarted();
@@ -1666,7 +1666,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetAllGroups() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resetAllGroups(queue);
       }
       checkStarted();
@@ -1681,7 +1681,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetGroup(String groupID) {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resetGroup(queue, groupID);
       }
       checkStarted();
@@ -1696,7 +1696,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getGroupCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getGroupCount(queue);
       }
       checkStarted();
@@ -1711,7 +1711,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listGroupsAsJSON() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listGroupsAsJSON(queue);
       }
       checkStarted();
@@ -1742,7 +1742,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public long getRingSize() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRingSize(queue);
       }
       checkStarted();
@@ -1757,7 +1757,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listConsumersAsJSON() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listConsumersAsJSON(queue);
       }
       checkStarted();
@@ -1798,7 +1798,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesAdded() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resetMessagesAdded(queue);
       }
       checkStarted();
@@ -1814,7 +1814,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesAcknowledged() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resetMessagesAcknowledged(queue);
       }
       checkStarted();
@@ -1830,7 +1830,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesExpired() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resetMessagesExpired(queue);
       }
       checkStarted();
@@ -1846,7 +1846,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void resetMessagesKilled() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resetMessagesKilled(queue);
       }
       checkStarted();
@@ -1862,7 +1862,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isGroupRebalance() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isGroupRebalance(queue);
       }
       checkStarted();
@@ -1877,7 +1877,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean isGroupRebalancePauseDispatch() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isGroupRebalancePauseDispatch(queue);
       }
       checkStarted();
@@ -1892,7 +1892,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getGroupBuckets() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getGroupBuckets(queue);
       }
       checkStarted();
@@ -1907,7 +1907,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getGroupFirstKey() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getGroupFirstKey(queue);
       }
       checkStarted();
@@ -1924,7 +1924,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int getPreparedTransactionMessageCount() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getPreparedTransactionMessageCount(queue);
       }
       checkStarted();

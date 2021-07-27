@@ -53,7 +53,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public String getFactoryClassName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFactoryClassName(this.acceptor);
       }
       clearIO();
@@ -66,7 +66,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public String getName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getName(this.acceptor);
       }
       clearIO();
@@ -79,7 +79,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public Map<String, Object> getParameters() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getParameters(this.acceptor);
       }
       clearIO();
@@ -98,7 +98,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public void reload() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.reload(this.acceptor);
       }
       clearIO();
@@ -111,7 +111,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public boolean isStarted() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isStarted(this.acceptor);
       }
       clearIO();
@@ -124,7 +124,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public void start() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.startAcceptor(this.acceptor);
       }
       clearIO();
@@ -137,7 +137,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    @Override
    public void stop() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.stopAcceptor(this.acceptor);
       }
       clearIO();

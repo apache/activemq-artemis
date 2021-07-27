@@ -52,7 +52,7 @@ public class JGroupsFileBroadcastGroupControlImpl extends BaseBroadcastGroupCont
 
    @Override
    public String getFileContents() throws Exception {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFileContents(this.getBroadcastGroup());
       }
       URL resource = this.getClass().getClassLoader().getResource(this.getFile());
@@ -62,7 +62,7 @@ public class JGroupsFileBroadcastGroupControlImpl extends BaseBroadcastGroupCont
 
    @Override
    public String getChannelName() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getChannelName(this.getBroadcastGroup());
       }
       return endpointFactory.getChannelName();
@@ -70,7 +70,7 @@ public class JGroupsFileBroadcastGroupControlImpl extends BaseBroadcastGroupCont
 
    @Override
    public String getFile() {
-      if (AuditLogger.isEnabled()) {
+      if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFile(this.getBroadcastGroup());
       }
       return endpointFactory.getFile();

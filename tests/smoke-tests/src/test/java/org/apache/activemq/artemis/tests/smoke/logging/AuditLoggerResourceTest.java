@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.smoke.logging;
 
+import javax.management.MBeanServerConnection;
+import javax.management.MBeanServerInvocationHandler;
+import javax.management.openmbean.CompositeData;
+import javax.management.remote.JMXConnector;
+import java.util.HashMap;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -26,71 +32,18 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.openmbean.CompositeData;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.util.HashMap;
+public class AuditLoggerResourceTest extends AuditLoggerTestBase {
 
-public class AuditLoggerResourceTest extends SmokeTestBase {
-
-   private static final File auditLog = new File("target/audit-logging/log/audit.log");
-
-   private static final String JMX_SERVER_HOSTNAME = "localhost";
-   private static final int JMX_SERVER_PORT = 10099;
-
-   public static final String SERVER_NAME = "audit-logging";
-
-   @Before
-   public void before() throws Exception {
-      cleanupData(SERVER_NAME);
-      disableCheckThread();
-      startServer(SERVER_NAME, 0, 30000);
-      emptyLogFile();
-   }
-
-   private void emptyLogFile() throws Exception {
-      if (auditLog.exists()) {
-         try (PrintWriter writer = new PrintWriter(new FileWriter(auditLog))) {
-            writer.print("");
-         }
-      }
+   @Override
+   protected String getServerName() {
+      return "audit-logging";
    }
 
    @Test
    public void testAuditResourceLog() throws Exception {
-      HashMap   environment = new HashMap();
-      String[]  credentials = new String[] {"admin", "admin"};
-      environment.put(JMXConnector.CREDENTIALS, credentials);
-      // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
-      System.setProperty("java.rmi.server.hostname", JMX_SERVER_HOSTNAME);
-
-      // I don't specify both ports here manually on purpose. See actual RMI registry connection port extraction below.
-      String urlString = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT + "/jmxrmi";
-
-      JMXServiceURL url = new JMXServiceURL(urlString);
-      JMXConnector jmxConnector = null;
-
-      try {
-         jmxConnector = JMXConnectorFactory.connect(url, environment);
-         System.out.println("Successfully connected to: " + urlString);
-      } catch (Exception e) {
-         jmxConnector = null;
-         e.printStackTrace();
-         Assert.fail(e.getMessage());
-      }
+      JMXConnector jmxConnector = getJmxConnector();
 
       try {
          MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
@@ -130,37 +83,6 @@ public class AuditLoggerResourceTest extends SmokeTestBase {
 
       } finally {
          jmxConnector.close();
-      }
-   }
-
-   //check the audit log has a line that contains all the values
-   private void checkAuditLogRecord(boolean exist, String... values) throws Exception {
-      Assert.assertTrue(auditLog.exists());
-      boolean hasRecord = false;
-      try (BufferedReader reader = new BufferedReader(new FileReader(auditLog))) {
-         String line = reader.readLine();
-         while (line != null) {
-            if (line.contains(values[0])) {
-               boolean hasAll = true;
-               for (int i = 1; i < values.length; i++) {
-                  if (!line.contains(values[i])) {
-                     hasAll = false;
-                     break;
-                  }
-               }
-               if (hasAll) {
-                  hasRecord = true;
-                  System.out.println("audit has it: " + line);
-                  break;
-               }
-            }
-            line = reader.readLine();
-         }
-         if (exist) {
-            Assert.assertTrue(hasRecord);
-         } else {
-            Assert.assertFalse(hasRecord);
-         }
       }
    }
 }
