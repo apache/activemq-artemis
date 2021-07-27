@@ -1450,7 +1450,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       final HashMap<Integer, AtomicInteger> recordsType = countJournal(config);
 
-      assertNull("The system is acking page records instead of just delete data", recordsType.get(new Integer(JournalRecordIds.ACKNOWLEDGE_CURSOR)));
+      assertNull("The system is acking page records instead of just delete data", recordsType.get(Integer.valueOf(JournalRecordIds.ACKNOWLEDGE_CURSOR)));
 
       Pair<List<RecordInfo>, List<PreparedTransactionInfo>> journalData = loadMessageJournal(config);
 
@@ -1461,13 +1461,13 @@ public class PagingTest extends ActiveMQTestBase {
             DescribeJournal.ReferenceDescribe ref = (ReferenceDescribe) DescribeJournal.newObjectEncoding(info);
 
             if (ref.refEncoding.queueID == deletedQueueID) {
-               deletedQueueReferences.add(new Long(info.id));
+               deletedQueueReferences.add(Long.valueOf(info.id));
             }
          } else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF) {
             AckDescribe ref = (AckDescribe) DescribeJournal.newObjectEncoding(info);
 
             if (ref.refEncoding.queueID == deletedQueueID) {
-               deletedQueueReferences.remove(new Long(info.id));
+               deletedQueueReferences.remove(Long.valueOf(info.id));
             }
          }
       }

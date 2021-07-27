@@ -1180,7 +1180,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
             Integer c = consumerCounts.get(tn);
             if (c == null) {
-               c = new Integer(cnt);
+               c = Integer.valueOf(cnt);
             }
 
             if (tn == threadNum && cnt != c.intValue()) {
@@ -1250,7 +1250,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
          Integer c = counts.get(threadNum);
          if (c == null) {
-            c = new Integer(cnt);
+            c = Integer.valueOf(cnt);
          }
 
          if (tn == threadNum && cnt != c.intValue()) {

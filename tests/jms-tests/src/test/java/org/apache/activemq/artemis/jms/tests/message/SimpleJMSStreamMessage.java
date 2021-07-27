@@ -397,7 +397,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("The message body is readonly");
       }
-      content.add(new Boolean(value));
+      content.add(Boolean.valueOf(value));
    }
 
    @Override
@@ -405,7 +405,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("The message body is readonly");
       }
-      content.add(new Byte(value));
+      content.add(Byte.valueOf(value));
    }
 
    @Override
@@ -413,7 +413,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("The message body is readonly");
       }
-      content.add(new Short(value));
+      content.add(Short.valueOf(value));
    }
 
    @Override
@@ -421,7 +421,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("The message body is readonly");
       }
-      content.add(new Character(value));
+      content.add(Character.valueOf(value));
    }
 
    @Override
@@ -429,7 +429,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("The message body is readonly");
       }
-      content.add(new Integer(value));
+      content.add(Integer.valueOf(value));
    }
 
    @Override
@@ -437,7 +437,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("The message body is readonly");
       }
-      content.add(new Long(value));
+      content.add(Long.valueOf(value));
    }
 
    @Override
@@ -445,7 +445,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("The message body is readonly");
       }
-      content.add(new Float(value));
+      content.add(Float.valueOf(value));
    }
 
    @Override
@@ -453,7 +453,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("The message body is readonly");
       }
-      content.add(new Double(value));
+      content.add(Double.valueOf(value));
    }
 
    @Override

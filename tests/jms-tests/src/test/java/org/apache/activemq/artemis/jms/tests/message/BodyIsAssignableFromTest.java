@@ -128,8 +128,8 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
             msg = queueProducerSession.createStreamMessage();
             break;
          case OBJECT:
-            res = new Double(37.6);
-            msg = queueProducerSession.createObjectMessage(new Double(37.6));
+            res = Double.valueOf(37.6);
+            msg = queueProducerSession.createObjectMessage(Double.valueOf(37.6));
             break;
          case MAP:
             MapMessage msg1 = queueProducerSession.createMapMessage();

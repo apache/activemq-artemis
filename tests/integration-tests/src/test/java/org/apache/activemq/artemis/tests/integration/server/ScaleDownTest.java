@@ -518,14 +518,14 @@ public class ScaleDownTest extends ClusterTestBase {
          ClientMessage msg = session.createMessage(true);
          msg.getBodyBuffer().writeString("Bob the giant pig " + i);
          msg.putBooleanProperty("myBooleanProperty", Boolean.TRUE);
-         msg.putByteProperty("myByteProperty", new Byte("0"));
+         msg.putByteProperty("myByteProperty", Byte.valueOf("0"));
          msg.putBytesProperty("myBytesProperty", new byte[]{0, 1, 2, 3, 4});
          msg.putDoubleProperty("myDoubleProperty", i * 1.6);
          msg.putFloatProperty("myFloatProperty", i * 2.5F);
          msg.putIntProperty("myIntProperty", i);
          msg.putLongProperty("myLongProperty", Long.MAX_VALUE - i);
          msg.putObjectProperty("myObjectProperty", i);
-         msg.putShortProperty("myShortProperty", new Integer(i).shortValue());
+         msg.putShortProperty("myShortProperty", Integer.valueOf(i).shortValue());
          msg.putStringProperty("myStringProperty", "myStringPropertyValue_" + i);
          msg.putStringProperty("myNonAsciiStringProperty", international.toString());
          msg.putStringProperty("mySpecialCharacters", special);
@@ -545,7 +545,7 @@ public class ScaleDownTest extends ClusterTestBase {
          msg.getBodyBuffer().readBytes(body);
          Assert.assertTrue(new String(body).contains("Bob the giant pig " + i));
          Assert.assertEquals(msg.getBooleanProperty("myBooleanProperty"), Boolean.TRUE);
-         Assert.assertEquals(msg.getByteProperty("myByteProperty"), new Byte("0"));
+         Assert.assertEquals(msg.getByteProperty("myByteProperty"), Byte.valueOf("0"));
          byte[] bytes = msg.getBytesProperty("myBytesProperty");
          for (int j = 0; j < 5; j++) {
             Assert.assertEquals(j, bytes[j]);
@@ -555,7 +555,7 @@ public class ScaleDownTest extends ClusterTestBase {
          Assert.assertEquals(i, msg.getIntProperty("myIntProperty").intValue());
          Assert.assertEquals(Long.MAX_VALUE - i, msg.getLongProperty("myLongProperty").longValue());
          Assert.assertEquals(i, msg.getObjectProperty("myObjectProperty"));
-         Assert.assertEquals(new Integer(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
+         Assert.assertEquals(Integer.valueOf(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
          Assert.assertEquals("myStringPropertyValue_" + i, msg.getStringProperty("myStringProperty"));
          Assert.assertEquals(international.toString(), msg.getStringProperty("myNonAsciiStringProperty"));
          Assert.assertEquals(special, msg.getStringProperty("mySpecialCharacters"));

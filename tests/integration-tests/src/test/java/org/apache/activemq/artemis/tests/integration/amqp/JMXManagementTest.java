@@ -149,7 +149,7 @@ public class JMXManagementTest extends JMSClientTestSupport {
 
       try {
          UUID uuid = UUID.randomUUID();
-         Character character = new Character('C');
+         Character character = Character.valueOf('C');
          AmqpSession session = connection.createSession();
          AmqpSender sender = session.createSender(getQueueName());
 

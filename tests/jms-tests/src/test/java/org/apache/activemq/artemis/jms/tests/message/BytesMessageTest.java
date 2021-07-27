@@ -87,8 +87,8 @@ public class BytesMessageTest extends MessageTestBase {
       ProxyAssertSupport.assertEquals((byte) 5, bytes[1]);
       ProxyAssertSupport.assertEquals((byte) 6, bytes[2]);
       ProxyAssertSupport.assertEquals((char) 7, bm.readChar());
-      ProxyAssertSupport.assertEquals(new Double(8.0), new Double(bm.readDouble()));
-      ProxyAssertSupport.assertEquals(new Float(9.0), new Float(bm.readFloat()));
+      ProxyAssertSupport.assertEquals(Double.valueOf(8.0), Double.valueOf(bm.readDouble()));
+      ProxyAssertSupport.assertEquals(Float.valueOf(9.0f), Float.valueOf(bm.readFloat()));
       ProxyAssertSupport.assertEquals(10, bm.readInt());
       ProxyAssertSupport.assertEquals(11L, bm.readLong());
       ProxyAssertSupport.assertEquals((short) 12, bm.readShort());

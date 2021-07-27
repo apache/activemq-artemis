@@ -35,7 +35,7 @@ public class SimpleJMSMessage implements Message {
    // Constructors --------------------------------------------------
 
    public SimpleJMSMessage() {
-      properties.put("JMSXDeliveryCount", new Integer(0));
+      properties.put("JMSXDeliveryCount", Integer.valueOf(0));
    }
 
    /*
@@ -294,37 +294,37 @@ public class SimpleJMSMessage implements Message {
 
    @Override
    public void setBooleanProperty(final String name, final boolean value) throws JMSException {
-      properties.put(name, new Boolean(value));
+      properties.put(name, Boolean.valueOf(value));
    }
 
    @Override
    public void setByteProperty(final String name, final byte value) throws JMSException {
-      properties.put(name, new Byte(value));
+      properties.put(name, Byte.valueOf(value));
    }
 
    @Override
    public void setShortProperty(final String name, final short value) throws JMSException {
-      properties.put(name, new Short(value));
+      properties.put(name, Short.valueOf(value));
    }
 
    @Override
    public void setIntProperty(final String name, final int value) throws JMSException {
-      properties.put(name, new Integer(value));
+      properties.put(name, Integer.valueOf(value));
    }
 
    @Override
    public void setLongProperty(final String name, final long value) throws JMSException {
-      properties.put(name, new Long(value));
+      properties.put(name, Long.valueOf(value));
    }
 
    @Override
    public void setFloatProperty(final String name, final float value) throws JMSException {
-      properties.put(name, new Float(value));
+      properties.put(name, Float.valueOf(value));
    }
 
    @Override
    public void setDoubleProperty(final String name, final double value) throws JMSException {
-      properties.put(name, new Double(value));
+      properties.put(name, Double.valueOf(value));
    }
 
    @Override

@@ -198,8 +198,8 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase {
       ProxyAssertSupport.assertNotNull(m);
       ProxyAssertSupport.assertEquals(true, m.getBooleanProperty("booleanProperty"));
       ProxyAssertSupport.assertEquals((byte) 3, m.getByteProperty("byteProperty"));
-      ProxyAssertSupport.assertEquals(new Double(4.0), new Double(m.getDoubleProperty("doubleProperty")));
-      ProxyAssertSupport.assertEquals(new Float(5.0f), new Float(m.getFloatProperty("floatProperty")));
+      ProxyAssertSupport.assertEquals(Double.valueOf(4.0), Double.valueOf(m.getDoubleProperty("doubleProperty")));
+      ProxyAssertSupport.assertEquals(Float.valueOf(5.0f), Float.valueOf(m.getFloatProperty("floatProperty")));
       ProxyAssertSupport.assertEquals(6, m.getIntProperty("intProperty"));
       ProxyAssertSupport.assertEquals(7, m.getLongProperty("longProperty"));
       ProxyAssertSupport.assertEquals((short) 8, m.getShortProperty("shortProperty"));

@@ -79,7 +79,7 @@ public class TestConversions extends Assert {
          bodyBytes[i] = (byte) 0xff;
       }
 
-      message.setBody(new AmqpValue(new Boolean(true)));
+      message.setBody(new AmqpValue(Boolean.valueOf(true)));
 
       AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
 
@@ -181,7 +181,7 @@ public class TestConversions extends Assert {
       message.setApplicationProperties(properties);
 
       List<Object> objects = new LinkedList<>();
-      objects.add(new Integer(10));
+      objects.add(Integer.valueOf(10));
       objects.add("10");
 
       message.setBody(new AmqpSequence(objects));

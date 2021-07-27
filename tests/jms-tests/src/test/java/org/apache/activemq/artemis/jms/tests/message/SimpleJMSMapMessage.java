@@ -62,7 +62,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, new Byte(value));
+      content.put(name, Byte.valueOf(value));
 
    }
 
@@ -73,7 +73,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, new Short(value));
+      content.put(name, Short.valueOf(value));
 
    }
 
@@ -84,7 +84,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, new Character(value));
+      content.put(name, Character.valueOf(value));
 
    }
 
@@ -95,7 +95,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, new Integer(value));
+      content.put(name, Integer.valueOf(value));
 
    }
 
@@ -106,7 +106,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, new Long(value));
+      content.put(name, Long.valueOf(value));
 
    }
 
@@ -117,7 +117,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, new Float(value));
+      content.put(name, Float.valueOf(value));
 
    }
 
@@ -128,7 +128,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new MessageNotWriteableException("Message is ReadOnly !");
       }
 
-      content.put(name, new Double(value));
+      content.put(name, Double.valueOf(value));
 
    }
 

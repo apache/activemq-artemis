@@ -102,7 +102,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          AmqpMessage message = new AmqpMessage();
          message = new AmqpMessage();
          message.setReplyToAddress(replyQueue.toString());
-         message.setMessageAnnotation("x-opt-jms-reply-to", new Byte((byte)10)); // that's invalid on the conversion, lets hope it doesn't fail
+         message.setMessageAnnotation("x-opt-jms-reply-to", Byte.valueOf((byte)10)); // that's invalid on the conversion, lets hope it doesn't fail
          message.setMessageId("msg-1");
          sender.send(message);
 
@@ -201,7 +201,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          AmqpMessage message = new AmqpMessage();
          message.setReplyToAddress(replyQueue.toString());
          message.setMessageId("msg-1");
-         message.setMessageAnnotation("x-opt-not-jms-reply-to", new Byte((byte)1));
+         message.setMessageAnnotation("x-opt-not-jms-reply-to", Byte.valueOf((byte)1));
          message.setText("Test-Message");
          sender.send(message);
 
@@ -251,7 +251,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          AmqpMessage message = new AmqpMessage();
          message.setReplyToAddress(replyQueue.toString());
          message.setMessageId("msg-1");
-         message.setMessageAnnotation("x-opt-jms-reply-to", new Byte((byte)0));
+         message.setMessageAnnotation("x-opt-jms-reply-to", Byte.valueOf((byte)0));
          message.setText("Test-Message");
          sender.send(message);
 
@@ -301,7 +301,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          AmqpMessage message = new AmqpMessage();
          message.setReplyToAddress(topicName.toString());
          message.setMessageId("msg-1");
-         message.setMessageAnnotation("x-opt-jms-reply-to", new Byte((byte)1));
+         message.setMessageAnnotation("x-opt-jms-reply-to", Byte.valueOf((byte)1));
          message.setText("Test-Message");
          sender.send(message);
 
@@ -353,7 +353,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          AmqpMessage message = new AmqpMessage();
          message.setReplyToAddress(replyToName);
          message.setMessageId("msg-1");
-         message.setMessageAnnotation("x-opt-jms-reply-to", new Byte((byte)3));
+         message.setMessageAnnotation("x-opt-jms-reply-to", Byte.valueOf((byte)3));
          message.setText("Test-Message");
          sender.send(message);
 
@@ -404,7 +404,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          AmqpMessage message = new AmqpMessage();
          message.setReplyToAddress(replyToName);
          message.setMessageId("msg-1");
-         message.setMessageAnnotation("x-opt-jms-reply-to", new Byte((byte)2));
+         message.setMessageAnnotation("x-opt-jms-reply-to", Byte.valueOf((byte)2));
          message.setText("Test-Message");
          sender.send(message);
 

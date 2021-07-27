@@ -46,7 +46,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
          // OK
       }
 
-      JNDIUtil.rebind(ic, "/nosuchsubcontext/sub1/sub2/sub3/name", new Integer(7));
+      JNDIUtil.rebind(ic, "/nosuchsubcontext/sub1/sub2/sub3/name", Integer.valueOf(7));
 
       ProxyAssertSupport.assertEquals(7, ((Integer) ic.lookup("/nosuchsubcontext/sub1/sub2/sub3/name")).intValue());
    }
@@ -60,7 +60,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
          // OK
       }
 
-      JNDIUtil.rebind(ic, "/doesnotexistyet", new Integer(8));
+      JNDIUtil.rebind(ic, "/doesnotexistyet", Integer.valueOf(8));
 
       ProxyAssertSupport.assertEquals(8, ((Integer) ic.lookup("/doesnotexistyet")).intValue());
 
@@ -76,7 +76,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
          // OK
       }
 
-      JNDIUtil.rebind(ic, "doesnotexistyet", new Integer(9));
+      JNDIUtil.rebind(ic, "doesnotexistyet", Integer.valueOf(9));
 
       ProxyAssertSupport.assertEquals(9, ((Integer) ic.lookup("/doesnotexistyet")).intValue());
 

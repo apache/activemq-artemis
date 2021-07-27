@@ -113,8 +113,8 @@ public class NetworkBridgeProducerFlowControlTest extends JmsMultipleBrokersTest
    }
 
    public void initCombosForTestFastAndSlowRemoteConsumers() {
-      addCombinationValues("persistentTestMessages", new Object[]{new Boolean(true), new Boolean(false)});
-      addCombinationValues("networkIsAlwaysSendSync", new Object[]{new Boolean(true), new Boolean(false)});
+      addCombinationValues("persistentTestMessages", new Object[]{Boolean.valueOf(true), Boolean.valueOf(false)});
+      addCombinationValues("networkIsAlwaysSendSync", new Object[]{Boolean.valueOf(true), Boolean.valueOf(false)});
    }
 
    @Override

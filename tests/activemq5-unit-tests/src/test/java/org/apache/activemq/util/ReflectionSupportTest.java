@@ -105,7 +105,7 @@ public class ReflectionSupportTest extends TestCase {
 
    public static class TestWitBoolean {
 
-      private Boolean keepAlive = new Boolean(false);
+      private Boolean keepAlive = Boolean.valueOf(false);
 
       public Boolean getKeepAlive() {
          return keepAlive;

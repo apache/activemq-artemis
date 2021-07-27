@@ -88,12 +88,12 @@ public class InVMInitialContextFactory implements InitialContextFactory {
       // Note! This MUST be synchronized
       synchronized (InVMInitialContextFactory.initialContexts) {
 
-         InVMContext ic = (InVMContext) InVMInitialContextFactory.initialContexts.get(new Integer(serverIndex));
+         InVMContext ic = (InVMContext) InVMInitialContextFactory.initialContexts.get(Integer.valueOf(serverIndex));
 
          if (ic == null) {
             ic = new InVMContext(s);
             ic.bind("java:/", new InVMContext(s));
-            InVMInitialContextFactory.initialContexts.put(new Integer(serverIndex), ic);
+            InVMInitialContextFactory.initialContexts.put(Integer.valueOf(serverIndex), ic);
          }
 
          return ic;

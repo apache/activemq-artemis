@@ -118,7 +118,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          ClientMessage msg = session.createMessage(true);
          msg.getBodyBuffer().writeString("Bob the giant pig " + i);
          msg.putBooleanProperty("myBooleanProperty", Boolean.TRUE);
-         msg.putByteProperty("myByteProperty", new Byte("0"));
+         msg.putByteProperty("myByteProperty", Byte.valueOf("0"));
          msg.putBytesProperty("myBytesProperty", new byte[]{0, 1, 2, 3, 4});
          msg.putDoubleProperty("myDoubleProperty", i * 1.6);
          msg.putFloatProperty("myFloatProperty", i * 2.5F);
@@ -126,7 +126,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          msg.putLongProperty("myLongProperty", Long.MAX_VALUE - i);
          msg.putObjectProperty("myObjectProperty", i);
          msg.putObjectProperty("myNullObjectProperty", null);
-         msg.putShortProperty("myShortProperty", new Integer(i).shortValue());
+         msg.putShortProperty("myShortProperty", Integer.valueOf(i).shortValue());
          msg.putStringProperty("myStringProperty", "myStringPropertyValue_" + i);
          msg.putStringProperty("myNullStringProperty", null);
          msg.putStringProperty("myNonAsciiStringProperty", international.toString());
@@ -166,7 +166,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          msg.getBodyBuffer().readBytes(body);
          assertTrue(new String(body).contains("Bob the giant pig " + i));
          assertEquals(msg.getBooleanProperty("myBooleanProperty"), Boolean.TRUE);
-         assertEquals(msg.getByteProperty("myByteProperty"), new Byte("0"));
+         assertEquals(msg.getByteProperty("myByteProperty"), Byte.valueOf("0"));
          byte[] bytes = msg.getBytesProperty("myBytesProperty");
          for (int j = 0; j < 5; j++) {
             assertEquals(j, bytes[j]);
@@ -178,7 +178,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          assertEquals(i, msg.getObjectProperty("myObjectProperty"));
          assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullObjectProperty")));
          assertEquals(null, msg.getObjectProperty("myNullObjectProperty"));
-         assertEquals(new Integer(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
+         assertEquals(Integer.valueOf(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
          assertEquals("myStringPropertyValue_" + i, msg.getStringProperty("myStringProperty"));
          assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullStringProperty")));
          assertEquals(null, msg.getStringProperty("myNullStringProperty"));

@@ -59,7 +59,7 @@ public class MessagePropertyTest extends PTPTestCase {
    public void testSetObjectProperty_1() {
       try {
          Message message = senderSession.createMessage();
-         message.setObjectProperty("pi", new Float(3.14159f));
+         message.setObjectProperty("pi", Float.valueOf(3.14159f));
          Assert.assertEquals(3.14159f, message.getFloatProperty("pi"), 0);
       } catch (JMSException e) {
          fail(e);

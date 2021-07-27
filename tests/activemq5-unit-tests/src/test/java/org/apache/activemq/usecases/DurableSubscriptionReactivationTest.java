@@ -35,7 +35,7 @@ public class DurableSubscriptionReactivationTest extends EmbeddedBrokerTestSuppo
    public boolean keepDurableSubsActive;
 
    public void initCombosForTestReactivateKeepaliveSubscription() {
-      addCombinationValues("keepDurableSubsActive", new Object[]{new Boolean(true), new Boolean(false)});
+      addCombinationValues("keepDurableSubsActive", new Object[]{Boolean.valueOf(true), Boolean.valueOf(false)});
    }
 
    public void testReactivateKeepaliveSubscription() throws Exception {
