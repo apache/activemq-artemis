@@ -137,7 +137,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    @Test
    public void testPageWithNIO() throws Exception {
       ActiveMQTestBase.recreateDirectory(getTestDir());
-      testConcurrentPaging(new NIOSequentialFileFactory(new File(getTestDir()), 1), 1);
+      testConcurrentPaging(new NIOSequentialFileFactory(new File(getTestDir()), 1).setDatasync(false), 1);
    }
 
    @Test
@@ -589,7 +589,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    @Test
    public void testRestartPage() throws Throwable {
       clearDataRecreateServerDirs();
-      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1);
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1).setDatasync(false);
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
@@ -620,7 +620,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    @Test
    public void testOrderOnPaging() throws Throwable {
       clearDataRecreateServerDirs();
-      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1);
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1).setDatasync(false);
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
@@ -739,7 +739,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    @Test
    public void testWriteIncompletePage() throws Exception {
       clearDataRecreateServerDirs();
-      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1);
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1).setDatasync(false);
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
