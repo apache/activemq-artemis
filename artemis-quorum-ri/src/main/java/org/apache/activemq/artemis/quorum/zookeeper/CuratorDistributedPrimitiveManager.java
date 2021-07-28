@@ -297,14 +297,14 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
    public DistributedLock getDistributedLock(String lockId) {
       return getPrimitive(PrimitiveId.of(lockId, PrimitiveType.lock),
                           id -> new CuratorDistributedLock(id, this,
-                                                           new InterProcessSemaphoreV2(client, "/locks/" + id.id, 1)));
+                                                           new InterProcessSemaphoreV2(client, "/" + id.id + "/locks", 1)));
    }
 
    @Override
    public MutableLong getMutableLong(String mutableLongId) {
       return getPrimitive(PrimitiveId.of(mutableLongId, PrimitiveType.mutableLong),
                           id -> new CuratorMutableLong(id, this,
-                                                       new DistributedAtomicLong(client, "/activation-sequence/" + mutableLongId, new RetryNTimes(0, 0))));
+                                                       new DistributedAtomicLong(client, "/" + mutableLongId + "/activation-sequence", new RetryNTimes(0, 0))));
    }
 
    protected void startHandlingEvents() {

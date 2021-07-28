@@ -108,7 +108,7 @@ public class CuratorDistributedPrimitiveManagerTest {
 
    @Test
    public void verifyLayoutInZK() throws Exception {
-      final DistributedPrimitiveManager manager = createManagedDistributeManager(config -> config.put("namespace", "AMQ"));
+      final DistributedPrimitiveManager manager = createManagedDistributeManager(config -> config.put("namespace", "activemq-artemis"));
       manager.start();
       Assert.assertTrue(manager.getDistributedLock("journal-identity-000-111").tryLock());
 
@@ -119,6 +119,10 @@ public class CuratorDistributedPrimitiveManagerTest {
       dumpZK(curatorFramework.getZookeeperClient().getZooKeeper(), "/", entries);
 
       Assert.assertTrue(entries.get(2).contains("activation-sequence"));
+
+      for (String entry: entries) {
+         System.err.println("ZK: " + entry);
+      }
    }
 
    private void dumpZK(ZooKeeper zooKeeper, String path, List<String> entries) throws InterruptedException, KeeperException {
