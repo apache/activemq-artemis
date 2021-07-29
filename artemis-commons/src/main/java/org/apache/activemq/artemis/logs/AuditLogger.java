@@ -2845,7 +2845,7 @@ public interface AuditLogger extends BasicLogger {
    void isAutoCreated(String user, Object source, Object... args);
 
    static void getActivationSequence(Object source) {
-      LOGGER.getActivationSequence(getCaller(), source);
+      BASE_LOGGER.getActivationSequence(getCaller(), source);
    }
 
    @LogMessage(level = Logger.Level.INFO)
