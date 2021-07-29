@@ -386,6 +386,9 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          }
          logger.infof("Server [%s], incremented local activation sequence to: %d for NodeId = %s",
                       activeMQServer, nextActivationSequence, lockAndLongId);
+      } else {
+         // self-heal need to update the in-memory sequence, because no writes will do it
+         nodeManager.setNodeActivationSequence(nextActivationSequence);
       }
       // commit
       if (!coordinatedNodeActivationSequence.compareAndSet(-nextActivationSequence, nextActivationSequence)) {
