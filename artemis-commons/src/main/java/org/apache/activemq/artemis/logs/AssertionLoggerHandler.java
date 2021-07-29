@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.logs;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -33,6 +35,7 @@ import org.jboss.logmanager.ExtLogRecord;
 public class AssertionLoggerHandler extends ExtHandler {
 
    private static final Map<String, ExtLogRecord> messages = new ConcurrentHashMap<>();
+   private static List<String> traceMessages;
    private static boolean capture = false;
 
    /**
@@ -53,6 +56,9 @@ public class AssertionLoggerHandler extends ExtHandler {
    protected void doPublish(final ExtLogRecord record) {
       if (capture) {
          messages.put(record.getFormattedMessage(), record);
+         if (traceMessages != null) {
+            traceMessages.add(record.getFormattedMessage());
+         }
       }
    }
 
@@ -121,6 +127,31 @@ public class AssertionLoggerHandler extends ExtHandler {
       return false;
    }
 
+   public static int countText(final String... text) {
+      int found = 0;
+      if (traceMessages != null) {
+         for (String str : traceMessages) {
+            for (String txtCheck : text) {
+               if (str.contains(txtCheck)) {
+                  found++;
+               }
+            }
+         }
+      } else {
+         for (Map.Entry<String, ExtLogRecord> entry : messages.entrySet()) {
+            String key = entry.getKey();
+
+            for (String txtCheck : text) {
+               if (key.contains(txtCheck)) {
+                  found++;
+               }
+            }
+         }
+      }
+
+      return found;
+   }
+
    public static boolean matchText(final String pattern) {
       Pattern r = Pattern.compile(pattern);
 
@@ -142,15 +173,30 @@ public class AssertionLoggerHandler extends ExtHandler {
 
    public static final void clear() {
       messages.clear();
+      if (traceMessages != null) {
+         traceMessages.clear();
+      }
    }
 
    public static final void startCapture() {
+      startCapture(false);
+   }
+
+   /**
+    *
+    * @param individualMessages enables counting individual messages.
+    */
+   public static final void startCapture(boolean individualMessages) {
       clear();
+      if (individualMessages) {
+         traceMessages = new LinkedList<>();
+      }
       capture = true;
    }
 
    public static final void stopCapture() {
       capture = false;
       clear();
+      traceMessages = null;
    }
 }
