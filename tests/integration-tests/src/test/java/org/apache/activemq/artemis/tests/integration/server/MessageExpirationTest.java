@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -113,7 +114,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       producer.send(message);
 
       long start = System.currentTimeMillis();
-      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, MIN_EXPIRATION + 200, 50);
+      Wait.assertEquals(1, server.locateQueue(queue)::getMessagesExpired, 5000);
       assertTrue(System.currentTimeMillis() - start > MIN_EXPIRATION);
 
       session.deleteQueue(queue);
@@ -139,7 +140,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       producer.send(message);
 
       long start = System.currentTimeMillis();
-      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, MIN_EXPIRATION + 200, 50);
+      Wait.assertEquals(1, server.locateQueue(queue)::getMessagesExpired, 5000);
       assertTrue(System.currentTimeMillis() - start > MIN_EXPIRATION);
 
       session.deleteQueue(queue);
@@ -164,7 +165,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       producer.send(message);
 
       long start = System.currentTimeMillis();
-      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, MAX_EXPIRATION + 200, 50);
+      Wait.assertEquals(1, server.locateQueue(queue)::getMessagesExpired, 5000);
       assertTrue(System.currentTimeMillis() - start <= (MAX_EXPIRATION + 200));
 
       session.deleteQueue(queue);
@@ -189,8 +190,8 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       message.setExpiration(System.currentTimeMillis() + (3600 * 1000)); // The long expiration would be one hour from now
       producer.send(message);
 
-      long start = System.currentTimeMillis();
-      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, 30_000, 50);
+      Queue serverQueue = server.locateQueue(queue);
+      Wait.assertEquals(1, serverQueue::getMessagesExpired, 5000);
 
       session.deleteQueue(queue);
    }
@@ -215,7 +216,8 @@ public class MessageExpirationTest extends ActiveMQTestBase {
       producer.send(message);
 
       long start = System.currentTimeMillis();
-      org.apache.activemq.artemis.utils.Wait.assertTrue(() -> server.locateQueue(queue).getMessagesExpired() == 1, EXPIRATION + 100, 50);
+      Queue serverQueue = server.locateQueue(queue);
+      Wait.assertEquals(1, serverQueue::getMessagesExpired, 5000);
       assertTrue(System.currentTimeMillis() - start > MIN_EXPIRATION);
       assertTrue(System.currentTimeMillis() - start < MAX_EXPIRATION);
 
