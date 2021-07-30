@@ -25,7 +25,6 @@ import java.util.Properties;
 
 /**
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @version <tt>$Revision: 2868 $</tt>
  */
 public class InVMNameParser implements NameParser, Serializable {
    // Constants -----------------------------------------------------
