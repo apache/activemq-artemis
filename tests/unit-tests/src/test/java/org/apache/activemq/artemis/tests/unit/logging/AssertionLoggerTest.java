@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.integration.logging;
+package org.apache.activemq.artemis.tests.unit.logging;
 
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
