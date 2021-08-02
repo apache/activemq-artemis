@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.smoke.brokerConnection;
+package org.apache.activemq.artemis.tests.e2e.brokerConnection;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -25,8 +25,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.apache.activemq.artemis.tests.smoke.common.ContainerService;
+import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
+import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -38,7 +38,7 @@ import org.junit.Test;
  * You need to build the Artemis Centos image before this test is executed.
  * Follow the instructions under artemis-docker and build the Docker-centos image.
  */
-public class QpidDispatchPeerTest extends SmokeTestBase {
+public class QpidDispatchPeerTest extends E2ETestBase {
 
    private static final Logger logger = Logger.getLogger(QpidDispatchPeerTest.class);
 
