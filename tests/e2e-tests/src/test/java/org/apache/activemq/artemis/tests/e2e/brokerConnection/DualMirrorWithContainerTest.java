@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.smoke.brokerConnection;
+package org.apache.activemq.artemis.tests.e2e.brokerConnection;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,14 +26,14 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.artemis.tests.smoke.common.ContainerService;
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
+import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DualMirrorWithContainerTest extends SmokeTestBase {
+public class DualMirrorWithContainerTest extends E2ETestBase {
 
 
    Object network;
@@ -236,12 +236,12 @@ public class DualMirrorWithContainerTest extends SmokeTestBase {
    }
 
    private void restartB() throws Exception {
-      ContainerService.getService().restart(serverB);
+      ContainerService.getService().restartWithKill(serverB);
       cfB = ContainerService.getService().createCF(serverB, "amqp");
    }
 
    private void restartA(int restartNumber) throws Exception {
-      ContainerService.getService().restart(serverA);
+      ContainerService.getService().restartWithKill(serverA);
       cfA = ContainerService.getService().createCF(serverB, "amqp");
    }
 

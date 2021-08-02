@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.smoke.common;
+package org.apache.activemq.artemis.tests.e2e.common;
 
 import javax.jms.ConnectionFactory;
 
@@ -90,7 +90,9 @@ public abstract class ContainerService {
 
    public abstract void stop(Object container);
 
-   public abstract void restart(Object container);
+   public abstract void restartWithStop(Object container);
+
+   public abstract void restartWithKill(Object container);
 
    public abstract int getPort(Object container, int mappedPort);
 
@@ -99,9 +101,7 @@ public abstract class ContainerService {
    /** prepare the instance folder to run inside the docker image */
    public abstract void prepareInstance(String home) throws Exception;
 
-   public String getHost(Object container) {
-      return "localhost";
-   }
+   public abstract String getHost(Object container);
 
    public abstract ConnectionFactory createCF(Object container, String protocol);
 
@@ -133,6 +133,16 @@ public abstract class ContainerService {
 
    public abstract void logWait(Object container, String log);
 
+   public abstract Object newZookeeperImage();
+
+   public abstract void withEnvVar(Object container, String varName, String varValue);
+
+   public abstract void pause(Object container);
+
+   public abstract void unpause(Object container);
+
+   public abstract String getStatus(Object container);
+
    private static class TestContainerImpl extends ContainerService {
 
       @Override
@@ -152,7 +162,7 @@ public abstract class ContainerService {
       }
 
       private void copyFile(String from, String to) throws IOException {
-         File file = new File(SmokeTestBase.basedir + "/src/main/resources/containerService/" + from);
+         File file = new File(E2ETestBase.basedir + "/src/main/resources/containerService/" + from);
          Files.copy(file.toPath(), new File(to).toPath(), StandardCopyOption.REPLACE_EXISTING);
       }
 
@@ -221,13 +231,25 @@ public abstract class ContainerService {
       }
 
       @Override
-      public void start(Object container) {
+      public void start(Object containerObj) {
+         GenericContainer<?> container = (GenericContainer) containerObj;
+         String userId = System.getProperty(ContainerService.class.getName() + ".service.userid", "");
+         if (!userId.isEmpty()) {
+            container.withCreateContainerCmdModifier(cmd -> cmd.withUser(userId));
+         }
+
          ((GenericContainer)container).setStartupCheckStrategy(new IsRunningStartupCheckStrategy());
          ((GenericContainer)container).start();
       }
 
       @Override
-      public void restart(Object containerObj) {
+      public void restartWithStop(Object containerObj) {
+         stop(containerObj);
+         start(containerObj);
+      }
+
+      @Override
+      public void restartWithKill(Object containerObj) {
          kill(containerObj);
          start(containerObj);
       }
@@ -278,6 +300,40 @@ public abstract class ContainerService {
          GenericContainer genericContainer = (GenericContainer) container;
          return "tcp://" + genericContainer.getHost() + ":" + genericContainer.getMappedPort(port);
       }
+
+      @Override
+      public Object newZookeeperImage() {
+         return new GenericContainer<>(DockerImageName.parse("zookeeper:latest"));
+      }
+
+      @Override
+      public void withEnvVar(Object container, String varName, String varValue) {
+         ((GenericContainer)container).withEnv(varName, varValue);
+      }
+
+      @Override
+      public void pause(Object containerObj) {
+         GenericContainer container = (GenericContainer) containerObj;
+         container.getDockerClient().pauseContainerCmd(container.getContainerId()).exec();
+      }
+
+      @Override
+      public void unpause(Object containerObj) {
+         GenericContainer container = (GenericContainer) containerObj;
+         container.getDockerClient().unpauseContainerCmd(container.getContainerId()).exec();
+      }
+
+      @Override
+      public String getStatus(Object containerObj) {
+         GenericContainer container = (GenericContainer) containerObj;
+         return container.getDockerClient().inspectContainerCmd(container.getContainerId()).exec().getState().getStatus();
+      }
+
+      @Override
+      public String getHost(Object container) {
+         return ((GenericContainer)container).getHost();
+      }
+
    }
 
 }
