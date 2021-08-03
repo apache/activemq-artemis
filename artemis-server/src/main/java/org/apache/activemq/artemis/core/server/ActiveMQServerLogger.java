@@ -1706,6 +1706,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
                                  "**************************************************************************************************************************************************************************************************************************************************************", format = Message.Format.MESSAGE_FORMAT)
    void possibleSplitBrain(String nodeID, String connectionPairInformation);
 
+   @LogMessage(level = Logger.Level.WARN) // I really want emphasis on this logger, so adding the stars
+   @Message(id = 222295, value = "\n**************************************************************************************************************************************************************************************************************************************************************\n" +
+                                 "There is a possible split brain on nodeID {0}. Topology update ignored.\n" +
+                                 "**************************************************************************************************************************************************************************************************************************************************************", format = Message.Format.MESSAGE_FORMAT)
+   void possibleSplitBrain(String nodeID);
+
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222296, value = "Unable to deploy Hawtio MBeam, console client side RBAC not available",
