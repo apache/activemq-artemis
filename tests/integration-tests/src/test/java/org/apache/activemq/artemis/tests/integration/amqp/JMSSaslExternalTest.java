@@ -60,6 +60,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * See the tests/security-resources/build.sh script for details on the security resources used.
+ */
 public class JMSSaslExternalTest extends ActiveMQTestBase {
 
    static {
@@ -98,10 +101,10 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "keystore1.jks");
-      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "changeit");
-      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "truststore.jks");
-      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "changeit");
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-ca-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
 
       Map<String, Object> extraParams = new HashMap<>();
@@ -127,14 +130,14 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
    @Test(timeout = 600000)
    public void testConnection() throws Exception {
 
-      final String keystore = this.getClass().getClassLoader().getResource("client_not_revoked.jks").getFile();
-      final String truststore = this.getClass().getClassLoader().getResource("truststore.jks").getFile();
+      final String keystore = this.getClass().getClassLoader().getResource("other-client-keystore.jks").getFile();
+      final String truststore = this.getClass().getClassLoader().getResource("server-ca-truststore.jks").getFile();
 
       String connOptions = "?amqp.saslMechanisms=EXTERNAL" + "&" +
          "transport.trustStoreLocation=" + truststore + "&" +
-         "transport.trustStorePassword=changeit" + "&" +
+         "transport.trustStorePassword=securepass" + "&" +
          "transport.keyStoreLocation=" + keystore + "&" +
-         "transport.keyStorePassword=changeit" + "&" +
+         "transport.keyStorePassword=securepass" + "&" +
          "transport.verifyHost=false";
 
       JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqps://localhost:" + 61616 + connOptions));
@@ -164,10 +167,10 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
 
       final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
       config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(61616));
-      config.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client_not_revoked.jks");
-      config.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "changeit");
-      config.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "truststore.jks");
-      config.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "changeit");
+      config.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      config.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      config.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      config.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
       config.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
       config.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
 

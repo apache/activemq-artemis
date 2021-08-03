@@ -32,6 +32,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * See the tests/security-resources/build.sh script for details on the security resources used.
+ */
 public abstract class SSLTestBase extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "sslProvider={0},clientProvider={1}")
@@ -44,11 +47,11 @@ public abstract class SSLTestBase extends ActiveMQTestBase {
 
    protected static final String QUEUE = "ssl.test.queue";
 
-   protected final String PASSWORD = "secureexample";
-   protected String SERVER_SIDE_KEYSTORE = "openssl-server-side-keystore.jks";
-   protected String SERVER_SIDE_TRUSTSTORE = "openssl-server-side-truststore.jks";
-   protected String CLIENT_SIDE_TRUSTSTORE = "openssl-client-side-truststore.jks";
-   protected String CLIENT_SIDE_KEYSTORE = "openssl-client-side-keystore.jks";
+   protected final String PASSWORD = "securepass";
+   protected String SERVER_SIDE_KEYSTORE = "server-keystore.jks";
+   protected String SERVER_SIDE_TRUSTSTORE = "client-ca-truststore.jks";
+   protected String CLIENT_SIDE_TRUSTSTORE = "server-ca-truststore.jks";
+   protected String CLIENT_SIDE_KEYSTORE = "client-keystore.jks";
 
    protected ActiveMQServer server;
 

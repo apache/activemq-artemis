@@ -42,6 +42,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * See the tests/security-resources/build.sh script for details on the security resources used.
+ */
 public class NettyConnectorTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
@@ -56,10 +59,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.SSL_PROVIDER, TransportConstants.OPENSSL_PROVIDER);
-      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "openssl-server-side-keystore.jks");
-      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,  "openssl-server-side-truststore.jks");
-      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,  "client-ca-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
       ConfigurationImpl config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "nettySSL"));
       server = createServer(false, config);
@@ -148,10 +151,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          }
       };
 
-      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "openssl-client-side-keystore.jks");
-      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "openssl-client-side-truststore.jks");
-      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -184,10 +187,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME,  "openssl-client-side-keystore.jks");
-      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,"openssl-client-side-truststore.jks");
-      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME,  "client-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,"server-ca-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
@@ -210,10 +213,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       };
 
       //system properties will override the bad transport constants
-      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "openssl-client-side-keystore.jks");
-      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "openssl-client-side-truststore.jks");
-      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -252,10 +255,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.FORCE_SSL_PARAMETERS, true);
-      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME,  "openssl-client-side-keystore.jks");
-      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,"openssl-client-side-truststore.jks");
-      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME,  "client-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,"server-ca-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
@@ -279,10 +282,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       };
 
       //bad system properties will override the transport constants
-      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "openssl-client-side-keystore.jks");
-      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "openssl-client-side-truststore.jks");
-      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -318,10 +321,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
-      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "openssl-client-side-keystore.jks");
-      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "openssl-client-side-truststore.jks");
-      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       connector.start();
       Assert.assertTrue(connector.isStarted());
@@ -343,10 +346,10 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
-      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "openssl-client-side-keystore.jks");
-      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "openssl-client-side-truststore.jks");
-      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "bad path");
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "bad password");

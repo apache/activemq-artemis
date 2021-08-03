@@ -144,6 +144,6 @@ uniquemember: cn=role3
 ## group with member identified just by DN from SASL external tls certificate subject DN
 dn: cn=widgets,ou=system
 cn: widgets
-member: uid=O=Internet Widgits Pty Ltd,C=AU,ST=Some-State,CN=cert4
+member: uid=CN=ActiveMQ Artemis Client,OU=Artemis,O=ActiveMQ,L=AMQ,ST=AMQ,C=AMQ
 objectClass: groupOfNames
 objectClass: top

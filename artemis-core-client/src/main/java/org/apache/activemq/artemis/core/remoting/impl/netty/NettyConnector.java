@@ -423,7 +423,7 @@ public class NettyConnector extends AbstractConnector {
 
          enabledProtocols = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, TransportConstants.DEFAULT_ENABLED_PROTOCOLS, configuration);
 
-         verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
+         verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_CONNECTOR_VERIFY_HOST, configuration);
 
          trustAll = ConfigurationHelper.getBooleanProperty(TransportConstants.TRUST_ALL_PROP_NAME, TransportConstants.DEFAULT_TRUST_ALL, configuration);
 
@@ -450,7 +450,7 @@ public class NettyConnector extends AbstractConnector {
          crlPath = TransportConstants.DEFAULT_CRL_PATH;
          enabledCipherSuites = TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES;
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
-         verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
+         verifyHost = TransportConstants.DEFAULT_CONNECTOR_VERIFY_HOST;
          trustAll = TransportConstants.DEFAULT_TRUST_ALL;
          sniHost = TransportConstants.DEFAULT_SNIHOST_CONFIG;
          useDefaultSslContext = TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT;

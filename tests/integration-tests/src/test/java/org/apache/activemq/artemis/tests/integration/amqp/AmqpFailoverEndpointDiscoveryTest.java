@@ -36,6 +36,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+/**
+ * See the tests/security-resources/build.sh script for details on the security resources used.
+ */
 @RunWith(Parameterized.class)
 public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
 
@@ -90,9 +93,9 @@ public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
       if (protocol == 0) {
          return new JmsConnectionFactory("failover:(amqp://localhost:61616)");
       } else {
-         String keystore = this.getClass().getClassLoader().getResource("client-side-keystore.jks").getFile();
-         String truststore = this.getClass().getClassLoader().getResource("client-side-truststore.jks").getFile();
-         return new JmsConnectionFactory("failover:(amqps://localhost:61616?transport.keyStoreLocation=" + keystore + "&transport.keyStorePassword=secureexample&transport.trustStoreLocation=" + truststore + "&transport.trustStorePassword=secureexample&transport.verifyHost=false)");
+         String keystore = this.getClass().getClassLoader().getResource("client-keystore.jks").getFile();
+         String truststore = this.getClass().getClassLoader().getResource("server-ca-truststore.jks").getFile();
+         return new JmsConnectionFactory("failover:(amqps://localhost:61616?transport.keyStoreLocation=" + keystore + "&transport.keyStorePassword=securepass&transport.trustStoreLocation=" + truststore + "&transport.trustStorePassword=securepass&transport.verifyHost=false)");
       }
    }
 
@@ -101,10 +104,10 @@ public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
       if (protocol == 1) {
          server1Params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
 
-         server1Params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-side-keystore.jks");
-         server1Params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-         server1Params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
-         server1Params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+         server1Params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.jks");
+         server1Params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+         server1Params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-ca-truststore.jks");
+         server1Params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
       }
 
       if (live) {
@@ -120,10 +123,10 @@ public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
       Map<String, Object> server1Params = new HashMap<>();
       if (protocol == 1) {
          server1Params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-         server1Params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
-         server1Params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
-         server1Params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
-         server1Params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+         server1Params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+         server1Params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+         server1Params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+         server1Params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
       }
       if (live) {
          return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, server1Params);

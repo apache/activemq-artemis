@@ -51,6 +51,9 @@ import org.junit.Test;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CREATED;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
 
+/**
+ * See the tests/security-resources/build.sh script for details on the security resources used.
+ */
 public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
    static {
@@ -78,10 +81,10 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
-      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
-      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "bad-client-side-keystore.jks");
-      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "unknown-client-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
@@ -96,7 +99,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       ClientMessage[] notifications = SSLSecurityNotificationTest.consumeMessages(1, notifConsumer);
       Assert.assertEquals(SECURITY_AUTHENTICATION_VIOLATION.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
       Assert.assertEquals(null, notifications[0].getObjectProperty(ManagementHelper.HDR_USER));
-      Assert.assertEquals("CN=Bad Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
+      Assert.assertEquals("CN=ActiveMQ Artemis Unknown Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
       Assert.assertTrue(notifications[0].getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
       Assert.assertTrue(notifications[0].getTimestamp() >= start);
       Assert.assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
@@ -116,10 +119,10 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
-      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
-      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
-      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
@@ -154,10 +157,10 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-side-keystore.jks");
-      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
-      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-ca-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
 
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
@@ -173,10 +176,10 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
-      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
-      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
-      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));

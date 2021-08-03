@@ -58,6 +58,9 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * See the tests/security-resources/build.sh script for details on the security resources used.
+ */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)})
 @ApplyLdifFiles("AMQauth.ldif")
@@ -117,10 +120,10 @@ public class JMSSaslExternalLDAPTest extends AbstractLdapTestUnit {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "keystore1.jks");
-      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "changeit");
-      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "truststore.jks");
-      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "changeit");
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-ca-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
 
       Map<String, Object> extraParams = new HashMap<>();
@@ -146,14 +149,14 @@ public class JMSSaslExternalLDAPTest extends AbstractLdapTestUnit {
    @Test(timeout = 600000)
    public void testRoundTrip() throws Exception {
 
-      final String keystore = this.getClass().getClassLoader().getResource("client_not_revoked.jks").getFile();
-      final String truststore = this.getClass().getClassLoader().getResource("truststore.jks").getFile();
+      final String keystore = this.getClass().getClassLoader().getResource("client-keystore.jks").getFile();
+      final String truststore = this.getClass().getClassLoader().getResource("server-ca-truststore.jks").getFile();
 
       String connOptions = "?amqp.saslMechanisms=EXTERNAL" + "&" +
          "transport.trustStoreLocation=" + truststore + "&" +
-         "transport.trustStorePassword=changeit" + "&" +
+         "transport.trustStorePassword=securepass" + "&" +
          "transport.keyStoreLocation=" + keystore + "&" +
-         "transport.keyStorePassword=changeit" + "&" +
+         "transport.keyStorePassword=securepass" + "&" +
          "transport.verifyHost=false";
 
       JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqps://localhost:" + 61616 + connOptions));

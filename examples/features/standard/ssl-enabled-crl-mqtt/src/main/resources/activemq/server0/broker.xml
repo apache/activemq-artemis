@@ -22,7 +22,7 @@ under the License.
 
       <acceptors>
          <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
-         <acceptor name="mqtt">tcp://0.0.0.0:1883?protocols=MQTT;sslEnabled=true;keyStorePath=keystore1.jks;keyStorePassword=changeit;trustStorePath=truststore.jks;keyStorePassword=changeit;crlPath=root.crl.pem;needClientAuth=true</acceptor>
+         <acceptor name="mqtt">tcp://0.0.0.0:1883?protocols=MQTT;sslEnabled=true;keyStorePath=server-keystore.jks;keyStorePassword=securepass;trustStorePath=client-ca-truststore.jks;keyStorePassword=securepass;crlPath=other-client-crl.pem;needClientAuth=true</acceptor>
       </acceptors>
 
       <wildcard-addresses>
