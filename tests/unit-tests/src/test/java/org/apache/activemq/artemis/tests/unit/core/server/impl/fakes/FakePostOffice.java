@@ -200,7 +200,12 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public DuplicateIDCache getDuplicateIDCache(final SimpleString address) {
-      return DuplicateIDCaches.inMemory(address, 2000);
+      return getDuplicateIDCache(address, 2000);
+   }
+
+   @Override
+   public DuplicateIDCache getDuplicateIDCache(final SimpleString address, int idSize) {
+      return DuplicateIDCaches.inMemory(address, idSize);
    }
 
    @Override

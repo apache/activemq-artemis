@@ -351,32 +351,48 @@ public class ByteUtilTest {
       }
    }
 
-
-
    @Test
-   public void testIntToByte() {
-      for (int i = 0; i < 1000; i++) {
-         int randomInt = RandomUtil.randomInt();
-         byte[] expected = ByteBuffer.allocate(4).putInt(randomInt).array();
+   public void testIntToBytes() {
+      internalIntToBytesTest(RandomUtil.randomInt(), null);
+      internalIntToBytesTest(0, new byte[]{0, 0, 0, 0});
+      internalIntToBytesTest(-1, new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF});
+      internalIntToBytesTest(Integer.MIN_VALUE, new byte[] {(byte)0x80, (byte)0x00, (byte)0x00, (byte)0x00});
+      internalIntToBytesTest(Integer.MAX_VALUE, new byte[] {(byte)0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF});
+   }
 
-         byte[] actual = ByteUtil.intToBytes(randomInt);
-         assertArrayEquals(expected, actual);
-
-         assertEquals(randomInt, ByteUtil.bytesToInt(expected));
-         assertEquals(randomInt, ByteUtil.bytesToInt(actual));
+   private void internalIntToBytesTest(int intValue, byte[] manualExpect) {
+      byte[] expected = ByteBuffer.allocate(4).putInt(intValue).array();
+      byte[] actual = ByteUtil.intToBytes(intValue);
+      if (manualExpect != null) {
+         Assert.assertEquals(4, manualExpect.length);
+         assertArrayEquals(manualExpect, actual);
       }
+      assertArrayEquals(expected, actual);
+
+      assertEquals(intValue, ByteUtil.bytesToInt(expected));
+      assertEquals(intValue, ByteUtil.bytesToInt(actual));
    }
 
    @Test
    public void testLongToBytes() {
-      ByteBuffer buffer = ByteBuffer.allocate(8);
-      long randomLong = RandomUtil.randomLong();
-      buffer.putLong(randomLong);
-      byte[] longArrayAssert = buffer.array();
+      internalLongToBytesTest(RandomUtil.randomLong(), null);
+      internalLongToBytesTest(0, new byte[] {0, 0, 0, 0, 0, 0, 0, 0});
+      internalLongToBytesTest(-1, new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF});
+      internalLongToBytesTest(Long.MIN_VALUE, new byte[] {(byte)0x80, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00});
+      internalLongToBytesTest(Long.MAX_VALUE, new byte[] {(byte)0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF});
+   }
 
-      byte[] convertedArray = ByteUtil.longToBytes(randomLong);
+   private void internalLongToBytesTest(long longValue, byte[] manualExpected) {
+      byte[] expected = ByteBuffer.allocate(8).putLong(longValue).array();
+      byte[] actual = ByteUtil.longToBytes(longValue);
+      if (manualExpected != null) {
+         Assert.assertEquals(8, manualExpected.length);
+         assertArrayEquals(manualExpected, actual);
+      }
+      assertArrayEquals(expected, actual);
 
-      assertArrayEquals(longArrayAssert, convertedArray);
+      assertEquals(longValue, ByteUtil.bytesToLong(expected));
+      assertEquals(longValue, ByteUtil.bytesToLong(actual));
    }
 
    @Test

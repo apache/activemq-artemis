@@ -29,7 +29,6 @@ export TEST_TARGET="./target"
 . ./installHome.sh
 
 cd $ARTEMIS_HOME/examples/features/standard/
-
 cd auto-closeable; mvn verify; cd ..
 cd broker-plugin; mvn verify; cd ..
 cd browser; mvn verify; cd ..
@@ -57,10 +56,7 @@ cd interceptor-mqtt; mvn verify; cd ..
 cd jms-bridge; mvn verify; cd ..
 cd jmx; mvn verify; cd ..
 cd jmx-ssl; mvn verify; cd ..
-
-# too big for most CI machines
-#cd large-message; mvn verify; cd ..
-
+#cd large-message; mvn verify; cd .. # too big for most CI machines, keeping it out
 cd last-value-queue; mvn verify; cd ..
 cd management; mvn verify; cd ..
 cd management-notifications; mvn verify; cd ..
@@ -100,10 +96,7 @@ cd xa-heuristic; mvn verify; cd ..
 cd xa-receive; mvn verify; cd ..
 cd xa-send; mvn verify; cd ..
 
-
 cd $ARTEMIS_HOME/examples/features/clustered/
-
-
 cd client-side-load-balancing; mvn verify; cd ..
 cd clustered-durable-subscription; mvn verify; cd ..
 cd clustered-grouping; mvn verify; cd ..
@@ -119,10 +112,7 @@ cd symmetric-cluster; mvn verify; cd ..
 cd shared-storage-static-cluster; mvn verify; cd ..
 
 
-# TODO: these will hung eventually when ran in series
-
 cd $ARTEMIS_HOME/examples/features/ha/
-
 cd application-layer-failover; mvn verify; cd ..
 cd client-side-failoverlistener; mvn verify; cd ..
 cd colocated-failover; mvn verify; cd ..
@@ -133,39 +123,26 @@ cd multiple-failover-failback; mvn verify; cd ..
 cd non-transaction-failover; mvn verify; cd ..
 cd replicated-failback; mvn verify; cd ..
 cd replicated-failback-static; mvn verify; cd ..
-
 cd replicated-multiple-failover; mvn verify; cd ..
-
 cd replicated-transaction-failover; mvn verify; cd ..
 cd scale-down; mvn verify; cd ..
 cd transaction-failover; mvn verify; cd ..
 
-
 cd $ARTEMIS_HOME/examples/protocols/amqp/
-
-
 cd queue; mvn verify; cd ..
 
 
 cd $ARTEMIS_HOME/examples/protocols/mqtt/
-
-
 cd clustered-queue-mqtt; mvn verify; cd ..
 cd publish-subscribe; mvn verify; cd ..
 
-
 cd $ARTEMIS_HOME/examples/protocols/openwire/
-
-
 cd queue; mvn verify; cd ..
 cd message-listener; mvn verify; cd ..
 cd message-recovery; mvn verify; cd ..
 cd virtual-topic-mapping; mvn verify; cd ..
 
-
 cd $ARTEMIS_HOME/examples/protocols/stomp/
-
-
 cd stomp; mvn verify; cd ..
 cd stomp1.1; mvn verify; cd ..
 cd stomp1.2; mvn verify; cd ..
@@ -173,6 +150,11 @@ cd stomp-dual-authentication; mvn verify; cd ..
 cd stomp-embedded-interceptor; mvn verify; cd ..
 cd stomp-jms; mvn verify; cd ..
 
+cd $ARTEMIS_HOME/examples/features/broker-connection
+cd amqp-receiving-messages; mvn verify; cd ..
+cd amqp-sending-messages; mvn verify; cd ..
+cd amqp-sending-overssl; mvn verify; cd ..
+cd disaster-recovery; mvn verify; cd ..
 
 cd $CURRENT_DIR
 rm -rf target

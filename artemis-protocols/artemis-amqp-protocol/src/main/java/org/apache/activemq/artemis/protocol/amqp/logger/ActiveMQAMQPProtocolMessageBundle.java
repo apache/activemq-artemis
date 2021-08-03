@@ -87,4 +87,26 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    @Message(id = 119017, value = "not authorized to create producer, {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPSecurityException securityErrorCreatingProducer(String message);
 
+   @Message(id = 119018, value = "link is missing an offered capability declaration {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPIllegalStateException missingOfferedCapability(String capability);
+
+   @Message(id = 119019, value = "There is no brokerID defined on the target connection. Connection will be closed.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPIllegalStateException missingBrokerID();
+
+   @Message(id = 119020, value = "The Broker Connection Open Callback Has Timed Out.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPIllegalStateException brokerConnectionTimeout();
+
+   @Message(id = 119021, value = "The broker connection had a remote link closed unexpectedly", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPIllegalStateException brokerConnectionRemoteLinkClosed();
+
+   @Message(id = 119022, value = "The broker connection is trying to connect to itself. Check your configuration.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPIllegalStateException brokerConnectionMirrorItself();
+
+   @Message(id = 119023, value =  "Sender link refused for address {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPIllegalStateException senderLinkRefused(String address);
+
+   @Message(id = 119024, value = "link is missing a desired capability declaration {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPIllegalStateException missingDesiredCapability(String capability);
+
+
 }

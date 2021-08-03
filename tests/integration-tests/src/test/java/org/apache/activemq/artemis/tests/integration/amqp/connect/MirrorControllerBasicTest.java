@@ -92,7 +92,7 @@ public class MirrorControllerBasicTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo("test").addRoutingType(RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration("test").setAddress("test").setRoutingType(RoutingType.ANYCAST));
 
-      Message message = AMQPMirrorMessageFactory.createMessage("test", SimpleString.toSimpleString("ad1"), SimpleString.toSimpleString("qu1"), "test", "body-test");
+      Message message = AMQPMirrorMessageFactory.createMessage("test", SimpleString.toSimpleString("ad1"), SimpleString.toSimpleString("qu1"), "test", "someUID", "body-test");
       AMQPMirrorControllerSource.route(server, message);
 
       AmqpClient client = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
@@ -106,6 +106,7 @@ public class MirrorControllerBasicTest extends ActiveMQTestBase {
       Assert.assertEquals("body-test", (String)value.getValue());
       Assert.assertEquals("ad1",amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.ADDRESS.toString()));
       Assert.assertEquals("qu1", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.QUEUE.toString()));
+      Assert.assertEquals("someUID", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.BROKER_ID.toString()));
       Assert.assertEquals("test", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.EVENT_TYPE.toString()));
 
       connection.close();

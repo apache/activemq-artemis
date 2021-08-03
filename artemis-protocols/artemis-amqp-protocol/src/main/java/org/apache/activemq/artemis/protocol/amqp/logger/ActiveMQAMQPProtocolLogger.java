@@ -63,7 +63,7 @@ public interface ActiveMQAMQPProtocolLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 111003, value = "\n*******************************************************************************************************************************" +
-      "\nSuccess on Server AMQP Connection {0} on {1} after {2} retries" +
+      "\nConnected on Server AMQP Connection {0} on {1} after {2} retries" +
       "\n*******************************************************************************************************************************\n", format = Message.Format.MESSAGE_FORMAT)
    void successReconnect(String name, String hostAndPort, int currentRetry);
 

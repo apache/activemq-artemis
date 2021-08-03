@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -36,41 +37,54 @@ import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccessor;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnection;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
+import org.apache.qpid.proton.engine.Sender;
 import org.jboss.logging.Logger;
 
-public class AMQPMirrorControllerSource implements MirrorController, ActiveMQComponent {
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget.getControllerInUse;
+
+public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> implements MirrorController, ActiveMQComponent {
 
    private static final Logger logger = Logger.getLogger(AMQPMirrorControllerSource.class);
 
    public static final Symbol EVENT_TYPE = Symbol.getSymbol("x-opt-amq-mr-ev-type");
    public static final Symbol ADDRESS = Symbol.getSymbol("x-opt-amq-mr-adr");
    public static final Symbol QUEUE = Symbol.getSymbol("x-opt-amq-mr-qu");
+   public static final Symbol BROKER_ID = Symbol.getSymbol("x-opt-amq-bkr-id");
 
    // Events:
    public static final Symbol ADD_ADDRESS = Symbol.getSymbol("addAddress");
    public static final Symbol DELETE_ADDRESS = Symbol.getSymbol("deleteAddress");
    public static final Symbol CREATE_QUEUE = Symbol.getSymbol("createQueue");
    public static final Symbol DELETE_QUEUE = Symbol.getSymbol("deleteQueue");
-   public static final Symbol ADDRESS_SCAN_START = Symbol.getSymbol("addressCanStart");
-   public static final Symbol ADDRESS_SCAN_END = Symbol.getSymbol("addressScanEnd");
    public static final Symbol POST_ACK = Symbol.getSymbol("postAck");
 
    // Delivery annotation property used on mirror control routing and Ack
    public static final Symbol INTERNAL_ID = Symbol.getSymbol("x-opt-amq-mr-id");
    public static final Symbol INTERNAL_DESTINATION = Symbol.getSymbol("x-opt-amq-mr-dst");
 
+   // Capabilities
+   public static final Symbol MIRROR_CAPABILITY = Symbol.getSymbol("amq.mirror");
+   public static final Symbol QPID_DISPATCH_WAYPOINT_CAPABILITY = Symbol.valueOf("qd.waypoint");
+
+   public static final SimpleString INTERNAL_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(INTERNAL_ID.toString());
+   public static final SimpleString INTERNAL_BROKER_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(BROKER_ID.toString());
+
    private static final ThreadLocal<MirrorControlRouting> mirrorControlRouting = ThreadLocal.withInitial(() -> new MirrorControlRouting(null));
 
    final Queue snfQueue;
    final ActiveMQServer server;
+   final ReferenceNodeStore idSupplier;
    final boolean acks;
    final boolean addQueues;
    final boolean deleteQueues;
    private final AMQPBrokerConnection brokerConnection;
+
+   final AMQPMirrorBrokerConnectionElement replicaConfig;
 
    boolean started;
 
@@ -87,12 +101,16 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
       return started;
    }
 
-   public AMQPMirrorControllerSource(Queue snfQueue, ActiveMQServer server, boolean acks, boolean addQueues, boolean deleteQueues, AMQPBrokerConnection brokerConnection) {
+   public AMQPMirrorControllerSource(ProtonProtocolManager protonProtocolManager, Queue snfQueue, ActiveMQServer server, AMQPMirrorBrokerConnectionElement replicaConfig,
+                                     AMQPBrokerConnection brokerConnection) {
+      super(server);
+      this.replicaConfig = replicaConfig;
       this.snfQueue = snfQueue;
       this.server = server;
-      this.acks = acks;
-      this.addQueues = addQueues;
-      this.deleteQueues = deleteQueues;
+      this.idSupplier = protonProtocolManager.getReferenceIDSupplier();
+      this.addQueues = replicaConfig.isQueueCreation();
+      this.deleteQueues = replicaConfig.isQueueRemoval();
+      this.acks = replicaConfig.isMessageAcknowledgements();
       this.brokerConnection = brokerConnection;
    }
 
@@ -105,61 +123,103 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
    }
 
    @Override
-   public void startAddressScan() throws Exception {
-      Message message = createMessage(null, null, ADDRESS_SCAN_START, null);
-      route(server, message);
-   }
-
-   @Override
-   public void endAddressScan() throws Exception {
-      Message message = createMessage(null, null, ADDRESS_SCAN_END, null);
-      route(server, message);
-   }
-
-   @Override
    public void addAddress(AddressInfo addressInfo) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace(server + " addAddress " + addressInfo);
+      }
+
+      if (getControllerInUse() != null && !addressInfo.isInternal()) {
+         return;
+      }
       if (addQueues) {
-         Message message = createMessage(addressInfo.getName(), null, ADD_ADDRESS, addressInfo.toJSON());
+         Message message = createMessage(addressInfo.getName(), null, ADD_ADDRESS, null, addressInfo.toJSON());
          route(server, message);
       }
    }
 
    @Override
    public void deleteAddress(AddressInfo addressInfo) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace(server + " deleteAddress " + addressInfo);
+      }
+      if (invalidTarget(getControllerInUse()) || addressInfo.isInternal()) {
+         return;
+      }
       if (deleteQueues) {
-         Message message = createMessage(addressInfo.getName(), null, DELETE_ADDRESS, addressInfo.toJSON());
+         Message message = createMessage(addressInfo.getName(), null, DELETE_ADDRESS, null, addressInfo.toJSON());
          route(server, message);
       }
    }
 
    @Override
    public void createQueue(QueueConfiguration queueConfiguration) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace(server + " createQueue " + queueConfiguration);
+      }
+      if (invalidTarget(getControllerInUse()) || queueConfiguration.isInternal()) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Rejecting ping pong on create " + queueConfiguration + " as isInternal=" + queueConfiguration.isInternal() + " and mirror target = " + getControllerInUse());
+         }
+         return;
+      }
       if (addQueues) {
-         Message message = createMessage(queueConfiguration.getAddress(), queueConfiguration.getName(), CREATE_QUEUE, queueConfiguration.toJSON());
+         Message message = createMessage(queueConfiguration.getAddress(), queueConfiguration.getName(), CREATE_QUEUE, null, queueConfiguration.toJSON());
          route(server, message);
       }
    }
 
    @Override
    public void deleteQueue(SimpleString address, SimpleString queue) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace(server + " deleteQueue " + address + "/" + queue);
+      }
+
+      if (invalidTarget(getControllerInUse())) {
+         return;
+      }
+
       if (deleteQueues) {
-         Message message = createMessage(address, queue, DELETE_QUEUE, queue.toString());
+         Message message = createMessage(address, queue, DELETE_QUEUE, null, queue.toString());
          route(server, message);
       }
    }
 
+   private boolean invalidTarget(MirrorController controller) {
+      return controller != null && sameNode(getRemoteMirrorId(), controller.getRemoteMirrorId());
+   }
+
+   private boolean sameNode(String remoteID, String sourceID) {
+      return (remoteID != null && sourceID != null && remoteID.equals(sourceID));
+   }
+
    @Override
    public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
+      if (invalidTarget(context.getMirrorSource())) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("server " + server + " is discarding send to avoid infinite loop (reflection with the mirror)");
+         }
+         return;
+      }
+
+      if (logger.isTraceEnabled()) {
+         logger.trace(server + " send message " + message);
+      }
 
       try {
          context.setReusable(false);
 
          MessageReference ref = MessageReference.Factory.createReference(message, snfQueue);
+         String nodeID = setProtocolData(idSupplier, ref);
+         if (nodeID != null && nodeID.equals(getRemoteMirrorId())) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("Message " + message + "already belonged to the node, " + getRemoteMirrorId() + ", it won't circle send");
+            }
+            return;
+         }
          snfQueue.refUp(ref);
          refs.add(ref);
          message.usageUp();
 
-         setProtocolData(ref);
 
          if (message.isDurable() && snfQueue.isDurable()) {
             PostOfficeImpl.storeDurableReference(server.getStorageManager(), message, context.getTransaction(), snfQueue, true);
@@ -170,16 +230,30 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
       }
    }
 
-   public static void validateProtocolData(MessageReference ref, SimpleString snfAddress) {
+   public static void validateProtocolData(ReferenceNodeStore referenceIDSupplier, MessageReference ref, SimpleString snfAddress) {
       if (ref.getProtocolData() == null && !ref.getMessage().getAddressSimpleString().equals(snfAddress)) {
-         setProtocolData(ref);
+         setProtocolData(referenceIDSupplier, ref);
       }
    }
 
-   private static void setProtocolData(MessageReference ref) {
+   /** This method will return the brokerID used by the message */
+   private static String setProtocolData(ReferenceNodeStore referenceIDSupplier, MessageReference ref) {
       Map<Symbol, Object> daMap = new HashMap<>();
       DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(daMap);
-      daMap.put(INTERNAL_ID, ref.getMessage().getMessageID());
+
+      String brokerID = referenceIDSupplier.getServerID(ref);
+
+      // getListID will return null when the message was generated on this broker.
+      // on this case we do not send the brokerID, and the ControllerTarget will get the information from the link.
+      // this is just to safe a few bytes and some processing on the wire.
+      if (brokerID != null) {
+         // not sending the brokerID, will make the other side to get the brokerID from the remote link's property
+         daMap.put(BROKER_ID, brokerID);
+      }
+
+      long id = referenceIDSupplier.getID(ref);
+
+      daMap.put(INTERNAL_ID, id);
       String address = ref.getMessage().getAddress();
       if (address != null) { // this is the message that was set through routing
          Properties amqpProperties = getProperties(ref.getMessage());
@@ -190,6 +264,8 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
          }
       }
       ref.setProtocolData(deliveryAnnotations);
+
+      return brokerID;
    }
 
    private static Properties getProperties(Message message) {
@@ -202,16 +278,42 @@ public class AMQPMirrorControllerSource implements MirrorController, ActiveMQCom
 
    @Override
    public void postAcknowledge(MessageReference ref, AckReason reason) throws Exception {
-      if (acks && !ref.getQueue().isMirrorController()) { // we don't call postACK on snfqueues, otherwise we would get infinite loop because of this feedback
-         Message message = createMessage(ref.getQueue().getAddress(), ref.getQueue().getName(), POST_ACK, ref.getMessage().getMessageID());
-         route(server, message);
-         ref.getMessage().usageDown();
+
+      MirrorController controllerInUse = getControllerInUse();
+
+      if (!acks || ref.getQueue().isMirrorController()) { // we don't call postACK on snfqueues, otherwise we would get infinite loop because of this feedback/
+         return;
       }
+
+      if (invalidTarget(controllerInUse)) {
+         return;
+      }
+
+      if ((ref.getQueue() != null && (ref.getQueue().isInternalQueue() || ref.getQueue().isMirrorController()))) {
+         if (logger.isDebugEnabled()) {
+            logger.debug(server + " rejecting postAcknowledge queue=" + ref.getQueue().getName() + ", ref=" + ref + " to avoid infinite loop with the mirror (reflection)");
+         }
+         return;
+      }
+
+      if (logger.isTraceEnabled()) {
+         logger.trace(server + " postAcknowledge " + ref);
+      }
+
+      String nodeID = idSupplier.getServerID(ref); // notice the brokerID will be null for any message generated on this broker.
+      long internalID = idSupplier.getID(ref);
+      if (logger.isTraceEnabled()) {
+         logger.trace(server + " sending ack message from server " + nodeID + " with messageID=" + internalID);
+      }
+      Message message = createMessage(ref.getQueue().getAddress(), ref.getQueue().getName(), POST_ACK, nodeID, internalID);
+      route(server, message);
+      ref.getMessage().usageDown();
    }
 
-   private Message createMessage(SimpleString address, SimpleString queue, Object event, Object body) {
-      return AMQPMirrorMessageFactory.createMessage(snfQueue.getAddress().toString(), address, queue, event, body);
+   private Message createMessage(SimpleString address, SimpleString queue, Object event, String brokerID, Object body) {
+      return AMQPMirrorMessageFactory.createMessage(snfQueue.getAddress().toString(), address, queue, event, brokerID, body);
    }
+
    public static void route(ActiveMQServer server, Message message) throws Exception {
       message.setMessageID(server.getStorageManager().generateID());
       MirrorControlRouting ctx = mirrorControlRouting.get();

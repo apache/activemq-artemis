@@ -110,7 +110,7 @@ public class Wait {
       assertTrue(DEFAULT_FAILURE_MESSAGE, condition);
    }
 
-   public static void assertFalse(Condition condition) throws Exception {
+   public static void assertFalse(Condition condition) {
       assertTrue(() -> !condition.isSatisfied());
    }
 
@@ -159,7 +159,7 @@ public class Wait {
    public static boolean waitFor(final Condition condition,
                                  final long durationMillis,
                                  final long sleepMillis) {
-      return waitFor(condition, durationMillis, sleepMillis, true);
+      return waitFor(condition, durationMillis, sleepMillis, false);
    }
 
    public static boolean waitFor(final Condition condition,

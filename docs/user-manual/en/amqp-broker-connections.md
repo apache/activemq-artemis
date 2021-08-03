@@ -4,11 +4,11 @@ Instead of waiting for clients to connect, a broker can initiate a connection to
 
 Currently, this feature supports only the AMQP protocol. However, in the future, it might be expanded to other protocols.
 
-You configure broker connections using a `<broker-connections>` XML element in the `broker.xml` configuration file.
+Broker connections are configured by the `<broker-connections>` XML element in the `broker.xml` configuration file.
 
 ```xml
 <broker-connections>
-    ...
+  ...
 </broker-connections>
 ```
 
@@ -20,9 +20,9 @@ To define an AMQP broker connection, add an `<amqp-connection>` element within t
 
 ```xml
 <broker-connections>
-    <amqp-connection uri="tcp://MY_HOST:MY_PORT" name="my-broker" retry-interval="100" reconnect-attempts="-1" user="john" password="doe">
-         ...
-    </amqp-connection>
+  <amqp-connection uri="tcp://HOST:PORT" name="other-server" retry-interval="100" reconnect-attempts="-1" user="john" password="doe">
+    ...
+  </amqp-connection>
 </broker-connections>
 ```
 
@@ -32,23 +32,147 @@ To define an AMQP broker connection, add an `<amqp-connection>` element within t
 - `password`: Password with which to connect to the endpoint (this is an optional argument)
 - `retry-interval`: Time, in milliseconds to wait before retrying a connection after an error. The default value is `5000`.
 - `reconnect-attempts`: default is -1 meaning infinite
-- `auto-start` : Should the broker connection start automatically with the broker. Default is `true`. If false you need to call a management operation to start it.
+- `auto-start` : Should the broker connection start automatically with the broker. Default is `true`. If false it is necessary to call a management operation to start it.
 
-*Notice:* If you disable auto-start on the broker connection, the start of the broker connection will only happen after the management method `startBrokerConnection(connectionName)` is called on the ServerController.
+*Notice:* If auto-start is disabled on the broker connection, the start of the broker connection will only happen after the management method `startBrokerConnection(connectionName)` is called on the ServerController.
 
-*Important*: The target endpoint needs permission for all operations that you configure. Therefore, If you are using a security manager, ensure that you perform the configured operations as a user with sufficient permissions.
+*Important*: The target endpoint needs permission for all operations that configured. Therefore, If a security manager is being used, ensure to perform the configured operations with a user with sufficient permissions.
+
+<div style="page-break-after: always"></div>
 
 # AMQP Server Connection Operations
-The following types of operations are supported on a AMQP server connection:
+The following types of operations are supported on an AMQP server connection:
 
-* Senders
-    * Messages received on specific queues are transferred to another endpoint
-* Receivers
-    * The broker pulls messages from another endpoint
-* Peers
-    * The broker creates both senders and receivers on another endpoint that knows how to handle them. Currently, this is implemented by Apache Qpid Dispatch.
 * Mirrors
-    * The broker uses an AMQP connection to another broker and duplicate messages and sends acknowledgements over the wire.
+  * The broker uses an AMQP connection to another broker and duplicates messages and sends acknowledgements over the wire.
+* Senders
+  * Messages received on specific queues are transferred to another endpoint.
+* Receivers
+  * The broker pulls messages from another endpoint.
+* Peers
+  * The broker creates both senders and receivers on another endpoint that knows how to handle them. This is currently implemented by Apache Qpid Dispatch.
+
+<div style="page-break-after: always"></div>
+
+# Reconnecting and Failover
+
+It is possible to determine how reconnection will happen on a broker connection. 
+
+These are the attributes are available on amqp-connection XML element:
+- reconnect-attempts: default as -1 (infinite). How many attempts will be done after a failed connection
+- retry-interval: default as 5000, in milliseconds, the wait between each retry in connections. 
+
+It is also possible to specify alternate hosts on a broker connection by appending a comma separated list after a # at the end of the URI.
+The broker connection would keep trying on the alternate list until one of the targets is available to connect. Example:
+
+```xml
+<broker-connections>
+  <amqp-connection uri="tcp://ServerA:5672#BackupA:5672,BackupB:5672" name="ServerA" reconnect-attempts="-1" retry-interval="5000">
+    ...
+  </amqp-connection>
+</broker-connections>
+```
+![Broker Connection Failover](images/broker-connection-failover.jpg)
+Figure 1. Broker Connection - Reconnecting and Failover.
+
+
+The previous example portrays a case of connection failure towards ServerA. The system would try to connect to serverA, backupA, and backupB until it successfully connects to one of these nodes.
+
+<div style="page-break-after: always"></div>
+
+## Mirroring
+The idea of mirroring is to send events that happen on a broker towards another broker, without blocking any operations from producers and consumers, allowing them to keep operating as fast as possible.
+It can be used for Disaster Recovery, and depending on the requirements even for failing over the data.
+
+The following events are sent through mirroring:
+
+* Message sending
+  * Messages sent to one broker will be "replicated" to the target broker.
+* Message acknowledgement
+  * Acknowledgements removing messages at one broker will be sent to the target broker.
+  * Note that if the message is pending for a consumer on the target mirror, the ack will not succeed and the message might be delivered by both brokers.
+* Queue and address creation.
+* Queue and address deletion.
+
+### Mirror configuration
+
+Add a `<mirror>` element within the `<amqp-connection>` element to configure mirroring to the target broker.
+
+The following optional arguments can be utilized:
+
+* `queue-removal`: Specifies whether a queue- or address-removal event is sent. The default value is `true`.
+* `message-acknowledgements`: Specifies whether message acknowledgements are sent. The default value is `true`.
+* `queue-creation`: Specifies whether a queue- or address-creation event is sent. The default value is `true`.
+
+An example of a mirror configuration is shown below:
+```xml
+<broker-connections>
+  <amqp-connection uri="tcp://HOST:PORT" name="mirror">
+    <mirror/>
+  </amqp-connection>
+</broker-connections>
+```
+
+
+### Store and Forward Queue
+
+Mirror events are always stored on a local queue prefixed as "$ACTIVEMQ_ARTEMIS_MIRROR_" and then concatenated with the broker connection's configured name.
+
+So, in the following configuration mirror events will be stored on a queue named "$ACTIVEMQ_ARTEMIS_MIRROR_brokerB".
+
+```xml
+<broker-connection>
+  <amqp-connection uri="tcp://brokerB:5672" name="brokerB">
+    <mirror/>
+  </amqp-connection>
+</broker-connection>
+```
+
+These messages are then transferred to brokerB:5672. A producer to the address $ACTIVEMQ_ARTEMIS_MIRROR_brokerB will be created towards brokerB. If there is a security manager configured, security roles must be provided to the user on the broker connection.
+
+Notice the queue $ACTIVEMQ_ARTEMIS_MIRROR_brokerB will not actually exist on brokerB and so it wont be visible on the administration console. The target broker will treat these messages accordingly as mirror events and perform the appropriate operations at the target broker.
+
+### Pre Existing Messages
+The broker will only mirror messages arriving from the point in time the mirror was configured. Previously existing messages will not be forwarded to other brokers.
+
+## Dual Mirror (Disaster Recovery)
+
+ActiveMQ Artemis supports automatic fallback mirroring. Every sent message and every acknowledgement is asynchronously replicated to the mirrored broker.
+
+On the following diagram, there will be two servers called DataCenter1, and DataCenter2. In order to have a dual mirror configuration, it is necessary is to add the mirror broker connection on each broker.xml:
+
+![Broker Connection DR](images/broker-connection-DR.jpg)
+Figure 2. Broker Connection - Disaster Recovery.
+
+on DataCenter1, the following code should be added the broker.xml:
+
+```xml
+<broker-connections>
+   <amqp-connection uri="tcp://DataCenter2:5672" name="DC2">
+      <mirror/>
+   </amqp-connection>
+</broker-connections>
+```
+
+The following xml should be added on DataCenter2's broker.xml:
+```xml
+<broker-connections>
+   <amqp-connection uri="tcp://DataCenter1:5672" name="DC1">
+      <mirror/>
+   </amqp-connection>
+</broker-connections>
+```
+
+
+The broker connections will replicate sends and acknowledgements to the other broker, no matter where they originated. If messages are sent on DC1 (DataCenter1) these will be automatically transferred to DC2 (DataCenter2). Messages acknowledgements received on DC2 will be automatically related back to DC1. 
+The only exception to that rule would be if there were already consumers with pending messages on any server, where a mirrored acknowledgement will not prevent the message being consumed by both consumers. It is recommended to not have active consumers on both servers.
+
+## Example
+There is an example as part of the distribution showing dual broker configuration (or disaster recovery) under ./examples/features/broker-connection/disaster-recovery.
+
+On the example two brokers are configured to mirror each other and whatever happens in one broker is immediately copied over to the other broker.
+
+<div style="page-break-after: always"></div>
 
 ## Senders and Receivers
 It is possible to connect an ActiveMQ Artemis broker to another AMQP endpoint simply by creating a sender or receiver broker connection element.
@@ -57,9 +181,9 @@ For a `sender`, the broker creates a message consumer on a queue that sends mess
 
 For a `receiver`, the broker creates a message producer on an address that receives messages from another AMQP endpoint.
 
-Both elements work like a message bridge. However, there is no additional overhead required to process messages. Senders and receivers behave just like any other consumer or producer in ActiveMQ Artemis.
+Both elements function as a message bridge. However, there is no additional overhead required to process messages. Senders and receivers behave just like any other consumer or producer in ActiveMQ Artemis.
 
-You can configure senders or receivers for specific queues. You can also match senders and receivers to specific addresses or _sets_ of addresses, using wildcard expressions. When configuring a sender or receiver, you can set the following properties:
+Specific queues can be configured by senders or receivers. Wildcard expressions can be used to match senders and receivers to specific addresses or _sets_ of addresses. When configuring a sender or receiver, the following properties can be set:
 
 - `address-match`: Match the sender or receiver to a specific address or __set__ of addresses, using a wildcard expression
 - `queue-name`: Configure the sender or receiver for a specific queue
@@ -70,83 +194,85 @@ Some examples are shown below.
 Using address expressions:
 ```xml
 <broker-connections>
-    <amqp-connection uri="tcp://MY_HOST:MY_PORT" name="my-broker">
-        <sender address-match="queues.#"/>
-        <!-- notice the local queues for remotequeues.# need to be created on this broker -->
-        <receiver address-match="remotequeues.#"/>
-    </amqp-connection>
+  <amqp-connection uri="tcp://HOST:PORT" name="other-server">
+    <sender address-match="queues.#"/>
+    <!-- notice the local queues for remotequeues.# need to be created on this broker -->
+    <receiver address-match="remotequeues.#"/>
+  </amqp-connection>
 </broker-connections>
 
 <addresses>
-    <address name="remotequeues.A">
-        <anycast>
-            <queue name="remoteQueueA"/>
-        </anycast>
-    </address>
-    <address name="queues.B">
-        <anycast>
-            <queue name="localQueueB"/>
-        </anycast>
-    </address>
+  <address name="remotequeues.A">
+    <anycast>
+      <queue name="remoteQueueA"/>
+    </anycast>
+  </address>
+  <address name="queues.B">
+    <anycast>
+      <queue name="localQueueB"/>
+    </anycast>
+  </address>
 </addresses>
 ```
 Using queue names:
 ```xml
 <broker-connections>
-    <amqp-connection uri="tcp://MY_HOST:MY_PORT" name="my-broker">
-        <receiver queue-name="remoteQueueA"/>
-        <sender queue-name="localQueueB"/>
-    </amqp-connection>
+  <amqp-connection uri="tcp://HOST:PORT" name="other-server">
+    <receiver queue-name="remoteQueueA"/>
+    <sender queue-name="localQueueB"/>
+  </amqp-connection>
 </broker-connections>
 
 <addresses>
-     <address name="remotequeues.A">
-        <anycast>
-           <queue name="remoteQueueA"/>
-        </anycast>
-     </address>
-     <address name="queues.B">
-        <anycast>
-           <queue name="localQueueB"/>
-        </anycast>
-     </address>
+   <address name="remotequeues.A">
+     <anycast>
+       <queue name="remoteQueueA"/>
+     </anycast>
+   </address>
+   <address name="queues.B">
+     <anycast>
+       <queue name="localQueueB"/>
+     </anycast>
+   </address>
 </addresses>
 ```
-*Important:* You can match a receiver only to a local queue that already exists. Therefore, if you are using receivers, make sure that you pre-create the queue locally. Otherwise, the broker cannot match the remote queues and addresses.
+*Important:* Receivers can only be matched to a local queue that already exists. Therefore, if receivers are being used, ensure that queues are pre-created locally. Otherwise, the broker cannot match the remote queues and addresses.
 
 *Important:* Do not create a sender and a receiver to the same destination. This creates an infinite loop of sends and receives.
 
+<div style="page-break-after: always"></div>
 
 ## Peers
-The broker can be configured as a peer which connects to the [Apache Qpid Dispatch Router](https://qpid.apache.org/components/dispatch-router/) and instructs it the broker it will act as a store-and-forward queue for a given AMQP waypoint address configured on the router. In this scenario, clients connect to a router to send and receive messages using a waypointed address, and the router routes these messages to or from the queue on the broker.
+The broker can be configured as a peer which connects to the [Apache Qpid Dispatch Router](https://qpid.apache.org/components/dispatch-router/) and instructs it that the broker will act as a store-and-forward queue for a given AMQP waypoint address configured on the router. In this scenario, clients connect to a router to send and receive messages using a waypointed address, and the router routes these messages to or from the queue on the broker.
 
 The peer configuration causes ActiveMQ Artemis to create a sender and receiver pair for each destination matched in the broker-connection configuration, with these carrying special configuration to let Qpid Dispatch know to collaborate with the broker. This replaces the traditional need of a router-initiated connection and auto-links.
 
-You can experiment with advanced networking scenarios with Qpid Dispatch Router and get a lot of benefit from the AMQP protocol and its ecosystem.
+Qpid Dispatch Router offers a lot of advanced networking options that be used together with ActiveMQ Artemis.
 
-With a peer configuration, you have the same properties that you have on a sender and receiver. For example, a configuration where queues with names beginning "queue." act as storage for the matching router waypoint address would be:
+With a peer configuration, the same properties are present as when there are senders and receivers. For example, a configuration where queues with names beginning "queue." act as storage for the matching router waypoint address would be:
+
 ```xml
 <broker-connections>
-    <amqp-connection uri="tcp://MY_HOST:MY_PORT" name="my-router">
-       <peer address-match="queues.#"/>
-    </amqp-connection>
+  <amqp-connection uri="tcp://HOST:PORT" name="router">
+    <peer address-match="queues.#"/>
+  </amqp-connection>
 </broker-connections>
 
 <addresses>
-     <address name="queues.A">
-        <anycast>
-           <queue name="queues.A"/>
-        </anycast>
-     </address>
-     <address name="queues.B">
+   <address name="queues.A">
      <anycast>
-        <queue name="queues.B"/>
+       <queue name="queues.A"/>
      </anycast>
-    </address>
+   </address>
+   <address name="queues.B">
+     <anycast>
+       <queue name="queues.B"/>
+     </anycast>
+   </address>
 </addresses>
 ```
 
-There must be a matching address waypoint configuration on the router, instructing it that the particular router addresses the broker attaches to should be treated as waypoints. For example, a similar prefix- based router address configuration would be:
+There must be a matching address waypoint configuration on the router instructing it that the particular router addresses the broker attaches to should be treated as waypoints. For example, a similar prefix- based router address configuration would be:
 
 ```
 address {
@@ -159,119 +285,26 @@ For more information refer to the "brokered messaging" documentation for [Apache
 
 *Important:* Do not use this feature to connect to another broker, otherwise any message sent will be immediately ready to consume creating an infinite echo of sends and receives.
 
-*Important:* You do not need to configure the router with a connector or auto-links to communicate with the broker. The brokers peer configuration replaces these aspects of the router waypoint usage.
+*Important:* It is not necessary to configure the router with a connector or auto-links to communicate with the broker. The brokers peer configuration replaces these aspects of the router waypoint usage.
 
 ## Address Consideration
-It is highly recommended that you keep `address name` and `queue name` the same, as when you use a queue with its distinct name (as in the following example), senders and receivers will always use the `address name` when creating the remote endpoint.
+It is highly recommended that `address name` and `queue name` are the same. When a queue with its distinct name (as in the following example) is used, senders and receivers will always use the `address name` when creating the remote endpoint.
 
 ```xml
 <broker-connections>
-    <amqp-connection uri="tcp://MY_HOST:MY_PORT" name="my-broker">
-       <sender address-match="queues.#"/>
-    </amqp-connection>
+  <amqp-connection uri="tcp://HOST:PORT" name="other-server">
+    <sender address-match="queues.#"/>
+  </amqp-connection>
 </broker-connections>
 <addresses>
-     <address name="queues.A">
-        <anycast>
-           <queue name="distinctNameQueue.A"/>
-        </anycast>
-     </address>
+  <address name="queues.A">
+    <anycast>
+      <queue name="distinctNameQueue.A"/>
+    </anycast>
+  </address>
 </addresses>
 ```
 
-In the above example the `broker connection` would create an AMQP sender towards "queues.A". 
+In the above example the `broker connection` would create an AMQP sender towards "queues.A".
 
-*Important:* To avoid confusion it is recommended that you keep the `address name` and `queue name` the same.
-
-## Mirror 
-The mirror option on the broker connection can capture events from the broker and pass them over the wire to another broker. This enables you to capture multiple asynchronous replicas. The following types of events are captured:
-
-* Message routing
-* Message acknowledgement
-* Queue and address creation
-* queue and address deletion
-
-When you configure a mirror, these events are captured from the broker, stored on a local queue, and later forwarded to a target destination on another ActiveMQ Artemis broker.
-
-To configure a mirror, you add a `<mirror>` element within the `<amqp-connection>` element.
-
-The local queue is called `source-mirror-address`
-
-You can specify the following optional arguments.
-
-* `queue-removal`: Specifies whether a queue- or address-removal event is sent. The default value is `true`.
-* `message-acknowledgements`: Specifies whether message acknowledgements are sent. The default value is `true`.
-* `queue-creation`: Specifies whether a queue- or address-creation event is sent. The default value is `true`.
-* `source-mirror-address`: By default, the mirror creates a non-durable temporary queue to store messages before they are sent to the other broker. If you define a name value for this property, an ANYCAST durable queue and address is created with the specified name.
-
-An example of a mirror configuration is shown below:
-```xml
-<broker-connections>
-    <amqp-connection uri="tcp://MY_HOST:MY_PORT" name="my-mirror">
-            <mirror  queue-removal="true" queue-creation="true" message-acknowledgements="true" source-mirror-address="myLocalSNFMirrorQueue"/>
-    </amqp-connection>
-</broker-connections>
-```
-
-*Important*: A broker can mirror to multiple replicas (1 to many). However a replica broker can only have a single mirror source. Make sure you do not mirror multiple source brokers to a single replica broker.
-
-### Pre Existing Messages
-The broker will not send pre existing messages through the mirror. So, If you add mirror to your configuration and the journal had pre existing messages these messages will not be sent. 
-
-## Broker Connection Stop and Disconnect
-Once you start the broker connection with a mirror the mirror events will always be sent to the intermediate queue configured at the `source-mirror-address`.
-
-It is possible to stop the broker connection with the operation stopBrokerConnection(connectionName) on the ServerControl, but it is only effective to disconnect the brokers, while the mirror events are always captured.
-
-## Disaster & Recovery Considerations
-As you use the mirror option to replicate data across datacenters, you have to take a few considerations:
-
-* Currently we don't support quorums for activating the replica, so you have to manually control when your clients connect to the replica site.
-* Make sure the replica site is passive. Having producers and consumers connected into both sites would be messy and could lead you to data integrity issues.
-    * You can disable auto-start on the acceptor your clients use to connect, and only enable it after a disaster has occurred.
-* Only the queues and addresses are mirrored. Consumer states will have to be reapplied on the replica when the clients reconnects (that applies to message groups, exclusive consumers or anything related to clients)
-* Make sure your configuration options are copied over, including Diverts, security, last value queues, address settings and other configuration options.
-* Have a way back route after a disaster.
-    * You can have a disabled broker connection to be enabled after the disaster.
-
-
-## Mirror example with Failback
-On this example lets play with two brokers:
-- sourceBroker
-- replicaBroker
-
-Add this configuration on sourceBroker:
-
-```xml
-<broker-connections>
-    <amqp-connection uri="tcp://replicaBroker:6700" name="DRSite">
-            <mirror message-acknowledgements="true"/>
-    </amqp-connection>
-</broker-connections>
-```
-
-On the replicaBroker, add a disabled broker connection for failing back after a disaster, and also set the acceptors with autoStart=false
-
-```xml
-
-<acceptors>
-     <!-- this one is for clients -->
-     <acceptor name="artemis">tcp://0.0.0.0:61616?autoStart=false;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true;autoStart=false</acceptor>
-     <!-- this one is for DR communication -->
-     <acceptor name="amqp">tcp://0.0.0.0:6700?autoStart=true;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpMinLargeMessageSize=102400;amqpDuplicateDetection=true;autoStart=false</acceptor>
-</acceptors>
-<broker-connections>
-    <amqp-connection uri="tcp://sourceBroker:6700" name="failbackBroker" auto-start="false">
-            <mirror message-acknowledgements="true"/>
-    </amqp-connection>
-</broker-connections>
-```
-
-After a failure has occurred, you can use a management operation start on the acceptor:
-
-- AcceptorControl.start();
-
-And you can call startBrokerConnection to enable the failback towards the live site:
-
-- ActiveMQServerControl.startBrokerConnection("failbackBroker")
-
+*Important:* To avoid confusion it is recommended that `address name` and `queue name` are kept the same.

@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -59,6 +61,7 @@ import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerAggregation;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
+import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
@@ -77,6 +80,8 @@ import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
+import org.apache.qpid.proton.engine.EndpointState;
+import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
@@ -96,7 +101,9 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private ActiveMQProtonRemotingConnection protonRemotingConnection;
    private volatile boolean started = false;
    private final AMQPBrokerConnectionManager bridgeManager;
+   private AMQPMirrorControllerSource mirrorControllerSource;
    private int retryCounter = 0;
+   private int lastRetryCounter;
    private boolean connecting = false;
    private volatile ScheduledFuture reconnectFuture;
    private final Set<Queue> senders = new HashSet<>();
@@ -141,6 +148,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       return started;
    }
 
+   public boolean isConnecting() {
+      return connecting;
+   }
+
    @Override
    public void stop() {
       if (!started) return;
@@ -167,7 +178,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
             for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
                if (connectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR) {
-                  installMirrorController(this, (AMQPMirrorBrokerConnectionElement) connectionElement, server);
+                  installMirrorController((AMQPMirrorBrokerConnectionElement) connectionElement, server);
                }
             }
          }
@@ -205,15 +216,31 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    public void createLink(Queue queue, AMQPBrokerConnectionElement connectionElement) {
       if (connectionElement.getType() == AMQPBrokerConnectionAddressType.PEER) {
-         connectSender(queue, queue.getAddress().toString(), null, Symbol.valueOf("qd.waypoint"));
-         connectReceiver(protonRemotingConnection, session, sessionContext, queue, Symbol.valueOf("qd.waypoint"));
+         Symbol[] dispatchCapability = new Symbol[]{AMQPMirrorControllerSource.QPID_DISPATCH_WAYPOINT_CAPABILITY};
+         connectSender(queue, queue.getAddress().toString(), null, null, null, null, dispatchCapability);
+         connectReceiver(protonRemotingConnection, session, sessionContext, queue, dispatchCapability);
       } else {
          if (connectionElement.getType() == AMQPBrokerConnectionAddressType.SENDER) {
-            connectSender(queue, queue.getAddress().toString(), null);
+            connectSender(queue, queue.getAddress().toString(), null, null, null, null, null);
          }
          if (connectionElement.getType() == AMQPBrokerConnectionAddressType.RECEIVER) {
             connectReceiver(protonRemotingConnection, session, sessionContext, queue);
          }
+      }
+   }
+
+   SimpleString getMirrorSNF(AMQPMirrorBrokerConnectionElement mirrorElement) {
+      SimpleString snf = mirrorElement.getMirrorSNF();
+      if (snf == null) {
+         snf = SimpleString.toSimpleString(ProtonProtocolManager.getMirrorAddress(this.brokerConnectConfiguration.getName()));
+         mirrorElement.setMirrorSNF(snf);
+      }
+      return snf;
+   }
+
+   private void linkClosed(Link link) {
+      if (link.getLocalState() == EndpointState.ACTIVE) {
+         error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionRemoteLinkClosed(), lastRetryCounter);
       }
    }
 
@@ -223,7 +250,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
          List<TransportConfiguration> configurationList = brokerConnectConfiguration.getTransportConfigurations();
 
-         TransportConfiguration tpConfig = configurationList.get(0);
+         TransportConfiguration tpConfig = configurationList.get(retryCounter % configurationList.size());
 
          String hostOnParameter = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, tpConfig.getParams());
          int portOnParameter = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, tpConfig.getParams());
@@ -236,9 +263,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             return;
          }
 
-         int currentRetryCounter = retryCounter;
-         reconnectFuture = null;
+         lastRetryCounter = retryCounter;
+
          retryCounter = 0;
+
+         reconnectFuture = null;
 
          // before we retry the connection we need to remove any previous links
          // as they will need to be recreated
@@ -250,6 +279,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          ConnectionEntry entry = protonProtocolManager.createOutgoingConnectionEntry(connection, saslFactory);
          server.getRemotingService().addConnectionEntry(connection, entry);
          protonRemotingConnection = (ActiveMQProtonRemotingConnection) entry.connection;
+         protonRemotingConnection.getAmqpConnection().setLinkCloseListener(this::linkClosed);
 
          connection.getChannel().pipeline().addLast(new AMQPBrokerConnectionChannelHandler(bridgesConnector.getChannelGroup(), protonRemotingConnection.getAmqpConnection().getHandler(), this, server.getExecutorFactory().getExecutor()));
 
@@ -277,9 +307,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
                if (connectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR) {
                   AMQPMirrorBrokerConnectionElement replica = (AMQPMirrorBrokerConnectionElement)connectionElement;
-                  Queue queue = server.locateQueue(replica.getSourceMirrorAddress());
 
-                  connectSender(queue, ProtonProtocolManager.MIRROR_ADDRESS, (r) -> AMQPMirrorControllerSource.validateProtocolData(r, replica.getSourceMirrorAddress()));
+                  Queue queue = server.locateQueue(getMirrorSNF(replica));
+
+                  connectSender(queue, queue.getName().toString(), mirrorControllerSource::setLink, (r) -> AMQPMirrorControllerSource.validateProtocolData(protonProtocolManager.getReferenceIDSupplier(), r, getMirrorSNF(replica)), server.getNodeID().toString(),
+                                new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY}, null);
                }
             }
          }
@@ -288,7 +320,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
          bridgeManager.connected(connection, this);
 
-         ActiveMQAMQPProtocolLogger.LOGGER.successReconnect(brokerConnectConfiguration.getName(), host + ":" + port, currentRetryCounter);
+         ActiveMQAMQPProtocolLogger.LOGGER.successReconnect(brokerConnectConfiguration.getName(), host + ":" + port, lastRetryCounter);
 
          connecting = false;
       } catch (Throwable e) {
@@ -297,6 +329,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    public void retryConnection() {
+      lastRetryCounter = retryCounter;
       if (bridgeManager.isStarted() && started) {
          if (brokerConnectConfiguration.getReconnectAttempts() < 0 || retryCounter < brokerConnectConfiguration.getReconnectAttempts()) {
             retryCounter++;
@@ -306,8 +339,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             }
             reconnectFuture = scheduledExecutorService.schedule(() -> connectExecutor.execute(() -> doConnect()), brokerConnectConfiguration.getRetryInterval(), TimeUnit.MILLISECONDS);
          } else {
+            retryCounter = 0;
+            started = false;
             connecting = false;
-            ActiveMQAMQPProtocolLogger.LOGGER.retryConnectionFailed(brokerConnectConfiguration.getName(), host + ":" +  port, retryCounter);
+            ActiveMQAMQPProtocolLogger.LOGGER.retryConnectionFailed(brokerConnectConfiguration.getName(), host + ":" +  port, lastRetryCounter);
             if (logger.isDebugEnabled()) {
                logger.debug("no more reconnections as the retry counter reached " + retryCounter + " out of " + brokerConnectConfiguration.getReconnectAttempts());
             }
@@ -319,18 +354,13 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       // TODO implement this as part of https://issues.apache.org/jira/browse/ARTEMIS-2965
    }
 
-   /** The reason this method is static is the following:
-    *
-    *  It is returning the snfQueue to the replica, and I needed isolation from the actual instance.
-    *  During development I had a mistake where I used a property from the Object,
-    *  so, I needed this isolation for my organization and making sure nothing would be shared. */
-   private static Queue installMirrorController(AMQPBrokerConnection brokerConnection, AMQPMirrorBrokerConnectionElement replicaConfig, ActiveMQServer server) throws Exception {
+   private Queue installMirrorController(AMQPMirrorBrokerConnectionElement replicaConfig, ActiveMQServer server) throws Exception {
 
       MirrorController currentMirrorController = server.getMirrorController();
 
       // This following block is to avoid a duplicate on mirror controller
       if (currentMirrorController != null && currentMirrorController instanceof AMQPMirrorControllerSource) {
-         Queue queue = checkCurrentMirror(brokerConnection, (AMQPMirrorControllerSource)currentMirrorController);
+         Queue queue = checkCurrentMirror(this, (AMQPMirrorControllerSource) currentMirrorController);
          // on this case we already had a mirror installed before, we won't duplicate it
          if (queue != null) {
             return queue;
@@ -339,7 +369,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          AMQPMirrorControllerAggregation aggregation = (AMQPMirrorControllerAggregation) currentMirrorController;
 
          for (AMQPMirrorControllerSource source : aggregation.getPartitions()) {
-            Queue queue = checkCurrentMirror(brokerConnection, source);
+            Queue queue = checkCurrentMirror(this, source);
             // on this case we already had a mirror installed before, we won't duplicate it
             if (queue != null) {
                return queue;
@@ -347,9 +377,9 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          }
       }
 
-      AddressInfo addressInfo = server.getAddressInfo(replicaConfig.getSourceMirrorAddress());
+      AddressInfo addressInfo = server.getAddressInfo(getMirrorSNF(replicaConfig));
       if (addressInfo == null) {
-         addressInfo = new AddressInfo(replicaConfig.getSourceMirrorAddress()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false).setTemporary(!replicaConfig.isDurable());
+         addressInfo = new AddressInfo(getMirrorSNF(replicaConfig)).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false).setTemporary(!replicaConfig.isDurable()).setInternal(true);
          server.addAddressInfo(addressInfo);
       }
 
@@ -357,15 +387,15 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          throw new IllegalArgumentException("sourceMirrorAddress is not ANYCAST");
       }
 
-      Queue mirrorControlQueue = server.locateQueue(replicaConfig.getSourceMirrorAddress());
+      Queue mirrorControlQueue = server.locateQueue(getMirrorSNF(replicaConfig));
 
       if (mirrorControlQueue == null) {
-         mirrorControlQueue = server.createQueue(new QueueConfiguration(replicaConfig.getSourceMirrorAddress()).setAddress(replicaConfig.getSourceMirrorAddress()).setRoutingType(RoutingType.ANYCAST).setDurable(replicaConfig.isDurable()), true);
+         mirrorControlQueue = server.createQueue(new QueueConfiguration(getMirrorSNF(replicaConfig)).setAddress(getMirrorSNF(replicaConfig)).setRoutingType(RoutingType.ANYCAST).setDurable(replicaConfig.isDurable()).setInternal(true), true);
       }
 
       mirrorControlQueue.setMirrorController(true);
 
-      QueueBinding snfReplicaQueueBinding = (QueueBinding)server.getPostOffice().getBinding(replicaConfig.getSourceMirrorAddress());
+      QueueBinding snfReplicaQueueBinding = (QueueBinding)server.getPostOffice().getBinding(getMirrorSNF(replicaConfig));
       if (snfReplicaQueueBinding == null) {
          logger.warn("Queue does not exist even after creation! " + replicaConfig);
          throw new IllegalAccessException("Cannot start replica");
@@ -373,12 +403,14 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
       Queue snfQueue = snfReplicaQueueBinding.getQueue();
 
-      if (!snfQueue.getAddress().equals(replicaConfig.getSourceMirrorAddress())) {
+      if (!snfQueue.getAddress().equals(getMirrorSNF(replicaConfig))) {
          logger.warn("Queue " + snfQueue + " belong to a different address (" + snfQueue.getAddress() + "), while we expected it to be " + addressInfo.getName());
          throw new IllegalAccessException("Cannot start replica");
       }
 
-      AMQPMirrorControllerSource newPartition = new AMQPMirrorControllerSource(snfQueue, server, replicaConfig.isMessageAcknowledgements(), replicaConfig.isQueueCreation(), replicaConfig.isQueueRemoval(), brokerConnection);
+      AMQPMirrorControllerSource newPartition = new AMQPMirrorControllerSource(protonProtocolManager, snfQueue, server, replicaConfig, this);
+
+      this.mirrorControllerSource = newPartition;
 
       server.scanAddresses(newPartition);
 
@@ -458,8 +490,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    private void connectSender(Queue queue,
                               String targetName,
+                              java.util.function.Consumer<Sender> senderConsumer,
                               java.util.function.Consumer<? super MessageReference> beforeDeliver,
-                              Symbol... capabilities) {
+                              String brokerID,
+                              Symbol[] desiredCapabilities,
+                              Symbol[] targetCapabilities) {
       if (logger.isDebugEnabled()) {
          logger.debug("Connecting outbound for " + queue);
       }
@@ -482,20 +517,80 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
             Target target = new Target();
             target.setAddress(targetName);
-            if (capabilities != null) {
-               target.setCapabilities(capabilities);
+            if (targetCapabilities != null) {
+               target.setCapabilities(targetCapabilities);
             }
             sender.setTarget(target);
 
             Source source = new Source();
             source.setAddress(queue.getAddress().toString());
             sender.setSource(source);
+            if (brokerID != null) {
+               HashMap<Symbol, Object> mapProperties = new HashMap<>(1, 1); // this map is expected to have a single element, so load factor = 1
+               mapProperties.put(AMQPMirrorControllerSource.BROKER_ID, brokerID);
+               sender.setProperties(mapProperties);
+            }
+
+            if (desiredCapabilities != null) {
+               sender.setDesiredCapabilities(desiredCapabilities);
+            }
 
             AMQPOutgoingController outgoingInitializer = new AMQPOutgoingController(queue, sender, sessionContext.getSessionSPI());
 
-            ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer).setBeforeDelivery(beforeDeliver);
+            sender.open();
 
-            sessionContext.addSender(sender, senderContext);
+            final ScheduledFuture futureTimeout;
+
+            AtomicBoolean cancelled = new AtomicBoolean(false);
+
+            if (bridgesConnector.getConnectTimeoutMillis() > 0) {
+               futureTimeout = server.getScheduledPool().schedule(() -> {
+                  cancelled.set(true);
+                  error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionTimeout(), lastRetryCounter);
+               }, bridgesConnector.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS);
+            } else {
+               futureTimeout = null;
+            }
+
+            // Using attachments to set up a Runnable that will be executed inside AMQPBrokerConnection::remoteLinkOpened
+            sender.attachments().set(Runnable.class, Runnable.class, () -> {
+               ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer).setBeforeDelivery(beforeDeliver);
+               try {
+                  if (!cancelled.get()) {
+                     if (futureTimeout != null) {
+                        futureTimeout.cancel(false);
+                     }
+                     if (sender.getRemoteTarget() == null) {
+                        error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.senderLinkRefused(sender.getTarget().getAddress()), lastRetryCounter);
+                        return;
+                     }
+                     if (desiredCapabilities != null) {
+                        if (!verifyOfferedCapabilities(sender, desiredCapabilities)) {
+                           error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(Arrays.toString(desiredCapabilities)), lastRetryCounter);
+                           return;
+                        }
+                     }
+                     if (brokerID != null) {
+                        if (sender.getRemoteProperties() == null || !sender.getRemoteProperties().containsKey(AMQPMirrorControllerSource.BROKER_ID)) {
+                           error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingBrokerID(), lastRetryCounter);
+                           return;
+                        }
+
+                        Object remoteBrokerID = sender.getRemoteProperties().get(AMQPMirrorControllerSource.BROKER_ID);
+                        if (remoteBrokerID.equals(brokerID)) {
+                           error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionMirrorItself(), lastRetryCounter);
+                           return;
+                        }
+                     }
+                     sessionContext.addSender(sender, senderContext);
+                     if (senderConsumer != null) {
+                        senderConsumer.accept(sender);
+                     }
+                  }
+               } catch (Exception e) {
+                  error(e);
+               }
+            });
          } catch (Exception e) {
             error(e);
          }
@@ -503,7 +598,39 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       });
    }
 
+   protected boolean verifyOfferedCapabilities(Sender sender, Symbol[] capabilities) {
+
+      if (sender.getRemoteOfferedCapabilities() == null) {
+         return false;
+      }
+
+      for (Symbol s : capabilities) {
+         boolean foundS = false;
+         for (Symbol b : sender.getRemoteOfferedCapabilities()) {
+            if (b.equals(s)) {
+               foundS = true;
+               break;
+            }
+         }
+         if (!foundS) {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
    protected void error(Throwable e) {
+      error(e, 0);
+   }
+
+   // the retryCounter is passed here
+   // in case the error happened after the actual connection
+   // say the connection is invalid due to an invalid attribute or wrong password
+   // but the max retry should not be affected by such cases
+   // otherwise we would always retry from 0 and never reach a max
+   protected void error(Throwable e, int retryCounter) {
+      this.retryCounter = retryCounter;
       connecting = false;
       logger.warn(e.getMessage(), e);
       redoConnection();
@@ -552,6 +679,11 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    private void redoConnection() {
+
+      // avoiding retro-feeding an error call from the close after anyting else that happened.
+      if (protonRemotingConnection != null) {
+         protonRemotingConnection.getAmqpConnection().setLinkCloseListener(null);
+      }
 
       // we need to use the connectExecutor to initiate a redoConnection
       // otherwise we would need to add synchronized blocks along this class

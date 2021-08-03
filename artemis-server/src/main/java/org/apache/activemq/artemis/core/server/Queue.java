@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.function.ToLongFunction;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -36,6 +35,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
+import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 
@@ -76,8 +76,8 @@ public interface Queue extends Bindable,CriticalComponent {
    /** Remove item with a supplied non-negative {@literal (>= 0) } ID.
     *  If the idSupplier returns {@literal < 0} the ID is considered a non value (null) and it will be ignored.
     *
-    *  @see org.apache.activemq.artemis.utils.collections.LinkedList#setIDSupplier(ToLongFunction) */
-   MessageReference removeWithSuppliedID(long id, ToLongFunction<MessageReference> idSupplier);
+    *  @see org.apache.activemq.artemis.utils.collections.LinkedList#setNodeStore(NodeStore) */
+   MessageReference removeWithSuppliedID(String serverID, long id, NodeStore<MessageReference> nodeStore);
 
    /**
     * The queue definition could be durable, but the messages could eventually be considered non durable.
@@ -192,6 +192,9 @@ public interface Queue extends Bindable,CriticalComponent {
    void addSorted(List<MessageReference> refs, boolean scheduling);
 
    void reload(MessageReference ref);
+
+   default void flushOnIntermediate(Runnable runnable) {
+   }
 
    void addTail(MessageReference ref);
 
@@ -408,6 +411,16 @@ public interface Queue extends Bindable,CriticalComponent {
     * @return
     */
    LinkedListIterator<MessageReference> iterator();
+
+   default void forEach(java.util.function.Consumer<MessageReference> consumer) {
+      synchronized (this) {
+         try (LinkedListIterator<MessageReference> iterator = iterator()) {
+            while (iterator.hasNext()) {
+               consumer.accept(iterator.next());
+            }
+         }
+      }
+   }
 
    LinkedListIterator<MessageReference> browserIterator();
 

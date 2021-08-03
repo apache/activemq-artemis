@@ -50,6 +50,7 @@ under the License.
             <module>amqp-sending-messages</module>
             <module>amqp-receiving-messages</module>
             <module>amqp-sending-overssl</module>
+            <module>disaster-recovery</module>
          </modules>
       </profile>
       <profile>
@@ -58,6 +59,7 @@ under the License.
             <module>amqp-sending-messages</module>
             <module>amqp-receiving-messages</module>
             <module>amqp-sending-overssl</module>
+            <module>disaster-recovery</module>
          </modules>
       </profile>
    </profiles>

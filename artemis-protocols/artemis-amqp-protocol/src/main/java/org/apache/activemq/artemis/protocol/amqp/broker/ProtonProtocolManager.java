@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientProtocolManager;
+import org.apache.activemq.artemis.protocol.amqp.connect.mirror.ReferenceNodeStore;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConstants;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
@@ -63,7 +64,15 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    private final List<AmqpInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<AmqpInterceptor> outgoingInterceptors = new ArrayList<>();
 
+   public static String getMirrorAddress(String connectionName) {
+      return MIRROR_ADDRESS + "_" + connectionName;
+   }
+
    private final ActiveMQServer server;
+
+   // We must use one referenceIDSupplier per server.
+   // protocol manager is the perfect aggregation for that.
+   private ReferenceNodeStore referenceIDSupplier;
 
    private final ProtonProtocolManagerFactory factory;
 
@@ -109,6 +118,15 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       this.factory = factory;
       this.server = server;
       this.updateInterceptors(incomingInterceptors, outgoingInterceptors);
+   }
+
+   public synchronized ReferenceNodeStore getReferenceIDSupplier() {
+      if (referenceIDSupplier == null) {
+         // we lazy start the instance.
+         // only create it when needed
+         referenceIDSupplier = new ReferenceNodeStore(server);
+      }
+      return referenceIDSupplier;
    }
 
    public ActiveMQServer getServer() {

@@ -266,6 +266,21 @@
             <discovery-group-ref discovery-group-name="dg1"/>
          </cluster-connection>
       </cluster-connections>
+      <broker-connections>
+         <amqp-connection uri="tcp://test1:111" name="test1" retry-interval="333" reconnect-attempts="33" user="testuser" password="testpassword">
+            <sender address-match="TEST-SENDER"  />
+            <receiver address-match="TEST-RECEIVER" />
+            <peer address-match="TEST-PEER"/>
+            <receiver queue-name="TEST-WITH-QUEUE-NAME"/>
+            <mirror message-acknowledgements="false" queue-creation="false" durable="false" queue-removal="false"/>
+         </amqp-connection>
+         <amqp-connection uri="tcp://test2:222" name="test2">
+            <mirror durable="false"/>
+         </amqp-connection>
+         <amqp-connection uri="tcp://false" name="auto-start-false" auto-start="false">
+            <mirror/>
+         </amqp-connection>
+      </broker-connections>
       <grouping-handler name="gh1">
          <type>LOCAL</type>
          <address>jms</address>

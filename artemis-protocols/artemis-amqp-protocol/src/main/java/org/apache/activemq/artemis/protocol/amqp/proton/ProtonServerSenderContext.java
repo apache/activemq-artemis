@@ -234,16 +234,13 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
     */
    public void start() throws ActiveMQAMQPException {
       sessionSPI.start();
-      // protonSession.getServerSession().start();
 
-      // todo add flow control
       try {
          // to do whatever you need to make the broker start sending messages to the consumer
          // this could be null if a link reattach has happened
          if (brokerConsumer != null) {
             sessionSPI.startSender(brokerConsumer);
          }
-         // protonSession.getServerSession().receiveConsumerCredits(consumerID, -1);
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorStartingConsumer(e.getMessage());
       }
