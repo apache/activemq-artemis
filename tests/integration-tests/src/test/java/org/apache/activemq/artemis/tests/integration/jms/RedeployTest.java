@@ -106,12 +106,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -156,12 +151,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -198,6 +188,217 @@ public class RedeployTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testRedeploySecuritySettings() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-security-settings.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-security-settings-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = latch::countDown;
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         Set<Role> roles = embeddedActiveMQ.getActiveMQServer().getSecurityRepository().getMatch("foo");
+         boolean found = false;
+         for (Role role : roles) {
+            if (role.getName().equals("a")) {
+               found = true;
+            }
+         }
+
+         assertTrue(found);
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         roles = embeddedActiveMQ.getActiveMQServer().getSecurityRepository().getMatch("foo");
+         found = false;
+         for (Role role : roles) {
+            if (role.getName().equals("b")) {
+               found = true;
+            }
+         }
+
+         assertTrue(found);
+
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testRedeploySecuritySettingsWithManagementChange() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-security-settings.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-security-settings-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = latch::countDown;
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         Set<Role> roles = embeddedActiveMQ.getActiveMQServer().getSecurityRepository().getMatch("foo");
+         boolean found = false;
+         for (Role role : roles) {
+            if (role.getName().equals("a")) {
+               found = true;
+            }
+         }
+
+         assertTrue(found);
+
+         embeddedActiveMQ.getActiveMQServer().getActiveMQServerControl().addSecuritySettings("bar", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c");
+         roles = embeddedActiveMQ.getActiveMQServer().getSecurityRepository().getMatch("bar");
+         for (Role role : roles) {
+            if (role.getName().equals("c")) {
+               found = true;
+            }
+         }
+
+         assertTrue(found);
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         roles = embeddedActiveMQ.getActiveMQServer().getSecurityRepository().getMatch("foo");
+         found = false;
+         for (Role role : roles) {
+            if (role.getName().equals("b")) {
+               found = true;
+            }
+         }
+
+         assertTrue(found);
+
+         roles = embeddedActiveMQ.getActiveMQServer().getSecurityRepository().getMatch("bar");
+         found = false;
+         for (Role role : roles) {
+            if (role.getName().equals("c")) {
+               found = true;
+            }
+         }
+
+         assertTrue(found);
+
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testRedeployAddressSettingsWithManagementChange() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-address-settings.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-address-settings-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = latch::countDown;
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         AddressSettings addressSettings = embeddedActiveMQ.getActiveMQServer().getAddressSettingsRepository().getMatch("foo");
+         assertEquals("a", addressSettings.getDeadLetterAddress().toString());
+
+         embeddedActiveMQ.getActiveMQServer().getActiveMQServerControl().addAddressSettings("bar", "c", null, 0, false, 0, 0, 0, 0, 0, 0, 0, 0, false, null, 0, 0, null, false, false, false, false);
+         addressSettings = embeddedActiveMQ.getActiveMQServer().getAddressSettingsRepository().getMatch("bar");
+         assertEquals("c", addressSettings.getDeadLetterAddress().toString());
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         addressSettings = embeddedActiveMQ.getActiveMQServer().getAddressSettingsRepository().getMatch("foo");
+         assertEquals("b", addressSettings.getDeadLetterAddress().toString());
+
+         addressSettings = embeddedActiveMQ.getActiveMQServer().getAddressSettingsRepository().getMatch("bar");
+         assertEquals("c", addressSettings.getDeadLetterAddress().toString());
+
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testRedeployDivertsWithManagementChange() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-diverts.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-diverts-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = latch::countDown;
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         DivertBinding divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(new SimpleString("a"));
+         assertNotNull(divertBinding);
+         assertEquals("a", divertBinding.getDivert().getAddress().toString());
+
+         embeddedActiveMQ.getActiveMQServer().getActiveMQServerControl().createDivert("c", "c", "c", "target", false, null, null);
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(new SimpleString("b"));
+         assertNotNull(divertBinding);
+         assertEquals("b", divertBinding.getDivert().getAddress().toString());
+
+         divertBinding = (DivertBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(new SimpleString("c"));
+         assertNotNull(divertBinding);
+         assertEquals("c", divertBinding.getDivert().getAddress().toString());
+
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
    public void testRedeployFilter() throws Exception {
       Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
       URL url1 = RedeployTest.class.getClassLoader().getResource("reload-queue-filter.xml");
@@ -210,12 +411,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -670,12 +866,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
