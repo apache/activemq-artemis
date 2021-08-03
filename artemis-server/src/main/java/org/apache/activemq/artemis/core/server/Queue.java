@@ -486,8 +486,6 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void postAcknowledge(MessageReference ref, AckReason reason);
 
-   float getRate();
-
    /**
     * @return the user associated with this queue
     */
