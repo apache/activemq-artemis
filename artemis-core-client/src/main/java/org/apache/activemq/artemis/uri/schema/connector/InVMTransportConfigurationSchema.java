@@ -31,6 +31,7 @@ public class InVMTransportConfigurationSchema extends AbstractTransportConfigura
     * but this Maven module can't see that class.
     */
    public static final String CONNECTIONS_ALLOWED = "connectionsAllowed";
+   public static final String SECURITY_DOMAIN = "securityDomain";
 
    @Override
    public String getSchemaName() {
@@ -63,6 +64,8 @@ public class InVMTransportConfigurationSchema extends AbstractTransportConfigura
       inVmTransportConfig.put("serverId", uri.getHost());
       if (query.containsKey(CONNECTIONS_ALLOWED)) {
          inVmTransportConfig.put(CONNECTIONS_ALLOWED, query.get(CONNECTIONS_ALLOWED));
+      } else if (query.containsKey(SECURITY_DOMAIN)) {
+         inVmTransportConfig.put(SECURITY_DOMAIN, query.get(SECURITY_DOMAIN));
       }
       return new TransportConfiguration(factoryName, inVmTransportConfig, name);
    }
