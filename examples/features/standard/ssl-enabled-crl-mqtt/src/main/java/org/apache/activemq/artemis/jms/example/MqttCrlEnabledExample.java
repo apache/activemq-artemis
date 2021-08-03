@@ -31,14 +31,14 @@ public class MqttCrlEnabledExample {
    public static void main(final String[] args) throws Exception {
       boolean exception = false;
       try {
-         callBroker("truststore.jks", "changeit", "client_revoked.jks", "changeit");
+         callBroker("server-ca-truststore.jks", "securepass", "other-client-keystore.jks", "securepass");
       } catch (SSLException e) {
          exception = true;
       }
       if (!exception) {
          throw new RuntimeException("The connection should be revoked");
       }
-      callBroker("truststore.jks", "changeit", "client_not_revoked.jks", "changeit");
+      callBroker("server-ca-truststore.jks", "securepass", "client-keystore.jks", "securepass");
    }
 
    private static void callBroker(String truststorePath, String truststorePass, String keystorePath, String keystorePass) throws Exception {

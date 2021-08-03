@@ -29,14 +29,7 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Test;
 
 /**
- * The various keystore files used for this test were generated using the following commands:
- *
- * keytool -genkey -keystore server-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
- * keytool -export -keystore server-side-keystore.jks -file server-side-cert.cer -storepass secureexample
- * keytool -import -keystore client-side-truststore.jks -file server-side-cert.cer -storepass secureexample -keypass secureexample -noprompt
- * keytool -genkey -keystore client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
- * keytool -export -keystore client-side-keystore.jks -file client-side-cert.cer -storepass secureexample
- * keytool -import -keystore server-side-truststore.jks -file client-side-cert.cer -storepass secureexample -keypass secureexample -noprompt
+ * See the tests/security-resources/build.sh script for details on the security resources used.
  */
 public class AuditLoggerAMQPMutualSSLTest extends AuditLoggerTestBase {
 
@@ -52,10 +45,10 @@ public class AuditLoggerAMQPMutualSSLTest extends AuditLoggerTestBase {
       int maxInactivityDurationInitialDelay = 30000;
       int idleTimeout = 120000;
       boolean verifyHost = false;
-      String keyStoreLocation = "target/" + getServerName() + "/etc/client-side-keystore.jks";
-      String keyStorePassword = "secureexample";
-      String trustStoreLocation = "target/" + getServerName() + "/etc/client-side-truststore.jks";
-      String trustStorePassword = "secureexample";
+      String keyStoreLocation = getClass().getClassLoader().getResource("client-keystore.jks").getFile();
+      String keyStorePassword = "securepass";
+      String trustStoreLocation = getClass().getClassLoader().getResource("server-ca-truststore.jks").getFile();
+      String trustStorePassword = "securepass";
 
       String remoteUri = sslhost +
          "?maxInactivityDurationInitialDelay=" + maxInactivityDurationInitialDelay +

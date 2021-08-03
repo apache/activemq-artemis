@@ -45,10 +45,10 @@ public class StompDualAuthenticationExample {
 
       try {
          // set up SSL keystores for Stomp connection
-         System.setProperty("javax.net.ssl.trustStore", args[0] + "client-side-truststore.jks");
-         System.setProperty("javax.net.ssl.trustStorePassword", "secureexample");
-         System.setProperty("javax.net.ssl.keyStore", args[0] + "client-side-keystore.jks");
-         System.setProperty("javax.net.ssl.keyStorePassword", "secureexample");
+         System.setProperty("javax.net.ssl.trustStore", args[0] + "server-ca-truststore.jks");
+         System.setProperty("javax.net.ssl.trustStorePassword", "securepass");
+         System.setProperty("javax.net.ssl.keyStore", args[0] + "client-keystore.jks");
+         System.setProperty("javax.net.ssl.keyStorePassword", "securepass");
 
          // Step 1. Create an SSL socket to connect to the broker
          SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();

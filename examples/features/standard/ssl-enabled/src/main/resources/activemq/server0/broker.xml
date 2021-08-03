@@ -31,7 +31,7 @@ under the License.
       <!-- Acceptors -->
       <acceptors>
          <!-- keystores will be found automatically if they are on the classpath -->
-         <acceptor name="netty-ssl-acceptor">tcp://localhost:5500?sslEnabled=true;keyStorePath=activemq.example.keystore;keyStorePassword=activemqexample</acceptor>
+         <acceptor name="netty-ssl-acceptor">tcp://localhost:5500?sslEnabled=true;keyStorePath=server-keystore.jks;keyStorePassword=securepass</acceptor>
       </acceptors>
 
       <!-- Other config -->
