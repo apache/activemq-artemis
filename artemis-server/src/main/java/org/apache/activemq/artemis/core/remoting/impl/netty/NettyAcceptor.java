@@ -321,7 +321,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
          wantClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.WANT_CLIENT_AUTH_PROP_NAME, TransportConstants.DEFAULT_WANT_CLIENT_AUTH, configuration);
 
-         verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
+         verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_ACCEPTOR_VERIFY_HOST, configuration);
 
          sslProvider = ConfigurationHelper.getStringProperty(TransportConstants.SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER, configuration);
 
@@ -356,7 +356,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
          needClientAuth = TransportConstants.DEFAULT_NEED_CLIENT_AUTH;
          wantClientAuth = TransportConstants.DEFAULT_WANT_CLIENT_AUTH;
-         verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
+         verifyHost = TransportConstants.DEFAULT_ACCEPTOR_VERIFY_HOST;
          sslProvider = TransportConstants.DEFAULT_SSL_PROVIDER;
          sniHost = TransportConstants.DEFAULT_SNIHOST_CONFIG;
          trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;

@@ -30,6 +30,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+/**
+ * See the tests/security-resources/build.sh script for details on the security resources used.
+ */
 @RunWith(value = Parameterized.class)
 public class SSLSupportTest extends ActiveMQTestBase {
 
@@ -57,8 +60,8 @@ public class SSLSupportTest extends ActiveMQTestBase {
       if (storeType.equals("PKCS12")) {
          suffix = "p12";
       }
-      keyStorePath = "server-side-keystore." + suffix;
-      trustStorePath = "server-side-truststore." + suffix;
+      keyStorePath = "server-keystore." + suffix;
+      trustStorePath = "client-ca-truststore." + suffix;
    }
 
    private String storeProvider;
@@ -87,7 +90,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      keyStorePassword = "secureexample";
+      keyStorePassword = "securepass";
       trustStorePassword = keyStorePassword;
    }
 
@@ -190,7 +193,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
       new SSLSupport()
          .setKeystoreProvider(storeProvider)
          .setKeystoreType(storeType)
-         .setKeystorePath("src/test/resources/" + keyStorePath)
+         .setKeystorePath("../security-resources/" + keyStorePath)
          .setKeystorePassword(keyStorePassword)
          .setTruststoreProvider(storeProvider)
          .setTruststoreType(storeType)

@@ -474,6 +474,9 @@
                <exclude>**/rest/*.xml</exclude>
             </excludes>
          </testResource>
+         <testResource>
+            <directory>../security-resources</directory>
+         </testResource>
       </testResources>
       <plugins>
          <plugin>

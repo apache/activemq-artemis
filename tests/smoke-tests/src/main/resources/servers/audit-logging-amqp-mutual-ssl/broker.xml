@@ -30,7 +30,7 @@ under the License.
 
       <acceptors>
          <acceptor name="artemis">tcp://localhost:61616?securityDomain=guest</acceptor> <!-- this is only for the smoke test health-check -->
-         <acceptor name="netty-ssl-acceptor">tcp://localhost:5500?sslEnabled=true;needClientAuth=true;keyStorePath=server-side-keystore.jks;keyStorePassword=secureexample;trustStorePath=server-side-truststore.jks;trustStorePassword=secureexample</acceptor>
+         <acceptor name="netty-ssl-acceptor">tcp://localhost:5500?sslEnabled=true;needClientAuth=true;keyStorePath=../../test-classes/server-keystore.jks;keyStorePassword=securepass;trustStorePath=../../test-classes/client-ca-truststore.jks;trustStorePassword=securepass</acceptor>
       </acceptors>
 
       <security-settings>

@@ -75,6 +75,8 @@ import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 /**
  * Test that Netty Connector can connect to a Web Server and upgrade from a HTTP request to its remoting protocol.
+ *
+ * See the tests/security-resources/build.sh script for details on the security resources used.
  */
 @RunWith(value = Parameterized.class)
 public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
@@ -102,9 +104,9 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
    private NioEventLoopGroup bossGroup;
    private NioEventLoopGroup workerGroup;
 
-   private String SERVER_SIDE_KEYSTORE = "server-side-keystore.jks";
-   private String CLIENT_SIDE_TRUSTSTORE = "client-side-truststore.jks";
-   private final String PASSWORD = "secureexample";
+   private String SERVER_SIDE_KEYSTORE = "server-keystore.jks";
+   private String CLIENT_SIDE_TRUSTSTORE = "server-ca-truststore.jks";
+   private final String PASSWORD = "securepass";
 
    @Override
    @Before

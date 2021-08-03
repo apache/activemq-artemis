@@ -20,10 +20,10 @@
          connector-port="1099"
          connector-host="localhost"
          secured="true"
-         key-store-path="${data.dir}/../etc/server-side-keystore.jks"
-         key-store-password="ENC(2a7c211d21c295cdbcde3589c205decb)"
-         trust-store-path="${data.dir}/../etc/server-side-truststore.jks"
-         trust-store-password="ENC(2a7c211d21c295cdbcde3589c205decb)"/>
+         key-store-path="${data.dir}/../etc/server-keystore.jks"
+         key-store-password="ENC(1f0e6cd7ced61232730f9e82cc91c1e1)"
+         trust-store-path="${data.dir}/../etc/client-ca-truststore.jks"
+         trust-store-password="ENC(1f0e6cd7ced61232730f9e82cc91c1e1)"/>
    <authorisation>
       <whitelist>
          <entry domain="hawtio"/>

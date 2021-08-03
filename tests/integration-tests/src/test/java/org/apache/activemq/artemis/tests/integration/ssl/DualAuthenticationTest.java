@@ -50,7 +50,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * See {@link CoreClientOverTwoWaySSLTest} for details about the keystores required for this test.
+ * See the tests/security-resources/build.sh script for details on the security resources used.
  */
 public class DualAuthenticationTest extends ActiveMQTestBase {
 
@@ -67,11 +67,11 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
       }
    }
 
-   private String SERVER_SIDE_KEYSTORE = "server-side-keystore.jks";
-   private String SERVER_SIDE_TRUSTSTORE = "server-side-truststore.jks";
-   private String CLIENT_SIDE_TRUSTSTORE = "client-side-truststore.jks";
-   private String CLIENT_SIDE_KEYSTORE = "client-side-keystore.jks";
-   private final String PASSWORD = "secureexample";
+   private String SERVER_SIDE_KEYSTORE = "server-keystore.jks";
+   private String SERVER_SIDE_TRUSTSTORE = "client-ca-truststore.jks";
+   private String CLIENT_SIDE_TRUSTSTORE = "server-ca-truststore.jks";
+   private String CLIENT_SIDE_KEYSTORE = "client-keystore.jks";
+   private final String PASSWORD = "securepass";
 
    private ActiveMQServer server;
 

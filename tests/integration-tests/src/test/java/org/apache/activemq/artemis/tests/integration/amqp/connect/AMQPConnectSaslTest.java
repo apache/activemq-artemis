@@ -52,16 +52,21 @@ import io.vertx.proton.ProtonConnection;
 import io.vertx.proton.ProtonServerOptions;
 import io.vertx.proton.sasl.ProtonSaslAuthenticator;
 
+/**
+ * See the tests/security-resources/build.sh script for details on the security resources used.
+ */
 public class AMQPConnectSaslTest extends AmqpClientTestSupport {
 
    private static final int BROKER_PORT_NUM = AMQP_PORT + 1;
 
-   private static final String SERVER_KEYSTORE_NAME = "keystore1.jks";
-   private static final String SERVER_KEYSTORE_PASSWORD = "changeit";
-   private static final String CLIENT_KEYSTORE_NAME = "client_not_revoked.jks";
-   private static final String CLIENT_KEYSTORE_PASSWORD = "changeit";
-   private static final String TRUSTSTORE_NAME = "truststore.jks";
-   private static final String TRUSTSTORE_PASSWORD = "changeit";
+   private static final String SERVER_KEYSTORE_NAME = "server-keystore.jks";
+   private static final String SERVER_KEYSTORE_PASSWORD = "securepass";
+   private static final String CLIENT_KEYSTORE_NAME = "client-keystore.jks";
+   private static final String CLIENT_KEYSTORE_PASSWORD = "securepass";
+   private static final String SERVER_TRUSTSTORE_NAME = "server-ca-truststore.jks";
+   private static final String SERVER_TRUSTSTORE_PASSWORD = "securepass";
+   private static final String CLIENT_TRUSTSTORE_NAME = "client-ca-truststore.jks";
+   private static final String CLIENT_TRUSTSTORE_PASSWORD = "securepass";
 
    private static final String USER = "MY_USER";
    private static final String PASSWD = "PASSWD_VALUE";
@@ -220,8 +225,8 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       serverOptions.setKeyStoreOptions(jksKeyStoreOptions);
 
       if (requireClientCert) {
-         final String trustStorePath = this.getClass().getClassLoader().getResource(TRUSTSTORE_NAME).getFile();
-         JksOptions jksTrustStoreOptions = new JksOptions().setPath(trustStorePath).setPassword(TRUSTSTORE_PASSWORD);
+         final String trustStorePath = this.getClass().getClassLoader().getResource(CLIENT_TRUSTSTORE_NAME).getFile();
+         JksOptions jksTrustStoreOptions = new JksOptions().setPath(trustStorePath).setPassword(CLIENT_TRUSTSTORE_PASSWORD);
 
          serverOptions.setTrustStoreOptions(jksTrustStoreOptions);
          serverOptions.setClientAuth(ClientAuth.REQUIRED);
@@ -236,7 +241,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       });
 
       String amqpServerConnectionURI = "tcp://localhost:" + mockServer.actualPort() +
-               "?sslEnabled=true;trustStorePath=" + TRUSTSTORE_NAME + ";trustStorePassword=" + TRUSTSTORE_PASSWORD;
+               "?sslEnabled=true;trustStorePath=" + SERVER_TRUSTSTORE_NAME + ";trustStorePassword=" + SERVER_TRUSTSTORE_PASSWORD;
       if (requireClientCert) {
          amqpServerConnectionURI +=
                   ";keyStorePath=" + CLIENT_KEYSTORE_NAME + ";keyStorePassword=" + CLIENT_KEYSTORE_PASSWORD;
