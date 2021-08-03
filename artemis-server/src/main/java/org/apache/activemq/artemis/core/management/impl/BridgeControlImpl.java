@@ -172,6 +172,19 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
    }
 
    @Override
+   public long getMaxRetryInterval() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getMaxRetryInterval(this.bridge);
+      }
+      clearIO();
+      try {
+         return configuration.getMaxRetryInterval();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String getTransformerClassName() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getTransformerClassName(this.bridge);
