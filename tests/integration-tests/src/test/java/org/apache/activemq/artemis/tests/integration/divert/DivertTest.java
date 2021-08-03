@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Message;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -57,6 +58,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.Assert;
 import org.junit.Test;
@@ -177,6 +179,27 @@ public class DivertTest extends ActiveMQTestBase {
       }
 
       Assert.assertNull(consumer2.receiveImmediate());
+   }
+
+   @Test
+   public void testDivertAndQueueWithSameName() throws Exception {
+      final String name = RandomUtil.randomString();
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig()
+                                                                             .addDivertConfiguration(new DivertConfiguration()
+                                                                                                        .setName(name)
+                                                                                                        .setRoutingName(RandomUtil.randomString())
+                                                                                                        .setAddress(RandomUtil.randomString())
+                                                                                                        .setForwardingAddress(RandomUtil.randomString())), false));
+
+      server.start();
+
+      try {
+         server.createQueue(new QueueConfiguration(name));
+         fail();
+      } catch (ActiveMQIllegalStateException e) {
+         // expected
+      }
    }
 
    @Test

@@ -501,4 +501,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229234, value = "Invalid slow consumer threshold measurement unit {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidSlowConsumerThresholdMeasurementUnit(String val);
+
+   @Message(id = 229235, value = "Incompatible binding with name {0} already exists: {1}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQIllegalStateException bindingAlreadyExists(String name, String binding);
 }
