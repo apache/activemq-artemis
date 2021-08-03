@@ -106,12 +106,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -156,12 +151,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -210,12 +200,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -266,12 +251,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -342,12 +322,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -391,12 +366,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -441,12 +411,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
@@ -901,12 +866,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       final ReusableLatch latch = new ReusableLatch(1);
 
-      Runnable tick = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable tick = latch::countDown;
 
       embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
 
