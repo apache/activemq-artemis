@@ -55,8 +55,8 @@ import org.junit.Test;
 /**
  * This test will simulate a failure where the network card is gone.
  * On that case the server should fail (as in stop) and not hung.
- * If you don't have sudoer access to ifutil, this test will fail.
- * You should add sudoer on your environment. otherwise you will have to ignore failures here.
+ * If you don't have sudoer access to ifutil, this test will skip.
+ * You should add sudoer on your environment to run the test.
  */
 public class NetworkFailureFailoverTest extends FailoverTestBase {
 
@@ -65,7 +65,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
    @BeforeClass
    public static void start() {
-      NetUtil.failIfNotSudo();
+      NetUtil.skipIfNotSudo();
    }
 
    // 192.0.2.0 is reserved for documentation (and testing on this case).

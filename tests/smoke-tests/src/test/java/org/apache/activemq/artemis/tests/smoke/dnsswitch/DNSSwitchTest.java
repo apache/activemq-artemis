@@ -143,12 +143,17 @@ public class DNSSwitchTest extends SmokeTestBase {
 
    @BeforeClass
    public static void beforeClassMethod() throws Exception {
+      NetUtil.skipIfNotSupportedOS();
+
       if (USE_ETC_HOSTS) {
          if (!ETC_HOSTS.canWrite()) {
             System.out.println("If you want to run this test, you must do 'sudo chmod 666 " + ETC_HOSTS);
          }
          Assume.assumeTrue("If you want to run this test, you must do 'sudo chmod 666 " + ETC_HOSTS + "'", ETC_HOSTS.canWrite());
+      } else {
+         NetUtil.skipIfNotSudo();
       }
+
       serverLocation = getServerLocation(SERVER_NAME_0);
       // Before anything we must copy the jave security and change what we need for no cache
       // this will be used to spawn new tests
@@ -163,7 +168,6 @@ public class DNSSwitchTest extends SmokeTestBase {
             Files.copy(ETC_HOSTS.toPath(), ETC_BACKUP.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
          }
       }
-      NetUtil.failIfNotSudo();
    }
 
    private static File getETCBackup() {
