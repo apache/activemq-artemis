@@ -122,7 +122,7 @@ public class SmokeTestBase extends ActiveMQTestBase {
 
    protected static final void recreateBrokerDirectory(final String homeInstance) {
       recreateDirectory(homeInstance + "/data");
-      recreateDirectory(homeInstance + "/logs");
+      recreateDirectory(homeInstance + "/log");
    }
 
 

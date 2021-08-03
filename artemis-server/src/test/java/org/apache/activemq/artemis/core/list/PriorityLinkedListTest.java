@@ -20,6 +20,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 
+import io.netty.util.collection.LongObjectHashMap;
+import org.apache.activemq.artemis.utils.collections.NodeStore;
+import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.junit.Assert;
@@ -878,15 +881,44 @@ public final class PriorityLinkedListTest extends Assert {
    @Test
    public void testRemoveWithID() {
 
-      for (int i = 0; i < 3000; i++) {
+      for (int i = 1; i <= 3000; i++) {
          list.addHead(new Wibble("" + i, i), i % 10);
       }
 
-      list.setIDSupplier(source -> source.id);
+      class WibbleNodeStore implements NodeStore<Wibble> {
+         LongObjectHashMap<LinkedListImpl.Node<Wibble>> list = new LongObjectHashMap<>();
+
+         @Override
+         public void storeNode(Wibble element, LinkedListImpl.Node<Wibble> node) {
+            list.put(element.id, node);
+         }
+
+         @Override
+         public LinkedListImpl.Node<Wibble> getNode(String listID, long id) {
+            return list.get(id);
+         }
+
+         @Override
+         public void removeNode(Wibble element, LinkedListImpl.Node<Wibble> node) {
+            list.remove(element.id);
+         }
+
+         @Override
+         public void clear() {
+            list.clear();
+         }
+
+         @Override
+         public int size() {
+            return list.size();
+         }
+      }
+
+      list.setNodeStore(new WibbleNodeStore());
 
       // remove every 3rd
-      for (int i = 0; i < 3000; i += 3) {
-         Assert.assertEquals(new Wibble("" + i, i), list.removeWithID(i));
+      for (int i = 3; i <= 3000; i += 3) {
+         Assert.assertEquals(new Wibble("" + i, i), list.removeWithID("", i));
       }
 
       Assert.assertEquals(2000, list.size());
@@ -901,7 +933,7 @@ public final class PriorityLinkedListTest extends Assert {
       Assert.assertEquals(2000, values.size());
 
 
-      for (int i = 0; i < 3000; i += 3) {
+      for (int i = 1; i <= 3000; i += 3) {
          if (i % 3 == 0) {
             Assert.assertFalse(values.contains("" + i));
          } else {

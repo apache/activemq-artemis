@@ -28,8 +28,7 @@ under the License.
 
       <name>0.0.0.0</name>
 
-
-      <persistence-enabled>false</persistence-enabled>
+      <persistence-enabled>true</persistence-enabled>
 
       <!-- this could be ASYNCIO, MAPPED, NIO
            ASYNCIO: Linux Libaio
@@ -127,7 +126,7 @@ under the License.
 
       <broker-connections>
          <amqp-connection uri="tcp://localhost:61617" name="outgoing" reconnect-attempts="-1" retry-interval="100" user="B" password="B">
-            <mirror/>
+            <mirror durable="true"/>
          </amqp-connection>
       </broker-connections>
 

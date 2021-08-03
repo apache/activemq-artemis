@@ -20,7 +20,6 @@ import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-import java.util.function.ToLongFunction;
 
 /**
  * A priority linked list implementation
@@ -97,18 +96,18 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
    }
 
    @Override
-   public void setIDSupplier(ToLongFunction<E> supplier) {
+   public void setNodeStore(NodeStore<E> supplier) {
       for (LinkedList<E> list : levels) {
-         list.setIDSupplier(supplier);
+         list.setNodeStore(supplier);
       }
    }
 
    @Override
-   public E removeWithID(long id) {
+   public E removeWithID(String listID, long id) {
       // we start at 4 just as an optimization, since most times we only use level 4 as the level on messages
       if (levels.length > 4) {
          for (int l = 4; l < levels.length; l++) {
-            E removed = levels[l].removeWithID(id);
+            E removed = levels[l].removeWithID(listID, id);
             if (removed != null) {
                exclusiveIncrementSize(-1);
                return removed;
@@ -117,7 +116,7 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
       }
 
       for (int l = Math.min(3, levels.length); l >= 0; l--) {
-         E removed = levels[l].removeWithID(id);
+         E removed = levels[l].removeWithID(listID, id);
          if (removed != null) {
             exclusiveIncrementSize(-1);
             return removed;

@@ -16,21 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.journal;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -45,23 +42,22 @@ public class AmqpJournalLoadingTest extends AmqpClientTestSupport {
       server.stop();
       server.start();
 
-      final AMQPMessage amqpMessage;
-
       final Queue afterRestartQueueView = getProxyToQueue(getQueueName());
 
       Wait.assertTrue("All messages should arrive", () -> afterRestartQueueView.getMessageCount() == 1);
 
-      try (LinkedListIterator<MessageReference> iterator = afterRestartQueueView.iterator()) {
-         Assert.assertTrue(iterator.hasNext());
-         final MessageReference next = iterator.next();
-         Assert.assertNotNull(next);
-         Assert.assertFalse(iterator.hasNext());
-         final Message message = next.getMessage();
-         Assert.assertThat(message, Matchers.instanceOf(AMQPMessage.class));
-         amqpMessage = (AMQPMessage) message;
-         Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, amqpMessage.getDataScanningStatus());
-         Assert.assertTrue(amqpMessage.isDurable());
-      }
+      ArrayList<AMQPMessage> messageReference = new ArrayList<>(1);
+
+      afterRestartQueueView.forEach((next) -> {
+         final AMQPMessage message = (AMQPMessage)next.getMessage();
+         Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+         Assert.assertTrue(message.isDurable());
+         // Doing the check again in case isDurable messed up the scanning status. It should not change the status by definition
+         Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.RELOAD_PERSISTENCE, message.getDataScanningStatus());
+         messageReference.add(message);
+      });
+
+      Assert.assertEquals(1, messageReference.size());
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -76,7 +72,8 @@ public class AmqpJournalLoadingTest extends AmqpClientTestSupport {
 
       assertEquals(1, afterRestartQueueView.getMessageCount());
 
-      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, amqpMessage.getDataScanningStatus());
+      Assert.assertEquals(AMQPMessage.MessageDataScanningStatus.SCANNED, messageReference.get(0).getDataScanningStatus());
+
 
       receive.accept();
 

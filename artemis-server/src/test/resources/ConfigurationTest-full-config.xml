@@ -388,10 +388,10 @@
             <receiver address-match="TEST-RECEIVER" />
             <peer address-match="TEST-PEER"/>
             <receiver queue-name="TEST-WITH-QUEUE-NAME"/>
-            <mirror message-acknowledgements="false" queue-creation="false" source-mirror-address="TEST-REPLICA" queue-removal="false"/>
+            <mirror message-acknowledgements="false" queue-creation="false" durable="false" queue-removal="false"/>
          </amqp-connection>
          <amqp-connection uri="tcp://test2:222" name="test2">
-            <mirror/>
+            <mirror durable="false"/>
          </amqp-connection>
          <amqp-connection uri="tcp://false" name="auto-start-false" auto-start="false">
             <mirror/>

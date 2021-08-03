@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +26,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.impl.ServerProducerImpl;
+import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext;
@@ -34,6 +36,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransa
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
@@ -189,10 +192,13 @@ public class AMQPSessionContext extends ProtonInitializable {
          senders.put(sender, protonSender);
          serverSenders.put(protonSender.getBrokerConsumer(), protonSender);
          sender.setContext(protonSender);
-         connection.runNow(() -> {
-            sender.open();
-            connection.flush();
-         });
+
+         if (sender.getLocalState() != EndpointState.ACTIVE) {
+            connection.runNow(() -> {
+               sender.open();
+               connection.flush();
+            });
+         }
 
          protonSender.start();
       } catch (ActiveMQAMQPException e) {
@@ -224,6 +230,9 @@ public class AMQPSessionContext extends ProtonInitializable {
          ServerProducer serverProducer = new ServerProducerImpl(receiver.getName(), "AMQP", receiver.getTarget().getAddress());
          sessionSPI.addProducer(serverProducer);
          receiver.setContext(protonReceiver);
+         HashMap<Symbol, Object> brokerIDProperties = new HashMap<>();
+         brokerIDProperties.put(AMQPMirrorControllerSource.BROKER_ID, server.getNodeID().toString());
+         receiver.setProperties(brokerIDProperties);
          connection.runNow(() -> {
             receiver.open();
             connection.flush();

@@ -211,7 +211,6 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
          createAddressAndQueues(server);
       }
 
-
       return server;
    }
 
@@ -343,13 +342,6 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       return getName() + "-" + index;
    }
 
-   public AmqpClientTestSupport() {
-   }
-
-   public AmqpClientTestSupport(String connectorScheme, boolean useSSL) {
-      this.useSSL = useSSL;
-   }
-
    protected void sendMessages(String destinationName, int count) throws Exception {
       sendMessages(destinationName, count, null);
    }
@@ -449,7 +441,10 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       sendMessagesOpenWire(destinationName, count, durable, null);
    }
 
-   protected void sendMessagesOpenWire(String destinationName, int count, boolean durable, byte[] payload) throws Exception {
+   protected void sendMessagesOpenWire(String destinationName,
+                                       int count,
+                                       boolean durable,
+                                       byte[] payload) throws Exception {
       ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://127.0.0.1:5672");
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
