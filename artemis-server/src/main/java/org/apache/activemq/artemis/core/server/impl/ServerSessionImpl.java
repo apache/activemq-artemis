@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;

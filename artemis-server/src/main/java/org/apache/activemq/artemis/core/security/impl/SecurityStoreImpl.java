@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.security.impl;
 
 import javax.security.auth.Subject;
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 

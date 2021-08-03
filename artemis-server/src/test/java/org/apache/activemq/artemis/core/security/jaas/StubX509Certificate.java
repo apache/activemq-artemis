@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.security.PublicKey;
@@ -70,10 +70,12 @@ public class StubX509Certificate extends X509Certificate {
       return null;
    }
 
+   @Override
    public byte[] getTBSCertificate() {
       return null;
    }
 
+   @Override
    public byte[] getSignature() {
       return null;
    }
@@ -93,18 +95,22 @@ public class StubX509Certificate extends X509Certificate {
       return null;
    }
 
+   @Override
    public boolean[] getIssuerUniqueID() {
       return null;
    }
 
+   @Override
    public boolean[] getSubjectUniqueID() {
       return null;
    }
 
+   @Override
    public boolean[] getKeyUsage() {
       return null;
    }
 
+   @Override
    public int getBasicConstraints() {
       return 0;
    }
@@ -132,20 +138,24 @@ public class StubX509Certificate extends X509Certificate {
       return null;
    }
 
+   @Override
    public boolean hasUnsupportedCriticalExtension() {
       return false;
    }
 
    @SuppressWarnings("rawtypes")
+   @Override
    public Set getCriticalExtensionOIDs() {
       return null;
    }
 
    @SuppressWarnings("rawtypes")
+   @Override
    public Set getNonCriticalExtensionOIDs() {
       return null;
    }
 
+   @Override
    public byte[] getExtensionValue(String arg0) {
       return null;
    }

@@ -23,7 +23,7 @@ import javax.jms.JMSSecurityException;
 import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
-import javax.security.cert.X509Certificate;
+import java.security.cert.X509Certificate;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.lang.management.ManagementFactory;
