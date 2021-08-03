@@ -90,17 +90,27 @@ public class NetUtil extends ExecuteUtil {
       osUsed = osTmp;
    }
 
-   public static void failIfNotSudo() {
-      Assume.assumeTrue("non supported OS", osUsed != OS.NON_SUPORTED);
-      if (!canSudo()) {
+   public static void skipIfNotSudo() {
+      skipIfNotSupportedOS();
+
+      boolean canSudo = canSudo();
+      if (!canSudo) {
          StringWriter writer = new StringWriter();
          PrintWriter out = new PrintWriter(writer);
-         out.println("Add the following at the end of your /etc/sudoers (use the visudo command)");
+         out.println("In order to run this test you must be able to sudo ifconfig.");
+         out.println("E.g add the following at the end of your /etc/sudoers (use the visudo command)");
          out.println("# ------------------------------------------------------- ");
          out.println(user + " ALL = NOPASSWD: /sbin/ifconfig");
          out.println("# ------------------------------------------------------- ");
-         Assert.fail(writer.toString());
+
+         System.out.println(writer.toString());
+
+         Assume.assumeTrue("Not able to sudo ifconfig", canSudo);
       }
+   }
+
+   public static void skipIfNotSupportedOS() {
+      Assume.assumeTrue("non supported OS", osUsed != OS.NON_SUPORTED);
    }
 
    public static void cleanup() {
