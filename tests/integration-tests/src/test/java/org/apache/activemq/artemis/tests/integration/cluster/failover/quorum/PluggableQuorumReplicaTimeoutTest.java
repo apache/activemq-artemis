@@ -27,13 +27,8 @@ import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfig
 import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.ReplicaTimeoutTest;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 public class PluggableQuorumReplicaTimeoutTest extends ReplicaTimeoutTest {
-
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    @Override
    protected void configureReplicationPair(Configuration backupConfig,
@@ -41,7 +36,7 @@ public class PluggableQuorumReplicaTimeoutTest extends ReplicaTimeoutTest {
                                            TransportConfiguration backupConnector,
                                            TransportConfiguration backupAcceptor,
                                            TransportConfiguration liveConnector) throws IOException {
-      DistributedPrimitiveManagerConfiguration managerConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+      DistributedPrimitiveManagerConfiguration managerConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
 
       ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor,
                                                                     liveConfig, liveConnector, null,

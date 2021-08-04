@@ -97,13 +97,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 public abstract class ClusterTestBase extends ActiveMQTestBase {
-
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    private static final Logger log = Logger.getLogger(ClusterTestBase.class);
 
@@ -151,7 +146,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          return pluggableQuorumConfiguration;
       }
       try {
-         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
       } catch (IOException ioException) {
          log.error(ioException);
          return null;

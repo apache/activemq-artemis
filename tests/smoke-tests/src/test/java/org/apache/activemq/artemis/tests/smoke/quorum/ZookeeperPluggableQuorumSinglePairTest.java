@@ -28,8 +28,6 @@ import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSinglePairTest {
 
@@ -38,9 +36,7 @@ public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSingl
    // Beware: the server tick must be small enough that to let the session to be correctly expired
    private static final int SERVER_TICK_MS = 100;
 
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
-   protected TestingCluster testingServer;
+   private TestingCluster testingServer;
    private InstanceSpec[] clusterSpecs;
    private int nodes;
 
@@ -51,7 +47,7 @@ public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSingl
       nodes = 3;
       clusterSpecs = new InstanceSpec[nodes];
       for (int i = 0; i < nodes; i++) {
-         clusterSpecs[i] = new InstanceSpec(tmpFolder.newFolder(), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
+         clusterSpecs[i] = new InstanceSpec(temporaryFolder.newFolder(), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
       }
       testingServer = new TestingCluster(clusterSpecs);
       testingServer.start();
