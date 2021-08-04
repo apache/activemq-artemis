@@ -2825,7 +2825,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertNotEquals("id", "", array.getJsonObject(0).getString("id"));
       Assert.assertNotEquals("address", "", array.getJsonObject(0).getString("address"));
       Assert.assertEquals("filter", "", array.getJsonObject(0).getString("filter"));
-      Assert.assertNotEquals("rate", "", array.getJsonObject(0).getString("rate"));
       Assert.assertEquals("durable", "false", array.getJsonObject(0).getString("durable"));
       Assert.assertEquals("paused", "false", array.getJsonObject(0).getString("paused"));
       Assert.assertNotEquals("temporary", "", array.getJsonObject(0).getString("temporary"));
