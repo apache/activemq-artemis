@@ -47,19 +47,15 @@ import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest {
 
    private DistributedPrimitiveManagerConfiguration managerConfiguration;
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    @Before
    public void init() throws IOException {
-      managerConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+      managerConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
    }
 
    @Override

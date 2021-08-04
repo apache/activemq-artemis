@@ -56,13 +56,9 @@ import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 public abstract class FailoverTestBase extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    protected static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
 
@@ -243,7 +239,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
       managerConfiguration =
          new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
-                                                      Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+                                                      Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
 
       ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null, managerConfiguration, managerConfiguration);
 

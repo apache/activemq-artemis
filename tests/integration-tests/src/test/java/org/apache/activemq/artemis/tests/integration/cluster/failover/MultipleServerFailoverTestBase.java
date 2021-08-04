@@ -48,13 +48,8 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
-
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    private DistributedPrimitiveManagerConfiguration pluggableQuorumConfiguration = null;
 
@@ -63,7 +58,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          return pluggableQuorumConfiguration;
       }
       try {
-         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
       } catch (IOException ioException) {
          return null;
       }

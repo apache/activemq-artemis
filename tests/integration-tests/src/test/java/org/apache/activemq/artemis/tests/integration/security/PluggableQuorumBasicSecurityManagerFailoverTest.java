@@ -51,7 +51,7 @@ public class PluggableQuorumBasicSecurityManagerFailoverTest extends FailoverTes
       DistributedPrimitiveManagerConfiguration managerConfiguration =
          new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
                                                       Collections.singletonMap("locks-folder",
-                                                                               tmpFolder.newFolder("manager").toString()));
+                                                                               temporaryFolder.newFolder("manager").toString()));
 
       ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor,
                                                                     liveConfig, liveConnector, null,

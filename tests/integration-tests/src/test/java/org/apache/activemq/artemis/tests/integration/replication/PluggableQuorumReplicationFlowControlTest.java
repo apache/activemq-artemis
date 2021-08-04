@@ -26,18 +26,14 @@ import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfigu
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 public class PluggableQuorumReplicationFlowControlTest extends SharedNothingReplicationFlowControlTest {
 
    private DistributedPrimitiveManagerConfiguration managerConfiguration;
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    @Before
    public void init() throws IOException {
-      managerConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+      managerConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
    }
 
    @Override

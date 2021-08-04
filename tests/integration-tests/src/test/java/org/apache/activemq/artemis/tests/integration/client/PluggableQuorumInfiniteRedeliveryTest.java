@@ -24,13 +24,8 @@ import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfigu
 import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 public class PluggableQuorumInfiniteRedeliveryTest extends InfiniteRedeliveryTest {
-
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    private DistributedPrimitiveManagerConfiguration managerConfiguration;
 
@@ -43,7 +38,7 @@ public class PluggableQuorumInfiniteRedeliveryTest extends InfiniteRedeliveryTes
    public void setUp() throws Exception {
       super.setUp();
       this.managerConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
-                                                                               Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+                                                                               Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
    }
 
    @Override

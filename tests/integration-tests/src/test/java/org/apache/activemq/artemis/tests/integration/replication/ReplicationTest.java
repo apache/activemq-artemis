@@ -100,17 +100,12 @@ import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public final class ReplicationTest extends ActiveMQTestBase {
-
-   @Rule
-   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
    @Parameterized.Parameter
    public boolean pluggableQuorum;
@@ -168,7 +163,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       } else {
          DistributedPrimitiveManagerConfiguration managerConfiguration =
             new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
-                                                         Collections.singletonMap("locks-folder", tmpFolder.newFolder("manager").toString()));
+                                                         Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
 
          ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor, managerConfiguration, managerConfiguration);
       }
