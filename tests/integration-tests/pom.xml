@@ -565,6 +565,28 @@
    </build>
    <profiles>
       <profile>
+         <!-- Quick subset of tests, used on PR checks -->
+         <id>fast-tests</id>
+         <build>
+            <pluginManagement>
+               <plugins>
+                  <plugin>
+                     <groupId>org.apache.maven.plugins</groupId>
+                     <artifactId>maven-surefire-plugin</artifactId>
+                     <configuration>
+                        <includes combine.children="override">
+                           <include>**/integration/security/*Test.java</include>
+                           <include>**/integration/ssl/*Test.java</include>
+                           <include>**/integration/amqp/JMSSaslExternalTest.java</include>
+                           <include>**/integration/amqp/connect/AMQPConnectSaslTest.java</include>
+                        </includes>
+                     </configuration>
+                  </plugin>
+               </plugins>
+            </pluginManagement>
+         </build>
+      </profile>
+      <profile>
          <id>jdk16on</id>
             <activation>
          <jdk>[16,)</jdk>

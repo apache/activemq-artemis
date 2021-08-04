@@ -1120,6 +1120,10 @@
             <skipLicenseCheck>false</skipLicenseCheck>
             <skipCompatibilityTests>false</skipCompatibilityTests>
             <testFailureIgnore>false</testFailureIgnore>
+            <!-- This enables the karaf-client-integration-tests and
+                 integration-tests module tests, see fast-tests profile
+                 in the latter for specific tests it then runs -->
+            <skipIntegrationTests>false</skipIntegrationTests>
          </properties>
       </profile>
       <profile>
