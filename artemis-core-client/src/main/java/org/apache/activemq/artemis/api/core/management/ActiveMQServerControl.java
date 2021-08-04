@@ -499,11 +499,11 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "Create an address", impact = MBeanOperationInfo.ACTION)
    String createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                        @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
+                        @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (ANYCAST/MULTICAST)") String routingTypes) throws Exception;
 
    @Operation(desc = "Update an address", impact = MBeanOperationInfo.ACTION)
    String updateAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                        @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
+                        @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (ANYCAST/MULTICAST)") String routingTypes) throws Exception;
 
    @Operation(desc = "Delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;
