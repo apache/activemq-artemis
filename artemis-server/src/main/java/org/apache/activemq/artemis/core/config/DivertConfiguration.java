@@ -260,6 +260,11 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
    }
 
    @Override
+   public String toString() {
+      return "DivertConfiguration{" + "name='" + name + '\'' + ", routingName='" + routingName + '\'' + ", address='" + address + '\'' + ", forwardingAddress='" + forwardingAddress + '\'' + ", exclusive=" + exclusive + ", filterString='" + filterString + '\'' + ", transformerConfiguration=" + transformerConfiguration + '}';
+   }
+
+   @Override
    public void decode(ActiveMQBuffer buffer) {
       name = buffer.readNullableString();
       address = buffer.readNullableString();

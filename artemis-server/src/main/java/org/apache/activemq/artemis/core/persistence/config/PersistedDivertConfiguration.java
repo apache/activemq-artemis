@@ -26,6 +26,11 @@ public class PersistedDivertConfiguration implements EncodingSupport {
 
    private DivertConfiguration divertConfiguration;
 
+   @Override
+   public String toString() {
+      return "PersistedDivertConfiguration{" + "storeId=" + storeId + ", divertConfiguration=" + divertConfiguration + '}';
+   }
+
    public PersistedDivertConfiguration(DivertConfiguration divertConfiguration) {
       this.divertConfiguration = divertConfiguration;
    }

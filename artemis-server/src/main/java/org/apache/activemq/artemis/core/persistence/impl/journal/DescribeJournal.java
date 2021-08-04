@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImpl;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
+import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator.IDCounterEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.DeliveryCountUpdateEncoding;
@@ -80,6 +81,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_MESSAGE;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_MESSAGE_PROTOCOL;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_REF;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DIVERT_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.HEURISTIC_COMPLETION;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ID_COUNTER_RECORD;
@@ -577,6 +579,11 @@ public final class DescribeJournal {
       int rec = info.getUserRecordType();
 
       switch (rec) {
+         case DIVERT_RECORD:
+            PersistedDivertConfiguration persistedDivertConfiguration = new PersistedDivertConfiguration();
+            persistedDivertConfiguration.decode(buffer);
+            return persistedDivertConfiguration;
+
          case ADD_LARGE_MESSAGE_PENDING: {
             PendingLargeMessageEncoding lmEncoding = new PendingLargeMessageEncoding();
             lmEncoding.decode(buffer);
