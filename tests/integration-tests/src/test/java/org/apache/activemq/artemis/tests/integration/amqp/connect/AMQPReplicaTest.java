@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
@@ -114,6 +115,40 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.stop();
       server.stop();
    }
+
+
+   @Test
+   public void testDeleteQueueWithRemoveFalse() throws Exception {
+      server.setIdentity("Server1");
+      server.start();
+
+      server_2 = createServer(AMQP_PORT_2, false);
+
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT);
+      amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setQueueRemoval(false));
+      server_2.getConfiguration().addAMQPConnection(amqpConnection);
+
+      server_2.start();
+
+      SimpleString queueName = RandomUtil.randomSimpleString();
+
+      server_2.addAddressInfo(new AddressInfo(queueName).setAutoCreated(false));
+      server_2.createQueue(new QueueConfiguration(queueName).setDurable(true));
+
+      Wait.assertTrue(() -> server_2.locateQueue(queueName) != null);
+      Wait.assertTrue(() -> server.locateQueue(queueName) != null);
+
+
+      server_2.destroyQueue(queueName);
+      Wait.assertTrue(() -> server_2.locateQueue(queueName) == null);
+      Thread.sleep(100);
+
+      Assert.assertTrue("Queue was removed when it was configured to not remove it", server.locateQueue(queueName) != null);
+
+      server_2.stop();
+      server.stop();
+   }
+
 
    @Test
    public void testDoNotSendDelete() throws Exception {
