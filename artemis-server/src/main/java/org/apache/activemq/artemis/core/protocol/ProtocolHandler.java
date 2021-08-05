@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.HttpAcceptorHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.HttpKeepAliveRunnable;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettySNIHostnameHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -111,6 +112,7 @@ public class ProtocolHandler {
 
       private int handshakeTimeout;
 
+      private NettySNIHostnameHandler nettySNIHostnameHandler;
 
       ProtocolDecoder(boolean http, boolean httpEnabled) {
          this.http = http;
@@ -120,6 +122,8 @@ public class ProtocolHandler {
 
       @Override
       public void channelActive(ChannelHandlerContext ctx) throws Exception {
+         nettySNIHostnameHandler = ctx.pipeline().get(NettySNIHostnameHandler.class);
+
          if (handshakeTimeout > 0) {
             timeoutFuture = scheduledThreadPool.schedule( () -> {
                ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout, nettyAcceptor.getName(), ctx.channel().remoteAddress().toString());
@@ -220,6 +224,7 @@ public class ProtocolHandler {
          protocolManagerToUse.addChannelHandlers(pipeline);
          pipeline.addLast("handler", channelHandler);
          NettyServerConnection connection = channelHandler.createConnection(ctx, protocolToUse, httpEnabled);
+         connection.setSNIHostname(nettySNIHostnameHandler != null ? nettySNIHostnameHandler.getHostname() : null);
          protocolManagerToUse.handshake(connection, new ChannelBufferWrapper(in));
          pipeline.remove(this);
 

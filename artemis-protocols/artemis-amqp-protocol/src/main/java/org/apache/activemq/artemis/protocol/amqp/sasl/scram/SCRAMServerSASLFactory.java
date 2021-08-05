@@ -31,6 +31,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.broker.AmqpInterceptor;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPRedirectHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASLFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
@@ -67,7 +68,7 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
    }
 
    @Override
-   public ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor> manager, Connection connection,
+   public ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor, AMQPRedirectHandler> manager, Connection connection,
                             RemotingConnection remotingConnection) {
       try {
          if (manager instanceof ProtonProtocolManager) {

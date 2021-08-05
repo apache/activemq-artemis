@@ -237,6 +237,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final boolean autoStart;
 
+   private final String redirectTo;
+
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
    final Executor failureExecutor;
@@ -378,6 +380,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED, TransportConstants.DEFAULT_CONNECTIONS_ALLOWED, configuration);
 
       autoStart = ConfigurationHelper.getBooleanProperty(TransportConstants.AUTO_START, TransportConstants.DEFAULT_AUTO_START, configuration);
+
+      redirectTo = ConfigurationHelper.getStringProperty(TransportConstants.REDIRECT_TO, TransportConstants.DEFAULT_REDIRECT_TO, configuration);
    }
 
    private Object loadSSLContext() {
@@ -460,6 +464,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             if (sslEnabled) {
                final Pair<String, Integer> peerInfo = getPeerInfo(channel);
                try {
+                  pipeline.addLast("sni", new NettySNIHostnameHandler());
                   pipeline.addLast("ssl", getSslHandler(channel.alloc(), peerInfo.getA(), peerInfo.getB()));
                   pipeline.addLast("sslHandshakeExceptionHandler", new SslHandshakeExceptionHandler());
                } catch (Exception e) {
@@ -930,7 +935,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             super.channelActive(ctx);
             Listener connectionListener = new Listener();
 
-            NettyServerConnection nc = new NettyServerConnection(configuration, ctx.channel(), connectionListener, !httpEnabled && batchDelay > 0, directDeliver);
+            NettyServerConnection nc = new NettyServerConnection(configuration, ctx.channel(), connectionListener, !httpEnabled && batchDelay > 0, directDeliver, redirectTo);
 
             connectionListener.connectionCreated(NettyAcceptor.this, nc, protocolHandler.getProtocol(protocol));
 

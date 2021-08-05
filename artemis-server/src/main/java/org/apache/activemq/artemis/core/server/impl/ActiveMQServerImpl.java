@@ -172,6 +172,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugi
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
+import org.apache.activemq.artemis.core.server.balancing.BrokerBalancerManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
@@ -288,6 +289,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private volatile StorageManager storageManager;
 
    private volatile RemotingService remotingService;
+
+   private volatile BrokerBalancerManager balancerManager;
 
    private final List<ProtocolManagerFactory> protocolManagerFactories = new ArrayList<>();
 
@@ -1194,6 +1197,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          }
 
+         stopComponent(balancerManager);
+
          stopComponent(connectorsService);
 
          // we stop the groupingHandler before we stop the cluster manager so binding mappings
@@ -1630,6 +1635,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public ClusterManager getClusterManager() {
       return clusterManager;
+   }
+
+   @Override
+   public BrokerBalancerManager getBalancerManager() {
+      return balancerManager;
    }
 
    public BackupManager getBackupManager() {
@@ -3107,6 +3117,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       federationManager.deploy();
 
+      balancerManager = new BrokerBalancerManager(configuration, this, scheduledPool);
+
+      balancerManager.deploy();
+
       remotingService = new RemotingServiceImpl(clusterManager, configuration, this, managementService, scheduledPool, protocolManagerFactories, executorFactory.getExecutor(), serviceRegistry);
 
       messagingServerControl = managementService.registerServer(postOffice, securityStore, storageManager, configuration, addressSettingsRepository, securityRepository, resourceManager, remotingService, this, queueFactory, scheduledPool, pagingManager, haPolicy.isBackup());
@@ -3269,6 +3283,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
             federationManager.start();
          }
+
+         balancerManager.start();
 
          startProtocolServices();
 

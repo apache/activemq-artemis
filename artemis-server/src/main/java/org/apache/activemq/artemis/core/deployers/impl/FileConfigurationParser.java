@@ -46,6 +46,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
+import org.apache.activemq.artemis.core.config.balancing.PolicyConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
@@ -62,6 +64,7 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.balancing.PoolConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
@@ -88,6 +91,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
+import org.apache.activemq.artemis.core.server.balancing.policies.PolicyFactoryResolver;
+import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
@@ -624,6 +629,21 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          parseDivertConfiguration(dvNode, config);
       }
+
+      NodeList ccBalancers = e.getElementsByTagName("broker-balancers");
+
+      if (ccBalancers != null) {
+         NodeList ccBalancer = e.getElementsByTagName("broker-balancer");
+
+         if (ccBalancer != null) {
+            for (int i = 0; i < ccBalancer.getLength(); i++) {
+               Element ccNode = (Element) ccBalancer.item(i);
+
+               parseBalancerConfiguration(ccNode, config);
+            }
+         }
+      }
+
       // Persistence config
 
       config.setLargeMessagesDirectory(getString(e, "large-messages-directory", config.getLargeMessagesDirectory(), Validators.NOT_NULL_OR_EMPTY));
@@ -2620,7 +2640,87 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       mainConfig.getDivertConfigurations().add(config);
    }
 
-   /**
+   private void parseBalancerConfiguration(final Element e, final Configuration config) throws Exception {
+      BrokerBalancerConfiguration brokerBalancerConfiguration = new BrokerBalancerConfiguration();
+
+      brokerBalancerConfiguration.setName(e.getAttribute("name"));
+
+      brokerBalancerConfiguration.setTargetKey(TargetKey.valueOf(getString(e, "target-key", brokerBalancerConfiguration.getTargetKey().name(), Validators.TARGET_KEY)));
+
+      brokerBalancerConfiguration.setTargetKeyFilter(getString(e, "target-key-filter", brokerBalancerConfiguration.getTargetKeyFilter(), Validators.NO_CHECK));
+
+      brokerBalancerConfiguration.setLocalTargetFilter(getString(e, "local-target-filter", brokerBalancerConfiguration.getLocalTargetFilter(), Validators.NO_CHECK));
+
+      brokerBalancerConfiguration.setCacheTimeout(getInteger(e, "cache-timeout",
+         brokerBalancerConfiguration.getCacheTimeout(), Validators.MINUS_ONE_OR_GE_ZERO));
+
+      PolicyConfiguration policyConfiguration = null;
+      PoolConfiguration poolConfiguration = null;
+      NodeList children = e.getChildNodes();
+
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+
+         if (child.getNodeName().equals("policy")) {
+            policyConfiguration = new PolicyConfiguration();
+            parsePolicyConfiguration((Element)child, policyConfiguration);
+            brokerBalancerConfiguration.setPolicyConfiguration(policyConfiguration);
+         } else if (child.getNodeName().equals("pool")) {
+            poolConfiguration = new PoolConfiguration();
+            parsePoolConfiguration((Element) child, config, poolConfiguration);
+            brokerBalancerConfiguration.setPoolConfiguration(poolConfiguration);
+         }
+      }
+
+      config.getBalancerConfigurations().add(brokerBalancerConfiguration);
+   }
+
+   private void parsePolicyConfiguration(final Element e, final PolicyConfiguration policyConfiguration) throws ClassNotFoundException {
+      String name = e.getAttribute("name");
+
+      PolicyFactoryResolver.getInstance().resolve(name);
+
+      policyConfiguration.setName(name);
+
+      policyConfiguration.setProperties(getMapOfChildPropertyElements(e));
+   }
+
+   private void parsePoolConfiguration(final Element e, final Configuration config, final PoolConfiguration poolConfiguration) throws Exception {
+      poolConfiguration.setUsername(getString(e, "username", null, Validators.NO_CHECK));
+
+      String password = getString(e, "password", null, Validators.NO_CHECK);
+      poolConfiguration.setPassword(password != null ? PasswordMaskingUtil.resolveMask(
+         config.isMaskPassword(), password, config.getPasswordCodec()) : null);
+
+      poolConfiguration.setCheckPeriod(getInteger(e, "check-period",
+         poolConfiguration.getCheckPeriod(), Validators.GT_ZERO));
+
+      poolConfiguration.setQuorumSize(getInteger(e, "quorum-size",
+         poolConfiguration.getQuorumSize(), Validators.GT_ZERO));
+
+      poolConfiguration.setQuorumTimeout(getInteger(e, "quorum-timeout",
+         poolConfiguration.getQuorumTimeout(), Validators.GE_ZERO));
+
+      poolConfiguration.setLocalTargetEnabled(getBoolean(e, "local-target-enabled", poolConfiguration.isLocalTargetEnabled()));
+
+      poolConfiguration.setClusterConnection(getString(e, "cluster-connection", null, Validators.NO_CHECK));
+
+      NodeList children = e.getChildNodes();
+
+      for (int i = 0; i < children.getLength(); i++) {
+         Node child = children.item(i);
+
+         if (child.getNodeName().equals("discovery-group-ref")) {
+            poolConfiguration.setDiscoveryGroupName(child.getAttributes().getNamedItem("discovery-group-name").getNodeValue());
+         } else if (child.getNodeName().equals("static-connectors")) {
+            List<String> staticConnectorNames = new ArrayList<>();
+            getStaticConnectors(staticConnectorNames, child);
+            poolConfiguration.setStaticConnectors(staticConnectorNames);
+         }
+      }
+   }
+
+   /**RedirectConfiguration
     * @param e
     */
    protected void parseWildcardConfiguration(final Element e, final Configuration mainConfig) {

@@ -149,6 +149,15 @@ public final class ObjectNameBuilder {
       return createObjectName("cluster-connection", name);
    }
 
+   /**
+    * Returns the ObjectName used by BrokerBalancerControl.
+    *
+    * @see BrokerBalancerControl
+    */
+   public ObjectName getBrokerBalancerObjectName(final String name) throws Exception {
+      return createObjectName("broker-balancer", name);
+   }
+
    private ObjectName createObjectName(final String type, final String name) throws Exception {
       return ObjectName.getInstance(String.format("%s,component=%ss,name=%s", getActiveMQServerName(), type, ObjectName.quote(name)));
    }

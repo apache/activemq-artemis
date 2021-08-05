@@ -184,6 +184,10 @@ public final class ChannelImpl implements Channel {
             return version >= 129;
          case PacketImpl.SESS_BINDINGQUERY_RESP_V4:
             return version >= 129;
+         case PacketImpl.CLUSTER_TOPOLOGY_V4:
+         case PacketImpl.CREATESESSION_V2:
+         case PacketImpl.DISCONNECT_V3:
+            return version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
          default:
             return true;
       }

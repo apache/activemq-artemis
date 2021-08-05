@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ActiveMQManagementProxy;
 import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
@@ -72,10 +71,7 @@ public abstract class CheckAbstract extends AbstractAction {
          int successTasks = 0;
 
          try (ActiveMQConnectionFactory factory = createCoreConnectionFactory();
-              ServerLocator serverLocator = factory.getServerLocator();
-              ActiveMQManagementProxy managementProxy = new ActiveMQManagementProxy(serverLocator, user, password)) {
-
-            managementProxy.start();
+              ActiveMQManagementProxy managementProxy = new ActiveMQManagementProxy(factory.getServerLocator(), user, password)) {
 
             StopWatch watch = new StopWatch();
             CheckTask[] checkTasks = getCheckTasks();

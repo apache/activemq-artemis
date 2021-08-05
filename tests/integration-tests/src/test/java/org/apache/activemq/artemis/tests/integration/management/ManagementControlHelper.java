@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.artemis.api.core.management.BrokerBalancerControl;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.JGroupsChannelBroadcastGroupControl;
@@ -96,6 +97,12 @@ public class ManagementControlHelper {
    public static AddressControl createAddressControl(final SimpleString address,
                                                      final MBeanServer mbeanServer) throws Exception {
       return (AddressControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getAddressObjectName(address), AddressControl.class, mbeanServer);
+   }
+
+
+   public static BrokerBalancerControl createBrokerBalancerControl(final String name,
+                                                                   final MBeanServer mbeanServer) throws Exception {
+      return (BrokerBalancerControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getBrokerBalancerObjectName(name), BrokerBalancerControl.class, mbeanServer);
    }
 
    // Constructors --------------------------------------------------
