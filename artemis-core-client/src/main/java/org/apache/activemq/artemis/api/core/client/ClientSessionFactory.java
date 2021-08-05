@@ -136,6 +136,32 @@ public interface ClientSessionFactory extends AutoCloseable {
                                int ackBatchSize) throws ActiveMQException;
 
    /**
+    * Creates an <em>authenticated</em> session.
+    * <p>
+    * It is possible to <em>pre-acknowledge messages on the server</em> so that the client can avoid additional network trip
+    * to the server to acknowledge messages. While this increase performance, this does not guarantee delivery (as messages
+    * can be lost after being pre-acknowledged on the server). Use with caution if your application design permits it.
+    *
+    * @param username        the user name
+    * @param password        the user password
+    * @param xa              whether the session support XA transaction semantic or not
+    * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
+    * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
+    * @param preAcknowledge  <code>true</code> to pre-acknowledge messages on the server, <code>false</code> to let the client acknowledge the messages
+    * @param clientID        the session clientID
+    * @return a ClientSession
+    * @throws ActiveMQException if an exception occurs while creating the session
+    */
+   ClientSession createSession(String username,
+                               String password,
+                               boolean xa,
+                               boolean autoCommitSends,
+                               boolean autoCommitAcks,
+                               boolean preAcknowledge,
+                               int ackBatchSize,
+                               String clientID) throws ActiveMQException;
+
+   /**
     * Closes this factory and any session created by it.
     */
    @Override

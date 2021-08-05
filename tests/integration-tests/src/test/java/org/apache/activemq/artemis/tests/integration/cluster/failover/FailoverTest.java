@@ -691,7 +691,7 @@ public class FailoverTest extends FailoverTestBase {
       waitForBackupConfig(sf);
 
       TransportConfiguration initialLive = getFieldFromSF(sf, "currentConnectorConfig");
-      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConfig");
+      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConnectorConfig");
 
       instanceLog.debug("initlive: " + initialLive);
       instanceLog.debug("initback: " + initialBackup);
@@ -745,7 +745,7 @@ public class FailoverTest extends FailoverTestBase {
       assertTrue(current.isSameParams(initialLive));
 
       //now manually corrupt the backup in sf
-      setSFFieldValue(sf, "backupConfig", null);
+      setSFFieldValue(sf, "backupConnectorConfig", null);
 
       //crash 2
       crash();
@@ -759,12 +759,12 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    protected void waitForBackupConfig(ClientSessionFactoryInternal sf) throws NoSuchFieldException, IllegalAccessException, InterruptedException {
-      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConfig");
+      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConnectorConfig");
       int cnt = 50;
       while (initialBackup == null && cnt > 0) {
          cnt--;
          Thread.sleep(200);
-         initialBackup = getFieldFromSF(sf, "backupConfig");
+         initialBackup = getFieldFromSF(sf, "backupConnectorConfig");
       }
    }
 

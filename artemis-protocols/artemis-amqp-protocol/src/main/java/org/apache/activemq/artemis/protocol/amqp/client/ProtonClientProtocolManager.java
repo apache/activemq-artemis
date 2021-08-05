@@ -95,7 +95,7 @@ public class ProtonClientProtocolManager extends ProtonProtocolManager implement
    }
 
    @Override
-   public SessionContext createSessionContext(String name, String username, String password, boolean xa, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge, int minLargeMessageSize, int confirmationWindowSize) throws ActiveMQException {
+   public SessionContext createSessionContext(String name, String username, String password, boolean xa, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge, int minLargeMessageSize, int confirmationWindowSize, String clientID) throws ActiveMQException {
       throw new UnsupportedOperationException();
    }
 

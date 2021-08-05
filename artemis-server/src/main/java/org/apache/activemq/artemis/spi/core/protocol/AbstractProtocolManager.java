@@ -27,8 +27,9 @@ import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.balancing.RedirectHandler;
 
-public abstract class AbstractProtocolManager<P, I extends BaseInterceptor<P>, C extends RemotingConnection> implements ProtocolManager<I> {
+public abstract class AbstractProtocolManager<P, I extends BaseInterceptor<P>, C extends RemotingConnection, R extends RedirectHandler> implements ProtocolManager<I, R> {
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 

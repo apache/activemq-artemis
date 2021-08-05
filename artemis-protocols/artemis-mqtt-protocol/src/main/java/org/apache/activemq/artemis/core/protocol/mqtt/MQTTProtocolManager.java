@@ -48,7 +48,7 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 /**
  * MQTTProtocolManager
  */
-public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInterceptor, MQTTConnection> implements NotificationListener {
+public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInterceptor, MQTTConnection, MQTTRedirectHandler> implements NotificationListener {
 
    private static final List<String> websocketRegistryNames = Arrays.asList("mqtt", "mqttv3.1");
 
@@ -62,6 +62,8 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    private final Map<String, MQTTConnection> connectedClients;
    private final Map<String, MQTTSessionState> sessionStates;
 
+   private final MQTTRedirectHandler redirectHandler;
+
    MQTTProtocolManager(ActiveMQServer server,
                        Map<String, MQTTConnection> connectedClients,
                        Map<String, MQTTSessionState> sessionStates,
@@ -72,6 +74,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       this.sessionStates = sessionStates;
       this.updateInterceptors(incomingInterceptors, outgoingInterceptors);
       server.getManagementService().addNotificationListener(this);
+      redirectHandler = new MQTTRedirectHandler(server);
    }
 
    @Override
@@ -207,6 +210,11 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    @Override
    public List<String> websocketSubprotocolIdentifiers() {
       return websocketRegistryNames;
+   }
+
+   @Override
+   public MQTTRedirectHandler getRedirectHandler() {
+      return redirectHandler;
    }
 
    public String invokeIncoming(MqttMessage mqttMessage, MQTTConnection connection) {

@@ -42,7 +42,8 @@ public class OperationAnnotationTest {
                                           {DivertControl.class},
                                           {AcceptorControl.class},
                                           {ClusterConnectionControl.class},
-                                          {BroadcastGroupControl.class}});
+                                          {BroadcastGroupControl.class},
+                                          {BrokerBalancerControl.class}});
    }
 
    private Class<?> managementClass;

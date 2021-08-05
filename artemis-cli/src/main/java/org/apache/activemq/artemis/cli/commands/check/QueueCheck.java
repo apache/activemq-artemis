@@ -132,7 +132,7 @@ public class QueueCheck extends CheckAbstract {
    }
 
    private void checkQueueUp(final CheckContext context) throws Exception {
-      if (context.getManagementProxy().invokeOperation(Boolean.class,ResourceNames.QUEUE + getName(), "isPaused")) {
+      if (context.getManagementProxy().getAttribute(ResourceNames.QUEUE + getName(), "Paused", Boolean.class, 0)) {
          throw new CheckException("The queue is paused.");
       }
    }

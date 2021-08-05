@@ -57,7 +57,23 @@ public class CreateSessionMessage extends PacketImpl {
                                final boolean preAcknowledge,
                                final int windowSize,
                                final String defaultAddress) {
-      super(CREATESESSION);
+      this(CREATESESSION, name, sessionChannelID, version, username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, windowSize, defaultAddress);
+   }
+
+   protected CreateSessionMessage(final byte type,
+                               final String name,
+                               final long sessionChannelID,
+                               final int version,
+                               final String username,
+                               final String password,
+                               final int minLargeMessageSize,
+                               final boolean xa,
+                               final boolean autoCommitSends,
+                               final boolean autoCommitAcks,
+                               final boolean preAcknowledge,
+                               final int windowSize,
+                               final String defaultAddress) {
+      super(type);
 
       this.name = name;
 
@@ -86,6 +102,10 @@ public class CreateSessionMessage extends PacketImpl {
 
    public CreateSessionMessage() {
       super(CREATESESSION);
+   }
+
+   protected CreateSessionMessage(final byte type) {
+      super(type);
    }
 
    // Public --------------------------------------------------------
@@ -195,8 +215,17 @@ public class CreateSessionMessage extends PacketImpl {
    }
 
    @Override
+   protected String getParentString() {
+      return toString(false);
+   }
+
+   @Override
    public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+      return toString(true);
+   }
+
+   private String toString(boolean closed) {
+      StringBuffer buff = new StringBuffer(super.getParentString());
       buff.append(", autoCommitAcks=" + autoCommitAcks);
       buff.append(", autoCommitSends=" + autoCommitSends);
       buff.append(", defaultAddress=" + defaultAddress);
@@ -209,7 +238,9 @@ public class CreateSessionMessage extends PacketImpl {
       buff.append(", version=" + version);
       buff.append(", windowSize=" + windowSize);
       buff.append(", xa=" + xa);
-      buff.append("]");
+      if (closed) {
+         buff.append("]");
+      }
       return buff.toString();
    }
 

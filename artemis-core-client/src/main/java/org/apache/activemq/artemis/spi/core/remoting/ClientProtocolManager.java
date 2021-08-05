@@ -69,7 +69,8 @@ public interface ClientProtocolManager {
                                        boolean autoCommitAcks,
                                        boolean preAcknowledge,
                                        int minLargeMessageSize,
-                                       int confirmationWindowSize) throws ActiveMQException;
+                                       int confirmationWindowSize,
+                                       String clientID) throws ActiveMQException;
 
    boolean cleanupBeforeFailover(ActiveMQException cause);
 

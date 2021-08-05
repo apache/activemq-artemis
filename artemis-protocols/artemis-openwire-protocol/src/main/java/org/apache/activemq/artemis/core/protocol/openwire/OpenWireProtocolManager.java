@@ -81,7 +81,7 @@ import org.apache.activemq.util.LongSequenceGenerator;
 
 import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.SELECTOR_AWARE_OPTION;
 
-public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, OpenWireInterceptor, OpenWireConnection> implements ClusterTopologyListener {
+public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, OpenWireInterceptor, OpenWireConnection, OpenWireRedirectHandler> implements ClusterTopologyListener {
 
    private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
 
@@ -137,6 +137,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    private final List<OpenWireInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<OpenWireInterceptor> outgoingInterceptors = new ArrayList<>();
 
+   private final OpenWireRedirectHandler redirectHandler;
 
    protected static class VirtualTopicConfig {
       public int filterPathTerminus;
@@ -187,6 +188,8 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
       //make sure we don't cluster advisories
       clusterManager.addProtocolIgnoredAddress(AdvisorySupport.ADVISORY_TOPIC_PREFIX);
+
+      redirectHandler = new OpenWireRedirectHandler(server, this);
    }
 
    @Override
@@ -634,6 +637,11 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    @Override
    public void setSecurityDomain(String securityDomain) {
       this.securityDomain = securityDomain;
+   }
+
+   @Override
+   public OpenWireRedirectHandler getRedirectHandler() {
+      return redirectHandler;
    }
 
    @Override

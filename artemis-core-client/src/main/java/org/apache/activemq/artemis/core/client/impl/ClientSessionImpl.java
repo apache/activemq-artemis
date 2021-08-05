@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQRedirectedException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -1460,6 +1461,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
                sessionContext.returnBlocking(cause);
             }
+         } catch (ActiveMQRedirectedException e) {
+            logger.info("failedToHandleFailover.ActiveMQRedirectedException");
+            suc = false;
          } catch (Throwable t) {
             ActiveMQClientLogger.LOGGER.failedToHandleFailover(t);
             suc = false;
