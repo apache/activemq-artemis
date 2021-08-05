@@ -44,9 +44,9 @@ public class ScaleDownFailoverTest extends ClusterTestBase {
    public void setUp() throws Exception {
       super.setUp();
       stopCount = 0;
-      setupLiveServer(0, isFileStorage(), false, isNetty(), true);
-      setupLiveServer(1, isFileStorage(), false, isNetty(), true);
-      setupLiveServer(2, isFileStorage(), false, isNetty(), true);
+      setupLiveServer(0, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
+      setupLiveServer(1, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
+      setupLiveServer(2, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
       ScaleDownConfiguration scaleDownConfiguration2 = new ScaleDownConfiguration();
       scaleDownConfiguration2.setEnabled(false);

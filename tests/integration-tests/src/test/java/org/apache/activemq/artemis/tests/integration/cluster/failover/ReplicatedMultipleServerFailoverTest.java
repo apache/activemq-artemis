@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -25,8 +28,19 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailoverTestBase {
+
+   @Parameterized.Parameter
+   public HAType haType;
+
+   @Parameterized.Parameters(name = "ha={0}")
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{HAType.SharedNothingReplication}, {HAType.PluggableQuorumReplication}});
+   }
 
    @Test
    public void testStartLiveFirst() throws Exception {
@@ -140,8 +154,8 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
    }
 
    @Override
-   public boolean isSharedStore() {
-      return false;
+   public HAType haType() {
+      return haType;
    }
 
    @Override

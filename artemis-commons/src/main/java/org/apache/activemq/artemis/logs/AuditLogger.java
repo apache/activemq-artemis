@@ -2851,4 +2851,12 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601748, value = "User {0} is getting max retry interval on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void getMaxRetryInterval(String user, Object source, Object... args);
+
+   static void getActivationSequence(Object source) {
+      BASE_LOGGER.getActivationSequence(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601749, value = "User {0} is getting activation sequence on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getActivationSequence(String user, Object source, Object... args);
 }

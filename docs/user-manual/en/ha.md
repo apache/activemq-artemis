@@ -65,8 +65,8 @@ which we will cover in a later chapter.
 > message data will not be available after failover.
 
 The `ha-policy` type configures which strategy a cluster should use to
-provide the backing up of a servers data. Within this configuration
-element is configured how a server should behave within the cluster,
+provide the backing up of a server's data. Within this configuration
+element we configure how a server should behave within the cluster,
 either as a master (live), slave (backup) or colocated (both live and
 backup). This would look something like:
 
@@ -97,6 +97,33 @@ or
    </replication>
 </ha-policy>
 ```
+
+*Replication* allows the configuration of two new roles to enable *pluggable quorum* provider configuration, by using:
+```xml
+<ha-policy>
+   <replication>
+      <primary/>
+   </replication>
+</ha-policy>
+```
+to configure the classic *master* role, and
+```xml
+<ha-policy>
+   <replication>
+      <backup/>
+   </replication>
+</ha-policy>
+```
+for the classic *slave* one.
+
+If *replication* is configured using such new roles some additional element are required to complete configuration as detailed later.
+
+### IMPORTANT NOTE ON PLUGGABLE QUORUM VOTE FEATURE
+
+This feature is still **EXPERIMENTAL**. Extra testing should be done before running this feature into production. Please raise issues eventually found to the ActiveMQ Artemis Mail Lists.
+
+It means:
+- it's configuration can change until declared as **officially stable**
 
 ### Data Replication
 
@@ -196,19 +223,29 @@ changes and repeats the process.
 > live server by changing `slave` to `master`.
 
 Much like in the shared-store case, when the live server stops or
-crashes, its replicating backup will become active and take over its
+crashes, it's replicating backup will become active and take over its
 duties. Specifically, the backup will become active when it loses
-connection to its live server. This can be problematic because this can
-also happen because of a temporary network problem. In order to address
-this issue, the backup will try to determine whether it still can
+connection to its live server. This can be problematic because it can
+also happen as the result of temporary network problem.
+
+The issue can be solved in two different ways, depending on which replication roles are configured:
+- **classic replication** (`master`/`slave` roles): backup will try to determine whether it still can
 connect to the other servers in the cluster. If it can connect to more
 than half the servers, it will become active, if more than half the
 servers also disappeared with the live, the backup will wait and try
 reconnecting with the live. This avoids a split brain situation.
+- **pluggable quorum vote replication** (`primary`/`backup` roles): backup relies on a pluggable quorum provider 
+  (configurable via `manager` xml element) to detect if there's any active live.
+  
+> ***NOTE***
+> 
+> A backup in the **pluggable quorum vote replication** still need to carefully configure
+> [connection-ttl](connection-ttl.md) in order to promptly issue a request to become live to the quorum service
+> before failing-over. 
 
 #### Configuration
 
-To configure the live and backup servers to be a replicating pair,
+To configure a classic replication's live and backup servers to be a replicating pair,
 configure the live server in ' `broker.xml` to have:
 
 ```xml
@@ -231,6 +268,30 @@ The backup server must be similarly configured but as a `slave`
 <ha-policy>
    <replication>
       <slave/>
+   </replication>
+</ha-policy>
+```
+
+To configure a pluggable quorum replication's primary and backup use:
+
+```xml
+<ha-policy>
+   <replication>
+      <primary/>
+   </replication>
+</ha-policy>
+...
+<cluster-connections>
+   <cluster-connection name="my-cluster">
+      ...
+   </cluster-connection>
+</cluster-connections>
+```
+and
+```xml
+<ha-policy>
+   <replication>
+      <backup/>
    </replication>
 </ha-policy>
 ```
@@ -307,6 +368,130 @@ will wait at the completion of the initial replication process for the
 replica to acknowledge it has received all the necessary data. The
 default is 30,000 milliseconds. **Note:** during this interval any
 journal related operations will be blocked.
+
+#### Pluggable Quorum Vote Replication configurations
+Pluggable Quorum Vote replication configuration options are a bit different 
+from classic replication, mostly because of its customizable nature.
+
+[Apache curator](https://curator.apache.org/) is used by the default quorum provider.
+
+Below some example configurations to show how it works.
+
+For `primary`:
+```xml
+      <ha-policy>
+         <replication>
+            <primary>
+               <manager>
+                  <class-name>org.apache.activemq.artemis.quorum.zookeeper.CuratorDistributedPrimitiveManager</class-name>
+                  <properties>
+                     <property key="connect-string" value="127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668"/>
+                  </properties>
+               </manager>
+            </primary>
+         </replication>
+      </ha-policy>
+```
+And `backup`:
+```xml
+      <ha-policy>
+         <replication>
+            <backup>
+               <manager>
+                  <class-name>org.apache.activemq.artemis.quorum.zookeeper.CuratorDistributedPrimitiveManager</class-name>
+                  <properties>
+                     <property key="connect-string" value="127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668"/>
+                  </properties>
+               </manager>
+               <allow-failback>true</allow-failback>
+            </backup>
+         </replication>
+      </ha-policy>
+```
+The configuration of `class-name` as follows
+```xml
+<class-name>org.apache.activemq.artemis.quorum.zookeeper.CuratorDistributedPrimitiveManager</class-name>
+```
+isn't really needed, because Apache Curator is the default provider, but has been shown for completeness.
+
+The `properties` element:
+```xml
+   <properties>
+      <property key="connect-string" value="127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668"/>
+   </properties>
+```
+can specify a list of `property` elements in the form of key-value pairs, appropriate to what is
+supported by the specified `class-name` provider.
+
+Apache Curator's provider allows the following properties:
+
+- [`connect-string`](https://curator.apache.org/apidocs/org/apache/curator/framework/CuratorFrameworkFactory.Builder.html#connectString(java.lang.String)): (no default)
+- [`session-ms`](https://curator.apache.org/apidocs/org/apache/curator/framework/CuratorFrameworkFactory.Builder.html#sessionTimeoutMs(int)): (default is 18000 ms)   
+- [`session-percent`](https://curator.apache.org/apidocs/org/apache/curator/framework/CuratorFrameworkFactory.Builder.html#simulatedSessionExpirationPercent(int)): (default is 33); should be <= default, 
+  see https://cwiki.apache.org/confluence/display/CURATOR/TN14 for more info
+- [`connection-ms`](https://curator.apache.org/apidocs/org/apache/curator/framework/CuratorFrameworkFactory.Builder.html#connectionTimeoutMs(int)): (default is 8000 ms)
+- [`retries`](https://curator.apache.org/apidocs/org/apache/curator/retry/RetryNTimes.html#%3Cinit%3E(int,int)): (default is 1)
+- [`retries-ms`](https://curator.apache.org/apidocs/org/apache/curator/retry/RetryNTimes.html#%3Cinit%3E(int,int)): (default is 1000 ms)
+- [`namespace`](https://curator.apache.org/apidocs/org/apache/curator/framework/CuratorFrameworkFactory.Builder.html#namespace(java.lang.String)): (no default)
+
+Configuration of the [Apache Zookeeper](https://zookeeper.apache.org/) ensemble is the responsibility of the user, but there are few 
+**suggestions to improve the reliability of the quorum service**:
+- broker `session_ms` must be `>= 2 * server tick time` and `<= 20 * server tick time` as by 
+  [Zookeeper 3.6.3 admin guide](https://zookeeper.apache.org/doc/r3.6.3/zookeeperAdmin.html): it directly impacts how fast a backup
+  can failover to an isolated/killed/unresponsive live; the higher, the slower.
+- GC on broker machine should allow keeping GC pauses within 1/3 of `session_ms` in order to let the Zookeeper heartbeat protocol
+  work reliably. If that is not possible, it is better to increase `session_ms`, accepting a slower failover.
+- Zookeeper must have enough resources to keep GC (and OS) pauses much smaller than server tick time: please consider carefully if 
+  broker and Zookeeper node should share the same physical machine, depending on the expected load of the broker
+- network isolation protection requires configuring >=3 Zookeeper nodes
+
+#### *Important*: Notes on pluggable quorum replication configuration 
+ 
+There are some no longer needed `classic` replication configurations:
+  - `vote-on-replication-failure`
+  - `quorum-vote-wait`
+  - `vote-retries`
+  - `vote-retries-wait`
+  - `check-for-live-server` 
+
+**Notes on replication configuration with [Apache curator](https://curator.apache.org/) quorum provider**
+
+As said some paragraphs above, `session-ms` affect the failover duration: a backup can 
+failover after `session-ms` expires or if the live broker voluntary give up its role 
+eg during a fail-back/manual broker stop, it happens immediately.
+
+For the former case (session expiration with live no longer present), the backup broker can detect an unresponsive live by using:
+1. cluster connection PINGs (affected by [connection-ttl](connection-ttl.md) tuning)
+2. closed TCP connection notification (depends by TCP configuration and networking stack/topology)
+
+The suggestion is to tune `connection-ttl` low enough to attempt failover as soon as possible, while taking in consideration that 
+the whole fail-over duration cannot last less than the configured `session-ms`.
+
+##### Peer or Multi Primary
+With coordination delegated to the quorum service, roles are less important. It is possible to have two peer servers compete
+for activation; the winner activating as live, the looser taking up a backup role. On restart, 'any' peer server
+with the most up to date journal can activate. 
+The instances need to know in advance, what identity they will coordinate on. 
+In the replication 'primary' ha policy we can explicitly set the 'coordination-id' to a common value for all peers in a cluster.
+
+For `multi primary`:
+```xml
+      <ha-policy>
+         <replication>
+            <primary>
+               <manager>
+                  <class-name>org.apache.activemq.artemis.quorum.zookeeper.CuratorDistributedPrimitiveManager</class-name>
+                  <properties>
+                     <property key="connect-string" value="127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668"/>
+                  </properties>
+               </manager>
+               <coordination-id>peer-journal-001</coordination-id>
+            </primary>
+         </replication>
+      </ha-policy>
+```
+Note: the string value provided will be converted internally into a 16 byte UUID, so it may not be immediately recognisable or human-readable,
+however it will ensure that all 'peers' coordinate.
 
 ### Shared Store
 
@@ -406,19 +591,43 @@ stop. This configuration would look like:
 </ha-policy>
 ```
 
-In replication HA mode you need to set an extra property
-`check-for-live-server` to `true` in the `master` configuration. If set
+The same configuration option can be set for both replications, classic:
+```xml
+<ha-policy>
+   <replication>
+      <slave>
+         <allow-failback>true</allow-failback>
+      </slave>
+   </replication>
+</ha-policy>
+```
+and with pluggable quorum provider:
+```xml
+<ha-policy>
+   <replication>
+      <manager>
+         <!-- some meaningful configuration -->
+      </manager>
+      <backup>
+         <allow-failback>true</allow-failback>
+      </backup>
+   </replication>
+</ha-policy>
+```
+
+In both replication HA mode you need to set an extra property
+`check-for-live-server` to `true` in the `master`/`primary` configuration. If set
 to true, during start-up a live server will first search the cluster for
 another server using its nodeID. If it finds one, it will contact this
 server and try to "fail-back". Since this is a remote replication
 scenario, the "starting live" will have to synchronize its data with the
 server running with its ID, once they are in sync, it will request the
-other server (which it assumes it is a back that has assumed its duties)
-to shutdown for it to take over. This is necessary because otherwise the
+other server (which it assumes it is a backup that has assumed its duties)
+to shutdown, for it to take over. This is necessary because otherwise the
 live server has no means to know whether there was a fail-over or not,
-and if there was if the server that took its duties is still running or
+and if there was, if the server that took its duties is still running or
 not. To configure this option at your `broker.xml`
-configuration file as follows:
+configuration file as follows, for classic replication:
 
 ```xml
 <ha-policy>
@@ -430,7 +639,30 @@ configuration file as follows:
 </ha-policy>
 ```
 
-> **Warning**
+And pluggable quorum replication:
+
+```xml
+<ha-policy>
+   <replication>
+      <manager>
+        <!-- some meaningful configuration -->
+      </manager>
+      <primary>
+         <!-- no need to check-for-live-server anymore -->
+      </primary>
+   </replication>
+</ha-policy>
+```
+
+The key difference from classic replication is that if `master` cannot reach any 
+live server with its nodeID, it activates unilaterally.
+With `primary`, the responsibilities of coordination are delegated to the quorum provider,
+there are no unilateral decisions. The `primary` will only activate when
+it knows that it has the most up to date version of the journal identified by its nodeID.
+
+In short: a started `primary` cannot become live without consensus.
+
+> **Warning for classic replication**
 >
 > Be aware that if you restart a live server while after failover has
 > occurred then `check-for-live-server` must be set to `true`. If not the live server

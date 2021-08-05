@@ -26,7 +26,9 @@ public interface HAPolicyConfiguration extends Serializable {
       REPLICA("Replica"),
       SHARED_STORE_MASTER("Shared Store Master"),
       SHARED_STORE_SLAVE("Shared Store Slave"),
-      COLOCATED("Colocated");
+      COLOCATED("Colocated"),
+      PRIMARY("Primary"),
+      BACKUP("Backup");
 
       private String name;
 

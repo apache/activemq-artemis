@@ -14,23 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover.quorum;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
+import org.apache.activemq.artemis.tests.integration.cluster.failover.LargeMessageFailoverTest;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.jboss.logging.Logger;
 
-public class ReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest {
+import static org.apache.activemq.artemis.tests.integration.cluster.failover.quorum.PluggableQuorumNettyNoGroupNameReplicatedFailoverTest.doDecrementActivationSequenceForForceRestartOf;
 
+public class PluggableQuorumReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest {
+
+   private static final Logger log = Logger.getLogger(PluggableQuorumReplicatedLargeMessageFailoverTest.class);
    @Override
    protected void createConfigs() throws Exception {
-      createReplicatedConfigs();
+      createPluggableReplicatedConfigs();
+   }
+
+   @Override
+   protected void setupHAPolicyConfiguration() {
+      ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
    }
 
    @Override
    protected void crash(boolean waitFailure, ClientSession... sessions) throws Exception {
       if (sessions.length > 0) {
          for (ClientSession session : sessions) {
-            waitForRemoteBackup(((ClientSessionInternal) session).getSessionFactory(), 5, true, backupServer.getServer());
+            waitForRemoteBackup(session.getSessionFactory(), 5, true, backupServer.getServer());
          }
       } else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
@@ -42,11 +53,16 @@ public class ReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest
    protected void crash(ClientSession... sessions) throws Exception {
       if (sessions.length > 0) {
          for (ClientSession session : sessions) {
-            waitForRemoteBackup(((ClientSessionInternal) session).getSessionFactory(), 5, true, backupServer.getServer());
+            waitForRemoteBackup(session.getSessionFactory(), 5, true, backupServer.getServer());
          }
       } else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(sessions);
+   }
+
+   @Override
+   protected void decrementActivationSequenceForForceRestartOf(TestableServer liveServer) throws Exception {
+      doDecrementActivationSequenceForForceRestartOf(log, nodeManager, managerConfiguration);
    }
 }

@@ -35,8 +35,8 @@ public class ScaleDownFailureTest extends ClusterTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      setupLiveServer(0, isFileStorage(), false, isNetty(), true);
-      setupLiveServer(1, isFileStorage(), false, isNetty(), true);
+      setupLiveServer(0, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
+      setupLiveServer(1, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       if (isGrouped()) {
          ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
          scaleDownConfiguration.setGroupName("bill");

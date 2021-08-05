@@ -29,7 +29,6 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
-import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.utils.ConcurrentUtil;
 
 /**
@@ -47,8 +46,9 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
 
    private String nodeID;
 
-   public AnyLiveNodeLocatorForReplication(SharedNothingBackupQuorum backupQuorum, ActiveMQServerImpl server, long retryReplicationWait) {
-      super(backupQuorum);
+   public AnyLiveNodeLocatorForReplication(BackupRegistrationListener backupRegistrationListener,
+                                           ActiveMQServerImpl server, long retryReplicationWait) {
+      super(backupRegistrationListener);
       this.server = server;
       this.retryReplicationWait = retryReplicationWait;
    }

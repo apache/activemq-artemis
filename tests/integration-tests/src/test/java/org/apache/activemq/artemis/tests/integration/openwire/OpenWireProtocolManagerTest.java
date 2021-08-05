@@ -78,7 +78,7 @@ public class OpenWireProtocolManagerTest extends ActiveMQTestBase {
 
       @Override
       public ClusterManager getClusterManager() {
-         return new ClusterManager(getExecutorFactory(), this, null, null, null, null, null, false);
+         return new ClusterManager(getExecutorFactory(), this, null, null, null, null, null, true);
       }
 
       @Override
