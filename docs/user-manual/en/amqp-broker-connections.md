@@ -144,7 +144,7 @@ On the following diagram, there will be two servers called DataCenter1, and Data
 ![Broker Connection DR](images/broker-connection-DR.jpg)
 Figure 2. Broker Connection - Disaster Recovery.
 
-on DataCenter1, the following code should be added the broker.xml:
+on DataCenter1, the following code should be added on broker.xml:
 
 ```xml
 <broker-connections>
