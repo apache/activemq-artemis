@@ -1,5 +1,7 @@
 # Zookeeper Single Pair Failback Example
 
+## Configuring Zookeeper with Docker
+
 This example demonstrates two servers coupled as a primary-backup pair for high availability (HA) using 
 pluggable quorum vote replication Reference Implementation based on [Apache Curator](https://curator.apache.org/) to use 
 [Apache Zookeeper](https://zookeeper.apache.org/) as external quorum service.
@@ -57,7 +59,7 @@ Using config: /conf/zoo.cfg
 2021-08-05 14:29:29,468 [myid:1] - INFO  [main:ZookeeperBanner@42] -                                               |_|                     
 2021-08-05 14:29:29,468 [myid:1] - INFO  [main:ZookeeperBanner@42] - 
 ```
-Alternatively, can run
+Alternatively, this command could be executed:
 ```
 $ docker run -it --rm --network host zookeeper:3.6.3 zkCli.sh -server localhost:2181
 ```
@@ -71,6 +73,58 @@ Type
 [zk: localhost:2181(CONNECTED) 0] quit
 ```
 to quit the client instance.
+
+
+## Configuring zookeeper bare metal
+
+It is possible to run zooKeeper in a bare metal instance for this example as well.
+
+Simply download [Zookeeper](https://zookeeper.apache.org/releases.html), and use the following zoo.cfg under ./apache-zookeeper/conf:
+
+```shell
+# The number of milliseconds of each tick
+tickTime=2000
+# The number of ticks that the initial
+# synchronization phase can take
+initLimit=10
+# The number of ticks that can pass between
+# sending a request and getting an acknowledgement
+syncLimit=5
+# the directory where the snapshot is stored.
+# do not use /tmp for storage, /tmp here is just
+# example sakes.
+dataDir=/tmp/datazookeeper
+# the port at which the clients will connect
+clientPort=2181
+```
+
+And use one of the shells to start Zookeeper such as:
+
+```shell
+# From the bin folder under the apache-zookeeper distribution folder 
+$ ./zkServer.sh start-foreground
+```
+
+And zookeeper would run normally:
+
+```
+2021-08-05 14:10:16,902 [myid:] - INFO  [main:DigestAuthenticationProvider@47] - ACL digest algorithm is: SHA1
+2021-08-05 14:10:16,902 [myid:] - INFO  [main:DigestAuthenticationProvider@61] - zookeeper.DigestAuthenticationProvider.enabled = true
+2021-08-05 14:10:16,905 [myid:] - INFO  [main:FileTxnSnapLog@124] - zookeeper.snapshot.trust.empty : false
+2021-08-05 14:10:16,917 [myid:] - INFO  [main:ZookeeperBanner@42] - 
+2021-08-05 14:10:16,917 [myid:] - INFO  [main:ZookeeperBanner@42] -   ______                  _                                          
+2021-08-05 14:10:16,917 [myid:] - INFO  [main:ZookeeperBanner@42] -  |___  /                 | |                                         
+2021-08-05 14:10:16,917 [myid:] - INFO  [main:ZookeeperBanner@42] -     / /    ___     ___   | | __   ___    ___   _ __     ___   _ __   
+2021-08-05 14:10:16,917 [myid:] - INFO  [main:ZookeeperBanner@42] -    / /    / _ \   / _ \  | |/ /  / _ \  / _ \ | '_ \   / _ \ | '__|
+2021-08-05 14:10:16,917 [myid:] - INFO  [main:ZookeeperBanner@42] -   / /__  | (_) | | (_) | |   <  |  __/ |  __/ | |_) | |  __/ | |    
+2021-08-05 14:10:16,918 [myid:] - INFO  [main:ZookeeperBanner@42] -  /_____|  \___/   \___/  |_|\_\  \___|  \___| | .__/   \___| |_|
+2021-08-05 14:10:16,918 [myid:] - INFO  [main:ZookeeperBanner@42] -                                               | |                     
+2021-08-05 14:10:16,918 [myid:] - INFO  [main:ZookeeperBanner@42] -                                               |_|                     
+2021-08-05 14:10:16,918 [myid:] - INFO  [main:ZookeeperBanner@42] - 
+```
+
+
+## Configured the brokers
 
 The 2 brokers of this example are already configured to connect to a single Zookeeper node at the mentioned address, thanks to the XML configuration of their `manager`:
 ```xml
@@ -86,9 +140,40 @@ The 2 brokers of this example are already configured to connect to a single Zook
 
 **WARNING** As already recommended on the [High Availability section](https://activemq.apache.org/components/artemis/documentation/latest/ha.html), a production environment needs >= 3 nodes to protect against network partitions.
 
-This example can be run with
-```
+
+##Running the example
+
+After Zookeeper is started accordingly to any of the portrayed steps here, this example can be run with
+```shell
 $ mvn verify
 ```
 
-For more information on ActiveMQ Artemis failover and HA, and clustering in general, please see the clustering section of the user manual.
+```
+ZookeeperSinglePairFailback-primary-out:2021-08-05 14:15:50,052 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started KQUEUE Acceptor at localhost:61616 for protocols [CORE,MQTT,AMQP,HORNETQ,STOMP,OPENWIRE]
+server tcp://localhost:61616 started
+Started primary
+Got message: This is text message 20 (redelivered?: false)
+Got message: This is text message 21 (redelivered?: false)
+Got message: This is text message 22 (redelivered?: false)
+Got message: This is text message 23 (redelivered?: false)
+Got message: This is text message 24 (redelivered?: false)
+Got message: This is text message 25 (redelivered?: false)
+Got message: This is text message 26 (redelivered?: false)
+Got message: This is text message 27 (redelivered?: false)
+Got message: This is text message 28 (redelivered?: false)
+Got message: This is text message 29 (redelivered?: false)
+Acknowledged 3d third of messages
+**********************************
+Killing server java.lang.UNIXProcess@dd025d9
+**********************************
+**********************************
+Killing server java.lang.UNIXProcess@3bea478e
+**********************************
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  36.629 s
+[INFO] Finished at: 2021-08-05T14:15:56-04:00
+[INFO] ------------------------------------------------------------------------
+clebertsuconic@MacBook-Pro zookeeper-single-pair-failback % 
+```
