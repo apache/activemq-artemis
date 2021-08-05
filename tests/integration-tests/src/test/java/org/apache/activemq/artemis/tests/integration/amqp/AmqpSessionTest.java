@@ -16,13 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Session;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class AmqpSessionTest extends AmqpClientTestSupport {
@@ -71,4 +75,28 @@ public class AmqpSessionTest extends AmqpClientTestSupport {
       connection.getStateInspector().assertValid();
       connection.close();
    }
+
+
+   @Test(timeout = 60000)
+   public void testCreateSessionProducerConsumerDoesNotLeakClosable() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+      assertNotNull(session);
+
+      for (int i = 0; i < 10; i++) {
+         AmqpReceiver receiver = session.createReceiver(getQueueName());
+         AmqpSender sender = session.createSender(getQueueName());
+         receiver.close();
+         sender.close();
+      }
+
+      assertEquals(1, server.getSessions().size());
+      for (ServerSession serverSession : server.getSessions()) {
+         Assert.assertNull( ((ServerSessionImpl) serverSession).getCloseables());
+      }
+
+      connection.close();
+   }
+
 }

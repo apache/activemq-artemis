@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.qpid.proton.engine.Receiver;
@@ -257,5 +258,21 @@ public class AMQPSessionCallbackTest {
 
       // Credit runnable should not grant what would be negative credit here
       Mockito.verify(receiver, never()).flow(anyInt());
+   }
+
+   @Test
+   public void testCloseBoolCallsProtonSessionClose() throws Exception {
+      Mockito.reset(connection);
+      Mockito.when(manager.getServer()).thenReturn(server);
+
+      // Capture credit runnable and invoke to trigger credit top off
+      ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
+      AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
+
+      AMQPSessionContext protonSession = Mockito.mock(AMQPSessionContext.class);
+      session.init(protonSession, null);
+      session.close(false);
+
+      Mockito.verify(protonSession).close();
    }
 }

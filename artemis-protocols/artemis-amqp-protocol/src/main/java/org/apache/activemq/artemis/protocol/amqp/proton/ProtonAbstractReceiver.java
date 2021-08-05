@@ -88,9 +88,6 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       this.creditRunnable = createCreditRunnable(amqpCredits, minCreditRefresh, receiver, connection, this);
       useModified = this.connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
       this.routingContext = new RoutingContextImpl(null).setDuplicateDetection(connection.getProtocolManager().isAmqpDuplicateDetection());
-      if (sessionSPI != null) {
-         sessionSPI.addCloseable((boolean failed) -> clearLargeMessage());
-      }
    }
 
    protected void recoverContext() {
@@ -137,8 +134,8 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    }
    /**
     * The reason why we use the AtomicRunnable here
-    * is because PagingManager will call Runnables in case it was blocked.
-    * however it could call many Runnables
+    * is because PagingManager will call Runnable in case it was blocked.
+    * however it could call many Runnable
     *  and this serves as a control to avoid duplicated calls
     * */
    static class FlowControlRunner implements Runnable {
@@ -178,10 +175,10 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       }
    }
 
-   public int incrementSettle() {
+   public void incrementSettle() {
       assert pendingSettles >= 0;
       connection.requireInHandler();
-      return pendingSettles++;
+      pendingSettles++;
    }
 
    public void settle(Delivery settlement) {
@@ -289,13 +286,13 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    @Override
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       protonSession.removeReceiver(receiver);
+      clearLargeMessage();
    }
 
    @Override
    public void close(ErrorCondition condition) throws ActiveMQAMQPException {
       receiver.setCondition(condition);
       close(false);
-      clearLargeMessage();
    }
 
    protected abstract void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx);
