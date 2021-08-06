@@ -27,7 +27,7 @@ under the License.
       <version>2.18.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>zookeeper-single-pair-ordered-failback</artifactId>
+   <artifactId>zookeeper-single-pair-failback</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Zookeeper Single Pair Ordered Failback Example</name>
 
@@ -96,8 +96,8 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.failover</groupId>
-                  <artifactId>zookeeper-single-pair-ordered-failback</artifactId>
-                  <version>2.18.0-SNAPSHOT</version>
+                  <artifactId>zookeeper-single-pair-failback</artifactId>
+                  <version>${project.version}</version>
                </dependency>
             </dependencies>
          </plugin>
