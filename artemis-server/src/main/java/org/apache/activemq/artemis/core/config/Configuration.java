@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
+import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerFederationPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
@@ -465,6 +466,18 @@ public interface Configuration {
    Configuration setDivertConfigurations(List<DivertConfiguration> configs);
 
    Configuration addDivertConfiguration(DivertConfiguration config);
+
+   /**
+    * Returns the redirects configured for this server.
+    */
+   List<BrokerBalancerConfiguration> getBalancerConfigurations();
+
+   /**
+    * Sets the redirects configured for this server.
+    */
+   Configuration setBalancerConfigurations(List<BrokerBalancerConfiguration> configs);
+
+   Configuration addBalancerConfiguration(BrokerBalancerConfiguration config);
 
    /**
     * Returns the cluster connections configured for this server.

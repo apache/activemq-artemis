@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -50,8 +51,10 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext;
 import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
@@ -688,7 +691,7 @@ public class FailoverTest extends FailoverTestBase {
       waitForBackupConfig(sf);
 
       TransportConfiguration initialLive = getFieldFromSF(sf, "currentConnectorConfig");
-      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConfig");
+      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConnectorConfig");
 
       instanceLog.debug("initlive: " + initialLive);
       instanceLog.debug("initback: " + initialBackup);
@@ -742,7 +745,7 @@ public class FailoverTest extends FailoverTestBase {
       assertTrue(current.isSameParams(initialLive));
 
       //now manually corrupt the backup in sf
-      setSFFieldValue(sf, "backupConfig", null);
+      setSFFieldValue(sf, "backupConnectorConfig", null);
 
       //crash 2
       crash();
@@ -756,12 +759,12 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    protected void waitForBackupConfig(ClientSessionFactoryInternal sf) throws NoSuchFieldException, IllegalAccessException, InterruptedException {
-      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConfig");
+      TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConnectorConfig");
       int cnt = 50;
       while (initialBackup == null && cnt > 0) {
          cnt--;
          Thread.sleep(200);
-         initialBackup = getFieldFromSF(sf, "backupConfig");
+         initialBackup = getFieldFromSF(sf, "backupConnectorConfig");
       }
    }
 
@@ -1969,6 +1972,44 @@ public class FailoverTest extends FailoverTestBase {
       ClientConsumer clientConsumer = session2.createConsumer(address);
       ClientMessage message = clientConsumer.receive(3000);
       Assert.assertNotNull(message);
+   }
+
+   @Test(timeout = 120000)
+   public void testChannelStateDuringFailover() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(100);
+
+      sf = createSessionFactoryAndWaitForTopology(locator, 2);
+
+      final AtomicBoolean channelLockedDuringFailover = new AtomicBoolean(false);
+
+      ClientSession session = createSession(sf, true, true, 0);
+
+      backupServer.addInterceptor(
+         new Interceptor() {
+            private int index = 0;
+
+            @Override
+            public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+               if (index < 1 && packet.getType() == PacketImpl.CREATESESSION) {
+                  sf.getConnection().addCloseListener(() -> {
+                     index++;
+                     ActiveMQSessionContext sessionContext = (ActiveMQSessionContext)((ClientSessionInternal)session).getSessionContext();
+                     channelLockedDuringFailover.set(sessionContext.getSessionChannel().isLocked());
+                  });
+
+                  Channel sessionChannel = ((RemotingConnectionImpl)connection).getChannel(ChannelImpl.CHANNEL_ID.SESSION.id, -1);
+                  sessionChannel.send(new ActiveMQExceptionMessage(new ActiveMQInternalErrorException()));
+                  return false;
+               }
+               return true;
+            }
+         });
+
+      session.start();
+
+      crash(session);
+
+      Assert.assertTrue(channelLockedDuringFailover.get());
    }
 
    @Test(timeout = 120000)

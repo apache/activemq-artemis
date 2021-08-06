@@ -215,7 +215,8 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
                                                  boolean autoCommitAcks,
                                                  boolean preAcknowledge,
                                                  int minLargeMessageSize,
-                                                 int confirmationWindowSize) throws ActiveMQException {
+                                                 int confirmationWindowSize,
+                                                 String clientID) throws ActiveMQException {
          return null;
       }
 

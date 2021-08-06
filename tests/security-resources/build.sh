@@ -24,6 +24,8 @@ KEY_PASS=securepass
 STORE_PASS=securepass
 CA_VALIDITY=365000
 VALIDITY=36500
+CLIENT_NAMES="san=dns:localhost,ip:127.0.0.1"
+SERVER_NAMES="san=dns:localhost,dns:localhost.localdomain,dns:artemis.localtest.me,ip:127.0.0.1"
 
 # Clean up existing files
 # -----------------------
@@ -43,10 +45,10 @@ keytool -importkeystore -srckeystore server-ca-truststore.p12 -destkeystore serv
 
 # Create a key pair for the server, and sign it with the CA:
 # ----------------------------------------------------------
-keytool -storetype pkcs12 -keystore server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -alias server -genkey -keyalg "RSA" -keysize 2048 -dname "CN=ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -validity $VALIDITY -ext bc=ca:false -ext eku=sA -ext san=dns:localhost,ip:127.0.0.1
+keytool -storetype pkcs12 -keystore server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -alias server -genkey -keyalg "RSA" -keysize 2048 -dname "CN=ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -validity $VALIDITY -ext bc=ca:false -ext eku=sA -ext $SERVER_NAMES
 
 keytool -storetype pkcs12 -keystore server-keystore.p12 -storepass $STORE_PASS -alias server -certreq -file server.csr
-keytool -storetype pkcs12 -keystore server-ca-keystore.p12 -storepass $STORE_PASS -alias server-ca -gencert -rfc -infile server.csr -outfile server.crt -validity $VALIDITY -ext bc=ca:false -ext san=dns:localhost,ip:127.0.0.1
+keytool -storetype pkcs12 -keystore server-ca-keystore.p12 -storepass $STORE_PASS -alias server-ca -gencert -rfc -infile server.csr -outfile server.crt -validity $VALIDITY -ext bc=ca:false -ext $SERVER_NAMES
 
 keytool -storetype pkcs12 -keystore server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias server-ca -file server-ca.crt -noprompt
 keytool -storetype pkcs12 -keystore server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias server -file server.crt
@@ -56,10 +58,10 @@ keytool -importkeystore -srckeystore server-keystore.p12 -destkeystore server-ke
 
 # Create a key pair for the other server, and sign it with the CA:
 # ----------------------------------------------------------
-keytool -storetype pkcs12 -keystore other-server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -alias other-server -genkey -keyalg "RSA" -keysize 2048 -dname "CN=ActiveMQ Artemis Other Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -validity $VALIDITY -ext bc=ca:false -ext san=dns:localhost,ip:127.0.0.1
+keytool -storetype pkcs12 -keystore other-server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -alias other-server -genkey -keyalg "RSA" -keysize 2048 -dname "CN=ActiveMQ Artemis Other Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -validity $VALIDITY -ext bc=ca:false -ext $SERVER_NAMES
 
 keytool -storetype pkcs12 -keystore other-server-keystore.p12 -storepass $STORE_PASS -alias other-server -certreq -file other-server.csr
-keytool -storetype pkcs12 -keystore server-ca-keystore.p12 -storepass $STORE_PASS -alias server-ca -gencert -rfc -infile other-server.csr -outfile other-server.crt -validity $VALIDITY -ext bc=ca:false -ext eku=sA -ext san=dns:localhost,ip:127.0.0.1
+keytool -storetype pkcs12 -keystore server-ca-keystore.p12 -storepass $STORE_PASS -alias server-ca -gencert -rfc -infile other-server.csr -outfile other-server.crt -validity $VALIDITY -ext bc=ca:false -ext eku=sA -ext $SERVER_NAMES
 
 keytool -storetype pkcs12 -keystore other-server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias server-ca -file server-ca.crt -noprompt
 keytool -storetype pkcs12 -keystore other-server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias other-server -file other-server.crt
@@ -107,10 +109,10 @@ keytool -importkeystore -srckeystore client-ca-truststore.p12 -destkeystore clie
 
 # Create a key pair for the client, and sign it with the CA:
 # ----------------------------------------------------------
-keytool -storetype pkcs12 -keystore client-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -alias client -genkey -keyalg "RSA" -keysize 2048 -dname "CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -validity $VALIDITY -ext bc=ca:false -ext eku=cA -ext san=dns:localhost,ip:127.0.0.1
+keytool -storetype pkcs12 -keystore client-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -alias client -genkey -keyalg "RSA" -keysize 2048 -dname "CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -validity $VALIDITY -ext bc=ca:false -ext eku=cA -ext $CLIENT_NAMES
 
 keytool -storetype pkcs12 -keystore client-keystore.p12 -storepass $STORE_PASS -alias client -certreq -file client.csr
-keytool -storetype pkcs12 -keystore client-ca-keystore.p12 -storepass $STORE_PASS -alias client-ca -gencert -rfc -infile client.csr -outfile client.crt -validity $VALIDITY -ext bc=ca:false -ext eku=cA -ext san=dns:localhost,ip:127.0.0.1
+keytool -storetype pkcs12 -keystore client-ca-keystore.p12 -storepass $STORE_PASS -alias client-ca -gencert -rfc -infile client.csr -outfile client.crt -validity $VALIDITY -ext bc=ca:false -ext eku=cA -ext $CLIENT_NAMES
 
 keytool -storetype pkcs12 -keystore client-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias client-ca -file client-ca.crt -noprompt
 keytool -storetype pkcs12 -keystore client-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias client -file client.crt
@@ -120,10 +122,10 @@ keytool -importkeystore -srckeystore client-keystore.p12 -destkeystore client-ke
 
 # Create a key pair for the other client, and sign it with the CA:
 # ----------------------------------------------------------
-keytool -storetype pkcs12 -keystore other-client-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -alias other-client -genkey -keyalg "RSA" -keysize 2048 -dname "CN=ActiveMQ Artemis Other Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -validity $VALIDITY -ext bc=ca:false -ext eku=cA -ext san=dns:localhost,ip:127.0.0.1
+keytool -storetype pkcs12 -keystore other-client-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -alias other-client -genkey -keyalg "RSA" -keysize 2048 -dname "CN=ActiveMQ Artemis Other Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -validity $VALIDITY -ext bc=ca:false -ext eku=cA -ext $CLIENT_NAMES
 
 keytool -storetype pkcs12 -keystore other-client-keystore.p12 -storepass $STORE_PASS -alias other-client -certreq -file other-client.csr
-keytool -storetype pkcs12 -keystore client-ca-keystore.p12 -storepass $STORE_PASS -alias client-ca -gencert -rfc -infile other-client.csr -outfile other-client.crt -validity $VALIDITY -ext bc=ca:false -ext eku=cA -ext san=dns:localhost,ip:127.0.0.1
+keytool -storetype pkcs12 -keystore client-ca-keystore.p12 -storepass $STORE_PASS -alias client-ca -gencert -rfc -infile other-client.csr -outfile other-client.crt -validity $VALIDITY -ext bc=ca:false -ext eku=cA -ext $CLIENT_NAMES
 
 keytool -storetype pkcs12 -keystore other-client-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias client-ca -file client-ca.crt -noprompt
 keytool -storetype pkcs12 -keystore other-client-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias other-client -file other-client.crt

@@ -143,6 +143,38 @@
             <exclusive>false</exclusive>
          </divert>
       </diverts>
+      <broker-balancers>
+         <broker-balancer name="simple-balancer">
+            <target-key>USER_NAME</target-key>
+            <policy name="FIRST_ELEMENT"/>
+            <pool>
+               <static-connectors>
+                  <connector-ref>connector1</connector-ref>
+               </static-connectors>
+            </pool>
+         </broker-balancer>
+         <broker-balancer name="consistent-hash-balancer">
+            <target-key>SNI_HOST</target-key>
+            <target-key-filter>^[^.]+</target-key-filter>
+            <local-target-filter>DEFAULT</local-target-filter>
+            <policy name="CONSISTENT_HASH"/>
+            <pool>
+               <check-period>1000</check-period>
+               <local-target-enabled>true</local-target-enabled>
+               <discovery-group-ref discovery-group-name="dg1"/>
+            </pool>
+         </broker-balancer>
+         <broker-balancer name="least-connections-balancer">
+            <cache-timeout>60000</cache-timeout>
+            <policy name="LEAST_CONNECTIONS"/>
+            <pool>
+               <check-period>3000</check-period>
+               <quorum-size>2</quorum-size>
+               <quorum-timeout>1000</quorum-timeout>
+               <discovery-group-ref discovery-group-name="dg2"/>
+            </pool>
+         </broker-balancer>
+      </broker-balancers>
       <amqp-use-core-subscription-naming>true</amqp-use-core-subscription-naming>
       <queues>
          <queue name="queue1">

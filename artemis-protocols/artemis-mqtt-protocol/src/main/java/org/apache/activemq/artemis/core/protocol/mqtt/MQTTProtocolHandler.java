@@ -28,6 +28,7 @@ import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
 import io.netty.handler.codec.mqtt.MqttMessageType;
+import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttPubAckMessage;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
@@ -176,10 +177,13 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
     * @param connect
     */
    void handleConnect(MqttConnectMessage connect) throws Exception {
-      connectionEntry.ttl = connect.variableHeader().keepAliveTimeSeconds() * 1500L;
+      if (connection.getTransportConnection().getRedirectTo() == null ||
+         !protocolManager.getRedirectHandler().redirect(connection, session, connect)) {
+         connectionEntry.ttl = connect.variableHeader().keepAliveTimeSeconds() * 1500L;
 
-      String clientId = connect.payload().clientIdentifier();
-      session.getConnectionManager().connect(clientId, connect.payload().userName(), connect.payload().passwordInBytes(), connect.variableHeader().isWillFlag(), connect.payload().willMessageInBytes(), connect.payload().willTopic(), connect.variableHeader().isWillRetain(), connect.variableHeader().willQos(), connect.variableHeader().isCleanSession());
+         String clientId = connect.payload().clientIdentifier();
+         session.getConnectionManager().connect(clientId, connect.payload().userName(), connect.payload().passwordInBytes(), connect.variableHeader().isWillFlag(), connect.payload().willMessageInBytes(), connect.payload().willTopic(), connect.variableHeader().isWillRetain(), connect.variableHeader().willQos(), connect.variableHeader().isCleanSession());
+      }
    }
 
    void disconnect(boolean error) {
@@ -187,8 +191,12 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void sendConnack(MqttConnectReturnCode returnCode) {
+      sendConnack(returnCode, MqttProperties.NO_PROPERTIES);
+   }
+
+   void sendConnack(MqttConnectReturnCode returnCode, MqttProperties properties) {
       MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
-      MqttConnAckVariableHeader varHeader = new MqttConnAckVariableHeader(returnCode, true);
+      MqttConnAckVariableHeader varHeader = new MqttConnAckVariableHeader(returnCode, true, properties);
       MqttConnAckMessage message = new MqttConnAckMessage(fixedHeader, varHeader);
       sendToClient(message);
    }

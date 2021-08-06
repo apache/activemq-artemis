@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl.CHANNEL_I
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V4;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.FederationDownstreamConnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
@@ -72,7 +73,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.jboss.logging.Logger;
 
-public class CoreProtocolManager implements ProtocolManager<Interceptor> {
+public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveMQRedirectHandler> {
 
    private static final Logger logger = Logger.getLogger(CoreProtocolManager.class);
 
@@ -90,6 +91,8 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
    private String securityDomain;
 
+   private final ActiveMQRedirectHandler redirectHandler;
+
    public CoreProtocolManager(final CoreProtocolManagerFactory factory,
                               final ActiveMQServer server,
                               final List<Interceptor> incomingInterceptors,
@@ -101,6 +104,8 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       this.incomingInterceptors = incomingInterceptors;
 
       this.outgoingInterceptors = outgoingInterceptors;
+
+      this.redirectHandler = new ActiveMQRedirectHandler(server);
    }
 
    @Override
@@ -233,6 +238,11 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       return securityDomain;
    }
 
+   @Override
+   public ActiveMQRedirectHandler getRedirectHandler() {
+      return redirectHandler;
+   }
+
    private boolean isArtemis(ActiveMQBuffer buffer) {
       return buffer.getByte(0) == 'A' &&
          buffer.getByte(1) == 'R' &&
@@ -304,7 +314,13 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                      entry.connectionExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                           if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V3)) {
+                           if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
+                              channel0.send(new ClusterTopologyChangeMessage_V4(
+                                 topologyMember.getUniqueEventID(), nodeID,
+                                 topologyMember.getBackupGroupName(),
+                                 topologyMember.getScaleDownGroupName(), connectorPair,
+                                 last, server.getVersion().getIncrementingVersion()));
+                           } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V3)) {
                               channel0.send(new ClusterTopologyChangeMessage_V3(
                                  topologyMember.getUniqueEventID(), nodeID,
                                  topologyMember.getBackupGroupName(),
@@ -380,7 +396,10 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                      String nodeId = server.getNodeID().toString();
                      Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<>(
                         null, null);
-                     if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
+                     if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
+                        channel0.send(new ClusterTopologyChangeMessage_V4(System.currentTimeMillis(), nodeId,
+                           null, null, emptyConfig, true, server.getVersion().getIncrementingVersion()));
+                     } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
                         channel0.send(
                            new ClusterTopologyChangeMessage_V2(System.currentTimeMillis(),
                                                                nodeId, null, emptyConfig, true));

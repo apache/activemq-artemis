@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailo
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
@@ -89,7 +90,8 @@ public class ActiveMQPacketHandler implements ChannelHandler {
       }
 
       switch (type) {
-         case PacketImpl.CREATESESSION: {
+         case PacketImpl.CREATESESSION:
+         case PacketImpl.CREATESESSION_V2: {
             CreateSessionMessage request = (CreateSessionMessage) packet;
 
             handleCreateSession(request);
@@ -157,6 +159,14 @@ public class ActiveMQPacketHandler implements ChannelHandler {
             ActiveMQServerLogger.LOGGER.incompatibleVersionAfterConnect(request.getVersion(), connection.getChannelVersion());
          }
 
+         if (request instanceof CreateSessionMessage_V2) {
+            connection.setClientID(((CreateSessionMessage_V2) request).getClientID());
+         }
+
+         if (connection.getTransportConnection().getRedirectTo() != null) {
+            protocolManager.getRedirectHandler().redirect(connection, request);
+         }
+
          Channel channel = connection.getChannel(request.getSessionChannelID(), request.getWindowSize());
 
          ActiveMQPrincipal activeMQPrincipal = null;
@@ -187,6 +197,8 @@ public class ActiveMQPacketHandler implements ChannelHandler {
          if (e.getType() == ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {
             incompatibleVersion = true;
             logger.debug("Sending ActiveMQException after Incompatible client", e);
+         } else if (e.getType() == ActiveMQExceptionType.REDIRECTED) {
+            logger.debug("Sending ActiveMQException after redirected client", e);
          } else {
             ActiveMQServerLogger.LOGGER.failedToCreateSession(e);
          }

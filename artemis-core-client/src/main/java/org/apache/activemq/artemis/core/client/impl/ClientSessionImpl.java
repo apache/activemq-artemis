@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQRedirectedException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -140,6 +141,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    private volatile boolean inClose;
 
    private volatile boolean mayAttemptToFailover = true;
+
+   private volatile boolean resetCreditManager = false;
 
    /**
     * Current XID. this will be used in case of failover
@@ -1387,8 +1390,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             return true;
          }
 
-         boolean resetCreditManager = false;
-
          try {
 
             // TODO remove this and encapsulate it
@@ -1460,33 +1461,48 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
                sessionContext.returnBlocking(cause);
             }
+         } catch (ActiveMQRedirectedException e) {
+            logger.info("failedToHandleFailover.ActiveMQRedirectedException");
+            suc = false;
          } catch (Throwable t) {
             ActiveMQClientLogger.LOGGER.failedToHandleFailover(t);
             suc = false;
-         } finally {
-            sessionContext.releaseCommunications();
-         }
-
-         if (resetCreditManager) {
-            synchronized (producerCreditManager) {
-               producerCreditManager.reset();
-            }
-
-            // Also need to send more credits for consumers, otherwise the system could hand with the server
-            // not having any credits to send
          }
       }
-
-      HashMap<String, String> metaDataToSend;
-
-      synchronized (metadata) {
-         metaDataToSend = new HashMap<>(metadata);
-      }
-
-      sessionContext.resetMetadata(metaDataToSend);
 
       return suc;
+   }
 
+   @Override
+   public void postHandleFailover(RemotingConnection connection, boolean successful) {
+      sessionContext.releaseCommunications();
+
+      if (successful) {
+         synchronized (this) {
+            if (closed) {
+               return;
+            }
+
+            if (resetCreditManager) {
+               synchronized (producerCreditManager) {
+                  producerCreditManager.reset();
+               }
+
+               resetCreditManager = false;
+
+               // Also need to send more credits for consumers, otherwise the system could hand with the server
+               // not having any credits to send
+            }
+         }
+
+         HashMap<String, String> metaDataToSend;
+
+         synchronized (metadata) {
+            metaDataToSend = new HashMap<>(metadata);
+         }
+
+         sessionContext.resetMetadata(metaDataToSend);
+      }
    }
 
    @Override

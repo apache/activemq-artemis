@@ -23,11 +23,9 @@ import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 
@@ -49,7 +47,7 @@ public class HornetQClientProtocolManager extends ActiveMQClientProtocolManager 
    }
 
    @Override
-   protected Packet newCreateSessionPacket(Version clientVersion,
+   protected Packet newCreateSessionPacket(int clientVersion,
                                            String name,
                                            String username,
                                            String password,
@@ -59,8 +57,9 @@ public class HornetQClientProtocolManager extends ActiveMQClientProtocolManager 
                                            boolean preAcknowledge,
                                            int minLargeMessageSize,
                                            int confirmationWindowSize,
-                                           long sessionChannelID) {
-      return new CreateSessionMessage(name, sessionChannelID, VERSION_PLAYED, username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindowSize, null);
+                                           long sessionChannelID,
+                                           String clientID) {
+      return super.newCreateSessionPacket(VERSION_PLAYED, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, minLargeMessageSize, confirmationWindowSize, sessionChannelID, clientID);
    }
 
    @Override

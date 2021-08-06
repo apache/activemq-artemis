@@ -23,12 +23,32 @@ import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleLi
 
 public class NettyServerConnection extends NettyConnection {
 
+   private String sniHostname;
+
+   private final String redirectTo;
+
    public NettyServerConnection(Map<String, Object> configuration,
                                 Channel channel,
                                 ServerConnectionLifeCycleListener listener,
                                 boolean batchingEnabled,
-                                boolean directDeliver) {
+                                boolean directDeliver,
+                                String redirectTo) {
       super(configuration, channel, listener, batchingEnabled, directDeliver);
+
+      this.redirectTo = redirectTo;
    }
 
+   @Override
+   public String getSNIHostName() {
+      return sniHostname;
+   }
+
+   public void setSNIHostname(String sniHostname) {
+      this.sniHostname = sniHostname;
+   }
+
+   @Override
+   public String getRedirectTo() {
+      return redirectTo;
+   }
 }
