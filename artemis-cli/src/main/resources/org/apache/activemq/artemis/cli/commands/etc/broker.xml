@@ -151,6 +151,8 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <auto-create-addresses>${auto-create}</auto-create-addresses>
             <auto-create-jms-queues>${auto-create}</auto-create-jms-queues>
             <auto-create-jms-topics>${auto-create}</auto-create-jms-topics>
+            <auto-delete-queues>${auto-delete}</auto-delete-queues>
+            <auto-delete-addresses>${auto-delete}</auto-delete-addresses>
          </address-setting>
       </address-settings>
 
