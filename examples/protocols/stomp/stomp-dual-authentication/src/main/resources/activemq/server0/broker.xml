@@ -31,7 +31,7 @@ under the License.
       <!-- Acceptors -->
       <acceptors>
          <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
-         <acceptor name="netty-ssl-acceptor">tcp://localhost:5500?sslEnabled=true;needClientAuth=true;keyStorePath=server-side-keystore.jks;keyStorePassword=secureexample;trustStorePath=server-side-truststore.jks;trustStorePassword=secureexample</acceptor>
+         <acceptor name="netty-ssl-acceptor">tcp://localhost:5500?sslEnabled=true;needClientAuth=true;keyStorePath=server-keystore.jks;keyStorePassword=securepass;trustStorePath=client-ca-truststore.jks;trustStorePassword=securepass</acceptor>
       </acceptors>
 
       <!-- Other config -->
