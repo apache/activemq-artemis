@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -177,6 +178,51 @@ public class ArtemisTest extends CliTestBase {
          e.printStackTrace();
          throw e;
       }
+   }
+
+   @Test
+   public void testOpenwireSupportAdvisoryDisabledByDefault() throws Exception {
+      FileConfiguration configuration = createFileConfiguration("supportAdvisory",
+                                                                "--force", "--silent", "--no-web", "--no-autotune");
+      Map<String, Object> params = configuration.getAcceptorConfigurations()
+         .stream().filter(tc -> tc.getName().equals("artemis")).findFirst().get().getExtraParams();
+      Assert.assertFalse(Boolean.parseBoolean(params.get("supportAdvisory").toString()));
+      Assert.assertFalse(Boolean.parseBoolean(params.get("suppressInternalManagementObjects").toString()));
+   }
+
+   @Test
+   public void testOpenwireEnabledSupportAdvisory() throws Exception {
+      FileConfiguration configuration = createFileConfiguration("supportAdvisory",
+                                                                "--force", "--silent", "--no-web", "--no-autotune",
+                                                                "--support-advisory", "--suppress-internal-management-objects");
+      Map<String, Object> params = configuration.getAcceptorConfigurations()
+         .stream().filter(tc -> tc.getName().equals("artemis")).findFirst().get().getExtraParams();
+      Assert.assertTrue(Boolean.parseBoolean(params.get("supportAdvisory").toString()));
+      Assert.assertTrue(Boolean.parseBoolean(params.get("suppressInternalManagementObjects").toString()));
+   }
+
+
+   private FileConfiguration createFileConfiguration(String folder, String... createAdditionalArg) throws Exception {
+      File instanceFolder = temporaryFolder.newFolder(folder);
+
+      setupAuth(instanceFolder);
+
+      // This is usually set when run from the command line via artemis.profile
+      Run.setEmbedded(true);
+      final String[] createArgs = new String[2 + (createAdditionalArg == null ? 0 : createAdditionalArg.length)];
+      createArgs[0] = "create";
+      createArgs[1] = instanceFolder.getAbsolutePath();
+      if (createAdditionalArg != null) {
+         System.arraycopy(createAdditionalArg, 0, createArgs, 2, createAdditionalArg.length);
+      }
+      Artemis.main(createArgs);
+      System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
+
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(new File(instanceFolder, "./etc/broker.xml").toURI().toString());
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+      return fc;
    }
 
    @Test
