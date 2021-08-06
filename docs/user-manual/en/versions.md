@@ -8,6 +8,15 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.18.0
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12349689).
+
+Highlights:
+- Dual Mirror support improving capabilities on AMQP Mirror for Disaster Recovery
+- Journal Retention
+- Replication integrated with ZookeeperA
+- Broker load balancer
+
 ## 2.17.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12349326).
