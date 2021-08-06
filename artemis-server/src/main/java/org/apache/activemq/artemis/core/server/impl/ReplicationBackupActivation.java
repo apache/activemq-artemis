@@ -334,8 +334,23 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                case ClosedObserver:
                   return null;
                case BackupNotInSync:
-                  LOGGER.info("Replication failure while initial sync not yet completed: restart as backup");
-                  asyncRestartServer(activeMQServer, true);
+                  // cleanup any dirty activation sequence to save a leaked activation sequence/nodeID to cause activation
+                  final long activationSequence = activeMQServer.getNodeManager().getNodeActivationSequence();
+                  boolean restart = true;
+                  if (activationSequence != 0) {
+                     final SimpleString syncNodeId = activeMQServer.getNodeManager().getNodeId();
+                     try {
+                        activeMQServer.getNodeManager().writeNodeActivationSequence(0);
+                     } catch (Throwable fatal) {
+                        LOGGER.errorf(fatal, "Errored while resetting local activation sequence %d for NodeID = %s: stopping broker",
+                                      activationSequence, syncNodeId);
+                        restart = false;
+                     }
+                  }
+                  if (restart) {
+                     LOGGER.info("Replication failure while initial sync not yet completed: restart as backup");
+                  }
+                  asyncRestartServer(activeMQServer, restart);
                   return null;
                case WrongNodeId:
                   LOGGER.error("Stopping broker because of wrong node ID communication from live: maybe a misbehaving live?");
@@ -427,16 +442,22 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       }
       new Thread(() -> {
          if (server.getState() != ActiveMQServer.SERVER_STATE.STOPPED && server.getState() != ActiveMQServer.SERVER_STATE.STOPPING) {
-            try {
-               server.stop(!restart);
-               if (restart) {
-                  server.start();
+            // this is necessary to make the restart an atomic operation from the server perspective
+            synchronized (server) {
+               if (server.getState() == ActiveMQServer.SERVER_STATE.STOPPED) {
+                  return;
                }
-            } catch (Exception e) {
-               if (restart) {
-                  ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(e, server);
-               } else {
-                  ActiveMQServerLogger.LOGGER.errorStoppingServer(e);
+               try {
+                  server.stop(!restart);
+                  if (restart) {
+                     server.start();
+                  }
+               } catch (Exception e) {
+                  if (restart) {
+                     ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(e, server);
+                  } else {
+                     ActiveMQServerLogger.LOGGER.errorStoppingServer(e);
+                  }
                }
             }
          }
