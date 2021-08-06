@@ -223,6 +223,9 @@ public class Create extends InputAbstract {
    @Option(name = "--autocreate", description = "Auto create addresses. (default: true)")
    private Boolean autoCreate;
 
+   @Option(name = "--autodelete", description = "If set, the default broker.xml will allow auto deletion of queues and addresses")
+   private boolean autoDelete;
+
    @Option(name = "--user", description = "The username (Default: input)")
    private String user;
 
@@ -427,6 +430,15 @@ public class Create extends InputAbstract {
 
    public void setEtc(String etc) {
       this.etc = etc;
+   }
+
+   public boolean isAutoDelete() {
+      return autoDelete;
+   }
+
+   public Create setAutoDelete(boolean autoDelete) {
+      this.autoDelete = autoDelete;
+      return this;
    }
 
    private String getClusterUser() {
@@ -819,6 +831,7 @@ public class Create extends InputAbstract {
 
 
       filters.put("${auto-create}", isAutoCreate() ? "true" : "false");
+      filters.put("${auto-delete}", autoDelete ? "true" : "false");
 
       if (jdbc) {
          noAutoTune = true;

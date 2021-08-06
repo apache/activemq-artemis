@@ -21,6 +21,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.json.JsonArray;
@@ -83,6 +84,7 @@ import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.HashProcessor;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.apache.activemq.artemis.utils.StringUtil;
 import org.apache.activemq.artemis.utils.Wait;
@@ -749,7 +751,6 @@ public class ArtemisTest extends CliTestBase {
 
       File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
       userFile.delete();
-      //      File roleFile = new File(instance1.getAbsolutePath() + "/etc/artemis-roles.properties");
 
       try {
          activeMQServerControl.listUser("");
@@ -1325,6 +1326,63 @@ public class ArtemisTest extends CliTestBase {
          stopServer();
       }
    }
+
+   @Test
+   public void testAutoDeleteTrue() throws Exception {
+      testAutoDelete(true);
+   }
+
+   @Test
+   public void testAutoDeleteFalse() throws Exception {
+      testAutoDelete(false);
+   }
+
+   private void testAutoDelete(boolean autoDelete) throws Exception {
+
+      File instanceFolder = temporaryFolder.newFolder("autocreate" + autoDelete);
+      setupAuth(instanceFolder);
+
+      // This is usually set when run from the command line via artemis.profile
+      Run.setEmbedded(true);
+      if (autoDelete) {
+         Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent",  "--no-web", "--no-autotune",  "--require-login", "--autodelete");
+      } else {
+         Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web",  "--require-login", "--no-autotune");
+      }
+      System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
+
+
+      try {
+         // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
+         Pair<ManagementContext, ActiveMQServer> run = (Pair<ManagementContext, ActiveMQServer>) Artemis.internalExecute("run");
+
+         String queueName = "testAutoDelete" + RandomUtil.randomPositiveInt();
+
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+         try (Connection connection = factory.createConnection("admin", "admin")) {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue queue = session.createQueue(queueName);
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createTextMessage("hi"));
+
+            Wait.assertTrue(() -> run.getB().locateQueue(queueName) != null);
+            connection.start();
+            MessageConsumer consumer = session.createConsumer(queue);
+            Assert.assertNotNull(consumer.receive(5000));
+         }
+
+         if (autoDelete) {
+            Wait.assertTrue(() -> run.getB().locateQueue(queueName) == null);
+         } else {
+            // Things are async, allowing some time to make sure it would eventually fail
+            Thread.sleep(500);
+            Assert.assertNotNull(run.getB().locateQueue(queueName));
+         }
+      } finally {
+         stopServer();
+      }
+   }
+
 
 
    @Test
