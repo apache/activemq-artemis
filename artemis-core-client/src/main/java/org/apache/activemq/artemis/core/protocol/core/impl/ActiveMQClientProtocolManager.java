@@ -473,7 +473,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
          if (type == PacketImpl.DISCONNECT) {
             final DisconnectMessage disMessage = (DisconnectMessage) packet;
-            handleDisconnect(disMessage.getNodeID(), null, null, null);
+            handleDisconnect(disMessage.getNodeID(), DisconnectReason.SHUT_DOWN, null, null);
          } else if (type == PacketImpl.DISCONNECT_V2) {
             final DisconnectMessage_V2 disMessage = (DisconnectMessage_V2) packet;
             handleDisconnect(disMessage.getNodeID(), DisconnectReason.SCALE_DOWN, disMessage.getScaleDownNodeID(), null);

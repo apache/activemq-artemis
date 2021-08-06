@@ -254,7 +254,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    @Override
    public void disconnect(final boolean criticalError) {
-      disconnect(criticalError ? DisconnectReason.SHOUT_DOWN_ON_CRITICAL_ERROR : DisconnectReason.SHOUT_DOWN, null, null);
+      disconnect(criticalError ? DisconnectReason.SHUT_DOWN_ON_CRITICAL_ERROR : DisconnectReason.SHUT_DOWN, null, null);
    }
 
    @Override

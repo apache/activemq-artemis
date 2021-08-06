@@ -21,8 +21,8 @@ public enum DisconnectReason {
    REDIRECT_ON_CRITICAL_ERROR((byte)1, true),
    SCALE_DOWN((byte)2, false),
    SCALE_DOWN_ON_CRITICAL_ERROR((byte)3, true),
-   SHOUT_DOWN((byte)4, false),
-   SHOUT_DOWN_ON_CRITICAL_ERROR((byte)5, true);
+   SHUT_DOWN((byte)4, false),
+   SHUT_DOWN_ON_CRITICAL_ERROR((byte)5, true);
 
    private final byte type;
    private final boolean criticalError;
@@ -49,7 +49,7 @@ public enum DisconnectReason {
    }
 
    public boolean isShutDown() {
-      return this == SHOUT_DOWN || this == SHOUT_DOWN_ON_CRITICAL_ERROR;
+      return this == SHUT_DOWN || this == SHUT_DOWN_ON_CRITICAL_ERROR;
    }
 
    public static DisconnectReason getType(byte type) {
@@ -63,9 +63,9 @@ public enum DisconnectReason {
          case 3:
             return SCALE_DOWN_ON_CRITICAL_ERROR;
          case 4:
-            return SHOUT_DOWN;
+            return SHUT_DOWN;
          case 5:
-            return SHOUT_DOWN_ON_CRITICAL_ERROR;
+            return SHUT_DOWN_ON_CRITICAL_ERROR;
          default:
             return null;
       }
