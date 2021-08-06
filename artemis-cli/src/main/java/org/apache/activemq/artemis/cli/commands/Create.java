@@ -283,6 +283,12 @@ public class Create extends InputAbstract {
    @Option(name = "--staticCluster", description = "Cluster node connectors list, separated by comma: Example \"tcp://server:61616,tcp://server2:61616,tcp://server3:61616\"")
    String staticNode;
 
+   @Option(name = "--support-advisory", description = "If set, the generated configuration will allow advisories for the openwire protocol")
+   boolean supportAdvisory = false;
+
+   @Option(name = "--suppress-internal-management-objects", description = "If set, the generated configuration will register any advisory addresses/queues to management services for the openwire protocol")
+   boolean suppressInternalManagementObjects = false;
+
    public String[] getStaticNodes() {
       if (staticNode == null) {
          return new String[0];
@@ -626,6 +632,8 @@ public class Create extends InputAbstract {
       }
       filters.put("${fsync}", String.valueOf(!noJournalSync));
       filters.put("${default.port}", String.valueOf(defaultPort + portOffset));
+      filters.put("${support-advisory}", Boolean.toString(supportAdvisory));
+      filters.put("${suppress-internal-management-objects}", Boolean.toString(suppressInternalManagementObjects));
       filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
       filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
       filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
