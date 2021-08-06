@@ -151,17 +151,16 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
 
    @Test
-   public void testDoNotSendDelete() throws Exception {
-      testDoNotSendStuff(false);
+   public void testSendCreateQueue() throws Exception {
+      doSendCreateQueueTestImpl(true);
    }
 
    @Test
-   public void testDoNotSendCreate() throws Exception {
-      testDoNotSendStuff(true);
+   public void testDoNotSendCreateQueue() throws Exception {
+      doSendCreateQueueTestImpl(false);
    }
 
-   private void testDoNotSendStuff(boolean sendCreate) throws Exception {
-      boolean ignoreCreate = false;
+   private void doSendCreateQueueTestImpl(boolean sendCreate) throws Exception {
       server.start();
 
       final SimpleString ADDRESS_NAME = SimpleString.toSimpleString("address");
@@ -170,11 +169,11 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT);
       AMQPMirrorBrokerConnectionElement mirror = new AMQPMirrorBrokerConnectionElement();
-      if (ignoreCreate) {
-         mirror.setQueueCreation(false);
-      } else {
+      if (sendCreate) {
          mirror.setQueueCreation(true);
          mirror.setQueueRemoval(false);
+      } else {
+         mirror.setQueueCreation(false);
       }
       amqpConnection.addElement(mirror);
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
@@ -185,13 +184,11 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.addAddressInfo(new AddressInfo(ADDRESS_NAME).addRoutingType(RoutingType.ANYCAST));
       server_2.createQueue(new QueueConfiguration(ADDRESS_NAME).setDurable(true).setAddress(ADDRESS_NAME));
 
-      if (!ignoreCreate) {
+      if (sendCreate) {
          Wait.assertTrue(() -> server.locateQueue(ADDRESS_NAME) != null);
          Wait.assertTrue(() -> server.getAddressInfo(ADDRESS_NAME) != null);
-      }
-
-      if (ignoreCreate) {
-         Thread.sleep(500); // things are asynchronous, I need to wait some time to make sure things are transferred over
+      } else {
+         Thread.sleep(250); // things are asynchronous, I need to wait some time to make sure things are transferred over
          Assert.assertTrue(server.locateQueue(ADDRESS_NAME) == null);
          Assert.assertTrue(server.getAddressInfo(ADDRESS_NAME) == null);
       }
