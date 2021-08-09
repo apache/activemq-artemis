@@ -16,6 +16,8 @@ ratReport.txt
 **/.editorconfig
 **/derby.log
 **/.DS_Store
+**/*.swp
+**/*.swo
 
 # for native build
 CMakeCache.txt
