@@ -245,7 +245,7 @@ https://gitbox.apache.org/repos/asf/activemq-artemis.git;a=tag;h=refs/tags/<vers
 I will update the website after the vote has passed.
 
 
-[ ] +1 approve the release as Apache Artemis 2.4.0
+[ ] +1 approve this release
 [ ] +0 no opinion
 [ ] -1 disapprove (and reason why)
 
