@@ -63,6 +63,15 @@ public final class InVMNodeManager extends FileBasedNodeManager {
    }
 
    @Override
+   public synchronized void start() throws Exception {
+      if (isStarted()) {
+         return;
+      }
+      super.start();
+      readNodeActivationSequence();
+   }
+
+   @Override
    public void awaitLiveNode() throws InterruptedException {
       do {
          while (state == NOT_STARTED) {

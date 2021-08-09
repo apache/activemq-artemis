@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import javax.annotation.concurrent.GuardedBy;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -110,15 +111,11 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
       try {
          // we have a common nodeId that we can share and coordinate with between peers
          if (policy.getCoordinationId() != null) {
-            LOGGER.infof("Applying shared peer NodeID=%s to enable coordinated live activation", policy.getCoordinationId());
-            // REVISIT: this is quite clunky, also in backup activation, we just need new nodeID persisted!
-            activeMQServer.resetNodeManager();
-            activeMQServer.getNodeManager().start();
-            activeMQServer.getNodeManager().setNodeID(policy.getCoordinationId());
-            activeMQServer.getNodeManager().stopBackup();
+            applyCoordinationId(policy.getCoordinationId(), activeMQServer);
          }
-         final long nodeActivationSequence = activeMQServer.getNodeManager().readNodeActivationSequence();
-         final String nodeId = activeMQServer.getNodeManager().readNodeId().toString();
+         final long sequence = activeMQServer.getNodeManager().getNodeActivationSequence();
+         final long nodeActivationSequence = sequence == NodeManager.NULL_NODE_ACTIVATION_SEQUENCE ? 0 : sequence;
+         final String nodeId = activeMQServer.getNodeManager().getNodeId().toString();
          DistributedLock liveLock;
          while (true) {
             distributedManager.start();
@@ -136,7 +133,7 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
             return;
          }
 
-         ensureSequentialAccessToNodeData(activeMQServer, distributedManager, LOGGER);
+         ensureSequentialAccessToNodeData(nodeId, nodeActivationSequence, activeMQServer, distributedManager, LOGGER);
 
          activeMQServer.initialisePart1(false);
 
@@ -164,6 +161,25 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
          ActiveMQServerLogger.LOGGER.initializationError(e);
          activeMQServer.callActivationFailureListeners(e);
       }
+   }
+
+   public static void applyCoordinationId(final String coordinationId,
+                                          final ActiveMQServerImpl activeMQServer) throws Exception {
+      Objects.requireNonNull(coordinationId);
+      if (!activeMQServer.getNodeManager().isStarted()) {
+         throw new IllegalStateException("NodeManager should be started");
+      }
+      final long activationSequence = activeMQServer.getNodeManager().getNodeActivationSequence();
+      LOGGER.infof("Applying shared peer NodeID=%s to enable coordinated live activation", coordinationId);
+      // REVISIT: this is quite clunky, also in backup activation, we just need new nodeID persisted!
+      activeMQServer.resetNodeManager();
+      final NodeManager nodeManager = activeMQServer.getNodeManager();
+      nodeManager.start();
+      nodeManager.setNodeID(coordinationId);
+      nodeManager.stopBackup();
+      // despite NM is restarted as "replicatedBackup" we need the last written activation sequence value in-memory
+      final long freshActivationSequence = nodeManager.readNodeActivationSequence();
+      assert freshActivationSequence == activationSequence;
    }
 
    @Override
@@ -366,8 +382,11 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
                }
                // we increment only if we are staying alive
                if (!stoppingServer.get() && STARTED.equals(activeMQServer.getState())) {
+                  final NodeManager nodeManager = activeMQServer.getNodeManager();
+                  final String nodeId = nodeManager.getNodeId().toString();
+                  final long nodeActivationSequence = nodeManager.getNodeActivationSequence();
                   try {
-                     ensureSequentialAccessToNodeData(activeMQServer, distributedManager, LOGGER);
+                     ensureSequentialAccessToNodeData(nodeId, nodeActivationSequence, activeMQServer, distributedManager, LOGGER);
                   } catch (Throwable fatal) {
                      LOGGER.errorf(fatal, "Unexpected exception: %s on attempted activation sequence increment; stopping server async", fatal.getLocalizedMessage());
                      asyncStopServer();

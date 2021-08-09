@@ -39,7 +39,8 @@ public abstract class NodeManager implements ActiveMQComponent {
    private UUID uuid;
    private boolean isStarted = false;
    private final Set<FileLockNodeManager.LockListener> lockListeners;
-   protected long nodeActivationSequence;  // local version of a coordinated sequence, tracking state transitions of ownership
+   public static final long NULL_NODE_ACTIVATION_SEQUENCE = -1;
+   protected long nodeActivationSequence = NULL_NODE_ACTIVATION_SEQUENCE;  // local version of a coordinated sequence, tracking state transitions of ownership
 
    public NodeManager(final boolean replicatedBackup) {
       this.replicatedBackup = replicatedBackup;
@@ -98,9 +99,12 @@ public abstract class NodeManager implements ActiveMQComponent {
       }
    }
 
-   public void setNodeActivationSequence(long activationSequence) {
+   public void setNodeActivationSequence(long sequence) {
+      if (sequence != NULL_NODE_ACTIVATION_SEQUENCE && sequence < 0) {
+         throw new IllegalArgumentException("activation sequence must be >=0 or NULL_NODE_ACTIVATION_SEQUENCE");
+      }
       synchronized (nodeIDGuard) {
-         nodeActivationSequence = activationSequence;
+         nodeActivationSequence = sequence;
       }
    }
 

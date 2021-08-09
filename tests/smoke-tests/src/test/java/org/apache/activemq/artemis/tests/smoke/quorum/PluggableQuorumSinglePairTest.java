@@ -137,7 +137,9 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
 
    protected abstract boolean awaitAsyncSetupCompleted(long timeout, TimeUnit unit) throws InterruptedException;
 
-   protected abstract void stopMajority() throws Exception;
+   protected abstract int[] stopMajority() throws Exception;
+
+   protected abstract void restart(int[] nodes) throws Exception;
 
    @Before
    public void setup() throws Exception {
@@ -151,13 +153,32 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
    }
 
    @Test
+   public void testCanQueryEmptyBackup() throws Exception {
+      final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
+      LOGGER.info("starting primary");
+      Process live = primary.startServer(this, timeout);
+      Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
+      Wait.assertTrue(() -> !primary.isBackup().orElse(true), timeout);
+      LOGGER.info("killing primary");
+      ServerUtil.killServer(live, forceKill);
+      LOGGER.info("starting backup");
+      backup.startServer(this, 0);
+      Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
+      LOGGER.info("Stopping majority of consensus nodes");
+      final int[] stopped = stopMajority();
+      LOGGER.info("Waiting until isolated");
+      Thread.sleep(2000);
+      LOGGER.info("Restarting majority of consensus nodes");
+      restart(stopped);
+      Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
+   }
+
+   @Test
    public void testBackupFailoverAndPrimaryFailback() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       LOGGER.info("starting primary");
       Process primaryInstance = primary.startServer(this, timeout);
       Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
-      Wait.assertTrue(() -> !primary.isBackup().orElse(true), timeout);
-
       // primary UN REPLICATED
       Assert.assertEquals(1L, primary.getActivationSequence().get().longValue());
 
