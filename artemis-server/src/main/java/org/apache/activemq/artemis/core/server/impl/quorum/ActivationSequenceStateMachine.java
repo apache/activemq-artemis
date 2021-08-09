@@ -58,13 +58,17 @@ public final class ActivationSequenceStateMachine {
     * </ul><p>
     * <p>
     * After successfully returning from this method ie not null return value, a broker should use
-    * {@link #ensureSequentialAccessToNodeData(ActiveMQServer, DistributedPrimitiveManager, Logger)} to complete
+    * {@link #ensureSequentialAccessToNodeData} to complete
     * the activation and guarantee the initial not-replicated ownership of data.
     */
    public static DistributedLock tryActivate(final String nodeId,
                                              final long nodeActivationSequence,
                                              final DistributedPrimitiveManager distributedManager,
                                              final Logger logger) throws InterruptedException, ExecutionException, TimeoutException, UnavailableStateException {
+      Objects.requireNonNull(nodeId);
+      if (nodeActivationSequence < 0) {
+         throw new IllegalArgumentException("nodeActivationSequence must be > 0");
+      }
       final DistributedLock activationLock = distributedManager.getDistributedLock(nodeId);
       try (MutableLong coordinatedNodeSequence = distributedManager.getMutableLong(nodeId)) {
          while (true) {
@@ -231,19 +235,25 @@ public final class ActivationSequenceStateMachine {
    }
 
    /**
-    * This is going to increment the coordinated activation sequence while holding the live lock, failing with some exception otherwise.<br>
+    * This is going to increment the coordinated activation sequence and the local activation sequence
+    * (using {@link NodeManager#writeNodeActivationSequence}) while holding the live lock,
+    * failing with some exception otherwise.<br>
     * <p>
     * The acceptable states are {@link ValidationResult#InSync} and {@link ValidationResult#SelfRepair}, throwing some exception otherwise.
     * <p>
     * This must be used while holding a live lock to ensure not-exclusive ownership of data ie can be both used
     * while loosing connectivity with a replica or after successfully {@link #tryActivate(String, long, DistributedPrimitiveManager, Logger)}.
     */
-   public static void ensureSequentialAccessToNodeData(ActiveMQServer activeMQServer,
-                                                       DistributedPrimitiveManager distributedPrimitiveManager,
+   public static void ensureSequentialAccessToNodeData(final String lockAndLongId,
+                                                       final long nodeActivationSequence,
+                                                       final ActiveMQServer activeMQServer,
+                                                       final DistributedPrimitiveManager distributedPrimitiveManager,
                                                        final Logger logger) throws ActiveMQException, InterruptedException, UnavailableStateException, ExecutionException, TimeoutException {
 
-      final NodeManager nodeManager = activeMQServer.getNodeManager();
-      final String lockAndLongId = nodeManager.getNodeId().toString();
+      Objects.requireNonNull(lockAndLongId);
+      if (nodeActivationSequence < 0) {
+         throw new IllegalArgumentException("nodeActivationSequence must be >= 0");
+      }
       final DistributedLock liveLock = distributedPrimitiveManager.getDistributedLock(lockAndLongId);
       if (!liveLock.isHeldByCaller()) {
          final String message = String.format("Server [%s], live lock for NodeID = %s, not held, activation sequence cannot be safely changed",
@@ -251,7 +261,6 @@ public final class ActivationSequenceStateMachine {
          logger.info(message);
          throw new UnavailableStateException(message);
       }
-      final long nodeActivationSequence = nodeManager.readNodeActivationSequence();
       final MutableLong coordinatedNodeActivationSequence = distributedPrimitiveManager.getMutableLong(lockAndLongId);
       final long currentCoordinatedActivationSequence = coordinatedNodeActivationSequence.get();
       final long nextActivationSequence;
@@ -275,6 +284,7 @@ public final class ActivationSequenceStateMachine {
          }
          nextActivationSequence = nodeActivationSequence + 1;
       }
+      final NodeManager nodeManager = activeMQServer.getNodeManager();
       // UN_REPLICATED STATE ENTER: auto-repair doesn't need to claim and write locally
       if (nodeActivationSequence != nextActivationSequence) {
          // claim

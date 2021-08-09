@@ -465,7 +465,8 @@ public final class SharedNothingBackupActivation extends Activation implements R
    }
 
    @Override
-   public void onRemoteBackupUpToDate() {
+   public void onRemoteBackupUpToDate(String nodeId, long ignoredActivationSequence) {
+      backupQuorum.liveIDSet(nodeId);
       activeMQServer.getBackupManager().announceBackup();
       backupUpToDate = true;
       backupSyncLatch.countDown();

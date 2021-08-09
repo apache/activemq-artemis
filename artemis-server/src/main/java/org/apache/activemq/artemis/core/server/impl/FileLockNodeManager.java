@@ -100,6 +100,7 @@ public class FileLockNodeManager extends FileBasedNodeManager {
       }
 
       super.start();
+      readNodeActivationSequence();
    }
 
    @Override

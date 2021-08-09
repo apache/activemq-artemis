@@ -94,7 +94,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    public interface ReplicationEndpointEventListener {
 
-      void onRemoteBackupUpToDate();
+      void onRemoteBackupUpToDate(String nodeId, long activationSequence);
 
       void onLiveStopping(ReplicationLiveIsStoppingMessage.LiveStopping message) throws ActiveMQException;
 
@@ -419,9 +419,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
-   private synchronized void finishSynchronization(String liveID) throws Exception {
+   private synchronized void finishSynchronization(String liveID, long activationSequence) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("BACKUP-SYNC-START: finishSynchronization::" + liveID);
+         logger.trace("BACKUP-SYNC-START: finishSynchronization::" + liveID + " activationSequence = " + activationSequence);
       }
       for (JournalContent jc : EnumSet.allOf(JournalContent.class)) {
          Journal journal = journalsHolder.remove(jc);
@@ -476,8 +476,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
 
       journalsHolder = null;
-      eventListener.onLiveNodeId(liveID);
-      eventListener.onRemoteBackupUpToDate();
+      eventListener.onRemoteBackupUpToDate(liveID, activationSequence);
 
       if (logger.isTraceEnabled()) {
          logger.trace("Backup is synchronized / BACKUP-SYNC-DONE");
@@ -560,12 +559,13 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          return replicationResponseMessage;
 
       if (packet.isSynchronizationFinished()) {
+         long activationSequence = 0;
          if (packet.getFileIds() != null && packet.getFileIds().length == 1) {
             // this is the version sequence of the data we are replicating
             // verified if we activate with this data
-            server.getNodeManager().writeNodeActivationSequence(packet.getFileIds()[0]);
+            activationSequence = packet.getFileIds()[0];
          }
-         finishSynchronization(packet.getNodeID());
+         finishSynchronization(packet.getNodeID(), activationSequence);
          replicationResponseMessage.setSynchronizationIsFinishedAcknowledgement(true);
          return replicationResponseMessage;
       }

@@ -22,6 +22,9 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
@@ -39,6 +42,7 @@ public abstract class FileBasedNodeManager extends NodeManager {
    public static final String SERVER_ACTIVATION_SEQUENCE_NAME = "server.activation.sequence";
    private static final String ACCESS_MODE = "rw";
    private final File directory;
+   private final Path activationSequencePath;
    protected FileChannel channel;
    protected FileChannel activationSequenceChannel;
 
@@ -48,13 +52,31 @@ public abstract class FileBasedNodeManager extends NodeManager {
       if (directory != null) {
          directory.mkdirs();
       }
+      activationSequencePath = new File(directory, SERVER_ACTIVATION_SEQUENCE_NAME).toPath();
    }
 
-   protected void useActivationSequenceChannel() throws IOException {
-      if (activationSequenceChannel != null) {
-         return;
+   /**
+    * If {@code createIfNotExists} and activation sequence file doesn't exist yet, it returns {@code null},
+    * otherwise it opens it.<br>
+    * if {@code !createIfNotExists} it just open to create it.
+    */
+   private FileChannel useActivationSequenceChannel(final boolean createIfNotExists) throws IOException {
+      FileChannel channel = this.activationSequenceChannel;
+      if (channel != null) {
+         return channel;
       }
-      activationSequenceChannel = FileChannel.open(newFile(SERVER_ACTIVATION_SEQUENCE_NAME).toPath(), READ, WRITE, CREATE);
+      final OpenOption[] openOptions;
+      if (!createIfNotExists) {
+         if (!Files.exists(activationSequencePath)) {
+            return null;
+         }
+         openOptions = new OpenOption[]{READ, WRITE};
+      } else {
+         openOptions = new OpenOption[]{READ, WRITE, CREATE};
+      }
+      channel = FileChannel.open(activationSequencePath, openOptions);
+      activationSequenceChannel = channel;
+      return channel;
    }
 
    @Override
@@ -63,30 +85,37 @@ public abstract class FileBasedNodeManager extends NodeManager {
          throw new NodeManagerException(new IllegalStateException("node manager must be started first"));
       }
       try {
-         useActivationSequenceChannel();
-         ByteBuffer tmpBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
-         if (activationSequenceChannel.read(tmpBuffer, 0) != Long.BYTES) {
-            return 0;
+         final FileChannel channel = useActivationSequenceChannel(false);
+         if (channel == null) {
+            setNodeActivationSequence(NULL_NODE_ACTIVATION_SEQUENCE);
+            return NULL_NODE_ACTIVATION_SEQUENCE;
+         }
+         final ByteBuffer tmpBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
+         if (channel.read(tmpBuffer, 0) != Long.BYTES) {
+            setNodeActivationSequence(NULL_NODE_ACTIVATION_SEQUENCE);
+            return NULL_NODE_ACTIVATION_SEQUENCE;
          }
          tmpBuffer.flip();
-         return tmpBuffer.getLong(0);
+         final long activationSequence = tmpBuffer.getLong(0);
+         setNodeActivationSequence(activationSequence);
+         return activationSequence;
       } catch (IOException ie) {
          throw new NodeManagerException(ie);
       }
    }
 
    @Override
-   public void writeNodeActivationSequence(long version) throws NodeManagerException {
+   public void writeNodeActivationSequence(long sequence) throws NodeManagerException {
       if (!isStarted()) {
          throw new NodeManagerException(new IllegalStateException("node manager must be started first"));
       }
       try {
-         useActivationSequenceChannel();
-         ByteBuffer tmpBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
-         tmpBuffer.putLong(0, version);
-         activationSequenceChannel.write(tmpBuffer, 0);
-         activationSequenceChannel.force(false);
-         setNodeActivationSequence(version);
+         final FileChannel channel = useActivationSequenceChannel(true);
+         final ByteBuffer tmpBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.BIG_ENDIAN);
+         tmpBuffer.putLong(0, sequence);
+         channel.write(tmpBuffer, 0);
+         channel.force(false);
+         setNodeActivationSequence(sequence);
       } catch (IOException ie) {
          throw new NodeManagerException(ie);
       }
@@ -190,6 +219,7 @@ public abstract class FileBasedNodeManager extends NodeManager {
             channelCopy.close();
       } finally {
          try {
+            setNodeActivationSequence(NULL_NODE_ACTIVATION_SEQUENCE);
             FileChannel dataVersionChannel = this.activationSequenceChannel;
             this.activationSequenceChannel = null;
             if (dataVersionChannel != null) {
@@ -203,13 +233,19 @@ public abstract class FileBasedNodeManager extends NodeManager {
 
    @Override
    public void stopBackup() throws NodeManagerException {
-      if (replicatedBackup && getNodeId() != null) {
-         try {
-            setUpServerLockFile();
-         } catch (IOException e) {
-            throw new NodeManagerException(e);
+      synchronized (nodeIDGuard) {
+         if (replicatedBackup && getNodeId() != null) {
+            try {
+               setUpServerLockFile();
+               final long nodeActivationSequence = this.nodeActivationSequence;
+               if (nodeActivationSequence != NULL_NODE_ACTIVATION_SEQUENCE) {
+                  writeNodeActivationSequence(nodeActivationSequence);
+               }
+            } catch (IOException e) {
+               throw new NodeManagerException(e);
+            }
          }
+         super.stopBackup();
       }
-      super.stopBackup();
    }
 }
