@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.jboss.logging.Logger;
@@ -1109,8 +1108,8 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       Assert.assertEquals(4, files3.size());
       Assert.assertEquals(1, journal.getOpenedFilesCount());
 
-      UnitTestLogger.LOGGER.debug("data files count " + journal.getDataFilesCount());
-      UnitTestLogger.LOGGER.debug("free files count " + journal.getFreeFilesCount());
+      log.debug("data files count " + journal.getDataFilesCount());
+      log.debug("free files count " + journal.getFreeFilesCount());
 
       Assert.assertEquals(2, journal.getDataFilesCount());
       Assert.assertEquals(0, journal.getFreeFilesCount());
@@ -2019,7 +2018,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       addWithSize(1024 - JournalImpl.SIZE_ADD_RECORD, 6);
 
-      UnitTestLogger.LOGGER.debug("Debug journal on testPrepareReclaim ->\n" + debugJournal());
+      log.debug("Debug journal on testPrepareReclaim ->\n" + debugJournal());
 
       Assert.assertEquals(1, journal.getOpenedFilesCount());
       Assert.assertEquals(0, journal.getFreeFilesCount());
@@ -3059,7 +3058,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       addTx(4, 31);
       commit(3);
 
-      UnitTestLogger.LOGGER.debug("Debug on Journal before stopJournal - \n" + debugJournal());
+      log.debug("Debug on Journal before stopJournal - \n" + debugJournal());
 
       stopJournal();
       createJournal();

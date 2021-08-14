@@ -20,13 +20,13 @@ import java.io.File;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 public class RealJournalImplAIOTest extends JournalImplTestUnit {
 
-   private static final UnitTestLogger log = UnitTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(RealJournalImplAIOTest.class);
 
    @BeforeClass
    public static void hasAIO() {

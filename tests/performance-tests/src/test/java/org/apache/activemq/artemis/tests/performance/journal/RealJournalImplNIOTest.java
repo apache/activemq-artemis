@@ -20,11 +20,11 @@ import java.io.File;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.jboss.logging.Logger;
 
 public class RealJournalImplNIOTest extends JournalImplTestUnit {
 
-   private static final UnitTestLogger log = UnitTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(RealJournalImplNIOTest.class);
 
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception {

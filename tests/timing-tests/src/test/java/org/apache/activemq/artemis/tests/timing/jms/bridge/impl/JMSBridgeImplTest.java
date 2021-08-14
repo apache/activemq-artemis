@@ -62,9 +62,9 @@ import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -72,9 +72,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class JMSBridgeImplTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
 
-   private static final UnitTestLogger log = UnitTestLogger.LOGGER;
+   private static Logger log = Logger.getLogger(JMSBridgeImplTest.class);
+
+   // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
 

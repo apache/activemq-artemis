@@ -36,9 +36,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.jboss.logging.Logger;
 
 public class InVMContext implements Context, Serializable {
+
+   private static final Logger log = Logger.getLogger(InVMContext.class);
    // Constants -----------------------------------------------------
 
    private static final long serialVersionUID = 385743957345L;
@@ -292,7 +294,7 @@ public class InVMContext implements Context, Serializable {
    }
 
    private void internalBind(String name, final Object obj, final boolean rebind) throws NamingException {
-      UnitTestLogger.LOGGER.debug("Binding " + name + " obj " + obj + " rebind " + rebind);
+      log.debug("Binding " + name + " obj " + obj + " rebind " + rebind);
       name = trimSlashes(name);
       int i = name.lastIndexOf("/");
       InVMContext c = this;
