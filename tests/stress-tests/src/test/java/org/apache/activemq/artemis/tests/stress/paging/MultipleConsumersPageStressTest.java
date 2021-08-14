@@ -33,15 +33,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
 
-   private final UnitTestLogger log = UnitTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(MultipleConsumersPageStressTest.class);
 
    // Constants -----------------------------------------------------
 

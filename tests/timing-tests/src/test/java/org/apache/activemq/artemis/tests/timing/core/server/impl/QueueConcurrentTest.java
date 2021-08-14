@@ -26,10 +26,10 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeQueueFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ import org.junit.Test;
  */
 public class QueueConcurrentTest extends ActiveMQTestBase {
 
-   private static final UnitTestLogger log = UnitTestLogger.LOGGER;
+   private static final Logger log = Logger.getLogger(QueueConcurrentTest.class);
 
    private FakeQueueFactory queueFactory = new FakeQueueFactory();
 
@@ -99,9 +99,9 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
 
       assertRefListsIdenticalRefs(sender.getReferences(), consumer.getReferences());
 
-      QueueConcurrentTest.log.info("num refs: " + sender.getReferences().size());
+      log.info("num refs: " + sender.getReferences().size());
 
-      QueueConcurrentTest.log.info("num toggles: " + toggler.getNumToggles());
+      log.info("num toggles: " + toggler.getNumToggles());
 
    }
 

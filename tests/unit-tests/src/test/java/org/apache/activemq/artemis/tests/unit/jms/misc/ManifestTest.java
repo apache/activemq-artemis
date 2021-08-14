@@ -26,12 +26,14 @@ import java.util.jar.Manifest;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionMetaData;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ManifestTest extends ActiveMQTestBase {
+
+   private static final Logger log = Logger.getLogger(ManifestTest.class);
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -47,7 +49,7 @@ public class ManifestTest extends ActiveMQTestBase {
       Properties props = System.getProperties();
       String userDir = props.getProperty("build.lib");
 
-      UnitTestLogger.LOGGER.trace("userDir is " + userDir);
+      log.trace("userDir is " + userDir);
 
       // The jar must be there
       File file = new File("build/jars", "activemq-core.jar");

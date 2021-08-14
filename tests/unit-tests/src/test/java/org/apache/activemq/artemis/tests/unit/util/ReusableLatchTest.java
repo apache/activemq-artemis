@@ -18,13 +18,15 @@ package org.apache.activemq.artemis.tests.unit.util;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ReusableLatchTest extends ActiveMQTestBase {
+
+   private static final Logger log = Logger.getLogger(ReusableLatchTest.class);
 
    @Test
    public void testLatchWithParameterizedDown() throws Exception {
@@ -82,10 +84,10 @@ public class ReusableLatchTest extends ActiveMQTestBase {
          public void run() {
             try {
                if (!latch.await(5000)) {
-                  UnitTestLogger.LOGGER.error("Latch timed out");
+                  log.error("Latch timed out");
                }
             } catch (Exception e) {
-               UnitTestLogger.LOGGER.error(e);
+               log.error(e);
             }
             waiting = false;
          }
@@ -113,7 +115,7 @@ public class ReusableLatchTest extends ActiveMQTestBase {
                   latch.countUp();
                }
             } catch (Exception e) {
-               UnitTestLogger.LOGGER.error(e.getMessage(), e);
+               log.error(e.getMessage(), e);
             }
          }
       }
@@ -166,7 +168,7 @@ public class ReusableLatchTest extends ActiveMQTestBase {
                   latch.countDown();
                }
             } catch (Exception e) {
-               UnitTestLogger.LOGGER.error(e.getMessage(), e);
+               log.error(e.getMessage(), e);
             }
          }
       }
@@ -230,10 +232,10 @@ public class ReusableLatchTest extends ActiveMQTestBase {
             readyLatch.countDown();
             try {
                if (!latch.await(1000)) {
-                  UnitTestLogger.LOGGER.error("Latch timed out!", new Exception("trace"));
+                  log.error("Latch timed out!", new Exception("trace"));
                }
             } catch (Exception e) {
-               UnitTestLogger.LOGGER.error(e);
+               log.error(e);
                this.e = e;
             }
             waiting = false;

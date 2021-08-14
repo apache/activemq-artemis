@@ -28,9 +28,9 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFile;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,6 +44,8 @@ import org.junit.Test;
  * III - Add -Djava.library.path=<your project place>/native/src/.libs
  */
 public class MultiThreadAsynchronousFileTest extends AIOTestBase {
+
+   private static final Logger log = Logger.getLogger(MultiThreadAsynchronousFileTest.class);
 
    @BeforeClass
    public static void hasAIO() {
@@ -63,7 +65,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
    ExecutorService pollerExecutor;
 
    private static void debug(final String msg) {
-      UnitTestLogger.LOGGER.info(msg);
+      log.info(msg);
    }
 
    @Override

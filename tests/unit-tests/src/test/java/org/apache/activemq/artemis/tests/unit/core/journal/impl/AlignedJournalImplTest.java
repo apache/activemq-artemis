@@ -33,7 +33,6 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -264,9 +263,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
-      UnitTestLogger.LOGGER.debug("Initial:--> " + journalImpl.debug());
+      log.debug("Initial:--> " + journalImpl.debug());
 
-      UnitTestLogger.LOGGER.debug("_______________________________");
+      log.debug("_______________________________");
 
       for (int i = 0; i < 50; i++) {
          journalImpl.appendAddRecord(i, (byte) 1, new SimpleEncoding(1, (byte) 'x'), false);
@@ -308,9 +307,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
-      UnitTestLogger.LOGGER.debug("Initial:--> " + journalImpl.debug());
+      log.debug("Initial:--> " + journalImpl.debug());
 
-      UnitTestLogger.LOGGER.debug("_______________________________");
+      log.debug("_______________________________");
 
       for (int i = 0; i < 50; i++) {
          journalImpl.appendAddRecord(i, (byte) 1, new SimpleEncoding(1, (byte) 'x'), false);
@@ -342,15 +341,15 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.checkReclaimStatus();
 
-      UnitTestLogger.LOGGER.debug(journalImpl.debug());
+      log.debug(journalImpl.debug());
 
       journalImpl.debugWait();
 
-      UnitTestLogger.LOGGER.debug("Final:--> " + journalImpl.debug());
+      log.debug("Final:--> " + journalImpl.debug());
 
-      UnitTestLogger.LOGGER.debug("_______________________________");
+      log.debug("_______________________________");
 
-      UnitTestLogger.LOGGER.debug("Files bufferSize:" + factory.listFiles("tt").size());
+      log.debug("Files bufferSize:" + factory.listFiles("tt").size());
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
@@ -378,7 +377,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
       } catch (Exception e) {
-         UnitTestLogger.LOGGER.warn(e);
+         log.warn(e);
       }
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -426,7 +425,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
       } catch (Exception e) {
-         UnitTestLogger.LOGGER.debug("Expected exception " + e, e);
+         log.debug("Expected exception " + e, e);
       }
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
