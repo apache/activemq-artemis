@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.journal;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
@@ -323,6 +324,10 @@ public interface Journal extends ActiveMQComponent {
     * @throws Exception
     */
    void forceMoveNextFile() throws Exception;
+
+   default void forceBackup(int timeout, TimeUnit unit) throws Exception {
+   }
+
 
    /**
     * Returns the {@link JournalFile}s in use.

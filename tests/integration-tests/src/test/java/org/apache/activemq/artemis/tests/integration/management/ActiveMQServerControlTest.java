@@ -19,16 +19,20 @@ package org.apache.activemq.artemis.tests.integration.management;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -87,6 +91,7 @@ import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.RetryMethod;
@@ -4079,6 +4084,108 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
+   @Test
+   public void testReplayWithoutDate() throws Exception {
+      testReplaySimple(false);
+   }
+
+   @Test
+   public void testReplayWithDate() throws Exception {
+      testReplaySimple(true);
+   }
+
+   private void testReplaySimple(boolean useDate) throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      String queue = "testQueue" + RandomUtil.randomString();
+      server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue jmsQueue = session.createQueue(queue);
+         MessageProducer producer = session.createProducer(jmsQueue);
+         producer.send(session.createTextMessage("before"));
+
+         connection.start();
+         MessageConsumer consumer = session.createConsumer(jmsQueue);
+         Assert.assertNotNull(consumer.receive(5000));
+         Assert.assertNull(consumer.receiveNoWait());
+
+         serverControl.replay(queue, queue, null);
+         Assert.assertNotNull(consumer.receive(5000));
+         Assert.assertNull(consumer.receiveNoWait());
+
+         if (useDate) {
+            serverControl.replay("dontexist", "dontexist", null); // just to force a move next file, and copy stuff into place
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+            Thread.sleep(1000); // waiting a second just to have the timestamp change
+            String dateEnd = format.format(new Date());
+            Thread.sleep(1000); // waiting a second just to have the timestamp change
+            String dateStart = "19800101000000";
+
+
+            for (int i = 0; i < 100; i++) {
+               producer.send(session.createTextMessage("after receiving"));
+            }
+            for (int i = 0; i < 100; i++) {
+               Assert.assertNotNull(consumer.receive());
+            }
+            Assert.assertNull(consumer.receiveNoWait());
+            serverControl.replay(dateStart, dateEnd, queue, queue, null);
+            for (int i = 0; i < 2; i++) { // replay of the replay will contain two messages
+               TextMessage message = (TextMessage) consumer.receive(5000);
+               Assert.assertNotNull(message);
+               Assert.assertEquals("before", message.getText());
+            }
+            Assert.assertNull(consumer.receiveNoWait());
+         } else {
+            serverControl.replay(queue, queue, null);
+
+            // replay of the replay, there will be two messages
+            for (int i = 0; i < 2; i++) {
+               Assert.assertNotNull(consumer.receive(5000));
+            }
+            Assert.assertNull(consumer.receiveNoWait());
+         }
+      }
+   }
+
+
+   @Test
+   public void testReplayFilter() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      String queue = "testQueue" + RandomUtil.randomString();
+      server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue jmsQueue = session.createQueue(queue);
+         MessageProducer producer = session.createProducer(jmsQueue);
+         for (int i = 0; i < 10; i++) {
+            TextMessage message = session.createTextMessage("message " + i);
+            message.setIntProperty("i", i);
+            producer.send(message);
+         }
+
+         connection.start();
+         MessageConsumer consumer = session.createConsumer(jmsQueue);
+         for (int i = 0; i < 10; i++) {
+            Assert.assertNotNull(consumer.receive(5000));
+         }
+         Assert.assertNull(consumer.receiveNoWait());
+
+         serverControl.replay(queue, queue, "i=5");
+         TextMessage message = (TextMessage)consumer.receive(5000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals(5, message.getIntProperty("i"));
+         Assert.assertEquals("message 5", message.getText());
+         Assert.assertNull(consumer.receiveNoWait());
+      }
+   }
+
 
    @Test
    public void testBrokerConnections() throws Exception {
@@ -4129,7 +4236,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       } catch (Exception expected) {
       }
    }
-
 
    protected void scaleDown(ScaleDownHandler handler) throws Exception {
       SimpleString address = new SimpleString("testQueue");
@@ -4200,6 +4306,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       securityConfiguration.addRole("myUser", "guest");
       securityConfiguration.setDefaultUser("guest");
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
+      conf.setJournalRetentionDirectory(conf.getJournalDirectory() + "_ret"); // needed for replay tests
       server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, securityManager, true));
       server.start();
 
