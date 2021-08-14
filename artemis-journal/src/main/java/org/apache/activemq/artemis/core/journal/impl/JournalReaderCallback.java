@@ -26,57 +26,69 @@ public interface JournalReaderCallback {
    default void done() {
    }
 
-   void onReadAddRecord(RecordInfo info) throws Exception;
+   default void onReadAddRecord(RecordInfo info) throws Exception {
+   }
 
    /**
     * @param recordInfo
     * @throws Exception
     */
-   void onReadUpdateRecord(RecordInfo recordInfo) throws Exception;
+   default void onReadUpdateRecord(RecordInfo recordInfo) throws Exception {
+   }
 
    /**
     * @param recordID
     */
-   void onReadDeleteRecord(long recordID) throws Exception;
+   default void onReadDeleteRecord(long recordID) throws Exception {
+   }
+
 
    /**
     * @param transactionID
     * @param recordInfo
     * @throws Exception
     */
-   void onReadAddRecordTX(long transactionID, RecordInfo recordInfo) throws Exception;
+   default void onReadAddRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
+   }
 
    /**
     * @param transactionID
     * @param recordInfo
     * @throws Exception
     */
-   void onReadUpdateRecordTX(long transactionID, RecordInfo recordInfo) throws Exception;
+   default void onReadUpdateRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
+
+   }
 
    /**
     * @param transactionID
     * @param recordInfo
     */
-   void onReadDeleteRecordTX(long transactionID, RecordInfo recordInfo) throws Exception;
+   default void onReadDeleteRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
+   }
 
    /**
     * @param transactionID
     * @param extraData
     * @param numberOfRecords
     */
-   void onReadPrepareRecord(long transactionID, byte[] extraData, int numberOfRecords) throws Exception;
+   default void onReadPrepareRecord(long transactionID, byte[] extraData, int numberOfRecords) throws Exception {
+   }
 
    /**
     * @param transactionID
     * @param numberOfRecords
     */
-   void onReadCommitRecord(long transactionID, int numberOfRecords) throws Exception;
+   default void onReadCommitRecord(long transactionID, int numberOfRecords) throws Exception {
+   }
 
    /**
     * @param transactionID
     */
-   void onReadRollbackRecord(long transactionID) throws Exception;
+   default void onReadRollbackRecord(long transactionID) throws Exception {
+   }
 
-   void markAsDataFile(JournalFile file);
 
+   default void markAsDataFile(JournalFile file) {
+   }
 }

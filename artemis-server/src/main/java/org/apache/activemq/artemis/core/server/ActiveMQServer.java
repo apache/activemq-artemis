@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server;
 
 import javax.management.MBeanServer;
 import java.util.Collection;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -193,6 +194,8 @@ public interface ActiveMQServer extends ServiceComponent {
     * @param listener @see org.apache.activemq.artemis.core.server.ActivationFailureListener
     */
    void registerActivationFailureListener(ActivationFailureListener listener);
+
+   void replay(Date start, Date end, String address, String target, String filter) throws Exception;
 
    /**
     * Remove a previously registered failure listener

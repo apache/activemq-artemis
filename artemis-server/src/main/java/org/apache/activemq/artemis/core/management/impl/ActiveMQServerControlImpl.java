@@ -32,6 +32,7 @@ import javax.management.NotificationListener;
 import javax.transaction.xa.Xid;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -115,6 +116,7 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
+import org.apache.activemq.artemis.core.server.replay.ReplayManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
@@ -4437,6 +4439,22 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    @Override
    public void reloadConfigurationFile() throws Exception {
       server.reloadConfigurationFile();
+   }
+
+   @Override
+   public void replay(String address, String target, String filter) throws Exception {
+      server.replay(null, null, address, target, filter);
+   }
+
+   @Override
+   public void replay(String startScan, String endScan, String address, String target, String filter) throws Exception {
+
+      SimpleDateFormat format = ReplayManager.newRetentionSimpleDateFormat();
+
+      Date startScanDate = format.parse(startScan);
+      Date endScanDate = format.parse(endScan);
+
+      server.replay(startScanDate, endScanDate, address, target, filter);
    }
 }
 

@@ -1645,6 +1645,20 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   @Parameter(name = "Page Size") int pageSize) throws Exception {
             return (String) proxy.invokeOperation("listQueues", options, page, pageSize);
          }
+
+         @Override
+         public void replay(String address, String target, String filter) throws Exception {
+            proxy.invokeOperation("replay", address, target, filter);
+         }
+
+         @Override
+         public void replay(String startScan,
+                            String endScan,
+                            String address,
+                            String target,
+                            String filter) throws Exception {
+            proxy.invokeOperation("replay", startScan, endScan, address, target, filter);
+         }
       };
    }
 
