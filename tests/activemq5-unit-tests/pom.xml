@@ -41,7 +41,7 @@
       <jasypt-version>1.9.3</jasypt-version>
       <directory-version>2.0.0-M6</directory-version>
       <activeio-core-version>3.1.4</activeio-core-version>
-      <byteman.version>2.2.0</byteman.version>
+      <byteman.version>2.2.1</byteman.version>
 
    </properties>
 

@@ -73,13 +73,15 @@
    <url>https://activemq.apache.org/components/artemis/</url>
 
    <properties>
-      <modular.jdk.surefire.arg />
-      <javac.version>9+181-r4173-1</javac.version>
+      <maven.compiler.source>11</maven.compiler.source>
+      <maven.compiler.target>11</maven.compiler.target>
+
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
       <retryTests>false</retryTests>
       <logging.config>logging.properties</logging.config>
+      <modular.jdk.surefire.arg>--add-modules java.sql,jdk.unsupported </modular.jdk.surefire.arg>
 
       <activemq-artemis-native-version>1.0.2</activemq-artemis-native-version>
       <karaf.version>4.3.3</karaf.version>
@@ -944,82 +946,7 @@
                <javac-compiler-id>javac</javac-compiler-id>
            </properties>
         </profile>
-      <!-- Google Error Prone has issues with IBM JDK 8 -->
-      <!-- See ARTEMIS-861 -->
-      <profile>
-         <id>ibm-jdk8</id>
-         <activation>
-            <jdk>1.8</jdk>
-            <property>
-               <name>java.vendor</name>
-               <value>IBM Corporation</value>
-            </property>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-compiler-plugin</artifactId>
-                  <configuration combine.self="override" />
-               </plugin>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <configuration>
-                     <systemPropertyVariables>
-                        <com.ibm.jsse2.overrideDefaultTLS>true</com.ibm.jsse2.overrideDefaultTLS>
-                     </systemPropertyVariables>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-      <profile>
-         <id>jdk8</id>
-         <activation>
-            <jdk>1.8</jdk>
-         </activation>
-          <properties>
-              <maven.compiler.source>1.8</maven.compiler.source>
-              <maven.compiler.target>1.8</maven.compiler.target>
-          </properties>
-      </profile>
-      <profile>
-          <id>jdk8-errorprone</id>
-          <activation>
-              <jdk>1.8</jdk>
-              <property>
-                  <name>errorprone</name>
-              </property>
-          </activation>
-          <build>
-              <plugins>
-                  <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
-                      <artifactId>maven-compiler-plugin</artifactId>
-                      <configuration>
-                          <fork>true</fork>
-                          <compilerArgs combine.children="append">
-                              <arg>-XDcompilePolicy=simple</arg>
-                              <arg>-J-Xbootclasspath/p:${settings.localRepository}/com/google/errorprone/javac/${javac.version}/javac-${javac.version}.jar</arg>
-                              <arg>-Xplugin:ErrorProne -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -XepExcludedPaths:.*/generated-sources/.*</arg>
-                          </compilerArgs>
-                      </configuration>
-                  </plugin>
-              </plugins>
-          </build>
-      </profile>
-      <profile>
-          <id>jdk11on</id>
-          <activation>
-              <jdk>[11,)</jdk>
-          </activation>
-          <properties>
-              <maven.compiler.source>1.8</maven.compiler.source>
-              <maven.compiler.target>11</maven.compiler.target>
-              <modular.jdk.surefire.arg>--add-modules java.sql,jdk.unsupported </modular.jdk.surefire.arg>
-          </properties>
-      </profile>
+
       <profile>
           <id>jdk11to15-errorprone</id>
           <activation>
@@ -1138,8 +1065,8 @@
                         <configuration>
                            <rules>
                               <requireJavaVersion>
-                                 <version>[1.8, 9)</version>
-                                 <message>JDK 8 is required when building the release</message>
+                                 <version>[11, 12)</version>
+                                 <message>JDK 11 is required when building the release</message>
                               </requireJavaVersion>
                            </rules>
                         </configuration>
@@ -1712,8 +1639,8 @@
                <configuration>
                  <rules>
                    <requireJavaVersion>
-                     <version>[1.8, 9),[11,)</version>
-                     <message>You must use either JDK 8 or JDK 11+ when building</message>
+                     <version>[11,)</version>
+                     <message>You must use JDK 11+ when building</message>
                    </requireJavaVersion>
                  </rules>
                </configuration>

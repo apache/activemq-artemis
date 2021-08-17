@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ 8, 11, 17 ]
+        java: [ 11, 17 ]
 
     steps:
       - uses: actions/checkout@v2
@@ -46,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ 8, 11, 17 ]
+        java: [ 11, 17 ]
 
     steps:
       - uses: actions/checkout@v2
@@ -75,24 +75,24 @@ jobs:
         run: |
           mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pextra-tests -Pjmh install
 
-      - name: Build Examples (JDK8 / -Prelease)
-        if: matrix.java == '8'
+      - name: Build Examples (JDK11 / -Prelease)
+        if: matrix.java == '11'
         run: |
           cd examples
           mvn -s ../.github/maven-settings.xml verify -Prelease
 
-      - name: Build Examples (JDK 11+ / -Pexamples,noRun)
-        if: matrix.java != '8'
+      - name: Build Examples (JDK >11 / -Pexamples,noRun)
+        if: matrix.java != '11'
         run: |
           cd examples
           mvn -s ../.github/maven-settings.xml verify -Pexamples,noRun
 
-      - name: Javadoc Check (JDK8 / -Prelease)
-        if: matrix.java == '8'
+      - name: Javadoc Check (JDK11 / -Prelease)
+        if: matrix.java == '11'
         run: |
           mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease
 
-      - name: Javadoc Check (JDK 11+)
-        if: matrix.java != '8'
+      - name: Javadoc Check (JDK >11)
+        if: matrix.java != '11'
         run: |
           mvn -s .github/maven-settings.xml javadoc:javadoc
