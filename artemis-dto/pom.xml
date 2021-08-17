@@ -173,37 +173,4 @@
          </plugins>
       </pluginManagement>
    </build>
-
-   <profiles>
-      <profile>
-         <id>ibmjdk</id>
-         <activation>
-            <file>
-               <exists>${java.home}/../lib/tools.jar</exists>
-            </file>
-         </activation>
-         <build>
-            <pluginManagement>
-               <plugins>
-                  <plugin>
-                     <groupId>org.apache.maven.plugins</groupId>
-                     <artifactId>maven-antrun-plugin</artifactId>
-                     <dependencies>
-                        <dependency>
-                           <groupId>com.sun</groupId>
-                           <artifactId>tools</artifactId>
-                           <!--the real JDK version could be 1.5 or 1.6-->
-                           <version>1.5.0</version>
-                           <scope>system</scope>
-                           <optional>true</optional>
-                           <systemPath>${java.home}/../lib/tools.jar</systemPath>
-                        </dependency>
-                     </dependencies>
-                  </plugin>
-               </plugins>
-            </pluginManagement>
-         </build>
-      </profile>
-   </profiles>
-
 </project>

@@ -3,13 +3,9 @@ install: true
 matrix:
   include:
     - os: linux
-      jdk: openjdk8
-      env:
-        - EXAMPLES_PROFILE="release"
-    - os: linux
       jdk: openjdk11
       env:
-        - EXAMPLES_PROFILE="examples,noRun"
+        - EXAMPLES_PROFILE="release"
     - os: linux
       jdk: openjdk16
       env:

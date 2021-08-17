@@ -28,6 +28,7 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/../../</activemq.basedir>
+      <sts-surefire-extra-args/>
    </properties>
 
    <dependencies>
@@ -224,6 +225,16 @@
                   </configuration>
                </execution>
             </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+               <compilerArgs>
+                  <arg>--add-exports=java.rmi/sun.rmi.server=ALL-UNNAMED</arg>
+                  <arg>--add-exports=java.rmi/sun.rmi.transport=ALL-UNNAMED</arg>
+               </compilerArgs>
+            </configuration>
          </plugin>
          <plugin>
             <groupId>org.apache.activemq</groupId>
@@ -1294,10 +1305,22 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skipTests>${skipSmokeTests}</skipTests>
-               <argLine>${activemq-surefire-argline}</argLine>
+               <argLine>${sts-surefire-extra-args} ${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
       </plugins>
    </build>
+
+   <profiles>
+      <profile>
+         <id>jdk16on</id>
+         <activation>
+            <jdk>[16,)</jdk>
+         </activation>
+         <properties>
+            <sts-surefire-extra-args>--add-opens=java.management.rmi/javax.management.remote.rmi=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.server=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED</sts-surefire-extra-args>
+         </properties>
+      </profile>
+   </profiles>
 
 </project>
