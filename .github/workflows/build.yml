@@ -32,26 +32,26 @@ jobs:
       # By setting anything to org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED we are disabling libaio loading on the testsuite
       - name: Build Main
         run: |
-          mvn -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Derrorprone -Pfast-tests -Pextra-tests -Ptests-CI -Pjmh install
+          mvn -s .github/maven-settings.xml -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Derrorprone -Pfast-tests -Pextra-tests -Ptests-CI -Pjmh install
 
       - name: Build Examples (JDK8 / -Prelease)
         if: matrix.java == '8'
         run: |
           cd examples
-          mvn install -Prelease
+          mvn -s ../.github/maven-settings.xml install -Prelease
 
       - name: Build Examples (JDK 11+ / -Pexamples,noRun)
         if: matrix.java != '8'
         run: |
           cd examples
-          mvn install -Pexamples,noRun
+          mvn -s ../.github/maven-settings.xml install -Pexamples,noRun
 
       - name: Javadoc Check (JDK8 / -Prelease)
         if: matrix.java == '8'
         run: |
-          mvn javadoc:javadoc -Prelease
+          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease
 
       - name: Javadoc Check (JDK 11+)
         if: matrix.java != '8'
         run: |
-          mvn javadoc:javadoc
+          mvn -s .github/maven-settings.xml javadoc:javadoc
