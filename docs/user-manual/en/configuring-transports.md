@@ -461,15 +461,15 @@ additional properties:
 
 - `verifyHost`
 
-  When used on an `acceptor` the `CN` of the connecting client's SSL
-  certificate will be compared to its hostname to verify they match. This is
-  useful only for 2-way SSL.
+  When used on a `connector` the `CN` or Subject Alternative Name values
+  of the server's SSL certificate will be compared with the hostname being
+  connected to in order to verify a match. This is useful for both 1-way and 2-way SSL.
 
-  When used on a `connector` the `CN` of the server's SSL certificate will be
-  compared to its hostname to verify they match. This is useful for both 1-way
-  and 2-way SSL.
+  When used on an `acceptor` the `CN` or Subject Alternative Name values
+  of the connecting client's SSL certificate will be compared to its
+  hostname to verify a match. This is useful only for 2-way SSL.
 
-  Valid values are `true` or `false`. Default is `false`.
+  Valid values are `true` or `false`. Default is `true` for connectors, and `false` for acceptors.
     
 - `trustAll`
 
