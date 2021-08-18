@@ -29,7 +29,9 @@ import javax.jms.Topic;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -137,5 +139,47 @@ public class JMSSharedDurableConsumerTest extends JMSClientTestSupport {
 
       testSharedDurableConsumer(connection, connection2);
 
+   }
+
+   @Test(timeout = 30000)
+   public void testSharedDurableConsumerWithSelector() throws JMSException {
+      SimpleString qName = amqpUseCoreSubscriptionNaming ? new SimpleString("SharedConsumer") : new SimpleString("SharedConsumer:global");
+      Connection connection = createConnection(true);
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         Topic topic = session.createTopic(getTopicName());
+
+         MessageConsumer consumer = session.createSharedDurableConsumer(topic, "SharedConsumer", "a=b");
+         QueueImpl queue = (QueueImpl) server.getPostOffice().getBinding(qName).getBindable();
+         assertEquals(-1, queue.getMaxConsumers());
+         consumer.close();
+         MessageConsumer consumer2 = session.createSharedDurableConsumer(topic, "SharedConsumer", "a=b and b=c");
+         queue = (QueueImpl) server.getPostOffice().getBinding(qName).getBindable();
+         assertEquals(-1, queue.getMaxConsumers());
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testUnSharedDurableConsumerWithSelector() throws JMSException {
+      SimpleString qName = new SimpleString("foo.SharedConsumer");
+      Connection connection = createConnection("foo", true);
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         Topic topic = session.createTopic(getTopicName());
+
+         MessageConsumer consumer = session.createDurableConsumer(topic, "SharedConsumer", "a=b", false);
+         QueueImpl queue = (QueueImpl) server.getPostOffice().getBinding(qName).getBindable();
+         assertEquals(1, queue.getMaxConsumers());
+         consumer.close();
+         MessageConsumer consumer2 = session.createDurableConsumer(topic, "SharedConsumer", "a=b and b=c", false);
+         queue = (QueueImpl) server.getPostOffice().getBinding(qName).getBindable();
+         assertEquals(1, queue.getMaxConsumers());
+      } finally {
+         connection.close();
+      }
    }
 }

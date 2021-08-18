@@ -1111,7 +1111,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
                         if (result.getConsumerCount() == 0) {
                            sessionSPI.deleteQueue(queue);
-                           sessionSPI.createUnsharedDurableQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
+                           if (shared) {
+                              sessionSPI.createSharedDurableQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
+                           } else {
+                              sessionSPI.createUnsharedDurableQueue(addressToUse, RoutingType.MULTICAST, queue, simpleStringSelector);
+                           }
                         } else {
                            throw new ActiveMQAMQPIllegalStateException("Unable to recreate subscription, consumers already exist");
                         }
