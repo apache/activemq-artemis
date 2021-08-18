@@ -1195,7 +1195,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
 
       public PageCache getValidCache() {
-         PageCache localCache = this.cache.get();
+         PageCache localCache = this.cache != null ? this.cache.get() : null;
          if (localCache == null) {
             localCache = cursorProvider.getPageCache(pageId);
             // this could happen if the file does not exist any more, after cleanup
