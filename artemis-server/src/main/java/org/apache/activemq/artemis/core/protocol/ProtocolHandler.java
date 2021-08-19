@@ -82,6 +82,10 @@ public class ProtocolHandler {
       }
    }
 
+   public Map<String, ProtocolManager> getProtocolMap() {
+      return protocolMap;
+   }
+
    public ChannelHandler getProtocolDecoder() {
       return new ProtocolDecoder(true, false);
    }

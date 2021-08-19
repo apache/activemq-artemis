@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -58,23 +59,29 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    private final List<MQTTInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<MQTTInterceptor> outgoingInterceptors = new ArrayList<>();
 
-   //TODO Read in a list of existing client IDs from stored Sessions.
-   private final Map<String, MQTTConnection> connectedClients;
-   private final Map<String, MQTTSessionState> sessionStates;
+   private final Map<String, MQTTConnection> connectedClients  = new ConcurrentHashMap<>();
+   private final Map<String, MQTTSessionState> sessionStates = new ConcurrentHashMap<>();
+
+   private int defaultMqttSessionExpiryInterval = -1;
 
    private final MQTTRedirectHandler redirectHandler;
 
    MQTTProtocolManager(ActiveMQServer server,
-                       Map<String, MQTTConnection> connectedClients,
-                       Map<String, MQTTSessionState> sessionStates,
                        List<BaseInterceptor> incomingInterceptors,
                        List<BaseInterceptor> outgoingInterceptors) {
       this.server = server;
-      this.connectedClients = connectedClients;
-      this.sessionStates = sessionStates;
       this.updateInterceptors(incomingInterceptors, outgoingInterceptors);
       server.getManagementService().addNotificationListener(this);
       redirectHandler = new MQTTRedirectHandler(server);
+   }
+
+   public int getDefaultMqttSessionExpiryInterval() {
+      return defaultMqttSessionExpiryInterval;
+   }
+
+   public MQTTProtocolManager setDefaultMqttSessionExpiryInterval(int sessionExpiryInterval) {
+      this.defaultMqttSessionExpiryInterval = sessionExpiryInterval;
+      return this;
    }
 
    @Override
@@ -123,6 +130,25 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
       this.outgoingInterceptors.clear();
       this.outgoingInterceptors.addAll(getFactory().filterInterceptors(outgoing));
+   }
+
+   public void scanSessions() {
+      if (defaultMqttSessionExpiryInterval == -1) {
+         log.debug("sessionExpiryInterval is -1 so skipping check");
+      } else {
+         for (Map.Entry<String, MQTTSessionState> entry : sessionStates.entrySet()) {
+            MQTTSessionState state = entry.getValue();
+            if (log.isDebugEnabled()) {
+               log.debug("Inspecting session state: " + state);
+            }
+            if (!state.getAttached() && state.getDisconnectedTime() + (defaultMqttSessionExpiryInterval * 1000) < System.currentTimeMillis()) {
+               if (log.isDebugEnabled()) {
+                  log.debug("Removing expired session state: " + state);
+               }
+               sessionStates.remove(entry.getKey());
+            }
+         }
+      }
    }
 
    @Override

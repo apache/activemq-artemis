@@ -1601,6 +1601,23 @@ public class MQTTTest extends MQTTTestSupport {
       assertEquals("Should have received " + (messagesPerRun * (numberOfRuns + 1)) + " messages", (messagesPerRun * (numberOfRuns + 1)), received);
    }
 
+   @Test(timeout = 60 * 1000)
+   public void testDefaultSessionExpiryInterval() throws Exception {
+      final MQTT mqttSub = createMQTTConnection("MQTT-Sub-Client", false);
+
+      BlockingConnection connectionSub = mqttSub.blockingConnection();
+      connectionSub.connect();
+
+      assertEquals(1, getSessions().size());
+
+      Topic[] topics = {new Topic("TopicA", QoS.EXACTLY_ONCE)};
+      connectionSub.subscribe(topics);
+      connectionSub.disconnect();
+
+      // session shouldn't expire by default
+      Wait.assertEquals(1, () -> getSessions().size(), 10000, 100);
+   }
+
    @Test(timeout = 30 * 1000)
    public void testDefaultKeepAliveWhenClientSpecifiesZero() throws Exception {
       stopBroker();

@@ -553,7 +553,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       return connections;
    }
 
-   // Only for testing purposes
+   @Override
    public ProtocolHandler getProtocolHandler() {
       return protocolHandler;
    }
