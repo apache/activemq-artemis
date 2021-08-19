@@ -124,6 +124,10 @@ public class PrintData extends DBOption {
       printData(bindingsDirectory, messagesDirectory, pagingDirectory, System.out, secret, false);
    }
 
+   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out, boolean secret) throws Exception {
+      printData(bindingsDirectory, messagesDirectory, pagingDirectory, out, secret, false);
+   }
+
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out, boolean safe, boolean reclaimed) throws Exception {
       // printing the banner and version
       Artemis.printBanner(out);
