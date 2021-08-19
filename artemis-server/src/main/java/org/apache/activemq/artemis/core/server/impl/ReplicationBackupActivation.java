@@ -161,18 +161,21 @@ public final class ReplicationBackupActivation extends Activation implements Dis
             }
          }
          distributedManager.start();
-         final long nodeActivationSequence = activeMQServer.getNodeManager().getNodeActivationSequence();
+         final NodeManager nodeManager = activeMQServer.getNodeManager();
          // only a backup with positive local activation sequence could contain valuable data
-         if (nodeActivationSequence > 0) {
-            final String nodeId = activeMQServer.getNodeManager().getNodeId().toString();
+         if (nodeManager.getNodeActivationSequence() > 0) {
             DistributedLock liveLockWithInSyncReplica;
             while (true) {
                distributedManager.start();
                try {
-                  liveLockWithInSyncReplica = tryActivate(nodeId, nodeActivationSequence, distributedManager, LOGGER);
+                  liveLockWithInSyncReplica = tryActivate(activeMQServer.getNodeManager(), distributedManager, LOGGER);
                   break;
                } catch (UnavailableStateException canRecoverEx) {
                   distributedManager.stop();
+               } catch (NodeManager.NodeManagerException fatalEx) {
+                  LOGGER.warn("Failed while auto-repairing activation sequence: stop server now", fatalEx);
+                  asyncRestartServer(activeMQServer, false);
+                  return;
                }
             }
             if (liveLockWithInSyncReplica != null) {
@@ -235,9 +238,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
             // stopBackup is going to write the NodeID and activation sequence previously set on the NodeManager,
             // because activeMQServer.resetNodeManager() has created a NodeManager with replicatedBackup == true.
             nodeManager.stopBackup();
-            final String nodeId = nodeManager.getNodeId().toString();
-            final long nodeActivationSequence = nodeManager.getNodeActivationSequence();
-            ensureSequentialAccessToNodeData(nodeId, nodeActivationSequence, activeMQServer, distributedManager, LOGGER);
+            ensureSequentialAccessToNodeData(activeMQServer.toString(), nodeManager, distributedManager, LOGGER);
          } catch (Throwable fatal) {
             LOGGER.warn(fatal);
             // policy is already live one, but there's no activation yet: we can just stop
@@ -323,19 +324,19 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   }
                   // no more interested into these events: handling it manually from here
                   distributedManager.removeUnavailableManagerListener(this);
-                  final long nodeActivationSequence = activeMQServer.getNodeManager().getNodeActivationSequence();
-                  final String nodeId = activeMQServer.getNodeManager().getNodeId().toString();
+                  final NodeManager nodeManager = activeMQServer.getNodeManager();
                   DistributedLock liveLockWithInSyncReplica = null;
-                  if (nodeActivationSequence > 0) {
+                  if (nodeManager.getNodeActivationSequence() > 0) {
                      try {
-                        liveLockWithInSyncReplica = tryActivate(nodeId, nodeActivationSequence, distributedManager, LOGGER);
+                        liveLockWithInSyncReplica = tryActivate(nodeManager, distributedManager, LOGGER);
                      } catch (Throwable error) {
                         // no need to retry here, can just restart as backup that will handle a more resilient tryActivate
                         LOGGER.warn("Errored while attempting failover", error);
                         liveLockWithInSyncReplica = null;
                      }
                   } else {
-                     LOGGER.warnf("We expect local activation sequence for NodeID = %s to be > 0 on a fail-over, while is %d", nodeId, nodeActivationSequence);
+                     LOGGER.errorf("Expected positive local activation sequence for NodeID = %s during fail-over, but was %d: restarting as backup",
+                                   nodeManager.getNodeId(), nodeManager.getNodeActivationSequence());
                   }
                   assert stopping.get();
                   if (liveLockWithInSyncReplica != null) {
