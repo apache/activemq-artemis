@@ -135,9 +135,9 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          Assert.assertEquals("m" + i, cm.getBodyBuffer().readString());
       }
       consumer.close();
-      Thread.sleep(2100);
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      Wait.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable())::getMessageCount);
+      Wait.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable())::getDeliveringCount);
+      Wait.assertEquals(numMessages / 2, ((Queue) server.getPostOffice().getBinding(qName).getBindable())::getMessagesExpired);
    }
 
    @Test
