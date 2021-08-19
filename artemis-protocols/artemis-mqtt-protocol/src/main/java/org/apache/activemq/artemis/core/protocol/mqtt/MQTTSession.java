@@ -108,6 +108,7 @@ public class MQTTSession {
 
          if (state != null) {
             state.setAttached(false);
+            state.setDisconnectedTime(System.currentTimeMillis());
          }
 
          if (isClean()) {
@@ -178,6 +179,7 @@ public class MQTTSession {
    void setSessionState(MQTTSessionState state) {
       this.state = state;
       state.setAttached(true);
+      this.state.setDisconnectedTime(0);
    }
 
    MQTTRetainMessageManager getRetainMessageManager() {

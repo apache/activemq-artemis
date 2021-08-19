@@ -47,6 +47,8 @@ public class MQTTSessionState {
 
    private boolean attached = false;
 
+   private long disconnectedTime = 0;
+
    private final OutboundStore outboundStore = new OutboundStore();
 
    public MQTTSessionState(String clientId) {
@@ -59,6 +61,7 @@ public class MQTTSessionState {
       addressMessageMap.clear();
       pubRec.clear();
       outboundStore.clear();
+      disconnectedTime = 0;
    }
 
    OutboundStore getOutboundStore() {
@@ -118,6 +121,14 @@ public class MQTTSessionState {
 
    void setClientId(String clientId) {
       this.clientId = clientId;
+   }
+
+   long getDisconnectedTime() {
+      return disconnectedTime;
+   }
+
+   void setDisconnectedTime(long disconnectedTime) {
+      this.disconnectedTime = disconnectedTime;
    }
 
    void removeMessageRef(Integer mqttId) {

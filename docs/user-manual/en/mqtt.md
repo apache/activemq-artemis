@@ -150,3 +150,19 @@ MQTT over Web Sockets is supported via a normal MQTT acceptor:
 With this configuration, Apache ActiveMQ Artemis will accept MQTT connections
 over Web Sockets on the port `1883`. Web browsers can then connect to
 `ws://<server>:1883` using a Web Socket to send and receive MQTT messages.
+
+## Automatic Subscription Clean-up
+
+Sometimes MQTT clients don't clean up their subscriptions. In such situations
+the `auto-delete-queues-delay` and `auto-delete-queues-message-count`
+address-settings can be used to clean up the abandoned subscription queues.
+However, the MQTT session meta-data is still present in memory and needs to be
+cleaned up as well. The URL parameter `defaultMqttSessionExpiryInterval` can be
+configured on the MQTT `acceptor` to deal with this situation.
+
+The default `defaultMqttSessionExpiryInterval` is `-1` which means no session
+state will be expired. Otherwise it represents the number of _milliseconds_
+which must elapse after the client has disconnected before the broker will
+remove the session state.
+
+MQTT session state is scanned every 5 seconds.

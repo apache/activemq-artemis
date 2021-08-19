@@ -118,6 +118,8 @@ public interface RemotingService {
     */
    Acceptor getAcceptor(String name);
 
+   Map<String, Acceptor> getAcceptors();
+
    Acceptor createAcceptor(String name, String uri) throws Exception;
 
    Acceptor createAcceptor(TransportConfiguration transportConfiguration);

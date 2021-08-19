@@ -292,8 +292,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       return acceptor;
    }
 
-
-   /** No interface method, for tests only */
+   @Override
    public Map<String, Acceptor> getAcceptors() {
       return acceptors;
    }
