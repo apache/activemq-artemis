@@ -35,8 +35,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
@@ -266,6 +268,47 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          for (int i = 0; i < size; i++) {
             contents[i] = 'X';
          }
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testDurableConsumerWithSelectorChange() throws Exception {
+      SimpleString qName = new SimpleString("foo.SharedConsumer");
+      Connection connection = createConnection("foo", true);
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         Topic topic = session.createTopic(getTopicName());
+
+         MessageConsumer consumer = session.createDurableConsumer(topic, "SharedConsumer", "a=b", false);
+         MessageProducer producer = session.createProducer(session.createTopic(getTopicName()));
+         Message message = session.createMessage();
+         message.setStringProperty("a", "1");
+         message.setStringProperty("b", "1");
+         producer.send(message);
+
+         QueueImpl queue = (QueueImpl) server.getPostOffice().getBinding(qName).getBindable();
+         assertEquals(1, queue.getMaxConsumers());
+         Wait.assertEquals(1, queue::getMessageCount);
+         consumer.close();
+         MessageConsumer consumer2 = session.createDurableConsumer(topic, "SharedConsumer", "a=b and b=c", false);
+         queue = (QueueImpl) server.getPostOffice().getBinding(qName).getBindable();
+         assertEquals(1, queue.getMaxConsumers());
+         Wait.assertEquals(0, queue::getMessageCount);
+
+         message = session.createMessage();
+         message.setStringProperty("a", "2");
+         message.setStringProperty("b", "2");
+         message.setStringProperty("c", "2");
+         producer.send(message);
+
+         Wait.assertEquals(1, queue::getMessageCount);
+
+         connection.start();
+
+         Assert.assertNotNull(consumer2.receive(5000));
+      } finally {
+         connection.close();
       }
    }
 }
