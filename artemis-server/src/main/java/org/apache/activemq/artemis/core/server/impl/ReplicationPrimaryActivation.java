@@ -113,14 +113,16 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
          if (policy.getCoordinationId() != null) {
             applyCoordinationId(policy.getCoordinationId(), activeMQServer);
          }
-         final long sequence = activeMQServer.getNodeManager().getNodeActivationSequence();
-         final long nodeActivationSequence = sequence == NodeManager.NULL_NODE_ACTIVATION_SEQUENCE ? 0 : sequence;
-         final String nodeId = activeMQServer.getNodeManager().getNodeId().toString();
+         final NodeManager nodeManager = activeMQServer.getNodeManager();
+         if (nodeManager.getNodeActivationSequence() == NodeManager.NULL_NODE_ACTIVATION_SEQUENCE) {
+            // persists an initial activation sequence
+            nodeManager.writeNodeActivationSequence(0);
+         }
          DistributedLock liveLock;
          while (true) {
             distributedManager.start();
             try {
-               liveLock = tryActivate(nodeId, nodeActivationSequence, distributedManager, LOGGER);
+               liveLock = tryActivate(nodeManager, distributedManager, LOGGER);
                break;
             } catch (UnavailableStateException canRecoverEx) {
                distributedManager.stop();
@@ -128,12 +130,12 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
          }
          if (liveLock == null) {
             distributedManager.stop();
-            LOGGER.infof("This broker cannot become a live server with NodeID = %s: restarting as backup", nodeId);
+            LOGGER.infof("This broker cannot become a live server with NodeID = %s: restarting as backup", nodeManager.getNodeId());
             activeMQServer.setHAPolicy(policy.getBackupPolicy());
             return;
          }
 
-         ensureSequentialAccessToNodeData(nodeId, nodeActivationSequence, activeMQServer, distributedManager, LOGGER);
+         ensureSequentialAccessToNodeData(activeMQServer.toString(), nodeManager, distributedManager, LOGGER);
 
          activeMQServer.initialisePart1(false);
 
@@ -382,11 +384,8 @@ public class ReplicationPrimaryActivation extends LiveActivation implements Dist
                }
                // we increment only if we are staying alive
                if (!stoppingServer.get() && STARTED.equals(activeMQServer.getState())) {
-                  final NodeManager nodeManager = activeMQServer.getNodeManager();
-                  final String nodeId = nodeManager.getNodeId().toString();
-                  final long nodeActivationSequence = nodeManager.getNodeActivationSequence();
                   try {
-                     ensureSequentialAccessToNodeData(nodeId, nodeActivationSequence, activeMQServer, distributedManager, LOGGER);
+                     ensureSequentialAccessToNodeData(activeMQServer.toString(), activeMQServer.getNodeManager(), distributedManager, LOGGER);
                   } catch (Throwable fatal) {
                      LOGGER.errorf(fatal, "Unexpected exception: %s on attempted activation sequence increment; stopping server async", fatal.getLocalizedMessage());
                      asyncStopServer();

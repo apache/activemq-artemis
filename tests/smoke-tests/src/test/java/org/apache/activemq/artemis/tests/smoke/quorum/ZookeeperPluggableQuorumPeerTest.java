@@ -90,7 +90,7 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
       Wait.assertEquals(2L, () -> primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
       Assert.assertEquals(coordinationId, primary.getNodeID().get());
       LOGGER.info("waiting peer b to be a replica");
-      Wait.waitFor(() -> backup.isReplicaSync().get());
+      Wait.waitFor(() -> backup.isReplicaSync().orElse(false));
       Wait.assertEquals(2L, () -> backup.getActivationSequence().get().longValue());
       final String expectedUrlPeerA = liveOf(coordinationId, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
       Assert.assertEquals(urlPeerA, expectedUrlPeerA);

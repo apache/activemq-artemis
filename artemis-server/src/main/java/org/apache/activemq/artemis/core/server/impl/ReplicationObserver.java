@@ -273,6 +273,8 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
          }
          nodeManager.setNodeID(nodeId);
          nodeManager.setNodeActivationSequence(activationSequence);
+         // persists nodeID and nodeActivationSequence
+         nodeManager.stopBackup();
          backupManager.announceBackup();
          backupUpToDate = true;
       }

@@ -428,8 +428,8 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       }
       liveServer.start();
       Wait.waitFor(liveServer::isStarted);
-      Assert.assertEquals(2, liveServer.getNodeManager().getNodeActivationSequence());
-      Assert.assertEquals(2, distributedPrimitiveManager.getMutableLong(coordinatedId).get());
+      Assert.assertEquals(3, liveServer.getNodeManager().getNodeActivationSequence());
+      Assert.assertEquals(3, distributedPrimitiveManager.getMutableLong(coordinatedId).get());
 
       distributedPrimitiveManager.stop();
 
@@ -438,7 +438,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       backupServer.setIdentity("BACKUP");
       backupServer.start();
       Wait.waitFor(backupServer::isReplicaSync);
-      Assert.assertEquals(2, backupServer.getNodeManager().getNodeActivationSequence());
+      Assert.assertEquals(3, backupServer.getNodeManager().getNodeActivationSequence());
       backupServer.stop();
    }
 
@@ -575,20 +575,15 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       final MutableLong activationSequence = distributedPrimitiveManager.getMutableLong(coordinatedId);
       Assert.assertTrue(activationSequence.compareAndSet(2, -2));
 
-      // case: 1, the fail to write locally 2 but the write actually succeeding
-      // should delay pending resolution of the uncommitted claim
-      backupServer.start();
-
       // live server should activate after self healing its outstanding claim
       liveServer.start();
       Wait.waitFor(liveServer::isStarted);
-
-      assertTrue(Wait.waitFor(backupServer::isReplicaSync));
-      assertTrue(liveServer.isReplicaSync());
+      Assert.assertEquals(3, liveServer.getNodeManager().getNodeActivationSequence());
+      Assert.assertEquals(3, activationSequence.get());
    }
 
    @Test
-   public void testUnavailableAdminIntervention() throws Exception {
+   public void testUnavailableAutoRepair() throws Exception {
       // start backup
       Configuration backupConfiguration = createBackupConfiguration();
       ActiveMQServer backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConfiguration));
@@ -610,7 +605,6 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       final String coordinatedId = liveServer.getNodeID().toString();
 
-      System.err.println("coodr id: " + coordinatedId);
       backupServer.stop();
       TimeUnit.MILLISECONDS.sleep(500);
       liveServer.stop();
@@ -651,15 +645,14 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       TimeUnit.MILLISECONDS.sleep(500);
       // both are candidates and one of them failed to commit the claim
       // let them compete on retry
-      Assert.assertTrue(coordinatedActivationSequence.compareAndSet(-2, 1));
       // one of the two can activate
       Wait.waitFor(() -> liveServer.isStarted() || backupServer.isStarted());
 
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
       assertTrue(liveServer.isReplicaSync());
 
-      assertEquals(2, backupServer.getNodeManager().getNodeActivationSequence());
-      assertEquals(2, liveServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(3, backupServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(3, liveServer.getNodeManager().getNodeActivationSequence());
 
    }
 
