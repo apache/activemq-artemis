@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -49,6 +50,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -428,6 +430,62 @@ public class MQTTTest extends MQTTTestSupport {
       }
       subscriber.disconnect();
       publisher.disconnect();
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testSendAndReceiveRetainedLargeMessage() throws Exception {
+      AssertionLoggerHandler.startCapture();
+      try {
+         byte[] payload = new byte[ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 2];
+         for (int i = 0; i < payload.length; i++) {
+            payload[i] = '2';
+         }
+         String body = "message";
+
+         String smallRetain = "retain";
+         final MQTTClientProvider publisher = getMQTTClientProvider();
+         initializeConnection(publisher);
+
+         final MQTTClientProvider subscriber = getMQTTClientProvider();
+         initializeConnection(subscriber);
+
+         publisher.publish("foo", payload, AT_LEAST_ONCE, true);
+
+         subscriber.subscribe("foo", AT_LEAST_ONCE);
+
+         publisher.publish("foo", body.getBytes(), AT_LEAST_ONCE, false);
+         byte[] msg = subscriber.receive(5000);
+         assertNotNull(msg);
+         assertEquals(msg.length, payload.length);
+
+         msg = subscriber.receive(5000);
+         assertNotNull(msg);
+         assertEquals(msg.length, body.length());
+
+         subscriber.disconnect();
+
+         final MQTTClientProvider subscriber2 = getMQTTClientProvider();
+         initializeConnection(subscriber2);
+         subscriber2.subscribe("foo", AT_LEAST_ONCE);
+         msg = subscriber2.receive(5000);
+         assertNotNull(msg);
+         assertEquals(msg.length, payload.length);
+         subscriber2.disconnect();
+         publisher.publish("foo", smallRetain.getBytes(), AT_LEAST_ONCE, true);
+         final MQTTClientProvider subscriber3 = getMQTTClientProvider();
+         initializeConnection(subscriber3);
+         subscriber3.subscribe("foo", AT_LEAST_ONCE);
+         msg = subscriber3.receive(5000);
+         assertNotNull(msg);
+         assertEquals(msg.length, smallRetain.getBytes().length);
+         subscriber3.disconnect();
+         publisher.disconnect();
+
+         Assert.assertFalse(AssertionLoggerHandler.findText("Exception"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+
    }
 
    @Test(timeout = 30 * 1000)
