@@ -150,7 +150,7 @@
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqttv3.version>1.2.5</paho.client.mqttv3.version>
       <!-- for JakrtaEE -->
-      <version.batavia>1.0.5.Final</version.batavia>
+      <version.batavia>1.0.10.Final</version.batavia>
 
       <!-- used on tests -->
       <groovy.version>2.5.10</groovy.version>

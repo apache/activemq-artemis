@@ -29,44 +29,104 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
+      <jakarta.jms-api.version>3.0.0</jakarta.jms-api.version>
+      <jakarta.transaction-api.version>2.0.0</jakarta.transaction-api.version>
+      <jakarta.resource-api.version>2.0.0</jakarta.resource-api.version>
    </properties>
 
 
-  <dependencies>
+   <dependencies>
       <dependency>
-          <groupId>org.apache.activemq</groupId>
-          <artifactId>artemis-ra</artifactId>
-          <version>${project.version}</version>
-          <scope>provided</scope>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-processor</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
       </dependency>
-  </dependencies>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-annotations</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>com.google.errorprone</groupId>
+         <artifactId>error_prone_core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
+         <version>${project.version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jakarta-client</artifactId>
+         <version>${project.version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>jakarta.resource</groupId>
+         <artifactId>jakarta.resource-api</artifactId>
+         <version>${jakarta.resource-api.version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>jakarta.transaction</groupId>
+         <artifactId>jakarta.transaction-api</artifactId>
+         <version>${jakarta.transaction-api.version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>jakarta.jms</groupId>
+         <artifactId>jakarta.jms-api</artifactId>
+         <version>${jakarta.jms-api.version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jakarta-service-extensions</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jgroups</groupId>
+         <artifactId>jgroups</artifactId>
+      </dependency>
+   </dependencies>
 
-  <build>
+   <build>
       <plugins>
-          <plugin>
-              <groupId>org.wildfly.extras.batavia</groupId>
-              <artifactId>transformer-tools-mvn</artifactId>
-              <executions>
-                  <execution>
-                      <id>transform</id>
-                      <phase>process-classes</phase>
-                      <goals>
-                          <goal>transform-classes</goal>
-                      </goals>
-                      <configuration>
-                          <inputFile>${project.basedir}/../artemis-ra/target/classes/</inputFile>
-                          <outputFolder>${project.build.outputDirectory}</outputFolder>
-                      </configuration>
-                  </execution>
-              </executions>
-              <dependencies>
-                  <dependency>
-                      <groupId>org.wildfly.extras.batavia</groupId>
-                      <artifactId>transformer-impl-eclipse</artifactId>
-                      <version>${version.batavia}</version>
-                  </dependency>
-              </dependencies>
-          </plugin>
+         <plugin>
+            <groupId>org.wildfly.extras.batavia</groupId>
+            <artifactId>transformer-tools-mvn</artifactId>
+            <executions>
+               <execution>
+                  <id>transform-sources</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>transform-sources</goal>
+                  </goals>
+                  <configuration>
+                     <source-project>${project.basedir}/../artemis-ra</source-project>
+                  </configuration>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.wildfly.extras.batavia</groupId>
+                  <artifactId>transformer-impl-eclipse</artifactId>
+                  <version>${version.batavia}</version>
+               </dependency>
+            </dependencies>
+         </plugin>
       </plugins>
-  </build>
+   </build>
 </project>
