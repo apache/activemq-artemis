@@ -589,6 +589,7 @@ public interface ActiveMQServerControl {
                     @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
                     @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType) throws Exception;
 
+
    /**
     * Create a queue.
     * <br>

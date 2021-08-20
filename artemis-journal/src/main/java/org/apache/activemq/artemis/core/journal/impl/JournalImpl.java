@@ -2550,7 +2550,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    public String getHistoryFileName(long sequence, Calendar calendar) {
 
       String fileName = String.format("%s-%04d%02d%02d%02d%02d%02d-%d.%s", filesRepository.getFilePrefix(), calendar.get(Calendar.YEAR),
-                                      calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
+                                      (calendar.get(Calendar.MONTH) + 1), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
                                       calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND), sequence, filesRepository.getFileExtension());
 
       return fileName;
@@ -2576,10 +2576,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       int minutes = Integer.parseInt(datePortion.substring(10, 12));
       int seconds = Integer.parseInt(datePortion.substring(12, 14));
 
-      calendar.set(year, month, day, hour, minutes, seconds);
+      calendar.clear();
+      calendar.set(year, month - 1, day, hour, minutes, seconds);
       return calendar.getTimeInMillis();
-
    }
+
    public String getDatePortion(String name) {
       return name.substring(filesRepository.getFilePrefix().length() + 1, name.indexOf("-", filesRepository.getFilePrefix().length() + 1));
    }

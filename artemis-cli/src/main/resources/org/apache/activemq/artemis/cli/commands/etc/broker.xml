@@ -53,7 +53,7 @@ ${jdbc}
 
       it is recommended to use a separate storage unit from the journal for performance considerations.
 
-      <journal-retention-directory period="7" unit="DAYS" storage-limit="10G">data/retention</journal-retention-directory>>
+      <journal-retention-directory period="7" unit="DAYS" storage-limit="10G">data/retention</journal-retention-directory>
       -->
 
       <journal-datasync>${fsync}</journal-datasync>
