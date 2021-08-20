@@ -1902,8 +1902,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          if (AuditLogger.isMessageLoggingEnabled()) {
-            ServerSession session = server.getSessionByID(consumer.getSessionID());
-            AuditLogger.coreAcknowledgeMessage(session.getRemotingConnection().getAuditSubject(), session.getRemotingConnection().getRemoteAddress(), getName().toString(), ref.getMessage().toString());
+            ServerSession session = null;
+            // it's possible for the consumer to be null (e.g. acking the message administratively)
+            if (consumer != null) {
+               session = server.getSessionByID(consumer.getSessionID());
+            }
+            AuditLogger.coreAcknowledgeMessage(session == null ? null : session.getRemotingConnection().getAuditSubject(), session == null ? null : session.getRemotingConnection().getRemoteAddress(), getName().toString(), ref.getMessage().toString());
          }
          if (server != null && server.hasBrokerMessagePlugins()) {
             server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
