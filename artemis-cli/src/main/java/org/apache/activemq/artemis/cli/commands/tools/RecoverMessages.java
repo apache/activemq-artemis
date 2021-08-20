@@ -68,7 +68,7 @@ public class RecoverMessages extends DBOption {
             recover(configuration, getJournal(), journalOutput, new File(getLargeMessages()), reclaimed);
          }
       } catch (Exception e) {
-         treatError(e, "data", "print");
+         treatError(e, "data", "recover");
       }
       return null;
    }

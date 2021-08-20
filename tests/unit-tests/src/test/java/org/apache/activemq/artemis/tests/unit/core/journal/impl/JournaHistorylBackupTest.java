@@ -84,7 +84,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
    @Test
    public void verifyFileName() throws Throwable {
-      GregorianCalendar clebertsBirthday = new GregorianCalendar(1972, 1, 19, 4, 5, 7);
+      GregorianCalendar clebertsBirthday = new GregorianCalendar(1972, 0, 19, 4, 5, 7);
 
 
       JournalImpl journal = new JournalImpl(10 * 1024, 10, 10, 0, 100, new FakeSequentialFileFactory(), "cleberts", "birthday", 1);
@@ -100,7 +100,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
       compareCalendar.setTimeInMillis(d);
 
       Assert.assertEquals(1972, compareCalendar.get(Calendar.YEAR));
-      Assert.assertEquals(1, compareCalendar.get(Calendar.MONTH));
+      Assert.assertEquals(0, compareCalendar.get(Calendar.MONTH));
       Assert.assertEquals(19, compareCalendar.get(Calendar.DAY_OF_MONTH));
       Assert.assertEquals(4, compareCalendar.get(Calendar.HOUR_OF_DAY));
       Assert.assertEquals(5, compareCalendar.get(Calendar.MINUTE));
