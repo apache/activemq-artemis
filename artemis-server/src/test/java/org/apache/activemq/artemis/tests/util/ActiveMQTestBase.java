@@ -157,6 +157,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -221,6 +222,9 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected static final long WAIT_TIMEOUT = 30000;
 
+   private static String testClassName = "not-yet-set";
+   private static String failingTotalMaxIoMessage;
+
    // There is a verification about thread leakages. We only fail a single thread when this happens
    private static Set<Thread> alreadyFailedThread = new HashSet<>();
 
@@ -251,6 +255,7 @@ public abstract class ActiveMQTestBase extends Assert {
    public TestRule watcher = new TestWatcher() {
       @Override
       protected void starting(Description description) {
+         testClassName = description.getClassName();
          baseLog.info(String.format("**** start #test %s() ***", description.getMethodName()));
       }
 
@@ -2055,10 +2060,36 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
+   @BeforeClass
+   public static void checkLibaioBeforeClass() throws Throwable {
+      if (failingTotalMaxIoMessage != null) {
+         // Fail immediately if this is already set.
+         fail(failingTotalMaxIoMessage);
+      }
+
+      long totalMaxIO = LibaioContext.getTotalMaxIO();
+      if (totalMaxIO != 0) {
+         log.error("LibaioContext TotalMaxIO > 0 before beginning test class. Issue presumably arose in a preceding class (not possible to be sure of which here). TotalMaxIO = " + totalMaxIO);
+      }
+   }
+
    @AfterClass
    public static void checkLibaio() throws Throwable {
+      if (failingTotalMaxIoMessage != null) {
+         // Test class was already failed if this is set, nothing to do here.
+         return;
+      }
+
       if (!Wait.waitFor(() -> LibaioContext.getTotalMaxIO() == 0)) {
-         Assert.fail("test did not close all its files " + LibaioContext.getTotalMaxIO());
+         long totalMaxIO = LibaioContext.getTotalMaxIO();
+
+         // Set messsage to fail subsequent runs with
+         failingTotalMaxIoMessage = String.format("Aborting, LibaioContext TotalMaxIO > 0 issue previously detected by test class %s(), see its output.", testClassName);
+
+         // Now fail this run
+         String message = String.format("LibaioContext TotalMaxIO > 0 leak detected after class %s(), TotalMaxIO=%s(). Check output to determine if occurred before/during.", testClassName, totalMaxIO);
+         log.error(message);
+         Assert.fail(message);
       }
    }
 
