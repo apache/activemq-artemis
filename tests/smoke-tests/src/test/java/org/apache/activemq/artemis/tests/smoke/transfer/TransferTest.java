@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class TestTransfer extends SmokeTestBase {
+public class TransferTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "transfer1";
    public static final String SERVER_NAME_1 = "transfer2";
@@ -50,7 +50,7 @@ public class TestTransfer extends SmokeTestBase {
    String senderProtocol = "amqp";
    String consumerProtocol = "amqp";
 
-   public TestTransfer(String sender, String consumer, String source, String target) {
+   public TransferTest(String sender, String consumer, String source, String target) {
       this.senderProtocol = sender;
       this.consumerProtocol = consumer;
       this.sourceTransferProtocol = source;
