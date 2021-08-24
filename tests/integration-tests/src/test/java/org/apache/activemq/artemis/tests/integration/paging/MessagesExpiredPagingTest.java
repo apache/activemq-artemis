@@ -161,7 +161,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
             c.consumedDelta.set(0);
          }
          producer.setTimeToLive(10);
-         for (int i = 0; i < 1000; i++) {
+         for (int i = 0; i < 5000; i++) {
             if (i > 0 && i % 100 == 0) {
                for (Consumer c : consumers) {
                   Wait.waitFor(() -> !queues[0].getPagingStore().isPaging(), 1000, 100, false);
