@@ -177,7 +177,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
          }
 
          producer.setTimeToLive(300);
-         for (int i = 0; i < 1000; i++) {
+         for (int i = 0; i < 5000; i++) {
             if (i > 0 && i % 100 == 0) {
                queues[0].getPagingStore().forceAnotherPage();
             }
