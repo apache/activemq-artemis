@@ -208,8 +208,6 @@
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
-      <skipLicenseCheck>true</skipLicenseCheck>
-      <skipStyleCheck>true</skipStyleCheck>
       <skipOWASP>true</skipOWASP>
 
       <directory-version>2.0.0.AM25</directory-version>
@@ -1044,20 +1042,40 @@
       </profile>
       <profile>
          <id>dev</id>
-         <properties>
-            <skipStyleCheck>false</skipStyleCheck>
-            <skipLicenseCheck>false</skipLicenseCheck>
-         </properties>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.rat</groupId>
+                  <artifactId>apache-rat-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <phase>compile</phase>
+                        <goals>
+                           <goal>check</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-checkstyle-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <phase>compile</phase>
+                        <goals>
+                           <goal>check</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
       </profile>
       <profile>
          <id>release</id>
          <modules>
             <module>examples</module>
          </modules>
-         <properties>
-            <skipStyleCheck>false</skipStyleCheck>
-            <skipLicenseCheck>false</skipLicenseCheck>
-         </properties>
          <build>
             <plugins>
                <plugin>
@@ -1077,6 +1095,30 @@
                               </requireJavaVersion>
                            </rules>
                         </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.rat</groupId>
+                  <artifactId>apache-rat-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <phase>compile</phase>
+                        <goals>
+                           <goal>check</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-checkstyle-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <phase>compile</phase>
+                        <goals>
+                           <goal>check</goal>
+                        </goals>
                      </execution>
                   </executions>
                </plugin>
@@ -1136,8 +1178,6 @@
             <skipSoakTests>true</skipSoakTests>
             <skipPerformanceTests>true</skipPerformanceTests>
             <skipExtraTests>false</skipExtraTests>
-            <skipStyleCheck>false</skipStyleCheck>
-            <skipLicenseCheck>false</skipLicenseCheck>
          </properties>
       </profile>
       <profile>
@@ -1149,8 +1189,6 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipConcurrentTests>false</skipConcurrentTests>
-            <skipStyleCheck>false</skipStyleCheck>
-            <skipLicenseCheck>false</skipLicenseCheck>
             <skipCompatibilityTests>false</skipCompatibilityTests>
             <testFailureIgnore>false</testFailureIgnore>
             <!-- This enables the karaf-client-integration-tests and
@@ -1513,6 +1551,104 @@
                <artifactId>maven-war-plugin</artifactId>
                <version>3.3.1</version>
             </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-checkstyle-plugin</artifactId>
+               <version>${maven.checkstyle.plugin.version}</version>
+               <dependencies>
+                  <dependency>
+                     <groupId>com.github.sevntu-checkstyle</groupId>
+                     <artifactId>sevntu-checks</artifactId>
+                     <version>${sevntu.checks.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>com.puppycrawl.tools</groupId>
+                     <artifactId>checkstyle</artifactId>
+                     <version>${checkstyle.version}</version>
+                  </dependency>
+               </dependencies>
+               <configuration>
+                  <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
+                  <suppressionsLocation>${activemq.basedir}/etc/checkstyle-suppressions.xml</suppressionsLocation>
+                  <failsOnError>false</failsOnError>
+                  <failOnViolation>true</failOnViolation>
+                  <consoleOutput>true</consoleOutput>
+                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
+               </configuration>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.rat</groupId>
+               <artifactId>apache-rat-plugin</artifactId>
+               <configuration>
+                  <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
+                  <excludes>
+                     <exclude>**/src/main/webapp/hawtconfig.json</exclude>
+                     <exclude>.repository/**</exclude>
+                     <exclude>.travis.yml</exclude>
+                     <exclude>.github/workflows/*</exclude>
+                     <exclude>**/footer.html</exclude>
+                     <exclude>**/*.txt</exclude>
+                     <exclude>**/*.md</exclude>
+                     <exclude>etc/ide-settings/**</exclude>
+                     <exclude>**/*.json</exclude>
+                     <exclude>docs/**/*.json</exclude>
+                     <exclude>docs/**/_book/</exclude>
+                     <exclude>docs/**/_layouts/</exclude>
+                     <exclude>**/target/</exclude>
+                     <exclude>**/META-INF/services/*</exclude>
+                     <exclude>**/META-INF/MANIFEST.MF</exclude>
+                     <exclude>**/*.iml</exclude>
+                     <exclude>**/*.jceks</exclude>
+                     <exclude>**/*.jks</exclude>
+                     <exclude>**/*.p12</exclude>
+                     <exclude>**/xml.xsd</exclude>
+                     <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
+                     <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
+                     <exclude>**/.settings/**</exclude>
+                     <exclude>**/.project</exclude>
+                     <exclude>**/.classpath</exclude>
+                     <exclude>**/.editorconfig</exclude>
+                     <exclude>**/.checkstyle</exclude>
+                     <exclude>**/.factorypath</exclude>
+                     <exclude>**/org.apache.activemq.artemis.cfg</exclude>
+                     <exclude>**/nb-configuration.xml</exclude>
+                     <exclude>**/nbactions-tests.xml</exclude>
+                     <exclude>**/.vscode/settings.json</exclude>
+                     <!-- activemq5 unit tests exclude -->
+                     <exclude>**/*.data</exclude>
+                     <exclude>**/*.bin</exclude>
+                     <exclude>**/src/test/resources/keystore</exclude>
+                     <exclude>**/src/test/java/org/apache/activemq/security/*.ts</exclude>
+                     <exclude>**/*.log</exclude>
+                     <exclude>**/*.redo</exclude>
+
+                      <!-- NPM files -->
+                     <exclude>**/node/**</exclude>
+                     <exclude>**/node_modules/**</exclude>
+                     <exclude>**/package.json</exclude>
+                     <exclude>**/npm-shrinkwrap.json</exclude>
+
+                     <!-- Build time overlay folder -->
+                     <exclude>**/overlays/**</exclude>
+
+                     <!-- things from cmake on the native build -->
+                     <exclude>**/CMakeFiles/</exclude>
+                     <exclude>**/Makefile</exclude>
+                     <exclude>**/cmake_install.cmake</exclude>
+                     <exclude>activemq-artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
+                     <exclude>**/dependency-reduced-pom.xml</exclude>
+
+                     <!-- Mockito -->
+                     <exclude>**/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker</exclude>
+
+                     <!-- .NET Examples-->
+                     <exclude>examples/protocols/amqp/dotnet/**/obj/**/*</exclude>
+                     <exclude>examples/protocols/amqp/dotnet/**/bin/**/*</exclude>
+                     <exclude>examples/protocols/amqp/dotnet/**/readme.md</exclude>
+                     <exclude>examples/protocols/amqp/**/readme.md</exclude>
+                  </excludes>
+               </configuration>
+            </plugin>
          </plugins>
       </pluginManagement>
 
@@ -1571,41 +1707,6 @@
             <version>2.2</version>
          </plugin>
          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>${maven.checkstyle.plugin.version}</version>
-            <dependencies>
-               <dependency>
-                  <groupId>com.github.sevntu-checkstyle</groupId>
-                  <artifactId>sevntu-checks</artifactId>
-                  <version>${sevntu.checks.version}</version>
-               </dependency>
-               <dependency>
-                  <groupId>com.puppycrawl.tools</groupId>
-                  <artifactId>checkstyle</artifactId>
-                  <version>${checkstyle.version}</version>
-               </dependency>
-            </dependencies>
-            <configuration>
-               <skip>${skipStyleCheck}</skip>
-               <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
-               <suppressionsLocation>${activemq.basedir}/etc/checkstyle-suppressions.xml</suppressionsLocation>
-               <failsOnError>false</failsOnError>
-               <failOnViolation>true</failOnViolation>
-               <consoleOutput>true</consoleOutput>
-               <includeTestSourceDirectory>true</includeTestSourceDirectory>
-            </configuration>
-            <executions>
-               <execution>
-                  <phase>compile</phase>
-                  <goals>
-                     <goal>check</goal>
-                  </goals>
-               </execution>
-            </executions>
-         </plugin>
-
-         <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>findbugs-maven-plugin</artifactId>
             <version>2.5.2</version>
@@ -1616,88 +1717,6 @@
                <effort>Max</effort>
                <failOnError>false</failOnError>
             </configuration>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.rat</groupId>
-            <artifactId>apache-rat-plugin</artifactId>
-            <configuration>
-               <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
-               <skip>${skipLicenseCheck}</skip>
-               <excludes>
-                  <exclude>**/src/main/webapp/hawtconfig.json</exclude>
-                  <exclude>.repository/**</exclude>
-                  <exclude>.travis.yml</exclude>
-                  <exclude>.github/workflows/*</exclude>
-                  <exclude>**/footer.html</exclude>
-                  <exclude>**/*.txt</exclude>
-                  <exclude>**/*.md</exclude>
-                  <exclude>etc/ide-settings/**</exclude>
-                  <exclude>**/*.json</exclude>
-                  <exclude>docs/**/*.json</exclude>
-                  <exclude>docs/**/_book/</exclude>
-                  <exclude>docs/**/_layouts/</exclude>
-                  <exclude>**/target/</exclude>
-                  <exclude>**/META-INF/services/*</exclude>
-                  <exclude>**/META-INF/MANIFEST.MF</exclude>
-                  <exclude>**/*.iml</exclude>
-                  <exclude>**/*.jceks</exclude>
-                  <exclude>**/*.jks</exclude>
-                  <exclude>**/*.p12</exclude>
-                  <exclude>**/xml.xsd</exclude>
-                  <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
-                  <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
-                  <exclude>**/.settings/**</exclude>
-                  <exclude>**/.project</exclude>
-                  <exclude>**/.classpath</exclude>
-                  <exclude>**/.editorconfig</exclude>
-                  <exclude>**/.checkstyle</exclude>
-                  <exclude>**/.factorypath</exclude>
-                  <exclude>**/org.apache.activemq.artemis.cfg</exclude>
-                  <exclude>**/nb-configuration.xml</exclude>
-                  <exclude>**/nbactions-tests.xml</exclude>
-                  <exclude>**/.vscode/settings.json</exclude>
-                  <!-- activemq5 unit tests exclude -->
-                  <exclude>**/*.data</exclude>
-                  <exclude>**/*.bin</exclude>
-                  <exclude>**/src/test/resources/keystore</exclude>
-                  <exclude>**/src/test/java/org/apache/activemq/security/*.ts</exclude>
-                  <exclude>**/*.log</exclude>
-                  <exclude>**/*.redo</exclude>
-
-                  <!-- NPM files -->
-                  <exclude>**/node/**</exclude>
-                  <exclude>**/node_modules/**</exclude>
-                  <exclude>**/package.json</exclude>
-                  <exclude>**/npm-shrinkwrap.json</exclude>
-
-                  <!-- Build time overlay folder -->
-                  <exclude>**/overlays/**</exclude>
-
-                  <!-- things from cmake on the native build -->
-                  <exclude>**/CMakeFiles/</exclude>
-                  <exclude>**/Makefile</exclude>
-                  <exclude>**/cmake_install.cmake</exclude>
-                  <exclude>activemq-artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
-                  <exclude>**/dependency-reduced-pom.xml</exclude>
-
-                  <!-- Mockito -->
-                  <exclude>**/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker</exclude>
-
-                  <!-- .NET Examples-->
-                  <exclude>examples/protocols/amqp/dotnet/**/obj/**/*</exclude>
-                  <exclude>examples/protocols/amqp/dotnet/**/bin/**/*</exclude>
-                  <exclude>examples/protocols/amqp/dotnet/**/readme.md</exclude>
-                  <exclude>examples/protocols/amqp/**/readme.md</exclude>
-               </excludes>
-            </configuration>
-            <executions>
-               <execution>
-                  <phase>compile</phase>
-                  <goals>
-                     <goal>check</goal>
-                  </goals>
-               </execution>
-            </executions>
          </plugin>
          <plugin>
             <groupId>org.apache.felix</groupId>
