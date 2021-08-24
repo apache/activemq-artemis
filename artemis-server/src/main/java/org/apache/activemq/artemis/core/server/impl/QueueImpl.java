@@ -1572,13 +1572,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   protected void finalize() throws Throwable {
-      cancelRedistributor();
-
-      super.finalize();
-   }
-
-   @Override
    public int getConsumerCount() {
       return consumers.size();
    }
