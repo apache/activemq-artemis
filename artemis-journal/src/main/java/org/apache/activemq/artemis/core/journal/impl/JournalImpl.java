@@ -2891,6 +2891,21 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
    }
 
+   @Override
+   public void forceBackup(int timeout, TimeUnit unit) throws Exception {
+      journalLock.writeLock().lock();
+      try {
+         moveNextFile(true, true);
+      } finally {
+         journalLock.writeLock().unlock();
+      }
+
+      CountDownLatch latch = new CountDownLatch(1);
+      compactorExecutor.execute(latch::countDown);
+      latch.await(timeout, unit);
+   }
+
+
    // ActiveMQComponent implementation
    // ---------------------------------------------------
 

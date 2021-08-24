@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.smoke.common;
 
+import javax.management.MBeanServerInvocationHandler;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -26,6 +27,8 @@ import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.cli.commands.Stop;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -97,6 +100,32 @@ public class SmokeTestBase extends ActiveMQTestBase {
 
    protected JMXConnector getJmxConnector() throws MalformedURLException {
       return getJmxConnector(JMX_SERVER_HOSTNAME, JMX_SERVER_PORT);
+   }
+
+   protected static JMXConnector newJMXFactory(String uri) throws Throwable {
+      return JMXConnectorFactory.connect(new JMXServiceURL(uri));
+   }
+
+   protected static ActiveMQServerControl getServerControl(String uri,
+                                                         ObjectNameBuilder builder,
+                                                         long timeout) throws Throwable {
+      long expireLoop = System.currentTimeMillis() + timeout;
+      Throwable lastException = null;
+      do {
+         try {
+            JMXConnector connector = newJMXFactory(uri);
+
+            ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(connector.getMBeanServerConnection(), builder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
+            serverControl.isActive(); // making one call to make sure it's working
+            return serverControl;
+         } catch (Throwable e) {
+            lastException = e;
+            Thread.sleep(500);
+         }
+      }
+      while (expireLoop > System.currentTimeMillis());
+
+      throw lastException;
    }
 
    protected static JMXConnector getJmxConnector(String hostname, int port) throws MalformedURLException {

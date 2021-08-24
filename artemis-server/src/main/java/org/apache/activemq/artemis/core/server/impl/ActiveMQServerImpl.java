@@ -175,6 +175,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugi
 import org.apache.activemq.artemis.core.server.balancing.BrokerBalancerManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
+import org.apache.activemq.artemis.core.server.replay.ReplayManager;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -265,6 +266,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    protected volatile ExecutorFactory executorFactory;
 
    private volatile ExecutorService ioExecutorPool;
+
+   private ReplayManager replayManager;
 
    /**
     * This is a thread pool for io tasks only.
@@ -388,9 +391,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    };
 
-   // Constructors
-   // ---------------------------------------------------------------------------------
-
    public ActiveMQServerImpl() {
       this(null, null, null);
    }
@@ -468,6 +468,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.parentServer = parentServer;
 
       this.serviceRegistry = serviceRegistry == null ? new ServiceRegistryImpl() : serviceRegistry;
+
    }
 
    @Override
@@ -480,8 +481,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return networkHealthCheck;
    }
 
-   // life-cycle methods
-   // ----------------------------------------------------------------
+
+   @Override
+   public void replay(Date start, Date end, String address, String target, String filter) throws Exception {
+      if (replayManager == null) {
+         throw ActiveMQMessageBundle.BUNDLE.noRetention();
+      }
+      replayManager.replay(start, end, address, target, filter);
+   }
 
    /**
     * A Callback for tests
@@ -597,6 +604,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       initializeExecutorServices();
 
       initializeCriticalAnalyzer();
+
+      if (configuration.getJournalRetentionLocation() != null) {
+         this.replayManager = new ReplayManager(this);
+      } else {
+         this.replayManager = null;
+      }
 
       startDate = new Date();
 

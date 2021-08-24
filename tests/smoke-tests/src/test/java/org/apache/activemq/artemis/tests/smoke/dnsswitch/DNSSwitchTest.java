@@ -23,10 +23,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -70,76 +66,39 @@ import org.junit.Test;
  */
 public class DNSSwitchTest extends SmokeTestBase {
 
-   private static boolean USING_SPAWN = true;
    public static final File ETC_HOSTS = new File("/etc/hosts");
-
-   private static File ETC_BACKUP;
-
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT_0 = 10099;
    private static final int JMX_SERVER_PORT_1 = 10199;
-
-   static String liveURI = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_0 + "/jmxrmi";
-   static String backupURI = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_1 + "/jmxrmi";
-
-   static ObjectNameBuilder liveNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "live", true);
-   static ObjectNameBuilder backupNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "backup", true);
-
-   // This is a more intrusive option to use with JDK 8
-   // Instead of using a separate jdk hsots, which is not supported on jdk8,
-   // with this option set to true we would use the original /etc/hosts
-   private static boolean USE_ETC_HOSTS = System.getProperty("java.version").startsWith("1.8");
-
    private static final Logger logger = Logger.getLogger(DNSSwitchTest.class);
-
    private static final String SERVER_NAME_0 = "dnsswitch";
    private static final String SERVER_NAME_1 = "dnsswitch2";
    private static final String SERVER_STANDARD = "standard";
    private static final String SERVER_LIVE = "dnsswitch-replicated-main";
    private static final String SERVER_LIVE_NORETRYDNS = "dnsswitch-replicated-main-noretrydns";
    private static final String SERVER_BACKUP = "dnsswitch-replicated-backup";
-
    private static final String SERVER_LIVE_PING = "dnsswitch-replicated-main-withping";
    private static final String SERVER_BACKUP_PING = "dnsswitch-replicated-backup-withping";
-
    // 192.0.2.0 is reserved for documentation (and testing on this case).
    private static final String FIRST_IP = "192.0.2.0";
    private static final String SECOND_IP = "192.0.3.0";
    private static final String THIRD_IP = "192.0.3.0";
    private static final String FOURTH_IP = "192.0.4.0";
-
    private static final String INVALID_IP = "203.0.113.0";
-
+   private static final String hostsFile = System.getProperty("jdk.net.hosts.file");
+   static String liveURI = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_0 + "/jmxrmi";
+   static String backupURI = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_1 + "/jmxrmi";
+   static ObjectNameBuilder liveNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "live", true);
+   static ObjectNameBuilder backupNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "backup", true);
+   private static boolean USING_SPAWN = true;
+   private static File ETC_BACKUP;
+   // This is a more intrusive option to use with JDK 8
+   // Instead of using a separate jdk hsots, which is not supported on jdk8,
+   // with this option set to true we would use the original /etc/hosts
+   private static boolean USE_ETC_HOSTS = System.getProperty("java.version").startsWith("1.8");
    private static String serverLocation;
-
    @Rule
    public NetUtilResource netUtilResource = new NetUtilResource();
-
-   private static JMXConnector newJMXFactory(String uri) throws Throwable {
-      return JMXConnectorFactory.connect(new JMXServiceURL(uri));
-   }
-
-   private static ActiveMQServerControl getServerControl(String uri,
-                                                         ObjectNameBuilder builder,
-                                                         long timeout) throws Throwable {
-      long expireLoop = System.currentTimeMillis() + timeout;
-      Throwable lastException = null;
-      do {
-         try {
-            JMXConnector connector = newJMXFactory(uri);
-
-            ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(connector.getMBeanServerConnection(), builder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
-            serverControl.isActive(); // making one call to make sure it's working
-            return serverControl;
-         } catch (Throwable e) {
-            lastException = e;
-            Thread.sleep(500);
-         }
-      }
-      while (expireLoop > System.currentTimeMillis());
-
-      throw lastException;
-   }
 
    @BeforeClass
    public static void beforeClassMethod() throws Exception {
@@ -233,7 +192,6 @@ public class DNSSwitchTest extends SmokeTestBase {
 
       Assert.assertTrue("You must send pairs as overrideParameters", overrideParameters.length % 2 == 0);
 
-
       String javaVersion = System.getProperty("java.version");
 
       File security;
@@ -252,25 +210,6 @@ public class DNSSwitchTest extends SmokeTestBase {
       }
 
       securityProperties.store(new FileOutputStream(outputSecurity), "# generated by DNSSwitchTest");
-   }
-
-   private static final String hostsFile = System.getProperty("jdk.net.hosts.file");
-
-   @Before
-   public void before() throws Exception {
-      cleanupData(SERVER_NAME_0);
-      cleanupData(SERVER_NAME_1);
-      cleanupData(SERVER_STANDARD);
-      cleanupData(SERVER_LIVE);
-      cleanupData(SERVER_LIVE_NORETRYDNS);
-      cleanupData(SERVER_BACKUP);
-      cleanupData(SERVER_LIVE_PING);
-      cleanupData(SERVER_BACKUP_PING);
-   }
-
-   @Test
-   public void testBackupRedefinition() throws Throwable {
-      spawnRun(serverLocation, "testBackupRedefinition", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
    }
 
    public static void testBackupRedefinition(String[] args) throws Throwable {
@@ -359,12 +298,6 @@ public class DNSSwitchTest extends SmokeTestBase {
 
    }
 
-
-   @Test
-   public void testBackupRedefinition2() throws Throwable {
-      spawnRun(serverLocation, "testBackupRedefinition2", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
-   }
-
    public static void testBackupRedefinition2(String[] args) throws Throwable {
       NetUtil.netUp(FIRST_IP, "lo:first");
       NetUtil.netUp(SECOND_IP, "lo:second");
@@ -395,7 +328,6 @@ public class DNSSwitchTest extends SmokeTestBase {
          ActiveMQServerControl backupControl = getServerControl(backupURI, backupNameBuilder, 20_000);
          Wait.assertTrue(backupControl::isStarted);
          Wait.assertTrue(backupControl::isReplicaSync);
-
 
          saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
          serverBackup.destroyForcibly();
@@ -459,12 +391,6 @@ public class DNSSwitchTest extends SmokeTestBase {
 
    }
 
-
-   @Test
-   public void testBackupRedefinition3() throws Throwable {
-      spawnRun(serverLocation, "testBackupRedefinition2", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
-   }
-
    public static void testBackupRedefinition3(String[] args) throws Throwable {
       NetUtil.netUp(FIRST_IP, "lo:first");
       NetUtil.netUp(SECOND_IP, "lo:second");
@@ -495,7 +421,6 @@ public class DNSSwitchTest extends SmokeTestBase {
          ActiveMQServerControl backupControl = getServerControl(backupURI, backupNameBuilder, 20_000);
          Wait.assertTrue(backupControl::isStarted);
          Wait.assertTrue(backupControl::isReplicaSync);
-
 
          saveConf(hostsFile, FIRST_IP, "FIRST", SECOND_IP, "SECOND");
          serverBackup.destroyForcibly();
@@ -556,15 +481,8 @@ public class DNSSwitchTest extends SmokeTestBase {
             serverLive.destroyForcibly();
          }
 
-
       }
 
-   }
-
-
-   @Test
-   public void testCantReachBack() throws Throwable {
-      spawnRun(serverLocation, "testCantReachBack", getServerLocation(SERVER_LIVE_NORETRYDNS), getServerLocation(SERVER_BACKUP));
    }
 
    public static void testCantReachBack(String[] args) throws Throwable {
@@ -604,12 +522,6 @@ public class DNSSwitchTest extends SmokeTestBase {
 
    }
 
-
-   @Test
-   public void testWithPing() throws Throwable {
-      spawnRun(serverLocation, "testWithPing", getServerLocation(SERVER_LIVE_PING), getServerLocation(SERVER_BACKUP_PING));
-   }
-
    public static void testWithPing(String[] args) throws Throwable {
       NetUtil.netUp(FIRST_IP, "lo:first");
       NetUtil.netUp(SECOND_IP, "lo:second");
@@ -640,13 +552,11 @@ public class DNSSwitchTest extends SmokeTestBase {
 
          serverBackup.destroyForcibly();
 
-
          //Thread.sleep(10_000);
          serverLive.destroyForcibly();
          serverLive = ServerUtil.startServer(args[1], "live", "tcp://FIRST:61616", 0);
 
          Thread.sleep(1_000);
-
 
          logger.debug("going to re-enable ping");
          // Enable the address just for ping now
@@ -683,25 +593,16 @@ public class DNSSwitchTest extends SmokeTestBase {
             serverLive.destroyForcibly();
          }
 
-
       }
 
    }
 
-   @Test
-   public void testWithoutPingKill() throws Throwable {
-      spawnRun(serverLocation, "testWithoutPing", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP), "1");
-   }
-
-   @Test
-   public void testWithoutPingRestart() throws Throwable {
-      spawnRun(serverLocation, "testWithoutPing", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP), "0");
-   }
    /**
     * arg[0] = constant "testWithoutPing" to be used on reflection through main(String arg[])
     * arg[1] = serverlive
     * arg[2] = server backup
     * arg[3] = 1 | 0 (kill the backup = 1, stop the backup = 0);
+    *
     * @param args
     * @throws Throwable
     */
@@ -778,11 +679,9 @@ public class DNSSwitchTest extends SmokeTestBase {
             serverLive.destroyForcibly();
          }
 
-
       }
 
    }
-
 
    private static void connectAndWaitBackup() throws Exception {
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://FIRST:61616?ha=true");
@@ -790,12 +689,6 @@ public class DNSSwitchTest extends SmokeTestBase {
       Connection connection = connectionFactory.createConnection();
       waitForTopology(connectionFactory.getServerLocator().getTopology(), 60_000, 1, 1);
       connection.close();
-   }
-
-   @Test
-   public void testFailoverDifferentIPRedefinition() throws Throwable {
-
-      spawnRun(serverLocation, "testFailoverDifferentIPRedefinition", serverLocation, getServerLocation(SERVER_NAME_1));
    }
 
    public static void testFailoverDifferentIPRedefinition(String[] arg) throws Throwable {
@@ -850,20 +743,6 @@ public class DNSSwitchTest extends SmokeTestBase {
 
    }
 
-   @Test
-   public void testInitialConnector() throws Throwable {
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://test:61616?initialConnectAttempts=500&retryInterval=100&connect-timeout-millis=100");
-      startServer(SERVER_STANDARD, 0, 30000);
-
-      String location = getServerLocation(SERVER_NAME_0);
-
-      spawnRun(location, "testInitialConnector");
-      // If you eed to debug the test, comment out spawnRun, and call the method directly
-      // you will need to add roperties on the JDK for that
-      // Add the properties you need
-      // testInitialConnector("testInitialConnector", location);
-   }
-
    // called with reflection
    public static void testInitialConnector(String... arg) throws Throwable {
       saveConf(hostsFile, "192.0.0.3", "test");
@@ -903,12 +782,6 @@ public class DNSSwitchTest extends SmokeTestBase {
       Assert.assertFalse(connecting.isAlive());
    }
 
-   // This test is just validating the DNS is not being cached on the separte VM
-   @Test
-   public void testSimpleResolution() throws Throwable {
-      spawnRun(serverLocation, "testSimpleResolution");
-   }
-
    // called with reflection
    public static void testSimpleResolution(String[] arg) throws Throwable {
       // This is just to validate the DNS hosts is picking up the right host
@@ -918,11 +791,6 @@ public class DNSSwitchTest extends SmokeTestBase {
       // and it should not cache anything if the right properties are in place
       saveConf(hostsFile, "192.0.0.3", "test");
       validateIP("test", "192.0.0.3");
-   }
-
-   @Test
-   public void testSplitBrainDetection() throws Throwable {
-      spawnRun(serverLocation, "testSplitBrainDetection", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
    }
 
    /**
@@ -975,8 +843,7 @@ public class DNSSwitchTest extends SmokeTestBase {
          Wait.assertTrue(() -> !liveControl.isReplicaSync());
 
          logger.debug("Waiting enough to let live spread its topology around");
-         try (ActiveMQConnectionFactory firstCf = new ActiveMQConnectionFactory("tcp://FIRST:61616?ha=false");
-              Connection ignored = firstCf.createConnection()) {
+         try (ActiveMQConnectionFactory firstCf = new ActiveMQConnectionFactory("tcp://FIRST:61616?ha=false"); Connection ignored = firstCf.createConnection()) {
             waitForTopology(firstCf.getServerLocator().getTopology(), 60_000, 1, 1);
             final Topology topology = firstCf.getServerLocator().getTopology();
             final TopologyMemberImpl member = topology.getMember(liveControl.getNodeID());
@@ -993,8 +860,7 @@ public class DNSSwitchTest extends SmokeTestBase {
             Assert.assertEquals("SECOND", backup.getParams().get("host"));
             Assert.assertEquals("61716", backup.getParams().get("port"));
          }
-         try (ActiveMQConnectionFactory secondCf = new ActiveMQConnectionFactory("tcp://SECOND:61716?ha=false");
-              Connection ignored = secondCf.createConnection()) {
+         try (ActiveMQConnectionFactory secondCf = new ActiveMQConnectionFactory("tcp://SECOND:61716?ha=false"); Connection ignored = secondCf.createConnection()) {
             logger.debug("Waiting until second broker topology has just a single live node");
             waitForTopology(secondCf.getServerLocator().getTopology(), 60_000, 1, 0);
             final Topology topology = secondCf.getServerLocator().getTopology();
@@ -1015,33 +881,6 @@ public class DNSSwitchTest extends SmokeTestBase {
          if (serverLive != null) {
             serverLive.destroyForcibly();
          }
-      }
-   }
-
-   /**
-    * it will continue the test on a spwned VM with the properties we need for this test
-    */
-   private void spawnRun(String location, String... args) throws Throwable {
-      // We have to run part of the test on a separate VM, as we need VM settings to tweak the DNS
-
-      String securityProperties = System.getProperty("java.security.properties");
-
-      if (securityProperties != null && securityProperties.equals(location + "/etc/zerocache.security")) {
-         logger.info("No need to spawn a VM, the zerocache is already in place");
-         System.setProperty("artemis.config.location", location);
-         USING_SPAWN = false;
-         main(args);
-      } else {
-
-         securityProperties = "-Djava.security.properties=" + location + "/etc/zerocache.security";
-         String hostProperties = "-Djdk.net.hosts.file=" + location + "/etc/hosts.conf";
-         String configLocation = "-Dartemis.config.location=" + location;
-         String temporaryLocation = "-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir");
-
-         logger.info("if you would like to run without Spawn for debugging purposes, add these properties to your VM arguments on this test: " + securityProperties + " " + hostProperties);
-         Process p = SpawnedVMSupport.spawnVM(DNSSwitchTest.class.getName(), new String[]{securityProperties, hostProperties, configLocation, temporaryLocation}, args);
-         addProcess(p);
-         Assert.assertEquals(1, p.waitFor());
       }
    }
 
@@ -1105,6 +944,111 @@ public class DNSSwitchTest extends SmokeTestBase {
          } else {
             throw e;
          }
+      }
+   }
+
+   @Before
+   public void before() throws Exception {
+      cleanupData(SERVER_NAME_0);
+      cleanupData(SERVER_NAME_1);
+      cleanupData(SERVER_STANDARD);
+      cleanupData(SERVER_LIVE);
+      cleanupData(SERVER_LIVE_NORETRYDNS);
+      cleanupData(SERVER_BACKUP);
+      cleanupData(SERVER_LIVE_PING);
+      cleanupData(SERVER_BACKUP_PING);
+   }
+
+   @Test
+   public void testBackupRedefinition() throws Throwable {
+      spawnRun(serverLocation, "testBackupRedefinition", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
+   }
+
+   @Test
+   public void testBackupRedefinition2() throws Throwable {
+      spawnRun(serverLocation, "testBackupRedefinition2", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
+   }
+
+   @Test
+   public void testBackupRedefinition3() throws Throwable {
+      spawnRun(serverLocation, "testBackupRedefinition2", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
+   }
+
+   @Test
+   public void testCantReachBack() throws Throwable {
+      spawnRun(serverLocation, "testCantReachBack", getServerLocation(SERVER_LIVE_NORETRYDNS), getServerLocation(SERVER_BACKUP));
+   }
+
+   @Test
+   public void testWithPing() throws Throwable {
+      spawnRun(serverLocation, "testWithPing", getServerLocation(SERVER_LIVE_PING), getServerLocation(SERVER_BACKUP_PING));
+   }
+
+   @Test
+   public void testWithoutPingKill() throws Throwable {
+      spawnRun(serverLocation, "testWithoutPing", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP), "1");
+   }
+
+   @Test
+   public void testWithoutPingRestart() throws Throwable {
+      spawnRun(serverLocation, "testWithoutPing", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP), "0");
+   }
+
+   @Test
+   public void testFailoverDifferentIPRedefinition() throws Throwable {
+
+      spawnRun(serverLocation, "testFailoverDifferentIPRedefinition", serverLocation, getServerLocation(SERVER_NAME_1));
+   }
+
+   @Test
+   public void testInitialConnector() throws Throwable {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://test:61616?initialConnectAttempts=500&retryInterval=100&connect-timeout-millis=100");
+      startServer(SERVER_STANDARD, 0, 30000);
+
+      String location = getServerLocation(SERVER_NAME_0);
+
+      spawnRun(location, "testInitialConnector");
+      // If you eed to debug the test, comment out spawnRun, and call the method directly
+      // you will need to add roperties on the JDK for that
+      // Add the properties you need
+      // testInitialConnector("testInitialConnector", location);
+   }
+
+   // This test is just validating the DNS is not being cached on the separte VM
+   @Test
+   public void testSimpleResolution() throws Throwable {
+      spawnRun(serverLocation, "testSimpleResolution");
+   }
+
+   @Test
+   public void testSplitBrainDetection() throws Throwable {
+      spawnRun(serverLocation, "testSplitBrainDetection", getServerLocation(SERVER_LIVE), getServerLocation(SERVER_BACKUP));
+   }
+
+   /**
+    * it will continue the test on a spwned VM with the properties we need for this test
+    */
+   private void spawnRun(String location, String... args) throws Throwable {
+      // We have to run part of the test on a separate VM, as we need VM settings to tweak the DNS
+
+      String securityProperties = System.getProperty("java.security.properties");
+
+      if (securityProperties != null && securityProperties.equals(location + "/etc/zerocache.security")) {
+         logger.info("No need to spawn a VM, the zerocache is already in place");
+         System.setProperty("artemis.config.location", location);
+         USING_SPAWN = false;
+         main(args);
+      } else {
+
+         securityProperties = "-Djava.security.properties=" + location + "/etc/zerocache.security";
+         String hostProperties = "-Djdk.net.hosts.file=" + location + "/etc/hosts.conf";
+         String configLocation = "-Dartemis.config.location=" + location;
+         String temporaryLocation = "-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir");
+
+         logger.info("if you would like to run without Spawn for debugging purposes, add these properties to your VM arguments on this test: " + securityProperties + " " + hostProperties);
+         Process p = SpawnedVMSupport.spawnVM(DNSSwitchTest.class.getName(), new String[]{securityProperties, hostProperties, configLocation, temporaryLocation}, args);
+         addProcess(p);
+         Assert.assertEquals(1, p.waitFor());
       }
    }
 
