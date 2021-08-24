@@ -1257,17 +1257,6 @@ public class LargeMessageControllerImpl implements LargeMessageController {
          }
       }
 
-      @Override
-      protected void finalize() {
-         close();
-         if (cachedFile != null && cachedFile.exists()) {
-            try {
-               cachedFile.delete();
-            } catch (Exception e) {
-               ActiveMQClientLogger.LOGGER.errorFinalisingCache(e);
-            }
-         }
-      }
    }
 
    /**

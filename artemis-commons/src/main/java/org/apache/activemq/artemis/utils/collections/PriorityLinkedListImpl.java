@@ -209,11 +209,6 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
       }
 
       @Override
-      protected void finalize() {
-         close();
-      }
-
-      @Override
       public void repeat() {
          if (lastIter == null) {
             throw new NoSuchElementException();

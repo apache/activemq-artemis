@@ -162,12 +162,4 @@ public class PagePositionImpl implements PagePosition {
          ", fileOffset=" + fileOffset + "]";
    }
 
-   /**
-    * I needed a finalize method defined here just as a way to get a hook on the PagingLeakTest through ByteMan
-    * There is a rule for finalizing it where I'm establishing a counter, and that rule won't work without this method defined.
-    * So, please don't remove it unless you had to remove that test for any weird reason.. it's here for a purpose!
-    */
-   @Override
-   protected void finalize() {
-   }
 }
