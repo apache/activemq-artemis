@@ -121,11 +121,6 @@ public class ActiveMQXAResourceRecovery {
       return new XAResource[]{res};
    }
 
-   @Override
-   protected void finalize() {
-      res.close();
-   }
-
    public static class ConfigParser {
 
       private final String connectorFactoryClassName;

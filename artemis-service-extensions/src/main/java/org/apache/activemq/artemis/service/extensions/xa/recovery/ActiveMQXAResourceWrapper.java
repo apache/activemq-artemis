@@ -422,8 +422,4 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       throw e;
    }
 
-   @Override
-   protected void finalize() throws Throwable {
-      close();
-   }
 }
