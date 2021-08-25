@@ -56,6 +56,8 @@ ${jdbc}
       <journal-retention-directory period="7" unit="DAYS" storage-limit="10G">data/retention</journal-retention-directory>
       -->
 
+      ${journal-retention}
+
       <journal-datasync>${fsync}</journal-datasync>
 
       <journal-min-files>2</journal-min-files>
