@@ -277,6 +277,12 @@ public class Create extends InputAbstract {
    @Option(name = "--journal-device-block-size", description = "The block size by the device, default at 4096.")
    private int journalDeviceBlockSize = 4096;
 
+   @Option(name = "--journal-retention-days", description = "If > 0, It will enable journal-retention-directory on the broker.xml allowing replay options. This option will configure retention in days.")
+   private int retentionDays;
+
+   @Option(name = "--journal-retention-max-bytes", description = "It will be passed as storage-limit on the journal-retention-directory tag")
+   private String retentionMaxBytes;
+
    @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)")
    private String globalMaxSize;
 
@@ -762,9 +768,28 @@ public class Create extends InputAbstract {
          javaOptions = "";
       }
 
+      boolean allowAnonymous = isAllowAnonymous();
+
+
+      if (retentionDays == 0) {
+         retentionDays = inputInteger("--journal-retention-days", "How many days you would like to keep retained in the journal? Use 0 for no retention.", "0");
+      }
+
+      String retentionTag = "";
+      if (retentionDays > 0) {
+         if (retentionMaxBytes != null) {
+            retentionTag = "<journal-retention-directory period=\"" + retentionDays + "\" unit=\"DAYS\" storage-limit=\"" + retentionMaxBytes + "\">" + data + "/retention</journal-retention-directory>";
+         } else {
+            retentionTag = "<journal-retention-directory period=\"" + retentionDays + "\" unit=\"DAYS\">" + data + "/retention</journal-retention-directory>";
+         }
+      }
+
+      filters.put("${journal-retention}", retentionTag);
+
+
       filters.put("${java-opts}", javaOptions);
 
-      if (isAllowAnonymous()) {
+      if (allowAnonymous) {
          write(ETC_LOGIN_CONFIG_WITH_GUEST, new File(etcFolder, ETC_LOGIN_CONFIG), filters, false);
       } else {
          write(ETC_LOGIN_CONFIG_WITHOUT_GUEST, new File(etcFolder, ETC_LOGIN_CONFIG), filters, false);
