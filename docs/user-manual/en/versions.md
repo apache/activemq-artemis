@@ -17,6 +17,29 @@ Highlights:
 - Replication integrated with ZookeeperA
 - Broker load balancer
 
+#### Upgrading from older versions
+
+Due to [ARTEMIS-3367](https://issues.apache.org/jira/browse/ARTEMIS-3367) the 
+default setting for `verifyHost` on *core connectors* has been changed from
+`false` to `true`. This means that **core clients will now expect the `CN` or
+Subject Alternative Name values of the broker's SSL certificate to match the
+hostname in the client's URL**.
+
+This impacts all core-based clients including core JMS clients and core
+connections between cluster nodes. Although this is a "breaking" change, *not*
+performing hostname verification is a security risk (e.g. due to man-in-the-middle
+attacks). Enabling it by default aligns core client behavior with industry
+standards. To deal with this you can do one of the following:
+
+- Update your SSL certificates to use a hostname which matches the hostname
+  in the client's URL. This is the recommended option with regard to security.
+- Update any connector using `sslEnabled=true` to also use `verifyHost=false`.
+  Using this option means that you won't get the extra security of hostname
+  verification, but no certificates will need to change. This essentially 
+  restores the previous default behavior.
+
+For additional details about please refer to section 3.1 of [RFC 2818 "HTTP over TLS"](https://datatracker.ietf.org/doc/html/rfc2818#section-3.1).
+
 ## 2.17.0
 
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12349326).
