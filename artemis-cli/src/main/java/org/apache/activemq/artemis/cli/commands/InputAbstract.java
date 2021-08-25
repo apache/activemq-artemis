@@ -69,6 +69,27 @@ public class InputAbstract extends ActionAbstract {
       return booleanValue.booleanValue();
    }
 
+   public int inputInteger(String propertyName, String prompt, String silentDefault) {
+
+      Integer value = null;
+      do {
+         String input = input(propertyName, prompt, silentDefault);
+         if (input == null || input.trim().equals("")) {
+            input = "0";
+         }
+
+         try {
+            value = Integer.parseInt(input);
+         } catch (NumberFormatException e) {
+            e.printStackTrace();
+            value = null;
+         }
+      }
+      while(value == null);
+
+      return value.intValue();
+   }
+
    protected String input(String propertyName, String prompt, String silentDefault) {
       return input(propertyName, prompt, silentDefault, false);
    }
@@ -82,7 +103,7 @@ public class InputAbstract extends ActionAbstract {
       boolean valid = false;
       System.out.println();
       do {
-         context.out.println(propertyName + ": is a mandatory property!");
+         context.out.println(propertyName + ":");
          context.out.println(prompt);
          inputStr = scanner.nextLine();
          if (!acceptNull && inputStr.trim().equals("")) {
