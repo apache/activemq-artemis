@@ -78,6 +78,7 @@
 * [CDI Integration](cdi-integration.md)
 * [Intercepting Operations](intercepting-operations.md)
 * [Data Tools](data-tools.md)
+* [Activation Tools](activation-tools.md)
 * [Maven Plugin](maven-plugin.md)
 * [Unit Testing](unit-testing.md)
 * [Troubleshooting and Performance Tuning](perf-tuning.md)
