@@ -178,7 +178,6 @@
       <skipStressTests>true</skipStressTests>
       <skipSoakTests>true</skipSoakTests>
       <skipPerformanceTests>true</skipPerformanceTests>
-      <skipConcurrentTests>true</skipConcurrentTests>
       <skipRestTests>true</skipRestTests>
       <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
 
@@ -1172,7 +1171,6 @@
             <skipCompatibilityTests>false</skipCompatibilityTests>
             <skipSmokeTests>false</skipSmokeTests>
             <skipTimingTests>true</skipTimingTests>
-            <skipConcurrentTests>false</skipConcurrentTests>
             <skipRestTests>false</skipRestTests>
             <skipStressTests>true</skipStressTests>
             <skipSoakTests>true</skipSoakTests>
@@ -1188,7 +1186,6 @@
             <skipUnitTests>false</skipUnitTests>
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
-            <skipConcurrentTests>false</skipConcurrentTests>
             <skipCompatibilityTests>false</skipCompatibilityTests>
             <testFailureIgnore>false</testFailureIgnore>
             <!-- This enables the karaf-client-integration-tests and
