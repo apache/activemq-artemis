@@ -323,7 +323,7 @@ Once the mirrors are up-to-date then update the following:
    and update it deleting the existing list of bugs, features, improvements, etc. and replacing it
    with the HTML from the bottom of the release notes url you sent out with your VOTE email (appending `&styleName=Text`).
 2. Copy `src/_artemis_releases/artemis-<old-version>-release.md` to `src/_artemis_releases/artemis-<new-version>-release.md`. Update the versions and dates.
-3. Update _current_artemis_releases_ within the Jekyll `_config.yml` file (in the repo root) if needed.
+3. Update the _artemis_ list within the `src/_data/current_releases.yml` file if needed.
 4. Copy `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
 5. Create `src/components/artemis/documentation/latest` and copy these files into it:
     1. the contents of user-manual from `apache-artemis-<new-version>/web/user-manual`
