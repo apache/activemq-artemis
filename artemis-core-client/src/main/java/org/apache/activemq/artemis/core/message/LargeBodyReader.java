@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
  *
  * None of these methods should be caleld from Clients
  */
-public interface LargeBodyReader {
+public interface LargeBodyReader extends AutoCloseable {
 
    /**
     * This method must not be called directly by ActiveMQ Artemis clients.
@@ -51,6 +51,7 @@ public interface LargeBodyReader {
    /**
     * This method must not be called directly by ActiveMQ Artemis clients.
     */
+   @Override
    void close() throws ActiveMQException;
 
    /**
