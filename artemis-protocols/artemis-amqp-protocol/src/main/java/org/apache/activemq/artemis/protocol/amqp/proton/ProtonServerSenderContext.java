@@ -593,7 +593,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
                ByteBuffer buf = ByteBuffer.allocate(frameSize);
 
-               for (; position < bodySize; ) {
+               for (; sender.getLocalState() != EndpointState.CLOSED && position < bodySize; ) {
                   if (!connection.flowControl(this::resume)) {
                      context.close();
                      return;
@@ -754,9 +754,21 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    }
 
    private void finishLargeMessage() {
+      lmUsageDown();
       pendingLargeMessage = null;
       hasLarge = false;
       brokerConsumer.promptDelivery();
+   }
+
+   // will check for large message and set usageDown
+   private void lmUsageDown() {
+      AMQPLargeMessage lm = null;
+      if (pendingLargeMessage != null) {
+         lm = pendingLargeMessage.message;
+      }
+      if (lm != null) {
+         lm.usageDown();
+      }
    }
 
    private void deliverLarge(MessageReference messageReference, AMQPLargeMessage message) {
@@ -769,6 +781,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       delivery.setMessageFormat((int) message.getMessageFormat());
       delivery.setContext(messageReference);
 
+      message.usageUp();
       pendingLargeMessage = new LargeMessageDeliveryContext(messageReference, message, delivery);
       pendingLargeMessage.deliver();
 
