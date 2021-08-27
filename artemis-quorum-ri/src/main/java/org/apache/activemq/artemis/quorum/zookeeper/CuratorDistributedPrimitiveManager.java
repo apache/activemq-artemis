@@ -38,6 +38,7 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.RetryForever;
 import org.apache.curator.retry.RetryNTimes;
+import org.apache.curator.utils.DebugUtils;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
@@ -145,6 +146,13 @@ public class CuratorDistributedPrimitiveManager implements DistributedPrimitiveM
    private boolean unavailable;
    private boolean handlingEvents;
    private final CuratorFrameworkFactory.Builder curatorBuilder;
+
+   static {
+      // this is going to set curator/zookeeper log level as per https://cwiki.apache.org/confluence/display/CURATOR/TN8
+      if (System.getProperty(DebugUtils.PROPERTY_LOG_EVENTS) == null) {
+         System.setProperty(DebugUtils.PROPERTY_LOG_EVENTS, "false");
+      }
+   }
 
    public CuratorDistributedPrimitiveManager(Map<String, String> config) {
       this(validateParameters(config), true);
