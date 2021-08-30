@@ -348,7 +348,6 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>${bcprov-jdk15on-version}</version>
-            <scope>test</scope>
          </dependency>
 
          <!-- ## End Test Dependencies ## -->
