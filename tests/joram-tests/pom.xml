@@ -82,7 +82,6 @@
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
-         <version>${qpid.jms.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>

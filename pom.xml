@@ -635,6 +635,11 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
+           <groupId>org.apache.qpid</groupId>
+           <artifactId>qpid-jms-client</artifactId>
+           <version>${qpid.jms.version}</version>
+         </dependency>
+         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-client</artifactId>
             <version>${activemq5-version}</version>
