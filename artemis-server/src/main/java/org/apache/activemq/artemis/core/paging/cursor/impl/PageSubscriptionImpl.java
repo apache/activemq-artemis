@@ -112,6 +112,139 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    // Each CursorIterator will record their current PageReader in this map
    private final ConcurrentLongHashMap<PageReader> pageReaders = new ConcurrentLongHashMap<>();
+   private final AtomicInteger scheduledScanCount = new AtomicInteger(0);
+
+   private final LinkedList<PageScan> scanList = new LinkedList();
+
+   private static class PageScan {
+      final Comparable<PagedReference> scanFunction;
+      final Runnable found;
+      final Runnable notfound;
+
+      public Comparable<PagedReference> getScanFunction() {
+         return scanFunction;
+      }
+
+      public Runnable getFound() {
+         return found;
+      }
+
+      public Runnable getNotfound() {
+         return notfound;
+      }
+
+      PageScan(Comparable<PagedReference> scanFunction, Runnable found, Runnable notfound) {
+         this.scanFunction = scanFunction;
+         this.found = found;
+         this.notfound = notfound;
+      }
+   }
+
+   @Override
+   public void addScanAck(Comparable<PagedReference> scanFunction, Runnable found, Runnable notfound) {
+      PageScan scan = new PageScan(scanFunction, found, notfound);
+      synchronized (scanList) {
+         scanList.add(scan);
+      }
+   }
+
+   @Override
+   public void performScanAck() {
+      // we should only have a max of 2 scheduled tasks
+      // one that's might still be currently running, and another one lined up
+      // no need for more than that
+      if (scheduledScanCount.incrementAndGet() < 2) {
+         executor.execute(this::actualScanAck);
+      } else {
+         scheduledScanCount.decrementAndGet();
+      }
+   }
+
+   private void actualScanAck() {
+      try {
+         PageScan[] localScanList;
+         synchronized (scanList) {
+            if (scanList.size() == 0) {
+               return;
+            }
+            localScanList = scanList.stream().toArray(i -> new PageScan[i]);
+            scanList.clear();
+         }
+
+         LinkedList<Runnable> afterCommitList = new LinkedList<>();
+         TransactionImpl tx = new TransactionImpl(store);
+         tx.addOperation(new TransactionOperationAbstract() {
+            @Override
+            public void afterCommit(Transaction tx) {
+               for (Runnable r : afterCommitList) {
+                  try {
+                     r.run();
+                  } catch (Throwable e) {
+                     logger.warn(e.getMessage(), e);
+                  }
+               }
+            }
+         });
+         PageIterator iterator = this.iterator(true);
+         try {
+            while (iterator.hasNext()) {
+               PagedReference reference = iterator.next();
+               boolean keepMoving = false;
+               for (int i = 0; i < localScanList.length; i++) {
+                  PageScan scanElemen = localScanList[i];
+                  if (scanElemen == null) {
+                     continue;
+                  }
+
+                  int result = scanElemen.scanFunction.compareTo(reference);
+
+                  if (result >= 0) {
+                     if (result == 0) {
+                        try {
+                           PageSubscriptionImpl.this.ackTx(tx, reference);
+                           if (scanElemen.found != null) {
+                              afterCommitList.add(scanElemen.found);
+                           }
+                        } catch (Throwable e) {
+                           logger.warn(e.getMessage(), e);
+                        }
+                     } else {
+                        if (scanElemen.notfound != null) {
+                           scanElemen.notfound.run();
+                        }
+                     }
+                     localScanList[i] = null;
+                  } else {
+                     keepMoving = true;
+                  }
+               }
+
+               if (!keepMoving) {
+                  break;
+               }
+            }
+         } finally {
+            iterator.close();
+         }
+
+         for (int i = 0; i < localScanList.length; i++) {
+            if (localScanList[i] != null && localScanList[i].notfound != null) {
+               localScanList[i].notfound.run();
+            }
+            localScanList[i] = null;
+         }
+
+         if (afterCommitList.size() > 0) {
+            try {
+               tx.commit();
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      } finally {
+         scheduledScanCount.decrementAndGet();
+      }
+   }
 
    PageSubscriptionImpl(final PageCursorProvider cursorProvider,
                         final PagingStore pageStore,

@@ -25,9 +25,9 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -640,6 +640,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          server_2.startBrokerConnection(brokerConnectionName);
       }
 
+      snfreplica = server_2.locateQueue(replica.getMirrorSNF());
+
       if (pagingTarget) {
          assertTrue(queueOnServer1.getPagingStore().isPaging());
       }
@@ -647,10 +649,13 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       if (acks) {
          consumeMessages(largeMessage, 0, NUMBER_OF_MESSAGES / 2 - 1, AMQP_PORT_2, false);
          // Replica is async, so we need to wait acks to arrive before we finish consuming there
+         Wait.assertEquals(0, snfreplica::getMessageCount);
          Wait.assertEquals(NUMBER_OF_MESSAGES / 2, queueOnServer1::getMessageCount);
          // we consume on replica, as half the messages were acked
          consumeMessages(largeMessage, NUMBER_OF_MESSAGES / 2, NUMBER_OF_MESSAGES - 1, AMQP_PORT, true); // We consume on both servers as this is currently replicated
+         Wait.assertEquals(0, snfreplica::getMessageCount);
          consumeMessages(largeMessage, NUMBER_OF_MESSAGES / 2, NUMBER_OF_MESSAGES - 1, AMQP_PORT_2, false);
+         Wait.assertEquals(0, snfreplica::getMessageCount);
 
          if (largeMessage) {
             validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), 0);
@@ -658,7 +663,9 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       } else {
 
          consumeMessages(largeMessage, 0, NUMBER_OF_MESSAGES - 1, AMQP_PORT_2, true);
+         Wait.assertEquals(0, snfreplica::getMessageCount);
          consumeMessages(largeMessage, 0, NUMBER_OF_MESSAGES - 1, AMQP_PORT, true);
+         Wait.assertEquals(0, snfreplica::getMessageCount);
          if (largeMessage) {
             validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), 0);
             validateNoFilesOnLargeDir(server_2.getConfiguration().getLargeMessagesDirectory(), 0); // we kept half of the messages
@@ -845,23 +852,31 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
                                 int LAST_ID,
                                 int port,
                                 boolean assertNull) throws JMSException {
-      ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + port);
+      ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + port + "?jms.prefetchPolicy.all=0");
       Connection conn = cf.createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       conn.start();
+
+      HashSet<Integer> idsReceived = new HashSet<>();
 
       MessageConsumer consumer = sess.createConsumer(sess.createQueue(getQueueName()));
       for (int i = START_ID; i <= LAST_ID; i++) {
          Message message = consumer.receive(3000);
          Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getIntProperty("i"));
-         if (message instanceof TextMessage) {
-            Assert.assertEquals(getText(largeMessage, i), ((TextMessage) message).getText());
-         }
+         Integer id = message.getIntProperty("i");
+         Assert.assertNotNull(id);
+         Assert.assertTrue(idsReceived.add(id));
       }
+
       if (assertNull) {
          Assert.assertNull(consumer.receiveNoWait());
       }
+
+      for (int i = START_ID; i <= LAST_ID; i++) {
+         Assert.assertTrue(idsReceived.remove(i));
+      }
+
+      Assert.assertTrue(idsReceived.isEmpty());
       conn.close();
    }
 

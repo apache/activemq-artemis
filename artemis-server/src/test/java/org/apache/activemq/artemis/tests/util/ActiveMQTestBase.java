@@ -1767,10 +1767,15 @@ public abstract class ActiveMQTestBase extends Assert {
     * @throws Exception
     */
    protected HashMap<Integer, AtomicInteger> countJournal(Configuration config) throws Exception {
-      final HashMap<Integer, AtomicInteger> recordsType = new HashMap<>();
-      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(config.getJournalLocation(), null, 1);
+      File location = config.getJournalLocation();
+      return countJournal(location, config.getJournalFileSize(), config.getJournalMinFiles(), config.getJournalPoolFiles());
+   }
 
-      JournalImpl messagesJournal = new JournalImpl(config.getJournalFileSize(), config.getJournalMinFiles(), config.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
+   protected HashMap<Integer, AtomicInteger> countJournal(File location, int journalFileSize, int minFiles, int poolfiles) throws Exception {
+      final HashMap<Integer, AtomicInteger> recordsType = new HashMap<>();
+      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(location, null, 1);
+
+      JournalImpl messagesJournal = new JournalImpl(journalFileSize, minFiles, poolfiles, 0, 0, messagesFF, "activemq-data", "amq", 1);
       List<JournalFile> filesToRead = messagesJournal.orderFiles();
 
       for (JournalFile file : filesToRead) {
