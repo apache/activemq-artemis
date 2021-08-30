@@ -42,6 +42,11 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    String lruListID;
    LongObjectHashMap<LinkedListImpl.Node<MessageReference>> lruMap;
 
+
+   public String getDefaultNodeID() {
+      return serverID;
+   }
+
    @Override
    public void storeNode(MessageReference element, LinkedListImpl.Node<MessageReference> node) {
       String list = getServerID(element);

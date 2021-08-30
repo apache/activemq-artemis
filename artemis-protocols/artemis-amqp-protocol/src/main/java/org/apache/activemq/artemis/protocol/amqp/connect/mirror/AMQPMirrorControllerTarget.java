@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -45,7 +46,6 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonAbstractReceiver;
 import org.apache.activemq.artemis.utils.ByteUtil;
-import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.pools.MpscPool;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
@@ -95,7 +95,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       public TransactionOperationAbstract tx = new TransactionOperationAbstract() {
          @Override
          public void afterCommit(Transaction tx) {
-            completeOperation();
+            connectionRun();
          }
       };
 
@@ -121,10 +121,10 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       @Override
       public void done() {
-         completeOperation();
+         connectionRun();
       }
 
-      private void completeOperation() {
+      public void connectionRun() {
          connection.runNow(ACKMessageOperation.this);
       }
 
@@ -146,7 +146,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    DuplicateIDCache lruduplicateIDCache;
    String lruDuplicateIDKey;
 
-   private final NodeStore<MessageReference> referenceNodeStore;
+   private final ReferenceNodeStore referenceNodeStore;
 
    public AMQPMirrorControllerTarget(AMQPSessionCallback sessionSPI,
                                      AMQPConnectionContext connection,
@@ -354,6 +354,20 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    }
 
+   private void performAckOnPage(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation) {
+      if (targetQueue.getPagingStore().isPaging()) {
+         PageAck pageAck = new PageAck(nodeID, messageID, ackMessageOperation);
+         targetQueue.getPageSubscription().addScanAck(pageAck, pageAck, pageAck);
+         targetQueue.getPageSubscription().performScanAck();
+      } else {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Post ack Server " + server + " could not find messageID = " + messageID +
+                            " representing nodeID=" + nodeID);
+         }
+         OperationContextImpl.getContext().executeOnCompletion(ackMessageOperation);
+      }
+   }
+
    private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, boolean retry) {
       if (logger.isTraceEnabled()) {
          logger.trace("performAck (nodeID=" + nodeID + ", messageID=" + messageID + ")" + ", targetQueue=" + targetQueue.getName());
@@ -380,10 +394,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
             logger.warn(e.getMessage(), e);
          }
       } else {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Post ack Server " + server + " could not find messageID = " + messageID +
-                            " representing nodeID=" + nodeID);
-         }
+         performAckOnPage(nodeID, messageID, targetQueue, ackMessageOperation);
       }
 
    }
@@ -474,6 +485,50 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    @Override
    public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
+   }
+
+   // I need a supress warning annotation here
+   // because errorProne is issuing an error her, however I really intend to compare PageACK against PagedReference
+   @SuppressWarnings("ComparableType")
+   class PageAck implements Comparable<PagedReference>, Runnable {
+
+      final String nodeID;
+      final long messageID;
+      final ACKMessageOperation operation;
+
+      PageAck(String nodeID, long messageID, ACKMessageOperation operation) {
+         this.nodeID = nodeID;
+         this.messageID = messageID;
+         this.operation = operation;
+      }
+
+      @Override
+      public int compareTo(PagedReference reference) {
+         String refNodeID = referenceNodeStore.getServerID(reference);
+         long refMessageID = referenceNodeStore.getID(reference);
+         if (refNodeID == null) {
+            refNodeID = referenceNodeStore.getDefaultNodeID();
+         }
+
+         if (refNodeID.equals(nodeID)) {
+            long diff = refMessageID - messageID;
+            if (diff == 0) {
+               return 0;
+            } else if (diff > 0) {
+               return 1;
+            } else {
+               return -1;
+            }
+         } else {
+            return -1;
+         }
+      }
+
+      @Override
+      public void run() {
+         operation.connectionRun();
+      }
+
    }
 
 }

@@ -85,9 +85,17 @@ public interface PageSubscription {
    // for internal (cursor) classes
    void confirmPosition(Transaction tx, PagePosition position) throws Exception;
 
-   /**
-    * @return the first page in use or MAX_LONG if none is in use
-    */
+
+   // Add a scan function to be performed. It will be completed when you call performScan
+   void addScanAck(Comparable<PagedReference> scanFunction, Runnable found, Runnable notfound);
+
+   // it will schedule a scan on pages for everything that was added through addScanAck
+   void performScanAck();
+
+
+      /**
+       * @return the first page in use or MAX_LONG if none is in use
+       */
    long getFirstPage();
 
    // Reload operations
