@@ -29,6 +29,7 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
+      <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
    </properties>
 
    <dependencyManagement>
