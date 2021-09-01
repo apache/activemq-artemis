@@ -147,6 +147,7 @@ public class WebServerComponent implements ExternalComponent {
                dirToUse = instanceWarDir;
             }
             WebAppContext webContext = deployWar(app.url, app.war, dirToUse);
+            webContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
             webContexts.add(webContext);
             if (app.war.startsWith("console")) {
                consoleUrl = webServerConfig.bind + "/" + app.url;
