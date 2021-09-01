@@ -197,7 +197,7 @@ OPTIONS
             It will activate jdbc
 
         --jdbc-bindings-table-name <jdbcBindings>
-            Name of the jdbc bindigns table
+            Name of the jdbc bindings table
 
         --jdbc-connection-url <jdbcURL>
             The connection used for the database
