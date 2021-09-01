@@ -5,7 +5,7 @@ The official Apache ActiveMQ Artemis project page is <http://activemq.apache.org
 ## Software Download
 
 The software can be download from the Download
-page:<http://activemq.apache.org/artemis/download.html>
+page:<https://activemq.apache.org/components/artemis/download/>
 
 ## Project Information
 
