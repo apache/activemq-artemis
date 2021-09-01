@@ -178,12 +178,28 @@
    </dependencies>
 
    <build>
-      <testResources>
-         <testResource>
-            <directory>../security-resources</directory>
-         </testResource>
-      </testResources>
       <plugins>
+         <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>${maven-resources-plugin-version}</version>
+            <executions>
+               <execution>
+                  <id>copy-security-resources</id>
+                  <phase>validate</phase>
+                  <goals>
+                     <goal>copy-resources</goal>
+                  </goals>
+                  <configuration>
+                     <outputDirectory>${basedir}/target/test-classes</outputDirectory>
+                     <resources>
+                        <resource>
+                           <directory>../security-resources</directory>
+                        </resource>
+                     </resources>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
