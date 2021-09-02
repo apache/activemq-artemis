@@ -32,11 +32,11 @@ under the License.
       <acceptors>
          <!-- keystores will be found automatically if they are on the classpath -->
          <!-- The CORE protocol only used for artemis-maven-plugin verifying the server is up for example to start -->
-         <acceptor name="netty-ssl-acceptor">tcp://localhost:5671?sslEnabled=true;keyStorePath=activemq.example.keystore;keyStorePassword=activemqexample;protocols=AMQP,CORE</acceptor>
+         <acceptor name="netty-ssl-acceptor">tcp://localhost:5671?sslEnabled=true;keyStorePath=server-keystore.jks;keyStorePassword=securepass;protocols=AMQP,CORE</acceptor>
       </acceptors>
 
       <broker-connections>
-         <amqp-connection uri="tcp://localhost:5771?sslEnabled=true;verifyHost=true;trustStorePath=activemq.example.truststore;trustStorePassword=activemqexample" name="otherBrokerSSL" retry-interval="1000">
+         <amqp-connection uri="tcp://localhost:5771?sslEnabled=true;verifyHost=true;trustStorePath=server-ca-truststore.jks;trustStorePassword=securepass" name="otherBrokerSSL" retry-interval="1000">
             <sender address-match="#"/>
          </amqp-connection>
       </broker-connections>
