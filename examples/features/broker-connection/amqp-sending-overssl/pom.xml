@@ -85,7 +85,7 @@ under the License.
                      <ignore>${noServer}</ignore>
                      <spawn>true</spawn>
                      <location>${basedir}/target/server1</location>
-                     <testURI>tcp://localhost:5771?sslEnabled=true;trustStorePath=target/server1/etc/activemq.example.truststore;trustStorePassword=activemqexample</testURI>
+                     <testURI>tcp://localhost:5771?sslEnabled=true;trustStorePath=target/server1/etc/server-ca-truststore.jks&amp;trustStorePassword=securepass</testURI>
                      <args>
                         <param>run</param>
                      </args>
@@ -101,7 +101,7 @@ under the License.
                      <spawn>true</spawn>
                      <ignore>${noServer}</ignore>
                      <location>${basedir}/target/server0</location>
-                     <testURI>tcp://localhost:5671?sslEnabled=true;trustStorePath=target/server0/etc/activemq.example.truststore;trustStorePassword=activemqexample</testURI>
+                     <testURI>tcp://localhost:5671?sslEnabled=true;trustStorePath=target/server0/etc/server-ca-truststore.jks&amp;trustStorePassword=securepass</testURI>
                      <args>
                         <param>run</param>
                      </args>
