@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class OpenWireMessageConverterTest {
@@ -107,5 +108,30 @@ public class OpenWireMessageConverterTest {
       MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID);
 
       assertTrue(messageDispatch.getMessage().getProperty(bytesPropertyKey) instanceof String);
+   }
+
+   @Test
+   public void testBadPropertyConversion() throws Exception {
+      final String hdrArrival = "__HDR_ARRIVAL";
+      final String hdrBrokerInTime = "__HDR_BROKER_IN_TIME";
+      final String hdrCommandId = "__HDR_COMMAND_ID";
+      final String hdrDroppable = "__HDR_DROPPABLE";
+
+      ICoreMessage coreMessage = new CoreMessage().initBuffer(8);
+      coreMessage.putStringProperty(hdrArrival, "1234");
+      coreMessage.putStringProperty(hdrBrokerInTime, "5678");
+      coreMessage.putStringProperty(hdrCommandId, "foo");
+      coreMessage.putStringProperty(hdrDroppable, "true");
+
+      MessageReference messageReference = new MessageReferenceImpl(coreMessage, Mockito.mock(Queue.class));
+      AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
+      Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
+
+      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID);
+
+      assertNull(messageDispatch.getMessage().getProperty(hdrArrival));
+      assertNull(messageDispatch.getMessage().getProperty(hdrBrokerInTime));
+      assertNull(messageDispatch.getMessage().getProperty(hdrCommandId));
+      assertNull(messageDispatch.getMessage().getProperty(hdrDroppable));
    }
 }

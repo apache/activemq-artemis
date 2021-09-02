@@ -1751,6 +1751,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void duplicateAddressSettingMatch(String match);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222302, value = "Failed to deal with property {0} when converting message from core to OpenWire: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void failedToDealWithObjectProperty(SimpleString property, String exceptionMessage);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
