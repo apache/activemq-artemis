@@ -28,7 +28,7 @@ public abstract class PoolTestBase {
    public static final int MULTIPLE_TARGETS = 10;
 
    public static final int CHECK_PERIOD = 100;
-   public static final int CHECK_TIMEOUT = 2 * CHECK_PERIOD;
+   public static final int CHECK_TIMEOUT = 10 * CHECK_PERIOD;
 
 
    protected abstract Pool createPool(TargetFactory targetFactory, int targets);
