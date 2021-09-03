@@ -219,6 +219,7 @@
       <!-- Ignore failed tests by default because there are "known" failures in the full test-suite.
            This will be set to false for the "fast-tests" profile as none of those tests should fail. -->
       <testFailureIgnore>true</testFailureIgnore>
+      <fast-tests>false</fast-tests>
    </properties>
 
    <scm>
@@ -1206,6 +1207,7 @@
               This is used on PR checks -->
          <id>fast-tests</id>
          <properties>
+            <fast-tests>true</fast-tests>
             <skipUnitTests>false</skipUnitTests>
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
