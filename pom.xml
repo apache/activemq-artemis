@@ -107,8 +107,7 @@
       <mockito.version>3.11.2</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.66.Final</netty.version>
-      <curator.version>5.1.0</curator.version>
-      <!-- While waiting https://issues.apache.org/jira/browse/CURATOR-595 fix -->
+      <curator.version>5.2.0</curator.version>
       <zookeeper.version>3.6.3</zookeeper.version>
 
       <!-- this is basically for tests -->
