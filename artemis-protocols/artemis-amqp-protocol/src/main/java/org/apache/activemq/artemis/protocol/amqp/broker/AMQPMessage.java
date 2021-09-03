@@ -691,7 +691,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             }
          }
       } finally {
-         decoder.setByteBuffer(null);
+         decoder.setBuffer(null);
          data.rewind();
       }
       this.messageDataScanned = MessageDataScanningStatus.SCANNED.code;
