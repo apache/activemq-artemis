@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.core.protocol.ProtocolHandler;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -78,4 +79,8 @@ public interface Acceptor extends ActiveMQComponent {
     * stores on acceptors which support SSL.
     */
    void reload();
+
+   default ProtocolHandler getProtocolHandler() {
+      return null;
+   }
 }
