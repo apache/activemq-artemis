@@ -32,7 +32,7 @@ under the License.
       <acceptors>
          <!-- keystores will be found automatically if they are on the classpath -->
          <!-- The CORE protocol only used for artemis-maven-plugin verifying the server is up for example to start -->
-         <acceptor name="netty-ssl-acceptor">tcp://localhost:5771?sslEnabled=true;keyStorePath=server-keystore.jks;keyStorePassword=securepass;protocols=AMQP,CORE</acceptor>
+         <acceptor name="netty-ssl-acceptor">tcp://localhost:5771?sslEnabled=true;keyStorePath=other-server-keystore.p12;keyStorePassword=securepass;protocols=AMQP,CORE</acceptor>
       </acceptors>
 
       <!-- Other config -->
