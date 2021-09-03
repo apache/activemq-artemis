@@ -61,8 +61,10 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    private static final int RETRIES_MS = 100;
    private static final int RETRIES = 1;
 
+   // fast-tests runs doesn't need to run 3 ZK nodes
+   private static final int ZK_NODES = Boolean.getBoolean("fast-tests") ? 1 : 3;
    @Parameterized.Parameter
-   public int nodes;
+   public int zkNodes;
    @Rule
    public TemporaryFolder tmpFolder = new TemporaryFolder();
    private TestingCluster testingServer;
@@ -71,13 +73,13 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Parameterized.Parameters(name = "nodes={0}")
    public static Iterable<Object[]> getTestParameters() {
-      return Arrays.asList(new Object[][]{{3}, {5}});
+      return Arrays.asList(new Object[][]{{ZK_NODES}});
    }
 
    @Override
    public void setupEnv() throws Throwable {
-      clusterSpecs = new InstanceSpec[nodes];
-      for (int i = 0; i < nodes; i++) {
+      clusterSpecs = new InstanceSpec[zkNodes];
+      for (int i = 0; i < zkNodes; i++) {
          clusterSpecs[i] = new InstanceSpec(tmpFolder.newFolder(), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
       }
       testingServer = new TestingCluster(clusterSpecs);
@@ -181,6 +183,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void canAcquireLockOnMajorityRestart() throws Exception {
+      Assume.assumeThat(zkNodes, greaterThan(1));
       final DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       final DistributedLock lock = manager.getDistributedLock("a");
@@ -203,7 +206,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void cannotStartManagerWithoutQuorum() throws Exception {
-      Assume.assumeThat(nodes, greaterThan(1));
+      Assume.assumeThat(zkNodes, greaterThan(1));
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       stopMajorityNotLeaderNodes(true);
       Assert.assertFalse(manager.start(2, TimeUnit.SECONDS));
@@ -212,7 +215,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test(expected = UnavailableStateException.class)
    public void cannotAcquireLockWithoutQuorum() throws Exception {
-      Assume.assumeThat(nodes, greaterThan(1));
+      Assume.assumeThat(zkNodes, greaterThan(1));
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       stopMajorityNotLeaderNodes(true);
@@ -222,7 +225,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void cannotCheckLockWithoutQuorum() throws Exception {
-      Assume.assumeThat(nodes, greaterThan(1));
+      Assume.assumeThat(zkNodes, greaterThan(1));
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       stopMajorityNotLeaderNodes(true);
@@ -238,7 +241,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void canGetLockWithoutQuorum() throws Exception {
-      Assume.assumeThat(nodes, greaterThan(1));
+      Assume.assumeThat(zkNodes, greaterThan(1));
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       stopMajorityNotLeaderNodes(true);
@@ -248,7 +251,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void notifiedAsUnavailableWhileLoosingQuorum() throws Exception {
-      Assume.assumeThat(nodes, greaterThan(1));
+      Assume.assumeThat(zkNodes, greaterThan(1));
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
@@ -260,7 +263,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void beNotifiedOnce() throws Exception {
-      Assume.assumeThat(nodes, greaterThan(1));
+      Assume.assumeThat(zkNodes, greaterThan(1));
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
@@ -276,7 +279,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void beNotifiedOfUnavailabilityWhileBlockedOnTimedLock() throws Exception {
-      Assume.assumeThat(nodes, greaterThan(1));
+      Assume.assumeThat(zkNodes, greaterThan(1));
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
@@ -312,6 +315,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void beNotifiedOfAlreadyUnavailableManagerAfterAddingListener() throws Exception {
+      Assume.assumeThat(zkNodes, greaterThan(1));
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       final AtomicBoolean unavailable = new AtomicBoolean(false);
@@ -338,6 +342,9 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    }
 
    private static boolean isLeader(TestingZooKeeperServer server) {
+      if (server.getInstanceSpecs().size() == 1) {
+         return true;
+      }
       long leaderId = server.getQuorumPeer().getLeaderId();
       long id = server.getQuorumPeer().getId();
       return id == leaderId;
@@ -345,7 +352,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    private void stopMajorityNotLeaderNodes(boolean fromLast) throws Exception {
       List<TestingZooKeeperServer> followers = testingServer.getServers().stream().filter(Predicates.not(CuratorDistributedLockTest::isLeader)).collect(Collectors.toList());
-      final int quorum = (nodes / 2) + 1;
+      final int quorum = (zkNodes / 2) + 1;
       for (int i = 0; i < quorum; i++) {
          final int nodeIndex = fromLast ? (followers.size() - 1) - i : i;
          followers.get(nodeIndex).stop();
@@ -353,9 +360,9 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    }
 
    private void restartMajorityNodes(boolean startFromLast) throws Exception {
-      final int quorum = (nodes / 2) + 1;
+      final int quorum = (zkNodes / 2) + 1;
       for (int i = 0; i < quorum; i++) {
-         final int nodeIndex = startFromLast ? (nodes - 1) - i : i;
+         final int nodeIndex = startFromLast ? (zkNodes - 1) - i : i;
          if (!testingServer.restartServer(clusterSpecs[nodeIndex])) {
             throw new IllegalStateException("errored while restarting " + clusterSpecs[nodeIndex]);
          }
