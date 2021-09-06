@@ -123,7 +123,7 @@ public class MockTarget extends AbstractTarget {
 
    @Override
    public boolean checkReadiness() {
-      return ready;
+      return connected && ready;
    }
 
    @Override

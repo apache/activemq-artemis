@@ -136,7 +136,6 @@ public class DiscoveryPoolTest extends PoolTestBase {
             Stream.concat(initialNodeIDs.stream(), addedNodeIDs.stream()).forEach(nodeID -> {
                if (removingNodeIDs.contains(nodeID)) {
                   Assert.assertNull(pool.getTarget(nodeID));
-                  Assert.assertEquals(0, targetProbe.getTargetExecutions(pool.getTarget(nodeID)));
                } else {
                   Assert.assertTrue(pool.isTargetReady(pool.getTarget(nodeID)));
                   Assert.assertTrue(targetProbe.getTargetExecutions(pool.getTarget(nodeID)) > 0);
