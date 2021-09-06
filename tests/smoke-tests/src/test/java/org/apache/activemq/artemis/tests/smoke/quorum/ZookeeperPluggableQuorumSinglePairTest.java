@@ -87,11 +87,22 @@ public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSingl
    }
 
    @Override
-   protected void stopMajority() throws Exception {
+   protected int[] stopMajority() throws Exception {
       List<TestingZooKeeperServer> followers = testingServer.getServers();
       final int quorum = (nodes / 2) + 1;
+      final int[] stopped = new int[quorum];
       for (int i = 0; i < quorum; i++) {
          followers.get(i).stop();
+         stopped[i] = i;
+      }
+      return stopped;
+   }
+
+   @Override
+   protected void restart(int[] nodes) throws Exception {
+      List<TestingZooKeeperServer> servers = testingServer.getServers();
+      for (int nodeIndex : nodes) {
+         servers.get(nodeIndex).restart();
       }
    }
 }

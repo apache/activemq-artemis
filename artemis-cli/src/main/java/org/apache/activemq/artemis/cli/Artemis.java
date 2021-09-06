@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
 import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Mask;
 import org.apache.activemq.artemis.cli.commands.PrintVersion;
+import org.apache.activemq.artemis.cli.commands.activation.ActivationSequenceSet;
 import org.apache.activemq.artemis.cli.commands.check.HelpCheck;
 import org.apache.activemq.artemis.cli.commands.check.NodeCheck;
 import org.apache.activemq.artemis.cli.commands.check.QueueCheck;
@@ -52,6 +53,7 @@ import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
 import org.apache.activemq.artemis.cli.commands.queue.HelpQueue;
 import org.apache.activemq.artemis.cli.commands.queue.PurgeQueue;
 import org.apache.activemq.artemis.cli.commands.queue.UpdateQueue;
+import org.apache.activemq.artemis.cli.commands.activation.ActivationSequenceList;
 import org.apache.activemq.artemis.cli.commands.tools.HelpData;
 import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.cli.commands.tools.RecoverMessages;
@@ -171,6 +173,10 @@ public class Artemis {
          withDefaultCommand(HelpAddress.class).withCommands(CreateAddress.class, DeleteAddress.class, UpdateAddress.class, ShowAddress.class);
 
       if (instance != null) {
+         builder.withGroup("activation")
+            .withDescription("activation tools group (sync) (example ./artemis activation list)")
+            .withDefaultCommand(ActivationSequenceList.class)
+            .withCommands(ActivationSequenceList.class, ActivationSequenceSet.class);
          builder.withGroup("data").withDescription("data tools group (print|imp|exp|encode|decode|compact) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(RecoverMessages.class, PrintData.class, XmlDataExporter.class, XmlDataImporter.class, DecodeJournal.class, EncodeJournal.class, CompactJournal.class);
          builder.withGroup("user").withDescription("default file-based user management (add|rm|list|reset) (example ./artemis user list)").

@@ -107,8 +107,7 @@
       <mockito.version>3.11.2</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.66.Final</netty.version>
-      <curator.version>5.1.0</curator.version>
-      <!-- While waiting https://issues.apache.org/jira/browse/CURATOR-595 fix -->
+      <curator.version>5.2.0</curator.version>
       <zookeeper.version>3.6.3</zookeeper.version>
 
       <!-- this is basically for tests -->
@@ -219,6 +218,7 @@
       <!-- Ignore failed tests by default because there are "known" failures in the full test-suite.
            This will be set to false for the "fast-tests" profile as none of those tests should fail. -->
       <testFailureIgnore>true</testFailureIgnore>
+      <fast-tests>false</fast-tests>
    </properties>
 
    <scm>
@@ -1206,6 +1206,7 @@
               This is used on PR checks -->
          <id>fast-tests</id>
          <properties>
+            <fast-tests>true</fast-tests>
             <skipUnitTests>false</skipUnitTests>
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>

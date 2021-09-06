@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.core.server.NodeManager.NULL_NODE_ACTIVATION_SEQUENCE;
 import static org.apache.activemq.artemis.core.server.impl.ReplicationObserver.ReplicationFailure;
 import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.ensureSequentialAccessToNodeData;
 import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.tryActivate;
@@ -74,11 +75,17 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                                       final ReplicationBackupPolicy policy) {
       this.activeMQServer = activeMQServer;
       if (policy.isTryFailback()) {
-         final SimpleString serverNodeID = activeMQServer.getNodeID();
-         if (serverNodeID == null || serverNodeID.isEmpty()) {
-            throw new IllegalStateException("A failback activation must be biased around a specific NodeID");
+         // patch expectedNodeID
+         final String coordinationId = policy.getLivePolicy().getCoordinationId();
+         if (coordinationId != null) {
+            expectedNodeID = coordinationId;
+         } else {
+            final SimpleString serverNodeID = activeMQServer.getNodeID();
+            if (serverNodeID == null || serverNodeID.isEmpty()) {
+               throw new IllegalStateException("A failback activation must be biased around a specific NodeID");
+            }
+            this.expectedNodeID = serverNodeID.toString();
          }
-         this.expectedNodeID = serverNodeID.toString();
       } else {
          this.expectedNodeID = null;
       }
@@ -142,19 +149,33 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          }
       }
       try {
-         distributedManager.start();
-         final long nodeActivationSequence = activeMQServer.getNodeManager().readNodeActivationSequence();
-         // only a backup with positive local activation sequence could contain valuable data
-         if (nodeActivationSequence > 0) {
+         synchronized (activeMQServer) {
+            activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
+         }
+         // restart of server due to unavailable quorum can cause NM restart losing the coordination-id
+         final String coordinationId = policy.getLivePolicy().getCoordinationId();
+         if (coordinationId != null) {
             final String nodeId = activeMQServer.getNodeManager().getNodeId().toString();
+            if (!coordinationId.equals(nodeId)) {
+               ReplicationPrimaryActivation.applyCoordinationId(coordinationId, activeMQServer);
+            }
+         }
+         distributedManager.start();
+         final NodeManager nodeManager = activeMQServer.getNodeManager();
+         // only a backup with positive local activation sequence could contain valuable data
+         if (nodeManager.getNodeActivationSequence() > 0) {
             DistributedLock liveLockWithInSyncReplica;
             while (true) {
                distributedManager.start();
                try {
-                  liveLockWithInSyncReplica = tryActivate(nodeId, nodeActivationSequence, distributedManager, LOGGER);
+                  liveLockWithInSyncReplica = tryActivate(activeMQServer.getNodeManager(), distributedManager, LOGGER);
                   break;
                } catch (UnavailableStateException canRecoverEx) {
                   distributedManager.stop();
+               } catch (NodeManager.NodeManagerException fatalEx) {
+                  LOGGER.warn("Failed while auto-repairing activation sequence: stop server now", fatalEx);
+                  asyncRestartServer(activeMQServer, false);
+                  return;
                }
             }
             if (liveLockWithInSyncReplica != null) {
@@ -162,7 +183,6 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                if (!activeMQServer.initialisePart1(false)) {
                   return;
                }
-               activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
                startAsLive(liveLockWithInSyncReplica);
                return;
             }
@@ -174,6 +194,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          // A primary need to preserve NodeID across runs
          activeMQServer.moveServerData(policy.getMaxSavedReplicatedJournalsSize(), policy.isTryFailback());
          activeMQServer.getNodeManager().start();
+         // allow JMX to query Artemis state
          if (!activeMQServer.initialisePart1(false)) {
             return;
          }
@@ -190,7 +211,6 @@ public final class ReplicationBackupActivation extends Activation implements Dis
 
          clusterController.awaitConnectionToReplicationCluster();
          activeMQServer.getBackupManager().start();
-         activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
          final DistributedLock liveLock = replicateAndFailover(clusterController);
          if (liveLock == null) {
             return;
@@ -213,8 +233,12 @@ public final class ReplicationBackupActivation extends Activation implements Dis
             liveLock.close();
             return;
          }
+         final NodeManager nodeManager = activeMQServer.getNodeManager();
          try {
-            ensureSequentialAccessToNodeData(activeMQServer, distributedManager, LOGGER);
+            // stopBackup is going to write the NodeID and activation sequence previously set on the NodeManager,
+            // because activeMQServer.resetNodeManager() has created a NodeManager with replicatedBackup == true.
+            nodeManager.stopBackup();
+            ensureSequentialAccessToNodeData(activeMQServer.toString(), nodeManager, distributedManager, LOGGER);
          } catch (Throwable fatal) {
             LOGGER.warn(fatal);
             // policy is already live one, but there's no activation yet: we can just stop
@@ -222,9 +246,6 @@ public final class ReplicationBackupActivation extends Activation implements Dis
             throw new ActiveMQIllegalStateException("This server cannot ensure sequential access to broker data: activation is failed");
          }
          ActiveMQServerLogger.LOGGER.becomingLive(activeMQServer);
-         // stopBackup is going to write the NodeID previously set on the NodeManager,
-         // because activeMQServer.resetNodeManager() has created a NodeManager with replicatedBackup == true.
-         activeMQServer.getNodeManager().stopBackup();
          activeMQServer.getStorageManager().start();
          activeMQServer.getBackupManager().activated();
          // IMPORTANT:
@@ -280,6 +301,9 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   return null;
                }
             }
+            if (expectedNodeID != null) {
+               LOGGER.infof("awaiting connecting to any live node with NodeID = %s", expectedNodeID);
+            }
             final ReplicationFailure failure = replicateLive(clusterController, nodeLocator, registrationFailureForwarder);
             if (failure == null) {
                Thread.sleep(clusterController.getRetryIntervalForReplicatedCluster());
@@ -300,19 +324,19 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   }
                   // no more interested into these events: handling it manually from here
                   distributedManager.removeUnavailableManagerListener(this);
-                  final long nodeActivationSequence = activeMQServer.getNodeManager().readNodeActivationSequence();
-                  final String nodeId = activeMQServer.getNodeManager().getNodeId().toString();
+                  final NodeManager nodeManager = activeMQServer.getNodeManager();
                   DistributedLock liveLockWithInSyncReplica = null;
-                  if (nodeActivationSequence > 0) {
+                  if (nodeManager.getNodeActivationSequence() > 0) {
                      try {
-                        liveLockWithInSyncReplica = tryActivate(nodeId, nodeActivationSequence, distributedManager, LOGGER);
+                        liveLockWithInSyncReplica = tryActivate(nodeManager, distributedManager, LOGGER);
                      } catch (Throwable error) {
                         // no need to retry here, can just restart as backup that will handle a more resilient tryActivate
                         LOGGER.warn("Errored while attempting failover", error);
                         liveLockWithInSyncReplica = null;
                      }
                   } else {
-                     LOGGER.warnf("We expect local activation sequence for NodeID = %s to be > 0 on a fail-over, while is %d", nodeId, nodeActivationSequence);
+                     LOGGER.errorf("Expected positive local activation sequence for NodeID = %s during fail-over, but was %d: restarting as backup",
+                                   nodeManager.getNodeId(), nodeManager.getNodeActivationSequence());
                   }
                   assert stopping.get();
                   if (liveLockWithInSyncReplica != null) {
@@ -340,7 +364,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   if (activationSequence != 0) {
                      final SimpleString syncNodeId = activeMQServer.getNodeManager().getNodeId();
                      try {
-                        activeMQServer.getNodeManager().writeNodeActivationSequence(0);
+                        activeMQServer.getNodeManager().setNodeActivationSequence(NULL_NODE_ACTIVATION_SEQUENCE);
                      } catch (Throwable fatal) {
                         LOGGER.errorf(fatal, "Errored while resetting local activation sequence %d for NodeID = %s: stopping broker",
                                       activationSequence, syncNodeId);
@@ -354,6 +378,10 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   return null;
                case WrongNodeId:
                   LOGGER.error("Stopping broker because of wrong node ID communication from live: maybe a misbehaving live?");
+                  asyncRestartServer(activeMQServer, false);
+                  return null;
+               case WrongActivationSequence:
+                  LOGGER.error("Stopping broker because of wrong activation sequence communication from live: maybe a misbehaving live?");
                   asyncRestartServer(activeMQServer, false);
                   return null;
                default:
@@ -560,7 +588,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
    }
 
    private static boolean connectToReplicationEndpoint(final ClusterControl liveControl,
-                                                final ReplicationEndpoint replicationEndpoint) {
+                                                       final ReplicationEndpoint replicationEndpoint) {
       final Channel replicationChannel = liveControl.createReplicationChannel();
       replicationChannel.setHandler(replicationEndpoint);
       replicationEndpoint.setChannel(replicationChannel);

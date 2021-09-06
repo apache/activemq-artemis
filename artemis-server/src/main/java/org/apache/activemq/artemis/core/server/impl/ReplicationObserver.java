@@ -41,7 +41,7 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
    private static final Logger LOGGER = Logger.getLogger(ReplicationObserver.class);
 
    public enum ReplicationFailure {
-      VoluntaryFailOver, BackupNotInSync, NonVoluntaryFailover, RegistrationError, AlreadyReplicating, ClosedObserver, WrongNodeId;
+      VoluntaryFailOver, BackupNotInSync, NonVoluntaryFailover, RegistrationError, AlreadyReplicating, ClosedObserver, WrongNodeId, WrongActivationSequence
    }
 
    private final NodeManager nodeManager;
@@ -244,7 +244,7 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
    }
 
    @Override
-   public void onRemoteBackupUpToDate() {
+   public void onRemoteBackupUpToDate(String nodeId, long activationSequence) {
       if (backupUpToDate || closed || replicationFailure.isDone()) {
          return;
       }
@@ -252,7 +252,29 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
          if (backupUpToDate || closed || replicationFailure.isDone()) {
             return;
          }
-         assert liveID != null;
+         if (!validateNodeId(nodeId)) {
+            stopForcedFailoverAfterDelay();
+            unlistenConnectionFailures();
+            replicationFailure.complete(ReplicationFailure.WrongNodeId);
+            return;
+         }
+         if (liveID == null) {
+            liveID = nodeId;
+         }
+         if (activationSequence <= 0) {
+            // NOTE:
+            // activationSequence == 0 is still illegal,
+            // because live has to increase the sequence before replicating
+            stopForcedFailoverAfterDelay();
+            unlistenConnectionFailures();
+            LOGGER.errorf("Illegal activation sequence %d from NodeID = %s", activationSequence, nodeId);
+            replicationFailure.complete(ReplicationFailure.WrongActivationSequence);
+            return;
+         }
+         nodeManager.setNodeID(nodeId);
+         nodeManager.setNodeActivationSequence(activationSequence);
+         // persists nodeID and nodeActivationSequence
+         nodeManager.stopBackup();
          backupManager.announceBackup();
          backupUpToDate = true;
       }
@@ -298,8 +320,9 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
             unlistenConnectionFailures();
             replicationFailure.complete(ReplicationFailure.WrongNodeId);
          } else if (liveID == null) {
+            // just store it locally: if is stored on the node manager
+            // it will be persisted on broker's stop while data is not yet in sync
             liveID = nodeId;
-            nodeManager.setNodeID(nodeId);
          }
       }
    }

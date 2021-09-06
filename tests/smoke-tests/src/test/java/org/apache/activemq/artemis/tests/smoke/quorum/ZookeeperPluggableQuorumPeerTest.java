@@ -29,6 +29,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.containsExactNodeIds;
+import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.decodeNetworkTopologyJson;
+import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.liveOf;
 import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.validateNetworkTopology;
 import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withBackup;
 import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withLive;
@@ -54,6 +56,44 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
       // peers don't request fail back by default
       // just wait for setup to avoid partial stop of zk via fast tear down with async setup
       Wait.waitFor(this::ensembleHasLeader);
+   }
+
+   @Test
+   public void testBackupCannotForgetPeerIdOnLostQuorum() throws Exception {
+      // see FileLockTest::testCorrelationId to get more info why this is not peer-journal-001 as in broker.xml
+      final String coordinationId = "peer.journal.001";
+      final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
+      LOGGER.info("starting peer a");
+      final Process live = primary.startServer(this, 0);
+      LOGGER.info("waiting peer a to increase coordinated activation sequence to 1");
+      Wait.assertEquals(1L, () -> primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
+      Assert.assertEquals(coordinationId, primary.getNodeID().get());
+      Wait.waitFor(() -> primary.listNetworkTopology().isPresent(), timeout);
+      final String urlPeerA = liveOf(coordinationId, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
+      Assert.assertNotNull(urlPeerA);
+      LOGGER.infof("peer a acceptor: %s", urlPeerA);
+      LOGGER.info("killing peer a");
+      ServerUtil.killServer(live, forceKill);
+      LOGGER.info("starting peer b");
+      Process emptyBackup = backup.startServer(this, 0);
+      LOGGER.info("waiting until peer b act as empty backup");
+      Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
+      LOGGER.info("Stop majority of quorum nodes");
+      final int[] majority = stopMajority();
+      LOGGER.info("Wait peer b to deactivate");
+      Thread.sleep(2000);
+      LOGGER.info("Restart majority of quorum nodes");
+      restart(majority);
+      LOGGER.info("Restart peer a as legit last live");
+      final Process restartedLive = primary.startServer(this, 0);
+      LOGGER.info("waiting peer a to increase coordinated activation sequence to 2");
+      Wait.assertEquals(2L, () -> primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
+      Assert.assertEquals(coordinationId, primary.getNodeID().get());
+      LOGGER.info("waiting peer b to be a replica");
+      Wait.waitFor(() -> backup.isReplicaSync().orElse(false));
+      Wait.assertEquals(2L, () -> backup.getActivationSequence().get().longValue());
+      final String expectedUrlPeerA = liveOf(coordinationId, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
+      Assert.assertEquals(urlPeerA, expectedUrlPeerA);
    }
 
    @Test

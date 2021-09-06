@@ -933,13 +933,18 @@ public class FailoverTest extends FailoverTestBase {
          beforeRestart(liveServer);
          liveServer.start();
          Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
-         int i = 0;
-         while (!backupServer.isStarted() && i++ < 100) {
-            Thread.sleep(100);
+         if (isReplicated) {
+            // wait until it switch role again
+            Wait.assertTrue(() -> backupServer.getServer().getHAPolicy().isBackup());
+            // wait until started
+            Wait.assertTrue(backupServer::isStarted);
+            // wait until is an in-sync replica
+            Wait.assertTrue(backupServer.getServer()::isReplicaSync);
+         } else {
+            Wait.assertTrue(backupServer::isStarted);
+            backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
+            Assert.assertTrue(backupServer.isStarted());
          }
-         backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
-         Assert.assertTrue(backupServer.isStarted());
-
          if (isReplicated) {
             FileMoveManager moveManager = new FileMoveManager(backupServer.getServer().getConfiguration().getJournalLocation(), 0);
             // backup has not had a chance to restart as a backup and cleanup
