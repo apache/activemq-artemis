@@ -17,13 +17,13 @@
 
 package org.apache.activemq.artemis.core.server.balancing.targets;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MockTargetProbe extends TargetProbe {
-   private final Map<Target, Integer> targetExecutions = new HashMap<>();
+   private final Map<Target, Integer> targetExecutions = new ConcurrentHashMap<>();
 
-   private boolean checked;
+   private volatile boolean checked;
 
    public boolean isChecked() {
       return checked;
