@@ -330,7 +330,7 @@ public final class BindingsImpl implements Bindings {
          logger.tracef("Routing message %s on binding=%s current context::$s", message, this, context);
       }
 
-      routingNameBindingMap.forEach((routingName, bindings, nextPosition) -> {
+      routingNameBindingMap.forEachBindings((bindings, nextPosition) -> {
          final Binding nextBinding = getNextBinding(message, bindings, nextPosition);
          if (nextBinding != null && nextBinding.getFilter() == null && nextBinding.isLocal() && bindings.length == 1) {
             context.setReusable(true, currentVersion);
