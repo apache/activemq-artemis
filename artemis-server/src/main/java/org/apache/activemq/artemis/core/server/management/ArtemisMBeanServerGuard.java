@@ -77,10 +77,14 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
             prefix = attr.isIs() ? "is" : "get";
          }
       }
-      if (prefix == null) {
-         //ActiveMQServerLogger.LOGGER.debug("Attribute " + attributeName + " can not be found for MBean " + objectName.toString());
-      } else {
-         handleInvoke(objectName, prefix + attributeName);
+
+      if (prefix != null) {
+         try {
+            handleInvoke(objectName, prefix + attributeName);
+         } catch (SecurityException e) {
+            // The security exception message is shown in the attributes tab of the console.
+            throw new SecurityException("User not authorized to access attribute: " + attributeName, e);
+         }
       }
    }
 
@@ -121,7 +125,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       try {
          objectName = ObjectName.getInstance(object);
       } catch (MalformedObjectNameException e) {
-         ActiveMQServerLogger.LOGGER.debug("can't check invoke rights as object name invalid: " + objectName);
+         ActiveMQServerLogger.LOGGER.debug("can't check invoke rights as object name invalid: " + object);
          return false;
       }
       if (canBypassRBAC(objectName)) {
@@ -149,7 +153,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       if (AuditLogger.isResourceLoggingEnabled()) {
          AuditLogger.objectInvokedFailure(objectName, operationName);
       }
-      throw new SecurityException("Insufficient roles/credentials for operation");
+      throw new SecurityException("User not authorized to access operation: " + operationName);
    }
 
    List<String> getRequiredRoles(ObjectName objectName, String methodName) {
