@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -245,9 +244,32 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       }
 
       @Override
-      public MutableLong getMutableLong(String mutableLongId) throws InterruptedException, ExecutionException, TimeoutException {
-         // TODO
-         return null;
+      public MutableLong getMutableLong(String mutableLongId) {
+         // use a lock file - but with a prefix
+         return new MutableLong() {
+
+            private long value = 0;
+
+            @Override
+            public String getMutableLongId() {
+               return mutableLongId;
+            }
+
+            @Override
+            public long get() {
+               return value;
+            }
+
+            @Override
+            public void set(long value) {
+               this.value = value;
+            }
+
+            @Override
+            public void close() {
+
+            }
+         };
       }
 
       @Override
