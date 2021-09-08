@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
@@ -107,7 +108,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    private StorageManager storageManager;
 
    /** this is used to parse the initial packets from the buffer */
-   CompositeReadableBuffer parsingBuffer;
+   private CompositeReadableBuffer parsingBuffer;
 
    public AMQPLargeMessage(long id,
                            long messageFormat,
@@ -144,16 +145,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       this.storageManager = copy.largeBody.getStorageManager();
       this.reencoded = copy.reencoded;
       setMessageID(newID);
-   }
-
-   public void openLargeMessage() throws Exception {
-      this.parsingData = new AmqpReadableBuffer(largeBody.map());
-   }
-
-   public void closeLargeMessage() throws Exception {
-      largeBody.releaseResources(false, true);
-      parsingData.freeDirectBuffer();
-      parsingData = null;
    }
 
    public void releaseEncodedBuffer() {
@@ -347,14 +338,14 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    public void addBytes(ReadableBuffer data) throws Exception {
       parseLargeMessage(data);
 
-      if (data.hasArray() && data.remaining() == data.array().length) {
-         //System.out.println("Received " + data.array().length + "::" + ByteUtil.formatGroup(ByteUtil.bytesToHex(data.array()), 8, 16));
-         largeBody.addBytes(data.array());
-      } else {
-         byte[] bytes = new byte[data.remaining()];
-         data.get(bytes);
-         //System.out.println("Finishing " + bytes.length + ByteUtil.formatGroup(ByteUtil.bytesToHex(bytes), 8, 16));
-         largeBody.addBytes(bytes);
+      final int remaining = data.remaining();
+      final ByteBuf writeBuffer = PooledByteBufAllocator.DEFAULT.directBuffer(remaining, remaining);
+      try {
+         // perform copy of data
+         data.get(new NettyWritable(writeBuffer));
+         largeBody.addBytes(new ChannelBufferWrapper(writeBuffer, true, true));
+      } finally {
+         writeBuffer.release();
       }
    }
 

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -572,7 +571,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       void deliver() {
 
          // This is discounting some bytes due to Transfer payload
-         int frameSize = protonSession.session.getConnection().getTransport().getOutboundFrameSizeLimit() - 50 - (delivery.getTag() != null ? delivery.getTag().length : 0);
+         final int frameSize = protonSession.session.getConnection().getTransport().getOutboundFrameSizeLimit() - 50 - (delivery.getTag() != null ? delivery.getTag().length : 0);
 
          DeliveryAnnotations deliveryAnnotationsToEncode;
 
@@ -584,48 +583,37 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             deliveryAnnotationsToEncode = null;
          }
 
-         LargeBodyReader context = message.getLargeBodyReader();
          try {
-            context.open();
-            try {
+            final ByteBuf frameBuffer = PooledByteBufAllocator.DEFAULT.directBuffer(frameSize, frameSize);
+            final NettyReadable frameView = new NettyReadable(frameBuffer);
+            try (LargeBodyReader context = message.getLargeBodyReader()) {
+               context.open();
                context.position(position);
                long bodySize = context.getSize();
+               // materialize it so we can use its internal NIO buffer
+               frameBuffer.ensureWritable(frameSize);
 
-               ByteBuffer buf = ByteBuffer.allocate(frameSize);
+               if (position == 0 && sender.getLocalState() != EndpointState.CLOSED && position < bodySize) {
+                  if (!deliverInitialPacket(context, deliveryAnnotationsToEncode, frameBuffer)) {
+                     return;
+                  }
+               }
 
                for (; sender.getLocalState() != EndpointState.CLOSED && position < bodySize; ) {
                   if (!connection.flowControl(this::resume)) {
-                     context.close();
                      return;
                   }
-                  buf.clear();
-                  int size = 0;
+                  frameBuffer.clear();
 
-                  try {
-                     if (position == 0) {
-                        replaceInitialHeader(deliveryAnnotationsToEncode, context, WritableBuffer.ByteBufferWrapper.wrap(buf));
-                     }
-                     size = context.readInto(buf);
+                  final int readSize = context.readInto(frameBuffer.internalNioBuffer(0, frameSize));
 
-                     sender.send(new ReadableBuffer.ByteBufferReader(buf));
-                     position += size;
-                  } catch (java.nio.BufferOverflowException overflowException) {
-                     if (position == 0) {
-                        if (log.isDebugEnabled()) {
-                           log.debug("Delivery of message failed with an overFlowException, retrying again with expandable buffer");
-                        }
-                        // on the very first packet, if the initial header was replaced with a much bigger header (re-encoding)
-                        // we could recover the situation with a retry using an expandable buffer.
-                        // this is tested on org.apache.activemq.artemis.tests.integration.amqp.AmqpMessageDivertsTest
-                        size = retryInitialPacketWithExpandableBuffer(deliveryAnnotationsToEncode, context, buf);
-                     } else {
-                        // if this is not the position 0, something is going on
-                        // we just forward the exception as this is not supposed to happen
-                        throw overflowException;
-                     }
-                  }
+                  frameBuffer.writerIndex(readSize);
 
-                  if (size > 0) {
+                  sender.send(frameView);
+
+                  position += readSize;
+
+                  if (readSize > 0) {
 
                      if (position < bodySize) {
                         connection.instantFlush();
@@ -633,7 +621,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   }
                }
             } finally {
-               context.close();
+               frameBuffer.release();
             }
 
             if (preSettle) {
@@ -661,35 +649,59 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          }
       }
 
+      private boolean deliverInitialPacket(final LargeBodyReader context,
+                                           final DeliveryAnnotations deliveryAnnotationsToEncode,
+                                           final ByteBuf frameBuffer) throws Exception {
+         assert position == 0 && context.position() == 0;
+         if (!connection.flowControl(this::resume)) {
+            return false;
+         }
+         frameBuffer.clear();
+         try {
+            replaceInitialHeader(deliveryAnnotationsToEncode, context, new NettyWritable(frameBuffer));
+         } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
+            assert position == 0 : "this shouldn't happen unless replaceInitialHeader is updating position before modifying frameBuffer";
+            if (log.isDebugEnabled()) {
+               log.debug("Delivery of message failed with an overFlowException, retrying again with expandable buffer");
+            }
+            // on the very first packet, if the initial header was replaced with a much bigger header (re-encoding)
+            // we could recover the situation with a retry using an expandable buffer.
+            // this is tested on org.apache.activemq.artemis.tests.integration.amqp.AmqpMessageDivertsTest
+            sendAndFlushInitialPacket(deliveryAnnotationsToEncode, context);
+            return true;
+         }
+         final int writableBytes = frameBuffer.writableBytes();
+         if (writableBytes == 0) {
+            sender.send(new NettyReadable(frameBuffer));
+            connection.instantFlush();
+            return true;
+         }
+         final int writtenBytes = frameBuffer.writerIndex();
+         final int readSize = context.readInto(frameBuffer.internalNioBuffer(writtenBytes, writableBytes));
+         frameBuffer.writerIndex(writtenBytes + readSize);
+         sender.send(new NettyReadable(frameBuffer));
+         position += readSize;
+         connection.instantFlush();
+         return true;
+      }
+
       /**
-       * This is a retry logic when either the delivery annotations or re-encoded buffer is bigger than the frame size
-       * This will create one expandable buffer.
-       * It will then let Proton to do the framing correctly
+       * This must be used when either the delivery annotations or re-encoded buffer is bigger than the frame size.<br>
+       * This will create one expandable buffer, send and flush it.
        */
-      private int retryInitialPacketWithExpandableBuffer(DeliveryAnnotations deliveryAnnotationsToEncode,
-                                                         LargeBodyReader context,
-                                                         ByteBuffer buf) throws Exception {
-         int size;
-         buf.clear();
+      private void sendAndFlushInitialPacket(DeliveryAnnotations deliveryAnnotationsToEncode,
+                                             LargeBodyReader context) throws Exception {
          // if the buffer overflow happened during the initial position
          // this means the replaced headers are bigger then the frame size
          // on this case we do with an expandable netty buffer
-         ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.buffer(AMQPMessageBrokerAccessor.getRemainingBodyPosition(message) * 2);
+         final ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.directBuffer(AMQPMessageBrokerAccessor.getRemainingBodyPosition(message) * 2);
          try {
             replaceInitialHeader(deliveryAnnotationsToEncode, context, new NettyWritable(nettyBuffer));
-            size = context.readInto(buf);
-            position += size;
-
-            nettyBuffer.writeBytes(buf);
-
-            ByteBuffer nioBuffer = nettyBuffer.nioBuffer();
-            nioBuffer.position(nettyBuffer.writerIndex());
-            nioBuffer = (ByteBuffer) nioBuffer.flip();
-            sender.send(new ReadableBuffer.ByteBufferReader(nioBuffer));
+            sender.send(new NettyReadable(nettyBuffer));
          } finally {
             nettyBuffer.release();
+            connection.instantFlush();
          }
-         return size;
       }
 
       private int replaceInitialHeader(DeliveryAnnotations deliveryAnnotationsToEncode,
@@ -697,7 +709,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                                         WritableBuffer buf) throws Exception {
          TLSEncode.getEncoder().setByteBuffer(buf);
          try {
-            int proposedPosition = writeHeaderAndAnnotations(context, deliveryAnnotationsToEncode);
+            int proposedPosition = writeHeaderAndAnnotations(deliveryAnnotationsToEncode);
             if (message.isReencoded()) {
                proposedPosition = writeMessageAnnotationsPropertiesAndApplicationProperties(context, message);
             }
@@ -740,8 +752,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          }
       }
 
-      private int writeHeaderAndAnnotations(LargeBodyReader context,
-                                             DeliveryAnnotations deliveryAnnotationsToEncode) throws ActiveMQException {
+      private int writeHeaderAndAnnotations(DeliveryAnnotations deliveryAnnotationsToEncode) {
          Header header = AMQPMessageBrokerAccessor.getCurrentHeader(message);
          if (header != null) {
             TLSEncode.getEncoder().writeObject(header);

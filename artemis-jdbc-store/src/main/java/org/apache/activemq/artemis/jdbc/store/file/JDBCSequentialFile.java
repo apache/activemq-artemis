@@ -192,7 +192,15 @@ public class JDBCSequentialFile implements SequentialFile {
    }
 
    private synchronized int internalWrite(ByteBuffer buffer, IOCallback callback) {
-      return internalWrite(buffer.array(), callback, true);
+      final byte[] data;
+      if (buffer.hasArray() && buffer.arrayOffset() == 0 && buffer.position() == 0 && buffer.limit() == buffer.array().length) {
+         data = buffer.array();
+      } else {
+         byte[] copy = new byte[buffer.remaining()];
+         buffer.get(copy);
+         data = copy;
+      }
+      return internalWrite(data, callback, true);
    }
 
    private void scheduleWrite(final ActiveMQBuffer bytes, final IOCallback callback, boolean append) {

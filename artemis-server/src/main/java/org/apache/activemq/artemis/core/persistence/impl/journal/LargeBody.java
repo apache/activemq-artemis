@@ -74,19 +74,6 @@ public class LargeBody {
       this.storageManager = storageManager;
    }
 
-   public ByteBuffer map() throws Exception {
-      ensureFileExists(true);
-      if (!file.isOpen()) {
-         file.open();
-      }
-      return file.map(0, file.size());
-   }
-
-   public LargeBody(long messageID, JournalStorageManager storageManager) {
-      this(null, storageManager);
-      this.messageID = messageID;
-   }
-
    public void setMessage(LargeServerMessage message) {
       this.message = message;
 
