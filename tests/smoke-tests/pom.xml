@@ -1017,6 +1017,38 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
+                  <id>create-brokerConnection-paged-serverA</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/brokerConnect/pagedA</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnect/pagedA</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-brokerConnection-paged-serverB</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/brokerConnect/pagedB</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnect/pagedB</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
                   <id>create-qdr</id>
                   <goals>
                      <goal>create</goal>

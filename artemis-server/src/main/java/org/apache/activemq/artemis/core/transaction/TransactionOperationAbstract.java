@@ -26,6 +26,15 @@ import org.apache.activemq.artemis.core.server.MessageReference;
  */
 public abstract class TransactionOperationAbstract implements TransactionOperation {
 
+   public static TransactionOperationAbstract afterCommit(Runnable run) {
+      return new TransactionOperationAbstract() {
+         @Override
+         public void afterCommit(Transaction tx) {
+            run.run();
+         }
+      };
+   }
+
    @Override
    public void beforePrepare(Transaction tx) throws Exception {
 
