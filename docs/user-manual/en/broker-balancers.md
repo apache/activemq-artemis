@@ -25,7 +25,7 @@ A pool becomes active when the minimum number of ready target brokers defined by
 When it is not active, it doesn't provide any target avoiding weird distribution at startup or after a restart.
 Including the local broker in the target pool allows broker hosting the balancer to accept incoming client connections as well.
 By default, a pool doesn't include the local broker, to include it as a target the `local-target-enabled` parameter must be `true`.
-There are two pool types: [discovery pool](#discovery-pool) and [static pool](#static-pool).
+There are three pool types: [cluster pool](#cluster-pool), [discovery pool](#discovery-pool) and [static pool](#static-pool).
 
 ### Cluster Pool
 The cluster pool uses a [cluster connection](clusters.md#configuring-cluster-connections) to get the target brokers to add.
