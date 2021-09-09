@@ -108,7 +108,7 @@ public class ActivationSequenceList extends LockAbstract {
       try {
          if (nodeManager != null) {
             if (coordinationId != null) {
-               if (!coordinationId.equals(nodeManager.getNodeId())) {
+               if (nodeManager.getNodeId() == null || !nodeManager.getNodeId().toString().equals(coordinationId)) {
                   nodeManager = applyCoordinationId(coordinationId, nodeManager, config.getNodeManagerLockLocation());
                }
             }
@@ -120,7 +120,7 @@ public class ActivationSequenceList extends LockAbstract {
          } else {
             assert nodeId != null;
          }
-         if (!remote) {
+         if (!remote && nodeManager != null) {
             final long localActivationSequence = nodeManager.getNodeActivationSequence();
             if (localActivationSequence == NodeManager.NULL_NODE_ACTIVATION_SEQUENCE) {
                if (out != null) {
