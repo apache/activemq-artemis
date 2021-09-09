@@ -746,12 +746,14 @@ var Artemis;
                             textArr.push(String.fromCharCode(b));
                         }
                         if (code === 1 || code === 4) {
-                        // hex and must be 2 digit so they space out evenly
-                        var s = b.toString(16);
-                        if (s.length === 1) {
-                            s = "0" + s;
-                        }
-                        bytesArr.push(s);
+                            var unsignedByte = b & 0xff;
+
+                            if (unsignedByte < 16) {
+                                // hex and must be 2 digit so they space out evenly
+                                bytesArr.push('0' + unsignedByte.toString(16));
+                            } else {
+                                bytesArr.push(unsignedByte.toString(16));
+                            }
                         } else {
                             // just show as is without spacing out, as that is usually more used for hex than decimal
                             var s = b.toString(10);
