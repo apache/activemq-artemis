@@ -97,7 +97,7 @@ public class ActivationSequenceSet extends LockAbstract {
       try {
          if (coordinationId != null) {
             // force using coordinationId whatever it is - either for multi-primary or just forced through CLI
-            if (!coordinationId.equals(nodeManager.getNodeId())) {
+            if (nodeManager.getNodeId() == null || !nodeManager.getNodeId().toString().equals(coordinationId)) {
                nodeManager = applyCoordinationId(coordinationId, nodeManager, config.getNodeManagerLockLocation());
             }
          }
