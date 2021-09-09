@@ -397,7 +397,7 @@ var Artemis;
         ctrl.retryDialog = false;
         ctrl.showMessageDetails = false;
 
-        var ignoreColumns = ["PropertiesText", "bodyText", "BodyPreview", "text", "headers", "properties", "textMode", "idx"];
+        var ignoreColumns = ["PropertiesText", "bodyText", "BodyPreview", "text", "headers", "properties", "textMode", "idx", "selected"];
         var flattenColumns = ["BooleanProperties", "ByteProperties", "ShortProperties", "IntProperties", "LongProperties", "FloatProperties", "DoubleProperties", "StringProperties"];
 
         function openMessageDialog(action, item) {
