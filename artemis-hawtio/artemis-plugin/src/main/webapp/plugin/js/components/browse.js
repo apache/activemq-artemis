@@ -790,6 +790,11 @@ var Artemis;
         var headers = [];
             angular.forEach(message, function (value, key) {
                 if (!_.some(ignoreColumns, function (k) { return k === key; }) && !_.some(flattenColumns, function (k) { return k === key; })) {
+                    if(key === "expiration") {
+                        value += " (" + formatExpires(value) + ")";
+                    } else if(key === "timestamp") {
+                        value += " (" + formatTimestamp(value) + ")";
+                    }
                     headers.push({key: key, value: value});
                 }
             });
