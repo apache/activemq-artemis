@@ -28,7 +28,7 @@ public class BufferSplitter {
 
    public static void split(ActiveMQBuffer buffer, int splitSize, Consumer<EncodingSupport> target) {
       byte[] bytesBuffer = new byte[buffer.readableBytes()];
-      buffer.readBytes(bytesBuffer);
+      buffer.getBytes(buffer.readerIndex(), bytesBuffer);
       split(bytesBuffer, splitSize, target);
    }
 

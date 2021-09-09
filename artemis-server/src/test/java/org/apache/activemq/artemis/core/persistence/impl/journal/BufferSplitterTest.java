@@ -33,10 +33,16 @@ public class BufferSplitterTest {
 
       ActiveMQBuffer outputBuffer = ActiveMQBuffers.fixedBuffer(1000 * DataConstants.SIZE_INT);
 
+      final int rdx = buffer.readerIndex();
+      final int readableBytes = buffer.readableBytes();
+
       BufferSplitter.split(buffer, 77, (c) -> {
          Assert.assertTrue(c.getEncodeSize() <= 77);
          c.encode(outputBuffer);
       });
+
+      Assert.assertEquals(rdx, buffer.readerIndex());
+      Assert.assertEquals(readableBytes, buffer.readableBytes());
 
       outputBuffer.resetReaderIndex();
       buffer.resetReaderIndex();
