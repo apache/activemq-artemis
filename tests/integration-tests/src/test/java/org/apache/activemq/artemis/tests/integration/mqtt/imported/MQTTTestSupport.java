@@ -130,6 +130,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    @Override
    @Before
    public void setUp() throws Exception {
+      super.setUp();
       String basedir = basedir().getPath();
       System.setProperty("javax.net.ssl.trustStore", basedir + "/src/test/resources/client.keystore");
       System.setProperty("javax.net.ssl.trustStorePassword", "password");

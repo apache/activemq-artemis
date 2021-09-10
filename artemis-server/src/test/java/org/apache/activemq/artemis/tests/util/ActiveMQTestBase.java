@@ -196,7 +196,7 @@ public abstract class ActiveMQTestBase extends Assert {
     *  your data even under ./target.
     *  Do not try to disable this rule! Fix your test! */
    @Rule
-   public NoFilesBehind noFilesBehind = new NoFilesBehind("data");
+   public NoFilesBehind noFilesBehind = new NoFilesBehind("data", "null");
 
    /** This will cleanup any system property changed inside tests */
    @Rule
@@ -407,9 +407,13 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    @Before
+   public void setupTestDir() {
+      testDir = temporaryFolder.getRoot().getAbsolutePath();
+   }
+
+   @Before
    public void setUp() throws Exception {
       sendMsgCount = 0;
-      testDir = temporaryFolder.getRoot().getAbsolutePath();
       clearDataRecreateServerDirs();
       OperationContextImpl.clearContext();
 
