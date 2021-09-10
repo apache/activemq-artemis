@@ -775,7 +775,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    //raise the refCount of context
-   public void reconnect(AMQConnectionContext existingContext, ConnectionInfo info) {
+   public void reconnect(AMQConnectionContext existingContext, ConnectionInfo info) throws Exception {
       this.context = existingContext;
       WireFormatInfo wireFormatInfo = inWireFormat.getPreferedWireFormatInfo();
       // Older clients should have been defaulting this field to true.. but
@@ -786,7 +786,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       if (info.getClientIp() == null) {
          info.setClientIp(getRemoteAddress());
       }
-
+      createInternalSession(info);
       state = new ConnectionState(info);
       state.reset(info);
 
