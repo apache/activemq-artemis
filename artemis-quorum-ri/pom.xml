@@ -48,6 +48,12 @@
          <groupId>org.apache.curator</groupId>
          <artifactId>curator-test</artifactId>
          <version>${curator.version}</version>
+         <exclusions>
+            <exclusion>
+               <groupId>org.junit.jupiter</groupId>
+               <artifactId>junit-jupiter-api</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
