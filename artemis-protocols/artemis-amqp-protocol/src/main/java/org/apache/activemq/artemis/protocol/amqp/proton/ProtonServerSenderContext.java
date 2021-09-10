@@ -678,11 +678,15 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          if (writableBytes != 0) {
             final int writtenBytes = frameBuffer.writerIndex();
             readSize = context.readInto(frameBuffer.internalNioBuffer(writtenBytes, writableBytes));
-            frameBuffer.writerIndex(writtenBytes + readSize);
+            if (readSize > 0) {
+               frameBuffer.writerIndex(writtenBytes + readSize);
+            }
          }
 
          sender.send(new NettyReadable(frameBuffer));
-         position += readSize;
+         if (readSize > 0) {
+            position += readSize;
+         }
          connection.instantFlush();
          return true;
       }
