@@ -22,6 +22,7 @@ import java.util.UUID;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
+import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.util.CharsetUtil;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -74,6 +75,7 @@ public class MQTTConnectionManager {
          return;
       }
 
+      boolean sessionPresent = session.getProtocolManager().getSessionStates().containsKey(clientId);
       MQTTSessionState sessionState = getSessionState(clientId);
       synchronized (sessionState) {
          session.setSessionState(sessionState);
@@ -104,7 +106,7 @@ public class MQTTConnectionManager {
          }
 
          session.getConnection().setConnected(true);
-         session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_ACCEPTED);
+         session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_ACCEPTED, sessionPresent && !cleanSession, MqttProperties.NO_PROPERTIES);
          // ensure we don't publish before the CONNACK
          session.start();
       }

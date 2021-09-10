@@ -24,9 +24,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -159,6 +162,28 @@ public class PahoMQTTTest extends MQTTTestSupport {
       waitForLatch(latch);
       producer.disconnect();
       producer.close();
+   }
+
+   @Test(timeout = 300000)
+   public void testSessionPresentWithCleanSession() throws Exception {
+      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttConnectOptions options = new MqttConnectOptions();
+      options.setCleanSession(true);
+      IMqttToken result = client.connectWithResult(options);
+      assertFalse(result.getSessionPresent());
+      client.disconnect();
+   }
+
+   @Test(timeout = 300000)
+   public void testSessionPresent() throws Exception {
+      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttConnectOptions options = new MqttConnectOptions();
+      options.setCleanSession(false);
+      IMqttToken result = client.connectWithResult(options);
+      assertFalse(result.getSessionPresent());
+      client.disconnect();
+      result = client.connectWithResult(options);
+      assertTrue(result.getSessionPresent());
    }
 
    private MqttClient createPahoClient(String clientId) throws MqttException {
