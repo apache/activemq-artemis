@@ -640,7 +640,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          server_2.startBrokerConnection(brokerConnectionName);
       }
 
-      snfreplica = server_2.locateQueue(replica.getMirrorSNF());
+      Assert.assertSame(snfreplica, server_2.locateQueue(replica.getMirrorSNF()));
 
       if (pagingTarget) {
          assertTrue(queueOnServer1.getPagingStore().isPaging());
@@ -852,7 +852,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
                                 int LAST_ID,
                                 int port,
                                 boolean assertNull) throws JMSException {
-      ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + port + "?jms.prefetchPolicy.all=0");
+      ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + port);
       Connection conn = cf.createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       conn.start();

@@ -24,6 +24,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.ToIntFunction;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -38,6 +39,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.Wait;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
@@ -120,24 +122,28 @@ public class PageAckScanTest extends ActiveMQTestBase {
          session.commit();
       }
 
-      queue.forEach((r) -> System.out.println("ref -> " + r.getMessage().getIntProperty("i")));
-
       AtomicInteger errors = new AtomicInteger(0);
+
       ReusableLatch latch = new ReusableLatch(4);
+
       Runnable done = latch::countDown;
+
       Runnable notFound = () -> {
          errors.incrementAndGet();
          done.run();
       };
+
+      AtomicInteger retried = new AtomicInteger(0);
       PageSubscription subscription = queue.getPageSubscription();
-      subscription.addScanAck(new CompareI(15), done, notFound);
-      subscription.addScanAck(new CompareI(11), done, notFound);
-      subscription.addScanAck(new CompareI(99), done, notFound);
-      subscription.addScanAck(new CompareI(-30), done, notFound);
-      System.out.println("Performing scan...");
+      subscription.addScanAck(() -> false, new CompareI(15), done, notFound);
+      subscription.addScanAck(() -> false, new CompareI(11), done, notFound);
+      subscription.addScanAck(() -> false, new CompareI(99), done, notFound);
+      subscription.addScanAck(() -> false, new CompareI(-30), done, notFound);
+      subscription.addScanAck(() -> true, new CompareI(333), retried::incrementAndGet, notFound);
       subscription.performScanAck();
       Assert.assertTrue(latch.await(5, TimeUnit.MINUTES));
       Assert.assertEquals(2, errors.get());
+      Wait.assertEquals(1, retried::get);
 
       try (Connection connection = factory.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -153,17 +159,14 @@ public class PageAckScanTest extends ActiveMQTestBase {
       }
    }
 
-   // Errorprone would barf at this. it was really intended
-   @SuppressWarnings("ComparableType")
-   class CompareI implements Comparable<PagedReference> {
+   class CompareI implements ToIntFunction<PagedReference> {
       final int i;
       CompareI(int i) {
          this.i = i;
       }
 
       @Override
-      public int compareTo(PagedReference ref) {
-         System.out.println("Comparing against " + ref.getMessage().getIntProperty("i"));
+      public int applyAsInt(PagedReference ref) {
          return ref.getMessage().getIntProperty("i").intValue() - i;
       }
    }
