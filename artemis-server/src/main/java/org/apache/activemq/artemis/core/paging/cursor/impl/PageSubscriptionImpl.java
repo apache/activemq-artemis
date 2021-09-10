@@ -32,6 +32,8 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BooleanSupplier;
+import java.util.function.ToIntFunction;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -117,11 +119,12 @@ public final class PageSubscriptionImpl implements PageSubscription {
    private final LinkedList<PageScan> scanList = new LinkedList();
 
    private static class PageScan {
-      final Comparable<PagedReference> scanFunction;
+      final BooleanSupplier retryBeforeScan;
+      final ToIntFunction<PagedReference> scanFunction;
       final Runnable found;
-      final Runnable notfound;
+      final Runnable notFound;
 
-      public Comparable<PagedReference> getScanFunction() {
+      public ToIntFunction<PagedReference> getScanFunction() {
          return scanFunction;
       }
 
@@ -130,19 +133,20 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
 
       public Runnable getNotfound() {
-         return notfound;
+         return notFound;
       }
 
-      PageScan(Comparable<PagedReference> scanFunction, Runnable found, Runnable notfound) {
+      PageScan(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound) {
+         this.retryBeforeScan = retryBeforeScan;
          this.scanFunction = scanFunction;
          this.found = found;
-         this.notfound = notfound;
+         this.notFound = notFound;
       }
    }
 
    @Override
-   public void addScanAck(Comparable<PagedReference> scanFunction, Runnable found, Runnable notfound) {
-      PageScan scan = new PageScan(scanFunction, found, notfound);
+   public void addScanAck(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound) {
+      PageScan scan = new PageScan(retryBeforeScan, scanFunction, found, notFound);
       synchronized (scanList) {
          scanList.add(scan);
       }
@@ -153,7 +157,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       // we should only have a max of 2 scheduled tasks
       // one that's might still be currently running, and another one lined up
       // no need for more than that
-      if (scheduledScanCount.incrementAndGet() < 2) {
+      if (scheduledScanCount.incrementAndGet() <= 2) {
          executor.execute(this::actualScanAck);
       } else {
          scheduledScanCount.decrementAndGet();
@@ -169,6 +173,32 @@ public final class PageSubscriptionImpl implements PageSubscription {
             }
             localScanList = scanList.stream().toArray(i -> new PageScan[i]);
             scanList.clear();
+         }
+
+         int retriedFound = 0;
+         for (int i = 0; i < localScanList.length; i++) {
+            PageScan scanElemen = localScanList[i];
+            if (scanElemen.retryBeforeScan != null && scanElemen.retryBeforeScan.getAsBoolean()) {
+               localScanList[i] = null;
+               retriedFound++;
+            }
+         }
+
+         if (retriedFound == localScanList.length) {
+            return;
+         }
+
+         if (!isPaging()) {
+            // this would mean that between the submit and now the system left paging mode
+            // at this point we will just return everything as notFound
+            for (int i = 0; i < localScanList.length; i++) {
+               PageScan scanElemen = localScanList[i];
+               if (scanElemen != null && scanElemen.notFound != null) {
+                  scanElemen.notFound.run();
+               }
+            }
+
+            return;
          }
 
          LinkedList<Runnable> afterCommitList = new LinkedList<>();
@@ -196,7 +226,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
                      continue;
                   }
 
-                  int result = scanElemen.scanFunction.compareTo(reference);
+                  int result = scanElemen.scanFunction.applyAsInt(reference);
 
                   if (result >= 0) {
                      if (result == 0) {
@@ -209,8 +239,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
                            logger.warn(e.getMessage(), e);
                         }
                      } else {
-                        if (scanElemen.notfound != null) {
-                           scanElemen.notfound.run();
+                        if (scanElemen.notFound != null) {
+                           scanElemen.notFound.run();
                         }
                      }
                      localScanList[i] = null;
@@ -228,8 +258,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
          }
 
          for (int i = 0; i < localScanList.length; i++) {
-            if (localScanList[i] != null && localScanList[i].notfound != null) {
-               localScanList[i].notfound.run();
+            if (localScanList[i] != null && localScanList[i].notFound != null) {
+               localScanList[i].notFound.run();
             }
             localScanList[i] = null;
          }
@@ -241,6 +271,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
                logger.warn(e.getMessage(), e);
             }
          }
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
       } finally {
          scheduledScanCount.decrementAndGet();
       }

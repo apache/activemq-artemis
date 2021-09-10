@@ -275,6 +275,10 @@ public class AMQPSessionContext extends ProtonInitializable {
       return receivers.size();
    }
 
+   public Map<Receiver, ProtonAbstractReceiver> getReceivers() {
+      return receivers;
+   }
+
    public int getSenderCount() {
       return senders.size();
    }

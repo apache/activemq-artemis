@@ -214,6 +214,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       return protonSession;
    }
 
+   public Map<Session, AMQPSessionContext> getSessions() {
+      return sessions;
+   }
+
    public SecurityAuth getSecurityAuth() {
       return new LocalSecurity();
    }
