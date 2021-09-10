@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
 import java.util.List;
+import java.util.function.BooleanSupplier;
+import java.util.function.ToIntFunction;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
@@ -354,18 +356,11 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    }
 
-   private void performAckOnPage(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation) {
-      if (targetQueue.getPagingStore().isPaging()) {
-         PageAck pageAck = new PageAck(nodeID, messageID, ackMessageOperation);
-         targetQueue.getPageSubscription().addScanAck(pageAck, pageAck, pageAck);
-         targetQueue.getPageSubscription().performScanAck();
-      } else {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Post ack Server " + server + " could not find messageID = " + messageID +
-                            " representing nodeID=" + nodeID);
-         }
-         OperationContextImpl.getContext().executeOnCompletion(ackMessageOperation);
-      }
+
+   public void performAckOnPage(String nodeID, long messageID, Queue targetQueue, IOCallback ackMessageOperation) {
+      PageAck pageAck = new PageAck(targetQueue, nodeID, messageID, ackMessageOperation);
+      targetQueue.getPageSubscription().addScanAck(pageAck, pageAck, pageAck, pageAck);
+      targetQueue.getPageSubscription().performScanAck();
    }
 
    private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, boolean retry) {
@@ -487,23 +482,44 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
    }
 
-   // I need a supress warning annotation here
-   // because errorProne is issuing an error her, however I really intend to compare PageACK against PagedReference
-   @SuppressWarnings("ComparableType")
-   class PageAck implements Comparable<PagedReference>, Runnable {
+   class PageAck implements ToIntFunction<PagedReference>, BooleanSupplier, Runnable {
 
+      final Queue targetQueue;
       final String nodeID;
       final long messageID;
-      final ACKMessageOperation operation;
+      final IOCallback operation;
 
-      PageAck(String nodeID, long messageID, ACKMessageOperation operation) {
+      PageAck(Queue targetQueue, String nodeID, long messageID, IOCallback operation) {
+         this.targetQueue = targetQueue;
          this.nodeID = nodeID;
          this.messageID = messageID;
          this.operation = operation;
       }
 
+      /**
+       * Method to retry the ack before a scan
+       * @return
+       */
       @Override
-      public int compareTo(PagedReference reference) {
+      public boolean getAsBoolean() {
+         try {
+            recoverContext();
+            MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
+            if (reference == null) {
+               return false;
+            } else {
+               targetQueue.acknowledge(reference);
+               OperationContextImpl.getContext().executeOnCompletion(operation);
+               return true;
+            }
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
+            return false;
+         }
+      }
+
+      @Override
+      public int applyAsInt(PagedReference reference) {
          String refNodeID = referenceNodeStore.getServerID(reference);
          long refMessageID = referenceNodeStore.getID(reference);
          if (refNodeID == null) {
@@ -526,7 +542,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       @Override
       public void run() {
-         operation.connectionRun();
+         operation.done();
       }
 
    }
