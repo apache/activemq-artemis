@@ -139,7 +139,9 @@ public class PageAckScanTest extends ActiveMQTestBase {
       subscription.addScanAck(() -> false, new CompareI(11), done, notFound);
       subscription.addScanAck(() -> false, new CompareI(99), done, notFound);
       subscription.addScanAck(() -> false, new CompareI(-30), done, notFound);
-      subscription.addScanAck(() -> true, new CompareI(333), retried::incrementAndGet, notFound);
+      subscription.addScanAck(() -> {
+         retried.incrementAndGet();
+         return true;}, new CompareI(333), done, notFound);
       subscription.performScanAck();
       Assert.assertTrue(latch.await(5, TimeUnit.MINUTES));
       Assert.assertEquals(2, errors.get());
