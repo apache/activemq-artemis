@@ -277,7 +277,7 @@ public class Create extends InputAbstract {
    @Option(name = "--journal-device-block-size", description = "The block size by the device, default at 4096.")
    private int journalDeviceBlockSize = 4096;
 
-   @Option(name = "--journal-retention-days", description = "If > 0, It will enable journal-retention-directory on the broker.xml allowing replay options. This option will configure retention in days.")
+   @Option(name = "--journal-retention", description = "If > 0, It will enable journal-retention-directory on the broker.xml allowing replay options. This option will configure retention in days.")
    private int retentionDays;
 
    @Option(name = "--journal-retention-max-bytes", description = "It will be passed as storage-limit on the journal-retention-directory tag")
@@ -771,17 +771,20 @@ public class Create extends InputAbstract {
       boolean allowAnonymous = isAllowAnonymous();
 
 
-      if (retentionDays == 0) {
-         retentionDays = inputInteger("--journal-retention-days", "How many days you would like to keep retained in the journal? Use 0 for no retention.", "0");
-      }
-
-      String retentionTag = "";
+      String retentionTag;
       if (retentionDays > 0) {
          if (retentionMaxBytes != null) {
             retentionTag = "<journal-retention-directory period=\"" + retentionDays + "\" unit=\"DAYS\" storage-limit=\"" + retentionMaxBytes + "\">" + data + "/retention</journal-retention-directory>";
          } else {
             retentionTag = "<journal-retention-directory period=\"" + retentionDays + "\" unit=\"DAYS\">" + data + "/retention</journal-retention-directory>";
          }
+      } else {
+         retentionTag =  "\n" +
+            "      <!-- if you want to retain your journal uncomment this following configuration.\n\n" +
+            "      This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.\n\n" +
+            "      it is recommended to use a separate storage unit from the journal for performance considerations.\n\n" +
+            "      <journal-retention-directory period=\"7\" unit=\"DAYS\" storage-limit=\"10G\">data/retention</journal-retention-directory>\n\n" +
+            "      Or you can also create your broker using the argument on the journal-retention on the artemis create command -->\n\n";
       }
 
       filters.put("${journal-retention}", retentionTag);

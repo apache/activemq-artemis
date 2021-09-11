@@ -516,6 +516,6 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229238, value = "No target to redirect the connection")
    ActiveMQRedirectedException cannotRedirect();
 
-   @Message(id = 229239, value = "There is not retention configured. In order to use the replay method you must specify journal-retention-directory element on the broker.xml")
+   @Message(id = 229239, value = "There is no retention configured. In order to use the replay method you must specify journal-retention-directory element on the broker.xml")
    IllegalArgumentException noRetention();
 }
