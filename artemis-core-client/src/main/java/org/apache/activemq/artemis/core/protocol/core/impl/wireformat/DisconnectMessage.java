@@ -62,11 +62,10 @@ public class DisconnectMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buf = new StringBuffer(getParentString());
-      buf.append(", nodeID=" + nodeID);
-      buf.append("]");
-      return buf.toString();
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
+      buff.append(", nodeID=" + nodeID);
+      return buff.toString();
    }
 
    @Override

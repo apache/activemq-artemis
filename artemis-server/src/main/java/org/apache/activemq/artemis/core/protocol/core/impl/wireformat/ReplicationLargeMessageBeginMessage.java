@@ -67,10 +67,9 @@ public class ReplicationLargeMessageBeginMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return "ReplicationLargeMessageBeginMessage{" +
-         "messageId=" + messageId +
-         '}';
+   protected String getPacketString() {
+      return  super.getPacketString() +
+         "messageId=" + messageId;
    }
 
    @Override

@@ -67,11 +67,10 @@ public class ClusterTopologyChangeMessage_V4 extends ClusterTopologyChangeMessag
    }
 
    @Override
-   public String toString() {
-      StringBuffer buf = new StringBuffer(getParentString());
-      buf.append(", clientVersion=" + serverVersion);
-      buf.append("]");
-      return buf.toString();
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
+      buff.append(", clientVersion=" + serverVersion);
+      return buff.toString();
    }
 
    @Override

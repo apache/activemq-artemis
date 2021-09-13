@@ -144,15 +144,14 @@ public class NodeAnnounceMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return "NodeAnnounceMessage [backup=" + backup +
+   protected String getPacketString() {
+      String baseString = super.getPacketString();
+      return baseString +
+         ", backup=" + backup +
          ", connector=" +
          connector +
          ", nodeID=" +
-         nodeID +
-         ", toString()=" +
-         super.toString() +
-         "]";
+         nodeID;
    }
 
    @Override

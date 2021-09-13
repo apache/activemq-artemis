@@ -108,9 +108,10 @@ public final class ReplicationCommitMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
+   protected String getPacketString() {
+      String baseString = super.getPacketString();
       String txOperation = rollback ? "rollback" : "commmit";
-      return ReplicationCommitMessage.class.getSimpleName() + "[type=" + getType() + ", channel=" + getChannelID() +
-         ", journalID=" + journalID + ", txAction='" + txOperation + "']";
+      return baseString + "[type=" + getType() + ", channel=" + getChannelID() +
+         ", journalID=" + journalID + ", txAction='" + txOperation + "'";
    }
 }

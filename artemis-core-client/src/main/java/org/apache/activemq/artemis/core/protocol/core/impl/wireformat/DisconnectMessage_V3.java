@@ -88,13 +88,12 @@ public class DisconnectMessage_V3 extends DisconnectMessage {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buf = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buf = new StringBuffer(super.getPacketString());
       buf.append(", nodeID=" + nodeID);
       buf.append(", reason=" + reason);
       buf.append(", targetNodeID=" + targetNodeID);
       buf.append(", targetConnector=" + targetConnector);
-      buf.append("]");
       return buf.toString();
    }
 

@@ -140,15 +140,14 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", exit=" + exit);
       buff.append(", last=" + last);
       buff.append(", nodeID=" + nodeID);
       buff.append(", pair=" + pair);
       buff.append(", backupGroupName=" + backupGroupName);
       buff.append(", uniqueEventID=" + uniqueEventID);
-      buff.append("]");
       return buff.toString();
    }
 

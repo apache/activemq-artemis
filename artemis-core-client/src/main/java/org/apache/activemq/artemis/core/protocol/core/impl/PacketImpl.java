@@ -418,9 +418,14 @@ public class PacketImpl implements Packet {
       return true;
    }
 
+   /** extensions of this class are supposed to use getPacketString to provide toString functionality */
    @Override
-   public String toString() {
-      return getParentString() + "]";
+   public final String toString() {
+      return getPacketString() + "]";
+   }
+
+   protected String getPacketString() {
+      return this.getClass().getSimpleName() + "(" + this.getClass().getSimpleName() + ")[type=" + type + ", channelID=" + channelID + ", responseAsync=" + isResponseAsync() + ", requiresResponse=" + isRequiresResponse() + ", correlationID=" + getCorrelationID();
    }
 
    @Override
@@ -444,10 +449,6 @@ public class PacketImpl implements Packet {
       }
       PacketImpl other = (PacketImpl) obj;
       return (channelID == other.channelID) && (size == other.size) && (type != other.type);
-   }
-
-   protected String getParentString() {
-      return "PACKET(" + this.getClass().getSimpleName() + ")[type=" + type + ", channelID=" + channelID + ", responseAsync=" + isResponseAsync() + ", requiresResponse=" + isRequiresResponse() + ", correlationID=" + getCorrelationID() + ", packetObject=" + this.getClass().getSimpleName();
    }
 
    private int stringEncodeSize(final String str) {

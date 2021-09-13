@@ -215,17 +215,8 @@ public class CreateSessionMessage extends PacketImpl {
    }
 
    @Override
-   protected String getParentString() {
-      return toString(false);
-   }
-
-   @Override
-   public String toString() {
-      return toString(true);
-   }
-
-   private String toString(boolean closed) {
-      StringBuffer buff = new StringBuffer(super.getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", autoCommitAcks=" + autoCommitAcks);
       buff.append(", autoCommitSends=" + autoCommitSends);
       buff.append(", defaultAddress=" + defaultAddress);
@@ -238,9 +229,6 @@ public class CreateSessionMessage extends PacketImpl {
       buff.append(", version=" + version);
       buff.append(", windowSize=" + windowSize);
       buff.append(", xa=" + xa);
-      if (closed) {
-         buff.append("]");
-      }
       return buff.toString();
    }
 

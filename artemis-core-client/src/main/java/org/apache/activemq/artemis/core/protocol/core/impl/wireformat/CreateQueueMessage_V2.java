@@ -218,8 +218,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(super.getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", autoCreated=" + autoCreated);
       buff.append(", routingType=" + routingType);
       buff.append(", maxConsumers=" + maxConsumers);
@@ -239,8 +239,6 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       buff.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
       buff.append(", ringSize=" + ringSize);
       buff.append(", enabled=" + enabled);
-
-      buff.append("]");
       return buff.toString();
    }
 

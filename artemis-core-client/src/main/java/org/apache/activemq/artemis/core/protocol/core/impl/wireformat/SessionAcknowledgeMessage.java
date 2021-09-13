@@ -85,12 +85,11 @@ public class SessionAcknowledgeMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", consumerID=" + consumerID);
       buff.append(", messageID=" + messageID);
       buff.append(", requiresResponse=" + requiresResponse);
-      buff.append("]");
       return buff.toString();
    }
 

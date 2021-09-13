@@ -55,8 +55,8 @@ public class PacketsConfirmedMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return getParentString() + ", commandID=" + commandID + "]";
+   protected String getPacketString() {
+      return super.getPacketString() + ", commandID=" + commandID;
    }
 
    @Override

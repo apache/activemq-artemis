@@ -68,11 +68,10 @@ public class SessionProducerCreditsMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", address=" + address);
       buff.append(", credits=" + credits);
-      buff.append("]");
       return buff.toString();
    }
 

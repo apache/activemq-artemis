@@ -74,8 +74,8 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
    }
 
    @Override
-   public String toString() {
-      return getParentString() + ", correlationID=" + correlationID + "]";
+   protected String getPacketString() {
+      return super.getPacketString() + ", correlationID=" + correlationID;
    }
 
    @Override

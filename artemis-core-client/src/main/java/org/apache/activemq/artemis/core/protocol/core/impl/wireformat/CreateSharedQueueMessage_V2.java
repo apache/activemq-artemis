@@ -295,8 +295,8 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", address=" + address);
       buff.append(", queueName=" + queueName);
       buff.append(", filterString=" + filterString);
@@ -320,7 +320,6 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
       buff.append(", ringSize=" + ringSize);
       buff.append(", enabled=" + enabled);
       buff.append(", requiresResponse=" + requiresResponse);
-      buff.append("]");
       return buff.toString();
    }
 

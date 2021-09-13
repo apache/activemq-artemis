@@ -87,7 +87,7 @@ public final class ReplicationLiveIsStoppingMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return super.toString() + ":" + liveStopping;
+   protected String getPacketString() {
+      return super.getPacketString() + ", liveStopping=" + liveStopping;
    }
 }

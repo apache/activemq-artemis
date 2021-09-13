@@ -103,7 +103,7 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return getParentString() + ", problem=" + problem.name() + "]";
+   protected String getPacketString() {
+      return super.getPacketString() + ", problem=" + problem.name();
    }
 }

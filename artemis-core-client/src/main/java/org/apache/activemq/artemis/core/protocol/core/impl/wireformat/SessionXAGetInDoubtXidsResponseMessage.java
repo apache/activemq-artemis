@@ -68,8 +68,8 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", xids=" + xids);
       buff.append("]");
       return buff.toString();

@@ -90,17 +90,8 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
    }
 
    @Override
-   protected String getParentString() {
-      return toString(false);
-   }
-
-   @Override
-   public String toString() {
-      return toString(true);
-   }
-
-   private String toString(boolean closed) {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", exit=" + exit);
       buff.append(", last=" + last);
       buff.append(", nodeID=" + nodeID);
@@ -108,9 +99,6 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
       buff.append(", backupGroupName=" + backupGroupName);
       buff.append(", uniqueEventID=" + uniqueEventID);
       buff.append(", scaleDownGroupName=" + scaleDownGroupName);
-      if (closed) {
-         buff.append("]");
-      }
       return buff.toString();
    }
 

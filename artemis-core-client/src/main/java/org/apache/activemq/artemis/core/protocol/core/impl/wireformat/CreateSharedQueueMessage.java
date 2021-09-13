@@ -57,14 +57,13 @@ public class CreateSharedQueueMessage extends PacketImpl {
    // Public --------------------------------------------------------
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", address=" + address);
       buff.append(", queueName=" + queueName);
       buff.append(", filterString=" + filterString);
       buff.append(", durable=" + durable);
       buff.append(", requiresResponse=" + requiresResponse);
-      buff.append("]");
       return buff.toString();
    }
 
