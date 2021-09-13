@@ -27,6 +27,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -151,6 +152,8 @@ public class PagedMirrorTest extends ActiveMQTestBase {
       Wait.assertEquals(0, snf2::getMessageCount);
       Wait.assertEquals(1, () -> acksCount(countJournalLocation), 5000, 1000);
 
+      HashSet<Integer> receivedIDs = new HashSet<>();
+
       try (Connection consumeConnection = secondConsumeCF.createConnection()) {
          Session consumeSession = consumeConnection.createSession(true, Session.SESSION_TRANSACTED);
          Queue jmsQueue = consumeSession.createQueue("someQueue");
@@ -161,8 +164,18 @@ public class PagedMirrorTest extends ActiveMQTestBase {
             TextMessage message = (TextMessage) consumer.receive(6000);
             Assert.assertNotNull(message);
             Assert.assertNotEquals(ACK_I, message.getIntProperty("i"));
+            receivedIDs.add(message.getIntProperty("i"));
          }
          Assert.assertNull(consumer.receiveNoWait());
+
+
+         Assert.assertEquals(NUMBER_OF_MESSAGES - 1, receivedIDs.size());
+
+         for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+            if (i != ACK_I) {
+               Assert.assertTrue(receivedIDs.contains(i));
+            }
+         }
       }
    }
 
