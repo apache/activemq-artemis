@@ -135,14 +135,13 @@ public class PageAckScanTest extends ActiveMQTestBase {
 
       AtomicInteger retried = new AtomicInteger(0);
       PageSubscription subscription = queue.getPageSubscription();
-      subscription.addScanAck(() -> false, new CompareI(15), done, notFound);
-      subscription.addScanAck(() -> false, new CompareI(11), done, notFound);
-      subscription.addScanAck(() -> false, new CompareI(99), done, notFound);
-      subscription.addScanAck(() -> false, new CompareI(-30), done, notFound);
-      subscription.addScanAck(() -> {
+      subscription.scanAck(() -> false, new CompareI(15), done, notFound);
+      subscription.scanAck(() -> false, new CompareI(11), done, notFound);
+      subscription.scanAck(() -> false, new CompareI(99), done, notFound);
+      subscription.scanAck(() -> false, new CompareI(-30), done, notFound);
+      subscription.scanAck(() -> {
          retried.incrementAndGet();
          return true;}, new CompareI(333), done, notFound);
-      subscription.performScanAck();
       Assert.assertTrue(latch.await(5, TimeUnit.MINUTES));
       Assert.assertEquals(2, errors.get());
       Wait.assertEquals(1, retried::get);

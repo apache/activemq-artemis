@@ -114,8 +114,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    // Each CursorIterator will record their current PageReader in this map
    private final ConcurrentLongHashMap<PageReader> pageReaders = new ConcurrentLongHashMap<>();
-   private final AtomicInteger scheduledScanCount = new AtomicInteger(0);
 
+   /** this variable governs if we need to schedule another runner to look after the scanList. */
+   private boolean pageScanNeeded = true;
    private final LinkedList<PageScan> scanList = new LinkedList();
 
    private static class PageScan {
@@ -145,29 +146,25 @@ public final class PageSubscriptionImpl implements PageSubscription {
    }
 
    @Override
-   public void addScanAck(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound) {
+   public void scanAck(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound) {
       PageScan scan = new PageScan(retryBeforeScan, scanFunction, found, notFound);
+      boolean pageScanNeededLocal;
       synchronized (scanList) {
          scanList.add(scan);
+         pageScanNeededLocal = this.pageScanNeeded;
+         this.pageScanNeeded = false;
+      }
+
+      if (pageScanNeededLocal) {
+         executor.execute(this::performScanAck);
       }
    }
 
-   @Override
-   public void performScanAck() {
-      // we should only have a max of 2 scheduled tasks
-      // one that's might still be currently running, and another one lined up
-      // no need for more than that
-      if (scheduledScanCount.incrementAndGet() <= 2) {
-         executor.execute(this::actualScanAck);
-      } else {
-         scheduledScanCount.decrementAndGet();
-      }
-   }
-
-   private void actualScanAck() {
+   private void performScanAck() {
       try {
          PageScan[] localScanList;
          synchronized (scanList) {
+            this.pageScanNeeded = true;
             if (scanList.size() == 0) {
                return;
             }
@@ -273,8 +270,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
          }
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
-      } finally {
-         scheduledScanCount.decrementAndGet();
       }
    }
 
