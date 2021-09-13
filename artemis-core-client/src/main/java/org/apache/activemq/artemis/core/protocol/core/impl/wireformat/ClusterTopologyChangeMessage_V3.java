@@ -90,6 +90,11 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
    }
 
    @Override
+   protected String getParentString() {
+      return toString(false);
+   }
+
+   @Override
    public String toString() {
       return toString(true);
    }
