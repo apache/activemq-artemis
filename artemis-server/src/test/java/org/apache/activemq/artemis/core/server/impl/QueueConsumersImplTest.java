@@ -39,6 +39,9 @@ public class QueueConsumersImplTest {
       assertFalse(queueConsumers.hasNext());
 
       queueConsumers.add(testPriority);
+      // not visible till reset
+      assertFalse(queueConsumers.hasNext());
+
       queueConsumers.reset();
       assertTrue(queueConsumers.hasNext());
 
@@ -109,6 +112,31 @@ public class QueueConsumersImplTest {
 
    }
 
+   @Test
+   public void roundRobinEqualPriorityResetTest() {
+      queueConsumers.add(new TestPriority("A", 0));
+      queueConsumers.add(new TestPriority("B", 0));
+      queueConsumers.add(new TestPriority("C", 0));
+      queueConsumers.reset();
+      assertTrue(queueConsumers.hasNext());
+
+      assertEquals("A", queueConsumers.next().getName());
+
+      //Reset iterator should mark start as current position
+      queueConsumers.reset();
+      assertTrue(queueConsumers.hasNext());
+      assertEquals("B", queueConsumers.next().getName());
+
+      assertTrue(queueConsumers.hasNext());
+      assertEquals("C", queueConsumers.next().getName());
+
+      //Expect another A as after reset, we started at B so after A, we then expect the next level
+      assertTrue(queueConsumers.hasNext());
+      assertEquals("A", queueConsumers.next().getName());
+
+      //We have iterated all.
+      assertFalse(queueConsumers.hasNext());
+   }
 
 
 

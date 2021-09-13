@@ -268,11 +268,6 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void setConsumersRefCount(ReferenceCounter referenceCounter) {
-
-   }
-
-   @Override
    public void setInternalQueue(boolean internalQueue) {
       // no-op
 

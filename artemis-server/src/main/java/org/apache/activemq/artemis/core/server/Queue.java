@@ -178,14 +178,12 @@ public interface Queue extends Bindable,CriticalComponent {
    }
 
     /**
-    * This will set a reference counter for every consumer present on the queue.
+    * This will hold a reference counter for every consumer present on the queue.
     * The ReferenceCounter will know what to do when the counter became zeroed.
     * This is used to control what to do with temporary queues, especially
     * on shared subscriptions where the queue needs to be deleted when all the
     * consumers are closed.
     */
-   void setConsumersRefCount(ReferenceCounter referenceCounter);
-
    ReferenceCounter getConsumersRefCount();
 
    /* Called when a message is cancelled back into the queue */

@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,6 +51,8 @@ public class QueueImplTest {
       PageSubscription pageSubscription = Mockito.mock(PageSubscription.class);
       ExecutorService executorService = Executors.newSingleThreadExecutor();
       StorageManager storageManager = Mockito.mock(StorageManager.class);
+      ActiveMQServer server = Mockito.mock(ActiveMQServer.class);
+      ExecutorFactory executorFactory = Mockito.mock(ExecutorFactory.class);
 
       final int flushLimit = 100;
       final int pagedReferences = 5 * flushLimit;
@@ -76,10 +79,13 @@ public class QueueImplTest {
          return null;
       }).when(storageManager).afterCompleteOperations(Mockito.any(IOCallback.class));
 
+      // Mock server
+      Mockito.doReturn(executorFactory).when(server).getExecutorFactory();
+
       QueueImpl queue = new QueueImpl(0, address, address, null, null, pageSubscription, null, false,
                                       false, false, Mockito.mock(ScheduledExecutorService.class),
                                       Mockito.mock(PostOffice.class), storageManager, null,
-                                      Mockito.mock(ArtemisExecutor.class), Mockito.mock(ActiveMQServer.class),
+                                      Mockito.mock(ArtemisExecutor.class), server,
                                       Mockito.mock(QueueFactory.class));
 
       Mockito.doReturn(queue).when(pageSubscription).getQueue();

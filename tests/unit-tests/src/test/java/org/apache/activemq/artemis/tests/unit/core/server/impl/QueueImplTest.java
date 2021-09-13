@@ -71,12 +71,16 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    private ExecutorService executor;
 
+   private ActiveMQServer defaultServer;
+
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
       scheduledExecutor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory());
       executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      defaultServer = createServer(createDefaultConfig(1, false));
+      defaultServer.start();
    }
 
    @Override
@@ -1016,6 +1020,19 @@ public class QueueImplTest extends ActiveMQTestBase {
       Assert.assertEquals(0, consumer2.getReferences().size());
       Assert.assertEquals(0, consumer3.getReferences().size());
 
+      // verify redistributor not yet needed, only consumer3 gets to
+      // peek at pending
+      // should not attempt to add (and throw) due to unmatched not being set
+      queue.addRedistributor(0);
+
+      // on new message dispatch, need for redistributor will kick in
+      MessageReference ref = generateReference(queue, numMessages);
+      ref.getMessage().putStringProperty("color", "red");
+      refs.add(ref);
+
+      queue.addTail(ref);
+      queue.deliverNow();
+
       // verify redistributor is doing some work....
       try {
          // should attempt to add due to unmatched
@@ -1024,7 +1041,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       } catch (NullPointerException expected) {
       }
 
-      Assert.assertEquals(numMessages, getMessageCount(queue));
+      Assert.assertEquals(numMessages + 1, getMessageCount(queue));
    }
 
    @Test
@@ -1450,7 +1467,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       final QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), QueueImplTest.queue1,
                                             null, null, false, true, false,
                                             scheduledExecutor, null, null, null,
-                                            ArtemisExecutor.delegate(executor), null, null);
+                                            ArtemisExecutor.delegate(executor), defaultServer, null);
       queue.addConsumer(groupConsumer);
       queue.addConsumer(noConsumer);
       final MessageReference firstMessageReference = generateReference(queue, 1);
@@ -1490,6 +1507,6 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    private QueueImpl getQueue(SimpleString name, boolean durable, boolean temporary, Filter filter) {
       return new QueueImpl(1, QueueImplTest.address1, name, filter, null, durable, temporary, false, scheduledExecutor,
-                           new FakePostOffice(), null, null, ArtemisExecutor.delegate(executor), null, null);
+                           new FakePostOffice(), null, null, ArtemisExecutor.delegate(executor), defaultServer, null);
    }
 }

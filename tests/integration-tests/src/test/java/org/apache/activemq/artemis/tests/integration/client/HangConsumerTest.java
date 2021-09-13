@@ -351,7 +351,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       // Forcing a situation where the server would unexpectedly create a duplicated queue. The server should still start normally
       LocalQueueBinding newBinding = new LocalQueueBinding(QUEUE,
                                                            new QueueImpl(queueID, QUEUE, QUEUE, null, null, true, false,
-                                                                         false, null, null, null, null, null, null, null),
+                                                                         false, null, null, null, null, null, server, null),
                                                            server.getNodeID());
       server.getStorageManager().addQueueBinding(txID, newBinding);
       server.getStorageManager().commitBindings(txID);
