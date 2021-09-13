@@ -89,19 +89,13 @@ public interface PageSubscription {
    void confirmPosition(Transaction tx, PagePosition position) throws Exception;
 
    /**
-    * Add a scanFunction represented by a ToIntFunction
-    * the execution will be done when you call {@link #performScanAck()}
+    * This method will schedule scanning over Paging, however a retry should be done before the scanning.
     * @param retryBeforeScan if this function is called and returns true, the scan for this element will not be called. It would be caller's responsibility to call found.
     * @param scanFunction
     * @param found
     * @param notFound
     */
-   void addScanAck(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound);
-
-   /**
-    * It will perform all scans added by {@link #addScanAck(BooleanSupplier, ToIntFunction, Runnable, Runnable)}
-    */
-   void performScanAck();
+   void scanAck(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound);
 
 
       /**

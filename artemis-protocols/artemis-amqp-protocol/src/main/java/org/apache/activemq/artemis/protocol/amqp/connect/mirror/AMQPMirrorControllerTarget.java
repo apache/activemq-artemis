@@ -359,8 +359,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    public void performAckOnPage(String nodeID, long messageID, Queue targetQueue, IOCallback ackMessageOperation) {
       PageAck pageAck = new PageAck(targetQueue, nodeID, messageID, ackMessageOperation);
-      targetQueue.getPageSubscription().addScanAck(pageAck, pageAck, pageAck, pageAck);
-      targetQueue.getPageSubscription().performScanAck();
+      targetQueue.getPageSubscription().scanAck(pageAck, pageAck, pageAck, pageAck);
    }
 
    private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, boolean retry) {
