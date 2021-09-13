@@ -54,15 +54,14 @@ public class SessionCreateConsumerMessage extends QueueAbstractPacket {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", queueName=" + queueName);
       buff.append(", filterString=" + filterString);
       buff.append(", id=" + id);
       buff.append(", browseOnly=" + browseOnly);
       buff.append(", requiresResponse=" + requiresResponse);
       buff.append(", priority=" + priority);
-      buff.append("]");
       return buff.toString();
    }
 

@@ -60,8 +60,8 @@ public class SessionXACommitMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return getParentString() + ", xid=" + xid + ", onePhase=" + onePhase + "]";
+   public String getPacketString() {
+      return super.getPacketString() + ", xid=" + xid + ", onePhase=" + onePhase + "]";
    }
 
    @Override

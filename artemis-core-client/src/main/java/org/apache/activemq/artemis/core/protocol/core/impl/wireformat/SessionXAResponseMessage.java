@@ -85,8 +85,8 @@ public class SessionXAResponseMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", error=" + error);
       buff.append(", message=" + message);
       buff.append(", responseCode=" + responseCode);

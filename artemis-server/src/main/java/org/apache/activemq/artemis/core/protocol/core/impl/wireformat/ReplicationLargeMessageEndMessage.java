@@ -86,10 +86,9 @@ public class ReplicationLargeMessageEndMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return "ReplicationLargeMessageEndMessage{" +
-         "messageId=" + messageId + ", isDelete=" + isDelete +
-         '}';
+   protected String getPacketString() {
+      return  super.getPacketString() +
+         "messageId=" + messageId + ", isDelete=" + isDelete;
    }
 
    @Override

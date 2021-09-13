@@ -54,12 +54,11 @@ public class DisconnectMessage_V2 extends DisconnectMessage {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buf = new StringBuffer(getParentString());
-      buf.append(", nodeID=" + nodeID);
-      buf.append(", scaleDownNodeID=" + scaleDownNodeID);
-      buf.append("]");
-      return buf.toString();
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
+      buff.append(", nodeID=" + nodeID);
+      buff.append(", scaleDownNodeID=" + scaleDownNodeID);
+      return buff.toString();
    }
 
    @Override

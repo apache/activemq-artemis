@@ -62,10 +62,9 @@ public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTo
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", clientVersion=" + clientVersion);
-      buff.append("]");
       return buff.toString();
    }
 

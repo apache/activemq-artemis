@@ -64,13 +64,12 @@ public class SessionXAResponseMessage_V2 extends SessionXAResponseMessage {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", error=" + error);
       buff.append(", message=" + message);
       buff.append(", responseCode=" + responseCode);
       buff.append(", correlationID=" + correlationID);
-      buff.append("]");
       return buff.toString();
    }
 

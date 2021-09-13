@@ -66,11 +66,10 @@ public class CreateSessionMessage_V2 extends CreateSessionMessage {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buf = new StringBuffer(getParentString());
-      buf.append(", metadata=" + clientID);
-      buf.append("]");
-      return buf.toString();
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
+      buff.append(", metadata=" + clientID);
+      return buff.toString();
    }
 
    @Override

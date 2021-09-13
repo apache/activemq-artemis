@@ -145,13 +145,12 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", exit=" + exit);
       buff.append(", last=" + last);
       buff.append(", nodeID=" + nodeID);
       buff.append(", pair=" + pair);
-      buff.append("]");
       return buff.toString();
    }
 

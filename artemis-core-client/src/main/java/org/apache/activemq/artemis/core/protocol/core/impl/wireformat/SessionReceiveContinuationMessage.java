@@ -107,10 +107,9 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", consumerID=" + consumerID);
-      buff.append("]");
       return buff.toString();
    }
 

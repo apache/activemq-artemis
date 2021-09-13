@@ -52,12 +52,11 @@ public class CreateAddressMessage extends PacketImpl {
    // Public --------------------------------------------------------
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", address=" + address);
       buff.append(", routingTypes=" + routingTypes);
       buff.append(", autoCreated=" + autoCreated);
-      buff.append("]");
       return buff.toString();
    }
 

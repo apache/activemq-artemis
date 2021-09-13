@@ -74,10 +74,9 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", largeMessage=" + largeMessage);
-      buff.append("]");
       return buff.toString();
    }
 

@@ -59,9 +59,8 @@ public class SessionXAForgetMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
-      buff.append(", xid=" + xid);
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append("]");
       return buff.toString();
    }

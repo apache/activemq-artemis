@@ -42,8 +42,8 @@ public abstract class MessagePacket extends PacketImpl implements MessagePacketI
    }
 
    @Override
-   public String getParentString() {
-      return super.getParentString() + ", message=" + message;
+   protected String getPacketString() {
+      return super.getPacketString() + ", message=" + message;
    }
 
 }

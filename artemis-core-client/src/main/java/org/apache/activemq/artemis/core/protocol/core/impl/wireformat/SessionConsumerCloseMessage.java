@@ -50,8 +50,8 @@ public class SessionConsumerCloseMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return getParentString() + ", consumerID=" + consumerID + "]";
+   protected String getPacketString() {
+      return super.getPacketString() + ", consumerID=" + consumerID;
    }
 
    @Override

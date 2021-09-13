@@ -63,10 +63,9 @@ public final class Ping extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buf = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buf = new StringBuffer(super.getPacketString());
       buf.append(", connectionTTL=" + connectionTTL);
-      buf.append("]");
       return buf.toString();
    }
 

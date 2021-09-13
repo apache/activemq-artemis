@@ -57,8 +57,8 @@ public class SessionConsumerFlowCreditMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return getParentString() + ", consumerID=" + consumerID + ", credits=" + credits + "]";
+   protected String getPacketString() {
+      return super.getPacketString() + ", consumerID=" + consumerID + ", credits=" + credits;
    }
 
    @Override

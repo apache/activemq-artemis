@@ -87,9 +87,10 @@ public class ReplicationPageEventMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return ReplicationPageEventMessage.class.getSimpleName() + "(channel=" + channelID + ", isDelete=" + isDelete +
-         ", storeName=" + storeName + ", pageNumber=" + pageNumber + ")";
+   protected String getPacketString() {
+      String baseString = super.getPacketString();
+      return baseString + ", channel=" + channelID + ", isDelete=" + isDelete +
+         ", storeName=" + storeName + ", pageNumber=" + pageNumber;
    }
 
    @Override

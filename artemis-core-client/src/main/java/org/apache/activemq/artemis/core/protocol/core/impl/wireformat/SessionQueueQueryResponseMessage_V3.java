@@ -423,15 +423,8 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
-      buff.append("]");
-      return buff.toString();
-   }
-
-   @Override
-   public String getParentString() {
-      StringBuffer buff = new StringBuffer(super.getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", autoCreated=" + autoCreated);
       buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
       buff.append(", routingType=" + routingType);

@@ -61,8 +61,8 @@ public class SessionXAEndMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      return getParentString() + ", xid=" + xid + ", failed=" + failed + "]";
+   public String getPacketString() {
+      return super.getPacketString() + ", xid=" + xid + ", failed=" + failed + "]";
    }
 
    @Override

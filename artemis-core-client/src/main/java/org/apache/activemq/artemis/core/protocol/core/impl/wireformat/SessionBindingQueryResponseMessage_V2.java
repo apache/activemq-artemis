@@ -70,15 +70,8 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
-      buff.append("]");
-      return buff.toString();
-   }
-
-   @Override
-   public String getParentString() {
-      StringBuffer buff = new StringBuffer(super.getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", autoCreateQueues=" + autoCreateQueues);
       return buff.toString();
    }

@@ -151,13 +151,12 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buff = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buff = new StringBuffer(super.getPacketString());
       buff.append(", continues=" + continues);
       buff.append(", message=" + message);
       buff.append(", messageBodySize=" + messageBodySize);
       buff.append(", requiresResponse=" + requiresResponse);
-      buff.append("]");
       return buff.toString();
    }
 

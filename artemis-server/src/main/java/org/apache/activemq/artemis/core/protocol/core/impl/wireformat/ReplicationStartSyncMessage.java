@@ -228,14 +228,13 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    }
 
    @Override
-   public String toString() {
-      StringBuffer buf = new StringBuffer(getParentString());
+   protected String getPacketString() {
+      StringBuffer buf = new StringBuffer(super.getPacketString());
       buf.append(", synchronizationIsFinished=" + synchronizationIsFinished);
       buf.append(", dataType=" + dataType);
       buf.append(", nodeID=" + nodeID);
       buf.append(", ids=" + Arrays.toString(ids));
       buf.append(", allowsAutoFailBack=" + allowsAutoFailBack);
-      buf.append("]");
       return buf.toString();
    }
 }

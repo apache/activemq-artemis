@@ -69,11 +69,6 @@ public class ActiveMQExceptionMessage_V2 extends ActiveMQExceptionMessage {
    }
 
    @Override
-   public String toString() {
-      return getParentString() + ", exception= " + exception + "]";
-   }
-
-   @Override
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
