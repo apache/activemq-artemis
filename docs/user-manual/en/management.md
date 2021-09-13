@@ -305,27 +305,31 @@ the broker's JAAS plugin support.  This is configured via the `authorisation`
 element in the `management.xml` configuration file and can be used to restrict
 access to attributes and methods on MBeans.
 
-There are 3 elements within the `authorisation` element, `whitelist`,
+There are 3 elements within the `authorisation` element, `allowlist`,
 `default-access` and `role-access`. Lets discuss each in turn.
 
-Whitelist contains a list of MBeans that will bypass the authorisation, this
+Allowlist contains a list of MBeans that will bypass the authorisation, this
 is typically used for any MBeans that are needed by the console to run etc. The
 default configuration is:
 
 ```xml
-<whitelist>
+<allowlist>
    <entry domain="hawtio"/>
-</whitelist>
+</allowlist>
 ```
 This means that any MBean with the domain `hawtio` will be allowed access
 without authorisation. for instance `hawtio:plugin=artemis`. You can also use
 wildcards for the MBean properties so the following would also match.
 
 ```xml
-<whitelist>
+<allowlist>
    <entry domain="hawtio" key="type=*"/>
-</whitelist>
+</allowlist>
 ```
+
+> **Note:**
+>
+> The allowlist element has replaced the whitelist element which is now deprecated
 
 The `role-access`defines how roles are mapped to particular MBeans and its
 attributes and methods, the default configuration looks like:
