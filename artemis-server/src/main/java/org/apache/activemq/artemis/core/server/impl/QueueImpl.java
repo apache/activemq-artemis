@@ -179,7 +179,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    protected final PageSubscription pageSubscription;
 
-   private ReferenceCounter refCountForConsumers;
+   private final ReferenceCounter refCountForConsumers;
 
    private final PageIterator pageIterator;
 
@@ -218,17 +218,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    protected final ScheduledDeliveryHandler scheduledDeliveryHandler;
 
-   private AtomicLong messagesAdded = new AtomicLong(0);
+   private final AtomicLong messagesAdded = new AtomicLong(0);
 
-   private AtomicLong messagesAcknowledged = new AtomicLong(0);
+   private final AtomicLong messagesAcknowledged = new AtomicLong(0);
 
-   private AtomicLong ackAttempts = new AtomicLong(0);
+   private final AtomicLong ackAttempts = new AtomicLong(0);
 
-   private AtomicLong messagesExpired = new AtomicLong(0);
+   private final AtomicLong messagesExpired = new AtomicLong(0);
 
-   private AtomicLong messagesKilled = new AtomicLong(0);
+   private final AtomicLong messagesKilled = new AtomicLong(0);
 
-   private AtomicLong messagesReplaced = new AtomicLong(0);
+   private final AtomicLong messagesReplaced = new AtomicLong(0);
 
    private boolean paused;
 
@@ -261,8 +261,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final SimpleString address;
 
-   // redistributor goes in the consumers list, this signals its presence and allows for easy comparison/check
-   private volatile ConsumerHolder<Redistributor> redistributor;
+   // redistributor singleton goes in the consumers list
+   private ConsumerHolder<Redistributor> redistributor;
 
    private ScheduledFuture<?> redistributorFuture;
 
@@ -634,6 +634,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.id = queueConfiguration.getId();
 
       this.address = queueConfiguration.getAddress();
+      this.refCountForConsumers = queueConfiguration.isTransient() ? new TransientQueueManagerImpl(server, queueConfiguration.getName()) : new QueueManagerImpl(server, queueConfiguration.getName());
 
       this.addressInfo = postOffice == null ? null : postOffice.getAddressInfo(address);
 
@@ -861,13 +862,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    // Queue implementation ----------------------------------------------------------------------------------------
-   @Override
-   public synchronized void setConsumersRefCount(final ReferenceCounter referenceCounter) {
-      if (refCountForConsumers == null) {
-         this.refCountForConsumers = referenceCounter;
-      }
-   }
-
    @Override
    public ReferenceCounter getConsumersRefCount() {
       return refCountForConsumers;
@@ -1442,13 +1436,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                if (delayBeforeDispatch >= 0) {
                   dispatchStartTimeUpdater.compareAndSet(this,-1, delayBeforeDispatch + System.currentTimeMillis());
                }
-
-            }
-
-            if (refCountForConsumers != null) {
                refCountForConsumers.increment();
             }
-
          }
       }
    }
@@ -1485,7 +1474,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (consumerRemoved) {
                consumerRemovedTimestampUpdater.set(this, System.currentTimeMillis());
-               if (getConsumerCount() == 0) {
+               if (refCountForConsumers.decrement() == 0) {
                   stopDispatch();
                }
             }
@@ -1495,11 +1484,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             groups.removeIf(consumer::equals);
-
-
-            if (refCountForConsumers != null) {
-               refCountForConsumers.decrement();
-            }
 
          }
       }
@@ -1557,7 +1541,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void cancelRedistributor() {
       clearRedistributorFuture();
-
+      hasUnMatchedPending = false;
       if (redistributor != null) {
          try {
             redistributor.consumer.stop();
@@ -1572,18 +1556,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public int getConsumerCount() {
-      // we don't want to count the redistributor, it is an internal transient entry in the consumer list
-      if (redistributor != null) {
-         synchronized (this) {
-            final int size = consumers.size();
-            if (size > 0 && redistributor != null) {
-               return size - 1;
-            } else {
-               return size;
-            }
-         }
-      }
-      return consumers.size();
+      return refCountForConsumers.getCount();
    }
 
    @Override
@@ -3014,7 +2987,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          synchronized (this) {
 
             // Need to do these checks inside the synchronized
-            if (isPaused() || !canDispatch() && redistributor == null) {
+            if (isPaused() || !canDispatch()) {
                return false;
             }
 
@@ -3082,9 +3055,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   numNoMatch = 0;
                   numAttempts = 0;
 
-                  if (consumer != redistributor) {
-                     ref = handleMessageGroup(ref, consumer, groupConsumer, groupID);
-                  }
+                  ref = handleMessageGroup(ref, consumer, groupConsumer, groupID);
 
                   deliveriesInTransit.countUp();
 
@@ -3118,7 +3089,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   consumers.reset();
                   numNoMatch++;
                   // every attempt resulted in noMatch for number of consumers means we tried all consumers for a single message
-                  if (numNoMatch == numAttempts && numAttempts == consumers.size()) {
+                  if (numNoMatch == numAttempts && numAttempts == consumers.size() && redistributor == null) {
                      hasUnMatchedPending = true;
                      // one hit of unmatched message is enough, no need to reset counters
                   }
@@ -3753,7 +3724,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (!supportsDirectDeliver) {
             return false;
          }
-         if (isPaused() || !canDispatch() && redistributor == null) {
+         if (isPaused() || !canDispatch()) {
             return false;
          }
 
@@ -3777,12 +3748,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             HandleStatus status = handle(ref, consumer);
             if (status == HandleStatus.HANDLED) {
-               final MessageReference reference;
-               if (consumer != redistributor) {
-                  reference = handleMessageGroup(ref, consumer, groupConsumer, groupID);
-               } else {
-                  reference = ref;
-               }
+               final MessageReference reference = handleMessageGroup(ref, consumer, groupConsumer, groupID);
 
                incrementMesssagesAdded();
 
@@ -3793,7 +3759,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                return true;
             }
 
-            if (redistributor != null || groupConsumer != null) {
+            if (groupConsumer != null) {
                break;
             }
          }

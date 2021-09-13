@@ -1130,11 +1130,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void setConsumersRefCount(ReferenceCounter referenceCounter) {
-
-      }
-
-      @Override
       public ReferenceCounter getConsumersRefCount() {
          return null;
       }
