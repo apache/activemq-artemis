@@ -29,35 +29,35 @@ public class JMXAccessControlListTest {
    @Test
    public void testBasicDomain() throws MalformedObjectNameException {
       JMXAccessControlList controlList = new JMXAccessControlList();
-      controlList.addToWhiteList("org.myDomain", null);
-      controlList.addToWhiteList("org.myDomain.foo", null);
-      Assert.assertTrue(controlList.isInWhiteList(new ObjectName("org.myDomain:*")));
-      Assert.assertTrue(controlList.isInWhiteList(new ObjectName("org.myDomain.foo:*")));
-      Assert.assertFalse(controlList.isInWhiteList(new ObjectName("org.myDomain.bar:*")));
+      controlList.addToAllowList("org.myDomain", null);
+      controlList.addToAllowList("org.myDomain.foo", null);
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
    }
 
    @Test
    public void testBasicDomainWithProperty() throws MalformedObjectNameException {
       JMXAccessControlList controlList = new JMXAccessControlList();
-      controlList.addToWhiteList("org.myDomain", "type=foo");
-      controlList.addToWhiteList("org.myDomain.foo", "type=bar");
-      Assert.assertFalse(controlList.isInWhiteList(new ObjectName("org.myDomain:*")));
-      Assert.assertFalse(controlList.isInWhiteList(new ObjectName("org.myDomain.foo:*")));
-      Assert.assertFalse(controlList.isInWhiteList(new ObjectName("org.myDomain.bar:*")));
-      Assert.assertFalse(controlList.isInWhiteList(new ObjectName("org.myDomain:subType=foo")));
+      controlList.addToAllowList("org.myDomain", "type=foo");
+      controlList.addToAllowList("org.myDomain.foo", "type=bar");
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:subType=foo")));
 
-      Assert.assertTrue(controlList.isInWhiteList(new ObjectName("org.myDomain:type=foo")));
-      Assert.assertTrue(controlList.isInWhiteList(new ObjectName("org.myDomain:subType=bar,type=foo")));
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:type=foo")));
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:subType=bar,type=foo")));
    }
 
    @Test
    public void testBasicDomainWithWildCardProperty() throws MalformedObjectNameException {
       JMXAccessControlList controlList = new JMXAccessControlList();
-      controlList.addToWhiteList("org.myDomain", "type=*");
-      Assert.assertFalse(controlList.isInWhiteList(new ObjectName("org.myDomain:*")));
-      Assert.assertFalse(controlList.isInWhiteList(new ObjectName("org.myDomain.foo:*")));
-      Assert.assertFalse(controlList.isInWhiteList(new ObjectName("org.myDomain.bar:*")));
-      Assert.assertTrue(controlList.isInWhiteList(new ObjectName("org.myDomain:type=foo")));
+      controlList.addToAllowList("org.myDomain", "type=*");
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:type=foo")));
    }
 
    @Test

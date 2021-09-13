@@ -33,7 +33,7 @@ public class JMXAccessControlList {
 
    private Access defaultAccess = new Access(WILDCARD);
    private ConcurrentHashMap<String, TreeMap<String, Access>> domainAccess = new ConcurrentHashMap<>();
-   private ConcurrentHashMap<String, TreeMap<String, Access>> whitelist = new ConcurrentHashMap<>();
+   private ConcurrentHashMap<String, TreeMap<String, Access>> allowList = new ConcurrentHashMap<>();
    private Comparator<String> keyComparator = (key1, key2) -> {
       boolean key1ContainsWildCard = key1.contains(WILDCARD);
       boolean key2ContainsWildcard = key2.contains(WILDCARD);
@@ -48,11 +48,11 @@ public class JMXAccessControlList {
       return key2.length() - key1.length();
    };
 
-   public void addToWhiteList(String domain, String key) {
+   public void addToAllowList(String domain, String key) {
       TreeMap<String, Access> domainMap = new TreeMap<>(keyComparator);
-      domainMap = whitelist.putIfAbsent(domain, domainMap);
+      domainMap = allowList.putIfAbsent(domain, domainMap);
       if (domainMap == null) {
-         domainMap = whitelist.get(domain);
+         domainMap = allowList.get(domain);
       }
       Access access = new Access(domain, normalizeKey(key));
       domainMap.putIfAbsent(access.getKey(), access);
@@ -81,8 +81,8 @@ public class JMXAccessControlList {
       return defaultAccess.getMatchingRolesForMethod(methodName);
    }
 
-   public boolean isInWhiteList(ObjectName objectName) {
-      TreeMap<String, Access> domainMap = whitelist.get(objectName.getDomain());
+   public boolean isInAllowList(ObjectName objectName) {
+      TreeMap<String, Access> domainMap = allowList.get(objectName.getDomain());
       if (domainMap != null) {
          if (domainMap.containsKey("")) {
             return true;
@@ -223,7 +223,7 @@ public class JMXAccessControlList {
    public static JMXAccessControlList createDefaultList() {
       JMXAccessControlList accessControlList = new JMXAccessControlList();
 
-      accessControlList.addToWhiteList("hawtio", "type=*");
+      accessControlList.addToAllowList("hawtio", "type=*");
 
       accessControlList.addToRoleAccess("org.apache.activemq.artemis", null, "list*", "view", "update", "amq");
       accessControlList.addToRoleAccess("org.apache.activemq.artemis", null, "get*", "view", "update", "amq");

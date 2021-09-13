@@ -18,9 +18,9 @@
 <management-context xmlns="http://activemq.org/schema">
    <connector connector-port="10099" connector-host="localhost"/>
    <authorisation>
-      <whitelist>
+      <allowlist>
          <entry domain="hawtio"/>
-      </whitelist>
+      </allowlist>
       <default-access>
          <access method="list*" roles="guest"/>
          <access method="get*" roles="guest"/>

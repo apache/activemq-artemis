@@ -2178,4 +2178,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224109, value = "BrokerBalancer {0} not found", format = Message.Format.MESSAGE_FORMAT)
    void brokerBalancerNotFound(String name);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224110, value = "Configuration 'whitelist' is deprecated, please use the 'allowlist' configuration", format = Message.Format.MESSAGE_FORMAT)
+   void useAllowList();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224111, value = "Both 'whitelist' and 'allowlist' detected. Configuration 'whitelist' is deprecated, please use only the 'allowlist' configuration", format = Message.Format.MESSAGE_FORMAT)
+   void useOnlyAllowList();
 }

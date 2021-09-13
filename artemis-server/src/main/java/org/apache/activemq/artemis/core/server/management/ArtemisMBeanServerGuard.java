@@ -117,7 +117,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
    }
 
    private boolean canBypassRBAC(ObjectName objectName) {
-      return jmxAccessControlList.isInWhiteList(objectName);
+      return jmxAccessControlList.isInAllowList(objectName);
    }
 
    public boolean canInvoke(String object, String operationName) {

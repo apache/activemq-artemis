@@ -25,9 +25,9 @@
          trust-store-path="${data.dir}/../etc/client-ca-truststore.jks"
          trust-store-password="ENC(1f0e6cd7ced61232730f9e82cc91c1e1)"/>
    <authorisation>
-      <whitelist>
+      <allowlist>
          <entry domain="hawtio"/>
-      </whitelist>
+      </allowlist>
       <default-access>
          <access method="list*" roles="view,update,amq,guest"/>
          <access method="get*" roles="view,update,amq,guest"/>

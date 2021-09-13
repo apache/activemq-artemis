@@ -19,14 +19,17 @@ package org.apache.activemq.artemis.cli.factory.jmx;
 
 import org.apache.activemq.artemis.cli.ConfigurationException;
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.dto.AccessDTO;
+import org.apache.activemq.artemis.dto.AllowListDTO;
 import org.apache.activemq.artemis.dto.AuthorisationDTO;
 import org.apache.activemq.artemis.dto.EntryDTO;
 import org.apache.activemq.artemis.dto.JMXConnectorDTO;
 import org.apache.activemq.artemis.dto.ManagementContextDTO;
 import org.apache.activemq.artemis.dto.MatchDTO;
 import org.apache.activemq.artemis.core.server.management.JMXAccessControlList;
+import org.apache.activemq.artemis.dto.WhiteListDTO;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.FactoryFinder;
 
@@ -67,9 +70,23 @@ public class ManagementFactory {
       if (config.getAuthorisation() != null) {
          AuthorisationDTO authorisation = config.getAuthorisation();
          JMXAccessControlList accessControlList = new JMXAccessControlList();
-         List<EntryDTO> entries = authorisation.getWhiteList().getEntries();
-         for (EntryDTO entry : entries) {
-            accessControlList.addToWhiteList(entry.domain, entry.key);
+         //deprecated but here for backward compatibility
+         WhiteListDTO whiteList = authorisation.getWhiteList();
+         if (whiteList != null) {
+            ActiveMQServerLogger.LOGGER.useAllowList();
+            for (EntryDTO entry : whiteList.getEntries()) {
+               accessControlList.addToAllowList(entry.domain, entry.key);
+            }
+         }
+
+         AllowListDTO allowList = authorisation.getAllowList();
+         if (allowList != null) {
+            if (whiteList != null) {
+               ActiveMQServerLogger.LOGGER.useOnlyAllowList();
+            }
+            for (EntryDTO entry : allowList.getEntries()) {
+               accessControlList.addToAllowList(entry.domain, entry.key);
+            }
          }
 
          List<AccessDTO> accessList = authorisation.getDefaultAccess().getAccess();
