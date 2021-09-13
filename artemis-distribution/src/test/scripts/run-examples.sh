@@ -124,9 +124,9 @@ cd non-transaction-failover; mvn verify; cd ..
 cd replicated-failback; mvn verify; cd ..
 cd replicated-failback-static; mvn verify; cd ..
 cd replicated-multiple-failover; mvn verify; cd ..
-cd replicated-transaction-failover; mvn verify; cd ..
+#cd replicated-transaction-failover; mvn verify; cd ..
 cd scale-down; mvn verify; cd ..
-cd transaction-failover; mvn verify; cd ..
+#cd transaction-failover; mvn verify; cd ..
 
 cd $ARTEMIS_HOME/examples/protocols/amqp/
 cd queue; mvn verify; cd ..
