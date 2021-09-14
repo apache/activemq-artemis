@@ -784,7 +784,7 @@ public class Create extends InputAbstract {
             "      This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.\n\n" +
             "      it is recommended to use a separate storage unit from the journal for performance considerations.\n\n" +
             "      <journal-retention-directory period=\"7\" unit=\"DAYS\" storage-limit=\"10G\">data/retention</journal-retention-directory>\n\n" +
-            "      Or you can also create your broker using the argument on the journal-retention on the artemis create command -->\n\n";
+            "      You can also enable retention by using the argument journal-retention on the `artemis create` command -->\n\n";
       }
 
       filters.put("${journal-retention}", retentionTag);
