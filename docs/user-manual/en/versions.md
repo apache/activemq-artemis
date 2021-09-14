@@ -12,33 +12,64 @@ This chapter provides the following information for each release:
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12349689).
 
 Highlights:
-- Dual Mirror support improving capabilities on AMQP Mirror for Disaster Recovery
-- Journal Retention
-- Replication integrated with ZookeeperA
-- Broker load balancer
+- [Dual Mirror](amqp-broker-connections.md#dual-mirror-disaster-recovery)
+  support improving capabilities on AMQP Mirror for Disaster Recovery
+- [Journal Retention](persistence.md#journal-retention)
+- [Replication integrated with Zookeeper](ha.md#pluggable-quorum-vote-replication-configurations)
+- [Broker load balancer](broker-balancers.md)
+- [Concurrency](core-bridges.md#configuring-bridges) configuration for core
+  bridges.
+- [XPath filter expressions](filter-expressions.md#xpath) (for parity with 
+  ActiveMQ "Classic").
 
 #### Upgrading from older versions
 
-Due to [ARTEMIS-3367](https://issues.apache.org/jira/browse/ARTEMIS-3367) the 
-default setting for `verifyHost` on *core connectors* has been changed from
-`false` to `true`. This means that **core clients will now expect the `CN` or
-Subject Alternative Name values of the broker's SSL certificate to match the
-hostname in the client's URL**.
+1. Due to [ARTEMIS-3367](https://issues.apache.org/jira/browse/ARTEMIS-3367) the
+   default setting for `verifyHost` on *core connectors* has been changed from
+   `false` to `true`. This means that **core clients will now expect the `CN` or
+   Subject Alternative Name values of the broker's SSL certificate to match the
+   hostname in the client's URL**.
 
-This impacts all core-based clients including core JMS clients and core
-connections between cluster nodes. Although this is a "breaking" change, *not*
-performing hostname verification is a security risk (e.g. due to man-in-the-middle
-attacks). Enabling it by default aligns core client behavior with industry
-standards. To deal with this you can do one of the following:
+   This impacts all core-based clients including core JMS clients and core
+   connections between cluster nodes. Although this is a "breaking" change, *not*
+   performing hostname verification is a security risk (e.g. due to man-in-the-middle
+   attacks). Enabling it by default aligns core client behavior with industry
+   standards. To deal with this you can do one of the following:
 
-- Update your SSL certificates to use a hostname which matches the hostname
-  in the client's URL. This is the recommended option with regard to security.
-- Update any connector using `sslEnabled=true` to also use `verifyHost=false`.
-  Using this option means that you won't get the extra security of hostname
-  verification, but no certificates will need to change. This essentially 
-  restores the previous default behavior.
+   - Update your SSL certificates to use a hostname which matches the hostname
+     in the client's URL. This is the recommended option with regard to security.
+   - Update any connector using `sslEnabled=true` to also use `verifyHost=false`.
+     Using this option means that you won't get the extra security of hostname
+     verification, but no certificates will need to change. This essentially
+     restores the previous default behavior.
 
-For additional details about please refer to section 3.1 of [RFC 2818 "HTTP over TLS"](https://datatracker.ietf.org/doc/html/rfc2818#section-3.1).
+   For additional details about please refer to section 3.1 of [RFC 2818 "HTTP over TLS"](https://datatracker.ietf.org/doc/html/rfc2818#section-3.1).
+
+2. Due to [ARTEMIS-3117](https://issues.apache.org/jira/browse/ARTEMIS-3117)
+   SSL keystore and truststores are no longer reloaded automatically.
+   Previously an instance of `javax.net.ssl.SSLContext` was created for *every*
+   connection. This would implicitly pick up any changes to the keystore and 
+   truststore for any new connection. However, this was grossly inefficient and
+   therefore didn't scale well with lots of connections. The behavior was
+   changed so that just one `javax.net.ssl.SSLContext` is created for each
+   `acceptor`. However, one can still reload keystores & truststores from disk
+   without restarting the broker. Simply use the `reload` management operation
+   on the `acceptor`. This is available via JMX, the web console, Jolokia, etc.
+
+   Here's an example `curl` command you can use with Jolokia to invoke the
+   `artemis` acceptor's `reload` operation:
+   ```bash
+   curl --user admin:admin --header "Content-Type: application/json" --request POST --data '{"type":"exec", "mbean":"org.apache.activemq.artemis:broker=\"0.0.0.0\",component=acceptors,name=\"artemis\"", "operation":"reload"}' http://localhost:8161/console/jolokia/exec
+   ```
+   Of course you'll want to adjust the username & password as well as the
+   broker and acceptor names for your environment.
+
+3. The "rate" metric for queues was removed from the web console via [ARTEMIS-3397](https://issues.apache.org/jira/browse/ARTEMIS-3397).
+   This was a follow-up from [ARTEMIS-2909](https://issues.apache.org/jira/browse/ARTEMIS-2909)
+   in 2.16.0 (referenced in the [upgrade instructions below](#2160)). The
+   "rate" metric mistakenly left visible on the web console after it was
+   removed from the management API.
+
 
 ## 2.17.0
 
@@ -73,29 +104,62 @@ Highlights:
 
 #### Upgrading from older versions
 
-Due to [ARTEMIS-2893](https://issues.apache.org/jira/browse/ARTEMIS-2893) the
-fundamental way user management was implemented had to change to avoid data
-integrity issues related to concurrent modification. From a user's perspective
-two main things changed:
+1. Due to [ARTEMIS-2893](https://issues.apache.org/jira/browse/ARTEMIS-2893) the
+   fundamental way user management was implemented had to change to avoid data
+   integrity issues related to concurrent modification. From a user's perspective
+   two main things changed:
 
-1. User management is no longer possible using the `artemis user` commands
-   when the broker is **offline**. Of course users are still free to modify the
-   properties files directly in this situation.
-2. The parameters of the `artemis user` commands changed. Instead of using
-   something like this:
-   ```sh
-   ./artemis user add --user guest --password guest --role admin
-   ``` 
-   Use this instead:
-   ```sh
-   ./artemis user add --user-command-user guest --user-command-password guest --role admin
-   ```
-   In short, use `user-command-user` in lieu of `user` and `user-command-password`
-   in lieu of `password`. Both `user` and `password` parameters now apply to the
-   connection used to send the command to the broker.
-   
-   For additional details see [ARTEMIS-2893](https://issues.apache.org/jira/browse/ARTEMIS-2893)
-   and [ARTEMIS-3010](https://issues.apache.org/jira/browse/ARTEMIS-3010) 
+   1. User management is no longer possible using the `artemis user` commands
+      when the broker is **offline**. Of course users are still free to modify the
+      properties files directly in this situation.
+   2. The parameters of the `artemis user` commands changed. Instead of using
+      something like this:
+      ```sh
+      ./artemis user add --user guest --password guest --role admin
+      ``` 
+      Use this instead:
+      ```sh
+      ./artemis user add --user-command-user guest --user-command-password guest --role admin
+         ```
+      In short, use `user-command-user` in lieu of `user` and `user-command-password`
+      in lieu of `password`. Both `user` and `password` parameters now apply to the
+      connection used to send the command to the broker.
+      
+      For additional details see [ARTEMIS-2893](https://issues.apache.org/jira/browse/ARTEMIS-2893)
+      and [ARTEMIS-3010](https://issues.apache.org/jira/browse/ARTEMIS-3010)
+
+2. Due to [ARTEMIS-2909](https://issues.apache.org/jira/browse/ARTEMIS-2909) 
+   the "rate" metric was removed from the management API for queues. In short,
+   the `org.apache.activemq.artemis.core.server.Queue#getRate` method is for
+   slow-consumer detection and is designed for _internal_ use only.
+
+   Furthermore, it's too opaque to be trusted by a remote user as it only
+   returns the number of message added to the queue since *the last time
+   it was called*. The problem here is that the user calling it doesn't
+   know when it was invoked last. Therefore, they could be getting the
+   rate of messages added for the last 5 minutes or the last 5
+   milliseconds. This can lead to inconsistent and misleading results.
+
+   There are three main ways for users to track rates of message
+   production and consumption (in recommended order):
+
+   1. Use a [metrics](metrics.md) plugin. This is the most feature-rich and
+      flexible way to track broker metrics, although it requires tools (e.g.
+      Prometheus) to store the metrics and display them (e.g. Grafana).
+
+   2. Invoke the `getMessageCount()` and `getMessagesAdded()` management
+      methods and store the returned values along with the time they were
+      retrieved. A time-series database is a great tool for this job. This is
+      exactly what tools like Prometheus do. That data can then be used to
+      create informative graphs, etc. using tools like Grafana. Of course, one
+      can skip all the tools and just do some simple math to calculate rates
+      based on the last time the counts were retrieved.
+
+   3. Use the broker's [message counters](management.md#message-counters).
+      Message counters are the broker's simple way of providing historical
+      information about the queue. They provide similar results to the previous
+      solutions, but with less flexibility since they only track data while the
+      broker is up and there's not really any good options for graphing.
 
 ## 2.15.0
 
