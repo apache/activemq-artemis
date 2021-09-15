@@ -258,7 +258,7 @@ public class MQTTRetainMessageManagerTest {
       final LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
       browserIterator.forEachRemaining(messageReference -> {
          final Message message = messageReference.getMessage();
-         final String body = message.getBuffer().toString(StandardCharsets.UTF_8);
+         final String body = message.toCore().getBuffer().toString(StandardCharsets.UTF_8);
          log.infof("[MQTT][%s][%s][%s]", retainAddress, message, body);
       });
    }

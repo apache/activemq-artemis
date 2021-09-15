@@ -298,11 +298,6 @@ public interface Message {
 
    Message setReplyTo(SimpleString address);
 
-   /** The buffer will belong to this message, until release is called. */
-   Message setBuffer(ByteBuf buffer);
-
-   ByteBuf getBuffer();
-
    /** It will generate a new instance of the message encode, being a deep copy, new properties, new everything */
    Message copy();
 
@@ -461,14 +456,6 @@ public interface Message {
    void persist(ActiveMQBuffer targetRecord);
 
    void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools);
-
-   default void releaseBuffer() {
-      ByteBuf buffer = getBuffer();
-      if (buffer != null) {
-         buffer.release();
-      }
-      setBuffer(null);
-   }
 
    default void reencode() {
       // only valid probably on AMQP

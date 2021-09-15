@@ -26,7 +26,6 @@ import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
@@ -810,26 +809,6 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    @Override
    public void messageChanged() {
       modified = true;
-   }
-
-   @Override
-   public final ByteBuf getBuffer() {
-      if (getData() == null) {
-         return null;
-      } else {
-         if (getData() instanceof NettyReadable) {
-            return ((NettyReadable) getData()).getByteBuf();
-         } else {
-            return Unpooled.wrappedBuffer(getData().byteBuffer());
-         }
-      }
-   }
-
-   @Override
-   public final AMQPMessage setBuffer(ByteBuf buffer) {
-      // If this is ever called we would be in a highly unfortunate state
-      //this.data = null;
-      return this;
    }
 
    @Override

@@ -501,16 +501,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Message setBuffer(ByteBuf buffer) {
-         return null;
-      }
-
-      @Override
-      public ByteBuf getBuffer() {
-         return null;
-      }
-
-      @Override
       public Message setAddress(String address) {
          return null;
       }

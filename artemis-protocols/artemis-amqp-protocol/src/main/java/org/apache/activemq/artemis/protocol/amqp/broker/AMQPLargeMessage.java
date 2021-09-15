@@ -103,8 +103,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
     */
    private Boolean fileDurable;
 
-   private volatile AmqpReadableBuffer parsingData;
-
    private StorageManager storageManager;
 
    /** this is used to parse the initial packets from the buffer */
@@ -306,11 +304,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    public ReadableBuffer getData() {
-      if (parsingData == null) {
-         throw new RuntimeException("AMQP Large Message is not open");
-      }
-
-      return parsingData;
+      throw new UnsupportedOperationException("Method not supported with Large Messages");
    }
 
    public void parseHeader(ReadableBuffer buffer) {
@@ -404,11 +398,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          parsingBuffer.append(data.duplicate());
          genericParseLargeMessage();
       }
-   }
-
-   @Override
-   public ReadableBuffer getSendBuffer(int deliveryCount, MessageReference reference) {
-      return getData().rewind();
    }
 
    @Override

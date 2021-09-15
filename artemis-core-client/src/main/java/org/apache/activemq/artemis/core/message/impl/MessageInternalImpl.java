@@ -130,12 +130,10 @@ public class MessageInternalImpl implements MessageInternal {
     *
     * @param buffer
     */
-   @Override
    public Message setBuffer(ByteBuf buffer) {
       throw new UnsupportedOperationException();
    }
 
-   @Override
    public ByteBuf getBuffer() {
       return message.getBuffer();
    }

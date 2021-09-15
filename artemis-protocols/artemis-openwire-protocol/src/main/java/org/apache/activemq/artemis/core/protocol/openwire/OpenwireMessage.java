@@ -69,18 +69,8 @@ public class OpenwireMessage implements Message {
    }
 
    @Override
-   public Message setBuffer(ByteBuf buffer) {
-      return null;
-   }
-
-   @Override
    public int getDurableCount() {
       return 0;
-   }
-
-   @Override
-   public ByteBuf getBuffer() {
-      return null;
    }
 
    @Override
