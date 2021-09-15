@@ -158,24 +158,27 @@ emerging standards in this space.
 
 Let's take a brief look at these:
 
-### Java Message Service (JMS)
+### JMS & Jakarta Messaging
 
-[JMS](https://en.wikipedia.org/wiki/Java_Message_Service) is part of Oracle's
-Java EE specification. It's a Java API that encapsulates both message queue and
-publish-subscribe messaging patterns. JMS is a lowest common denominator
-specification - i.e. it was created to encapsulate common functionality of the
-already existing messaging systems that were available at the time of its
-creation.
+[JMS](https://en.wikipedia.org/wiki/Java_Message_Service) was historically part
+of Oracle's Java EE specification. However, in 2017 control was transferred to
+the Eclipse Foundation and it is now known as [Jakarta Messaging](https://jakarta.ee/specifications/messaging/)
+which is part of Jakarta EE.
 
-JMS is a very popular API and is implemented by most messaging systems.  JMS is
+It is a Java API that encapsulates both message queue and publish-subscribe
+messaging patterns. It is a lowest common denominator specification - i.e. it
+was created to encapsulate common functionality of the already existing
+messaging systems that were available at the time of its creation.
+
+It is a very popular API and is implemented by most messaging systems. It is
 only available to clients running Java.
 
-JMS does not define a standard wire format - it only defines a programmatic API
-so JMS clients and servers from different vendors cannot directly interoperate
+It does not define a standard wire format - it only defines a programmatic API
+so clients and servers from different vendors cannot directly interoperate
 since each will use the vendor's own internal wire protocol.
 
-Apache ActiveMQ Artemis provides a fully compliant [JMS 1.1 and JMS 2.0 client
-implementation](using-jms.md).
+Apache ActiveMQ Artemis provides client implementations which are a fully
+compliant with [JMS 1.1 & 2.0 as well as Jakarta Messaging 2.0 & 3.0](using-jms.md).
 
 ### System specific APIs
 

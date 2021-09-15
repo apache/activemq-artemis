@@ -124,6 +124,16 @@
          <unpack>false</unpack>
          <useProjectArtifact>false</useProjectArtifact>
       </dependencySet>
+      <dependencySet>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
+         <includes>
+            <include>org.apache.activemq:artemis-jakarta-client-all</include>
+         </includes>
+         <outputDirectory>lib/client</outputDirectory>
+         <unpack>false</unpack>
+         <useProjectArtifact>false</useProjectArtifact>
+      </dependencySet>
       <!-- native -->
       <dependencySet>
          <includes>
@@ -163,7 +173,7 @@
          <directoryMode>0755</directoryMode>
          <fileMode>0644</fileMode>
       </dependencySet>
-      
+
       <!-- Management Console Dependencies -->
       <dependencySet>
          <includes>
@@ -198,7 +208,7 @@
          <directoryMode>0755</directoryMode>
          <fileMode>0644</fileMode>
       </dependencySet>
-      
+
    </dependencySets>
    <fileSets>
       <!-- schema -->

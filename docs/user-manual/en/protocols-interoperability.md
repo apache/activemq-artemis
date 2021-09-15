@@ -20,8 +20,9 @@ modules out of the box. The 5 modules offer support for the following protocols:
 
 #### APIs and Other Interfaces
 
-Although JMS is a standardized API, it does not define a network protocol. The [ActiveMQ Artemis JMS 2.0 client](using-jms.md) 
-is implemented on top of the core protocol. We also provide a [client-side JNDI implementation](using-jms.md#jndi).
+Although JMS and Jakarta Messaging are standardized APIs, they does not define a network protocol. The ActiveMQ Artemis
+[JMS & Jakarta Messaging clients](using-jms.md) are implemented on top of the core protocol. We also provide a
+[client-side JNDI implementation](using-jms.md#jndi).
 
 The broker also ships with a [REST messaging interface](rest.md) (not to be confused with the REST management API
 provided via our integration with Jolokia).

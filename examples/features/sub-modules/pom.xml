@@ -49,6 +49,7 @@ under the License.
       <profile>
          <id>release</id>
          <modules>
+            <module>artemis-jakarta-ra-rar</module>
             <module>artemis-ra-rar</module>
             <module>inter-broker-bridge</module>
             <module>tomcat</module>

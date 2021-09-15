@@ -86,6 +86,7 @@ Highlights:
 - JDBC datasource property values can now be masked.
 - Lots of usability improvements to the Hawtio 2 based web console introduced in 2.16.0
 - New management method to create a core bridge using JSON-based configuration input.
+- [Jakarta Messaging 2.0 & 3.0 artifacts for Jakarta EE 8 & 9 respectively](https://blogs.apache.org/activemq/entry/activemq-artemis-embraces-jakarta-ee).
 
 ## 2.16.0
 

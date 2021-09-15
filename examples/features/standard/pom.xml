@@ -84,6 +84,7 @@ under the License.
             <module>pre-acknowledge</module>
             <module>producer-rate-limit</module>
             <module>queue</module>
+            <module>queue-jakarta</module>
             <module>queue-requestor</module>
             <module>queue-selector</module>
             <module>reattach-node</module>
