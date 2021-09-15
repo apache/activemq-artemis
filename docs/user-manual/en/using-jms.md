@@ -1,4 +1,4 @@
-# Using JMS
+# Using JMS or Jakarta Messaging
 
 Although Apache ActiveMQ Artemis provides a JMS agnostic messaging API, many
 users will be more comfortable using JMS.
@@ -178,7 +178,8 @@ The `refreshTimeout` and `discoveryInitialWaitTimeout` properties are supported
 just like with `udp`.
 
 The default type for the default connection factory is of type
-`javax.jms.ConnectionFactory`.  This can be changed by setting the type like so
+`javax.jms.ConnectionFactory`or `jakarta.jms.ConnectionFactory` depending on the
+client you're using.  This can be changed by setting the type like so
 
 
 ```properties
@@ -191,14 +192,17 @@ that can be set.
 
 #### Configuration for Connection Factory Types
 
+The interface provided will depend on whether you're using the JMS or Jakarta
+Messaging client implementation.
+
 type | interface
 --- |---
-CF (default) | javax.jms.ConnectionFactory
-XA_CF | javax.jms.XAConnectionFactory
-QUEUE_CF | javax.jms.QueueConnectionFactory
-QUEUE_XA_CF | javax.jms.XAQueueConnectionFactory
-TOPIC_CF | javax.jms.TopicConnectionFactory
-TOPIC_XA_CF | javax.jms.XATopicConnectionFactory
+CF (default) | `javax.jms.ConnectionFactory` or `jakarta.jms.ConnectionFactory`
+XA_CF | `javax.jms.XAConnectionFactory`or `jakarta.jms.XAConnectionFactory`
+QUEUE_CF | `javax.jms.QueueConnectionFactory`or `jakarta.jms.QueueConnectionFactory`
+QUEUE_XA_CF | `javax.jms.XAQueueConnectionFactory`or `jakarta.jms.XAQueueConnectionFactory`
+TOPIC_CF | `javax.jms.TopicConnectionFactory`or `jakarta.jms.TopicConnectionFactory`
+TOPIC_XA_CF | `javax.jms.XATopicConnectionFactory`or `jakarta.jms.XATopicConnectionFactory`
 
 ### Destination JNDI
 

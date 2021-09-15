@@ -69,6 +69,7 @@ cd paging; mvn verify; cd ..
 cd pre-acknowledge; mvn verify; cd ..
 cd producer-rate-limit; mvn verify; cd ..
 cd queue; mvn verify; cd ..
+cd queue-jakarta; mvn verify; cd ..
 cd queue-requestor; mvn verify; cd ..
 cd queue-selector; mvn verify; cd ..
 cd reattach-node; mvn verify; cd ..

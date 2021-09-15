@@ -12,14 +12,20 @@ persistence (although JDBC is still an option if necessary).
 
 Apache ActiveMQ Artemis clients, potentially on different physical machines,
 interact with the Apache ActiveMQ Artemis broker. Apache ActiveMQ Artemis
-currently ships two API implementations for messaging at the client side:
+currently ships three API implementations for messaging at the client side:
 
 1. Core client API. This is a simple intuitive Java API that is aligned with
    the Artemis internal Core.  Allowing more control of broker objects (e.g
-   direct creation of addresses and queues).  The Core API also offers a full set
-   of messaging functionality without some of the complexities of JMS.
+   direct creation of addresses and queues).  The Core API also offers a full
+   set of messaging functionality without some of the complexities of JMS.
 
 2. JMS 2.0 client API. The standard JMS API is available at the client side.
+   This client is also compliant with the Jakarta Messaging 2.0 specification.
+
+3. Jakarta Messaging 3.0 client API. This is essentially the same as the JMS
+   2.0 API. The only difference is the package names use `jakarta` insead of
+   `javax`. This difference was introduced due to the move from Oracle's
+   Java EE to Eclipse's Jakarta EE.
 
 Apache ActiveMQ Artemis also provides different protocol implementations on the
 server so you can use respective clients for these protocols:
@@ -79,31 +85,31 @@ instantiate and embed brokers in your own application.
 
 Read more about [embedding Apache ActiveMQ Artemis](embedding-activemq.md).
 
-## Integrated with a Java EE application server
+## Integrated with a Java/Jakarta EE application server
 
 Apache ActiveMQ Artemis provides its own fully functional Java Connector
 Architecture (JCA) adaptor which enables it to be integrated easily into any
-Java EE compliant application server or servlet engine.
+Java/Jakarta EE (henceforth just "EE") compliant application server or servlet
+engine.
 
-Java EE application servers provide Message Driven Beans (MDBs), which are a
-special type of Enterprise Java Beans (EJBs) that can process messages from
-sources such as JMS systems or mail systems.
+EE application servers provide Message Driven Beans (MDBs), which are a special
+type of Enterprise Java Beans (EJBs) that can process messages from sources
+such as JMS systems or mail systems.
 
 Probably the most common use of an MDB is to consume messages from a JMS
 messaging system.
 
-According to the Java EE specification, a Java EE application server uses a JCA
-adapter to integrate with a JMS messaging system so it can consume messages for
-MDBs.
+According to the EE specification an application server uses a JCA adapter to
+integrate with a JMS messaging system so it can consume messages for MDBs.
 
-However, the JCA adapter is not only used by the Java EE application server for
+However, the JCA adapter is not only used by the EE application server for
 *consuming* messages via MDBs, it is also used when sending message to the JMS
 messaging system e.g. from inside an EJB or servlet.
 
-When integrating with a JMS messaging system from inside a Java EE application
+When integrating with a JMS messaging system from inside an EE application
 server it is always recommended that this is done via a JCA adaptor. In fact,
 communicating with a JMS messaging system directly, without using JCA would be
-illegal according to the Java EE specification.
+illegal according to the EE specification.
 
 The application server's JCA service provides extra functionality such as
 connection pooling and automatic transaction enlistment, which are desirable
@@ -113,10 +119,10 @@ JCA adapter, but this is not recommended since you will not be able to take
 advantage of the JCA features, such as caching of JMS sessions, which can
 result in poor performance.
 
-Figure 3.2 below shows a Java EE application server integrating with a Apache
-ActiveMQ Artemis server via the Apache ActiveMQ Artemis JCA adaptor. Note that
-all communication between EJB sessions or entity beans and Message Driven beans
-go through the adaptor and not directly to Apache ActiveMQ Artemis.
+Figure 3.2 below shows an application server integrating with a Apache ActiveMQ
+Artemis server via the Apache ActiveMQ Artemis JCA adaptor. Note that all
+communication between EJB sessions or entity beans and Message Driven beans go
+through the adaptor and not directly to Apache ActiveMQ Artemis.
 
 The large arrow with the prohibited sign shows an EJB session bean talking
 directly to the Apache ActiveMQ Artemis server. This is not recommended as

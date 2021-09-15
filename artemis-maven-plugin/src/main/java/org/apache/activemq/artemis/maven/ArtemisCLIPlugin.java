@@ -18,9 +18,10 @@ package org.apache.activemq.artemis.maven;
 
 import java.io.File;
 
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -105,11 +106,11 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
             if (testURI != null) {
                long timeout = System.currentTimeMillis() + spawnTimeout;
                while (System.currentTimeMillis() <= timeout) {
-                  try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(testURI)) {
+                  try (ServerLocator locator = ActiveMQClient.createServerLocator(testURI)) {
                      if (testUser != null && testPassword != null) {
-                        cf.createConnection(testUser, testPassword).close();
+                        locator.createSessionFactory().createSession(testUser, testPassword, false, false, false, false, 0).close();
                      } else {
-                        cf.createConnection().close();
+                        locator.createSessionFactory().createSession().close();
                      }
                      getLog().info("Server started");
                   } catch (Exception e) {
