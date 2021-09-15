@@ -29,6 +29,11 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
  */
 public interface ICoreMessage extends Message {
 
+   /** The buffer will belong to this message, until release is called. */
+   Message setBuffer(ByteBuf buffer);
+
+   ByteBuf getBuffer();
+
    LargeBodyReader getLargeBodyReader() throws ActiveMQException;
 
    int getHeadersAndPropertiesEncodeSize();
