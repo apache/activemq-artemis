@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -51,6 +50,7 @@ import org.apache.activemq.artemis.core.server.files.FileMoveManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.UUID;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
@@ -419,10 +419,14 @@ public class BackupSyncJournalTest extends FailoverTestBase {
 
    private class FailoverWaiter implements FailoverEventListener {
 
-      private CountDownLatch latch;
+      private final ReusableLatch latch;
+
+      FailoverWaiter() {
+         latch = new ReusableLatch(1);
+      }
 
       public void reset() {
-         latch = new CountDownLatch(1);
+         latch.setCount(0);
       }
 
       @Override
