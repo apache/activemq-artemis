@@ -37,6 +37,9 @@ import org.apache.activemq.artemis.cli.commands.check.HelpCheck;
 import org.apache.activemq.artemis.cli.commands.check.NodeCheck;
 import org.apache.activemq.artemis.cli.commands.check.QueueCheck;
 import org.apache.activemq.artemis.cli.commands.messages.Transfer;
+import org.apache.activemq.artemis.cli.commands.messages.perf.PerfClientCommand;
+import org.apache.activemq.artemis.cli.commands.messages.perf.PerfConsumerCommand;
+import org.apache.activemq.artemis.cli.commands.messages.perf.PerfProducerCommand;
 import org.apache.activemq.artemis.cli.commands.queue.StatQueue;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
@@ -162,6 +165,10 @@ public class Artemis {
       Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line").
          withCommand(HelpAction.class).withCommand(Producer.class).withCommand(Transfer.class).withCommand(Consumer.class).
          withCommand(Browse.class).withCommand(Mask.class).withCommand(PrintVersion.class).withDefaultCommand(HelpAction.class);
+
+      builder.withGroup("perf").withDescription("Perf tools group (example ./artemis perf client)")
+         .withDefaultCommand(PerfClientCommand.class)
+         .withCommands(PerfProducerCommand.class, PerfConsumerCommand.class, PerfClientCommand.class);
 
       builder.withGroup("check").withDescription("Check tools group (node|queue) (example ./artemis check node)").
          withDefaultCommand(HelpCheck.class).withCommands(NodeCheck.class, QueueCheck.class);

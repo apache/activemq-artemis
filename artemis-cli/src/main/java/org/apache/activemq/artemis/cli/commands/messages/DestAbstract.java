@@ -65,13 +65,17 @@ public class DestAbstract extends ConnectionAbstract {
    }
 
    protected Destination getDestination(Session session) throws JMSException {
+      return getDestination(session, destination);
+   }
+
+   public static Destination getDestination(Session session, String destination) throws JMSException {
       if (destination.startsWith(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX)) {
          return session.createTopic(stripPrefix(destination));
       }
       return session.createQueue(stripPrefix(destination));
    }
 
-   private String stripPrefix(String destination) {
+   public static String stripPrefix(String destination) {
       int index = destination.indexOf("://");
       if (index != -1) {
          return destination.substring(index + 3);
