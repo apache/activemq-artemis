@@ -21,38 +21,16 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
-@XmlRootElement(name = "authorisation")
+@XmlRootElement(name = "allowlist")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AuthorisationDTO {
-
-   @XmlElementRef( required = false)
-   @Deprecated
-   WhiteListDTO whitelist;
-
-   @XmlElementRef( required = false )
-   AllowListDTO allowList;
+public class AllowListDTO {
 
    @XmlElementRef
-   DefaultAccessDTO defaultAccess;
+   List<EntryDTO> entry;
 
-   @XmlElementRef
-   RoleAccessDTO roleAccess;
-
-   @Deprecated
-   public WhiteListDTO getWhiteList() {
-      return whitelist;
-   }
-
-   public AllowListDTO getAllowList() {
-      return allowList;
-   }
-
-   public DefaultAccessDTO getDefaultAccess() {
-      return defaultAccess;
-   }
-
-   public RoleAccessDTO getRoleAccess() {
-      return roleAccess;
+   public List<EntryDTO> getEntries() {
+      return entry;
    }
 }

@@ -9,7 +9,7 @@ our [Hacking Guide](./docs/hacking-guide/en/SUMMARY.md).
 
 ## Build Status
 
-Build Status: [![Build Status](https://travis-ci.org/apache/activemq-artemis.svg?branch=master)](https://travis-ci.org/apache/activemq-artemis)
+Build Status: [![Build Status](https://travis-ci.org/apache/activemq-artemis.svg?branch=main)](https://travis-ci.org/apache/activemq-artemis)
 
 ## Building the ASYNC IO library
 
@@ -23,7 +23,7 @@ To build the ActiveMQ Artemis ASYNCIO native libraries, please follow the instru
 
 Our documentation is always in sync with our releases at the [Apache ActiveMQ Artemis](https://activemq.apache.org/artemis/docs.html) website.
 
-Or you can also look at the current master version on [github](https://github.com/apache/activemq-artemis/blob/master/docs/user-manual/en/SUMMARY.md).
+Or you can also look at the current main version on [github](https://github.com/apache/activemq-artemis/blob/main/docs/user-manual/en/SUMMARY.md).
 
 ## Examples
 
