@@ -177,13 +177,13 @@ public class Artemis {
             .withDescription("activation tools group (sync) (example ./artemis activation list)")
             .withDefaultCommand(ActivationSequenceList.class)
             .withCommands(ActivationSequenceList.class, ActivationSequenceSet.class);
-         builder.withGroup("data").withDescription("data tools group (print|imp|exp|encode|decode|compact) (example ./artemis data print)").
+         builder.withGroup("data").withDescription("data tools group (print|imp|exp|encode|decode|compact|recover) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(RecoverMessages.class, PrintData.class, XmlDataExporter.class, XmlDataImporter.class, DecodeJournal.class, EncodeJournal.class, CompactJournal.class);
          builder.withGroup("user").withDescription("default file-based user management (add|rm|list|reset) (example ./artemis user list)").
                  withDefaultCommand(HelpUser.class).withCommands(ListUser.class, AddUser.class, RemoveUser.class, ResetUser.class);
          builder = builder.withCommands(Run.class, Stop.class, Kill.class, PerfJournal.class);
       } else {
-         builder.withGroup("data").withDescription("data tools group (print) (example ./artemis data print)").
+         builder.withGroup("data").withDescription("data tools group (print|recover) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(RecoverMessages.class, PrintData.class);
          builder = builder.withCommand(Create.class);
       }
