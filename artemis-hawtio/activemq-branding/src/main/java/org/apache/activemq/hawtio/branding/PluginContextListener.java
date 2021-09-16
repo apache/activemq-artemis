@@ -39,7 +39,7 @@ public class PluginContextListener implements ServletContextListener {
       ServletContext context = servletContextEvent.getServletContext();
 
       plugin = new HawtioPlugin();
-      plugin.setContext((String)context.getInitParameter("plugin-context"));
+      plugin.setContext(context.getContextPath());
       plugin.setName(context.getInitParameter("plugin-name"));
       plugin.setScripts(context.getInitParameter("plugin-scripts"));
       plugin.setDomain(null);

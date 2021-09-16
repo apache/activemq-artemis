@@ -1,10 +1,10 @@
 {
   "branding": {
     "appName": "Artemis Console",
-    "appLogoUrl": "/activemq-branding/plugin/img/activemq.png",
-    "companyLogoUrl": "/activemq-branding/plugin/img/activemq.png",
-    "css": "/activemq-branding/plugin/css/activemq.css",
-    "favicon": "/activemq-branding/plugin/img/favicon.png"
+    "appLogoUrl": "",
+    "companyLogoUrl": "",
+    "css": "",
+    "favicon": ""
   },
   "login": {
     "description": "ActiveMQ Artemis Management Console",
@@ -20,7 +20,7 @@
     "productInfo": [],
     "additionalInfo": "",
     "copyright": "",
-    "imgSrc": "/activemq-branding/plugin/img/activemq.png"
+    "imgSrc": ""
   },
   "disabledRoutes": []
 }
