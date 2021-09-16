@@ -102,8 +102,8 @@ A policy is defined by the `policy` element. Let's take a look at a policy examp
 The broker balancer provides a cache with a timeout to improve the stickiness of the target broker selected,
 returning the same target broker for a target key as long as it is present in the cache and is ready.
 So a broker balancer with the cache enabled doesn't strictly follow the configured policy.
-By default, the cache is enabled, and will never timeout. Set `cache-timeout` parameter to 
-a value in seconds for time out, or disable the cache by setting the value to `0`.
+By default, the cache is enabled, and will never timeout. See below
+for more details about setting the `cache-timeout` parameter.
 
 ## Defining broker balancers
 A broker balancer is defined by `broker-balancer` element, it includes the following items:
