@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST;
+
 import javax.jms.BytesMessage;
 import javax.jms.Destination;
 import javax.jms.IllegalStateException;
@@ -72,6 +74,7 @@ import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQStreamCompati
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQTextCompatibleMessage;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
+import org.apache.activemq.artemis.utils.AutoCreateUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
@@ -802,22 +805,13 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          SimpleString autoDeleteQueueName = null;
 
          if (dest.isQueue()) {
-            AddressQuery response = session.addressQuery(dest.getSimpleAddress());
-
-            /* The address query will send back exists=true even if the node only has a REMOTE binding for the destination.
-             * Therefore, we must check if the queue names list contains the exact name of the address to know whether or
-             * not a LOCAL binding for the address exists. If no LOCAL binding exists then it should be created here.
-             */
-            if (!response.isExists() || !response.getQueueNames().contains(getCoreQueueName(dest))) {
-               if (response.isAutoCreateQueues()) {
-                  try {
-                     createQueue(dest, RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true, response);
-                  } catch (ActiveMQQueueExistsException e) {
-                     // The queue was created by another client/admin between the query check and send create queue packet
-                  }
-               } else {
+            try {
+               AutoCreateUtil.autoCreateQueue(session, dest.getSimpleAddress(), null);
+            } catch (ActiveMQException ex) {
+               if (ex.getType() == QUEUE_DOES_NOT_EXIST) {
                   throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
                }
+               throw ex;
             }
 
             dest.setCreated(true);
@@ -848,7 +842,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                if (!CompositeAddress.isFullyQualified(dest.getAddress())) {
                   createTemporaryQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, response);
                } else {
-                  if (!response.isExists() || !response.getQueueNames().contains(getCoreQueueName(dest))) {
+                  if (!response.isExists() || !response.getQueueNames().contains(AutoCreateUtil.getCoreQueueName(session, dest.getSimpleAddress()))) {
                      if (response.isAutoCreateQueues()) {
                         try {
                            createQueue(dest, RoutingType.MULTICAST, dest.getSimpleAddress(), null, true, true, response);
@@ -928,14 +922,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          return jbc;
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
-      }
-   }
-
-   private SimpleString getCoreQueueName(ActiveMQDestination dest) {
-      if (session.getVersion() < PacketImpl.FQQN_CHANGE_VERSION) {
-         return dest.getSimpleAddress();
-      } else {
-         return CompositeAddress.extractQueueName(dest.getSimpleAddress());
       }
    }
 
@@ -1278,19 +1264,19 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    void createTemporaryQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
       QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? new QueueConfiguration(queueName) : destination.getQueueConfiguration();
-      setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, false);
+      AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, false);
       session.createQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setDurable(false).setTemporary(true));
    }
 
    void createSharedQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
       QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? new QueueConfiguration(queueName) : destination.getQueueConfiguration();
-      setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
+      AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
       session.createSharedQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setDurable(durable));
    }
 
    void createQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, boolean autoCreated, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
       QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? new QueueConfiguration(queueName) : destination.getQueueConfiguration();
-      setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
+      AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
       session.createQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setAutoCreated(autoCreated).setDurable(durable));
    }
 
@@ -1351,32 +1337,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          return topic;
       }
    }
-
-   /**
-    * Set the non nullable (CreateQueueMessage_V2) queue attributes (all others have static defaults or get defaulted if null by address settings server side).
-    *
-    * @param queueConfiguration the provided queue configuration the client wants to set
-    * @param addressQuery the address settings query information (this could be removed if max consumers and purge on no consumers were null-able in CreateQueueMessage_V2)
-    * @param routingType of the queue (multicast or anycast)
-    * @param filter to apply on the queue
-    * @param durable if queue is durable
-    */
-   private void setRequiredQueueConfigurationIfNotSet(QueueConfiguration queueConfiguration, ClientSession.AddressQuery addressQuery, RoutingType routingType, SimpleString filter, boolean durable) {
-      if (queueConfiguration.getRoutingType() == null) {
-         queueConfiguration.setRoutingType(routingType);
-      }
-      if (queueConfiguration.getFilterString() == null) {
-         queueConfiguration.setFilterString(filter);
-      }
-      if (queueConfiguration.getMaxConsumers() == null) {
-         queueConfiguration.setMaxConsumers(addressQuery.getDefaultMaxConsumers());
-      }
-      if (queueConfiguration.isPurgeOnNoConsumers() == null) {
-         queueConfiguration.setPurgeOnNoConsumers(addressQuery.isDefaultPurgeOnNoConsumers());
-      }
-   }
-
-
    // Inner classes -------------------------------------------------
 
 }

@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
+import org.apache.activemq.artemis.utils.AutoCreateUtil;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.jboss.logging.Logger;
@@ -172,6 +173,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             }
          } else {
             tempQueueName = activation.getAddress();
+            AutoCreateUtil.autoCreateQueue(session, tempQueueName, selectorString);
          }
          consumer = (ClientConsumerInternal) session.createConsumer(tempQueueName, selectorString);
       }
