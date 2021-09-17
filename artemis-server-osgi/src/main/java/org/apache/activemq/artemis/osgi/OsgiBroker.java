@@ -84,7 +84,7 @@ public class OsgiBroker {
          if (karafDataDir != null) {
             brokerInstance = karafDataDir + "/artemis/" + name;
          }
-      }     
+      }
 
 
       // todo if we start to pullout more configs from the main config then we
