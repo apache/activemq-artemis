@@ -82,13 +82,6 @@ svg text {
     border-top: 3px solid #B21054;
 }
 
-/* Change the background image for Login page and About modal as well as text color etc*/
-.pf-c-login, .pf-c-about-modal-box__hero {
-  background-image: url("/activemq-branding/plugin/img/login-screen-background.png");
-  background-size: cover;
-  --pf-c-form__label--Color: white;
-}
-
 .pf-c-login__main {
     grid-area: main;
     background-color: transparent;
