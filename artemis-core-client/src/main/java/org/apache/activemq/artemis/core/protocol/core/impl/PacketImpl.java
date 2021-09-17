@@ -425,7 +425,7 @@ public class PacketImpl implements Packet {
    }
 
    protected String getPacketString() {
-      return this.getClass().getSimpleName() + "(" + this.getClass().getSimpleName() + ")[type=" + type + ", channelID=" + channelID + ", responseAsync=" + isResponseAsync() + ", requiresResponse=" + isRequiresResponse() + ", correlationID=" + getCorrelationID();
+      return this.getClass().getSimpleName() + "[type=" + type + ", channelID=" + channelID + ", responseAsync=" + isResponseAsync() + ", requiresResponse=" + isRequiresResponse() + ", correlationID=" + getCorrelationID();
    }
 
    @Override

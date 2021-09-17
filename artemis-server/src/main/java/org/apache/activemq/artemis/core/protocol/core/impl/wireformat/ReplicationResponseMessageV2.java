@@ -63,7 +63,7 @@ public final class ReplicationResponseMessageV2 extends ReplicationResponseMessa
 
    @Override
    protected String getPacketString() {
-      StringBuffer buf = new StringBuffer(getPacketString());
+      StringBuffer buf = new StringBuffer(super.getPacketString());
       buf.append(", synchronizationIsFinishedAcknowledgement=" + synchronizationIsFinishedAcknowledgement);
       return buf.toString();
    }
