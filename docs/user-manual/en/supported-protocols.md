@@ -1,4 +1,4 @@
-# Protocols and Interoperability
+# Supported Protocols
 
 Apache ActiveMQ Artemis has a powerful & flexible core which provides a foundation upon which other protocols can be
 implemented. Each protocol implementation translates the ideas of its specific protocol onto this core.
@@ -6,7 +6,7 @@ implemented. Each protocol implementation translates the ideas of its specific p
 The broker ships with a client implementation which interacts directly with this core. It uses what's called the ["core"
 API](core.md), and it communicates over the network using the "core" protocol.
 
-## Supported Protocols
+## Protocols
 
 The broker has a pluggable protocol architecture.  Protocol plugins come in the form of protocol modules.  Each protocol 
 module is included on the broker's class path and loaded by the broker at boot time. The broker ships with 5 protocol 

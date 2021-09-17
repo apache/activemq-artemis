@@ -10,7 +10,7 @@
 * [Using the Server](using-server.md)
 * [Upgrading](upgrading.md)
 * [Address Model](address-model.md)
-* [Protocols and Interoperability](protocols-interoperability.md)
+* [Supported Protocols](supported-protocols.md)
 * [AMQP](amqp.md)
     * [Broker Connections](amqp-broker-connections.md)
 * [MQTT](mqtt.md)
