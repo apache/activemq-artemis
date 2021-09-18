@@ -445,6 +445,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             } catch (Exception ignore) {
             }
          }
+         records.clear();
       }
 
       if (managementService != null) {
