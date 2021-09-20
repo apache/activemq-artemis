@@ -70,6 +70,17 @@ Highlights:
    "rate" metric mistakenly left visible on the web console after it was
    removed from the management API.
 
+4. Due to [ARTEMIS-3141](https://issues.apache.org/jira/browse/ARTEMIS-3141),
+   [ARTEMIS-3128](https://issues.apache.org/jira/browse/ARTEMIS-3128), &
+   [ARTEMIS-3175](https://issues.apache.org/jira/browse/ARTEMIS-3175)
+   the data returned for any "list" or "browse" management method which return
+   message data, including those exposed via the web console, will have their
+   return data truncated by default. This is done to avoid adverse conditions
+   with large volumes of message data which could potentially negatively impact
+   broker stability. The `management-message-attribute-size-limit`
+   address-setting controls this behavior. If you wish to restore the previous
+   (and potentially dangerous behavior) then you can specify `-1` for this.
+   It is `256` by default.
 
 ## 2.17.0
 
