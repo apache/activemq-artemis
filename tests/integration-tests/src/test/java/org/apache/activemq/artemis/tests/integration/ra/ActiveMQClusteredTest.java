@@ -49,6 +49,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
    * */
    @Test
    public void testShutdownOnPartialConnect() throws Exception {
+      secondaryServer.getAddressSettingsRepository().getMatch(MDBQUEUE).setAutoCreateQueues(false).setAutoCreateAddresses(false);
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.setHA(true);
