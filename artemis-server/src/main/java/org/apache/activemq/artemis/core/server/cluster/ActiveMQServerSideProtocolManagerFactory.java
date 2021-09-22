@@ -44,8 +44,9 @@ public class ActiveMQServerSideProtocolManagerFactory implements ClientProtocolM
    }
 
    @Override
-   public void setLocator(ServerLocator locator) {
+   public ClientProtocolManagerFactory setLocator(ServerLocator locator) {
       this.locator = locator;
+      return this;
    }
 
    public static ActiveMQServerSideProtocolManagerFactory getInstance(ServerLocator locator, StorageManager storageManager) {

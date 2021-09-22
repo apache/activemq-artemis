@@ -95,7 +95,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private static final long serialVersionUID = -1615857864410205260L;
 
    // This is the default value
-   private ClientProtocolManagerFactory protocolManagerFactory = ActiveMQClientProtocolManagerFactory.getInstance(this);
+   private ClientProtocolManagerFactory protocolManagerFactory = new ActiveMQClientProtocolManagerFactory().setLocator(this);
 
    private final boolean ha;
 
@@ -506,7 +506,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    public ClientProtocolManagerFactory getProtocolManagerFactory() {
       if (protocolManagerFactory == null) {
          // Default one in case it's null
-         protocolManagerFactory = ActiveMQClientProtocolManagerFactory.getInstance(this);
+         protocolManagerFactory = new ActiveMQClientProtocolManagerFactory().setLocator(this);
       }
       return protocolManagerFactory;
    }
