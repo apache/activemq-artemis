@@ -25,9 +25,6 @@ public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManag
 
    private static final long serialVersionUID = 1;
 
-   private ActiveMQClientProtocolManagerFactory() {
-   }
-
    ServerLocator locator;
 
    @Override
@@ -36,8 +33,9 @@ public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManag
    }
 
    @Override
-   public void setLocator(ServerLocator locator) {
+   public ClientProtocolManagerFactory setLocator(ServerLocator locator) {
       this.locator = locator;
+      return this;
    }
 
    public static final ActiveMQClientProtocolManagerFactory getInstance(ServerLocator locator) {

@@ -36,10 +36,11 @@ public class HornetQClientProtocolManagerFactory implements ClientProtocolManage
    }
 
    @Override
-   public void setLocator(ServerLocator locator) {
+   public ClientProtocolManagerFactory setLocator(ServerLocator locator) {
       this.locator = locator;
       locator.addIncomingInterceptor(new HQPropertiesConversionInterceptor(true));
       locator.addOutgoingInterceptor(new HQPropertiesConversionInterceptor(false));
+      return this;
    }
 
    /**

@@ -23,7 +23,7 @@ public interface ClientProtocolManagerFactory {
 
    ClientProtocolManager newProtocolManager();
 
-   void setLocator(ServerLocator locator);
+   ClientProtocolManagerFactory setLocator(ServerLocator locator);
 
    ServerLocator getLocator();
 
