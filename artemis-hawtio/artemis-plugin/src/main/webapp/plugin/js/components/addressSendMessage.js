@@ -42,6 +42,20 @@ var Artemis;
                         <div class="form-group">
                             <label>Durable </label>
                             <input id="durable" type="checkbox" ng-model="$ctrl.message.durable" value="true">
+                            <button type="button" class="btn btn-link jvm-title-popover"
+                                      uib-popover-template="'durable-info.html'" popover-placement="bottom-left"
+                                      popover-title="Durable" popover-trigger="'mouseenter'">
+                                <span class="pficon pficon-info"></span>
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <label>Create Message ID </label>
+                            <input id="messageID" type="checkbox" ng-model="$ctrl.message.messageID" value="true">
+                            <button type="button" class="btn btn-link jvm-title-popover"
+                                      uib-popover-template="'message-id-info.html'" popover-placement="bottom-left"
+                                      popover-title="Message ID" popover-trigger="'mouseenter'">
+                                <span class="pficon pficon-info"></span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -87,7 +101,7 @@ var Artemis;
             </form>
 
             <p>
-                <button type="button" class="btn btn-primary artemis-send-message-button" ng-click="$ctrl.message.sendMessage($ctrl.message.durable)">Send message</button>
+                <button type="button" class="btn btn-primary artemis-send-message-button" ng-click="$ctrl.message.sendMessage($ctrl.message.durable, $ctrl.message.messageID)">Send message</button>
             </p>
             <script type="text/ng-template" id="send-message-instructions.html">
             <div>
@@ -98,7 +112,23 @@ var Artemis;
                     be null.
                 </p>
             </div>
-        </script>
+            </script>
+            <script type="text/ng-template" id="message-id-info.html">
+            <div>
+                <p>
+                    The Message ID is an automatically generated UUID that is set on the Message by the broker before it is routed.
+                    If using a JMS client this would be the JMS Message ID on the JMS Message, this typically would not get
+                    set for non JMS clients. Historically and on some other tabs this is also referred to as the User ID.
+                </p>
+            </div>
+            </script>
+            <script type="text/ng-template" id="durable-info.html">
+            <div>
+                <p>
+                    If durable the message will be marked persistent and written to the brokers journal if the destination queue is durable.
+                </p>
+            </div>
+            </script>
         `,
         controller: AddressSendMessageController
     })
@@ -110,7 +140,11 @@ var Artemis;
             'durable': {
                 'value': true,
                 'converter': Core.parseBooleanValue
-            }
+            },
+            'messageID': {
+                'value': true,
+                'converter': Core.parseBooleanValue
+           }
         });
         var ctrl = this;
         ctrl.messageCreator = messageCreator;

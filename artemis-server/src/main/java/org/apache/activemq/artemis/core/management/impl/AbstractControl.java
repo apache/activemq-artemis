@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RunnableEx;
+import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 public abstract class AbstractControl extends StandardMBean {
@@ -122,6 +123,7 @@ public abstract class AbstractControl extends StandardMBean {
                                 boolean durable,
                                 String user,
                                 String password,
+                                boolean createMessageId,
                                 Long...queueID) throws Exception {
       ManagementRemotingConnection fakeConnection = new ManagementRemotingConnection();
       ServerSession serverSession = server.createSession("management::" + UUIDGenerator.getInstance().generateStringUUID(), user, password,
@@ -157,6 +159,11 @@ public abstract class AbstractControl extends StandardMBean {
                buffer.putLong(q);
             }
             message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
+         }
+
+         if (createMessageId) {
+            UUID userID = UUIDGenerator.getInstance().generateUUID();
+            message.setUserID(userID);
          }
 
          // There's no point on direct delivery using the management thread, use false here

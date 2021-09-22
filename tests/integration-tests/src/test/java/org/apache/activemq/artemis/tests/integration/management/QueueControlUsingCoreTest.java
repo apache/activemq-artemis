@@ -535,6 +535,17 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return (String) proxy.invokeOperation("sendMessage", headers, type, body, durable, user, password);
          }
 
+         @Override
+         public String sendMessage(Map<String, String> headers,
+                                   int type,
+                                   String body,
+                                   boolean durable,
+                                   String user,
+                                   String password,
+                                   boolean createMessageId) throws Exception {
+            return (String) proxy.invokeOperation("sendMessage", headers, type, body, durable, user, password, createMessageId);
+         }
+
          public void setDeadLetterAddress(final String deadLetterAddress) throws Exception {
             proxy.invokeOperation("setDeadLetterAddress", deadLetterAddress);
          }

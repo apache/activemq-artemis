@@ -84,6 +84,7 @@ public class ConsumerThread extends Thread {
             }
          } else {
             if (verbose) {
+               System.out.println("JMS Message ID:" + msg.getJMSMessageID());
                if (bytesAsText && (msg instanceof BytesMessage)) {
                   long length = ((BytesMessage) msg).getBodyLength();
                   byte[] bytes = new byte[(int) length];

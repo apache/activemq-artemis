@@ -3448,6 +3448,46 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testSendMessageWithMessageId() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      queueControl.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
+      queueControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword", true);
+
+      Wait.assertEquals(2, () -> getMessageCount(queueControl));
+
+      // the message IDs are set on the server
+      CompositeData[] browse = queueControl.browse(null);
+
+      Assert.assertEquals(2, browse.length);
+
+      byte[] body = (byte[]) browse[0].get(BODY);
+
+      String messageID = (String) browse[0].get("userID");
+
+      Assert.assertEquals(0, messageID.length());
+
+      Assert.assertNotNull(body);
+
+      Assert.assertEquals(new String(body), "theBody");
+
+      body = (byte[]) browse[1].get(BODY);
+
+      messageID = (String) browse[1].get("userID");
+
+      Assert.assertTrue(messageID.length() > 0);
+
+      Assert.assertNotNull(body);
+
+      Assert.assertEquals(new String(body), "theBody");
+   }
+
+   @Test
    public void testSendMessageWithProperties() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();

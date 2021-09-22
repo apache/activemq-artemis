@@ -1308,11 +1308,22 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
+      return sendMessage(headers, type, body, durable, user, password, false);
+   }
+
+   @Override
+   public String sendMessage(final Map<String, String> headers,
+                             final int type,
+                             final String body,
+                             boolean durable,
+                             final String user,
+                             final String password,
+                             boolean createMessageId) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.sendMessageThroughManagement(queue, headers, type, body, durable, user, "****");
       }
       try {
-         String s = sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, queue.getID());
+         String s = sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, createMessageId, queue.getID());
          if (AuditLogger.isResourceLoggingEnabled()) {
             AuditLogger.sendMessageSuccess(queue.getName().toString(), user);
          }

@@ -492,6 +492,35 @@ public class AddressControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testSendMessageWithMessageId() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      Assert.assertEquals(0, addressControl.getQueueNames().length);
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      addressControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null, true);
+      addressControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null, false);
+
+      Wait.waitFor(() -> addressControl.getMessageCount() == 2);
+      Assert.assertEquals(2, addressControl.getMessageCount());
+
+      ClientConsumer consumer = session.createConsumer(address);
+      ClientMessage message = consumer.receive(500);
+      assertNotNull(message);
+      assertNotNull(message.getUserID());
+      byte[] buffer = new byte[message.getBodyBuffer().readableBytes()];
+      message.getBodyBuffer().readBytes(buffer);
+      assertEquals("test", new String(buffer));message = consumer.receive(500);
+      assertNotNull(message);
+      assertNull(message.getUserID());
+      buffer = new byte[message.getBodyBuffer().readableBytes()];
+      message.getBodyBuffer().readBytes(buffer);
+      assertEquals("test", new String(buffer));
+   }
+
+   @Test
    public void testGetCurrentDuplicateIdCacheSize() throws Exception {
       internalDuplicateIdTest(false);
    }

@@ -30,6 +30,7 @@ var Artemis;
         function message(scope, location, route, localStorage, artemisMessage, workspace, element, timeout, jolokia) {
             this.noCredentials = false,
             this.durable = true,
+            this.messageID = false;
             this.message = "",
             this.headers = [],
             this.scope = scope;
@@ -118,12 +119,12 @@ var Artemis;
             this.formatMessage = function () {
                 CodeEditor.autoFormatEditor(this.scope.codeMirror);
             };
-            this.sendMessage = function (durable) {
+            this.sendMessage = function (durable, createMessageId) {
                 var body = this.message;
                 Artemis.log.debug(body);
-                this.doSendMessage(this.durable, body);
+                this.doSendMessage(this.durable, createMessageId, body);
             };
-            this.doSendMessage = function(durable, body) {
+            this.doSendMessage = function(durable, createMessageId, body) {
                 var selection = this.workspace.selection;
                 if (selection) {
                     var mbean = selection.objectName;
@@ -151,7 +152,7 @@ var Artemis;
                         Artemis.log.debug(type);
                         Artemis.log.debug(body);
                         Artemis.log.debug(durable);
-                        this.jolokia.execute(mbean, "sendMessage(java.util.Map, int, java.lang.String, boolean, java.lang.String, java.lang.String)", headers, type, body, durable, user, pwd,  Core.onSuccess(this.operationSuccess(), { error: this.onError }));
+                        this.jolokia.execute(mbean, "sendMessage(java.util.Map, int, java.lang.String, boolean, java.lang.String, java.lang.String, boolean)", headers, type, body, durable, user, pwd, createMessageId, Core.onSuccess(this.operationSuccess(), { error: this.onError }));
                         Core.$apply(this.scope);
                     }
                 }
