@@ -128,11 +128,17 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
 
       private byte[] internalKey = "clusterpassword".getBytes();
 
+
       BlowfishAlgorithm(Map<String, String> params) {
          super(params);
          String key = params.get(BLOWFISH_KEY);
          if (key != null) {
             updateKey(key);
+         } else {
+            if (System.getProperty("artemis.mask.password.code") != null){
+               logger.trace("Set key from env ARTEMIS_MASK_PASSWORD_CODE");
+               updateKey(System.getProperty("artemis.mask.password.code"));
+            }
          }
       }
 
