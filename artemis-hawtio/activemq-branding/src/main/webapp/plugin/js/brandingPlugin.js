@@ -19,7 +19,6 @@
  */
 var Branding = (function (Branding) {
 
-
   /**
    * The name of this plugin
    */
@@ -34,11 +33,9 @@ var Branding = (function (Branding) {
    * The top level path of this plugin on the server
    */
   Branding.contextPath = '/activemq-branding';
-  $.get("plugin", (data) => {
-    if (data.hasOwnProperty('activemq-branding')) {
-      Branding.contextPath = data['activemq-branding'].Context;
-    }
-  });
+  if (hawtioPluginLoader.getPlugins().hasOwnProperty(Branding.pluginName)) {
+    Branding.contextPath = hawtioPluginLoader.getPlugins()[Branding.pluginName]['Context'];
+  }
 
   /**
    * This plugin's AngularJS module instance.
@@ -85,18 +82,6 @@ var Branding = (function (Branding) {
     // Calling this function is required to apply the custom css and
     // favicon settings
     Core.applyBranding(configManager);
-
-    brandingStyle = `
-      <style type='text/css'>
-        /* Change the background image for Login page and About modal as well as text color etc */
-        .pf-c-login, .pf-c-about-modal-box__hero {
-          background-image: url("${Branding.contextPath}/plugin/img/login-screen-background.png");
-          background-size: cover;
-          --pf-c-form__label--Color: white;
-        }
-      </style>
-    `;
-    $(brandingStyle).appendTo("head");
 
     Branding.log.info(Branding.pluginName, "loaded");
   }
