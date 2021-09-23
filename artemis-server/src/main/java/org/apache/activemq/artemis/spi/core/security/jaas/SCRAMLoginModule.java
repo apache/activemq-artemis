@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
 /**
- * Handles the actual login after channel authentication has succeed
+ * Handles the actual login after channel authentication has succeeded
  */
 public class SCRAMLoginModule extends AbstractPrincipalLoginModule {
 
