@@ -938,27 +938,69 @@ nodes) the messages on those nodes would be lost unless the broker sent
 them to another node in the cluster. Apache ActiveMQ Artemis can be configured to do
 just that.
 
-The simplest way to enable this behavior is to set `scale-down` to
-`true`. If the server is clustered and `scale-down` is `true` then when
-the server is shutdown gracefully (i.e. stopped without crashing) it
-will find another node in the cluster and send *all* of its messages
-(both durable and non-durable) to that node. The messages are processed
-in order and go to the *back* of the respective queues on the other node
-(just as if the messages were sent from an external client for the first
-time).
+To enable this behavior configure `scale-down` in the `live-only`
+`ha-policy`, e.g.:
 
-If more control over where the messages go is required then specify
-`scale-down-group-name`. Messages will only be sent to another node in
-the cluster that uses the same `scale-down-group-name` as the server
-being shutdown.
+```xml
+<ha-policy>
+   <live-only>
+      <scale-down>
+         <enabled>true</enabled>
+         <discovery-group-ref discovery-group-name="my-discovery-group"/>
+      </scale-down>
+   </live-only>
+</ha-policy>
+```
+If `scale-down`/`enabled` is `true` then when the server is shutdown
+gracefully (i.e. stopped without crashing) it will find another node in
+the cluster and send *all* of its messages (both durable and non-durable)
+to that node. The messages are processed in order and go to the *back* of
+the respective queues on the other node (just as if the messages were
+sent from an external client for the first time).
+
+The _target_ of the scale down operation can be configured a few differnt
+ways. The above example uses `discovery-group-ref` to reference a
+`discovery-group` which will be used to find the target broker. This
+should be the same `discovery-group` referenced by your `cluster-connection`.
+You can also specify a static list of `connector` elements, e.g.:
+
+```xml
+<connectors>
+  ...
+  <connector name="server0-connector">tcp://server0:61616</connector>
+</connectors>
+...
+<ha-policy>
+  <live-only>
+    <scale-down>
+      <enabled>true</enabled>
+      <connectors>
+        <connector-ref>server0-connector</connector-ref>
+      </connectors>
+    </scale-down>
+  </live-only>
+</ha-policy>
+```
+
+It's also possible to specify `group-name`. If this is specified then
+messages will only be sent to another node in the cluster that uses the
+same `group-name` as the server being shutdown, e.g.:
+
+```xml
+<ha-policy>
+   <live-only>
+      <scale-down>
+         <enabled>true</enabled>
+         <group-name>my-group</group-name>
+         <discovery-group-ref discovery-group-name="my-discovery-group"/>
+      </scale-down>
+   </live-only>
+</ha-policy>
+```
 
 > **Warning**
 >
 > If cluster nodes are grouped together with different
-> `scale-down-group-name` values beware. If all the nodes in a single
+> `group-name` values beware. If all the nodes in a single
 > group are shut down then the messages from that node/group will be
 > lost.
-
-If the server is using multiple `cluster-connection` then use
-`scale-down-clustername` to identify the name of the
-`cluster-connection` which should be used for scaling down.
