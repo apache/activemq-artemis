@@ -1403,6 +1403,50 @@ extra properties described as below.
 
 - `trustStorePassword` - The trust store's password.
 
+### Config access using client certificates
+The web console supports authentication with client certificates, see the following steps:  
+
+- Add the [certificate login module](#certificateloginmodule) to the `login.config` file, i.e.
+```
+activemq-cert {
+   org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule required
+       debug=true
+       org.apache.activemq.jaas.textfiledn.user="cert-users.properties"
+       org.apache.activemq.jaas.textfiledn.role="cert-roles.properties";
+};
+```
+
+
+- Change the hawtio realm to match the realm defined in the `login.config` file
+for the [certificate login module](#certificateloginmodule). This is configured in the `artemis.profile` via the system property `-Dhawtio.role=activemq-cert`.
+
+
+- Create a key pair for the client and import the public key in a truststore file. 
+```
+keytool -storetype pkcs12 -keystore client-keystore.p12 -storepass securepass -keypass securepass -alias client -genkey -keyalg "RSA" -keysize 2048 -dname "CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -ext bc=ca:false -ext eku=cA
+keytool -storetype pkcs12 -keystore client-keystore.p12 -storepass securepass -alias client -exportcert -rfc > client.crt
+keytool -storetype pkcs12 -keystore client-truststore.p12 -storepass securepass -keypass securepass -importcert -alias client-ca -file client.crt -noprompt
+```
+
+
+- Enable secure access using HTTPS protocol with client authentication,
+use the truststore file created in the previous step to set the trustStorePath and trustStorePassword:
+```xml
+<web bind="https://localhost:8443"
+    path="web"
+    keyStorePath="${artemis.instance}/etc/server-keystore.p12"
+    keyStorePassword="password"
+    clientAuth="true"
+    trustStorePath="${artemis.instance}/etc/client-truststore.p12"
+    trustStorePassword="password">
+    <app url="jolokia" war="jolokia-war-1.3.5.war"/>
+</web>
+```
+
+
+- Use the private key created in the previous step to set up your client,
+i.e. if the client app is a browser install the private key in the browser.
+
 ## Controlling JMS ObjectMessage deserialization
 
 Artemis provides a simple class filtering mechanism with which a user can
