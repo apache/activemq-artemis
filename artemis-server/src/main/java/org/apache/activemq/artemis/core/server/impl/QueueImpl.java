@@ -3307,10 +3307,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                                   final boolean ignoreRedeliveryDelay) throws Exception {
 
       if (internalQueue) {
+
          if (logger.isTraceEnabled()) {
             logger.trace("Queue " + this.getName() + " is an internal queue, no checkRedelivery");
          }
          // no DLQ check on internal queues
+         // we just need to return statistics on the delivering
+         decDelivering(reference);
          return new Pair<>(true, false);
       }
 
