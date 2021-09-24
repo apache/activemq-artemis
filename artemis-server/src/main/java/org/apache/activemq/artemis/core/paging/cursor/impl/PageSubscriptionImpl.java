@@ -920,7 +920,10 @@ public final class PageSubscriptionImpl implements PageSubscription {
             }
 
             if (cache == null || pos.getMessageNr() >= 0 && cache.getMessage(pos) == null) {
-               ActiveMQServerLogger.LOGGER.pageNotFound(pos);
+               try {
+                  ActiveMQServerLogger.LOGGER.pageNotFound(pos, this.cursorId, this.queue.getName().toString());
+               } catch (Throwable ignored) {
+               }
                if (txDeleteCursorOnReload == -1) {
                   txDeleteCursorOnReload = store.generateID();
                }

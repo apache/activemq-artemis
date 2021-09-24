@@ -571,9 +571,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void timedOutFlushingExecutorsPagingCursor(PageSubscription pageSubscription);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222028, value = "Could not find page cache for page {0} removing it from the journal",
+   @Message(id = 222028, value = "Could not find page cache for page {0}, on queue {1}/{2} removing it from the journal",
       format = Message.Format.MESSAGE_FORMAT)
-   void pageNotFound(PagePosition pos);
+   void pageNotFound(PagePosition pos, long queueID, String queue);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222029,
