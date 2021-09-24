@@ -103,7 +103,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private final SimpleString forwardingAddress;
 
-   private final java.util.Map<Long, MessageReference> refs = new LinkedHashMap<>();
+   final java.util.Map<Long, MessageReference> refs = new LinkedHashMap<>();
 
    private final Transformer transformer;
 

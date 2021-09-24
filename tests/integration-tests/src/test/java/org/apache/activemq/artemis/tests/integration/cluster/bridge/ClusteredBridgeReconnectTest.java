@@ -18,6 +18,10 @@ package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -27,6 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeTestAccessor;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -79,6 +84,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       ClientProducer producer = session0.createProducer("queues.testaddress");
 
       int NUMBER_OF_MESSAGES = 100;
+      int REPEATS = 5;
 
       Assert.assertEquals(1, servers[0].getClusterManager().getClusterConnections().size());
 
@@ -91,16 +97,55 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       Wait.assertEquals(2, () -> bridge.getSessionFactory().getServerLocator().getTopology().getMembers().size());
       ArrayList<TopologyMemberImpl> originalmembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
 
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-         ClientMessage msg = session0.createMessage(true);
-         producer.send(msg);
-         session0.commit();
+      AtomicInteger errors = new AtomicInteger(0);
 
-         if (i == 17) {
-            bridge.getSessionFactory().getConnection().fail(new ActiveMQException("failed once!"));
-         }
+      // running the loop a couple of times
+      for (int repeat = 0; repeat < REPEATS; repeat++) {
+         CountDownLatch latchSent = new CountDownLatch(1);
+         Thread t = new Thread(() -> {
+            try {
+               for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+                  ClientMessage msg = session0.createMessage(true);
+                  producer.send(msg);
+                  latchSent.countDown();
+                  if (i % 10 == 0) {
+                     session0.commit();
+                  }
+               }
+               session0.commit();
+            } catch (Exception e) {
+               errors.incrementAndGet();
+               // not really supposed to happen
+               e.printStackTrace();
+            }
+         });
+         t.start();
+
+         Executor executorFail = servers[0].getExecutorFactory().getExecutor();
+
+         Assert.assertTrue(latchSent.await(10, TimeUnit.SECONDS));
+
+         Wait.waitFor(() -> BridgeTestAccessor.withinRefs(bridge, (refs) -> {
+            synchronized (refs) {
+               if (refs.size() > 0) {
+                  executorFail.execute(() -> {
+                     bridge.connectionFailed(new ActiveMQException("bye"), false);
+                  });
+                  return true;
+               } else {
+                  return false;
+               }
+            }
+         }), 500, 1);
+
+         Wait.assertEquals(0L, bridge.getQueue()::getMessageCount, 5000, 1);
+         Wait.assertEquals(0, bridge.getQueue()::getDeliveringCount, 5000, 1);
+
+         t.join(5000);
       }
 
+
+      Assert.assertEquals(0, errors.get());
       Wait.assertEquals(2, () -> bridge.getSessionFactory().getServerLocator().getTopology().getMembers().size());
 
       ArrayList<TopologyMemberImpl> afterReconnectedMembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
@@ -126,7 +171,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       int cons0Count = 0, cons1Count = 0;
 
       while (true) {
-         ClientMessage msg = consumers[0].getConsumer().receive(1000);
+         ClientMessage msg = consumers[0].getConsumer().receiveImmediate();
          if (msg == null) {
             break;
          }
@@ -136,7 +181,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       }
 
       while (true) {
-         ClientMessage msg = consumers[1].getConsumer().receive(1000);
+         ClientMessage msg = consumers[1].getConsumer().receiveImmediate();
          if (msg == null) {
             break;
          }
@@ -145,7 +190,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
          session1.commit();
       }
 
-      Assert.assertEquals("cons0 = " + cons0Count + ", cons1 = " + cons1Count, NUMBER_OF_MESSAGES, cons0Count + cons1Count);
+      Assert.assertEquals("cons0 = " + cons0Count + ", cons1 = " + cons1Count, NUMBER_OF_MESSAGES * REPEATS, cons0Count + cons1Count);
 
       session0.commit();
       session1.commit();
