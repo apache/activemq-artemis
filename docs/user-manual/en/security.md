@@ -1349,7 +1349,7 @@ Note: This role mapping only affects the roles which are used to authorize queue
 
 ## SASL
 [AMQP](using-AMQP.md) supports SASL. The following mechanisms are supported:
- PLAIN, EXTERNAL, ANONYMOUS, GSSAPI, SCRAM-SHA.
+ PLAIN, EXTERNAL, ANONYMOUS, GSSAPI, SCRAM-SHA-256, SCRAM-SHA-512.
 The published list can be constrained via the amqp acceptor `saslMechanisms` property. 
 Note: EXTERNAL will only be chosen if a subject is available from the TLS client certificate.
 
