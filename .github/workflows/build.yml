@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ 8, 11, 16 ]
+        java: [ 8, 11, 17 ]
 
     steps:
       - uses: actions/checkout@v2
@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'adopt'
+          distribution: 'temurin'
 
       # use 'install' so smoke-tests will work
       # By setting anything to org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED we are disabling libaio loading on the testsuite
@@ -43,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ 8, 11, 16 ]
+        java: [ 8, 11, 17 ]
 
     steps:
       - uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'adopt'
+          distribution: 'temurin'
 
       - name: Build Main
         run: |
