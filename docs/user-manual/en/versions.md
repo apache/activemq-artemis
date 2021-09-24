@@ -474,7 +474,7 @@ Highlights:
 
 Highlights:
 - [JMX configuration via XML](management.md#role-based-authorisation-for-jmx) rather than having to use system properties via command line or start script.
-- Configuration of [max frame payload length for STOMP web-socket](protocols-interoperability.md#stomp-over-web-sockets).
+- Configuration of [max frame payload length for STOMP web-socket](supported-protocols.md#stomp-over-web-sockets).
 - Ability to configure HA using JDBC persistence.
 - Implement [role-based access control for management objects](management.md).
 

@@ -11,7 +11,7 @@ Apache ActiveMQ Artemis supports MQTT v3.1.1 (and also the older v3.1 code
 message format). By default there are `acceptor` elements configured to accept
 MQTT connections on ports `61616` and `1883`.
 
-See the general [Protocols and Interoperability](protocols-interoperability.md)
+See the [Supported Protocols](supported-protocols.md)
 chapter for details on configuring an `acceptor` for MQTT.
 
 The best source of information on the MQTT protocol is in the [3.1.1

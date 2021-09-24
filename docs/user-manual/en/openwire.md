@@ -6,7 +6,7 @@ ActiveMQ 5.x JMS client can talk directly to an Apache ActiveMQ Artemis server.
 By default there is an `acceptor` configured to accept OpenWire connections on
 port `61616`.
 
-See the general [Protocols and Interoperability](protocols-interoperability.md)
+See the [Supported Protocols](supported-protocols.md)
 chapter for details on configuring an `acceptor` for OpenWire.
 
 Refer to the OpenWire examples for a look at this functionality in action.

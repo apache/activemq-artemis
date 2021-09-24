@@ -10,7 +10,7 @@ good choice for interoperability.
 By default there are `acceptor` elements configured to accept STOMP connections
 on ports `61616` and `61613`.
 
-See the general [Protocols and Interoperability](protocols-interoperability.md)
+See the [Supported Protocols](supported-protocols.md)
 chapter for details on configuring an `acceptor` for STOMP.
 
 Refer to the STOMP examples for a look at some of this functionality in action.

@@ -5,7 +5,7 @@ Apache ActiveMQ Artemis supports the [AMQP
 specification. By default there are `acceptor` elements configured to accept
 AMQP connections on ports `61616` and `5672`.
 
-See the general [Protocols and Interoperability](protocols-interoperability.md)
+See the [Supported Protocols](supported-protocols.md)
 chapter for details on configuring an `acceptor` for AMQP.
 
 You can use *any* AMQP 1.0 compatible clients.
