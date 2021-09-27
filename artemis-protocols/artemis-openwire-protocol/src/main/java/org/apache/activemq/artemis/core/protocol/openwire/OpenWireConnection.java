@@ -52,8 +52,6 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
-import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQCompositeConsumerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
@@ -69,7 +67,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
@@ -1071,23 +1068,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          } catch (ActiveMQNonExistentQueueException neq) {
             //this is ok, ActiveMQ 5 allows this and will actually do it quite often
             ActiveMQServerLogger.LOGGER.debug("queue never existed");
-         }
-
-
-      } else {
-         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(new SimpleString(dest.getPhysicalName()));
-
-         if (bindings != null) {
-            for (Binding binding : bindings.getBindings()) {
-               Queue b = (Queue) binding.getBindable();
-               if (b.getConsumerCount() > 0) {
-                  throw new Exception("Destination still has an active subscription: " + dest.getPhysicalName());
-               }
-               if (b.isDurable()) {
-                  throw new Exception("Destination still has durable subscription: " + dest.getPhysicalName());
-               }
-               b.deleteQueue();
-            }
          }
       }
 

@@ -134,12 +134,16 @@ public class JMSTestBase extends ActiveMQTestBase {
          setTransactionTimeoutScanPeriod(100);
       config.getConnectorConfigurations().put("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, usePersistence()));
+      extraServerConfig(server);
       jmsServer = new JMSServerManagerImpl(server);
       namingContext = new InVMNamingContext();
       jmsServer.setRegistry(new JndiBindingRegistry(namingContext));
       jmsServer.start();
 
       registerConnectionFactory();
+   }
+
+   protected void extraServerConfig(ActiveMQServer server) {
    }
 
    @Override

@@ -23,8 +23,11 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
+import org.jboss.logging.Logger;
 
 public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManager {
+
+   private static final Logger logger = Logger.getLogger(QueueManagerImpl.class);
 
    private final SimpleString queueName;
 
@@ -34,15 +37,13 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       Queue queue = server.locateQueue(queueName);
       //the queue may already have been deleted and this is a result of that
       if (queue == null) {
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("no queue to delete \"" + queueName + "\".");
+         if (logger.isDebugEnabled()) {
+            logger.debug("no queue to delete \"" + queueName + "\".");
          }
          return;
       }
 
-      if (isAutoDelete(queue) && consumerCountCheck(queue) && delayCheck(queue) && messageCountCheck(queue)) {
-         performAutoDeleteQueue(server, queue);
-      } else if (queue.isPurgeOnNoConsumers()) {
+      if (queue.isPurgeOnNoConsumers()) {
          purge(queue);
       }
    }
@@ -51,8 +52,8 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       long consumerCount = queue.getConsumerCount();
       long messageCount = queue.getMessageCount();
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("purging queue \"" + queue.getName() + "\": consumerCount = " + consumerCount + "; messageCount = " + messageCount);
+      if (logger.isDebugEnabled()) {
+         logger.debug("purging queue \"" + queue.getName() + "\": consumerCount = " + consumerCount + "; messageCount = " + messageCount);
       }
       try {
          queue.deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
@@ -64,14 +65,16 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
    public static void performAutoDeleteQueue(ActiveMQServer server, Queue queue) {
       SimpleString queueName = queue.getName();
       AddressSettings settings = server.getAddressSettingsRepository().getMatch(queue.getAddress().toString());
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + "\": consumerCount = " + queue.getConsumerCount() + "; messageCount = " + queue.getMessageCount() + "; isAutoDelete = " + queue.isAutoDelete());
+      if (logger.isDebugEnabled()) {
+         logger.debug("deleting auto-created queue \"" + queueName + "\": consumerCount = " + queue.getConsumerCount() + "; messageCount = " + queue.getMessageCount() + "; isAutoDelete = " + queue.isAutoDelete());
       }
+
+      ActiveMQServerLogger.LOGGER.autoRemoveQueue("" + queue.getName(), queue.getID(), "" + queue.getAddress());
 
       try {
          server.destroyQueue(queueName, null, true, false, settings.isAutoDeleteAddresses(), true);
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, queueName);
+         ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedDestination(e, queueName, "queue");
       }
    }
 

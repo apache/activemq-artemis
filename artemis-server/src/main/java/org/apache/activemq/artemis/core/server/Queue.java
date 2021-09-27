@@ -88,6 +88,13 @@ public interface Queue extends Bindable,CriticalComponent {
 
    boolean isAutoDelete();
 
+   default boolean isSwept() {
+      return false;
+   }
+
+   default void setSwept(boolean sweep) {
+   }
+
    long getAutoDeleteDelay();
 
    long getAutoDeleteMessageCount();

@@ -111,6 +111,8 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       server = createServer(durable, isNetty());
 
+      server.getConfiguration().setAddressQueueScanPeriod(10);
+
       server.start();
 
       locator = createFactory(isNetty());

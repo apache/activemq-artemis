@@ -220,4 +220,8 @@ public interface PostOffice extends ActiveMQComponent {
 
    default void scanAddresses(MirrorController mirrorController) throws Exception {
    }
+
+   default AddressManager getAddressManager() {
+      return null;
+   }
 }

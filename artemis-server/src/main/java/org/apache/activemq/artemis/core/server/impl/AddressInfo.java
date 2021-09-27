@@ -46,6 +46,7 @@ public class AddressInfo {
 
    private long id;
    private long pauseStatusRecord = -1;
+   private boolean swept;
 
    private SimpleString name;
 
@@ -74,6 +75,14 @@ public class AddressInfo {
    private PostOffice postOffice;
    private StorageManager storageManager;
    private HierarchicalRepositoryChangeListener repositoryChangeListener;
+
+   public boolean isSwept() {
+      return swept;
+   }
+
+   public void setSwept(boolean swept) {
+      this.swept = swept;
+   }
 
    /**
     * Private constructor used on JSON decoding.

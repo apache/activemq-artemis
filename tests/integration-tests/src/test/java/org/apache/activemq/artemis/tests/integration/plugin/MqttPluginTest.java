@@ -68,6 +68,7 @@ public class MqttPluginTest extends MQTTTestSupport {
    public void configureBroker() throws Exception {
       super.configureBroker();
       server.registerBrokerPlugin(verifier);
+      server.getConfiguration().setAddressQueueScanPeriod(100);
 
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAutoDeleteQueues(true).setAutoDeleteAddresses(true);

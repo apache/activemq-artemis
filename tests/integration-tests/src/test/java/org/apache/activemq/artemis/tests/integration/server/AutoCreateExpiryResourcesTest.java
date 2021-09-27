@@ -52,6 +52,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false);
+      server.getConfiguration().setAddressQueueScanPeriod(100);
 
       // set common address settings needed for all tests; make sure to use getMatch instead of addMatch in invidual tests or these will be overwritten
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateExpiryResources(true).setExpiryAddress(expiryAddress).setExpiryDelay(EXPIRY_DELAY));

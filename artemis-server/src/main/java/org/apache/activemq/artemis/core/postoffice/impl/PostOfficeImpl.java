@@ -1843,47 +1843,75 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       @Override
       public void run() {
-         getLocalQueues().forEach(queue -> {
-            if (!queue.isInternalQueue() && QueueManagerImpl.isAutoDelete(queue) && QueueManagerImpl.consumerCountCheck(queue) && QueueManagerImpl.delayCheck(queue) && QueueManagerImpl.messageCountCheck(queue) && queueWasUsed(queue)) {
+         reapAddresses();
+      }
+   }
+
+   private static boolean queueWasUsed(Queue queue) {
+      return queue.getMessagesExpired() > 0 || queue.getMessagesAcknowledged() > 0 || queue.getMessagesKilled() > 0 || queue.getConsumerRemovedTimestamp() != -1;
+   }
+
+   /** To be used by the AddressQueueReaper.
+    * It is also exposed for tests through PostOfficeTestAccessor */
+   void reapAddresses() {
+      getLocalQueues().forEach(queue -> {
+         if (!queue.isInternalQueue() && QueueManagerImpl.isAutoDelete(queue) && QueueManagerImpl.consumerCountCheck(queue) && QueueManagerImpl.delayCheck(queue) && QueueManagerImpl.messageCountCheck(queue) && queueWasUsed(queue)) {
+            if (queue.isSwept()) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Removing queue " + queue.getName() + " after it being swept twice on reaping process");
+               }
                QueueManagerImpl.performAutoDeleteQueue(server, queue);
+            } else {
+               queue.setSwept(true);
             }
-         });
+         } else {
+            queue.setSwept(false);
+         }
+      });
 
-         Set<SimpleString> addresses = addressManager.getAddresses();
+      Set<SimpleString> addresses = addressManager.getAddresses();
 
-         for (SimpleString address : addresses) {
-            AddressInfo addressInfo = getAddressInfo(address);
-            AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
+      for (SimpleString address : addresses) {
+         AddressInfo addressInfo = getAddressInfo(address);
+         AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
-            try {
-               if (settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay())) {
+         try {
+            if (addressManager.checkAutoRemoveAddress(address, addressInfo, settings)) {
+               if (addressInfo.isSwept()) {
 
-                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                     ActiveMQServerLogger.LOGGER.debug("deleting auto-created address \"" + address + ".\"");
-                  }
-
-                  server.removeAddressInfo(address, null);
-               }
-            } catch (ActiveMQShutdownException e) {
-               // the address and queue reaper is asynchronous so it may happen
-               // that the broker is shutting down while the reaper iterates
-               // through the addresses, next restart this operation will be retried
-               logger.debug(e.getMessage(), e);
-            } catch (Exception e) {
-               if (e instanceof ActiveMQAddressDoesNotExistException && getAddressInfo(address) == null) {
-                  // the address and queue reaper is asynchronous so it may happen
-                  // that the address is removed before the reaper removes it
-                  logger.debug(e.getMessage(), e);
+                  server.autoRemoveAddressInfo(address, null);
                } else {
-                  ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, address);
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("Sweeping address " + address);
+                  }
+                  addressInfo.setSwept(true);
                }
+            } else {
+               if (addressInfo != null) {
+                  addressInfo.setSwept(false);
+               }
+            }
+         } catch (ActiveMQShutdownException e) {
+            // the address and queue reaper is asynchronous so it may happen
+            // that the broker is shutting down while the reaper iterates
+            // through the addresses, next restart this operation will be retried
+            logger.debug(e.getMessage(), e);
+         } catch (Exception e) {
+            if (e instanceof ActiveMQAddressDoesNotExistException && getAddressInfo(address) == null) {
+               // the address and queue reaper is asynchronous so it may happen
+               // that the address is removed before the reaper removes it
+               logger.debug(e.getMessage(), e);
+            } else {
+               ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedDestination(e, address, "address");
             }
          }
       }
+   }
 
-      private boolean queueWasUsed(Queue queue) {
-         return queue.getMessagesExpired() > 0 || queue.getMessagesAcknowledged() > 0 || queue.getMessagesKilled() > 0 || queue.getConsumerRemovedTimestamp() != -1;
-      }
+   public boolean checkAutoRemoveAddress(SimpleString address,
+                              AddressInfo addressInfo,
+                              AddressSettings settings) throws Exception {
+      return settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay());
    }
 
    private Stream<Queue> getLocalQueues() {
@@ -1965,7 +1993,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return bindings;
    }
 
-   // For tests only
+   @Override
    public AddressManager getAddressManager() {
       return addressManager;
    }

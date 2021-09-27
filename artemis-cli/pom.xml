@@ -155,6 +155,13 @@
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+         <type>test-jar</type>
+      </dependency>
    </dependencies>
 
    <build>

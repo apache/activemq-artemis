@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.jboss.logging.Logger;
@@ -362,6 +363,13 @@ public class SimpleAddressManager implements AddressManager {
             }
          }
       }
+   }
+
+   @Override
+   public boolean checkAutoRemoveAddress(SimpleString address,
+                                         AddressInfo addressInfo,
+                                         AddressSettings settings) throws Exception {
+      return settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !bindingsFactory.isAddressBound(address) && addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay());
    }
 
    @Override

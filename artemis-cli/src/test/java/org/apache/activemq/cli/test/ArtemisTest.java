@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -92,6 +93,7 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.jboss.logging.Logger;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -120,6 +122,19 @@ public class ArtemisTest extends CliTestBase {
    public void setup() throws Exception {
       setupAuth();
       super.setup();
+   }
+
+   long timeBefore;
+
+   @Before
+   public void setupScanTimeout() throws Exception {
+      timeBefore = ActiveMQDefaultConfiguration.getDefaultAddressQueueScanPeriod();
+      org.apache.activemq.artemis.api.config.ActiveMQDefaultConfigurationTestAccessor.setDefaultAddressQueueScanPeriod(100);
+   }
+
+   @After
+   public void resetScanTimeout() throws Exception {
+      org.apache.activemq.artemis.api.config.ActiveMQDefaultConfigurationTestAccessor.setDefaultAddressQueueScanPeriod(timeBefore);
    }
 
    @Test
