@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -50,24 +51,23 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
 public class TemporaryQueueTest extends SingleServerTestBase {
-   // Constants -----------------------------------------------------
 
    private static final Logger log = Logger.getLogger(TemporaryQueueTest.class);
 
    private static final long CONNECTION_TTL = 2000;
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
+   @Override
+   protected ActiveMQServer createServer() throws Exception {
+      ActiveMQServer server = super.createServer();
+      server.getConfiguration().setAddressQueueScanPeriod(100);
+      return server;
+   }
 
    @Test
    public void testConsumeFromTemporaryQueue() throws Exception {
@@ -108,7 +108,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
       sf.close();
 
-      assertTrue(server.getAddressSettingsRepository().getCacheSize() < 10);
+      Wait.assertTrue("server.getAddressSettingsRepository().getCacheSize() = " + server.getAddressSettingsRepository().getCacheSize(), () -> server.getAddressSettingsRepository().getCacheSize() < 10);
    }
 
    @Test
@@ -129,17 +129,14 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       assertNotNull(message);
       message.acknowledge();
 
-      SimpleString[] storeNames = server.getPagingManager().getStoreNames();
-      assertTrue(Arrays.asList(storeNames).contains(address));
+      Wait.assertTrue(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(address));
 
       consumer.close();
 
       session.deleteQueue(queue);
       session.close();
 
-      storeNames = server.getPagingManager().getStoreNames();
-      assertFalse(Arrays.asList(storeNames).contains(address));
-
+      Wait.assertFalse(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(address));
    }
 
    @Test

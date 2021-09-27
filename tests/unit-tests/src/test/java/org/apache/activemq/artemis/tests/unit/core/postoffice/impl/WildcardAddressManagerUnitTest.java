@@ -320,6 +320,11 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    static class BindingFactoryFake implements BindingsFactory {
 
       @Override
+      public boolean isAddressBound(SimpleString address) throws Exception {
+         return false;
+      }
+
+      @Override
       public Bindings createBindings(SimpleString address) {
          return new BindingsFake(address);
       }

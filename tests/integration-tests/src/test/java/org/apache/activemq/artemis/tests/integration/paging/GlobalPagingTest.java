@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
@@ -105,6 +106,7 @@ public class GlobalPagingTest extends PagingTest {
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
       server.getConfiguration().setGlobalMaxSize(-1);
+      server.getConfiguration().setAddressQueueScanPeriod(100);
 
       server.start();
 
@@ -143,12 +145,14 @@ public class GlobalPagingTest extends PagingTest {
 
       serverImpl.getMonitor().tick();
 
+      AtomicInteger errors = new AtomicInteger(0);
       Thread t = new Thread() {
          @Override
          public void run() {
             try {
                sendFewMessages(numberOfMessages, session, producer, body);
             } catch (Exception e) {
+               errors.incrementAndGet();
                e.printStackTrace();
             }
          }
@@ -159,9 +163,12 @@ public class GlobalPagingTest extends PagingTest {
       t.join(1000);
       Assert.assertTrue(t.isAlive());
 
+      Assert.assertEquals(0, errors.get());
+
       // releasing the disk
       serverImpl.getMonitor().setMaxUsage(1).tick();
       t.join(5000);
+      Assert.assertEquals(0, errors.get());
       Assert.assertFalse(t.isAlive());
 
       session.start();

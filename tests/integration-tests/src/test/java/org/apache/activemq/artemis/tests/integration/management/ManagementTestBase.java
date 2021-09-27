@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -91,11 +92,11 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
    }
 
    protected void checkNoResource(final ObjectName on) {
-      Assert.assertFalse("unexpected resource for " + on, mbeanServer.isRegistered(on));
+      Wait.assertFalse("unexpected resource for " + on, () -> mbeanServer.isRegistered(on));
    }
 
    protected void checkResource(final ObjectName on) {
-      Assert.assertTrue("no resource for " + on, mbeanServer.isRegistered(on));
+      Wait.assertTrue("no resource for " + on, () -> mbeanServer.isRegistered(on));
    }
 
    protected QueueControl createManagementControl(final String address, final String queue) throws Exception {

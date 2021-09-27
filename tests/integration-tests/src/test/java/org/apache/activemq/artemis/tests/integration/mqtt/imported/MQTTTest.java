@@ -82,6 +82,14 @@ public class MQTTTest extends MQTTTestSupport {
 
    private static final String AMQP_URI = "tcp://localhost:61616";
 
+
+   @Override
+   public void configureBroker() throws Exception {
+      super.configureBroker();
+      server.getConfiguration().setAddressQueueScanPeriod(100);
+   }
+
+
    @Test
    public void testConnectWithLargePassword() throws Exception {
       for (String version : Arrays.asList("3.1", "3.1.1")) {
@@ -2074,6 +2082,6 @@ public class MQTTTest extends MQTTTestSupport {
 
       subscriptionProvider.disconnect();
 
-      assertNull(server.getAddressInfo(SimpleString.toSimpleString("foo.bar")));
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString("foo.bar")) == null);
    }
 }

@@ -25,12 +25,20 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Test;
 
 public class TransientQueueTest extends SingleServerTestBase {
+
+   @Override
+   protected ActiveMQServer createServer() throws Exception {
+      ActiveMQServer server = super.createServer();
+      server.getConfiguration().setAddressQueueScanPeriod(100);
+      return server;
+   }
 
    @Test
    public void testSimpleTransientQueue() throws Exception {
@@ -177,6 +185,7 @@ public class TransientQueueTest extends SingleServerTestBase {
       session.createConsumer(queue).close();
 
       Wait.assertTrue(() -> server.locateQueue(queue) == null, 2000, 100);
+      Wait.assertTrue(() -> server.getAddressInfo(queue) == null, 2000, 100);
 
       session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.toSimpleString("q=1")).setDurable(false));
 

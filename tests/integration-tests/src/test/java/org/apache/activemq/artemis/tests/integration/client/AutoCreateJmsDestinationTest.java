@@ -294,7 +294,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       connection.close();
 
-      assertNull(server.getManagementService().getResource(ResourceNames.ADDRESS + topicName));
+      Wait.assertTrue(() -> server.getManagementService().getResource(ResourceNames.ADDRESS + topicName) == null);
    }
 
    @Test

@@ -26,6 +26,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
@@ -34,6 +35,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class AutoDeleteJmsDestinationTest extends JMSTestBase {
+
+   @Override
+   protected void extraServerConfig(ActiveMQServer server) {
+      super.extraServerConfig(server);
+      server.getConfiguration().setAddressQueueScanPeriod(100);
+   }
 
    @Test
    public void testAutoDeleteQueue() throws Exception {

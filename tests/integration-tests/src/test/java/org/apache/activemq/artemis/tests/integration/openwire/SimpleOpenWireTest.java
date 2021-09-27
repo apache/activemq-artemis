@@ -63,6 +63,7 @@ import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -89,6 +90,12 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    private final String testString = "simple test string";
    private final String testProp = "BASE_DATE";
    private final String propValue = "2017-11-01";
+
+   @Override
+   protected void extraServerConfig(Configuration configuration) {
+      super.extraServerConfig(configuration);
+      configuration.setAddressQueueScanPeriod(100);
+   }
 
    @Override
    @Before

@@ -126,6 +126,11 @@ public class WildcardAddressManagerPerfTest {
    class BindingFactoryFake implements BindingsFactory {
 
       @Override
+      public boolean isAddressBound(SimpleString address) throws Exception {
+         return false;
+      }
+
+      @Override
       public Bindings createBindings(SimpleString address) throws Exception {
          return new BindingsImpl(address, null);
       }

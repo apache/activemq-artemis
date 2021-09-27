@@ -153,7 +153,7 @@ public class NotificationTest extends ActiveMQTestBase {
       session.deleteQueue(queue);
 
       //There will be 2 notifications, first is for binding removal, second is for address removal
-      ClientMessage[] notifications = NotificationTest.consumeMessages(2, notifConsumer);
+      ClientMessage[] notifications = NotificationTest.consumeMessages(2, notifConsumer, 5000);
       Assert.assertEquals(BINDING_REMOVED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
       Assert.assertEquals(queue.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ROUTING_NAME).toString());
       Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
@@ -440,6 +440,7 @@ public class NotificationTest extends ActiveMQTestBase {
       super.setUp();
 
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setMessageExpiryScanPeriod(100), false));
+      server.getConfiguration().setAddressQueueScanPeriod(100);
       NotificationActiveMQServerPlugin notificationPlugin = new NotificationActiveMQServerPlugin();
       notificationPlugin.setSendAddressNotifications(true);
       notificationPlugin.setSendConnectionNotifications(true);

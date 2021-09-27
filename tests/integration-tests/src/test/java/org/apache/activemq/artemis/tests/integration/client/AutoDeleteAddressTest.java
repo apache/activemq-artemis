@@ -43,6 +43,7 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
       super.setUp();
       locator = createInVMNonHALocator();
       server = createServer(false);
+      server.getConfiguration().setAddressQueueScanPeriod(10);
 
       server.start();
       cf = createSessionFactory(locator);

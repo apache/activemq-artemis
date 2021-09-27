@@ -30,11 +30,13 @@ import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
 import org.apache.activemq.artemis.cli.commands.queue.PurgeQueue;
 import org.apache.activemq.artemis.cli.commands.queue.UpdateQueue;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,6 +45,12 @@ public class QueueCommandTest extends JMSTestBase {
    //the command
    private ByteArrayOutputStream output;
    private ByteArrayOutputStream error;
+
+   @Override
+   protected void extraServerConfig(ActiveMQServer server) {
+      super.extraServerConfig(server);
+      server.getConfiguration().setAddressQueueScanPeriod(100);
+   }
 
    @Before
    @Override
@@ -236,7 +244,7 @@ public class QueueCommandTest extends JMSTestBase {
       delete.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
       checkExecutionPassed(command);
-      assertNull(server.getAddressInfo(queueName));
+      Wait.assertTrue(() -> server.getAddressInfo(queueName) == null, 2000, 10);
    }
 
    @Test

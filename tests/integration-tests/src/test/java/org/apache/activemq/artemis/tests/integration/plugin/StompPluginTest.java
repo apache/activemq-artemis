@@ -117,6 +117,7 @@ public class StompPluginTest extends StompTestBase {
    @Override
    protected ActiveMQServer createServer() throws Exception {
       ActiveMQServer server = super.createServer();
+      server.getConfiguration().setAddressQueueScanPeriod(100);
       server.registerBrokerPlugin(verifier);
       server.registerBrokerPlugin(new ActiveMQServerPlugin() {
 

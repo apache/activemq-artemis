@@ -1448,7 +1448,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
-   protected final ActiveMQServer createServer(final boolean realFiles,
+   protected ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
                                                final int pageSize,
                                                final long maxAddressSize) {

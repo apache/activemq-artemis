@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -80,6 +81,13 @@ public class StompTest extends StompTestBase {
    private static final Logger log = Logger.getLogger(StompTest.class);
 
    protected StompClientConnection conn;
+
+   @Override
+   protected ActiveMQServer createServer() throws Exception {
+      ActiveMQServer server = super.createServer();
+      server.getConfiguration().setAddressQueueScanPeriod(100);
+      return server;
+   }
 
    @Override
    @Before

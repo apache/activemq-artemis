@@ -6768,10 +6768,10 @@ public class PagingTest extends ActiveMQTestBase {
       locator.close();
       locator = null;
       sf = null;
-      assertFalse(Arrays.asList(server.getPagingManager().getStoreNames()).contains(PagingTest.ADDRESS));
+      Wait.assertFalse(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(PagingTest.ADDRESS));
       // Ensure pagingStore is physically deleted
       server.getPagingManager().reloadStores();
-      assertFalse(Arrays.asList(server.getPagingManager().getStoreNames()).contains(PagingTest.ADDRESS));
+      Wait.assertFalse(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(PagingTest.ADDRESS));
       server.stop();
 
       server.start();
@@ -7066,6 +7066,16 @@ public class PagingTest extends ActiveMQTestBase {
       }
 
       session.close();
+   }
+
+   @Override
+   protected final ActiveMQServer createServer(final boolean realFiles,
+                                               final Configuration configuration,
+                                               final int pageSize,
+                                               final long maxAddressSize) {
+      ActiveMQServer server = super.createServer(realFiles, configuration, pageSize, maxAddressSize);
+      server.getConfiguration().setAddressQueueScanPeriod(100);
+      return server;
    }
 
    @Override

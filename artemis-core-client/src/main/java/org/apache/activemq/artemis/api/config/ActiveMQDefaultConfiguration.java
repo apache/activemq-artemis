@@ -882,6 +882,11 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_ADDRESS_QUEUE_SCAN_PERIOD;
    }
 
+   // FOR TESTING
+   static void setDefaultAddressQueueScanPeriod(long scanPeriod) {
+      DEFAULT_ADDRESS_QUEUE_SCAN_PERIOD = scanPeriod;
+   }
+
    /**
     * the size of the cache for pre-creating message ID's
     */
