@@ -221,23 +221,28 @@ public class PostOfficeJournalLoader implements JournalLoader {
          long currentTime = System.currentTimeMillis();
 
          for (AddMessageRecord record : valueRecords) {
-            long scheduledDeliveryTime = record.getScheduledDeliveryTime();
+            try {
+               long scheduledDeliveryTime = record.getScheduledDeliveryTime();
 
-            if (scheduledDeliveryTime != 0 && scheduledDeliveryTime <= currentTime) {
-               scheduledDeliveryTime = 0;
-               record.getMessage().setScheduledDeliveryTime(0L);
-            }
+               if (scheduledDeliveryTime != 0 && scheduledDeliveryTime <= currentTime) {
+                  scheduledDeliveryTime = 0;
+                  record.getMessage().setScheduledDeliveryTime(0L);
+               }
 
-            if (scheduledDeliveryTime != 0) {
-               record.getMessage().setScheduledDeliveryTime(scheduledDeliveryTime);
-            }
+               if (scheduledDeliveryTime != 0) {
+                  record.getMessage().setScheduledDeliveryTime(scheduledDeliveryTime);
+               }
 
-            MessageReference ref = postOffice.reload(record.getMessage(), queue, null);
+               MessageReference ref = postOffice.reload(record.getMessage(), queue, null);
 
-            ref.setDeliveryCount(record.getDeliveryCount());
+               ref.setDeliveryCount(record.getDeliveryCount());
 
-            if (scheduledDeliveryTime != 0) {
-               record.getMessage().setScheduledDeliveryTime(0L);
+               if (scheduledDeliveryTime != 0) {
+                  record.getMessage().setScheduledDeliveryTime(0L);
+               }
+            } catch (Throwable t) {
+               ActiveMQServerLogger.LOGGER.unableToLoadMessageFromJournal(t);
+               continue;
             }
          }
       }
