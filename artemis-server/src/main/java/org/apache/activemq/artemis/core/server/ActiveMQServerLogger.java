@@ -1759,6 +1759,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222303, value = "Redistribution by {0} of messageID = {1} failed", format = Message.Format.MESSAGE_FORMAT)
    void errorRedistributing(@Cause Throwable t, String queueName, long m);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222304, value = "Unable to load message from journal", format = Message.Format.MESSAGE_FORMAT)
+   void unableToLoadMessageFromJournal(@Cause Throwable t);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
