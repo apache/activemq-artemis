@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.CountDownLatch;
@@ -26,17 +28,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class TypedPropertiesConcurrencyTest {
-
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
-
-
-   private SimpleString key = SimpleString.toSimpleString("key");
 
    @Test
    public void testClearAndToString() throws Exception {
@@ -67,7 +61,7 @@ public class TypedPropertiesConcurrencyTest {
             try {
                countDownLatch.await();
                for (int k = 0; k < 1000; k++) {
-                  props.toString();
+                  assertNotNull(props.toString());
                }
             } catch (ConcurrentModificationException t) {
                hasError.set(true);
@@ -85,7 +79,6 @@ public class TypedPropertiesConcurrencyTest {
       executorService.shutdown();
       Assert.assertFalse(hasError.get());
    }
-
 
    @Test
    public void testGetPropertyNamesClearAndToString() throws Exception {
@@ -118,7 +111,7 @@ public class TypedPropertiesConcurrencyTest {
             try {
                countDownLatch.await();
                for (int k = 0; k < 1000; k++) {
-                  props.toString();
+                  assertNotNull(props.toString());
                }
             } catch (ConcurrentModificationException t) {
                hasError.set(true);
@@ -136,7 +129,6 @@ public class TypedPropertiesConcurrencyTest {
       executorService.shutdown();
       Assert.assertFalse(hasError.get());
    }
-
 
    @Test
    public void testEncodedSizeAfterClearIsSameAsNewTypedProperties() throws Exception {

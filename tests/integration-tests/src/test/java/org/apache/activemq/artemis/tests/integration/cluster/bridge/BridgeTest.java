@@ -871,7 +871,7 @@ public class BridgeTest extends ActiveMQTestBase {
          LinkedListIterator<MessageReference> iterator = queue.iterator();
 
          for (int i = 0; i < 100; i++) {
-            iterator.hasNext();
+            assertTrue(iterator.hasNext());
             ids[i] = iterator.next().getMessage().getMessageID();
          }
 

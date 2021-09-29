@@ -100,7 +100,7 @@
       <jboss.logging.version>3.4.2.Final</jboss.logging.version>
       <jetty.version>9.4.43.v20210629</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
-      <errorprone.version>2.6.0</errorprone.version>
+      <errorprone.version>2.9.0</errorprone.version>
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
       <maven.bundle.plugin.version>5.1.2</maven.bundle.plugin.version>
       <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
@@ -1028,10 +1028,10 @@
           </build>
       </profile>
       <profile>
-          <id>jdk16-errorprone</id>
+          <id>jdk16on-errorprone</id>
           <!-- TODO: MissingOverride check only warns in this profile for now, as JDK15+ added a toString method to CharSequence -->
           <activation>
-              <jdk>16</jdk>
+              <jdk>[16,)</jdk>
               <property>
                   <name>errorprone</name>
               </property>

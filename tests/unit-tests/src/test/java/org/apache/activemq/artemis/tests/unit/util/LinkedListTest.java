@@ -1091,7 +1091,7 @@ public class LinkedListTest extends ActiveMQTestBase {
       iter.next();
       iter.next();
       iter.next();
-      iter.hasNext();
+      assertTrue(iter.hasNext());
       assertEquals(4, iter.next().intValue());
 
       iter.repeat();

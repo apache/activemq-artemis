@@ -99,7 +99,8 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
    public void testNullMaskPassword() {
       ConfigurationImpl impl = new ConfigurationImpl();
       impl.setMaskPassword(null);
-      impl.hashCode();
+
+      Assert.assertEquals(impl.hashCode(), impl.hashCode());
    }
 
    @Test
