@@ -710,7 +710,12 @@ public final class OpenWireMessageConverter {
    private static <T> T getObjectProperty(ICoreMessage message, Class<T> type, SimpleString property) {
       if (message.getPropertyNames().contains(property)) {
          try {
-            return type.cast(message.getObjectProperty(property));
+            Object value = message.getObjectProperty(property);
+            if (type == String.class && value != null) {
+               return (T)value.toString();
+            } else {
+               return type.cast(value);
+            }
          } catch (ClassCastException e) {
             ActiveMQServerLogger.LOGGER.failedToDealWithObjectProperty(property, e.getMessage());
          }

@@ -153,6 +153,7 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
          Assert.assertEquals(0, errors.get());
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ144003")); // error compacting
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222055")); // records not found
+         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222302")); // string conversion issue
       } finally {
          AssertionLoggerHandler.stopCapture();
          running.set(false);
