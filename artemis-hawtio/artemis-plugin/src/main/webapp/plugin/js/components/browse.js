@@ -804,6 +804,16 @@ var Artemis;
         }
 
 
+        var amqpEncodingLabels = [
+			"amqp-unknown", "amqp-null", "amqp-data", "amqp-sequence", "amqp-value-null",
+			"amqp-value-string", "amqp-value-binary", "amqp-value-map", "amqp-value-list"];
+        function formatAmqpEncoding(enc) {
+            if (isNaN(enc)) {
+                return enc;
+            }
+            return enc > -1 && enc < 9 ? amqpEncodingLabels[enc] : enc;
+        }
+
         function createProperties(message) {
             var properties = [];
             angular.forEach(message, function (value, key) {
@@ -811,6 +821,9 @@ var Artemis;
                     Artemis.log.debug("key=" + key + " value=" + value);
                     angular.forEach(value, function (v2, k2) {
                     Artemis.log.debug("key=" + k2 + " value=" + v2);
+						if(k2 === "JMS_AMQP_ORIGINAL_ENCODING") {
+							v2 += " (" + formatAmqpEncoding(v2) + ")";
+						}
                         properties.push({key: k2, value: v2});
                     });
                 }
