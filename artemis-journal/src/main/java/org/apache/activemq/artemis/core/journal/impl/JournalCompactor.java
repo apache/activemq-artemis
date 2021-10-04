@@ -408,7 +408,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
       if (pendingTransactions.get(transactionID) != null) {
          // Sanity check, this should never happen
-         throw new IllegalStateException("Inconsistency during compacting: RollbackRecord ID = " + transactionID +
+         logger.debug("Inconsistency during compacting: RollbackRecord ID = " + transactionID +
                                             " for an already rolled back transaction during compacting");
       } else {
          JournalTransaction newTransaction = newTransactions.remove(transactionID);

@@ -30,8 +30,11 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.PowerOf2Util;
 import org.apache.activemq.artemis.utils.Env;
+import org.jboss.logging.Logger;
 
 final class MappedFile implements AutoCloseable {
+
+   private static final Logger logger = Logger.getLogger(MappedFile.class);
 
    private static final int OS_PAGE_SIZE = Env.osPageSize();
    private final MappedByteBuffer buffer;
@@ -58,8 +61,10 @@ final class MappedFile implements AutoCloseable {
       final FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
       length = (int) channel.size();
       if (length != capacity && length != 0) {
-         channel.close();
-         throw new IllegalStateException("the file is not " + capacity + " bytes long!");
+         if (logger.isDebugEnabled()) {
+            logger.debug("Adjusting capacity to " + length + " while it was " + capacity + " on file " + file);
+         }
+         capacity = length;
       }
       buffer = channel.map(FileChannel.MapMode.READ_WRITE, position, capacity);
       return new MappedFile(channel, buffer, 0, length);

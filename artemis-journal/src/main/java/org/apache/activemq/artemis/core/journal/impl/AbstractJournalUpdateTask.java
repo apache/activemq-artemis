@@ -87,70 +87,70 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
                                                  final List<JournalFile> newFiles,
                                                  final List<Pair<String, String>> renames) throws Exception {
 
-      SequentialFile controlFile = fileFactory.createSequentialFile(AbstractJournalUpdateTask.FILE_COMPACT_CONTROL);
+      ActiveMQBuffer filesToRename = ActiveMQBuffers.dynamicBuffer(1);
 
+      // DataFiles first
+
+      if (files == null) {
+         filesToRename.writeInt(0);
+      } else {
+         filesToRename.writeInt(files.size());
+
+         for (JournalFile file : files) {
+            filesToRename.writeUTF(file.getFile().getFileName());
+         }
+      }
+
+      // New Files second
+
+      if (newFiles == null) {
+         filesToRename.writeInt(0);
+      } else {
+         filesToRename.writeInt(newFiles.size());
+
+         for (JournalFile file : newFiles) {
+            filesToRename.writeUTF(file.getFile().getFileName());
+         }
+      }
+
+      // Renames from clean up third
+      if (renames == null) {
+         filesToRename.writeInt(0);
+      } else {
+         filesToRename.writeInt(renames.size());
+         for (Pair<String, String> rename : renames) {
+            filesToRename.writeUTF(rename.getA());
+            filesToRename.writeUTF(rename.getB());
+         }
+      }
+
+      JournalInternalRecord controlRecord = new JournalAddRecord(true, 1, (byte) 0, EncoderPersister.getInstance(), new ByteArrayEncoding(filesToRename.toByteBuffer().array()));
+
+      ActiveMQBuffer renameBuffer = ActiveMQBuffers.dynamicBuffer(filesToRename.writerIndex());
+
+      controlRecord.setFileID(0);
+
+      controlRecord.encode(renameBuffer);
+
+      ByteBuffer writeBuffer = fileFactory.newBuffer(renameBuffer.writerIndex());
+
+      writeBuffer.put(renameBuffer.toByteBuffer().array(), 0, renameBuffer.writerIndex());
+      int position = writeBuffer.position();
+
+      writeBuffer.rewind();
+
+
+      // the capacity here will only be applied to mapped files as they are created with the intended capacity and the control file needs to match the number of files needed
+      SequentialFile controlFile = fileFactory.createSequentialFile(AbstractJournalUpdateTask.FILE_COMPACT_CONTROL, position + 1024);
       try {
          controlFile.open(1, false);
-
          JournalImpl.initFileHeader(fileFactory, controlFile, 0, 0);
-
-         ActiveMQBuffer filesToRename = ActiveMQBuffers.dynamicBuffer(1);
-
-         // DataFiles first
-
-         if (files == null) {
-            filesToRename.writeInt(0);
-         } else {
-            filesToRename.writeInt(files.size());
-
-            for (JournalFile file : files) {
-               filesToRename.writeUTF(file.getFile().getFileName());
-            }
-         }
-
-         // New Files second
-
-         if (newFiles == null) {
-            filesToRename.writeInt(0);
-         } else {
-            filesToRename.writeInt(newFiles.size());
-
-            for (JournalFile file : newFiles) {
-               filesToRename.writeUTF(file.getFile().getFileName());
-            }
-         }
-
-         // Renames from clean up third
-         if (renames == null) {
-            filesToRename.writeInt(0);
-         } else {
-            filesToRename.writeInt(renames.size());
-            for (Pair<String, String> rename : renames) {
-               filesToRename.writeUTF(rename.getA());
-               filesToRename.writeUTF(rename.getB());
-            }
-         }
-
-         JournalInternalRecord controlRecord = new JournalAddRecord(true, 1, (byte) 0, EncoderPersister.getInstance(), new ByteArrayEncoding(filesToRename.toByteBuffer().array()));
-
-         ActiveMQBuffer renameBuffer = ActiveMQBuffers.dynamicBuffer(filesToRename.writerIndex());
-
-         controlRecord.setFileID(0);
-
-         controlRecord.encode(renameBuffer);
-
-         ByteBuffer writeBuffer = fileFactory.newBuffer(renameBuffer.writerIndex());
-
-         writeBuffer.put(renameBuffer.toByteBuffer().array(), 0, renameBuffer.writerIndex());
-
-         writeBuffer.rewind();
-
          controlFile.writeDirect(writeBuffer, true);
-
-         return controlFile;
       } finally {
          controlFile.close(false, false);
       }
+
+      return controlFile;
    }
 
    static SequentialFile readControlFile(final SequentialFileFactory fileFactory,

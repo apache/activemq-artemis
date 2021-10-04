@@ -33,6 +33,10 @@ public interface SequentialFileFactory {
 
    SequentialFile createSequentialFile(String fileName);
 
+   default SequentialFile createSequentialFile(String fileName, int capacity) {
+      return createSequentialFile(fileName);
+   }
+
    int getMaxIO();
 
    /**
