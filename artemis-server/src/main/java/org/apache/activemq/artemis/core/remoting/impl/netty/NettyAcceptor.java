@@ -21,13 +21,10 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -189,8 +186,6 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final String trustManagerFactoryPlugin;
 
-   private final String kerb5Config;
-
    private String sniHost;
 
    private final boolean tcpNoDelay;
@@ -268,8 +263,6 @@ public class NettyAcceptor extends AbstractAcceptor {
       this.listener = listener;
 
       sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SSL_ENABLED, configuration);
-
-      kerb5Config = ConfigurationHelper.getStringProperty(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, TransportConstants.DEFAULT_SSL_KRB5_CONFIG, configuration);
 
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.REMOTING_THREADS_PROPNAME, remotingThreads, configuration);
@@ -674,55 +667,31 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private SSLEngine loadJdkSslEngine(String peerHost, int peerPort) throws Exception {
       final SSLContext context = (SSLContext) providerAgnosticSslContext;
-      Subject subject = null;
-      if (kerb5Config != null) {
-         LoginContext loginContext = new LoginContext(kerb5Config);
-         loginContext.login();
-         subject = loginContext.getSubject();
-      }
 
-      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
-         @Override
-         public SSLEngine run() {
-            if (peerHost != null && peerPort != 0) {
-               return context.createSSLEngine(peerHost, peerPort);
-            } else {
-               return context.createSSLEngine();
-            }
-         }
-      });
-      return engine;
+      if (peerHost != null && peerPort != 0) {
+         return context.createSSLEngine(peerHost, peerPort);
+      } else {
+         return context.createSSLEngine();
+      }
    }
 
    private void checkSSLConfiguration() throws IllegalArgumentException {
       if (configuration.containsKey(TransportConstants.SSL_CONTEXT_PROP_NAME)) {
          return;
       }
-      if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_KEYSTORE_PROVIDER.equals(keyStoreProvider)) {
+      if (keyStorePath == null && TransportConstants.DEFAULT_KEYSTORE_PROVIDER.equals(keyStoreProvider)) {
          throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME + "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
       }
    }
 
    private SSLEngine loadOpenSslEngine(ByteBufAllocator alloc, String peerHost, int peerPort) throws Exception {
       final SslContext context = (SslContext) providerAgnosticSslContext;
-      Subject subject = null;
-      if (kerb5Config != null) {
-         LoginContext loginContext = new LoginContext(kerb5Config);
-         loginContext.login();
-         subject = loginContext.getSubject();
-      }
 
-      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
-         @Override
-         public SSLEngine run() {
-            if (peerHost != null && peerPort != 0) {
-               return context.newEngine(alloc, peerHost, peerPort);
-            } else {
-               return context.newEngine(alloc);
-            }
-         }
-      });
-      return engine;
+      if (peerHost != null && peerPort != 0) {
+         return context.newEngine(alloc, peerHost, peerPort);
+      } else {
+         return context.newEngine(alloc);
+      }
    }
 
    private void startServerChannels() {

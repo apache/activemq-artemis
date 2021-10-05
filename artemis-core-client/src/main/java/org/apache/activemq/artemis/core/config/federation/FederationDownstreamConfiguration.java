@@ -56,7 +56,6 @@ public class FederationDownstreamConfiguration extends FederationStreamConfigura
       //The federated server that creates the upstream back will rely on its config from the acceptor for TLS
       stripParam(params, TransportConstants.SSL_ENABLED_PROP_NAME);
       stripParam(params, TransportConstants.SSL_PROVIDER);
-      stripParam(params, TransportConstants.SSL_KRB5_CONFIG_PROP_NAME);
       stripParam(params, TransportConstants.KEYSTORE_PATH_PROP_NAME);
       stripParam(params, TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
       stripParam(params, TransportConstants.KEYSTORE_PROVIDER_PROP_NAME);

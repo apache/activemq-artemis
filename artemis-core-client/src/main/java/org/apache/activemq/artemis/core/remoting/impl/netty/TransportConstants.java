@@ -33,8 +33,6 @@ public class TransportConstants {
 
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
 
-   public static final String SSL_KRB5_CONFIG_PROP_NAME = "sslKrb5Config";
-
    public static final String HTTP_ENABLED_PROP_NAME = "httpEnabled";
 
    public static final String HTTP_CLIENT_IDLE_PROP_NAME = "httpClientIdleTime";
@@ -195,8 +193,6 @@ public class TransportConstants {
    public static final boolean DEFAULT_AUTO_START = true;
 
    public static final boolean DEFAULT_SSL_ENABLED = false;
-
-   public static final String DEFAULT_SSL_KRB5_CONFIG = null;
 
    public static final String DEFAULT_SNIHOST_CONFIG = null;
 

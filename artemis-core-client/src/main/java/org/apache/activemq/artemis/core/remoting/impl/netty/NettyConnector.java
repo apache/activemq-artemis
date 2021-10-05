@@ -20,8 +20,6 @@ import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
@@ -33,7 +31,6 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -265,8 +262,6 @@ public class NettyConnector extends AbstractConnector {
 
    private String sniHost;
 
-   private String kerb5Config;
-
    private boolean useDefaultSslContext;
 
    private boolean tcpNoDelay;
@@ -432,8 +427,6 @@ public class NettyConnector extends AbstractConnector {
          sslProvider = ConfigurationHelper.getStringProperty(TransportConstants.SSL_PROVIDER, TransportConstants.DEFAULT_SSL_PROVIDER, configuration);
 
          sniHost = ConfigurationHelper.getStringProperty(TransportConstants.SNIHOST_PROP_NAME, TransportConstants.DEFAULT_SNIHOST_CONFIG, configuration);
-
-         kerb5Config = ConfigurationHelper.getStringProperty(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, TransportConstants.DEFAULT_SSL_KRB5_CONFIG, configuration);
 
          useDefaultSslContext = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT, configuration);
 
@@ -759,50 +752,22 @@ public class NettyConnector extends AbstractConnector {
       final SSLContext context = SSLContextFactoryProvider.getSSLContextFactory()
          .getSSLContext(sslContextConfig, configuration);
 
-      Subject subject = null;
-      if (kerb5Config != null) {
-         LoginContext loginContext = new LoginContext(kerb5Config);
-         loginContext.login();
-         subject = loginContext.getSubject();
-         verifyHost = true;
+      if (host != null && port != -1) {
+         return context.createSSLEngine(host, port);
+      } else {
+         return context.createSSLEngine();
       }
-
-      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
-         @Override
-         public SSLEngine run() {
-            if (host != null && port != -1) {
-               return context.createSSLEngine(host, port);
-            } else {
-               return context.createSSLEngine();
-            }
-         }
-      });
-      return engine;
    }
 
    private SSLEngine loadOpenSslEngine(final ByteBufAllocator alloc, final SSLContextConfig sslContextConfig) throws Exception {
       final SslContext context = OpenSSLContextFactoryProvider.getOpenSSLContextFactory()
          .getClientSslContext(sslContextConfig, configuration);
 
-      Subject subject = null;
-      if (kerb5Config != null) {
-         LoginContext loginContext = new LoginContext(kerb5Config);
-         loginContext.login();
-         subject = loginContext.getSubject();
-         verifyHost = true;
+      if (host != null && port != -1) {
+         return context.newEngine(alloc, host, port);
+      } else {
+         return context.newEngine(alloc);
       }
-
-      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
-         @Override
-         public SSLEngine run() {
-            if (host != null && port != -1) {
-               return context.newEngine(alloc, host, port);
-            } else {
-               return context.newEngine(alloc);
-            }
-         }
-      });
-      return engine;
    }
 
    @Override

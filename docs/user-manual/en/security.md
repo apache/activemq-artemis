@@ -1159,16 +1159,6 @@ amqp-sasl-gssapi {
 };
 ```
 
-##### TLS Kerberos Cipher Suites
-
-The legacy [rfc2712](https://www.ietf.org/rfc/rfc2712.txt) defines TLS Kerberos
-cipher suites that can be used by TLS to negotiate Kerberos authentication. The
-cypher suites offered by rfc2712 are dated and insecure and rfc2712 has been
-superseded by SASL GSSAPI. However, for clients that don't support SASL (core
-client), using TLS can provide Kerberos authentication over an *unsecure*
-channel.
-
-
 ### Role Mapping
 
 On the server, a Kerberos or SCRAM-SHA JAAS authenticated Principal must be added to the
