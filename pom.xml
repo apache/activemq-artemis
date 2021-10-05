@@ -106,7 +106,7 @@
       <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
       <checkstyle.version>8.43</checkstyle.version>
-      <mockito.version>3.11.2</mockito.version>
+      <mockito.version>3.12.4</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.68.Final</netty.version>
       <curator.version>5.2.0</curator.version>
