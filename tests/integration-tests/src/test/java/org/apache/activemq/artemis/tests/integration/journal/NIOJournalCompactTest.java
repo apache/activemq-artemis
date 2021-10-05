@@ -1246,7 +1246,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
    @Test
    public void testReconfigureJournalSize() throws Exception {
-      setup(2, 60 * 1024, false);
+      setup(2, 30 * 4096, false);
 
       createJournal();
       startJournal();
@@ -1275,8 +1275,8 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       stopJournal();
 
-      // expanding the size once
-      setup(2, 120 * 1024, false);
+      // expanding the size
+      setup(2, 60 * 4096, false);
       createJournal();
       startJournal();
       loadAndCheck();
@@ -1299,8 +1299,8 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       }
       stopJournal();
 
-      // shrinking the size later
-      setup(2, 30 * 1024, false);
+      // shrinking the size
+      setup(2, 15 * 4096, false);
       createJournal();
       startJournal();
       loadAndCheck();
