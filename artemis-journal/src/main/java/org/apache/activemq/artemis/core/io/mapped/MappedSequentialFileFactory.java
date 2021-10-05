@@ -62,6 +62,11 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
 
    @Override
    public SequentialFile createSequentialFile(String fileName) {
+      return createSequentialFile(fileName, capacity);
+   }
+
+   @Override
+   public SequentialFile createSequentialFile(String fileName, int capacity) {
       final MappedSequentialFile mappedSequentialFile = new MappedSequentialFile(this, journalDir, new File(journalDir, fileName), capacity, critialErrorListener);
       if (this.timedBuffer == null) {
          return mappedSequentialFile;

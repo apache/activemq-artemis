@@ -293,8 +293,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    // Compacting may replace this structure
    private final ConcurrentLongHashMap<JournalTransaction> transactions = new ConcurrentLongHashMap<>();
 
-   private final IOCriticalErrorListener criticalErrorListener;
-
+   private IOCriticalErrorListener criticalErrorListener;
 
    // This will be set only while the JournalCompactor is being executed
    private volatile JournalCompactor compactor;
@@ -484,6 +483,17 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          logger.warn(e);
          return super.toString();
       }
+   }
+
+   @Override
+   public IOCriticalErrorListener getCriticalErrorListener() {
+      return criticalErrorListener;
+   }
+
+   @Override
+   public JournalImpl setCriticalErrorListener(IOCriticalErrorListener criticalErrorListener) {
+      this.criticalErrorListener = criticalErrorListener;
+      return this;
    }
 
    @Override
@@ -1811,7 +1821,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * stop, start records will still come as this is being executed
     */
 
-   public synchronized void compact() throws Exception {
+   public synchronized void compact() {
 
       if (compactor != null) {
          throw new IllegalStateException("There is pending compacting operation");
@@ -1926,6 +1936,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                      ActiveMQJournalLogger.LOGGER.compactMergeError(newTransaction.getId());
                   }
                });
+            } catch (Throwable e) {
+               try {
+                  criticalIO(e);
+               } catch (Throwable ignored) {
+                  logger.warn(ignored.getMessage(), ignored);
+               }
+               return;
             } finally {
                journalLock.writeLock().unlock();
             }
@@ -1935,26 +1952,21 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             deleteControlFile(controlFile);
 
             if (logger.isDebugEnabled()) {
+               logger.debug("Flushing compacting on journal " + this);
+            }
+
+            setAutoReclaim(previousReclaimValue);
+
+            if (logger.isDebugEnabled()) {
                logger.debug("Finished compacting on journal " + this);
             }
 
-         } finally {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Flushing compacting on journal " + this);
+         } catch (Throwable e) {
+            try {
+               criticalIO(e);
+            } catch (Throwable ignored) {
+               logger.warn(ignored.getMessage(), ignored);
             }
-            // An Exception was probably thrown, and the compactor was not cleared
-            if (compactor != null) {
-               try {
-                  compactor.flush();
-               } catch (Throwable ignored) {
-               }
-
-               compactor = null;
-            }
-            if (logger.isDebugEnabled()) {
-               logger.debug("since compact finished, setAutoReclaim back into " + previousReclaimValue);
-            }
-            setAutoReclaim(previousReclaimValue);
          }
       } finally {
          compactorLock.writeLock().unlock();

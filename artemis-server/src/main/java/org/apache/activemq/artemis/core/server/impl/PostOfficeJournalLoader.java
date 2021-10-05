@@ -275,13 +275,24 @@ public class PostOfficeJournalLoader implements JournalLoader {
    public void handleDuplicateIds(Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
       for (Map.Entry<SimpleString, List<Pair<byte[], Long>>> entry : duplicateIDMap.entrySet()) {
          SimpleString address = entry.getKey();
-
-         DuplicateIDCache cache = postOffice.getDuplicateIDCache(address);
-
          if (configuration.isPersistIDCache()) {
+            DuplicateIDCache cache = postOffice.getDuplicateIDCache(address);
             cache.load(entry.getValue());
+         } else {
+            removeOldDuplicates(entry.getValue());
          }
       }
+   }
+
+   private void removeOldDuplicates(List<Pair<byte[], Long>> ids) throws Exception {
+      ids.forEach((pair) -> {
+         try {
+            storageManager.deleteDuplicateID(pair.getB());
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+      });
+
    }
 
    @Override
