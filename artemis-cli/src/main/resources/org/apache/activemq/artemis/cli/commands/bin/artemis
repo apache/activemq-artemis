@@ -132,5 +132,6 @@ exec "$JAVACMD" \
     -Dartemis.instance.etc="$ARTEMIS_INSTANCE_ETC" \
     -Djava.util.logging.manager="$ARTEMIS_LOG_MANAGER" \
     -Dlogging.configuration="$ARTEMIS_LOGGING_CONF" \
+    -Dartemis.default.sensitive.string.codec.key="$ARTEMIS_DEFAULT_SENSITIVE_STRING_CODEC_KEY" \
     $DEBUG_ARGS \
     org.apache.activemq.artemis.boot.Artemis "$@"
