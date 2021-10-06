@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.unit.core.persistence.impl;
+package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Wait;
@@ -32,16 +31,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class OperationContextUnitTest extends ActiveMQTestBase {
-
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
 
    @Test
    public void testCompleteTaskAfterPaging() throws Exception {
@@ -94,6 +83,155 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
          impl.done();
          impl.pageSyncDone();
 
+         assertTrue(latch2.await(10, TimeUnit.SECONDS));
+
+      } finally {
+         executor.shutdown();
+      }
+   }
+
+
+   @Test
+   public void testCompleteTaskStoreOnly() throws Exception {
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      try {
+         OperationContextImpl impl = new OperationContextImpl(executor);
+         final CountDownLatch latch1 = new CountDownLatch(1);
+         final CountDownLatch latch2 = new CountDownLatch(1);
+         final CountDownLatch latch3 = new CountDownLatch(1);
+
+         impl.storeLineUp();
+
+         impl.executeOnCompletion(new IOCallback() {
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+
+            @Override
+            public void done() {
+               latch1.countDown();
+            }
+         }, true);
+
+         impl.storeLineUp();
+
+         impl.executeOnCompletion(new IOCallback() {
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+
+            @Override
+            public void done() {
+               latch3.countDown();
+            }
+         }, true);
+
+         impl.done();
+
+         assertTrue(latch1.await(10, TimeUnit.SECONDS));
+         assertFalse(latch3.await(1, TimeUnit.MILLISECONDS));
+
+         impl.done();
+         assertTrue(latch3.await(10, TimeUnit.SECONDS));
+
+         for (int i = 0; i < 10; i++)
+            impl.storeLineUp();
+         for (int i = 0; i < 3; i++)
+            impl.pageSyncLineUp();
+
+         impl.executeOnCompletion(new IOCallback() {
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+
+            @Override
+            public void done() {
+               latch2.countDown();
+            }
+         }, true);
+
+         assertFalse(latch2.await(1, TimeUnit.MILLISECONDS));
+
+         for (int i = 0; i < 9; i++)
+            impl.done();
+
+         assertFalse(latch2.await(1, TimeUnit.MILLISECONDS));
+
+         impl.done();
+
+         assertTrue(latch2.await(10, TimeUnit.SECONDS));
+
+      } finally {
+         executor.shutdown();
+      }
+   }
+
+
+   @Test
+   public void testCompletionLateStoreOnly() throws Exception {
+      testCompletionLate(true);
+   }
+
+   @Test
+   public void testCompletionLate() throws Exception {
+      testCompletionLate(false);
+   }
+
+   private void testCompletionLate(boolean storeOnly) throws Exception {
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      try {
+         OperationContextImpl impl = new OperationContextImpl(executor);
+         final CountDownLatch latch1 = new CountDownLatch(1);
+         final CountDownLatch latch2 = new CountDownLatch(1);
+
+         if (storeOnly) {
+            // if storeOnly, then the pageSyncLinup and replication lineup should not bother the results
+            impl.pageSyncLineUp();
+            impl.replicationLineUp();
+         }
+         impl.storeLineUp();
+
+         impl.executeOnCompletion(new IOCallback() {
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+
+            @Override
+            public void done() {
+               latch1.countDown();
+            }
+         }, storeOnly);
+
+         impl.storeLineUpField = 350000;
+         impl.stored = impl.storeLineUpField - 1;
+
+         if (impl.tasks != null) {
+            impl.tasks.forEach((t) -> t.storeLined = 150000L);
+         }
+
+         if (impl.storeOnlyTasks != null) {
+            impl.storeOnlyTasks.forEach((t) -> t.storeLined = 150000L);
+         }
+
+         impl.executeOnCompletion(new IOCallback() {
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+
+            @Override
+            public void done() {
+               latch2.countDown();
+            }
+         }, storeOnly);
+
+         impl.done();
+
+         assertTrue(latch1.await(10, TimeUnit.SECONDS));
          assertTrue(latch2.await(10, TimeUnit.SECONDS));
 
       } finally {
