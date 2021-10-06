@@ -19,9 +19,9 @@ It is a string retrieved from an incoming client connection, the supported value
 * `USER_NAME` is the username indicated by the client.
 
 ## Pools
-The pool is a group of target brokers and checks periodically their state.
+The pool is a group of target brokers with periodic checks on their state.
 It provides a list of ready target brokers to distribute incoming client connections only when it is active.
-A pool becomes active when the minimum number of ready target brokers defined by the `quorum-size` parameter is reached.
+A pool becomes active when the minimum number of target brokers, as defined by the `quorum-size` parameter, become ready.
 When it is not active, it doesn't provide any target avoiding weird distribution at startup or after a restart.
 Including the local broker in the target pool allows broker hosting the balancer to accept incoming client connections as well.
 By default, a pool doesn't include the local broker, to include it as a target the `local-target-enabled` parameter must be `true`.
@@ -102,22 +102,27 @@ A policy is defined by the `policy` element. Let's take a look at a policy examp
 The broker balancer provides a cache with a timeout to improve the stickiness of the target broker selected,
 returning the same target broker for a target key as long as it is present in the cache and is ready.
 So a broker balancer with the cache enabled doesn't strictly follow the configured policy.
-By default, the cache is enabled, and will never timeout. See below
+By default, the cache is enabled and will never timeout. See below
 for more details about setting the `cache-timeout` parameter.
 
 ## Defining broker balancers
-A broker balancer is defined by `broker-balancer` element, it includes the following items:
-* the `name` attribute defines the name of the broker balancer;
+A broker balancer is defined by the `broker-balancer` element, it includes the following items:
+* the `name` attribute defines the name of the broker balancer and is used to reference the balancer from an acceptor;
 * the `target-key` element defines what key to select a target broker, the supported values are: `CLIENT_ID`, `SNI_HOST`, `SOURCE_IP`, `USER_NAME`, default is `SOURCE_IP`, see [target key](#target-key) for further details;
 * the `target-key-filter` element defines a regular expression to filter the resolved keys;
 * the `local-target-filter` element defines a regular expression to match the keys that have to return a local target;
 * the `cache-timeout` element is the time period for a target broker to remain in the cache, measured in milliseconds, setting `0` will disable the cache, default is `-1`, meaning no expiration;
 * the `pool` element defines the pool to group the target brokers, see [pools](#pools).
-* the `policy` element defines the policy used to select the target brokers, see [policies](#policies);
+* the `policy` element defines the policy used to select the target brokers from the pool, see [policies](#policies);
 
 Let's take a look at some broker balancer examples from broker.xml:
 ```xml
 <broker-balancers>
+    <broker-balancer name="local-partition">
+         <target-key>CLIENT_ID</target-key>
+         <target-key-filter>^.{3}</target-key-filter>
+         <local-target-filter>^FOO.*</local-target-filter>
+    </broker-balancer>
     <broker-balancer name="simple-balancer">
         <policy name="FIRST_ELEMENT"/>
         <pool>
@@ -155,8 +160,9 @@ Let's take a look at some broker balancer examples from broker.xml:
 The broker balancer workflow include the following steps:
 * Retrieve the target key from the incoming connection;
 * Return the local target broker if the target key matches the local filter;
+* Delegate to the pool:
 * Return the cached target broker if it is ready;
-* Get ready target brokers from the pool;
+* Get ready/active target brokers from the pool;
 * Select one target broker using the policy;
 * Add the selected broker in the cache;
 * Return the selected broker.
@@ -164,6 +170,23 @@ The broker balancer workflow include the following steps:
 Let's take a look at flowchart of the broker balancer workflow:
 ![Broker Balancer Workflow](images/broker_balancer_workflow.png)
 
+## Data gravity
+The first balancer configuration: `local-partition`, demonstrates the simplest use case,
+that of preserving `data gravity` by confining a subset of application data to a given broker.
+Each broker is given a subset of keys that it will exclusively service or reject.
+If brokers are behind a round-robin load-balancer or have full knowledge of the broker
+urls, `their` broker will eventually respond. The `local-target-filter` regular expression
+determines the granularity of partition that is best for preserving `data gravity` for your applications.
+
+The challenge is in providing a consistent [key](#Target_Key) in all related application connections.
+
+Note: the concept of `data gravity` tries to capture the reality that while addresses are shared by multiple
+applications, it is best to keep related addresses and their data co-located on a single broker. Typically,
+applications should `connect` to the data rather than the data moving to whatever broker the application connects too.
+This is particularly true when the amount of data (backlog) is large, the cost of movement to follow consumers outweighs
+the cost of delivery to the application.
+With the 'data gravity' mindset, operators are less concerned with numbers of connections and more concerned with
+applications and the addresses they need to interact with.
 
 ## Redirection
 Apache ActiveMQ Artemis provides a native redirection for supported clients and a new management API for other clients.

@@ -88,9 +88,17 @@ public final class BrokerBalancerManager implements ActiveMQComponent {
 
       Target localTarget = new LocalTarget(null, server);
 
-      Pool pool = deployPool(config.getPoolConfiguration(), localTarget);
+      Pool pool = null;
+      final PoolConfiguration poolConfiguration = config.getPoolConfiguration();
+      if (poolConfiguration != null) {
+         pool = deployPool(config.getPoolConfiguration(), localTarget);
+      }
 
-      Policy policy = deployPolicy(config.getPolicyConfiguration(), pool);
+      Policy policy = null;
+      PolicyConfiguration policyConfiguration = config.getPolicyConfiguration();
+      if (policyConfiguration != null) {
+         policy = deployPolicy(policyConfiguration, pool);
+      }
 
       BrokerBalancer balancer = new BrokerBalancer(config.getName(), config.getTargetKey(), config.getTargetKeyFilter(),
          localTarget, config.getLocalTargetFilter(), pool, policy, config.getCacheTimeout());

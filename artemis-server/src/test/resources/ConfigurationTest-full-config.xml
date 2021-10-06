@@ -153,6 +153,11 @@
          </divert>
       </diverts>
       <broker-balancers>
+         <broker-balancer name="simple-local">
+            <target-key>CLIENT_ID</target-key>
+            <target-key-filter>^[^.]+</target-key-filter>
+            <local-target-filter>DEFAULT</local-target-filter>
+         </broker-balancer>
          <broker-balancer name="simple-balancer">
             <target-key>USER_NAME</target-key>
             <policy name="FIRST_ELEMENT"/>

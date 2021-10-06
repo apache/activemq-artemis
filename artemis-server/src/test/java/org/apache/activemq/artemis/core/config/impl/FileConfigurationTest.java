@@ -265,9 +265,14 @@ public class FileConfigurationTest extends ConfigurationImplTest {
          }
       }
 
-      Assert.assertEquals(3, conf.getBalancerConfigurations().size());
+      Assert.assertEquals(4, conf.getBalancerConfigurations().size());
       for (BrokerBalancerConfiguration bc : conf.getBalancerConfigurations()) {
-         if (bc.getName().equals("simple-balancer")) {
+         if (bc.getName().equals("simple-local")) {
+            Assert.assertEquals(bc.getTargetKey(), TargetKey.CLIENT_ID);
+            Assert.assertNotNull(bc.getLocalTargetFilter());
+            Assert.assertNotNull(bc.getTargetKeyFilter());
+            Assert.assertNull(bc.getPolicyConfiguration());
+         } else if (bc.getName().equals("simple-balancer")) {
             Assert.assertEquals(bc.getTargetKey(), TargetKey.USER_NAME);
             Assert.assertNull(bc.getLocalTargetFilter());
             Assert.assertEquals(bc.getPolicyConfiguration().getName(), FirstElementPolicy.NAME);
@@ -281,7 +286,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(bc.getPolicyConfiguration().getName(), ConsistentHashPolicy.NAME);
             Assert.assertEquals(1000, bc.getPoolConfiguration().getCheckPeriod());
             Assert.assertEquals(true, bc.getPoolConfiguration().isLocalTargetEnabled());
-            Assert.assertEquals(Collections.emptyList(), bc.getPoolConfiguration().getStaticConnectors());
+            Assert.assertEquals(null, bc.getPoolConfiguration().getStaticConnectors());
             Assert.assertEquals("dg1", bc.getPoolConfiguration().getDiscoveryGroupName());
          } else {
             Assert.assertEquals(bc.getTargetKey(), TargetKey.SOURCE_IP);
@@ -292,7 +297,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(2, bc.getPoolConfiguration().getQuorumSize());
             Assert.assertEquals(1000, bc.getPoolConfiguration().getQuorumTimeout());
             Assert.assertEquals(false, bc.getPoolConfiguration().isLocalTargetEnabled());
-            Assert.assertEquals(Collections.emptyList(), bc.getPoolConfiguration().getStaticConnectors());
+            Assert.assertEquals(null, bc.getPoolConfiguration().getStaticConnectors());
             Assert.assertEquals("dg2", bc.getPoolConfiguration().getDiscoveryGroupName());
          }
       }
