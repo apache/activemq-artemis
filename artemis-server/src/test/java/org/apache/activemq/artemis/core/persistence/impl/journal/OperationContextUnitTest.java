@@ -234,6 +234,14 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
          assertTrue(latch1.await(10, TimeUnit.SECONDS));
          assertTrue(latch2.await(10, TimeUnit.SECONDS));
 
+         if (impl.storeOnlyTasks != null) {
+            Assert.assertEquals(0, impl.storeOnlyTasks.size());
+         }
+
+         if (impl.tasks != null) {
+            Assert.assertEquals(0, impl.tasks.size());
+         }
+
       } finally {
          executor.shutdown();
       }

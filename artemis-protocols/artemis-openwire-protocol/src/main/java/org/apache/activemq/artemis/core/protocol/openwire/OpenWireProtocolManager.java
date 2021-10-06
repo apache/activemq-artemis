@@ -120,6 +120,8 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    private boolean updateClusterClients = false;
    private boolean updateClusterClientsOnRemove = false;
 
+   private boolean openwireUseDuplicateDetectionOnFailover = true;
+
    //http://activemq.apache.org/activemq-inactivitymonitor.html
    private long maxInactivityDuration = 30 * 1000L;
    private long maxInactivityDurationInitalDelay = 10 * 1000L;
@@ -190,6 +192,17 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       clusterManager.addProtocolIgnoredAddress(AdvisorySupport.ADVISORY_TOPIC_PREFIX);
 
       redirectHandler = new OpenWireRedirectHandler(server, this);
+   }
+
+   /** Is Duplicate detection enabled when used with failover clients. */
+   public boolean isOpenwireUseDuplicateDetectionOnFailover() {
+      return openwireUseDuplicateDetectionOnFailover;
+   }
+
+   /** should it use duplicate detection on failover clients. */
+   public OpenWireProtocolManager setOpenwireUseDuplicateDetectionOnFailover(boolean openwireUseDuplicateDetectionOnFailover) {
+      this.openwireUseDuplicateDetectionOnFailover = openwireUseDuplicateDetectionOnFailover;
+      return this;
    }
 
    @Override

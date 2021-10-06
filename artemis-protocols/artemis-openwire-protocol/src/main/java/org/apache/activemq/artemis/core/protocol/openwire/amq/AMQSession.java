@@ -364,6 +364,10 @@ public class AMQSession implements SessionCallback {
       connection.disconnect(forcePossibleFailoverReconnect.getMessage(), true);
    }
 
+   private static boolean isTemporary(ProducerInfo producerInfo) {
+      return producerInfo != null && producerInfo.getDestination() != null && producerInfo.getDestination().isTemporary();
+   }
+
    public void send(final ProducerInfo producerInfo,
                     final Message messageSend,
                     final boolean sendProducerAck) throws Exception {
@@ -391,7 +395,8 @@ public class AMQSession implements SessionCallback {
       * not receive acks will be resent.  (ActiveMQ broker handles this by returning a last sequence id received to
       * the client).  To handle this in Artemis we use a duplicate ID cache.  To do this we check to see if the
       * message comes from failover connection.  If so we add a DUPLICATE_ID to handle duplicates after a resend. */
-      if (connection.getContext().isFaultTolerant() && !messageSend.getProperties().containsKey(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString())) {
+
+      if (connection.getContext().isFaultTolerant() && protocolManager.isOpenwireUseDuplicateDetectionOnFailover() && !messageSend.getProperties().containsKey(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString()) && !isTemporary(producerInfo)) {
          originalCoreMsg.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.toSimpleString(messageSend.getMessageId().toString()));
       }
 
