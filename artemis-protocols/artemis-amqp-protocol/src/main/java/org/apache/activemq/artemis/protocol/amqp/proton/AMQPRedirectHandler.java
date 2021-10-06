@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.balancing.RedirectHandler;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.ConnectionError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Connection;
@@ -44,7 +45,10 @@ public class AMQPRedirectHandler extends RedirectHandler<AMQPRedirectContext> {
       ErrorCondition error = new ErrorCondition();
       error.setCondition(ConnectionError.CONNECTION_FORCED);
       error.setDescription(String.format("Broker balancer %s is not ready to redirect", context.getConnection().getTransportConnection().getRedirectTo()));
-      context.getProtonConnection().setCondition(error);
+
+      Connection protonConnection = context.getProtonConnection();
+      protonConnection.setCondition(error);
+      addConnectionOpenFailureHint(protonConnection);
    }
 
    @Override
@@ -55,10 +59,20 @@ public class AMQPRedirectHandler extends RedirectHandler<AMQPRedirectContext> {
       ErrorCondition error = new ErrorCondition();
       error.setCondition(ConnectionError.REDIRECT);
       error.setDescription(String.format("Connection redirected to %s:%d by broker balancer %s", host, port, context.getConnection().getTransportConnection().getRedirectTo()));
-      Map info = new HashMap();
+      Map<Symbol, Object>  info = new HashMap<>();
       info.put(AmqpSupport.NETWORK_HOST, host);
       info.put(AmqpSupport.PORT, port);
       error.setInfo(info);
-      context.getProtonConnection().setCondition(error);
+
+      Connection protonConnection = context.getProtonConnection();
+      protonConnection.setCondition(error);
+      addConnectionOpenFailureHint(protonConnection);
+   }
+
+   private void addConnectionOpenFailureHint(Connection connection) {
+      Map<Symbol, Object> connProps = new HashMap<>();
+      connProps.put(AmqpSupport.CONNECTION_OPEN_FAILED, true);
+
+      connection.setProperties(connProps);
    }
 }

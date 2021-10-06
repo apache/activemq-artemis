@@ -183,7 +183,7 @@ public class RedirectTest extends BalancingTestBase {
          queueControls[node] = (QueueControl)getServer(node).getManagementService()
             .getResource(ResourceNames.QUEUE + queueName);
 
-         Assert.assertEquals(0, queueControls[node].countMessages());
+         Assert.assertEquals("Unexpected messagecount for node " + node, 0, queueControls[node].countMessages());
       }
 
 
@@ -229,7 +229,7 @@ public class RedirectTest extends BalancingTestBase {
       }
 
       for (int node : nodes) {
-         Assert.assertEquals(0, queueControls[node].countMessages());
+         Assert.assertEquals("Unexpected message count for node " + node, 0, queueControls[node].countMessages());
       }
 
       stopServers(nodes);
@@ -266,8 +266,8 @@ public class RedirectTest extends BalancingTestBase {
       QueueControl queueControl1 = (QueueControl)getServer(1).getManagementService()
          .getResource(ResourceNames.QUEUE + queueName);
 
-      Assert.assertEquals(0, queueControl0.countMessages());
-      Assert.assertEquals(0, queueControl1.countMessages());
+      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
+      Assert.assertEquals("Unexpected message count for node 1", 0, queueControl1.countMessages());
 
       ConnectionFactory connectionFactory0 = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
          TransportConstants.DEFAULT_PORT + 0, null, "admin", "admin");
@@ -302,8 +302,8 @@ public class RedirectTest extends BalancingTestBase {
          }
       }
 
-      Assert.assertEquals(0, queueControl0.countMessages());
-      Assert.assertEquals(0, queueControl1.countMessages());
+      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
+      Assert.assertEquals("Unexpected message count for node 1", 0, queueControl1.countMessages());
 
       stopServers(0, 1);
    }
@@ -339,9 +339,9 @@ public class RedirectTest extends BalancingTestBase {
       QueueControl queueControl2 = (QueueControl)getServer(2).getManagementService()
          .getResource(ResourceNames.QUEUE + queueName);
 
-      Assert.assertEquals(0, queueControl0.countMessages());
-      Assert.assertEquals(0, queueControl1.countMessages());
-      Assert.assertEquals(0, queueControl2.countMessages());
+      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
+      Assert.assertEquals("Unexpected message count for node 1", 0, queueControl1.countMessages());
+      Assert.assertEquals("Unexpected message count for node 2", 0, queueControl2.countMessages());
 
       int failedNode;
       ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
@@ -370,9 +370,9 @@ public class RedirectTest extends BalancingTestBase {
 
       startServers(failedNode);
 
-      Assert.assertEquals(0, queueControl0.countMessages());
-      Assert.assertEquals(1, queueControl1.countMessages());
-      Assert.assertEquals(1, queueControl2.countMessages());
+      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
+      Assert.assertEquals("Unexpected message count for node 1", 1, queueControl1.countMessages());
+      Assert.assertEquals("Unexpected message count for node 2", 1, queueControl2.countMessages());
 
       try (Connection connection = connectionFactory.createConnection()) {
          connection.start();
@@ -385,13 +385,13 @@ public class RedirectTest extends BalancingTestBase {
          }
       }
 
-      Assert.assertEquals(0, queueControl0.countMessages());
+      Assert.assertEquals("Unexpected message count for node 0", 0, queueControl0.countMessages());
       if (failedNode == 1) {
-         Assert.assertEquals(1, queueControl1.countMessages());
-         Assert.assertEquals(0, queueControl2.countMessages());
+         Assert.assertEquals("Unexpected message count for node 1", 1, queueControl1.countMessages());
+         Assert.assertEquals("Unexpected message count for node 2", 0, queueControl2.countMessages());
       } else {
-         Assert.assertEquals(0, queueControl1.countMessages());
-         Assert.assertEquals(1, queueControl2.countMessages());
+         Assert.assertEquals("Unexpected message count for node 1", 0, queueControl1.countMessages());
+         Assert.assertEquals("Unexpected message count for node 2", 1, queueControl2.countMessages());
       }
 
       stopServers(0, 1, 2);
