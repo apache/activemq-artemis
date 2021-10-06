@@ -95,8 +95,8 @@ public class ArtemisFeatureTest extends Assert {
 
    public static final long ASSERTION_TIMEOUT = 30000L;
    public static final long COMMAND_TIMEOUT = 30000L;
-   public static final String USER = "karaf";
-   public static final String PASSWORD = "karaf";
+   public static final String USER = "artemis";
+   public static final String PASSWORD = "artemis";
 
    @ProbeBuilder
    public TestProbeBuilder probeConfiguration(TestProbeBuilder probe) {
@@ -117,6 +117,8 @@ public class ArtemisFeatureTest extends Assert {
       Option[] options = new Option[]{karafDistributionConfiguration().frameworkUrl(maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").versionAsInProject()).unpackDirectory(new File("target/paxexam/unpack/")),
 
          KarafDistributionOption.keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.INFO), editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+         // add artemis user
+         editConfigurationFilePut("etc/users.properties", USER, PASSWORD + ",manager"),
          // [KARAF-6600] Use https URL for Maven Central
          editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg", "org.ops4j.pax.url.mvn.repositories", "https://repo1.maven.org/maven2@id=central, https://repository.apache.org/content/groups/snapshots-group@id=apache@snapshots@noreleases, https://oss.sonatype.org/content/repositories/ops4j-snapshots@id=ops4j.sonatype.snapshots.deploy@snapshots@noreleases"),
          // uncomment this to debug it.
@@ -202,7 +204,6 @@ public class ArtemisFeatureTest extends Assert {
       final PrintStream printStream = new PrintStream(byteArrayOutputStream);
       final Session commandSession = sessionFactory.create(System.in, printStream, printStream);
       commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
-      commandSession.put("USER", USER);
       FutureTask<String> commandFuture = new FutureTask<>(new Callable<String>() {
          @Override
          public String call() {
