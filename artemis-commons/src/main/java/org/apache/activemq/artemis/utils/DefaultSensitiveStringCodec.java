@@ -52,6 +52,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
    public static final String BLOWFISH_KEY = "key";
    public static final String ONE_WAY = "one-way";
    public static final String TWO_WAY = "two-way";
+   public static final String KEY_SYSTEM_PROPERTY = "artemis.default.sensitive.string.codec.key";
 
    private CodecAlgorithm algorithm = new BlowfishAlgorithm(Collections.EMPTY_MAP);
 
@@ -128,11 +129,18 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
 
       private byte[] internalKey = "clusterpassword".getBytes();
 
+
       BlowfishAlgorithm(Map<String, String> params) {
          super(params);
          String key = params.get(BLOWFISH_KEY);
          if (key != null) {
             updateKey(key);
+         } else {
+            key = System.getProperty(KEY_SYSTEM_PROPERTY);
+            if (key != null && key.trim().length() > 0) {
+               logger.trace("Set key from system property " + KEY_SYSTEM_PROPERTY);
+               updateKey(key);
+            }
          }
       }
 

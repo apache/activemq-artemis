@@ -41,15 +41,20 @@ backward-compatibility.  Newer configurations may not support it.
 
 ## Generating a Masked Password
 
-To get a mask for a password using the broker's default codec run the
-`mask` command from your Artemis *instance*. This command will not work
-from the Artemis home:
+To mask a password use the `mask` command from the `bin` directory
+of your Artemis *instance*. This command will not work from the
+Artemis home. 
+
+The `mask` command uses [the default codec](#the-default-codec)
+unless [a custom codec](#using-a-custom-codec) is defined in
+`broker.xml` and the `--password-codec` option is `true`. Here's
+a simple example:
 
 ```sh
 ./artemis mask <plaintextPassword>
 ```
 
-You'll get something like
+You'll get something like:
 
 ```
 result: 32c6f67dae6cd61b0a7ad1702033aa81e6b2a760123f4360
@@ -58,6 +63,10 @@ result: 32c6f67dae6cd61b0a7ad1702033aa81e6b2a760123f4360
 Just copy `32c6f67dae6cd61b0a7ad1702033aa81e6b2a760123f4360` and replace your
 plaintext password with it using the `ENC()` syntax, e.g. 
 `ENC(32c6f67dae6cd61b0a7ad1702033aa81e6b2a760123f4360)`.
+
+You can also use the `--key` parameter with the default codec. Read more about
+[the default codec](#the-default-codec) for further details about this
+parameter.
 
 This process works for passwords in:
 
@@ -81,19 +90,21 @@ broker.xml) has a property that defines the default masking behaviors over the
 entire file scope.
 
 `mask-password`: this boolean type property indicates if a password should be
-masked or not. Set it to "true" if you want your passwords masked. The default
-value is "false". As noted above, this configuration parameter is deprecated.
+masked or not. Set it to `true` if you want your passwords masked. The default
+value is `false`. As noted above, this configuration parameter is deprecated
+in favor of the `ENC()` syntax.
 
 `password-codec`: this string type property identifies the name of the class
 which will be used to decode the masked password within the broker. If not
 specified then the default
 `org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec` will be used.
+Read more about [using a custom codec](#using-a-custom-codec).
 
 ### artemis-users.properties
 
-Apache ActiveMQ Artemis's built-in security manager uses plain properties files
-where the user passwords are specified in a hashed form by default. Note, the
-passwords are technically *hashed* rather than masked in this context. The
+Apache ActiveMQ Artemis' default JAAS security manager uses plain properties
+files where the user passwords are specified in a hashed form by default. Note,
+the passwords are technically *hashed* rather than masked in this context. The
 default `PropertiesLoginModule` will not decode the passwords in
 `artemis-users.properties` but will instead hash the input and compare the two
 hashed values for password verification.
@@ -194,9 +205,9 @@ absent, it means they are not specified in the configure file.
   ```
 
   This indicates the cluster password is a masked value and Apache ActiveMQ
-  Artemis will use its built-in codec to decode it. All other passwords in the
-  configuration file, Connectors, Acceptors and Bridges, will also use masked
-  passwords.
+  Artemis will use [the default codec](#the-default-codec) to decode it. All
+  other passwords in the configuration file, Connectors, Acceptors and Bridges,
+  will also use masked passwords.
 
 ### bootstrap.xml
 
@@ -249,15 +260,15 @@ to be in masked form.
 ### login.config
 
 Artemis supports LDAP login modules to be configured in JAAS configuration file
-(default name is `login.config`). When connecting to a LDAP server usually you
+(default name is `login.config`). When connecting to an LDAP server usually you
 need to supply a connection password in the config file. By default this
 password is in plain text form.
 
 To mask it you need to configure the passwords in your login module using
 `ENC()` syntax. To specify a codec using the following property:
 
-`passwordCodec` - the password codec class name. (the default codec will be
-used if it is absent)
+`passwordCodec` - the password codec class name. ([the default codec](#the-default-codec)
+will be used if it is absent)
 
 For example:
 
@@ -345,7 +356,7 @@ algorithm used for decoding must match that for encoding. Otherwise the
 decoding may not be successful.
 
 For user's convenience Apache ActiveMQ Artemis provides a default codec.
-However a user can implement their own if they wish.
+However, a user can implement their own if they wish.
 
 ### The Default Codec
 
@@ -354,7 +365,33 @@ is used. The class name for the default codec is
 `org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec`. It has
 hashing, encoding, and decoding capabilities. It uses `java.crypto.Cipher`
 utilities to hash or encode a plaintext password and also to decode a masked
-string using the same algorithm and key.
+string using the same algorithm and "key."
+
+The "key" used here is important since the *same* key **must** be used to both
+mask and unmask the password. The key is just a string of characters which the
+codec feeds to the underlying algorithm. There is a default key in
+`org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec`, but using the
+default key leaves open the possibility that nefarious actors could also use
+that key to unmask the password(s). Therefore, it is possible to supply your
+*own* key, and there are a few ways to do this.
+
+ 1. Specify the key in the codec configuration using the `key=value` syntax.
+    Depending on which password you're trying to mask the configuration
+    specifics will differ slightly, but this can be done, for example, in
+    `broker.xml` with `<password-codec>`:
+    ```xml
+    <password-codec>org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;key=myKey</password-codec>
+    ```
+    Similar configurations are possible in any file that supports password
+    masking, e.g. `boostrap.xml`, `login.config`, `management.xml`, etc. The
+    main drawback with this method is that the key will be stored in plain-text
+    in the configuration file(s).
+ 2. Set the environment property `ARTEMIS_DEFAULT_SENSITIVE_STRING_CODEC_KEY`.
+    This will be read by the startup script, set as a Java system property, and
+    ultimately read by the default codec. The benefit of using this method is
+    that the key is more obscure since it will not exist in any configuration
+    file. It can be set immediately *before* the broker starts and then cleared
+    from the environment immediately *after* the broker finishes starting.
 
 ### Using a custom codec
 
@@ -418,7 +455,7 @@ public class MyCodec implements SensitiveDataCodec<String> {
    @Override
    public String encode(Object secret) throws Exception {
       // Mask the clear text password.
-      return "the masked password"";
+      return "the masked password";
    }
 
    @Override
