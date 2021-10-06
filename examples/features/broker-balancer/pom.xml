@@ -43,6 +43,7 @@ under the License.
          <modules>
             <module>evenly-redirect</module>
             <module>symmetric-redirect</module>
+            <module>symmetric-simple</module>
          </modules>
       </profile>
       <profile>
@@ -50,6 +51,7 @@ under the License.
          <modules>
             <module>evenly-redirect</module>
             <module>symmetric-redirect</module>
+            <module>symmetric-simple</module>
          </modules>
       </profile>
    </profiles>

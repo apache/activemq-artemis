@@ -2122,14 +2122,14 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="policy" type="brokerBalancerPolicyType" maxOccurs="1" minOccurs="1">
+         <xsd:element name="policy" type="brokerBalancerPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   the policy configuration
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="pool" type="brokerBalancerPoolType" maxOccurs="1" minOccurs="1">
+         <xsd:element name="pool" type="brokerBalancerPoolType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   the pool configuration

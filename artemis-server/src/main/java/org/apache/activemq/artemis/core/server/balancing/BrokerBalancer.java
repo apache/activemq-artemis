@@ -118,7 +118,9 @@ public class BrokerBalancer implements ActiveMQComponent {
 
    @Override
    public void start() throws Exception {
-      pool.start();
+      if (pool != null) {
+         pool.start();
+      }
 
       started = true;
    }
@@ -127,7 +129,9 @@ public class BrokerBalancer implements ActiveMQComponent {
    public void stop() throws Exception {
       started = false;
 
-      pool.stop();
+      if (pool != null) {
+         pool.stop();
+      }
    }
 
    public Target getTarget(Connection connection, String clientID, String username) {
@@ -150,6 +154,10 @@ public class BrokerBalancer implements ActiveMQComponent {
          }
 
          return localTarget;
+      }
+
+      if (pool == null) {
+         return null;
       }
 
       Target target = null;

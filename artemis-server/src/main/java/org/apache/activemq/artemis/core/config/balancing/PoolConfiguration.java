@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.core.config.balancing;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 
 public class PoolConfiguration implements Serializable {
@@ -30,7 +29,7 @@ public class PoolConfiguration implements Serializable {
 
    private String clusterConnection = null;
 
-   private List<String> staticConnectors = Collections.emptyList();
+   private List<String> staticConnectors = null;
 
    private String discoveryGroupName = null;
 
