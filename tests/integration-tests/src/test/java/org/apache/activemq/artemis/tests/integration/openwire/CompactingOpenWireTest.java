@@ -175,7 +175,7 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
       Map<Integer, AtomicInteger> counts = countJournal(server.getConfiguration());
       counts.forEach((a, b) -> System.out.println(a + " = " + b));
       AtomicInteger duplicateIDCounts = counts.get((int)JournalRecordIds.DUPLICATE_ID);
-      Assert.assertTrue("There are duplicate IDs on the journal even though the system was reconfigured to not persist them::" + duplicateIDCounts, duplicateIDCounts == null || duplicateIDCounts.incrementAndGet() == 0);
+      Assert.assertTrue("There are duplicate IDs on the journal even though the system was reconfigured to not persist them::" + duplicateIDCounts, duplicateIDCounts == null || duplicateIDCounts.get() == 0);
 
    }
 }
