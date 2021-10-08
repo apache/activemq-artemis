@@ -1128,4 +1128,79 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertTrue(server.getAddressInfo(myAddress).getRoutingTypes().contains(RoutingType.ANYCAST));
       assertTrue(server.getAddressInfo(myAddress).getRoutingTypes().contains(RoutingType.MULTICAST));
    }
+
+   @Test
+   public void testImportWrongRoutingType() throws Exception {
+      SimpleString myAddress = SimpleString.toSimpleString("myAddress");
+      SimpleString myQueue = SimpleString.toSimpleString("myQueue");
+      SimpleString dla = SimpleString.toSimpleString("DLA");
+      SimpleString dlaPrefix = SimpleString.toSimpleString("DLA.");
+      String payload = "myMessagePayload";
+
+      server = createServer(true);
+      server.start();
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory factory = locator.createSessionFactory();
+      ClientSession session = factory.createSession(false, true, false);
+
+      //Create ANYCAST queue and set "AutoCreateDeadLetterResources"
+      //Send message with ANYCAST RoutingType
+      server.getAddressSettingsRepository().addMatch(myAddress.toString(), new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla).setAutoCreateDeadLetterResources(true).setDeadLetterQueuePrefix(dlaPrefix));
+      session.createQueue(new QueueConfiguration(myQueue).setAddress(myAddress).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+
+      ClientProducer producer = session.createProducer(myAddress);
+      producer.send(createTextMessage(session, payload).putByteProperty(Message.HDR_ROUTING_TYPE, (byte) 1));
+      session.start();
+      ClientConsumer consumer = session.createConsumer(myQueue);
+      ClientMessage m = consumer.receive(500);
+      m.acknowledge();
+
+      assertNotNull(m);
+      assertEquals(m.getBodyBuffer().readString(), payload);
+      assertEquals(m.getRoutingType(), RoutingType.ANYCAST);
+
+      // Rollback to place ANYCAST message on DLA (MULTICAST)
+      session.rollback();
+      m = consumer.receiveImmediate();
+      assertNull(m);
+
+      consumer.close();
+      session.close();
+      locator.close();
+      server.stop();
+
+      ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
+      if (logger.isDebugEnabled()) logger.debug(new String(xmlOutputStream.toByteArray()));
+
+      clearDataRecreateServerDirs();
+      server.start();
+      checkForLongs();
+      locator = createInVMNonHALocator();
+      factory = locator.createSessionFactory();
+      session = factory.createSession(false, false, true);
+      ClientSession managementSession = factory.createSession(false, true, true);
+
+      ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
+      xmlDataImporter.process(xmlInputStream, session, managementSession);
+
+      //Check that message is imported with no "routingType" and is intact
+      assertTrue(server.getTotalMessageCount() == 1);
+      session.start();
+      consumer = session.createConsumer(dlaPrefix.concat(myAddress));
+      m = consumer.receive(500);
+
+      assertNotNull(m);
+      assertEquals(m.getBodyBuffer().readString(), payload);
+      assertEquals(m.getRoutingType(), null);
+
+      consumer.close();
+      session.close();
+      locator.close();
+      server.stop();
+   }
 }
