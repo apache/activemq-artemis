@@ -735,4 +735,65 @@ public class ScaleDownTest extends ClusterTestBase {
       removeConsumer(0);
       removeConsumer(1);
    }
+
+   @Test
+   public void testScaleDownMessageWithAutoCreatedDLAResources() throws Exception {
+      final SimpleString dla = new SimpleString("DLA");
+      final SimpleString queueName = new SimpleString("q1");
+      final SimpleString addressName = new SimpleString("q1");
+      final String sampleText = "Put me on DLA";
+
+      //Set up resources for Auto-created DLAs
+      AddressSettings addressSettings = servers[0].getAddressSettingsRepository().getMatch(addressName.toString());
+      servers[0].getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla).setAutoCreateDeadLetterResources(true));
+      final SimpleString dlq = addressSettings.getDeadLetterQueuePrefix().concat(addressName).concat(addressSettings.getDeadLetterQueueSuffix());
+
+      createQueue(0, addressName.toString(), queueName.toString(), null, false, null, null, RoutingType.ANYCAST);
+
+      ClientSessionFactory sf = sfs[0];
+      ClientSession session = addClientSession(sf.createSession(true, false));
+      ClientProducer producer = addClientProducer(session.createProducer(addressName));
+
+      // Send message to queue with RoutingType header
+      ClientMessage m = createTextMessage(session, sampleText);
+      m.putByteProperty(Message.HDR_ROUTING_TYPE, (byte) 1);
+      producer.send(m);
+      session.start();
+
+      // Get message
+      ClientConsumer consumer = session.createConsumer(queueName);
+      ClientMessage message = consumer.receive(1000);
+      Assert.assertNotNull(message);
+      Assert.assertEquals(message.getBodyBuffer().readString(), sampleText);
+      assertTrue(message.getRoutingType() == RoutingType.ANYCAST);
+      message.acknowledge();
+
+      // force a rollback to DLA
+      session.rollback();
+      message = consumer.receiveImmediate();
+      Assert.assertNull(message);
+
+      //Make sure it ends up on DLA
+      consumer.close();
+      consumer = session.createConsumer(dlq.toString());
+      message = consumer.receive(1000);
+      Assert.assertNotNull(message);
+      assertTrue(message.getRoutingType() == null);
+
+      //Scale-Down
+      servers[0].stop();
+
+      //Get message on seconds node
+      sf = sfs[1];
+      session = addClientSession(sf.createSession(false, true, true));
+      consumer = session.createConsumer(dlq.toString());
+      session.start();
+
+      message = consumer.receive(1000);
+      Assert.assertNotNull(message);
+      message.acknowledge();
+      Assert.assertEquals(sampleText, message.getBodyBuffer().readString());
+
+      consumer.close();
+   }
 }

@@ -162,6 +162,11 @@ public interface Message {
    SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_ROUTING_TYPE");
 
    /**
+    * The original routing type of a message before getting transferred through DLQ or expiry
+    */
+   SimpleString HDR_ORIG_ROUTING_TYPE = new SimpleString("_AMQ_ORIG_ROUTING_TYPE");
+
+   /**
     * The time at which the message arrived at the broker.
     */
    SimpleString HDR_INGRESS_TIMESTAMP = new SimpleString("_AMQ_INGRESS_TIMESTAMP");
@@ -465,6 +470,9 @@ public interface Message {
       setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
       setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getAddress());
       setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, original.getMessageID());
+      if (original.getRoutingType() != null) {
+         setBrokerProperty(Message.HDR_ORIG_ROUTING_TYPE, original.getRoutingType().getType());
+      }
 
       // reset expiry
       setExpiration(0);

@@ -1214,6 +1214,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             message.setAddress(dlaAddress);
 
+            message.setRoutingType(null);
+
             message.reencode();
 
             route(message, new RoutingContextImpl(context.getTransaction()), false, true, null, true);
