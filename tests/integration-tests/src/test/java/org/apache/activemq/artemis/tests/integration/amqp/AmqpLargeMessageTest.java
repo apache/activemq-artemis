@@ -61,6 +61,7 @@ import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,10 +85,15 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    @Parameterized.Parameter(2)
    public int amqpMinLargeMessageSize = 100 * 1024;
 
-   @Parameterized.Parameters(name = "frameSize={0}, payload={1}, amqpMinLargeMessageSize={2}")
+   @Parameterized.Parameter(3)
+   public boolean jdbc = false;
+
+   @Parameterized.Parameters(name = "frameSize={0}, payload={1}, amqpMinLargeMessageSize={2}, jdbc={3}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
-         {32767, 110 * 1024, 100 * 1024}, {2 * 100 * 1024, 10 * 110 * 1024, 4 * 110 * 1024}
+         {32767, 110 * 1024, 100 * 1024, false},
+         {2 * 100 * 1024, 10 * 110 * 1024, 4 * 110 * 1024, false},
+         {10 * 1024, 100 * 1024, 20 * 1024, true}
       });
    }
 
@@ -98,6 +104,9 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       // Make the journal file size larger than the frame+message sizes used in the tests,
       // since it is by default for external brokers and it changes the behaviour.
       server.getConfiguration().setJournalFileSize(5 * 1024 * 1024);
+      if (jdbc) {
+         setDBStoreType(server.getConfiguration());
+      }
    }
 
    @Override
@@ -419,11 +428,13 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testSendHugeHeader() throws Exception {
+      Assume.assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
       doTestSendHugeHeader(payload);
    }
 
    @Test(timeout = 60000)
    public void testSendLargeMessageWithHugeHeader() throws Exception {
+      Assume.assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
       doTestSendHugeHeader(1024 * 1024);
    }
 
