@@ -116,6 +116,18 @@ public class TypedPropertiesConversionTest {
    }
 
    @Test
+   public void testNoByteProperty() {
+      Assert.assertEquals(0, props.size());
+      Assert.assertNull(props.getByteProperty(key, () -> null));
+      props.putByteProperty(key.concat('0'), RandomUtil.randomByte());
+      Assert.assertEquals(1, props.size());
+      Assert.assertNull(props.getByteProperty(key, () -> null));
+      props.putNullValue(key);
+      Assert.assertTrue(props.containsProperty(key));
+      Assert.assertNull(props.getByteProperty(key, () -> null));
+   }
+
+   @Test
    public void testIntProperty() throws Exception {
       Integer val = RandomUtil.randomInt();
       props.putIntProperty(key, val);
