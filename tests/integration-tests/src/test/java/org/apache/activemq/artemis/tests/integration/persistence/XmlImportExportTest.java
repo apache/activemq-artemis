@@ -57,6 +57,7 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.logging.Logger;
 import org.junit.Test;
@@ -1152,7 +1153,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       producer.send(createTextMessage(session, payload).putByteProperty(Message.HDR_ROUTING_TYPE, (byte) 1));
       session.start();
       ClientConsumer consumer = session.createConsumer(myQueue);
-      ClientMessage m = consumer.receive(500);
+      ClientMessage m = consumer.receive(5000);
       m.acknowledge();
 
       assertNotNull(m);
@@ -1189,10 +1190,10 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       xmlDataImporter.process(xmlInputStream, session, managementSession);
 
       //Check that message is imported with no "routingType" and is intact
-      assertTrue(server.getTotalMessageCount() == 1);
+      Wait.assertTrue(() -> server.getTotalMessageCount() == 1);
       session.start();
       consumer = session.createConsumer(dlaPrefix.concat(myAddress));
-      m = consumer.receive(500);
+      m = consumer.receive(5000);
 
       assertNotNull(m);
       assertEquals(m.getBodyBuffer().readString(), payload);
