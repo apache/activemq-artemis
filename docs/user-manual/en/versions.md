@@ -8,6 +8,21 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.19.0
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12350519).
+
+Highlights:
+- New ability to replay [retained journal](persistence.md#journal-retention)
+  records via the management API.
+- New environment/system property to set the "key" for masked passwords when 
+  using the [default codec](masking-passwords.md#the-default-codec).
+- Ability to disable [message-load-balancing and still allow redistribution](clusters.md#configuring-cluster-connections)
+  via the new `OFF_WITH_REDISTRIBUTION` type.
+- MQTT session state can now be cleaned up automatically to avoid excessive
+  accumulation in situations where client's don't clean up their own sessions.
+- Distribute full Jakarta Messaging 3.0 client in the `lib/client` directory
+  along with a new example of how to use it in `examples/features/standard/queue-jakarta`.
+
 ## 2.18.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12349689).
 
@@ -19,7 +34,7 @@ Highlights:
 - [Broker load balancer](broker-balancers.md)
 - [Concurrency](core-bridges.md#configuring-bridges) configuration for core
   bridges.
-- [XPath filter expressions](filter-expressions.md#xpath) (for parity with 
+- [XPath filter expressions](filter-expressions.md#xpath) (for parity with
   ActiveMQ "Classic").
 
 #### Upgrading from older versions
