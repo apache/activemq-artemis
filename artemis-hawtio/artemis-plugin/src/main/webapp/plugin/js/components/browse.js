@@ -505,6 +505,14 @@ var Artemis;
             return type > -1 && type < 8 ? typeLabels[type] : type
         }
 
+        var bindingTypeLabels = ["local-queue", "remote-queue", "divert"];
+        function formatBindingType(type) {
+            if (isNaN(type)) {
+                return type;
+            }
+            return type > -1 && type < 3 ? bindingTypeLabels[type] : type
+        }
+
         ctrl.refresh = function() {
             Artemis.log.debug(ctrl.filter)
             //if refreshing always return to the first page
@@ -825,7 +833,9 @@ var Artemis;
                     Artemis.log.debug("key=" + key + " value=" + value);
                     angular.forEach(value, function (v2, k2) {
                     Artemis.log.debug("key=" + k2 + " value=" + v2);
-						if(k2 === "JMS_AMQP_ORIGINAL_ENCODING") {
+						if(k2 === "_AMQ_Binding_Type") {
+							v2 += " (" + formatBindingType(v2) + ")";
+						} else if(k2 === "JMS_AMQP_ORIGINAL_ENCODING") {
 							v2 += " (" + formatAmqpEncoding(v2) + ")";
 						}
                         properties.push({key: k2, value: v2});
