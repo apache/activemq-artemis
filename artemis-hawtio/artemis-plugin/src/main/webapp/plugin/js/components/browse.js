@@ -817,8 +817,8 @@ var Artemis;
 
 
         var amqpEncodingLabels = [
-			"amqp-unknown", "amqp-null", "amqp-data", "amqp-sequence", "amqp-value-null",
-			"amqp-value-string", "amqp-value-binary", "amqp-value-map", "amqp-value-list"];
+            "amqp-unknown", "amqp-null", "amqp-data", "amqp-sequence", "amqp-value-null",
+            "amqp-value-string", "amqp-value-binary", "amqp-value-map", "amqp-value-list"];
         function formatAmqpEncoding(enc) {
             if (isNaN(enc)) {
                 return enc;
@@ -833,11 +833,19 @@ var Artemis;
                     Artemis.log.debug("key=" + key + " value=" + value);
                     angular.forEach(value, function (v2, k2) {
                     Artemis.log.debug("key=" + k2 + " value=" + v2);
-						if(k2 === "_AMQ_Binding_Type") {
-							v2 += " (" + formatBindingType(v2) + ")";
-						} else if(k2 === "JMS_AMQP_ORIGINAL_ENCODING") {
-							v2 += " (" + formatAmqpEncoding(v2) + ")";
-						}
+                        if(k2 === "_AMQ_Binding_Type") {
+                            v2 += " (" + formatBindingType(v2) + ")";
+                        } else if(k2 === "JMS_AMQP_ORIGINAL_ENCODING") {
+                            v2 += " (" + formatAmqpEncoding(v2) + ")";
+                        } else if(k2 === "_AMQ_NotifTimestamp") {
+                            v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "extraProperties._AMQ_ACTUAL_EXPIRY") {
+                            v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "messageAnnotations.x-opt-ACTUAL-EXPIRY") {
+                            v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "properties.creationTime") {
+                            v2 += " (" + formatTimestamp(v2) + ")";
+                        }
                         properties.push({key: k2, value: v2});
                     });
                 }
