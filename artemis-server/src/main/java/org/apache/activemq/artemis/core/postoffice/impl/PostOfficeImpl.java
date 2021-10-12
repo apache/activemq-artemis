@@ -1779,6 +1779,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public synchronized void startAddressQueueScanner() {
+      reapAddresses(true); // we need to check for empty auto-created queues before the acceptors are on
+                                      // empty auto-created queues and addresses should be removed right away
       if (addressQueueReaperPeriod > 0) {
          if (addressQueueReaperRunnable != null)
             addressQueueReaperRunnable.stop();
@@ -1845,7 +1847,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       @Override
       public void run() {
-         reapAddresses();
+         reapAddresses(false);
       }
    }
 
@@ -1855,12 +1857,16 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    /** To be used by the AddressQueueReaper.
     * It is also exposed for tests through PostOfficeTestAccessor */
-   void reapAddresses() {
+   void reapAddresses(boolean initialCheck) {
       getLocalQueues().forEach(queue -> {
-         if (!queue.isInternalQueue() && QueueManagerImpl.isAutoDelete(queue) && QueueManagerImpl.consumerCountCheck(queue) && QueueManagerImpl.delayCheck(queue) && QueueManagerImpl.messageCountCheck(queue) && queueWasUsed(queue)) {
-            if (queue.isSwept()) {
+         if (!queue.isInternalQueue() && QueueManagerImpl.isAutoDelete(queue) && QueueManagerImpl.consumerCountCheck(queue) && (initialCheck || QueueManagerImpl.delayCheck(queue)) && QueueManagerImpl.messageCountCheck(queue) && (initialCheck || queueWasUsed(queue))) {
+            if (initialCheck || queue.isSwept()) {
                if (logger.isDebugEnabled()) {
-                  logger.debug("Removing queue " + queue.getName() + " after it being swept twice on reaping process");
+                  if (initialCheck) {
+                     logger.debug("Removing queue " + queue.getName() + " during the reload check");
+                  } else {
+                     logger.debug("Removing queue " + queue.getName() + " after it being swept twice on reaping process");
+                  }
                }
                QueueManagerImpl.performAutoDeleteQueue(server, queue);
             } else {
@@ -1878,8 +1884,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
          try {
-            if (addressManager.checkAutoRemoveAddress(address, addressInfo, settings)) {
-               if (addressInfo.isSwept()) {
+            if (addressManager.checkAutoRemoveAddress(address, addressInfo, settings, initialCheck)) {
+               if (initialCheck || addressInfo.isSwept()) {
 
                   server.autoRemoveAddressInfo(address, null);
                } else {

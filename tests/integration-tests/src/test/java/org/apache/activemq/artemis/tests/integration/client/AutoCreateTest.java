@@ -22,6 +22,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import java.util.concurrent.CountDownLatch;
@@ -42,6 +43,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.jboss.logging.Logger;
 import org.junit.After;
@@ -325,6 +327,95 @@ public class AutoCreateTest extends ActiveMQTestBase {
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224113")); // we need another sweep to remove it
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224112"));
       }
+   }
+
+   @Test
+   public void testCleanupAfterRebootOpenWire() throws Exception {
+      testCleanupAfterReboot("OPENWIRE", false);
+   }
+
+   @Test
+   public void testCleanupAfterRebootCore() throws Exception {
+      // there is no need to duplicate the test between usedelay and not.
+      // doing it in one of the protocols should be enough
+      testCleanupAfterReboot("CORE", true);
+   }
+
+   @Test
+   public void testCleanupAfterRebootAMQP() throws Exception {
+      testCleanupAfterReboot("AMQP", false);
+   }
+
+   public void testCleanupAfterReboot(String protocol, boolean useDelay) throws Exception {
+
+      if (useDelay) {
+         // setting up a delay, to make things a bit more challenging
+         server.getAddressSettingsRepository().addMatch(getName(), new AddressSettings().setAutoCreateAddresses(true).setAutoDeleteAddressesDelay(TimeUnit.DAYS.toMillis(1)).setAutoDeleteQueuesDelay(TimeUnit.DAYS.toMillis(1)));
+      }
+
+      AssertionLoggerHandler.startCapture();
+      server.getConfiguration().setAddressQueueScanPeriod(-1); // disabling scanner, we will perform it manually
+      server.start();
+      String QUEUE_NAME = getName();
+
+      ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+      try (Connection connection = cf.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(QUEUE_NAME);
+         MessageConsumer consumer = session.createConsumer(queue);
+         connection.start();
+      }
+
+      AddressInfo info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      Assert.assertNotNull(info);
+      Assert.assertTrue(info.isAutoCreated());
+
+      server.stop();
+      server.start();
+
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224113"));
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224112"));
+
+      AssertionLoggerHandler.clear();
+
+      String randomString = "random " + RandomUtil.randomString();
+
+      try (Connection connection = cf.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(QUEUE_NAME);
+         MessageProducer producer = session.createProducer(queue);
+         producer.send(session.createTextMessage(randomString));
+      }
+
+      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      Assert.assertNotNull(info);
+      Assert.assertTrue(info.isAutoCreated());
+
+      server.stop();
+      server.start();
+
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224113")); // this time around the queue had messages, it has to exist
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224112"));
+
+      info = server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(QUEUE_NAME));
+      Assert.assertNotNull(info);
+      Assert.assertTrue(info.isAutoCreated());
+
+      { // just a namespace
+         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(QUEUE_NAME);
+         Wait.assertEquals(1, serverQueue::getMessageCount);
+      }
+
+
+      try (Connection connection = cf.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         connection.start();
+         Queue queue = session.createQueue(QUEUE_NAME);
+         MessageConsumer consumer = session.createConsumer(queue);
+         TextMessage message = (TextMessage)consumer.receive(5000);
+         Assert.assertEquals(randomString, message.getText());
+      }
+
    }
 
 

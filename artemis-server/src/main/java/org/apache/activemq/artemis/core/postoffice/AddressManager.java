@@ -85,6 +85,11 @@ public interface AddressManager {
 
    boolean checkAutoRemoveAddress(SimpleString address,
                                   AddressInfo addressInfo,
+                                  AddressSettings settings,
+                                  boolean ignoreDelay) throws Exception;
+
+   boolean checkAutoRemoveAddress(SimpleString address,
+                                  AddressInfo addressInfo,
                                   AddressSettings settings) throws Exception;
 
 }

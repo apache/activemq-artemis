@@ -20,7 +20,7 @@ package org.apache.activemq.artemis.core.postoffice.impl;
 public class PostOfficeTestAccessor {
 
    public static void reapAddresses(PostOfficeImpl postOffice) {
-      postOffice.reapAddresses();
+      postOffice.reapAddresses(false);
    }
 
 }
