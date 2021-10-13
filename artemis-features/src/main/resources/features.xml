@@ -140,7 +140,9 @@
 		<feature>transaction</feature>
 		<bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/${hawtbuff.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
-		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
+		<bundle>mvn:jakarta.ejb/jakarta.ejb-api/${jakarta.ejb-api.version}</bundle>
+		<bundle>mvn:jakarta.transaction/jakarta.transaction-api/${jakarta.transaction-api.version}</bundle>
+		<bundle>mvn:jakarta.management.j2ee/jakarta.management.j2ee-api/${jakarta.management.j2ee-api.version}</bundle>
 		<bundle>mvn:org.apache.activemq/activemq-client/${activemq5-version}</bundle>
 	</feature>
 
