@@ -103,6 +103,11 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-amqp-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
          <groupId>org.jctools</groupId>
          <artifactId>jctools-core</artifactId>
       </dependency>

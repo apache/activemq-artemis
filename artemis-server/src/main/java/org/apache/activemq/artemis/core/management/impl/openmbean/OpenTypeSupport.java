@@ -38,21 +38,35 @@ import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 
 public final class OpenTypeSupport {
 
    private static MessageOpenTypeFactory TEXT_FACTORY = new TextMessageOpenTypeFactory();
    private static MessageOpenTypeFactory BYTES_FACTORY = new BytesMessageOpenTypeFactory();
+   private static MessageOpenTypeFactory AMQP_FACTORY = new AmqpMessageOpenTypeFactory();
 
    private OpenTypeSupport() {
    }
 
    public static CompositeData convert(MessageReference ref, int valueSizeLimit) throws OpenDataException {
       CompositeType ct;
-
-      ICoreMessage message = ref.getMessage().toCore();
-
       Map<String, Object> fields;
+
+      Message rawmessage = ref.getMessage();
+
+      if (rawmessage instanceof AMQPStandardMessage) {
+      	try {
+            ct = AMQP_FACTORY.getCompositeType();
+            fields = AMQP_FACTORY.getFields(ref, valueSizeLimit);
+            return new CompositeDataSupport(ct, fields);
+        } catch(OpenDataException odex) {
+            // ignore
+        }
+      }
+
+      ICoreMessage message = rawmessage.toCore();
+
       byte type = message.getType();
 
       switch(type) {
@@ -302,4 +316,30 @@ public final class OpenTypeSupport {
          return rc;
       }
    }
+
+	static class AmqpMessageOpenTypeFactory extends MessageOpenTypeFactory {
+		protected ArrayType body;
+
+		@Override
+		protected void init() throws OpenDataException {
+			super.init();
+			addItem(CompositeDataConstants.TEXT_BODY, CompositeDataConstants.TEXT_BODY, SimpleType.STRING);
+		}
+
+		@Override
+		public Map<String, Object> getFields(MessageReference ref, int valueSizeLimit) throws OpenDataException {
+			Map<String, Object> rc = super.getFields(ref, valueSizeLimit);
+
+			AMQPStandardMessage amqpMessage = ((AMQPStandardMessage) ref.getMessage());
+
+			// this is the QPID internal representation
+			// looks like e.g.: "[msg#2430, 4, {a=5, b=5}, 6, x, y]"
+			Object amqpValue = ((AmqpValue) amqpMessage.getBody()).getValue();
+
+			rc.put(CompositeDataConstants.TEXT_BODY, amqpValue.toString());
+
+			return rc;
+		}
+
+	}
 }
