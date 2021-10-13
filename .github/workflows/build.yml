@@ -13,13 +13,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+
+      - name: Cache Maven Local Repo
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/cache@v2
         with:
           path: |
-            ~/.m2/repository
-            !~/.m2/repository/org/apache/activemq/artemis-*
-            !~/.m2/repository/org/apache/activemq/*-artemis
+            ~/.m2/repository/*/*/*/*/*
+            !~/.m2/repository/org/apache/activemq/**/*-SNAPSHOT
             !~/.m2/repository/org/apache/activemq/examples
+            !~/.m2/repository/org/apache/activemq/tests
           key: ${{ runner.os }}-maven-test-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-test-
@@ -47,13 +50,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+
+      - name: Cache Maven Local Repo
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/cache@v2
         with:
           path: |
-            ~/.m2/repository
-            !~/.m2/repository/org/apache/activemq/artemis-*
-            !~/.m2/repository/org/apache/activemq/*-artemis
+            ~/.m2/repository/*/*/*/*/*
+            !~/.m2/repository/org/apache/activemq/**/*-SNAPSHOT
             !~/.m2/repository/org/apache/activemq/examples
+            !~/.m2/repository/org/apache/activemq/tests
           key: ${{ runner.os }}-maven-checks-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-checks-
