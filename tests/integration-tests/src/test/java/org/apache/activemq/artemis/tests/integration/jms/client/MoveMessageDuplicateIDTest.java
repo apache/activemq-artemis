@@ -23,7 +23,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -32,7 +31,6 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
@@ -44,17 +42,15 @@ import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class MoveMessageDuplicateIDTest extends JMSTestBase {
+
    @Parameterized.Parameter(0)
    public String protocol = "AMQP";
 
    @Parameterized.Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
-      return Arrays.asList(new Object[][] {
-         {"AMQP"},
-         {"CORE"},
-         {"OPENWIRE"}
-      });
+      return Arrays.asList(new Object[][]{{"AMQP"}, {"CORE"}, {"OPENWIRE"}});
    }
+
    @Override
    protected Configuration createDefaultConfig(boolean netty) throws Exception {
       return super.createDefaultConfig(netty).setMessageExpiryScanPeriod(50);
@@ -63,65 +59,57 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
    @Test
    public void testTwoQueuesSingleDLQ() throws Exception {
 
-      AssertionLoggerHandler.startCapture();
-      try {
-         server.getAddressSettingsRepository().clear();
-         server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("JUNKYARD")).setExpiryAddress(SimpleString.toSimpleString("JUNKYARD")).setMaxDeliveryAttempts(1));
+      server.getAddressSettingsRepository().clear();
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("JUNKYARD")).setExpiryAddress(SimpleString.toSimpleString("JUNKYARD")).setMaxDeliveryAttempts(1));
 
-         createQueue("JUNKYARD");
-         Queue junkQueue = server.locateQueue("JUNKYARD");
-         Assert.assertNotNull(junkQueue);
-         javax.jms.Queue queue1 = createQueue("q1");
-         javax.jms.Queue queue2 = createQueue("q2");
+      createQueue("JUNKYARD");
+      Queue junkQueue = server.locateQueue("JUNKYARD");
+      Assert.assertNotNull(junkQueue);
+      javax.jms.Queue queue1 = createQueue("q1");
+      javax.jms.Queue queue2 = createQueue("q2");
 
-         ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
-         Connection conn = factory.createConnection();
-         Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-         MessageProducer prod1 = sess.createProducer(queue1);
-         MessageProducer prod2 = sess.createProducer(queue2);
+      Connection conn = factory.createConnection();
+      Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
+      MessageProducer prod1 = sess.createProducer(queue1);
+      MessageProducer prod2 = sess.createProducer(queue2);
 
-         for (int i = 0; i < 100; i++) {
-            TextMessage txt = sess.createTextMessage("txt");
-            txt.setStringProperty("_AMQ_DUPL_ID", "" + i);
-            prod1.send(txt);
-            prod2.send(txt);
-         }
-         sess.commit();
-
-         conn.start();
-         MessageConsumer consumer = sess.createConsumer(queue1);
-         for (int i = 0; i < 100; i++) {
-            TextMessage textMessage = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(textMessage);
-         }
-         sess.rollback();
-
-         Assert.assertNull(consumer.receiveNoWait());
-         consumer.close();
-
-         Wait.assertEquals(100L, junkQueue::getMessageCount, 2000, 10);
-
-         consumer = sess.createConsumer(queue2);
-         for (int i = 0; i < 100; i++) {
-            TextMessage textMessage = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(textMessage);
-         }
-         sess.rollback();
-
-         Assert.assertNull(consumer.receiveNoWait());
-
-         consumer.close();
-         conn.close();
-
-         Wait.assertEquals(200L, junkQueue::getMessageCount, 2000, 10);
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+      for (int i = 0; i < 100; i++) {
+         TextMessage txt = sess.createTextMessage("txt");
+         txt.setStringProperty("_AMQ_DUPL_ID", "" + i);
+         prod1.send(txt);
+         prod2.send(txt);
       }
+      sess.commit();
 
+      conn.start();
+      MessageConsumer consumer = sess.createConsumer(queue1);
+      for (int i = 0; i < 100; i++) {
+         TextMessage textMessage = (TextMessage) consumer.receive(5000);
+         Assert.assertNotNull(textMessage);
+      }
+      sess.rollback();
 
+      Assert.assertNull(consumer.receiveNoWait());
+      consumer.close();
+
+      Wait.assertEquals(100L, junkQueue::getMessageCount, 2000, 10);
+
+      consumer = sess.createConsumer(queue2);
+      for (int i = 0; i < 100; i++) {
+         TextMessage textMessage = (TextMessage) consumer.receive(5000);
+         Assert.assertNotNull(textMessage);
+      }
+      sess.rollback();
+
+      Assert.assertNull(consumer.receiveNoWait());
+
+      consumer.close();
+      conn.close();
+
+      Wait.assertEquals(200L, junkQueue::getMessageCount, 2000, 10);
    }
-
 
    @Test
    public void testMultiplSubscriptionSingleExpire() throws Exception {
@@ -205,9 +193,6 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
 
       conn.close();
       Wait.assertEquals(200L, junkQueue::getMessageCount, 2000, 10);
-
-
    }
-
 
 }
