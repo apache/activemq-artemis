@@ -16,11 +16,17 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.OpenDataException;
+import javax.management.openmbean.SimpleType;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +40,8 @@ import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants;
+import org.apache.activemq.artemis.core.message.openmbean.MessageOpenTypeFactory;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
@@ -71,6 +79,8 @@ import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.getCharsetForTextualContent;
 
 /**
  * See <a href="https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format">AMQP v1.0 message format</a>
@@ -834,8 +844,63 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          value = JsonUtil.truncate(value, valueSizeLimit);
          map.put(name.toString(), value);
       }
+
+      TypedProperties extraProperties = getExtraProperties();
+      if (extraProperties != null) {
+         extraProperties.forEach((s, o) -> {
+            map.put(s.toString(), JsonUtil.truncate(o.toString(), valueSizeLimit));
+         });
+      }
+      if (!isLargeMessage()) {
+         addAnnotationsAsProperties(map, messageAnnotations);
+      }
+
+      if (properties != null) {
+         if (properties.getContentType() != null) {
+            map.put("properties.getContentType()", properties.getContentType().toString());
+         }
+         if (properties.getContentEncoding() != null) {
+            map.put("properties.getContentEncoding()", properties.getContentEncoding().toString());
+         }
+         if (properties.getGroupId() != null) {
+            map.put("properties.getGroupID()", properties.getGroupId());
+         }
+         if (properties.getGroupSequence() != null) {
+            map.put("properties.getGroupSequence()", properties.getGroupSequence().intValue());
+         }
+         if (properties.getReplyToGroupId() != null) {
+            map.put("properties.getReplyToGroupId()", properties.getReplyToGroupId());
+         }
+      }
+
       return map;
    }
+
+
+   protected static void addAnnotationsAsProperties(Map map, MessageAnnotations annotations) {
+      if (annotations != null && annotations.getValue() != null) {
+         for (Map.Entry<?, ?> entry : annotations.getValue().entrySet()) {
+            String key = entry.getKey().toString();
+            if ("x-opt-delivery-time".equals(key) && entry.getValue() != null) {
+               long deliveryTime = ((Number) entry.getValue()).longValue();
+               map.put("annotation x-opt-delivery-time", deliveryTime);
+            } else if ("x-opt-delivery-delay".equals(key) && entry.getValue() != null) {
+               long delay = ((Number) entry.getValue()).longValue();
+               if (delay > 0) {
+                  map.put("annotation x-opt-delivery-delay", System.currentTimeMillis() + delay);
+               }
+            } else if (AMQPMessageSupport.X_OPT_INGRESS_TIME.equals(key) && entry.getValue() != null) {
+               map.put("annotation X_OPT_INGRESS_TIME", ((Number) entry.getValue()).longValue());
+            } else {
+               try {
+                  map.put("annotation " + key, entry.getValue());
+               } catch (ActiveMQPropertyConversionException e) {
+               }
+            }
+         }
+      }
+   }
+
 
    @Override
    public ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
@@ -1726,4 +1791,103 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    public void setOwner(Object object) {
       this.owner = object;
    }
+
+
+   // *******************************************************************************************************************************
+   // Composite Data implementation
+
+   private static MessageOpenTypeFactory AMQP_FACTORY = new AmqpMessageOpenTypeFactory();
+
+   static class AmqpMessageOpenTypeFactory extends MessageOpenTypeFactory<AMQPMessage> {
+      @Override
+      protected void init() throws OpenDataException {
+         super.init();
+         addItem(CompositeDataConstants.TEXT_BODY, CompositeDataConstants.TEXT_BODY, SimpleType.STRING);
+         addItem(CompositeDataConstants.TYPE, CompositeDataConstants.TYPE_DESCRIPTION, SimpleType.BYTE);
+      }
+
+      @Override
+      public Map<String, Object> getFields(AMQPMessage m, int valueSizeLimit, int delivery) throws OpenDataException {
+         Map<String, Object> rc = super.getFields(m, valueSizeLimit, delivery);
+
+         if (!m.isLargeMessage()) {
+            m.ensureScanning();
+         }
+
+         Properties properties = m.getCurrentProperties();
+
+         byte type = getType(m, properties);
+
+         rc.put(CompositeDataConstants.TYPE, type);
+
+         if (m.isLargeMessage())  {
+            rc.put(CompositeDataConstants.TEXT_BODY, "... Large message ...");
+         } else {
+            if (m.getBody() instanceof AmqpValue) {
+               Object amqpValue = ((AmqpValue) m.getBody()).getValue();
+
+               rc.put(CompositeDataConstants.TEXT_BODY, JsonUtil.truncateString(amqpValue.toString(), valueSizeLimit));
+            } else {
+               rc.put(CompositeDataConstants.TEXT_BODY, JsonUtil.truncateString("" + m.getBody(), valueSizeLimit));
+            }
+         }
+
+         return rc;
+      }
+
+      private byte getType(AMQPMessage m, Properties properties) {
+         if (m.isLargeMessage()) {
+            return DEFAULT_TYPE;
+         }
+         byte type = BYTES_TYPE;
+
+         final Symbol contentType = properties != null ? properties.getContentType() : null;
+         final String contentTypeString = contentType != null ? contentType.toString() : null;
+
+         if (m.getBody() instanceof Data) {
+
+            if (contentType.equals(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE)) {
+               type = OBJECT_TYPE;
+            } else if (contentType.equals(AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE)) {
+               type = BYTES_TYPE;
+            } else {
+               Charset charset = getCharsetForTextualContent(contentTypeString);
+               if (StandardCharsets.UTF_8.equals(charset)) {
+                  type = TEXT_TYPE;
+               }
+            }
+         } else if (m.getBody() instanceof AmqpSequence) {
+            type = STREAM_TYPE;
+         } else if (m.getBody() instanceof AmqpValue) {
+            Object value = ((AmqpValue) m.getBody()).getValue();
+
+            if (value instanceof String) {
+               type = TEXT_TYPE;
+            } else if (value instanceof Binary) {
+
+               if (contentType.equals(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE)) {
+                  type = OBJECT_TYPE;
+               } else {
+                  type = BYTES_TYPE;
+               }
+            } else if (value instanceof List) {
+               type = STREAM_TYPE;
+            } else if (value instanceof Map) {
+               type = MAP_TYPE;
+            }
+         }
+         return type;
+      }
+   }
+
+   @Override
+   public CompositeData toCompositeData(int fieldsLimit, int deliveryCount) throws OpenDataException {
+      Map<String, Object> fields;
+      fields = AMQP_FACTORY.getFields(this, fieldsLimit, deliveryCount);
+      return new CompositeDataSupport(AMQP_FACTORY.getCompositeType(), fields);
+   }
+
+   // Composite Data implementation
+   // *******************************************************************************************************************************
+
 }

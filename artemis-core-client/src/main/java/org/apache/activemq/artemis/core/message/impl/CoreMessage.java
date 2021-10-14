@@ -17,8 +17,15 @@
 
 package org.apache.activemq.artemis.core.message.impl;
 
+import javax.management.openmbean.ArrayType;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.CompositeType;
+import javax.management.openmbean.OpenDataException;
+import javax.management.openmbean.SimpleType;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.zip.DataFormatException;
@@ -33,6 +40,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -40,6 +48,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.LargeBodyReader;
+import org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants;
+import org.apache.activemq.artemis.core.message.openmbean.MessageOpenTypeFactory;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -1216,6 +1226,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return this;
    }
 
+
    @Override
    public CoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
       return this;
@@ -1290,4 +1301,88 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
       return body;
    }
+
+
+   // *******************************************************************************************************************************
+   // Composite Data implementation
+
+   private static MessageOpenTypeFactory TEXT_FACTORY = new TextMessageOpenTypeFactory();
+   private static MessageOpenTypeFactory BYTES_FACTORY = new BytesMessageOpenTypeFactory();
+
+
+   @Override
+   public CompositeData toCompositeData(int fieldsLimit, int deliveryCount) throws OpenDataException {
+      CompositeType ct;
+      Map<String, Object> fields;
+      byte type = getType();
+      switch (type) {
+         case Message.TEXT_TYPE:
+            ct = TEXT_FACTORY.getCompositeType();
+            fields = TEXT_FACTORY.getFields(this, fieldsLimit, deliveryCount);
+            break;
+         default:
+            ct = BYTES_FACTORY.getCompositeType();
+            fields = BYTES_FACTORY.getFields(this, fieldsLimit, deliveryCount);
+            break;
+      }
+      return new CompositeDataSupport(ct, fields);
+
+   }
+
+   static class BytesMessageOpenTypeFactory extends MessageOpenTypeFactory<CoreMessage> {
+      protected ArrayType body;
+
+      @Override
+      protected void init() throws OpenDataException {
+         super.init();
+         body = new ArrayType(SimpleType.BYTE, true);
+         addItem(CompositeDataConstants.TYPE, CompositeDataConstants.TYPE_DESCRIPTION, SimpleType.BYTE);
+         addItem(CompositeDataConstants.BODY, CompositeDataConstants.BODY_DESCRIPTION, body);
+      }
+
+      @Override
+      public Map<String, Object> getFields(CoreMessage m, int valueSizeLimit, int delivery) throws OpenDataException {
+         Map<String, Object> rc = super.getFields(m, valueSizeLimit, delivery);
+         rc.put(CompositeDataConstants.TYPE, m.getType());
+         if (!m.isLargeMessage()) {
+            ActiveMQBuffer bodyCopy = m.toCore().getReadOnlyBodyBuffer();
+            byte[] bytes = new byte[bodyCopy.readableBytes() <= valueSizeLimit ? bodyCopy.readableBytes() : valueSizeLimit + 1];
+            bodyCopy.readBytes(bytes);
+            rc.put(CompositeDataConstants.BODY, JsonUtil.truncate(bytes, valueSizeLimit));
+         } else {
+            rc.put(CompositeDataConstants.BODY, new byte[0]);
+         }
+         return rc;
+      }
+   }
+
+   static class TextMessageOpenTypeFactory extends MessageOpenTypeFactory<CoreMessage> {
+      @Override
+      protected void init() throws OpenDataException {
+         super.init();
+         addItem(CompositeDataConstants.TYPE, CompositeDataConstants.TYPE_DESCRIPTION, SimpleType.BYTE);
+         addItem(CompositeDataConstants.TEXT_BODY, CompositeDataConstants.TEXT_BODY, SimpleType.STRING);
+      }
+
+      @Override
+      public Map<String, Object> getFields(CoreMessage m, int valueSizeLimit, int delivery) throws OpenDataException {
+         Map<String, Object> rc = super.getFields(m, valueSizeLimit, delivery);
+         rc.put(CompositeDataConstants.TYPE, m.getType());
+         if (!m.isLargeMessage()) {
+            if (m.containsProperty(Message.HDR_LARGE_COMPRESSED)) {
+               rc.put(CompositeDataConstants.TEXT_BODY, "[compressed]");
+            } else {
+               SimpleString text = m.toCore().getReadOnlyBodyBuffer().readNullableSimpleString();
+               rc.put(CompositeDataConstants.TEXT_BODY, text != null ? JsonUtil.truncate(text.toString(), valueSizeLimit) : "");
+            }
+         } else {
+            rc.put(CompositeDataConstants.TEXT_BODY, "[large message]");
+         }
+         return rc;
+      }
+   }
+
+   // Composite Data implementation
+   // *******************************************************************************************************************************
+
 }
