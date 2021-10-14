@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
-import org.apache.activemq.artemis.core.management.impl.openmbean.OpenTypeSupport;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -61,8 +60,11 @@ import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.jboss.logging.Logger;
 
 public class QueueControlImpl extends AbstractControl implements QueueControl {
+
+   private static final Logger logger = Logger.getLogger(QueueControlImpl.class);
 
    public static final int FLUSH_LIMIT = 500;
 
@@ -1583,7 +1585,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                   MessageReference ref = iterator.next();
                   if (thefilter == null || thefilter.match(ref.getMessage())) {
                      if (index >= start) {
-                        c.add(OpenTypeSupport.convert(ref, attributeSizeLimit));
+                        c.add(ref.getMessage().toCompositeData(attributeSizeLimit, ref.getDeliveryCount()));
                      }
                      //we only increase the index if we add a message, otherwise we could stop before we get to a filtered message
                      index++;
@@ -1600,7 +1602,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             }
             return rc;
          }
-      } catch (ActiveMQException e) {
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
          if (AuditLogger.isResourceLoggingEnabled()) {
             AuditLogger.browseMessagesFailure(queue.getName().toString());
          }
@@ -1635,7 +1638,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                while (iterator.hasNext() && currentPageSize++ < limit) {
                   MessageReference ref = iterator.next();
                   if (thefilter == null || thefilter.match(ref.getMessage())) {
-                     c.add(OpenTypeSupport.convert(ref, attributeSizeLimit));
+                     c.add(ref.getMessage().toCompositeData(attributeSizeLimit, ref.getDeliveryCount()));
 
                   }
                }

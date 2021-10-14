@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.OpenDataException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -768,6 +770,10 @@ public interface Message {
 
    /** This should make you convert your message into Core format. */
    ICoreMessage toCore();
+
+   default CompositeData toCompositeData(int fieldsLimit, int deliveryCount) throws OpenDataException {
+      return null;
+   }
 
    /** This should make you convert your message into Core format. */
    ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools);
