@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.management.Notification;
@@ -70,10 +76,12 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -86,8 +94,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static org.apache.activemq.artemis.core.management.impl.openmbean.CompositeDataConstants.BODY;
-import static org.apache.activemq.artemis.core.management.impl.openmbean.CompositeDataConstants.STRING_PROPERTIES;
+import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants.BODY;
+import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants.STRING_PROPERTIES;
 
 @RunWith(value = Parameterized.class)
 public class QueueControlTest extends ManagementTestBase {
@@ -3447,6 +3455,123 @@ public class QueueControlTest extends ManagementTestBase {
       Assert.assertEquals(new String(body), "theBody");
    }
 
+
+   @Test
+   public void testSendMessageWithAMQP() throws Exception {
+      SimpleString address = new SimpleString("address_testSendMessageWithAMQP");
+      SimpleString queue = new SimpleString("queue_testSendMessageWithAMQP");
+
+      server.addAddressInfo(new AddressInfo(address).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
+
+      Wait.assertTrue(() -> server.locateQueue(queue) != null && server.getAddressInfo(address) != null);
+
+      QueueControl queueControl = createManagementControl(address, queue, RoutingType.ANYCAST);
+
+      { // a namespace
+         ConnectionFactory factory = CFUtil.createConnectionFactory("amqp", "tcp://localhost:61616");
+         try (Connection connection = factory.createConnection("myUser", "myPassword")) {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer =  session.createProducer(session.createQueue(address.toString()));
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            TextMessage message = session.createTextMessage("theAMQPBody");
+            message.setStringProperty("protocolUsed", "amqp");
+            producer.send(message);
+         }
+      }
+
+      { // a namespace
+         ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
+         try (Connection connection = factory.createConnection("myUser", "myPassword")) {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer =  session.createProducer(session.createQueue(address.toString()));
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            TextMessage message = session.createTextMessage("theCoreBody");
+            message.setStringProperty("protocolUsed", "core");
+            producer.send(message);
+         }
+      }
+
+      Wait.assertEquals(2L, () -> getMessageCount(queueControl), 2000, 100);
+
+      // the message IDs are set on the server
+      CompositeData[] browse = queueControl.browse(null);
+
+      Assert.assertEquals(2, browse.length);
+
+      String body = (String) browse[0].get("text");
+
+      Assert.assertNotNull(body);
+
+      Assert.assertEquals("theAMQPBody", body);
+
+      body = (String) browse[1].get("text");
+
+      Assert.assertNotNull(body);
+
+      Assert.assertEquals("theCoreBody", body);
+
+   }
+
+
+   @Test
+   public void testSendMessageWithAMQPLarge() throws Exception {
+      SimpleString address = new SimpleString("address_testSendMessageWithAMQP");
+      SimpleString queue = new SimpleString("queue_testSendMessageWithAMQP");
+
+      server.addAddressInfo(new AddressInfo(address).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
+
+      Wait.assertTrue(() -> server.locateQueue(queue) != null && server.getAddressInfo(address) != null);
+
+      QueueControl queueControl = createManagementControl(address, queue, RoutingType.ANYCAST);
+
+      StringBuffer bufferLarge = new StringBuffer();
+      for (int i = 0; i < 100 * 1024; i++) {
+         bufferLarge.append("*-");
+      }
+
+      { // a namespace
+         ConnectionFactory factory = CFUtil.createConnectionFactory("amqp", "tcp://localhost:61616");
+         try (Connection connection = factory.createConnection("myUser", "myPassword")) {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer =  session.createProducer(session.createQueue(address.toString()));
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            TextMessage message = session.createTextMessage(bufferLarge.toString());
+            message.setStringProperty("protocolUsed", "amqp");
+            producer.send(message);
+         }
+      }
+
+      { // a namespace
+         ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
+         try (Connection connection = factory.createConnection("myUser", "myPassword")) {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer =  session.createProducer(session.createQueue(address.toString()));
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            TextMessage message = session.createTextMessage(bufferLarge.toString());
+            message.setStringProperty("protocolUsed", "core");
+            producer.send(message);
+         }
+      }
+
+      Wait.assertEquals(2L, () -> getMessageCount(queueControl), 2000, 100);
+
+      // the message IDs are set on the server
+      CompositeData[] browse = queueControl.browse(null);
+
+      Assert.assertEquals(2, browse.length);
+
+      String body = (String) browse[0].get("text");
+
+      Assert.assertNotNull(body);
+
+      body = (String) browse[1].get("text");
+
+      Assert.assertNotNull(body);
+
+   }
+
    @Test
    public void testSendMessageWithMessageId() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
@@ -3763,7 +3888,7 @@ public class QueueControlTest extends ManagementTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      Configuration conf = createDefaultInVMConfig().setJMXManagementEnabled(true);
+      Configuration conf = createDefaultConfig(true).setJMXManagementEnabled(true);
       server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
 
       server.start();
