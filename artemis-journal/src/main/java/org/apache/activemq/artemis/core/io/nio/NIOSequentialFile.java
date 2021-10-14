@@ -59,6 +59,21 @@ public class NIOSequentialFile extends AbstractSequentialFile {
     */
    private static final int CHUNK_SIZE = 2 * 1024 * 1024;
 
+   /**
+    * Maximum No. of retries that are done on severe I/O errors before server shuts down.
+    * This can be used if running in environments where external applications temporarily lock journal files (e.g. virus scanners).
+    * Default = 0, meaning no retries are done.
+    * @see #RETRIES_TIMEOUT
+    * @see #open(int, boolean)
+    */
+   private static final int RETRIES_MAX = Integer.getInteger("org.apache.activemq.artemis.core.io.nio.NIOSequentialFile.RETRIES_MAX", 0).intValue();
+
+   /**
+    * Maximum overall duration in ms that a severe I/O error is being retried.
+    * @see #RETRIES_MAX
+    */
+   private static final long RETRIES_TIMEOUT = Long.getLong("org.apache.activemq.artemis.core.io.nio.NIOSequentialFile.RETRIES_TIMEOUT", 15000).intValue();
+
    private FileChannel channel;
 
    private RandomAccessFile rfile;
@@ -140,7 +155,43 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    @Override
    public void open(final int maxIO, final boolean useExecutor) throws IOException {
       try {
-         rfile = new RandomAccessFile(getFile(), "rw");
+          int tries = 0;
+          long timePassed = 0;
+          long start = System.currentTimeMillis();
+          IOException fatalEx = null;
+          do {
+             tries++;
+             try {
+                rfile = new RandomAccessFile(getFile(), "rw");
+                if (fatalEx != null) {
+                   ActiveMQJournalLogger.LOGGER.debug("Sucessfully opened file=" + getFileName() + " on try No. " + (tries - 1) +
+                                                                      " after previous error: " + fatalEx.toString());
+                   fatalEx = null;
+                }
+                break; // all good
+             }
+             catch (IOException ex) {
+                fatalEx = ex;
+                if (RETRIES_MAX > 0) {
+                   ActiveMQJournalLogger.LOGGER.error("Error opening file=" + getFileName() +
+                                                                      "! This is fatal and server shut-down is imminent! Will retry up to " + RETRIES_MAX +
+                                                                      " times before fatal error, current retry=" + (tries - 1) + "! Ex=" + ex.toString());
+                }
+                try {
+                   long sleepTime = Math.min(5000, (2 * (long)Math.pow(10d, tries))); // 20, 200, 2000, 5000ms
+                   Thread.sleep(sleepTime);
+                }
+                catch (InterruptedException intEx) {
+                   Thread.currentThread().interrupt();
+                }
+                timePassed = System.currentTimeMillis() - start;
+             }
+          }
+          while (tries <= RETRIES_MAX && timePassed < RETRIES_TIMEOUT);
+          if (fatalEx != null) {
+             ActiveMQJournalLogger.LOGGER.fatal("Error opening file=" + getFileName() + "! This is fatal and server shut-down is imminent!", fatalEx);
+             throw fatalEx;
+          }
 
          channel = rfile.getChannel();
 
