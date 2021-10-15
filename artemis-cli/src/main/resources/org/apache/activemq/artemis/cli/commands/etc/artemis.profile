@@ -30,30 +30,32 @@ ARTEMIS_INSTANCE_ETC_URI='${artemis.instance.etc.uri}'
 # Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
 #ARTEMIS_CLUSTER_PROPS="-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446"
 
-
 # Hawtio Properties
 HAWTIO_ROLE='${role}'
-
 
 # Java Opts
 if [ -z "$JAVA_ARGS" ]; then
     JAVA_ARGS="-XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx2G -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=${ARTEMIS_INSTANCE_ETC_URI}jolokia-access.xml ${java-opts}"
 fi
 
+# Uncomment to enable logging for Safepoint JVM pauses
 #
-# Logs Safepoints JVM pauses: Uncomment to enable them
-# In addition to the traditional GC logs you could enable some JVM flags to know any meaningful and "hidden" pause that could
-# affect the latencies of the services delivered by the broker, including those that are not reported by the classic GC logs
-# and dependent by JVM background work (eg method deoptimizations, lock unbiasing, JNI, counted loops and obviously GC activity).
+# In addition to the traditional GC logs you could enable some JVM flags to know any meaningful and "hidden" pause
+# that could affect the latencies of the services delivered by the broker, including those that are not reported by
+# the classic GC logs and dependent by JVM background work (eg method deoptimizations, lock unbiasing, JNI, counted
+# loops and obviously GC activity).
+#
 # Replace "all_pauses.log" with the file name you want to log to.
 # JAVA_ARGS="$JAVA_ARGS -XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1 -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCApplicationConcurrentTime -XX:+LogVMOutput -XX:LogFile=all_pauses.log"
 
-#
-# Enables the dumping of the java heap when a java.lang.OutOfMemoryError exception is thrown.
+# Uncomment to enable the dumping of the Java heap when a java.lang.OutOfMemoryError exception is thrown
 # JAVA_ARGS="$JAVA_ARGS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${ARTEMIS_OOME_DUMP}"
 
-# Debug args: Uncomment to enable debug
-#DEBUG_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
+# Only enable debug options for the 'run' command
+if [ "$1" = "run" ]; then :
+    # Uncomment to enable remote debugging
+    # DEBUG_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
-# Debug args: Uncomment for async profiler
-#DEBUG_ARGS="-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints"
+    # Uncomment for async profiler
+    # DEBUG_ARGS="-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints"
+fi

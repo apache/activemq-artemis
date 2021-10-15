@@ -45,5 +45,6 @@ rem set JAVA_ARGS=%JAVA_ARGS% -XX:+PrintSafepointStatistics -XX:PrintSafepointSt
 rem Enables the dumping of the java heap when a java.lang.OutOfMemoryError exception is thrown.
 rem set JAVA_ARGS=%JAVA_ARGS% -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=%ARTEMIS_OOME_DUMP%
 
-rem Debug args: Uncomment to enable debug
-rem set DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005
+rem Only enable debug options for the 'run' command
+rem Uncomment to enable remote debugging
+rem if "%1"=="run" set DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005
