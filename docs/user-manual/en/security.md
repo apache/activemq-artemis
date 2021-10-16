@@ -1132,7 +1132,7 @@ Kerberos credentials.
 
 #### GSSAPI SASL Mechanism
 
-Using SASL over [AMQP](using-AMQP.md), Kerberos authentication is supported
+Using SASL over [AMQP](amqp.md), Kerberos authentication is supported
 using the `GSSAPI` SASL mechanism.  With SASL doing Kerberos authentication,
 TLS can be used to provide integrity and confidentially to the communications
 channel in the normal way.
@@ -1343,7 +1343,7 @@ Note: Role mapping is additive. That means the user will keep the original role(
 Note: This role mapping only affects the roles which are used to authorize queue access through the configured acceptors. It can not be used to map the role required to access the web console.
 
 ## SASL
-[AMQP](using-AMQP.md) supports SASL. The following mechanisms are supported:
+[AMQP](amqp.md) supports SASL. The following mechanisms are supported:
  PLAIN, EXTERNAL, ANONYMOUS, GSSAPI, SCRAM-SHA-256, SCRAM-SHA-512.
 The published list can be constrained via the amqp acceptor `saslMechanisms` property. 
 Note: EXTERNAL will only be chosen if a subject is available from the TLS client certificate.
