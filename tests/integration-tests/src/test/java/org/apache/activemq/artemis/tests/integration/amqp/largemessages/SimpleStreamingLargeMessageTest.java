@@ -359,7 +359,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
          assertEquals(1, browseResult.length);
 
          if ((boolean) browseResult[0].get("largeMessage")) {
-            assertTrue(browseResult[0].containsKey("BodyPreview"));
+            assertTrue(browseResult[0].containsKey("text"));
          }
 
          connection = client.createConnection();

@@ -1344,7 +1344,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          Map<String, Object> rc = super.getFields(m, valueSizeLimit, delivery);
          rc.put(CompositeDataConstants.TYPE, m.getType());
          if (!m.isLargeMessage()) {
-            ActiveMQBuffer bodyCopy = m.toCore().getReadOnlyBodyBuffer();
+            ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
             byte[] bytes = new byte[bodyCopy.readableBytes() <= valueSizeLimit ? bodyCopy.readableBytes() : valueSizeLimit + 1];
             bodyCopy.readBytes(bytes);
             rc.put(CompositeDataConstants.BODY, JsonUtil.truncate(bytes, valueSizeLimit));
@@ -1370,7 +1370,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
             if (m.containsProperty(Message.HDR_LARGE_COMPRESSED)) {
                rc.put(CompositeDataConstants.TEXT_BODY, "[compressed]");
             } else {
-               SimpleString text = m.toCore().getReadOnlyBodyBuffer().readNullableSimpleString();
+               SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
                rc.put(CompositeDataConstants.TEXT_BODY, text != null ? JsonUtil.truncate(text.toString(), valueSizeLimit) : "");
             }
          } else {
