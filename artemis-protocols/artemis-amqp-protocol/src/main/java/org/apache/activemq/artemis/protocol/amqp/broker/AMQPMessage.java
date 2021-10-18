@@ -1803,7 +1803,6 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       protected void init() throws OpenDataException {
          super.init();
          addItem(CompositeDataConstants.TEXT_BODY, CompositeDataConstants.TEXT_BODY, SimpleType.STRING);
-         addItem(CompositeDataConstants.TYPE, CompositeDataConstants.TYPE_DESCRIPTION, SimpleType.BYTE);
       }
 
       @Override
