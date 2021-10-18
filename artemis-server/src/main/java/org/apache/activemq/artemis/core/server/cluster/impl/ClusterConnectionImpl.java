@@ -179,6 +179,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private boolean splitBrainDetection;
 
+
+   /** For tests only */
+   public ServerLocatorInternal getServerLocator() {
+      return serverLocator;
+   }
+
+
    public ClusterConnectionImpl(final ClusterManager manager,
                                 final TransportConfiguration[] staticTranspConfigs,
                                 final TransportConfiguration connector,
@@ -1553,6 +1560,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             }
             ServerLocatorImpl locator = new ServerLocatorImpl(topology, true, tcConfigs);
             locator.setClusterConnection(true);
+            locator.setClusterTransportConfiguration(connector);
             return locator;
          }
          return null;
