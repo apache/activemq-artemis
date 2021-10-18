@@ -684,6 +684,7 @@ that would be found in the `broker.xml` file.
       <auto-delete-addresses-delay>0</auto-delete-addresses-delay>
       <config-delete-addresses>OFF</config-delete-addresses>
       <management-browse-page-size>200</management-browse-page-size>
+      <management-message-attribute-size-limit>256</management-message-attribute-size-limit>
       <default-purge-on-no-consumers>false</default-purge-on-no-consumers>
       <default-max-consumers>-1</default-max-consumers>
       <default-queue-routing-type></default-queue-routing-type>
@@ -952,6 +953,14 @@ about [configuration reload](config-reload.md).
 `management-browse-page-size` is the number of messages a management resource
 can browse. This is relevant for the `browse, list and count-with-filter` management
 methods exposed on the queue control. Default is `200`.
+
+`management-message-attribute-size-limit` is the number of bytes collected from
+the message for browse. This is relevant for the `browse and list` management
+methods exposed on the queue control. messages longer than this value appear
+truncated. Default is `256`. Use `-1` to switch this limit off. Note that
+memory needs to be allocated for all messages that are visible at a given moment.
+Setting this value too high may impact the browser stability due to the large
+amount of memory that may be required to browse through many messages.
 
 `default-purge-on-no-consumers` defines a queue's default
 `purge-on-no-consumers` setting if none is provided on the queue itself.
