@@ -1336,7 +1336,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       protected void init() throws OpenDataException {
          super.init();
          body = new ArrayType(SimpleType.BYTE, true);
-         addItem(CompositeDataConstants.TYPE, CompositeDataConstants.TYPE_DESCRIPTION, SimpleType.BYTE);
          addItem(CompositeDataConstants.BODY, CompositeDataConstants.BODY_DESCRIPTION, body);
       }
 
@@ -1360,7 +1359,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       @Override
       protected void init() throws OpenDataException {
          super.init();
-         addItem(CompositeDataConstants.TYPE, CompositeDataConstants.TYPE_DESCRIPTION, SimpleType.BYTE);
          addItem(CompositeDataConstants.TEXT_BODY, CompositeDataConstants.TEXT_BODY, SimpleType.STRING);
       }
 
