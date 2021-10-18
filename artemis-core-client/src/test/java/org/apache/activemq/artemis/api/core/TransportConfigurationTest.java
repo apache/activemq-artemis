@@ -17,8 +17,12 @@
 
 package org.apache.activemq.artemis.api.core;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
+import io.netty.buffer.Unpooled;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.junit.Assert;
 import org.junit.Test;
@@ -74,4 +78,49 @@ public class TransportConfigurationTest {
       Assert.assertThat(configuration.toString(), not(containsString("secret_password")));
    }
 
+   @Test
+   public void testEncodingDecoding() {
+      Map<String, Object> params = new HashMap<>();
+      params.put("BOOLEAN_PARAM", true);
+      params.put("INT_PARAM", 0);
+      params.put("LONG_PARAM", 1);
+      params.put("STRING_PARAM", "A");
+
+      Map<String, Object> extraProps = new HashMap<>();
+      extraProps.put("EXTRA_BOOLEAN_PROP", false);
+      extraProps.put("EXTRA_INT_PROP", 1);
+      extraProps.put("EXTRA_LONG_PROP", 0);
+      extraProps.put("EXTRA_STRING_PROP", "Z");
+
+      testEncodingDecoding(new TransportConfiguration("SomeClass", params, "TEST", extraProps));
+   }
+
+   @Test
+   public void testEncodingDecodingWithEmptyMaps() {
+      testEncodingDecoding(new TransportConfiguration("SomeClass", Collections.emptyMap(), "TEST", Collections.emptyMap()));
+   }
+
+   @Test
+   public void testEncodingDecodingWithNullMaps() {
+      testEncodingDecoding(new TransportConfiguration("SomeClass", null, "TEST", null));
+   }
+
+   private void testEncodingDecoding(TransportConfiguration transportConfiguration) {
+      ActiveMQBuffer buffer = new ChannelBufferWrapper(Unpooled.buffer(1024));
+
+      transportConfiguration.encode(buffer);
+
+      TransportConfiguration decodedTransportConfiguration = new TransportConfiguration();
+      decodedTransportConfiguration.decode(buffer);
+
+      Assert.assertFalse(buffer.readable());
+
+      Assert.assertEquals(transportConfiguration.getParams(), decodedTransportConfiguration.getParams());
+
+      Assert.assertTrue((transportConfiguration.getExtraParams() == null && (decodedTransportConfiguration.getExtraParams() == null || decodedTransportConfiguration.getExtraParams().isEmpty())) ||
+            (decodedTransportConfiguration.getExtraParams() == null && (transportConfiguration.getExtraParams() == null || transportConfiguration.getExtraParams().isEmpty())) ||
+            (transportConfiguration.getExtraParams() != null && decodedTransportConfiguration.getExtraParams() != null && transportConfiguration.getExtraParams().equals(decodedTransportConfiguration.getExtraParams())));
+
+      Assert.assertEquals(transportConfiguration, decodedTransportConfiguration);
+   }
 }
