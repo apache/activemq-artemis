@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.core.server.federation;
 
+import java.util.Map;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -26,6 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.federation.FederationConnectionConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 
 public class FederationConnection {
 
@@ -39,6 +41,7 @@ public class FederationConnection {
    public FederationConnection(Configuration configuration, String name, FederationConnectionConfiguration config) {
       this.config = config;
       this.circuitBreakerTimeout = config.getCircuitBreakerTimeout();
+      Map<String, Object> possibleLocatorParameters = null;
       if (config.getDiscoveryGroupName() != null) {
          DiscoveryGroupConfiguration discoveryGroupConfiguration = configuration.getDiscoveryGroupConfigurations().get(config.getDiscoveryGroupName());
          if (discoveryGroupConfiguration == null) {
@@ -67,6 +70,10 @@ public class FederationConnection {
          } else {
             serverLocator = ActiveMQClient.createServerLocatorWithoutHA(tcConfigs);
          }
+
+         if (tcConfigs.length > 0) {
+            possibleLocatorParameters = tcConfigs[0].getExtraParams();
+         }
       }
 
       if (!config.isHA()) {
@@ -82,6 +89,14 @@ public class FederationConnection {
       serverLocator.setMaxRetryInterval(config.getMaxRetryInterval());
       serverLocator.setCallTimeout(config.getCallTimeout());
       serverLocator.setCallFailoverTimeout(config.getCallFailoverTimeout());
+
+      // let url parameters override
+      if (possibleLocatorParameters != null) {
+         try {
+            BeanSupport.setData(serverLocator, possibleLocatorParameters);
+         } catch (Exception ignoredAsErrorsVisibleViaBeanUtilsLogging) {
+         }
+      }
 
    }
 

@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.federation;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -60,14 +59,8 @@ public class FederatedServerLocatorConfigTest extends FederatedTestBase {
    public void testFederatedAddressServerLocatorConfigFromUrl() throws Exception {
       String address = getName();
 
-      // we still won't pick up url params, restricted locator config is explicit
-      // bundling getUseTopologyForLoadBalancing with HA=false is consistent with simplification
       String connectorName = "server1WithUrlParams";
-      Map<String, Object> params = new HashMap<>();
-      params.put("host", "localhost");
-      params.put("port",  org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
-
-      getServer(0).getConfiguration().addConnectorConfiguration(connectorName, new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params));
+      getServer(0).getConfiguration().addConnectorConfiguration(connectorName, "tcp://localhost:" + (org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1) + "?ackBatchSize=100&consumerWindowSize=-1");
 
       FederationConfiguration federationConfiguration0 = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1WithUrlParams", address, 2);
       for (FederationUpstreamConfiguration upstreamConfiguration : federationConfiguration0.getUpstreamConfigurations()) {
@@ -77,10 +70,12 @@ public class FederatedServerLocatorConfigTest extends FederatedTestBase {
       getServer(0).getFederationManager().deploy();
 
 
-      // lets peek at the server locator
+      // let's peek at the server locator
       Federation fed = getServer(0).getFederationManager().get(federationConfiguration0.getName());
       assertNotNull(fed);
       FederationUpstream federationUpstream = fed.get(connectorName);
       assertFalse(federationUpstream.getConnection().clientSessionFactory().getServerLocator().getUseTopologyForLoadBalancing());
+      assertEquals(100, federationUpstream.getConnection().clientSessionFactory().getServerLocator().getAckBatchSize());
+      assertEquals(-1, federationUpstream.getConnection().clientSessionFactory().getServerLocator().getConsumerWindowSize());
    }
 }
