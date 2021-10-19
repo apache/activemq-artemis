@@ -956,8 +956,8 @@ methods exposed on the queue control. Default is `200`.
 
 `management-message-attribute-size-limit` is the number of bytes collected from
 the message for browse. This is relevant for the `browse and list` management
-methods exposed on the queue control. messages longer than this value appear
-truncated. Default is `256`. Use `-1` to switch this limit off. Note that
+methods exposed on the queue control. Message attributes longer than this value
+appear truncated. Default is `256`. Use `-1` to switch this limit off. Note that
 memory needs to be allocated for all messages that are visible at a given moment.
 Setting this value too high may impact the browser stability due to the large
 amount of memory that may be required to browse through many messages.
