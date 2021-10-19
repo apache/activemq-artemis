@@ -89,6 +89,11 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    }
 
    @Override
+   public LargeMessageControllerImpl.LargeData take() throws InterruptedException {
+      return bufferDelegate.take();
+   }
+
+   @Override
    public int capacity() {
       return -1;
    }
