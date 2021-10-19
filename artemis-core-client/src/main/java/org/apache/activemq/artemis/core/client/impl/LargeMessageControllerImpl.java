@@ -318,6 +318,11 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
    }
 
+   @Override
+   public LargeData take() throws InterruptedException {
+      return largeMessageData.take();
+   }
+
    /**
     * @throws ActiveMQException
     */
@@ -1328,7 +1333,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   private static class LargeData {
+   public static class LargeData {
 
       final byte[] chunk;
       final int flowControlSize;
