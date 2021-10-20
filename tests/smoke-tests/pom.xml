@@ -247,6 +247,22 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
+                  <id>create-create-console-mutual-ssl</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/console-mutual-ssl</instance>
+                     <configuration>${basedir}/target/classes/servers/console-mutual-ssl</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
                   <id>create0</id>
                   <goals>
                      <goal>create</goal>
