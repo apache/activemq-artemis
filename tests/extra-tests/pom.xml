@@ -302,6 +302,16 @@
                <argLine>${activemq-surefire-argline} -noverify</argLine>
             </configuration>
          </plugin>
+
+         <!-- Don't deploy artifacts for this module. It has non-permissive
+              dependencies and is only optionally used for local testing. -->
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+               <skip>true</skip>
+            </configuration>
+         </plugin>
       </plugins>
    </build>
 
