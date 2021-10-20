@@ -89,6 +89,7 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactory;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactoryProvider;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
@@ -381,7 +382,11 @@ public class NettyAcceptor extends AbstractAcceptor {
       checkSSLConfiguration();
       try {
          if (TransportConstants.OPENSSL_PROVIDER.equals(sslProvider)) {
-            return OpenSSLContextFactoryProvider.getOpenSSLContextFactory().getServerSslContext(sslContextConfig, configuration);
+            OpenSSLContextFactory factory = OpenSSLContextFactoryProvider.getOpenSSLContextFactory();
+            if (factory != null) {
+               return factory.getServerSslContext(sslContextConfig, configuration);
+            }
+            throw new IllegalStateException("No OpenSSLContextFactory registered!");
          } else {
             return SSLContextFactoryProvider.getSSLContextFactory().getSSLContext(sslContextConfig, configuration);
          }
