@@ -19,8 +19,10 @@ package org.apache.activemq.artemis.core.management.impl;
 import javax.json.JsonArrayBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +50,7 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.replay.ReplayManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
@@ -572,6 +575,22 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       }
 
       return totalMsgs;
+   }
+
+   @Override
+   public void replay(String target, String filter) throws Exception {
+      server.replay(null, null, this.getAddress(), target, filter);
+   }
+
+   @Override
+   public void replay(String startScan, String endScan, String target, String filter) throws Exception {
+
+      SimpleDateFormat format = ReplayManager.newRetentionSimpleDateFormat();
+
+      Date startScanDate = format.parse(startScan);
+      Date endScanDate = format.parse(endScan);
+
+      server.replay(startScanDate, endScanDate, this.getAddress(), target, filter);
    }
 
    // Private -------------------------------------------------------
