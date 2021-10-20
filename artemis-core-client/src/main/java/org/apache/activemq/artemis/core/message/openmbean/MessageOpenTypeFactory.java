@@ -141,7 +141,7 @@ public class MessageOpenTypeFactory<M extends Message> {
          rc.put(CompositeDataConstants.PERSISTENT_SIZE, -1);
       }
 
-      Map<String, Object> propertyMap = m.toPropertyMap(valueSizeLimit);
+      Map<String, Object> propertyMap = expandProperties(m, valueSizeLimit);
 
       rc.put(CompositeDataConstants.PROPERTIES, JsonUtil.truncate("" + propertyMap, valueSizeLimit));
 
@@ -160,6 +160,10 @@ public class MessageOpenTypeFactory<M extends Message> {
          }
       }
       return rc;
+   }
+
+   protected Map<String, Object> expandProperties(M m, int valueSizeLimit) {
+      return m.toPropertyMap(valueSizeLimit);
    }
 
    protected String toString(Object value) {
