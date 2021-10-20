@@ -834,6 +834,25 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public Map<String, Object> toPropertyMap(int valueSizeLimit) {
+      return toPropertyMap(false, valueSizeLimit);
+   }
+
+   private Map<String, Object> toPropertyMap(boolean expandPropertyType, int valueSizeLimit) {
+      String extraPropertiesPrefix;
+      String applicationPropertiesPrefix;
+      String annotationPrefix;
+      String propertiesPrefix;
+      if (expandPropertyType) {
+         extraPropertiesPrefix = "extraProperties.";
+         applicationPropertiesPrefix = "applicationProperties.";
+         annotationPrefix = "messageAnnotations.";
+         propertiesPrefix = "properties.";
+      } else {
+         extraPropertiesPrefix = "";
+         applicationPropertiesPrefix = "";
+         annotationPrefix = "";
+         propertiesPrefix = "";
+      }
       Map map = new HashMap<>();
       for (SimpleString name : getPropertyNames()) {
          Object value = getObjectProperty(name.toString());
@@ -842,45 +861,45 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             value = ((Binary)value).getArray();
          }
          value = JsonUtil.truncate(value, valueSizeLimit);
-         map.put("applicationProperties." + name, value);
+         map.put(applicationPropertiesPrefix + name, value);
       }
 
       TypedProperties extraProperties = getExtraProperties();
       if (extraProperties != null) {
          extraProperties.forEach((s, o) -> {
-            map.put("extraProperties." + s.toString(), JsonUtil.truncate(o.toString(), valueSizeLimit));
+            map.put(extraPropertiesPrefix + s.toString(), JsonUtil.truncate(o.toString(), valueSizeLimit));
          });
       }
 
-      addAnnotationsAsProperties(map, messageAnnotations);
+      addAnnotationsAsProperties(annotationPrefix, map, messageAnnotations);
 
       if (properties != null) {
          if (properties.getContentType() != null) {
-            map.put("properties.contentType", properties.getContentType().toString());
+            map.put(propertiesPrefix + "contentType", properties.getContentType().toString());
          }
          if (properties.getContentEncoding() != null) {
-            map.put("properties.contentEncoding", properties.getContentEncoding().toString());
+            map.put(propertiesPrefix + "contentEncoding", properties.getContentEncoding().toString());
          }
          if (properties.getGroupId() != null) {
-            map.put("properties.groupID", properties.getGroupId());
+            map.put(propertiesPrefix + "groupID", properties.getGroupId());
          }
          if (properties.getGroupSequence() != null) {
-            map.put("properties.groupSequence", properties.getGroupSequence().intValue());
+            map.put(propertiesPrefix + "groupSequence", properties.getGroupSequence().intValue());
          }
          if (properties.getReplyToGroupId() != null) {
-            map.put("properties.replyToGroupId", properties.getReplyToGroupId());
+            map.put(propertiesPrefix + "replyToGroupId", properties.getReplyToGroupId());
          }
          if (properties.getCreationTime() != null) {
-            map.put("properties.creationTime", properties.getCreationTime().getTime());
+            map.put(propertiesPrefix + "creationTime", properties.getCreationTime().getTime());
          }
          if (properties.getAbsoluteExpiryTime() != null) {
-            map.put("properties.absoluteExpiryTime", properties.getCreationTime().getTime());
+            map.put(propertiesPrefix + "absoluteExpiryTime", properties.getCreationTime().getTime());
          }
          if (properties.getTo() != null) {
-            map.put("properties.to", properties.getTo());
+            map.put(propertiesPrefix + "to", properties.getTo());
          }
          if (properties.getSubject() != null) {
-            map.put("properties.subject", properties.getSubject());
+            map.put(propertiesPrefix + "subject", properties.getSubject());
          }
       }
 
@@ -888,21 +907,21 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
 
-   protected static void addAnnotationsAsProperties(Map map, MessageAnnotations annotations) {
+   protected static void addAnnotationsAsProperties(String prefix, Map map, MessageAnnotations annotations) {
       if (annotations != null && annotations.getValue() != null) {
          for (Map.Entry<?, ?> entry : annotations.getValue().entrySet()) {
             String key = entry.getKey().toString();
             if ("x-opt-delivery-time".equals(key) && entry.getValue() != null) {
                long deliveryTime = ((Number) entry.getValue()).longValue();
-               map.put("message-annotation.x-opt-delivery-time", deliveryTime);
+               map.put(prefix + "x-opt-delivery-time", deliveryTime);
             } else if ("x-opt-delivery-delay".equals(key) && entry.getValue() != null) {
                long delay = ((Number) entry.getValue()).longValue();
-               map.put("message-annotation.x-opt-delivery-delay", delay);
+               map.put("x-opt-delivery-delay", delay);
             } else if (AMQPMessageSupport.X_OPT_INGRESS_TIME.equals(key) && entry.getValue() != null) {
-               map.put("message-annotation.X_OPT_INGRESS_TIME", ((Number) entry.getValue()).longValue());
+               map.put("X_OPT_INGRESS_TIME", ((Number) entry.getValue()).longValue());
             } else {
                try {
-                  map.put("message-annotation." + key, entry.getValue());
+                  map.put(prefix + key, entry.getValue());
                } catch (ActiveMQPropertyConversionException e) {
                   logger.warn(e.getMessage(), e);
                }
@@ -1841,6 +1860,11 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          }
 
          return rc;
+      }
+
+      @Override
+      protected Map<String, Object> expandProperties(AMQPMessage m, int valueSizeLimit) {
+         return m.toPropertyMap(true, valueSizeLimit);
       }
 
       private byte getType(AMQPMessage m, Properties properties) {

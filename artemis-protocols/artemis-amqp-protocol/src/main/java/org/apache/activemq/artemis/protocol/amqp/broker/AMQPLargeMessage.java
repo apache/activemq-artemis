@@ -602,8 +602,13 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    }
 
    @Override
-   public long getPersistentSize() throws ActiveMQException {
-      return 0;
+   public long getPersistentSize() {
+      try {
+         return largeBody.getBodySize();
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+         return 0;
+      }
    }
 
    @Override
