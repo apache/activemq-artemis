@@ -31,9 +31,6 @@ public class OpenSSLContextFactoryProvider {
          }
       }
 
-      if (factoryWithHighestPrio == null)
-         throw new IllegalStateException("No OpenSSLContextFactory registered!");
-
       FACTORY = factoryWithHighestPrio;
    }
 
