@@ -126,3 +126,14 @@ and applying queue federation to queue `federated_queue` , and also applying add
 **It is important that federation name is globally unique.**
 
 There are many configuration options that you can apply these are detailed in the individual docs for [Address Federation](federation-address.md) and   [Queue Federation](federation-queue.md).
+
+> **Note:**
+>
+>Extra parameters from the URI of a connector-ref can be used to override or provide additional configuration
+>to the ServiceLocator.
+
+### Large Messages
+If Federation has to process large messages, the default ackBatchSize and consumerWindowSize for the consumer will need to be changed
+to limit the number of in-flight messages and to enable large message flow.
+These options can be supplied as parameters on the referenced connector URI, for example:
+  ```tcp://<host>:<port>?ackBatchSize=100&consumerWindowSize=-1```
