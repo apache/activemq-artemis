@@ -84,13 +84,19 @@ public class ReplayManager {
       }
    }
 
-   private void actualReplay(Date start, Date end, String sourceAddress, String targetAddress, String filterStr) throws Exception {
+   private void actualReplay(Date start, Date end, String sourceAddress, String targetAddressParameter, String filterStr) throws Exception {
       if (logger.isDebugEnabled()) {
          logger.debug("Replay::" + sourceAddress);
       }
       if (sourceAddress == null) {
          throw new NullPointerException("sourceAddress");
       }
+
+      if (targetAddressParameter == null || targetAddressParameter.trim().isEmpty()) {
+         targetAddressParameter = sourceAddress;
+      }
+
+      final String targetAddress = targetAddressParameter;
 
       if (journal == null) {
          // notice this routing plays single threaded. no need for any sort of synchronization here

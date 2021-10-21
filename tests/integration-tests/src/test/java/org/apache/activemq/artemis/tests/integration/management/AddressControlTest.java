@@ -16,10 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.json.JsonArray;
 import javax.json.JsonString;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,8 +55,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -353,7 +363,6 @@ public class AddressControlTest extends ManagementTestBase {
       ClientSessionFactory sf2 = createSessionFactory(locator2);
 
       session = sf2.createSession(false, true, false);
-      session.createQueue(new QueueConfiguration(address));
       Assert.assertEquals(1024, addressControl.getNumberOfBytesPerPage());
    }
 
@@ -580,6 +589,110 @@ public class AddressControlTest extends ManagementTestBase {
       Wait.assertEquals(0L, () -> addressControl.getMessageCount(), 2000, 100);
    }
 
+   @Test
+   public void testReplayWithoutDate() throws Exception {
+      testReplaySimple(false);
+   }
+
+   @Test
+   public void testReplayWithDate() throws Exception {
+      testReplaySimple(true);
+   }
+
+   private void testReplaySimple(boolean useDate) throws Exception {
+
+      String queue = "testQueue" + RandomUtil.randomString();
+      server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
+      AddressControl addressControl = createManagementControl(SimpleString.toSimpleString(queue));
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue jmsQueue = session.createQueue(queue);
+         MessageProducer producer = session.createProducer(jmsQueue);
+         producer.send(session.createTextMessage("before"));
+
+         connection.start();
+         MessageConsumer consumer = session.createConsumer(jmsQueue);
+         Assert.assertNotNull(consumer.receive(5000));
+         Assert.assertNull(consumer.receiveNoWait());
+
+         addressControl.replay(queue, null);
+         Assert.assertNotNull(consumer.receive(5000));
+         Assert.assertNull(consumer.receiveNoWait());
+
+         if (useDate) {
+            addressControl.replay("dontexist", null); // just to force a move next file, and copy stuff into place
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+            Thread.sleep(1000); // waiting a second just to have the timestamp change
+            String dateEnd = format.format(new Date());
+            Thread.sleep(1000); // waiting a second just to have the timestamp change
+            String dateStart = "19800101000000";
+
+
+            for (int i = 0; i < 100; i++) {
+               producer.send(session.createTextMessage("after receiving"));
+            }
+            for (int i = 0; i < 100; i++) {
+               Assert.assertNotNull(consumer.receive());
+            }
+            Assert.assertNull(consumer.receiveNoWait());
+            addressControl.replay(dateStart, dateEnd, queue, null);
+            for (int i = 0; i < 2; i++) { // replay of the replay will contain two messages
+               TextMessage message = (TextMessage) consumer.receive(5000);
+               Assert.assertNotNull(message);
+               Assert.assertEquals("before", message.getText());
+            }
+            Assert.assertNull(consumer.receiveNoWait());
+         } else {
+            addressControl.replay(queue, null);
+
+            // replay of the replay, there will be two messages
+            for (int i = 0; i < 2; i++) {
+               Assert.assertNotNull(consumer.receive(5000));
+            }
+            Assert.assertNull(consumer.receiveNoWait());
+         }
+      }
+   }
+
+   @Test
+   public void testReplayFilter() throws Exception {
+
+      String queue = "testQueue" + RandomUtil.randomString();
+      server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
+
+      AddressControl addressControl = createManagementControl(SimpleString.toSimpleString(queue));
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
+      try (Connection connection = factory.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue jmsQueue = session.createQueue(queue);
+         MessageProducer producer = session.createProducer(jmsQueue);
+         for (int i = 0; i < 10; i++) {
+            TextMessage message = session.createTextMessage("message " + i);
+            message.setIntProperty("i", i);
+            producer.send(message);
+         }
+
+         connection.start();
+         MessageConsumer consumer = session.createConsumer(jmsQueue);
+         for (int i = 0; i < 10; i++) {
+            Assert.assertNotNull(consumer.receive(5000));
+         }
+         Assert.assertNull(consumer.receiveNoWait());
+
+         addressControl.replay(queue, "i=5");
+         TextMessage message = (TextMessage)consumer.receive(5000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals(5, message.getIntProperty("i"));
+         Assert.assertEquals("message 5", message.getText());
+         Assert.assertNull(consumer.receiveNoWait());
+      }
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
@@ -589,8 +702,9 @@ public class AddressControlTest extends ManagementTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true);
-      server = createServer(false, config);
+      Configuration config = createDefaultNettyConfig().setJMXManagementEnabled(true);
+      config.setJournalRetentionDirectory(config.getJournalDirectory() + "_ret"); // needed for replay tests
+      server = createServer(true, config);
       server.setMBeanServer(mbeanServer);
       server.start();
 
@@ -606,6 +720,7 @@ public class AddressControlTest extends ManagementTestBase {
    }
 
    // Private -------------------------------------------------------
+
 
    // Inner classes -------------------------------------------------
 

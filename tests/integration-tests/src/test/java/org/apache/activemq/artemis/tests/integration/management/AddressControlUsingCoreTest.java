@@ -179,6 +179,16 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public void replay(String startScan, String endScan, String target, String filter) throws Exception {
+            proxy.invokeOperation("replay", startScan, endScan, target, filter);
+         }
+
+         @Override
+         public void replay(String target, String filter) throws Exception {
+            proxy.invokeOperation("replay", target, filter);
+         }
+
+         @Override
          public String sendMessage(Map<String, String> headers,
                                    int type,
                                    String body,
