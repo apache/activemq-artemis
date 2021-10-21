@@ -194,6 +194,14 @@ public interface ActiveMQServer extends ServiceComponent {
     * @param listener @see org.apache.activemq.artemis.core.server.ActivationFailureListener
     */
    void registerActivationFailureListener(ActivationFailureListener listener);
+   
+   /**
+    * Register a listener to detect I/O Critical errors
+    *
+    * @param listener @see org.apache.activemq.artemis.core.io.IOCriticalErrorListener
+    */
+
+   void registerIOCriticalErrorListener(IOCriticalErrorListener listener);
 
    void replay(Date start, Date end, String address, String target, String filter) throws Exception;
 
