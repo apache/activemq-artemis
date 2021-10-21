@@ -222,9 +222,8 @@ public class TransportConfiguration implements Serializable {
          return false;
       }
 
-      // Empty and null extraProps maps are equivalent so the condition to check if two extraProps maps are equal is:
-      // (extraProps == that.extraProps) || (extraProps != null && ((extraProps.isEmpty() && that.extraProps == null) || extraProps.equals(that.extraProps)))
-      if ((extraProps != that.extraProps) && (extraProps == null || ((!extraProps.isEmpty() || that.extraProps != null) && !extraProps.equals(that.extraProps)))) {
+      // Empty and null extraProps maps are equivalent so the condition to check if two extraProps maps are not equal is:
+      if ((extraProps != that.extraProps) && (extraProps != null || !that.extraProps.isEmpty()) && (that.extraProps != null || !extraProps.isEmpty()) && (extraProps == null || that.extraProps == null || !extraProps.equals(that.extraProps))) {
          return false;
       }
 
