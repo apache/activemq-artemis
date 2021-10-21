@@ -325,7 +325,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private final Set<ActivateCallback> activateCallbacks = new ConcurrentHashSet<>();
 
    private final Set<ActivationFailureListener> activationFailureListeners = new ConcurrentHashSet<>();
-
+      
+   private final Set<IOCriticalErrorListener> ioCriticalErrorListeners = new ConcurrentHashSet<>();
+   
    private final Set<PostQueueCreationCallback> postQueueCreationCallbacks = new ConcurrentHashSet<>();
 
    private final Set<PostQueueDeletionCallback> postQueueDeletionCallbacks = new ConcurrentHashSet<>();
@@ -2446,6 +2448,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       for (ActivationFailureListener listener : activationFailureListeners) {
          listener.activationFailed(e);
       }
+   }
+   
+    @Override
+   public void registerIOCriticalErrorListener(final IOCriticalErrorListener listener) {
+      ioCriticalErrorListeners.add(listener);
    }
 
    @Override
