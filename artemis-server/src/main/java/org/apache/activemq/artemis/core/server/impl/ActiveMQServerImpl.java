@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.security.AccessController;
@@ -172,10 +173,10 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
-import org.apache.activemq.artemis.core.server.routing.ConnectionRouterManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
 import org.apache.activemq.artemis.core.server.replay.ReplayManager;
+import org.apache.activemq.artemis.core.server.routing.ConnectionRouterManager;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -211,7 +212,6 @@ import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
@@ -342,6 +342,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private final Set<ActivateCallback> activateCallbacks = new ConcurrentHashSet<>();
 
    private final Set<ActivationFailureListener> activationFailureListeners = new ConcurrentHashSet<>();
+
+   private final Set<IOCriticalErrorListener> ioCriticalErrorListeners = new ConcurrentHashSet<>();
 
    private final Set<PostQueueCreationCallback> postQueueCreationCallbacks = new ConcurrentHashSet<>();
 
@@ -2515,6 +2517,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       for (ActivationFailureListener listener : activationFailureListeners) {
          listener.activationFailed(e);
       }
+   }
+
+   @Override
+   public void registerIOCriticalErrorListener(final IOCriticalErrorListener listener) {
+      ioCriticalErrorListeners.add(listener);
    }
 
    @Override
