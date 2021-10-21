@@ -363,7 +363,6 @@ public class AddressControlTest extends ManagementTestBase {
       ClientSessionFactory sf2 = createSessionFactory(locator2);
 
       session = sf2.createSession(false, true, false);
-      session.createQueue(new QueueConfiguration(address));
       Assert.assertEquals(1024, addressControl.getNumberOfBytesPerPage());
    }
 
@@ -601,12 +600,11 @@ public class AddressControlTest extends ManagementTestBase {
    }
 
    private void testReplaySimple(boolean useDate) throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
 
-      AddressControl addressControl = createManagementControl(address);
       String queue = "testQueue" + RandomUtil.randomString();
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
+      AddressControl addressControl = createManagementControl(SimpleString.toSimpleString(queue));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -661,12 +659,12 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testReplayFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
 
-      AddressControl addressControl = createManagementControl(address);
       String queue = "testQueue" + RandomUtil.randomString();
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
+
+      AddressControl addressControl = createManagementControl(SimpleString.toSimpleString(queue));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -704,8 +702,9 @@ public class AddressControlTest extends ManagementTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true);
-      server = createServer(false, config);
+      Configuration config = createDefaultNettyConfig().setJMXManagementEnabled(true);
+      config.setJournalRetentionDirectory(config.getJournalDirectory() + "_ret"); // needed for replay tests
+      server = createServer(true, config);
       server.setMBeanServer(mbeanServer);
       server.start();
 
