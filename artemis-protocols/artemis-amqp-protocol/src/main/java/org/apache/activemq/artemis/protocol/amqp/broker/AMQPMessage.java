@@ -893,7 +893,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             map.put(propertiesPrefix + "creationTime", properties.getCreationTime().getTime());
          }
          if (properties.getAbsoluteExpiryTime() != null) {
-            map.put(propertiesPrefix + "absoluteExpiryTime", properties.getCreationTime().getTime());
+            map.put(propertiesPrefix + "absoluteExpiryTime", properties.getAbsoluteExpiryTime().getTime());
          }
          if (properties.getTo() != null) {
             map.put(propertiesPrefix + "to", properties.getTo());
