@@ -68,6 +68,24 @@ public class TransportConfigurationTest {
    }
 
    @Test
+   public void testExtraParamsEquals() {
+      final String name = "";
+      final String className = this.getClass().getName();
+      final Map<String, Object> params = Collections.emptyMap();
+      final Map<String, Object> extraParams = Collections.singletonMap("key", "foo");
+
+      Assert.assertEquals(new TransportConfiguration(className, params, name, null), new TransportConfiguration(className, params, name, null));
+      Assert.assertEquals(new TransportConfiguration(className, params, name, null), new TransportConfiguration(className, params, name, Collections.emptyMap()));
+      Assert.assertEquals(new TransportConfiguration(className, params, name, Collections.emptyMap()), new TransportConfiguration(className, params, name, null));
+      Assert.assertEquals(new TransportConfiguration(className, params, name, extraParams), new TransportConfiguration(className, params, name, extraParams));
+      Assert.assertEquals(new TransportConfiguration(className, params, name, extraParams), new TransportConfiguration(className, params, name, new HashMap<>(extraParams)));
+
+      Assert.assertNotEquals(new TransportConfiguration(className, params, name, null), new TransportConfiguration(className, params, name, extraParams));
+      Assert.assertNotEquals(new TransportConfiguration(className, params, name, Collections.emptyMap()), new TransportConfiguration(className, params, name, extraParams));
+      Assert.assertNotEquals(new TransportConfiguration(className, params, name, extraParams), new TransportConfiguration(className, params, name, Collections.singletonMap("key", "too")));
+   }
+
+   @Test
    public void testToStringObfuscatesPasswords() {
       HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secret_password");
