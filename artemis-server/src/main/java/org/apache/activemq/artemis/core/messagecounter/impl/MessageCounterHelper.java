@@ -48,6 +48,7 @@ public class MessageCounterHelper {
       return DayCounterInfo.toJSON(infos);
    }
 
+   @Deprecated
    public static String listMessageCounterAsHTML(final MessageCounter[] counters) {
       if (counters == null) {
          return null;
@@ -88,6 +89,7 @@ public class MessageCounterHelper {
       return ret.toString();
    }
 
+   @Deprecated
    public static String listMessageCounterHistoryAsHTML(final MessageCounter[] counters) {
       if (counters == null) {
          return null;

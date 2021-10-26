@@ -1423,6 +1423,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Deprecated
    @Override
    public String listMessageCounterAsHTML() {
       if (AuditLogger.isBaseLoggingEnabled()) {
@@ -1453,6 +1454,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Deprecated
    @Override
    public String listMessageCounterHistoryAsHTML() {
       if (AuditLogger.isBaseLoggingEnabled()) {

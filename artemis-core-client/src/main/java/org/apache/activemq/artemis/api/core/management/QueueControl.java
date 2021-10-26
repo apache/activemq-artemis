@@ -632,6 +632,7 @@ public interface QueueControl {
    /**
     * Lists the message counter history for this queue as a HTML table.
     */
+   @Deprecated
    @Operation(desc = "List the message counters history HTML", impact = MBeanOperationInfo.INFO)
    String listMessageCounterHistoryAsHTML() throws Exception;
 
