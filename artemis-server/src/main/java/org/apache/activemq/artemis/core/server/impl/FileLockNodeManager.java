@@ -355,7 +355,7 @@ public class FileLockNodeManager extends FileBasedNodeManager {
                result = bb.get(0);
             }
          } finally {
-            if (lock != null) {
+            if (lock != null && lock.isValid()) {
                lock.release();
             }
          }
