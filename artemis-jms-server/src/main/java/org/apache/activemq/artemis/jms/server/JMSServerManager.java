@@ -337,6 +337,7 @@ public interface JMSServerManager extends ActiveMQComponent {
 
    String listPreparedTransactionDetailsAsJSON() throws Exception;
 
+   @Deprecated
    String listPreparedTransactionDetailsAsHTML() throws Exception;
 
    ActiveMQServer getActiveMQServer();

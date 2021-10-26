@@ -1139,6 +1139,7 @@ public interface ActiveMQServerControl {
     * List all the prepared transaction, sorted by date,
     * oldest first, with details, in HTML format
     */
+   @Deprecated
    @Operation(desc = "List all the prepared transaction, sorted by date, oldest first, with details, in HTML format")
    String listPreparedTransactionDetailsAsHTML() throws Exception;
 

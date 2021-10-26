@@ -1985,11 +1985,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Deprecated
    @Override
    public String listPreparedTransactionDetailsAsHTML() throws Exception {
       return listPreparedTransactionDetailsAsHTML((xid, tx, creation) -> new CoreTransactionDetail(xid, tx, creation));
    }
 
+   @Deprecated
    public String listPreparedTransactionDetailsAsHTML(TransactionDetailFactory factory) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listPreparedTransactionDetailsAsHTML(this.server, factory);

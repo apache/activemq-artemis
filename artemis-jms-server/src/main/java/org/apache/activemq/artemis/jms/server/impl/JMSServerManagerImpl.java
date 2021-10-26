@@ -1324,6 +1324,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       return server.getActiveMQServerControl().listPreparedTransactionDetailsAsJSON((xid, tx, creation) -> new JMSTransactionDetail(xid, tx, creation));
    }
 
+   @Deprecated
    @Override
    public String listPreparedTransactionDetailsAsHTML() throws Exception {
       return server.getActiveMQServerControl().listPreparedTransactionDetailsAsHTML((xid, tx, creation) -> new JMSTransactionDetail(xid, tx, creation));
