@@ -254,17 +254,18 @@ public class ArtemisTest extends CliTestBase {
       assertTrue(bootstrapFile.exists());
       Document config = parseXml(bootstrapFile);
       Element webElem = (Element) config.getElementsByTagName("web").item(0);
+      Element bindingElem = (Element) webElem.getElementsByTagName("binding").item(0);
 
-      String bindAttr = webElem.getAttribute("bind");
+      String bindAttr = bindingElem.getAttribute("uri");
       String bindStr = "http://" + Create.HTTP_HOST + ":" + Create.HTTP_PORT;
 
       assertEquals(bindAttr, bindStr);
       //no any of those
-      assertFalse(webElem.hasAttribute("keyStorePath"));
-      assertFalse(webElem.hasAttribute("keyStorePassword"));
-      assertFalse(webElem.hasAttribute("clientAuth"));
-      assertFalse(webElem.hasAttribute("trustStorePath"));
-      assertFalse(webElem.hasAttribute("trustStorePassword"));
+      assertFalse(bindingElem.hasAttribute("keyStorePath"));
+      assertFalse(bindingElem.hasAttribute("keyStorePassword"));
+      assertFalse(bindingElem.hasAttribute("clientAuth"));
+      assertFalse(bindingElem.hasAttribute("trustStorePath"));
+      assertFalse(bindingElem.hasAttribute("trustStorePassword"));
 
       //instance2: https
       File instance2 = new File(temporaryFolder.getRoot(), "instance2");
@@ -273,19 +274,20 @@ public class ArtemisTest extends CliTestBase {
       assertTrue(bootstrapFile.exists());
       config = parseXml(bootstrapFile);
       webElem = (Element) config.getElementsByTagName("web").item(0);
+      bindingElem = (Element) webElem.getElementsByTagName("binding").item(0);
 
-      bindAttr = webElem.getAttribute("bind");
+      bindAttr = bindingElem.getAttribute("uri");
       bindStr = "https://localhost:" + Create.HTTP_PORT;
       assertEquals(bindAttr, bindStr);
 
-      String keyStr = webElem.getAttribute("keyStorePath");
+      String keyStr = bindingElem.getAttribute("keyStorePath");
       assertEquals("etc/keystore", keyStr);
-      String keyPass = webElem.getAttribute("keyStorePassword");
+      String keyPass = bindingElem.getAttribute("keyStorePassword");
       assertEquals("password1", keyPass);
 
-      assertFalse(webElem.hasAttribute("clientAuth"));
-      assertFalse(webElem.hasAttribute("trustStorePath"));
-      assertFalse(webElem.hasAttribute("trustStorePassword"));
+      assertFalse(bindingElem.hasAttribute("clientAuth"));
+      assertFalse(bindingElem.hasAttribute("trustStorePath"));
+      assertFalse(bindingElem.hasAttribute("trustStorePassword"));
 
       //instance3: https with clientAuth
       File instance3 = new File(temporaryFolder.getRoot(), "instance3");
@@ -299,21 +301,22 @@ public class ArtemisTest extends CliTestBase {
 
       config = parseXml(bootstrapFile);
       webElem = (Element) config.getElementsByTagName("web").item(0);
+      bindingElem = (Element) webElem.getElementsByTagName("binding").item(0);
 
-      bindAttr = webElem.getAttribute("bind");
+      bindAttr = bindingElem.getAttribute("uri");
       bindStr = "https://localhost:" + Create.HTTP_PORT;
       assertEquals(bindAttr, bindStr);
 
-      keyStr = webElem.getAttribute("keyStorePath");
+      keyStr = bindingElem.getAttribute("keyStorePath");
       assertEquals("etc/keystore", keyStr);
-      keyPass = webElem.getAttribute("keyStorePassword");
+      keyPass = bindingElem.getAttribute("keyStorePassword");
       assertEquals("password1", keyPass);
 
-      String clientAuthAttr = webElem.getAttribute("clientAuth");
+      String clientAuthAttr = bindingElem.getAttribute("clientAuth");
       assertEquals("true", clientAuthAttr);
-      String trustPathAttr = webElem.getAttribute("trustStorePath");
+      String trustPathAttr = bindingElem.getAttribute("trustStorePath");
       assertEquals("etc/truststore", trustPathAttr);
-      String trustPass = webElem.getAttribute("trustStorePassword");
+      String trustPass = bindingElem.getAttribute("trustStorePassword");
       assertEquals("password2", trustPass);
    }
 

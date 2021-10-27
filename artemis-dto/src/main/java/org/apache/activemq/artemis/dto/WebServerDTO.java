@@ -16,34 +16,38 @@
  */
 package org.apache.activemq.artemis.dto;
 
-import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement(name = "web")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WebServerDTO extends ComponentDTO {
 
+   @Deprecated
    @XmlAttribute
    public String bind;
 
    @XmlAttribute(required = true)
    public String path;
 
+   @Deprecated
    @XmlAttribute
    public Boolean clientAuth;
 
+   @Deprecated
    @XmlAttribute
    public String passwordCodec;
 
+   @Deprecated
    @XmlAttribute
    public String keyStorePath;
 
+   @Deprecated
    @XmlAttribute
    public String trustStorePath;
 
@@ -51,26 +55,36 @@ public class WebServerDTO extends ComponentDTO {
    public String customizer;
 
    @XmlElementRef
+   private List<BindingDTO> bindings;
+
+   @Deprecated
+   @XmlElementRef
    public List<AppDTO> apps;
 
    @XmlElementRef(required = false)
    public RequestLogDTO requestLog;
 
+   @Deprecated
    @XmlAttribute
    private String keyStorePassword;
 
+   @Deprecated
    @XmlAttribute
    private String trustStorePassword;
 
+   @Deprecated
    @XmlAttribute
    private String includedTLSProtocols;
 
+   @Deprecated
    @XmlAttribute
    private String excludedTLSProtocols;
 
+   @Deprecated
    @XmlAttribute
    private String includedCipherSuites;
 
+   @Deprecated
    @XmlAttribute
    private String excludedCipherSuites;
 
@@ -78,71 +92,35 @@ public class WebServerDTO extends ComponentDTO {
       componentClassName = "org.apache.activemq.artemis.component.WebServerComponent";
    }
 
-   public String getKeyStorePassword() throws Exception {
-      return getPassword(this.keyStorePassword);
-   }
-
-   private String getPassword(String password) throws Exception {
-      return PasswordMaskingUtil.resolveMask(password, this.passwordCodec);
-   }
-
-   public void setKeyStorePassword(String keyStorePassword) {
-      this.keyStorePassword = keyStorePassword;
-   }
-
-   public String getTrustStorePassword() throws Exception {
-      return getPassword(this.trustStorePassword);
-   }
-
-   public void setTrustStorePassword(String trustStorePassword) {
-      this.trustStorePassword = trustStorePassword;
-   }
-
-   private String[] unmarshalArray(String text) {
-      if (text == null) {
-         return null;
+   public List<BindingDTO> getBindings() {
+      if (bindings == null || bindings.isEmpty()) {
+         return Collections.singletonList(convertToBindingDTO());
       }
-
-      return text.split(",");
+      return bindings;
    }
 
-   private String marshalArray(String[] array) {
-      if (array == null) {
-         return null;
-      }
-
-      return String.join(",", array);
+   public void setBindings(List<BindingDTO> bindings) {
+      this.bindings = bindings;
    }
 
-   public String[] getIncludedTLSProtocols() {
-      return unmarshalArray(includedTLSProtocols);
+   private BindingDTO convertToBindingDTO() {
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.uri = bind;
+      bindingDTO.apps = apps;
+      bindingDTO.clientAuth = clientAuth;
+      bindingDTO.passwordCodec = passwordCodec;
+      bindingDTO.keyStorePath = keyStorePath;
+      bindingDTO.setKeyStorePassword(keyStorePassword);
+      bindingDTO.trustStorePath = trustStorePath;
+      bindingDTO.setTrustStorePassword(trustStorePassword);
+      bindingDTO.setIncludedTLSProtocols(includedTLSProtocols);
+      bindingDTO.setExcludedTLSProtocols(excludedTLSProtocols);
+      bindingDTO.setIncludedCipherSuites(includedCipherSuites);
+      bindingDTO.setExcludedCipherSuites(excludedCipherSuites);
+      return bindingDTO;
    }
 
-   public void setIncludedTLSProtocols(String... protocols) {
-      includedTLSProtocols = marshalArray(protocols);
-   }
-
-   public String[] getExcludedTLSProtocols() {
-      return unmarshalArray(excludedTLSProtocols);
-   }
-
-   public void setExcludedTLSProtocols(String... protocols) {
-      excludedTLSProtocols = marshalArray(protocols);
-   }
-
-   public String[] getIncludedCipherSuites() {
-      return unmarshalArray(includedCipherSuites);
-   }
-
-   public void setIncludedCipherSuites(String... cipherSuites) {
-      includedCipherSuites = marshalArray(cipherSuites);
-   }
-
-   public String[] getExcludedCipherSuites() {
-      return unmarshalArray(excludedCipherSuites);
-   }
-
-   public void setExcludedCipherSuites(String... cipherSuites) {
-      excludedCipherSuites = marshalArray(cipherSuites);
+   public BindingDTO getDefaultBinding() {
+      return getBindings().get(0);
    }
 }
