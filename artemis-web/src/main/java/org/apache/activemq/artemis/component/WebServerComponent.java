@@ -16,25 +16,14 @@
  */
 package org.apache.activemq.artemis.component;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.activemq.artemis.ActiveMQWebLogger;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
+import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.eclipse.jetty.security.DefaultAuthenticatorFactory;
 import org.eclipse.jetty.server.ConnectionFactory;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.NCSARequestLog;
@@ -53,6 +42,16 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.logging.Logger;
 
 import javax.servlet.DispatcherType;
+import java.io.File;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class WebServerComponent implements ExternalComponent {
 
@@ -61,19 +60,17 @@ public class WebServerComponent implements ExternalComponent {
    private Server server;
    private HandlerList handlers;
    private WebServerDTO webServerConfig;
-   private URI uri;
-   private String consoleUrl;
+   private final List<String> consoleUrls = new ArrayList<>();
+   private final List<String> jolokiaUrls = new ArrayList<>();
    private List<WebAppContext> webContexts;
-   private ServerConnector connector;
+   private ServerConnector[] connectors;
    private Path artemisHomePath;
    private Path temporaryWarDir;
 
    @Override
    public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception {
       webServerConfig = (WebServerDTO) config;
-      uri = new URI(webServerConfig.bind);
       server = new Server();
-      String scheme = uri.getScheme();
 
       HttpConfiguration httpConfiguration = new HttpConfiguration();
 
@@ -85,49 +82,63 @@ public class WebServerComponent implements ExternalComponent {
          }
       }
 
-      if ("https".equals(scheme)) {
-         SslContextFactory.Server sslFactory = new SslContextFactory.Server();
-         sslFactory.setKeyStorePath(webServerConfig.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : webServerConfig.keyStorePath);
-         sslFactory.setKeyStorePassword(webServerConfig.getKeyStorePassword() == null ? "password" : webServerConfig.getKeyStorePassword());
-         String[] ips = sslFactory.getIncludeProtocols();
+      List<BindingDTO> bindings = webServerConfig.getBindings();
+      connectors = new ServerConnector[bindings.size()];
+      String[] virtualHosts = new String[bindings.size()];
 
-         if (webServerConfig.getIncludedTLSProtocols() != null) {
-            sslFactory.setIncludeProtocols(webServerConfig.getIncludedTLSProtocols());
-         }
-         if (webServerConfig.getExcludedTLSProtocols() != null) {
-            sslFactory.setExcludeProtocols(webServerConfig.getExcludedTLSProtocols());
-         }
-         if (webServerConfig.getIncludedCipherSuites() != null) {
-            sslFactory.setIncludeCipherSuites(webServerConfig.getIncludedCipherSuites());
-         }
-         if (webServerConfig.getExcludedCipherSuites() != null) {
-            sslFactory.setExcludeCipherSuites(webServerConfig.getExcludedCipherSuites());
-         }
-         if (webServerConfig.clientAuth != null) {
-            sslFactory.setNeedClientAuth(webServerConfig.clientAuth);
-            if (webServerConfig.clientAuth) {
-               sslFactory.setTrustStorePath(webServerConfig.trustStorePath);
-               sslFactory.setTrustStorePassword(webServerConfig.getTrustStorePassword());
+      for (int i = 0; i < bindings.size(); i++) {
+         BindingDTO binding = bindings.get(i);
+         URI uri = new URI(binding.uri);
+         String scheme = uri.getScheme();
+         ServerConnector connector;
+
+         if ("https".equals(scheme)) {
+            SslContextFactory.Server sslFactory = new SslContextFactory.Server();
+            sslFactory.setKeyStorePath(binding.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : binding.keyStorePath);
+            sslFactory.setKeyStorePassword(binding.getKeyStorePassword() == null ? "password" : binding.getKeyStorePassword());
+
+            if (binding.getIncludedTLSProtocols() != null) {
+               sslFactory.setIncludeProtocols(binding.getIncludedTLSProtocols());
             }
+            if (binding.getExcludedTLSProtocols() != null) {
+               sslFactory.setExcludeProtocols(binding.getExcludedTLSProtocols());
+            }
+            if (binding.getIncludedCipherSuites() != null) {
+               sslFactory.setIncludeCipherSuites(binding.getIncludedCipherSuites());
+            }
+            if (binding.getExcludedCipherSuites() != null) {
+               sslFactory.setExcludeCipherSuites(binding.getExcludedCipherSuites());
+            }
+            if (binding.clientAuth != null) {
+               sslFactory.setNeedClientAuth(binding.clientAuth);
+               if (binding.clientAuth) {
+                  sslFactory.setTrustStorePath(binding.trustStorePath);
+                  sslFactory.setTrustStorePassword(binding.getTrustStorePassword());
+               }
+            }
+
+            SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
+
+            httpConfiguration.addCustomizer(new SecureRequestCustomizer());
+            httpConfiguration.setSendServerVersion(false);
+            HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
+
+            connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
+
+         } else {
+            httpConfiguration.setSendServerVersion(false);
+            ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);
+            connector = new ServerConnector(server, connectionFactory);
          }
+         connector.setPort(uri.getPort());
+         connector.setHost(uri.getHost());
+         connector.setName("Connector-" + i);
 
-         SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
-
-         httpConfiguration.addCustomizer(new SecureRequestCustomizer());
-         httpConfiguration.setSendServerVersion(false);
-         HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
-
-         connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
-
-      } else {
-         httpConfiguration.setSendServerVersion(false);
-         ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);
-         connector = new ServerConnector(server, connectionFactory);
+         connectors[i] = connector;
+         virtualHosts[i] = "@Connector-" + i;
       }
-      connector.setPort(uri.getPort());
-      connector.setHost(uri.getHost());
 
-      server.setConnectors(new Connector[]{connector});
+      server.setConnectors(connectors);
 
       handlers = new HandlerList();
 
@@ -140,18 +151,22 @@ public class WebServerComponent implements ExternalComponent {
          Files.createDirectories(temporaryWarDir);
       }
 
-      if (webServerConfig.apps != null && webServerConfig.apps.size() > 0) {
-         webContexts = new ArrayList<>();
-         for (AppDTO app : webServerConfig.apps) {
-            Path dirToUse = homeWarDir;
-            if (new File(instanceWarDir.toFile().toString() + File.separator + app.war).exists()) {
-               dirToUse = instanceWarDir;
-            }
-            WebAppContext webContext = deployWar(app.url, app.war, dirToUse);
-            webContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-            webContexts.add(webContext);
-            if (app.war.startsWith("console")) {
-               consoleUrl = webServerConfig.bind + "/" + app.url;
+      for (int i = 0; i < bindings.size(); i++) {
+         BindingDTO binding = bindings.get(i);
+         if (binding.apps != null && binding.apps.size() > 0) {
+            webContexts = new ArrayList<>();
+            for (AppDTO app : binding.apps) {
+               Path dirToUse = homeWarDir;
+               if (new File(instanceWarDir.toFile().toString() + File.separator + app.war).exists()) {
+                  dirToUse = instanceWarDir;
+               }
+               WebAppContext webContext = deployWar(app.url, app.war, dirToUse, virtualHosts[i]);
+               webContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+               webContexts.add(webContext);
+               if (app.war.startsWith("console")) {
+                  consoleUrls.add(binding.uri + "/" + app.url);
+                  jolokiaUrls.add(binding.uri + "/" + app.url + "/jolokia");
+               }
             }
          }
       }
@@ -165,6 +180,7 @@ public class WebServerComponent implements ExternalComponent {
       homeContext.setContextPath("/");
       homeContext.setResourceBase(homeWarDir.toString());
       homeContext.setHandler(homeResourceHandler);
+      homeContext.setVirtualHosts(virtualHosts);
       homeContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
       ResourceHandler instanceResourceHandler = new ResourceHandler();
@@ -176,6 +192,7 @@ public class WebServerComponent implements ExternalComponent {
       instanceContext.setContextPath("/");
       instanceContext.setResourceBase(instanceWarDir.toString());
       instanceContext.setHandler(instanceResourceHandler);
+      instanceContext.setVirtualHosts(virtualHosts);
       homeContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
       DefaultHandler defaultHandler = new DefaultHandler();
@@ -263,12 +280,15 @@ public class WebServerComponent implements ExternalComponent {
       }
       cleanupTmp();
       server.start();
-      ActiveMQWebLogger.LOGGER.webserverStarted(webServerConfig.bind);
 
-      if (consoleUrl != null) {
-         ActiveMQWebLogger.LOGGER.jolokiaAvailable(consoleUrl + "/jolokia");
-         ActiveMQWebLogger.LOGGER.consoleAvailable(consoleUrl);
-      }
+      String bindings = webServerConfig.getBindings()
+            .stream()
+            .map(binding -> binding.uri)
+            .collect(Collectors.joining(", "));
+      ActiveMQWebLogger.LOGGER.webserverStarted(bindings);
+
+      ActiveMQWebLogger.LOGGER.jolokiaAvailable(String.join(", ", jolokiaUrls));
+      ActiveMQWebLogger.LOGGER.consoleAvailable(String.join(", ", consoleUrls));
    }
 
    public void internalStop() throws Exception {
@@ -324,11 +344,19 @@ public class WebServerComponent implements ExternalComponent {
    /**
     * @return started server's port number; useful if it was specified as 0 (to use a random port)
     */
+   @Deprecated
    public int getPort() {
-      return (connector != null) ? connector.getLocalPort() : -1;
+      return getPort(0);
    }
 
-   private WebAppContext deployWar(String url, String warFile, Path warDirectory) throws IOException {
+   public int getPort(int connectorIndex) {
+      if (connectorIndex < connectors.length) {
+         return connectors[connectorIndex].getLocalPort();
+      }
+      return -1;
+   }
+
+   private WebAppContext deployWar(String url, String warFile, Path warDirectory, String virtualHost) {
       WebAppContext webapp = new WebAppContext();
       if (url.startsWith("/")) {
          webapp.setContextPath(url);
@@ -346,6 +374,8 @@ public class WebServerComponent implements ExternalComponent {
       // Set the default authenticator factory to avoid NPE due to the following commit:
       // https://github.com/eclipse/jetty.project/commit/7e91d34177a880ecbe70009e8f200d02e3a0c5dd
       webapp.getSecurityHandler().setAuthenticatorFactory(new DefaultAuthenticatorFactory());
+
+      webapp.setVirtualHosts(new String[]{virtualHost});
 
       handlers.addHandler(webapp);
       return webapp;

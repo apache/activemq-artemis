@@ -12,21 +12,28 @@ The embedded Jetty instance is configured in `etc/bootstrap.xml` via the `web`
 element, e.g.:
 
 ```xml
-<web bind="http://localhost:8161" path="web">
-   <app url="activemq-branding" war="activemq-branding.war"/>
-   <app url="artemis-plugin" war="artemis-plugin.war"/>
-   <app url="console" war="console.war"/>
+<web path="web">
+   <binding uri="http://localhost:8161">
+      <app url="activemq-branding" war="activemq-branding.war"/>
+      <app url="artemis-plugin" war="artemis-plugin.war"/>
+      <app url="console" war="console.war"/>
+   </binding>
 </web>
 ```
 
 The `web` element has the following attributes:
 
-- `bind` The protocol to use (i.e. `http` or `https`) as well as the host and
-  port on which to listen.
 - `path` The name of the subdirectory in which to find the web application
   archives (i.e. WAR files). This is a subdirectory of the broker's home or
   instance directory.
 - `customizer` The name of customizer class to load.
+
+The `web` element should contain at least one `binding` element to configure how 
+clients can connect to the web-server. A `binding` element has the following
+attributes:
+
+- `uri` The protocol to use (i.e. `http` or `https`) as well as the host and
+  port on which to listen. This attribute is required.
 - `clientAuth` Whether or not clients should present an SSL certificate when
   they connect. Only applicable when using `https`.
 - `passwordCodec` The custom coded to use for unmasking the `keystorePassword`
@@ -51,8 +58,8 @@ The `web` element has the following attributes:
 - `excludedCipherSuites` A comma seperated list of excluded cipher suites.
   Only applicable when using `https`.
 
-Each web application should be defined in an `app` element. The `app` element
-has the following attributes:
+Each web application should be defined in an `app` element inside an `binding` element.
+The `app` element has the following attributes:
 
 - `url` The context to use for the web application.
 - `war` The name of the web application archive on disk.
@@ -82,10 +89,12 @@ instance. Default values are based on this implementation.
 Here is an example configuration:
 
 ```xml
-<web bind="http://localhost:8161" path="web">
-   <app url="activemq-branding" war="activemq-branding.war"/>
-   <app url="artemis-plugin" war="artemis-plugin.war"/>
-   <app url="console" war="console.war"/>
+<web path="web">
+   <binding uri="http://localhost:8161">
+      <app url="activemq-branding" war="activemq-branding.war"/>
+      <app url="artemis-plugin" war="artemis-plugin.war"/>
+      <app url="console" war="console.war"/>
+   </binding>
    <request-log filename="${artemis.instance}/log/http-access-yyyy_MM_dd.log" append="true" extended="true"/>
 </web>
 ```
@@ -99,9 +108,11 @@ customizer to handle `X-Forwarded` headers.
 Set the `customizer` attribute via the `web` element to enable the [`ForwardedRequestCustomizer`](https://www.eclipse.org/jetty/javadoc/current/org/eclipse/jetty/server/ForwardedRequestCustomizer.html) customizer, ie:
 
 ```xml
-<web bind="http://localhost:8161" path="web" customizer="org.eclipse.jetty.server.ForwardedRequestCustomizer">
-   <app url="activemq-branding" war="activemq-branding.war"/>
-   <app url="artemis-plugin" war="artemis-plugin.war"/>
-   <app url="console" war="console.war"/>
+<web path="web" customizer="org.eclipse.jetty.server.ForwardedRequestCustomizer">
+   <binding uri="http://localhost:8161">
+      <app url="activemq-branding" war="activemq-branding.war"/>
+      <app url="artemis-plugin" war="artemis-plugin.war"/>
+      <app url="console" war="console.war"/>
+   </binding>
 </web>
 ```

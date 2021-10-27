@@ -22,9 +22,11 @@
 
    <server configuration="${artemis.URI.instance}/etc/broker.xml"/>
 
-   <web bind="http://localhost:8080" path="web">
-      <!-- ${war} is defined in the example's pom.xml -->
-      <app url="camel" war="WARFILE"/>
+   <web path="web">
+      <binding uri="http://localhost:8080">
+         <!-- ${war} is defined in the example's pom.xml -->
+         <app url="camel" war="WARFILE"/>
+      </binding>
    </web>
 </broker>
 

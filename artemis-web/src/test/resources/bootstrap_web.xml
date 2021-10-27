@@ -25,8 +25,10 @@
    <server configuration="${artemis.URI.instance}/etc/broker.xml"/>
 
    <!-- The web server is only bound to localhost by default -->
-   <web bind="http://localhost:8161" path="web">
-       <app url="activemq-branding" war="activemq-branding.war"/>
+   <web path="web">
+      <binding uri="http://localhost:8161">
+         <app url="activemq-branding" war="activemq-branding.war"/>
+      </binding>
    </web>
 
 
