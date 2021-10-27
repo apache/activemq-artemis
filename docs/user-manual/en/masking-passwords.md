@@ -224,10 +224,12 @@ You can also set the `passwordCodec` attribute if you want to use a password
 codec other than the default one. For example
 
 ```xml
-<web bind="https://localhost:8443" path="web" 
-     keyStorePassword="ENC(-5a2376c61c668aaf)"
-     trustStorePassword="ENC(3d617352d12839eb71208edf41d66b34)">
-    <app url="activemq-branding" war="activemq-branding.war"/>
+<web path="web">
+    <binding uri="https://localhost:8443" 
+             keyStorePassword="ENC(-5a2376c61c668aaf)"
+             trustStorePassword="ENC(3d617352d12839eb71208edf41d66b34)">
+        <app url="activemq-branding" war="activemq-branding.war"/>
+    </binding>
 </web>
 ```
 
