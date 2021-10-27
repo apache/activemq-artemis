@@ -2397,15 +2397,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             callBrokerQueuePlugins(plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount, removeConsumers, autoDeleteAddress));
          }
 
-         if (queue.isTemporary()) {
-            AddressInfo addressInfo = getAddressInfo(address);
+         AddressInfo addressInfo = getAddressInfo(address);
 
-            if (autoDeleteAddress && postOffice != null && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address.toString()) && addressSettingsRepository.getMatch(address.toString()).getAutoDeleteAddressesDelay() == 0) {
-               try {
-                  removeAddressInfo(address, session);
-               } catch (ActiveMQDeleteAddressException e) {
-                  // Could be thrown if the address has bindings or is not deletable.
-               }
+         if (autoDeleteAddress && postOffice != null && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address.toString()) && addressSettingsRepository.getMatch(address.toString()).getAutoDeleteAddressesDelay() == 0) {
+            try {
+               removeAddressInfo(address, session);
+            } catch (ActiveMQDeleteAddressException e) {
+               // Could be thrown if the address has bindings or is not deletable.
             }
          }
 
