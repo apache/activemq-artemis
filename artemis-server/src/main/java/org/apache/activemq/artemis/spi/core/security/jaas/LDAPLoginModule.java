@@ -579,7 +579,12 @@ public class LDAPLoginModule implements AuditLoginModule {
       context.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
       context.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
       try {
-         context.getAttributes("", null);
+         String baseDn = getLDAPPropertyValue(ConfigKey.CONNECTION_URL).replaceFirst(".*/", ",");
+         String userDn = dn.replace(baseDn, "");
+         if (logger.isDebugEnabled()) {
+            logger.debug("Get user Attributes with dn " + userDn);
+         }
+         context.getAttributes(userDn, null);
          isValid = true;
          if (logger.isDebugEnabled()) {
             logger.debug("User " + dn + " successfully bound.");
