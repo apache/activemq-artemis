@@ -259,6 +259,21 @@
                      <noWeb>false</noWeb>
                      <instance>${basedir}/target/console-mutual-ssl</instance>
                      <configuration>${basedir}/target/classes/servers/console-mutual-ssl</configuration>
+                     <args>
+                        <arg>--http-host</arg>
+                        <arg>localhost</arg>
+                        <arg>--http-port</arg>
+                        <arg>8443</arg>
+                        <arg>--ssl-key</arg>
+                        <arg>../../test-classes/server-keystore.p12</arg>
+                        <arg>--ssl-key-password</arg>
+                        <arg>securepass</arg>
+                        <arg>--use-client-auth</arg>
+                        <arg>--ssl-trust</arg>
+                        <arg>../../test-classes/client-ca-truststore.p12</arg>
+                        <arg>--ssl-trust-password</arg>
+                        <arg>securepass</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>
