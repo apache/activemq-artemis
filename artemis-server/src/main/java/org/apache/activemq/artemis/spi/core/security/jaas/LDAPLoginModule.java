@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import javax.naming.AuthenticationException;
-import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameParser;
@@ -65,36 +64,59 @@ public class LDAPLoginModule implements AuditLoginModule {
 
    private static final Logger logger = Logger.getLogger(LDAPLoginModule.class);
 
-   private static final String INITIAL_CONTEXT_FACTORY = "initialContextFactory";
-   private static final String CONNECTION_URL = "connectionURL";
-   private static final String CONNECTION_USERNAME = "connectionUsername";
-   private static final String CONNECTION_PASSWORD = "connectionPassword";
-   private static final String CONNECTION_PROTOCOL = "connectionProtocol";
-   private static final String AUTHENTICATION = "authentication";
-   private static final String USER_BASE = "userBase";
-   private static final String USER_SEARCH_MATCHING = "userSearchMatching";
-   private static final String USER_SEARCH_SUBTREE = "userSearchSubtree";
-   private static final String ROLE_BASE = "roleBase";
-   private static final String ROLE_NAME = "roleName";
-   private static final String ROLE_SEARCH_MATCHING = "roleSearchMatching";
-   private static final String ROLE_SEARCH_SUBTREE = "roleSearchSubtree";
-   private static final String USER_ROLE_NAME = "userRoleName";
-   private static final String EXPAND_ROLES = "expandRoles";
-   private static final String EXPAND_ROLES_MATCHING = "expandRolesMatching";
-   private static final String SASL_LOGIN_CONFIG_SCOPE = "saslLoginConfigScope";
-   private static final String AUTHENTICATE_USER = "authenticateUser";
-   private static final String REFERRAL = "referral";
-   private static final String IGNORE_PARTIAL_RESULT_EXCEPTION = "ignorePartialResultException";
-   private static final String PASSWORD_CODEC = "passwordCodec";
-   private static final String CONNECTION_POOL = "connectionPool";
-   private static final String CONNECTION_TIMEOUT = "connectionTimeout";
-   private static final String READ_TIMEOUT = "readTimeout";
+   enum ConfigKey {
+
+      DEBUG("debug"),
+      INITIAL_CONTEXT_FACTORY("initialContextFactory"),
+      CONNECTION_URL("connectionURL"),
+      CONNECTION_USERNAME("connectionUsername"),
+      CONNECTION_PASSWORD("connectionPassword"),
+      CONNECTION_PROTOCOL("connectionProtocol"),
+      AUTHENTICATION("authentication"),
+      USER_BASE("userBase"),
+      USER_SEARCH_MATCHING("userSearchMatching"),
+      USER_SEARCH_SUBTREE("userSearchSubtree"),
+      ROLE_BASE("roleBase"),
+      ROLE_NAME("roleName"),
+      ROLE_SEARCH_MATCHING("roleSearchMatching"),
+      ROLE_SEARCH_SUBTREE("roleSearchSubtree"),
+      USER_ROLE_NAME("userRoleName"),
+      EXPAND_ROLES("expandRoles"),
+      EXPAND_ROLES_MATCHING("expandRolesMatching"),
+      SASL_LOGIN_CONFIG_SCOPE("saslLoginConfigScope"),
+      AUTHENTICATE_USER("authenticateUser"),
+      REFERRAL("referral"),
+      IGNORE_PARTIAL_RESULT_EXCEPTION("ignorePartialResultException"),
+      PASSWORD_CODEC("passwordCodec"),
+      CONNECTION_POOL("connectionPool"),
+      CONNECTION_TIMEOUT("connectionTimeout"),
+      READ_TIMEOUT("readTimeout");
+
+      private final String name;
+
+      ConfigKey(String name) {
+         this.name = name;
+      }
+
+      String getName() {
+         return name;
+      }
+
+      static boolean contains(String key) {
+         for (ConfigKey k: values()) {
+            if (k.name.equals(key)) {
+               return true;
+            }
+         }
+         return false;
+      }
+   }
 
    protected DirContext context;
 
    private Subject subject;
    private CallbackHandler handler;
-   private LDAPLoginProperty[] config;
+   private final Set<LDAPLoginProperty> config = new HashSet<>();
    private String username;
    private final Set<RolePrincipal> groups = new HashSet<>();
    private boolean userAuthenticated = false;
@@ -113,37 +135,20 @@ public class LDAPLoginModule implements AuditLoginModule {
       this.subject = subject;
       this.handler = callbackHandler;
 
-      config = new LDAPLoginProperty[]{new LDAPLoginProperty(INITIAL_CONTEXT_FACTORY, (String) options.get(INITIAL_CONTEXT_FACTORY)),
-                                       new LDAPLoginProperty(CONNECTION_URL, (String) options.get(CONNECTION_URL)),
-                                       new LDAPLoginProperty(CONNECTION_USERNAME, (String) options.get(CONNECTION_USERNAME)),
-                                       new LDAPLoginProperty(CONNECTION_PASSWORD, (String) options.get(CONNECTION_PASSWORD)),
-                                       new LDAPLoginProperty(CONNECTION_PROTOCOL, (String) options.get(CONNECTION_PROTOCOL)),
-                                       new LDAPLoginProperty(AUTHENTICATION, (String) options.get(AUTHENTICATION)),
-                                       new LDAPLoginProperty(USER_BASE, (String) options.get(USER_BASE)),
-                                       new LDAPLoginProperty(USER_SEARCH_MATCHING, (String) options.get(USER_SEARCH_MATCHING)),
-                                       new LDAPLoginProperty(USER_SEARCH_SUBTREE, (String) options.get(USER_SEARCH_SUBTREE)),
-                                       new LDAPLoginProperty(ROLE_BASE, (String) options.get(ROLE_BASE)),
-                                       new LDAPLoginProperty(ROLE_NAME, (String) options.get(ROLE_NAME)),
-                                       new LDAPLoginProperty(ROLE_SEARCH_MATCHING, (String) options.get(ROLE_SEARCH_MATCHING)),
-                                       new LDAPLoginProperty(ROLE_SEARCH_SUBTREE, (String) options.get(ROLE_SEARCH_SUBTREE)),
-                                       new LDAPLoginProperty(USER_ROLE_NAME, (String) options.get(USER_ROLE_NAME)),
-                                       new LDAPLoginProperty(EXPAND_ROLES, (String) options.get(EXPAND_ROLES)),
-                                       new LDAPLoginProperty(EXPAND_ROLES_MATCHING, (String) options.get(EXPAND_ROLES_MATCHING)),
-                                       new LDAPLoginProperty(PASSWORD_CODEC, (String) options.get(PASSWORD_CODEC)),
-                                       new LDAPLoginProperty(SASL_LOGIN_CONFIG_SCOPE, (String) options.get(SASL_LOGIN_CONFIG_SCOPE)),
-                                       new LDAPLoginProperty(AUTHENTICATE_USER, (String) options.get(AUTHENTICATE_USER)),
-                                       new LDAPLoginProperty(REFERRAL, (String) options.get(REFERRAL)),
-                                       new LDAPLoginProperty(IGNORE_PARTIAL_RESULT_EXCEPTION, (String) options.get(IGNORE_PARTIAL_RESULT_EXCEPTION)),
-                                       new LDAPLoginProperty(CONNECTION_POOL, (String) options.get(CONNECTION_POOL)),
-                                       new LDAPLoginProperty(CONNECTION_TIMEOUT, (String) options.get(CONNECTION_TIMEOUT)),
-                                       new LDAPLoginProperty(READ_TIMEOUT, (String) options.get(READ_TIMEOUT))};
-
-      if (isLoginPropertySet(AUTHENTICATE_USER)) {
-         authenticateUser = Boolean.valueOf(getLDAPPropertyValue(AUTHENTICATE_USER));
+      // copy all options to config, ignoring non-string entries
+      config.clear();
+      for (Map.Entry<String, ?> entry : options.entrySet()) {
+         if (entry.getValue() instanceof String) {
+            config.add(new LDAPLoginProperty(entry.getKey(), (String) entry.getValue()));
+         }
       }
-      isRoleAttributeSet = isLoginPropertySet(ROLE_NAME);
-      roleAttributeName = getLDAPPropertyValue(ROLE_NAME);
-      codecClass = getLDAPPropertyValue(PASSWORD_CODEC);
+
+      if (isLoginPropertySet(ConfigKey.AUTHENTICATE_USER)) {
+         authenticateUser = Boolean.parseBoolean(getLDAPPropertyValue(ConfigKey.AUTHENTICATE_USER));
+      }
+      isRoleAttributeSet = isLoginPropertySet(ConfigKey.ROLE_NAME);
+      roleAttributeName = getLDAPPropertyValue(ConfigKey.ROLE_NAME);
+      codecClass = getLDAPPropertyValue(ConfigKey.PASSWORD_CODEC);
    }
 
    private String getPlainPassword(String password) {
@@ -174,13 +179,15 @@ public class LDAPLoginModule implements AuditLoginModule {
       String password = null;
 
       username = ((NameCallback) callbacks[0]).getName();
-      if (username == null)
+      if (username == null) {
          return false;
+      }
 
-      if (((PasswordCallback) callbacks[1]).getPassword() != null)
+      if (((PasswordCallback) callbacks[1]).getPassword() != null) {
          password = new String(((PasswordCallback) callbacks[1]).getPassword());
+      }
 
-      /**
+      /*
        * https://tools.ietf.org/html/rfc4513#section-6.3.1
        *
        * Clients that use the results from a simple Bind operation to make
@@ -188,8 +195,9 @@ public class LDAPLoginModule implements AuditLoginModule {
        * requests (by verifying that the supplied password is not empty) and
        * react appropriately.
        */
-      if (password == null || password.length() == 0)
+      if (password == null || password.length() == 0) {
          throw new FailedLoginException("Password cannot be null or empty");
+      }
 
       // authenticate will throw LoginException
       // in case of failed authentication
@@ -227,9 +235,8 @@ public class LDAPLoginModule implements AuditLoginModule {
          }
       }
 
-      for (RolePrincipal gp : groups) {
-         principals.add(gp);
-      }
+      principals.addAll(groups);
+
       clear();
       return result;
    }
@@ -259,7 +266,6 @@ public class LDAPLoginModule implements AuditLoginModule {
    }
 
    protected boolean authenticate(String username, String password) throws LoginException {
-
       List<String> roles = new ArrayList<>();
       try {
          String dn = resolveDN(username, roles);
@@ -271,11 +277,6 @@ public class LDAPLoginModule implements AuditLoginModule {
          } else {
             throw new FailedLoginException("Password does not match for user: " + username);
          }
-      } catch (CommunicationException e) {
-         closeContext();
-         FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
-         ex.initCause(e);
-         throw ex;
       } catch (NamingException e) {
          closeContext();
          FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
@@ -299,10 +300,6 @@ public class LDAPLoginModule implements AuditLoginModule {
    private String resolveDN(String username, List<String> roles) throws FailedLoginException {
       String dn = null;
 
-      MessageFormat userSearchMatchingFormat;
-      boolean userSearchSubtreeBool;
-      boolean ignorePartialResultExceptionBool;
-
       if (logger.isDebugEnabled()) {
          logger.debug("Create the LDAP initial context.");
       }
@@ -314,13 +311,13 @@ public class LDAPLoginModule implements AuditLoginModule {
          throw ex;
       }
 
-      if (!isLoginPropertySet(USER_SEARCH_MATCHING)) {
+      if (!isLoginPropertySet(ConfigKey.USER_SEARCH_MATCHING)) {
          return username;
       }
 
-      userSearchMatchingFormat = new MessageFormat(getLDAPPropertyValue(USER_SEARCH_MATCHING));
-      userSearchSubtreeBool = Boolean.valueOf(getLDAPPropertyValue(USER_SEARCH_SUBTREE)).booleanValue();
-      ignorePartialResultExceptionBool = Boolean.valueOf(getLDAPPropertyValue(IGNORE_PARTIAL_RESULT_EXCEPTION)).booleanValue();
+      MessageFormat userSearchMatchingFormat = new MessageFormat(getLDAPPropertyValue(ConfigKey.USER_SEARCH_MATCHING));
+      boolean userSearchSubtreeBool = Boolean.parseBoolean(getLDAPPropertyValue(ConfigKey.USER_SEARCH_SUBTREE));
+      boolean ignorePartialResultExceptionBool = Boolean.parseBoolean(getLDAPPropertyValue(ConfigKey.IGNORE_PARTIAL_RESULT_EXCEPTION));
 
       try {
 
@@ -334,8 +331,8 @@ public class LDAPLoginModule implements AuditLoginModule {
 
          // setup attributes
          List<String> list = new ArrayList<>();
-         if (isLoginPropertySet(USER_ROLE_NAME)) {
-            list.add(getLDAPPropertyValue(USER_ROLE_NAME));
+         if (isLoginPropertySet(ConfigKey.USER_ROLE_NAME)) {
+            list.add(getLDAPPropertyValue(ConfigKey.USER_ROLE_NAME));
          }
          String[] attribs = new String[list.size()];
          list.toArray(attribs);
@@ -344,13 +341,13 @@ public class LDAPLoginModule implements AuditLoginModule {
          if (logger.isDebugEnabled()) {
             logger.debug("Get the user DN.");
             logger.debug("Looking for the user in LDAP with ");
-            logger.debug("  base DN: " + getLDAPPropertyValue(USER_BASE));
+            logger.debug("  base DN: " + getLDAPPropertyValue(ConfigKey.USER_BASE));
             logger.debug("  filter: " + filter);
          }
 
          NamingEnumeration<SearchResult> results = null;
          try {
-            results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(USER_BASE), filter, constraints));
+            results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.USER_BASE), filter, constraints));
          } catch (PrivilegedActionException e) {
             Exception cause = e.getException();
             FailedLoginException ex = new FailedLoginException("Error executing search query to resolve DN");
@@ -382,7 +379,7 @@ public class LDAPLoginModule implements AuditLoginModule {
 
             NameParser parser = context.getNameParser("");
             Name contextName = parser.parse(context.getNameInNamespace());
-            Name baseName = parser.parse(getLDAPPropertyValue(USER_BASE));
+            Name baseName = parser.parse(getLDAPPropertyValue(ConfigKey.USER_BASE));
             Name entryName = parser.parse(result.getName());
             Name name = contextName.addAll(baseName);
             name = name.addAll(entryName);
@@ -415,8 +412,8 @@ public class LDAPLoginModule implements AuditLoginModule {
          if (attrs == null) {
             throw new FailedLoginException("User found, but LDAP entry malformed: " + username);
          }
-         if (isLoginPropertySet(USER_ROLE_NAME)) {
-            Attribute roleNames = attrs.get(getLDAPPropertyValue(USER_ROLE_NAME));
+         if (isLoginPropertySet(ConfigKey.USER_ROLE_NAME)) {
+            Attribute roleNames = attrs.get(getLDAPPropertyValue(ConfigKey.USER_ROLE_NAME));
             if (roleNames != null) {
                NamingEnumeration<?> e = roleNames.getAll();
                while (e.hasMore()) {
@@ -436,11 +433,6 @@ public class LDAPLoginModule implements AuditLoginModule {
                }
             }
          }
-      } catch (CommunicationException e) {
-         closeContext();
-         FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
-         ex.initCause(e);
-         throw ex;
       } catch (NamingException e) {
          closeContext();
          FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
@@ -456,18 +448,14 @@ public class LDAPLoginModule implements AuditLoginModule {
                                    String username,
                                    List<String> currentRoles) throws NamingException {
 
-      if (!isLoginPropertySet(ROLE_SEARCH_MATCHING)) {
+      if (!isLoginPropertySet(ConfigKey.ROLE_SEARCH_MATCHING)) {
          return;
       }
 
-      MessageFormat roleSearchMatchingFormat;
-      boolean roleSearchSubtreeBool;
-      boolean expandRolesBool;
-      boolean ignorePartialResultExceptionBool;
-      roleSearchMatchingFormat = new MessageFormat(getLDAPPropertyValue(ROLE_SEARCH_MATCHING));
-      roleSearchSubtreeBool = Boolean.valueOf(getLDAPPropertyValue(ROLE_SEARCH_SUBTREE)).booleanValue();
-      expandRolesBool = Boolean.valueOf(getLDAPPropertyValue(EXPAND_ROLES)).booleanValue();
-      ignorePartialResultExceptionBool = Boolean.valueOf(getLDAPPropertyValue(IGNORE_PARTIAL_RESULT_EXCEPTION)).booleanValue();
+      MessageFormat roleSearchMatchingFormat = new MessageFormat(getLDAPPropertyValue(ConfigKey.ROLE_SEARCH_MATCHING));
+      boolean roleSearchSubtreeBool = Boolean.parseBoolean(getLDAPPropertyValue(ConfigKey.ROLE_SEARCH_SUBTREE));
+      boolean expandRolesBool = Boolean.parseBoolean(getLDAPPropertyValue(ConfigKey.EXPAND_ROLES));
+      boolean ignorePartialResultExceptionBool = Boolean.parseBoolean(getLDAPPropertyValue(ConfigKey.IGNORE_PARTIAL_RESULT_EXCEPTION));
 
       final String filter = roleSearchMatchingFormat.format(new String[]{doRFC2254Encoding(dn), doRFC2254Encoding(username)});
 
@@ -480,14 +468,14 @@ public class LDAPLoginModule implements AuditLoginModule {
       if (logger.isDebugEnabled()) {
          logger.debug("Get user roles.");
          logger.debug("Looking for the user roles in LDAP with ");
-         logger.debug("  base DN: " + getLDAPPropertyValue(ROLE_BASE));
+         logger.debug("  base DN: " + getLDAPPropertyValue(ConfigKey.ROLE_BASE));
          logger.debug("  filter: " + filter);
       }
       HashSet<String> haveSeenNames = new HashSet<>();
       Queue<String> pendingNameExpansion = new LinkedList<>();
       NamingEnumeration<SearchResult> results = null;
       try {
-         results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ROLE_BASE), filter, constraints));
+         results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), filter, constraints));
       } catch (PrivilegedActionException e) {
          Exception cause = e.getException();
          NamingException ex = new NamingException("Error executing search query to resolve roles");
@@ -513,18 +501,18 @@ public class LDAPLoginModule implements AuditLoginModule {
          }
       }
       if (expandRolesBool) {
-         MessageFormat expandRolesMatchingFormat = new MessageFormat(getLDAPPropertyValue(EXPAND_ROLES_MATCHING));
+         MessageFormat expandRolesMatchingFormat = new MessageFormat(getLDAPPropertyValue(ConfigKey.EXPAND_ROLES_MATCHING));
          while (!pendingNameExpansion.isEmpty()) {
             String name = pendingNameExpansion.remove();
             final String expandFilter = expandRolesMatchingFormat.format(new String[]{name});
             if (logger.isDebugEnabled()) {
                logger.debug("Get 'expanded' user roles.");
                logger.debug("Looking for the 'expanded' user roles in LDAP with ");
-               logger.debug("  base DN: " + getLDAPPropertyValue(ROLE_BASE));
+               logger.debug("  base DN: " + getLDAPPropertyValue(ConfigKey.ROLE_BASE));
                logger.debug("  filter: " + expandFilter);
             }
             try {
-               results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ROLE_BASE), expandFilter, constraints));
+               results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), expandFilter, constraints));
             } catch (PrivilegedActionException e) {
                Exception cause = e.getException();
                NamingException ex = new NamingException("Error executing search query to expand roles");
@@ -554,7 +542,7 @@ public class LDAPLoginModule implements AuditLoginModule {
    }
 
    protected String doRFC2254Encoding(String inputString) {
-      StringBuffer buf = new StringBuffer(inputString.length());
+      StringBuilder buf = new StringBuilder(inputString.length());
       for (int i = 0; i < inputString.length(); i++) {
          char c = inputString.charAt(i);
          switch (c) {
@@ -603,17 +591,17 @@ public class LDAPLoginModule implements AuditLoginModule {
          }
       }
 
-      if (isLoginPropertySet(CONNECTION_USERNAME)) {
-         context.addToEnvironment(Context.SECURITY_PRINCIPAL, getLDAPPropertyValue(CONNECTION_USERNAME));
+      if (isLoginPropertySet(ConfigKey.CONNECTION_USERNAME)) {
+         context.addToEnvironment(Context.SECURITY_PRINCIPAL, getLDAPPropertyValue(ConfigKey.CONNECTION_USERNAME));
       } else {
          context.removeFromEnvironment(Context.SECURITY_PRINCIPAL);
       }
-      if (isLoginPropertySet(CONNECTION_PASSWORD)) {
-         context.addToEnvironment(Context.SECURITY_CREDENTIALS, getPlainPassword(getLDAPPropertyValue(CONNECTION_PASSWORD)));
+      if (isLoginPropertySet(ConfigKey.CONNECTION_PASSWORD)) {
+         context.addToEnvironment(Context.SECURITY_CREDENTIALS, getPlainPassword(getLDAPPropertyValue(ConfigKey.CONNECTION_PASSWORD)));
       } else {
          context.removeFromEnvironment(Context.SECURITY_CREDENTIALS);
       }
-      context.addToEnvironment(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(AUTHENTICATION));
+      context.addToEnvironment(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(ConfigKey.AUTHENTICATION));
 
       return isValid;
    }
@@ -634,25 +622,25 @@ public class LDAPLoginModule implements AuditLoginModule {
       if (context == null) {
          try {
             Hashtable<String, String> env = new Hashtable<>();
-            env.put(Context.INITIAL_CONTEXT_FACTORY, getLDAPPropertyValue(INITIAL_CONTEXT_FACTORY));
-            env.put(Context.SECURITY_PROTOCOL, getLDAPPropertyValue(CONNECTION_PROTOCOL));
-            env.put(Context.PROVIDER_URL, getLDAPPropertyValue(CONNECTION_URL));
-            env.put(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(AUTHENTICATION));
-            if (isLoginPropertySet(CONNECTION_POOL)) {
-               env.put("com.sun.jndi.ldap.connect.pool", getLDAPPropertyValue(CONNECTION_POOL));
+            env.put(Context.INITIAL_CONTEXT_FACTORY, getLDAPPropertyValue(ConfigKey.INITIAL_CONTEXT_FACTORY));
+            env.put(Context.SECURITY_PROTOCOL, getLDAPPropertyValue(ConfigKey.CONNECTION_PROTOCOL));
+            env.put(Context.PROVIDER_URL, getLDAPPropertyValue(ConfigKey.CONNECTION_URL));
+            env.put(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(ConfigKey.AUTHENTICATION));
+            if (isLoginPropertySet(ConfigKey.CONNECTION_POOL)) {
+               env.put("com.sun.jndi.ldap.connect.pool", getLDAPPropertyValue(ConfigKey.CONNECTION_POOL));
             }
-            if (isLoginPropertySet(CONNECTION_TIMEOUT)) {
-               env.put("com.sun.jndi.ldap.connect.timeout", getLDAPPropertyValue(CONNECTION_TIMEOUT));
+            if (isLoginPropertySet(ConfigKey.CONNECTION_TIMEOUT)) {
+               env.put("com.sun.jndi.ldap.connect.timeout", getLDAPPropertyValue(ConfigKey.CONNECTION_TIMEOUT));
             }
-            if (isLoginPropertySet(READ_TIMEOUT)) {
-               env.put("com.sun.jndi.ldap.read.timeout", getLDAPPropertyValue(READ_TIMEOUT));
+            if (isLoginPropertySet(ConfigKey.READ_TIMEOUT)) {
+               env.put("com.sun.jndi.ldap.read.timeout", getLDAPPropertyValue(ConfigKey.READ_TIMEOUT));
             }
 
             // handle LDAP referrals
             // valid values are "throw", "ignore" and "follow"
             String referral = "ignore";
-            if (getLDAPPropertyValue(REFERRAL) != null) {
-               referral = getLDAPPropertyValue(REFERRAL);
+            if (getLDAPPropertyValue(ConfigKey.REFERRAL) != null) {
+               referral = getLDAPPropertyValue(ConfigKey.REFERRAL);
             }
 
             env.put(Context.REFERRAL, referral);
@@ -660,9 +648,9 @@ public class LDAPLoginModule implements AuditLoginModule {
                logger.debug("Referral handling: " + referral);
             }
 
-            if ("GSSAPI".equalsIgnoreCase(getLDAPPropertyValue(AUTHENTICATION))) {
+            if ("GSSAPI".equalsIgnoreCase(getLDAPPropertyValue(ConfigKey.AUTHENTICATION))) {
 
-               final String configScope = isLoginPropertySet(SASL_LOGIN_CONFIG_SCOPE) ? getLDAPPropertyValue(SASL_LOGIN_CONFIG_SCOPE) : "broker-sasl-gssapi";
+               final String configScope = isLoginPropertySet(ConfigKey.SASL_LOGIN_CONFIG_SCOPE) ? getLDAPPropertyValue(ConfigKey.SASL_LOGIN_CONFIG_SCOPE) : "broker-sasl-gssapi";
                try {
                   LoginContext loginContext = new LoginContext(configScope);
                   loginContext.login();
@@ -676,18 +664,20 @@ public class LDAPLoginModule implements AuditLoginModule {
 
             } else {
 
-               if (isLoginPropertySet(CONNECTION_USERNAME)) {
-                  env.put(Context.SECURITY_PRINCIPAL, getLDAPPropertyValue(CONNECTION_USERNAME));
+               if (isLoginPropertySet(ConfigKey.CONNECTION_USERNAME)) {
+                  env.put(Context.SECURITY_PRINCIPAL, getLDAPPropertyValue(ConfigKey.CONNECTION_USERNAME));
                } else {
                   throw new NamingException("Empty username is not allowed");
                }
 
-               if (isLoginPropertySet(CONNECTION_PASSWORD)) {
-                  env.put(Context.SECURITY_CREDENTIALS, getPlainPassword(getLDAPPropertyValue(CONNECTION_PASSWORD)));
+               if (isLoginPropertySet(ConfigKey.CONNECTION_PASSWORD)) {
+                  env.put(Context.SECURITY_CREDENTIALS, getPlainPassword(getLDAPPropertyValue(ConfigKey.CONNECTION_PASSWORD)));
                } else {
                   throw new NamingException("Empty password is not allowed");
                }
             }
+
+            extendInitialEnvironment(config, env);
 
             try {
                context = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction<DirContext>) () -> new InitialDirContext(env));
@@ -703,17 +693,31 @@ public class LDAPLoginModule implements AuditLoginModule {
       }
    }
 
-   private String getLDAPPropertyValue(String propertyName) {
+   protected void extendInitialEnvironment(Set<LDAPLoginProperty> moduleConfig, Hashtable<String, String> initialContextEnv) {
+      // sub-classes may override the method if the default implementation is not sufficient:
+      // add all non-module configs to initial DirContext environment to support passing
+      // any custom/future property to InitialDirContext construction
+      for (LDAPLoginProperty prop: moduleConfig) {
+         String propName = prop.getPropertyName();
+         if (initialContextEnv.get(propName) == null && !ConfigKey.contains(propName)) {
+            initialContextEnv.put(propName, prop.getPropertyValue());
+         }
+      }
+   }
+
+   private String getLDAPPropertyValue(ConfigKey key) {
       for (LDAPLoginProperty conf : config)
-         if (conf.getPropertyName().equals(propertyName))
+         if (conf.getPropertyName().equals(key.getName())) {
             return conf.getPropertyValue();
+         }
       return null;
    }
 
-   private boolean isLoginPropertySet(String propertyName) {
+   private boolean isLoginPropertySet(ConfigKey key) {
       for (LDAPLoginProperty conf : config) {
-         if (conf.getPropertyName().equals(propertyName) && (conf.getPropertyValue() != null && !"".equals(conf.getPropertyValue())))
+         if (conf.getPropertyName().equals(key.getName()) && (conf.getPropertyValue() != null && !"".equals(conf.getPropertyValue()))) {
             return true;
+         }
       }
       return false;
    }

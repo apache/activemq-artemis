@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.security.jaas;
+package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import javax.naming.Context;
 import javax.naming.NameClassPair;
@@ -37,14 +37,12 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
-import org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule;
-import org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginProperty;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
@@ -309,9 +307,9 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       }
       loginModule.initialize(new Subject(), callbackHandler, null, options);
 
-      LDAPLoginProperty[] ldapProps = (LDAPLoginProperty[]) configMap.get(loginModule);
+      Set<LDAPLoginProperty> ldapProps = (Set<LDAPLoginProperty>) configMap.get(loginModule);
       for (String key: options.keySet()) {
-         assertTrue("val set: " + key, presentInArray(ldapProps, key));
+         assertTrue("val set: " + key, presentIn(ldapProps, key));
       }
    }
 
@@ -364,8 +362,81 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       }
       context.logout();
    }
+   @Test
+   public void testEnvironmentProperties() throws Exception {
+      HashMap<String, Object> options = new HashMap<>();
 
-   private boolean presentInArray(LDAPLoginProperty[] ldapProps, String propertyName) {
+      // set module configs
+      for (LDAPLoginModule.ConfigKey configKey: LDAPLoginModule.ConfigKey.values()) {
+         if (configKey.getName().equals("initialContextFactory")) {
+            options.put(configKey.getName(), "com.sun.jndi.ldap.LdapCtxFactory");
+         } else if (configKey.getName().equals("connectionURL")) {
+            options.put(configKey.getName(), "ldap://localhost:1024");
+         } else if (configKey.getName().equals("referral")) {
+            options.put(configKey.getName(), "ignore");
+         } else if (configKey.getName().equals("connectionTimeout")) {
+            options.put(configKey.getName(), "10000");
+         } else if (configKey.getName().equals("readTimeout")) {
+            options.put(configKey.getName(), "11000");
+         } else if (configKey.getName().equals("authentication")) {
+            options.put(configKey.getName(), "simple");
+         } else if (configKey.getName().equals("connectionUsername")) {
+            options.put(configKey.getName(), PRINCIPAL);
+         } else if (configKey.getName().equals("connectionPassword")) {
+            options.put(configKey.getName(), CREDENTIALS);
+         } else if (configKey.getName().equals("connectionProtocol")) {
+            options.put(configKey.getName(), "s");
+         } else if (configKey.getName().equals("debug")) {
+            options.put(configKey.getName(), "true");
+         } else {
+            options.put(configKey.getName(), configKey.getName() + "_value_set");
+         }
+      }
+
+      // add extra configs
+      options.put("com.sun.jndi.ldap.tls.cbtype", "tls-server-end-point");
+      options.put("randomConfig", "some-value");
+
+      // add non-strings configs
+      options.put("non.string.1", new Object());
+      options.put("non.string.2", 1);
+
+      // create context
+      LDAPLoginModule loginModule = new LDAPLoginModule();
+      loginModule.initialize(new Subject(), null, null, options);
+      loginModule.openContext();
+
+      // get created environment
+      Hashtable<?, ?> environment = loginModule.context.getEnvironment();
+      // cleanup
+      loginModule.closeContext();
+
+      // module config keys should not be passed to environment
+      for (LDAPLoginModule.ConfigKey configKey: LDAPLoginModule.ConfigKey.values()) {
+         assertEquals("value should not be set for key: " + configKey.getName(), null, environment.get(configKey.getName()));
+      }
+
+      // extra, non-module configs should be passed to environment
+      assertEquals("value should be set for key: " + "com.sun.jndi.ldap.tls.cbtype", "tls-server-end-point", environment.get("com.sun.jndi.ldap.tls.cbtype"));
+      assertEquals("value should be set for key: " + "randomConfig", "some-value", environment.get("randomConfig"));
+
+      // non-string configs should not be passed to environment
+      assertEquals("value should not be set for key: " + "non.string.1", null, environment.get("non.string.1"));
+      assertEquals("value should not be set for key: " + "non.string.2", null, environment.get("non.string.2"));
+
+      // environment configs should be set
+      assertEquals("value should be set for key: " + Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory", environment.get(Context.INITIAL_CONTEXT_FACTORY));
+      assertEquals("value should be set for key: " + Context.PROVIDER_URL, "ldap://localhost:1024", environment.get(Context.PROVIDER_URL));
+      assertEquals("value should be set for key: " + Context.REFERRAL, "ignore", environment.get(Context.REFERRAL));
+      assertEquals("value should be set for key: " + "com.sun.jndi.ldap.connect.timeout", "10000", environment.get("com.sun.jndi.ldap.connect.timeout"));
+      assertEquals("value should be set for key: " + "com.sun.jndi.ldap.read.timeout", "11000", environment.get("com.sun.jndi.ldap.read.timeout"));
+      assertEquals("value should be set for key: " + Context.SECURITY_AUTHENTICATION, "simple", environment.get(Context.SECURITY_AUTHENTICATION));
+      assertEquals("value should be set for key: " + Context.SECURITY_PRINCIPAL, PRINCIPAL, environment.get(Context.SECURITY_PRINCIPAL));
+      assertEquals("value should be set for key: " + Context.SECURITY_CREDENTIALS, CREDENTIALS, environment.get(Context.SECURITY_CREDENTIALS));
+      assertEquals("value should be set for key: " + Context.SECURITY_PROTOCOL, "s", environment.get(Context.SECURITY_PROTOCOL));
+   }
+
+   private boolean presentIn(Set<LDAPLoginProperty> ldapProps, String propertyName) {
       for (LDAPLoginProperty conf : ldapProps) {
          if (conf.getPropertyName().equals(propertyName) && (conf.getPropertyValue() != null && !"".equals(conf.getPropertyValue())))
             return true;
