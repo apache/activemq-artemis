@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TransportConfigurationTest {
 
@@ -82,7 +83,9 @@ public class TransportConfigurationTest {
 
       Assert.assertNotEquals(new TransportConfiguration(className, params, name, null), new TransportConfiguration(className, params, name, extraParams));
       Assert.assertNotEquals(new TransportConfiguration(className, params, name, Collections.emptyMap()), new TransportConfiguration(className, params, name, extraParams));
-      Assert.assertNotEquals(new TransportConfiguration(className, params, name, extraParams), new TransportConfiguration(className, params, name, Collections.singletonMap("key", "too")));
+      Assert.assertNotEquals(new TransportConfiguration(className, params, name, extraParams), new TransportConfiguration(className, params, name, Collections.singletonMap("key", "other")));
+      Assert.assertNotEquals(new TransportConfiguration(className, params, name, extraParams), new TransportConfiguration(className, params, name, null));
+      Assert.assertNotEquals(new TransportConfiguration(className, params, name, extraParams), new TransportConfiguration(className, params, name, Collections.emptyMap()));
    }
 
    @Test
@@ -93,7 +96,7 @@ public class TransportConfigurationTest {
 
       TransportConfiguration configuration = new TransportConfiguration("SomeClass", params, null);
 
-      Assert.assertThat(configuration.toString(), not(containsString("secret_password")));
+      assertThat(configuration.toString(), not(containsString("secret_password")));
    }
 
    @Test
