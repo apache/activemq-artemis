@@ -53,7 +53,7 @@
     <!-- this lets this plugin deploy nicely into karaf, these get used
       for the ImportPackage directive for maven-bundle-plugin -->
     <osgi.import>
-      javax.servlet,
+      javax.servlet;version="2.6",
       *;resolution:=optional
     </osgi.import>
 
