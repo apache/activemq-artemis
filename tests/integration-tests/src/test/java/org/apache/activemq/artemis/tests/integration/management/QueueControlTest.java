@@ -578,6 +578,48 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testBytesMessageBodyWithoutLimits() throws Exception {
+      final int BYTE_COUNT = 2048;
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      AddressSettings addressSettings = new AddressSettings().setManagementMessageAttributeSizeLimit(-1);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      byte[] randomBytes = RandomUtil.randomBytes(BYTE_COUNT);
+
+      ClientMessage clientMessage = session.createMessage(false);
+      clientMessage.getBodyBuffer().writeBytes(randomBytes);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      ClientProducer producer = session.createProducer(address);
+      producer.send(clientMessage);
+
+      Wait.assertEquals(1, () -> getMessageCount(queueControl));
+
+      CompositeData[] browseResult = queueControl.browse(1, 1);
+      boolean tested = false;
+      for (CompositeData compositeData : browseResult) {
+         for (String key : compositeData.getCompositeType().keySet()) {
+            Object value = compositeData.get(key);
+            if (value != null) {
+               if (value instanceof byte[]) {
+                  assertEqualsByteArrays(randomBytes, (byte[]) value);
+                  tested = true;
+               }
+            }
+         }
+      }
+
+      assertTrue("Nothing tested!", tested);
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testTextMessageAttributeLimits() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
