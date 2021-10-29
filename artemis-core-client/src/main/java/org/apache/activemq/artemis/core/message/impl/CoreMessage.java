@@ -1378,7 +1378,13 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          rc.put(CompositeDataConstants.TYPE, m.getType());
          if (!m.isLargeMessage()) {
             ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
-            byte[] bytes = new byte[bodyCopy.readableBytes() <= valueSizeLimit ? bodyCopy.readableBytes() : valueSizeLimit + 1];
+            int arraySize;
+            if (valueSizeLimit == -1 || bodyCopy.readableBytes() <= valueSizeLimit) {
+               arraySize = bodyCopy.readableBytes();
+            } else {
+               arraySize = valueSizeLimit;
+            }
+            byte[] bytes = new byte[arraySize];
             bodyCopy.readBytes(bytes);
             rc.put(CompositeDataConstants.BODY, JsonUtil.truncate(bytes, valueSizeLimit));
          } else {
