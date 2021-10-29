@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -35,6 +36,8 @@ import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
@@ -45,15 +48,39 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 public class BindingsImplTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
+   @Test
+   public void testGetNextBindingWithLoadBalancingOnDemand() throws Exception {
+      final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
+      fake.filter = null;  // such that it wil match all messages
+      fake.messageLoadBalancingType = MessageLoadBalancingType.ON_DEMAND;
+      final Bindings bind = new BindingsImpl(null, null);
+      bind.addBinding(fake);
+      bind.route(new CoreMessage(0, 100), new RoutingContextImpl(new FakeTransaction()));
+      assertEquals(1, fake.routedCount.get());
+   }
 
-   // Static --------------------------------------------------------
+   @Test
+   public void testGetNextBindingWithLoadBalancingOff() throws Exception {
+      final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
+      fake.filter = null;  // such that it wil match all messages
+      fake.messageLoadBalancingType = MessageLoadBalancingType.OFF;
+      final Bindings bind = new BindingsImpl(null, null);
+      bind.addBinding(fake);
+      bind.route(new CoreMessage(0, 100), new RoutingContextImpl(new FakeTransaction()));
+      assertEquals(0, fake.routedCount.get());
+   }
 
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
+   @Test
+   public void testGetNextBindingWithLoadBalancingOffWithRedistribution() throws Exception {
+      final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
+      fake.filter = null;  // such that it wil match all messages
+      fake.messageLoadBalancingType = MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION;
+      final Bindings bind = new BindingsImpl(null, null);
+      bind.addBinding(fake);
+      bind.route(new CoreMessage(0, 100), new RoutingContextImpl(new FakeTransaction()));
+      assertEquals(0, fake.routedCount.get());
+   }
 
    @Test
    public void testRemoveWhileRouting() throws Exception {
@@ -299,8 +326,10 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
    }
 
-   private final class FakeBinding implements Binding {
+   private class FakeBinding implements Binding {
 
+      Filter filter = new FakeFilter();
+      AtomicInteger routedCount = new AtomicInteger();
       @Override
       public void close() throws Exception {
 
@@ -354,7 +383,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
        */
       @Override
       public Filter getFilter() {
-         return new FakeFilter();
+         return filter;
       }
 
       @Override
@@ -399,7 +428,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       @Override
       public void route(final Message message, final RoutingContext context) throws Exception {
-
+         routedCount.incrementAndGet();
       }
 
       /* (non-Javadoc)
@@ -422,12 +451,56 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
    }
 
-   // Package protected ---------------------------------------------
+   private final class FakeRemoteBinding extends FakeBinding implements RemoteQueueBinding  {
+      MessageLoadBalancingType messageLoadBalancingType;
+      FakeRemoteBinding(SimpleString name) {
+         super(name);
+      }
 
-   // Protected -----------------------------------------------------
+      @Override
+      public boolean isLocal() {
+         return false;
+      }
 
-   // Private -------------------------------------------------------
+      @Override
+      public int consumerCount() {
+         return 0;
+      }
 
-   // Inner classes -------------------------------------------------
+      @Override
+      public Queue getQueue() {
+         return null;
+      }
 
+      @Override
+      public void addConsumer(SimpleString filterString) throws Exception {
+
+      }
+
+      @Override
+      public void removeConsumer(SimpleString filterString) throws Exception {
+      }
+
+      @Override
+      public void reset() {
+      }
+
+      @Override
+      public void disconnect() {
+      }
+
+      @Override
+      public void connect() {
+      }
+
+      @Override
+      public long getRemoteQueueID() {
+         return 0;
+      }
+
+      @Override
+      public MessageLoadBalancingType getMessageLoadBalancingType() {
+         return messageLoadBalancingType;
+      }
+   }
 }

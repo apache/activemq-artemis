@@ -81,4 +81,21 @@ public class RemoteQueueBindImplTest extends ActiveMQTestBase {
       testAddRemoveConsumerWithFilter(i -> null, 1, 0);
    }
 
+   @Test
+   public void testIsHighAcceptPriority() throws Exception {
+      final long id = RandomUtil.randomLong();
+      final SimpleString address = RandomUtil.randomSimpleString();
+      final SimpleString uniqueName = RandomUtil.randomSimpleString();
+      final SimpleString routingName = RandomUtil.randomSimpleString();
+      final Long remoteQueueID = RandomUtil.randomLong();
+      final SimpleString filterString = new SimpleString("A>B");
+      final Queue storeAndForwardQueue = new FakeQueue(null);
+      final SimpleString bridgeName = RandomUtil.randomSimpleString();
+      final int distance = 0;
+      RemoteQueueBindingImpl bindingOff = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance, MessageLoadBalancingType.OFF);
+      assertFalse(bindingOff.isHighAcceptPriority(null));
+
+      RemoteQueueBindingImpl bindingOffWithRedistribution = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION);
+      assertFalse(bindingOffWithRedistribution.isHighAcceptPriority(null));
+   }
 }
