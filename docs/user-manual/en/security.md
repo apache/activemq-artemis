@@ -819,6 +819,9 @@ system. It is implemented by
   testing or debugging; normally, it should be set to `false`, or omitted;
   default is `false`
 
+Any additional configuration option not recognized by the LDAP login module itself 
+is passed as-is to the underlying LDAP connection logic.
+
 Add user entries under the node specified by the `userBase` option. When
 creating a new user entry in the directory, choose an object class that
 supports the `userPassword` attribute (for example, the `person` or
