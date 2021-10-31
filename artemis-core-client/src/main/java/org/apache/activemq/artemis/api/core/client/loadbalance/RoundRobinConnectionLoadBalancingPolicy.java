@@ -39,7 +39,6 @@ public final class RoundRobinConnectionLoadBalancingPolicy implements Connection
          // We start on a random one
          pos = RandomUtil.randomInterval(0, max);
 
-         first = false;
       } else {
          pos++;
 
