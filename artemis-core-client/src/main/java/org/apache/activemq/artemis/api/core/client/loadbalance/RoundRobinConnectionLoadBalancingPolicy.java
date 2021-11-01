@@ -31,17 +31,14 @@ public final class RoundRobinConnectionLoadBalancingPolicy implements Connection
 
    private static final long serialVersionUID = 7511196010141439559L;
 
-   private boolean first = true;
-
-   private int pos;
+   private int pos = -1;
 
    @Override
    public int select(final int max) {
-      if (first) {
+      if (pos == -1) {
          // We start on a random one
          pos = RandomUtil.randomInterval(0, max);
 
-         first = false;
       } else {
          pos++;
 
